@@ -115,7 +115,7 @@ class CommandTest(unittest.TestCase):
 
         sys.argv = ['test.py', '--get-method']
         namespace = c.parse_command()
-        print namespace
+        self.assertEqual(namespace.get_method.get, 'GET')
 
 
 if __name__ == '__main__':
