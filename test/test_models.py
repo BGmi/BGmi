@@ -8,9 +8,9 @@ from bgmi.models import Bangumi, STATUS_FOLLOWED
 class ModelsTest(unittest.TestCase):
     def setUp(self):
         db_path = os.path.join(os.path.dirname(__file__), '../bangumi.db')
-        self.db = sqlite3.connect(db_path)
-        self.conn = self.db.cursor()
         if not os.path.exists(db_path):
+            self.db = sqlite3.connect(db_path)
+            self.conn = self.db.cursor()
             self.conn.execute('''CREATE TABLE bangumi (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
               name TEXT NOT NULL UNIQUE,
@@ -24,10 +24,13 @@ class ModelsTest(unittest.TestCase):
                   bangumi_id INTEGER NOT NULL
                 )
             ''')
-        self.conn.execute('INSERT INTO bangumi (name, '
-                          'subtitle_group, update_time'
-                          ', status) VALUES ("test", "'
-                          'rr", "Sun", 0)')
+        else:
+            self.db = sqlite3.connect(db_path)
+            self.conn = self.db.cursor()
+            self.conn.execute('INSERT INTO bangumi (name, '
+                              'subtitle_group, update_time'
+                              ', status) VALUES ("test", "'
+                              'rr", "Sun", 0)')
         self.db.commit()
 
     def tearDown(self):
