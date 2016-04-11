@@ -1,6 +1,5 @@
 # coding=utf-8
 # Command Line Parser
-import os
 import sys
 from collections import OrderedDict
 
