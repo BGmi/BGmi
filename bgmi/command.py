@@ -104,13 +104,15 @@ class _CommandParserMixin(object):
                         _error('unrecognized arguments: %s' % arg)
                     if arg_instance.type is None:
                         value = arg
-                    else:
+                    elif arg_instance.type == '+':
                         value = [arg]
                         for i in _sys_args_list[::-1]:
                             if not i.startswith('-'):
                                 value.append(_sys_args_list.pop())
                             else:
                                 break
+                    else:
+                        _error('unsupported arg type: %s' % arg.type)
 
                 if arg_instance.choice:
                     if value not in arg_instance.choice:
@@ -179,8 +181,8 @@ class Argument(object):
             _error('unexpected args type: %s' % arg_type)
 
         # positional arguments' argument type should be None
-        # if not name.startswith('-') and arg_type not in ('s', None):
-        #    _error('positional arguments expected argument type is \'None\'')
+        if not name.startswith('-') and arg_type not in ('s', '+', None):
+            _error('unexpected positional argument type: %s' % arg_type)
 
         if not isinstance(choice, (list, tuple, set, str, type(None), )):
             _error('unexpected choice type: %s' % type(choice))
