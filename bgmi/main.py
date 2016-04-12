@@ -18,11 +18,12 @@ ACTIONS = (ACTION_ADD, ACTION_DELETE, ACTION_FETCH, ACTION_LIST, ACTION_UPDATE, 
 def main():
     c = CommandParser()
     positional = c.add_arg_group('action')
-    positional.add_argument('action')
+    # positional.add_argument('action')
 
     sub_parser_cal = positional.add_sub_parser('cal')
     sub_parser_cal.add_argument('filter', choice=('today', 'all', 'followed'))
     sub_parser_cal.add_argument('--force-update')
+    sub_parser_cal.add_argument('--no-save')
 
     ret = c.parse_command()
     if ret.action not in ACTIONS:
@@ -41,12 +42,13 @@ def main():
         pass
     elif ret.action == 'cal':
         force = ret.cal.force_update
+        save = not ret.cal.no_save
         if ret.cal.filter == 'today':
-            bangumi_calendar(force_update=force, today=True)
+            bangumi_calendar(force_update=force, today=True, save=save)
         elif ret.cal.filter == 'followed':
-            bangumi_calendar(force_update=force, followed=True)
+            bangumi_calendar(force_update=force, followed=True, save=save)
         else:
-            bangumi_calendar(force_update=force)
+            bangumi_calendar(force_update=force, save=save)
 
 
 def init_db():

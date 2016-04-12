@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 
 def _error(message):
-    print 'error: %s' % (message, )
+    sys.stderr.write('error: %s\n' % message)
     exit(1)
 
 

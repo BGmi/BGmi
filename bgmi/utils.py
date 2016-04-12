@@ -28,11 +28,16 @@ def print_bilibili():
 \t\t\t\t\t\t\t\t\033[1;33mversion''', __version__, '\033[0m\n'
 
 
-def bangumi_calendar(force_update=False, today=False, followed=False):
+def bangumi_calendar(force_update=False, today=False, followed=False, save=True):
+    print_bilibili()
     if force_update:
-        weekly_list = fetch()
+        weekly_list = fetch(save=save)
     else:
         weekly_list = Bangumi.get_all_bangumi(status=STATUS_FOLLOWED if followed else None)
+
+    if not weekly_list:
+        print 'warning: no bangumi schedule, fetching ...'
+        weekly_list = fetch(save=save)
 
     def shift(seq, n):
         n = n % len(seq)
@@ -45,7 +50,6 @@ def bangumi_calendar(force_update=False, today=False, followed=False):
 
     spacial_append_chars = ['Ⅱ', 'Ⅲ', '♪']
     spacial_remove_chars = ['Δ', ]
-    print_bilibili()
     for index, weekday in enumerate(weekday_order):
         if weekly_list[weekday.lower()]:
             if index == 0:
@@ -54,14 +58,14 @@ def bangumi_calendar(force_update=False, today=False, followed=False):
                 print '\033[1;32m%s.\033[0m' % weekday,
             if not followed:
                 print
-                print '-' * 33, '+', '-' * 33, '+', '-' * 33, '+'
+                print '-' * 29, '+', '-' * 29, '+', '-' * 29, '+'
 
             for i, bangumi in enumerate(weekly_list[weekday.lower()]):
                 if isinstance(bangumi['name'], unicode):
                     bangumi['name'] = bangumi['name'].encode('utf-8')
                 half = len(re.findall('[%s]' % string.printable, bangumi['name']))
                 full = (len(bangumi['name']) - half) / 3
-                space_count = 32 - (full * 2 + half)
+                space_count = 28 - (full * 2 + half)
 
                 for s in spacial_append_chars:
                     if s in bangumi['name']:

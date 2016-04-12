@@ -51,10 +51,8 @@ def parser_bangumi(data, group_by_weekday=True):
 def fetch(save=False, group_by_weekday=True):
     response = get_response(FETCH_URL)
     result = parser_bangumi(response, group_by_weekday=group_by_weekday)
-    if save and group_by_weekday:
-        print 'warning: ignore save parameter when group_by_weekday is True'
-    if save and not group_by_weekday:
-        for bangumi in result:
+    if save:
+        for bangumi in parser_bangumi(response, group_by_weekday=False):
             save_data(bangumi)
     return result
 
