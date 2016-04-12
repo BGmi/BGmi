@@ -141,6 +141,33 @@ class CommandTest(unittest.TestCase):
         namespace = c.parse_command()
         self.assertEqual(namespace.position, ['AAA', 'BBB', 'CCC'])
 
+    def test_mutex_arg(self):
+        # ordinary
+        c = CommandParser()
+        g1 = c.add_arg_group('test')
+        g1.add_argument('--clear-all', mutex='--delete')
+        g1.add_argument('--delete', arg_type='+')
+        sys.argv = ['test.py', '--delete', 'AAA', '--clear-all']
+        self.assertRaises(SystemExit, c.parse_command)
+
+        # sub parser
+        c = CommandParser()
+        g2 = c.add_arg_group('test')
+        sub = g2.add_sub_parser('sub')
+        sub.add_argument('--clear-all', mutex='--delete')
+        sub.add_argument('--delete', arg_type='+')
+        sys.argv = ['test.py', '--delete', 'AAA', '--clear-all']
+        self.assertRaises(SystemExit, c.parse_command)
+
+        # TODO
+        c = CommandParser()
+        g3 = c.add_arg_group('test')
+        g3.add_argument('--clear-all-sub', mutex='--delete-sub')
+        sub2 = g3.add_sub_parser('sub')
+        sub2.add_argument('--delete-sub', arg_type='+')
+        sys.argv = ['test.py', '--delete-sub', 'AAA', '--clear-all-sub']
+        self.assertRaises(SystemExit, c.parse_command)
+
 
 if __name__ == '__main__':
     unittest.main()

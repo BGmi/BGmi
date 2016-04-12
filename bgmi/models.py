@@ -253,7 +253,7 @@ class Bangumi(DB):
         return weekly_list
 
     @staticmethod
-    def delete_bangumi(condition=None):
+    def delete_bangumi(condition=None, batch=True):
         db = Bangumi.connect_db()
         db.row_factory = sqlite3.Row
         cur = db.cursor()
@@ -264,6 +264,11 @@ class Bangumi(DB):
         else:
             k, v = condition.keys(), condition.values()
         sql = Bangumi._make_sql('delete', table=Bangumi.table, condition=k)
+
+        if not batch and sql.endswith('WHERE 1'):
+            if raw_input('are you sure clear ALL THE BANGUMI? (Y/n): ') == 'n':
+                return
+
         cur.execute(sql, v)
 
         Bangumi.close_db(db)

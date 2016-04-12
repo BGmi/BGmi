@@ -84,6 +84,13 @@ class _CommandParserMixin(object):
     def _parse_command(self, parser_group, _sys_args_list):
         while _sys_args_list:
             arg = _sys_args_list.pop()
+            _mutex_arg = parser_group.mutex.get(arg, None)
+
+            # TODO: _mutex won't happen between the sub_parser and CommandParser
+            if _mutex_arg is not None:
+                if _mutex_arg in _sys_args_list:
+                    _error('arguments %s and %s are mutually exclusive' % (arg, _mutex_arg))
+
             sub_parser = self._sub_parser.get(arg, None)
             if sub_parser:
                 value = sub_parser.group.parse_command(sub_parser.name, _sys_args_list)
@@ -133,14 +140,24 @@ class ArgumentGroup(_CommandParserMixin):
         self.container = container
         self.sub = {}
         self._sub_parser = {}
+        self.mutex = {}
 
-    def add_argument(self, name, dest=None, arg_type=None, required=False, choice=None, default=None, call=False, help=''):
+    def add_argument(self, name, dest=None, arg_type=None, required=False, choice=None, default=None, mutex=None,
+                     call=False, help=''):
         self.container._check_conflict(name)
         argument = Argument(name=name, dest=dest, arg_type=arg_type, choice=choice,
                             default=default, call=call, help=help, group=self, required=required)
         self.arguments.update({name: argument})
+
+        # update mutex options dict
+
         if self.container.sub is None:
             self.container.arguments.update({name: argument})
+            if mutex is not None:
+                self.container.mutex.update({name: mutex, mutex: name})
+        else:
+            if mutex is not None:
+                self.mutex.update({name: mutex, mutex: name})
 
     def add_sub_parser(self, name, desc=None):
         if name in self.sub:
@@ -175,7 +192,8 @@ class ArgumentGroup(_CommandParserMixin):
 class Argument(object):
     args_type_list = ('+', '*', '1', None, 's')
 
-    def __init__(self, name, dest, arg_type=None, choice=None, required=False, default=None, call=False, help='', group=None):
+    def __init__(self, name, dest, arg_type=None, choice=None, required=False, default=None, call=False,
+                 help='', group=None):
         # check the validity of arg_type
         if arg_type not in self.args_type_list:
             _error('unexpected args type: %s' % arg_type)
@@ -228,6 +246,7 @@ class CommandParser(_CommandParserMixin):
         self.arguments = OrderedDict()
         self.argument_groups = {}
         self._sub_parser = {}
+        self.mutex = {}
 
     def parse_command(self):
         self.sys_args = self._sys_args = sys.argv[1:][::-1]

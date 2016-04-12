@@ -30,6 +30,10 @@ def main():
     sub_parser_add = positional.add_sub_parser('add')
     sub_parser_add.add_argument('name', arg_type='+', required=True)
 
+    sub_parser_del = positional.add_sub_parser('delete')
+    sub_parser_del.add_argument('--name', arg_type='+', mutex='--clear-all')
+    sub_parser_del.add_argument('--clear-all')
+
     ret = c.parse_command()
 
     # print_bilibili()
