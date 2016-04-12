@@ -3,7 +3,7 @@ import os
 import sqlite3
 from bgmi.command import CommandParser
 from bgmi.fetch import fetch
-from bgmi.utils import bangumi_calendar
+from bgmi.utils import bangumi_calendar, print_warning, print_info, print_success, print_bilibili
 
 
 ACTION_FETCH = 'fetch'
@@ -18,7 +18,7 @@ ACTIONS = (ACTION_ADD, ACTION_DELETE, ACTION_FETCH, ACTION_LIST, ACTION_UPDATE, 
 def main():
     c = CommandParser()
     positional = c.add_arg_group('action')
-    # positional.add_argument('action')
+    positional.add_argument('action')
 
     sub_parser_cal = positional.add_sub_parser('cal')
     sub_parser_cal.add_argument('filter', choice=('today', 'all', 'followed'))
@@ -26,21 +26,21 @@ def main():
     sub_parser_cal.add_argument('--no-save')
 
     ret = c.parse_command()
+
+    print_bilibili()
     if ret.action not in ACTIONS:
         c.print_help()
         exit(0)
 
-    if ret.action == 'fetch':
-        fetch()
-    elif ret.action == 'add':
+    if ret.action == 'add':
         pass
     elif ret.action == 'delete':
         pass
-    elif ret.action == 'list':
-        pass
-    elif ret.action == 'update':
-        pass
-    elif ret.action == 'cal':
+    elif ret.action in (ACTION_UPDATE, ACTION_FETCH):
+        print_info('fetch bangumi data ...')
+        fetch(save=True, group_by_weekday=False)
+        print_success('done')
+    elif ret.action == ACTION_CAL:
         force = ret.cal.force_update
         save = not ret.cal.no_save
         if ret.cal.filter == 'today':

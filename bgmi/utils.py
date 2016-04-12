@@ -7,37 +7,48 @@ from bgmi.fetch import fetch
 from bgmi.models import Bangumi, STATUS_FOLLOWED
 
 
+def print_info(message):
+    print('[*] %s' % message)
+
+
+def print_success(message):
+    print('\033[1;32m[+] %s\033[0m' % message)
+
+
+def print_warning(message):
+    print('\033[33m[-] %s\033[0m' % message)
+
+
 def print_bilibili():
     print '''
             .cc          ,xc
              .kXO;      .xX0,
         .,;;;;:xKKd:;;:oKKKl:::;,.
        xOl;;;;;;;;,,,,,,,,,,,;:::dx.
-      .O........................;.kl
       'k '                      ..do
       ,x ' 'kkOKOc      .xK0OOl ..do
       ,x ,    ;K;        'X:    ..oo
-      ,x ,    ,X;        .K:    ..ol
-      ;x ;     ,.        .c.    '.ol
-      ,x :                      ..dl     ____   ____             _
+      ,x ,    ,X;        .K:    ..ol                    \033[1;33mversion %s\033[0m
+      ;x ;     ,.        .c.    '.ol     ____   ____             _
       ,x l           .          ,.xc    | __ ) / ___|  _ __ ___ (_)
       .k;;'.....................,'O:    |  _ \| |  _  | '_ ` _ \| |
        .cddx'  ,doloooooodd.  ;xdd:     | |_) | |_| | | | | | | | |
-           .coo:.         ;odo:.        |____/ \____| |_| |_| |_|_|
-
-\t\t\t\t\t\t\t\t\033[1;33mversion''', __version__, '\033[0m\n'
+           .coo:.         ;odo:.        |____/ \____| |_| |_| |_|_|\n''' % __version__
 
 
 def bangumi_calendar(force_update=False, today=False, followed=False, save=True):
-    print_bilibili()
     if force_update:
+        print_info('fetching bangumi info ...')
         weekly_list = fetch(save=save)
     else:
         weekly_list = Bangumi.get_all_bangumi(status=STATUS_FOLLOWED if followed else None)
 
     if not weekly_list:
-        print 'warning: no bangumi schedule, fetching ...'
-        weekly_list = fetch(save=save)
+        if not followed:
+            print_warning('warning: no bangumi schedule, fetching ...')
+            weekly_list = fetch(save=save)
+        else:
+            print_warning('you have not followed any bangumi')
 
     def shift(seq, n):
         n = n % len(seq)

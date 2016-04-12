@@ -52,8 +52,13 @@ def fetch(save=False, group_by_weekday=True):
     response = get_response(FETCH_URL)
     result = parser_bangumi(response, group_by_weekday=group_by_weekday)
     if save:
-        for bangumi in parser_bangumi(response, group_by_weekday=False):
+        if group_by_weekday:
+            data = parser_bangumi(response, group_by_weekday=False)
+        else:
+            data = result
+        for bangumi in data:
             save_data(bangumi)
+
     return result
 
 

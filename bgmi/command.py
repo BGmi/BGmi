@@ -213,8 +213,6 @@ class Argument(object):
 
 
 class CommandParser(_CommandParserMixin):
-    # argument_groups = {}
-    # arguments = {}
     sub = None
 
     def __init__(self):
