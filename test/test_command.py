@@ -1,7 +1,7 @@
 # coding=utf-8
 import sys
 import unittest
-from bgmi.command import CommandParser
+from bgmi.command import CommandParser, NameSpace
 
 
 class CommandTest(unittest.TestCase):
@@ -116,6 +116,21 @@ class CommandTest(unittest.TestCase):
         sys.argv = ['test.py', '--get-method']
         namespace = c.parse_command()
         self.assertEqual(namespace.get_method.get, 'GET')
+
+    def test_required(self):
+        c = CommandParser()
+        g1 = c.add_arg_group('test')
+        g1.add_argument('method', required=True)
+        g1.add_argument('--get', required=True)
+
+        sys.argv = ['test.py']
+        self.assertRaises(SystemExit, c.parse_command)
+
+        sys.argv = ['test.py', 'GET']
+        self.assertRaises(SystemExit, c.parse_command)
+
+        sys.argv = ['test.py', 'GET', '--get']
+        self.assertIsInstance(c.parse_command(), NameSpace)
 
 
 if __name__ == '__main__':

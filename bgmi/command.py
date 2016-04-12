@@ -66,18 +66,10 @@ class _CommandParserMixin(object):
         '''Set default value for each argument
         '''
         for arg in self.arguments.values():
-            if not arg.name.startswith('-'):
-                value = None
-            elif arg.default is not None:
+            if arg.default is not None:
                 value = arg.default
-            elif arg.type in ('+', '*', '1'):
-                value = None
-            elif arg.type is None:
-                value = False
-            elif arg.type == 's':
-                value = {}
             else:
-                _error('unexpected arg type: %s' % arg.type)
+                value = None
 
             setattr(self.namespace, arg.dest, value)
 
@@ -115,8 +107,11 @@ class _CommandParserMixin(object):
                     if value not in arg_instance.choice:
                         _error('unexpected choice of %s%s: %s' % (arg_instance.name,
                                                                   str(arg_instance.choice), value))
-
             setattr(self.namespace, arg_instance.dest, value)
+
+        for arg in parser_group.arguments.values():
+            if arg.required and self.namespace.__dict__['__value'].get(arg.dest) is None:
+                _error('%s argument is required' % arg.name)
 
 
 class ArgumentGroup(_CommandParserMixin):
@@ -128,10 +123,10 @@ class ArgumentGroup(_CommandParserMixin):
         self.sub = {}
         self._sub_parser = {}
 
-    def add_argument(self, name, dest=None, arg_type=None, choice=None, default=None, call=False, help=''):
+    def add_argument(self, name, dest=None, arg_type=None, required=False, choice=None, default=None, call=False, help=''):
         self.container._check_conflict(name)
         argument = Argument(name=name, dest=dest, arg_type=arg_type, choice=choice,
-                            default=default, call=call, help=help, group=self)
+                            default=default, call=call, help=help, group=self, required=required)
         self.arguments.update({name: argument})
         if self.container.sub is None:
             self.container.arguments.update({name: argument})
@@ -169,7 +164,7 @@ class ArgumentGroup(_CommandParserMixin):
 class Argument(object):
     args_type_list = ('+', '*', '1', None, 's')
 
-    def __init__(self, name, dest, arg_type=None, choice=None, default=None, call=False, help='', group=None):
+    def __init__(self, name, dest, arg_type=None, choice=None, required=False, default=None, call=False, help='', group=None):
         # check the validity of arg_type
         if arg_type not in self.args_type_list:
             _error('unexpected args type: %s' % arg_type)
@@ -203,6 +198,7 @@ class Argument(object):
         self.default = default
         self.group = group
         self.choice = choice
+        self.required = required
         self.optional = self.name.startswith('-')
 
     def __str__(self):

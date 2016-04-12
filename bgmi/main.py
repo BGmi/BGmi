@@ -3,7 +3,7 @@ import os
 import sqlite3
 from bgmi.command import CommandParser
 from bgmi.fetch import fetch, bangumi_calendar
-from bgmi.utils import print_warning, print_info, print_success, print_bilibili
+from bgmi.utils import print_warning, print_info, print_success, print_bilibili, print_error
 
 
 ACTION_FETCH = 'fetch'
@@ -24,6 +24,9 @@ def main():
     sub_parser_cal.add_argument('filter', choice=('today', 'all', 'followed'))
     sub_parser_cal.add_argument('--force-update')
     sub_parser_cal.add_argument('--no-save')
+
+    sub_parser_add = positional.add_sub_parser('add')
+    sub_parser_add.add_argument('--name', arg_type='+', required=True)
 
     ret = c.parse_command()
 
