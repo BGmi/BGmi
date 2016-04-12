@@ -2,9 +2,8 @@
 import os
 import sqlite3
 from bgmi.command import CommandParser
-from bgmi.fetch import fetch
-from bgmi.utils import bangumi_calendar, print_warning, print_info, print_success, print_bilibili
-from bgmi.models import Bangumi
+from bgmi.fetch import fetch, bangumi_calendar
+from bgmi.utils import print_warning, print_info, print_success, print_bilibili
 
 
 ACTION_FETCH = 'fetch'
