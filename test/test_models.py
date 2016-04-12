@@ -66,3 +66,17 @@ class ModelsTest(unittest.TestCase):
         b1.update(data={'name': 'test666', 'status': STATUS_FOLLOWED})
         ret = b1.select(one=True)
         self.assertEqual(list(ret)[1:], [u'test666', u'', u'Mon', u'%d' % STATUS_FOLLOWED])
+
+    def test_delete(self):
+        b1 = Bangumi(name='test_delete', update_time='Sun')
+        b1.save()
+        self.assertEqual(b1.select(one=True)['name'], 'test_delete')
+        b1.delete()
+        self.assertEqual(b1.select(one=True), None)
+
+    def test_delete_bangumi(self):
+        b1 = Bangumi(name='test_delete_all', update_time='Sun')
+        b2 = Bangumi(name='test_delete_all2', update_time='Sun')
+        Bangumi.delete_bangumi()
+        self.assertEqual(b1.select(one=True), None)
+        self.assertEqual(b2.select(one=True), None)

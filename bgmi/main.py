@@ -4,6 +4,7 @@ import sqlite3
 from bgmi.command import CommandParser
 from bgmi.fetch import fetch
 from bgmi.utils import bangumi_calendar, print_warning, print_info, print_success, print_bilibili
+from bgmi.models import Bangumi
 
 
 ACTION_FETCH = 'fetch'
@@ -38,6 +39,8 @@ def main():
         pass
     elif ret.action in (ACTION_UPDATE, ACTION_FETCH):
         print_info('fetch bangumi data ...')
+        if ret.action == ACTION_UPDATE:
+            pass
         fetch(save=True, group_by_weekday=False)
         print_success('done')
     elif ret.action == ACTION_CAL:

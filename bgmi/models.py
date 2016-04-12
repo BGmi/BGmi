@@ -32,7 +32,11 @@ class DB(object):
             raise Exception('unexpected type %s of table' % type(table))
 
         def make_condition(condition, operation='AND'):
+            if not condition:
+                return '1'
+
             sql = ''
+
             if isinstance(condition, (tuple, list, set)):
                 for f in condition:
                     sql += '`%s`=? %s ' % (f, operation)
@@ -82,12 +86,16 @@ class DB(object):
             if fields is not None:
                 sql += make_condition(fields, ',')
             else:
-                raise Exception('unexpected UPDATE null fields')
+                raise Exception('UPDATE: unexpected null fields')
 
             sql += ' WHERE '
             sql += make_condition(condition)
-        else:
-            sql = ''
+        elif method == 'delete':
+            sql = 'DELETE FROM %s WHERE ' % table
+            if condition is not None:
+                sql += make_condition(condition)
+            else:
+                sql += '1'
 
         return sql
 
@@ -143,6 +151,9 @@ class DB(object):
         ret = self.cursor.fetchall() if not one else self.cursor.fetchone()
         self._close_db()
 
+        if ret and one:
+            self._id = ret['id']
+
         return ret
 
     def update(self, data=None):
@@ -165,6 +176,17 @@ class DB(object):
         params = data.values()
         params.append(self._id)
         self.cursor.execute(sql, params)
+        self._close_db()
+
+    def delete(self, condition=None):
+        if not self._id:
+            obj = self.select(one=True)
+            if not obj:
+                raise Exception('%s not exist' % self.__repr__())
+
+        sql = self._make_sql('delete', self.table, condition=('id', ))
+        self._connect_db()
+        self.cursor.execute(sql, (self._id, ))
         self._close_db()
 
 
@@ -229,3 +251,19 @@ class Bangumi(DB):
             weekly_list[bangumi_item['update_time'].lower()].append(dict(bangumi_item))
 
         return weekly_list
+
+    @staticmethod
+    def delete_bangumi(condition=None):
+        db = Bangumi.connect_db()
+        db.row_factory = sqlite3.Row
+        cur = db.cursor()
+        if not isinstance(condition, (type(None), dict)):
+            raise Exception('condition expected dict')
+        if condition is None:
+            k, v = [], []
+        else:
+            k, v = condition.keys(), condition.values()
+        sql = Bangumi._make_sql('delete', table=Bangumi.table, condition=k)
+        cur.execute(sql, v)
+
+        Bangumi.close_db(db)
