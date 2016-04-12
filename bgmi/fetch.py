@@ -18,6 +18,7 @@ SUBTITLE_MATCH = re.compile("<a href=\".*?\">(.*?)</a>")
 
 
 def bangumi_calendar(force_update=False, today=False, followed=False, save=True):
+    print_info('Bangumi Weekly Schedule\n')
     if force_update:
         print_info('fetching bangumi info ...')
         weekly_list = fetch(save=save)
@@ -35,6 +36,9 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
         n = n % len(seq)
         return seq[n:] + seq[:n]
 
+    def print_line():
+        print '+', '-' * 29, '+', '-' * 29, '+', '-' * 29, '+'
+
     if today:
         weekday_order = (Bangumi.week[datetime.datetime.today().weekday()], )
     else:
@@ -44,13 +48,15 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
     spacial_remove_chars = ['Δ', ]
     for index, weekday in enumerate(weekday_order):
         if weekly_list[weekday.lower()]:
+            if not followed:
+                print ' ' * 46,
             if index == 0:
-                print '\033[1;37;42m%s.\033[0m' % weekday,
+                print '\033[1;37;40m%s.\033[0m' % weekday,
             else:
                 print '\033[1;32m%s.\033[0m' % weekday,
             if not followed:
                 print
-                print '-' * 29, '+', '-' * 29, '+', '-' * 29, '+'
+                print_line()
 
             for i, bangumi in enumerate(weekly_list[weekday.lower()]):
                 if isinstance(bangumi['name'], unicode):
@@ -74,13 +80,14 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
                         print ' ' * 4,
                     print bangumi['name'], bangumi['subtitle_group']
                 else:
+                    if (i + 1) % 3 == 1:
+                        print '|',
                     print bangumi['name'], ' ' * space_count, '|' if not followed else ' ',
-
-                    if (i + 1) % 3 == 0:
+                    if (i + 1) % 3 == 0 or i + 1 == len(weekly_list[weekday.lower()]):
                         print
 
             if not followed:
-                print '\n'
+                print_line()
 
 
 def get_response(url):

@@ -200,7 +200,7 @@ class Bangumi(DB):
             raise ValueError('bangumi name required')
         self.name = kwargs.get('name')
         update_time = kwargs.get('update_time', '').title()
-        if update_time not in self.week:
+        if update_time and update_time not in self.week:
             raise ValueError('unexcept update time %s' % update_time)
         self.update_time = update_time
         self.subtitle_group = ', '.join(kwargs.get('subtitle_group', []))

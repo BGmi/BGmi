@@ -4,6 +4,7 @@ import sqlite3
 from bgmi.command import CommandParser
 from bgmi.fetch import fetch, bangumi_calendar
 from bgmi.utils import print_warning, print_info, print_success, print_bilibili, print_error
+from bgmi.models import Bangumi, STATUS_FOLLOWED
 
 
 ACTION_FETCH = 'fetch'
@@ -21,7 +22,8 @@ def main():
     positional.add_argument('action')
 
     sub_parser_cal = positional.add_sub_parser('cal')
-    sub_parser_cal.add_argument('filter', choice=('today', 'all', 'followed'))
+    sub_parser_cal.add_argument('filter', default='today', choice=('today', 'all', 'followed'))
+    sub_parser_cal.add_argument('--today')
     sub_parser_cal.add_argument('--force-update')
     sub_parser_cal.add_argument('--no-save')
 
@@ -30,13 +32,20 @@ def main():
 
     ret = c.parse_command()
 
-    print_bilibili()
+    # print_bilibili()
     if ret.action not in ACTIONS:
         c.print_help()
         exit(0)
 
     if ret.action == 'add':
-        print ret.add.name
+        for bangumi in ret.add.name:
+            _ = Bangumi(name=bangumi)
+            data = _.select(one=True)
+            if data:
+                print_success('Bangumi<id: %s, name: %s, subtitle group: %s, update time: %s> followed'
+                              % tuple(list(data)[:-1]))
+                _.update({'status': STATUS_FOLLOWED})
+
     elif ret.action == 'delete':
         pass
     elif ret.action in (ACTION_UPDATE, ACTION_FETCH):
@@ -48,12 +57,13 @@ def main():
     elif ret.action == ACTION_CAL:
         force = ret.cal.force_update
         save = not ret.cal.no_save
+        today = ret.cal.today
         if ret.cal.filter == 'today':
             bangumi_calendar(force_update=force, today=True, save=save)
         elif ret.cal.filter == 'followed':
-            bangumi_calendar(force_update=force, followed=True, save=save)
+            bangumi_calendar(force_update=force, followed=True, today=today, save=save)
         else:
-            bangumi_calendar(force_update=force, save=save)
+            bangumi_calendar(force_update=force, today=today, save=save)
 
 
 def init_db():
