@@ -48,7 +48,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
             print_warning('warning: no bangumi schedule, fetching ...')
             weekly_list = fetch(save=save)
         else:
-            print_warning('you have not followed any bangumi')
+            print_warning('you have not subscribe any bangumi')
 
     def shift(seq, n):
         n = n % len(seq)
