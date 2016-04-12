@@ -26,7 +26,7 @@ def main():
     sub_parser_cal.add_argument('--no-save')
 
     sub_parser_add = positional.add_sub_parser('add')
-    sub_parser_add.add_argument('--name', arg_type='+', required=True)
+    sub_parser_add.add_argument('name', arg_type='+', required=True)
 
     ret = c.parse_command()
 
@@ -36,7 +36,7 @@ def main():
         exit(0)
 
     if ret.action == 'add':
-        pass
+        print ret.add.name
     elif ret.action == 'delete':
         pass
     elif ret.action in (ACTION_UPDATE, ACTION_FETCH):

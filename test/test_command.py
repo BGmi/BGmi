@@ -132,6 +132,15 @@ class CommandTest(unittest.TestCase):
         sys.argv = ['test.py', 'GET', '--get']
         self.assertIsInstance(c.parse_command(), NameSpace)
 
+    def test_position_arg_type(self):
+        c = CommandParser()
+        g1 = c.add_arg_group('test')
+        g1.add_argument('position', arg_type='+')
+        g1.add_argument('--verbose')
+        sys.argv = ['test.py', 'AAA', 'BBB', 'CCC', '--verbose']
+        namespace = c.parse_command()
+        self.assertEqual(namespace.position, ['AAA', 'BBB', 'CCC'])
+
 
 if __name__ == '__main__':
     unittest.main()
