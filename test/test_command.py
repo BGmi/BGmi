@@ -159,14 +159,13 @@ class CommandTest(unittest.TestCase):
         sys.argv = ['test.py', '--delete', 'AAA', '--clear-all']
         self.assertRaises(SystemExit, c.parse_command)
 
-        # TODO
         c = CommandParser()
         g3 = c.add_arg_group('test')
         g3.add_argument('--clear-all-sub', mutex='--delete-sub')
         sub2 = g3.add_sub_parser('sub')
         sub2.add_argument('--delete-sub', arg_type='+')
-        sys.argv = ['test.py', '--delete-sub', 'AAA', '--clear-all-sub']
-        self.assertRaises(SystemExit, c.parse_command)
+        sys.argv = ['test.py', '--clear-all-sub', 'sub', '--delete-sub', 'AAA']
+        self.assertIsInstance(c.parse_command(), NameSpace)
 
 
 if __name__ == '__main__':

@@ -86,10 +86,10 @@ class _CommandParserMixin(object):
             arg = _sys_args_list.pop()
             _mutex_arg = parser_group.mutex.get(arg, None)
 
-            # TODO: _mutex won't happen between the sub_parser and CommandParser
             if _mutex_arg is not None:
-                if _mutex_arg in _sys_args_list:
+                if arg in parser_group._mutex_list:
                     _error('arguments %s and %s are mutually exclusive' % (arg, _mutex_arg))
+                parser_group._mutex_list.append(_mutex_arg)
 
             sub_parser = self._sub_parser.get(arg, None)
             if sub_parser:
@@ -141,6 +141,7 @@ class ArgumentGroup(_CommandParserMixin):
         self.sub = {}
         self._sub_parser = {}
         self.mutex = {}
+        self._mutex_list = []
 
     def add_argument(self, name, dest=None, arg_type=None, required=False, choice=None, default=None, mutex=None,
                      call=False, help=''):
@@ -247,6 +248,7 @@ class CommandParser(_CommandParserMixin):
         self.argument_groups = {}
         self._sub_parser = {}
         self.mutex = {}
+        self._mutex_list = []
 
     def parse_command(self):
         self.sys_args = self._sys_args = sys.argv[1:][::-1]
