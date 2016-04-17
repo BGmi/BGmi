@@ -5,7 +5,7 @@ import string
 import requests
 from collections import defaultdict
 from bgmi.config import FETCH_URL
-from bgmi.models import Bangumi, STATUS_FOLLOWED
+from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED
 from bgmi.utils import print_error, print_warning, print_info
 
 
@@ -21,7 +21,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
     print_info('Bangumi Weekly Schedule')
     if force_update:
         print_info('fetching bangumi info ...')
-        weekly_list = fetch(save=save)
+        weekly_list = fetch(save=save, status=True)
     else:
         weekly_list = Bangumi.get_all_bangumi(status=STATUS_FOLLOWED if followed else None)
 
@@ -107,7 +107,7 @@ def process_subtitle(data):
     return [i for i in result if i]
 
 
-def parser_bangumi(data, group_by_weekday=True):
+def parser_bangumi(data, group_by_weekday=True, status=False):
     '''match weekly bangumi list from data
     '''
     result = BANGUMI_MATCH.finditer(data)
@@ -119,6 +119,11 @@ def parser_bangumi(data, group_by_weekday=True):
         bangumi_item = i.groupdict()
         bangumi_item['status'] = 0
         bangumi_item['subtitle_group'] = process_subtitle(bangumi_item['subtitle_group'])
+        if status:
+            f = Followed(bangumi_name=bangumi_item['name']).select(one=True, fields='status')
+            if f:
+                bangumi_item['status'] = f['status']
+
         if group_by_weekday:
             weekly_list[bangumi_item['update_time']].append(bangumi_item)
         else:
@@ -127,14 +132,15 @@ def parser_bangumi(data, group_by_weekday=True):
     return weekly_list
 
 
-def fetch(save=False, group_by_weekday=True):
+def fetch(save=False, group_by_weekday=True, status=False):
     response = get_response(FETCH_URL)
-    result = parser_bangumi(response, group_by_weekday=group_by_weekday)
+    result = parser_bangumi(response, group_by_weekday=group_by_weekday, status=status)
     if save:
         if group_by_weekday:
             data = parser_bangumi(response, group_by_weekday=False)
         else:
             data = result
+
         for bangumi in data:
             save_data(bangumi)
 

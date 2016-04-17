@@ -2,6 +2,7 @@
 import os
 import sqlite3
 from collections import defaultdict
+from bgmi.config import DEBUG
 
 
 STATUS_NORMAL = 0
@@ -20,6 +21,7 @@ class DB(object):
     def __init__(self, **kwargs):
         for f in self.fields:
             setattr(self, f, kwargs.get(f, ''))
+        self._unicodeize()
 
     @staticmethod
     def _make_sql(method, table, fields=None, data=None, condition=None, join=None):
@@ -116,6 +118,8 @@ class DB(object):
             else:
                 sql += '1'
 
+        if DEBUG:
+            print '[DEBUG] SQL: %s' % sql
         return sql
 
     def _unicodeize(self):
@@ -148,7 +152,7 @@ class DB(object):
         values = tuple([self.__dict__.get(i, '') for i in self.fields])
         return self.fields, values
 
-    def select(self, fields=None, condition=None, one=False):
+    def select(self, fields=None, condition=None, one=False, join=None):
         if not isinstance(condition, (dict, type(None))):
             raise Exception('condition expected dict')
         if condition is None:
@@ -160,17 +164,17 @@ class DB(object):
                         k.append(i)
                         v.append(self.__dict__.get(i))
             else:
-                k, v = ('id', ), (self._id, )
+                k, v = ('%s.id' % self.table, ), (self._id, )
         else:
             k, v = condition.keys(), condition.values()
 
         self._connect_db()
-        sql = Bangumi._make_sql('select', fields=fields, table=self.table, condition=k)
+        sql = Bangumi._make_sql('select', fields=fields, table=self.table, condition=k, join=join)
         self.cursor.execute(sql, v)
         ret = self.cursor.fetchall() if not one else self.cursor.fetchone()
         self._close_db()
 
-        if ret and one:
+        if ret and one and 'id' in ret:
             self._id = ret['id']
 
         return ret
@@ -274,9 +278,14 @@ class Bangumi(DB):
 
         return weekly_list
 
+
+class Followed(DB):
+    table = 'followed'
+    fields = ('bangumi_name', 'episode', 'status')
+
     @staticmethod
-    def delete_bangumi(condition=None, batch=True):
-        db = Bangumi.connect_db()
+    def delete_followed(condition=None, batch=True):
+        db = DB.connect_db()
         db.row_factory = sqlite3.Row
         cur = db.cursor()
         if not isinstance(condition, (type(None), dict)):
@@ -285,16 +294,16 @@ class Bangumi(DB):
             k, v = [], []
         else:
             k, v = condition.keys(), condition.values()
-        sql = Bangumi._make_sql('delete', table=Bangumi.table, condition=k)
+        sql = DB._make_sql('delete', table=Followed.table, condition=k)
 
         if not batch and sql.endswith('WHERE 1'):
-            if raw_input('are you sure clear ALL THE BANGUMI? (Y/n): ') == 'n':
-                return
+            if not raw_input('[+] are you sure clear ALL THE BANGUMI? (y/N): ') == 'y':
+                return False
 
         cur.execute(sql, v)
-        Bangumi.close_db(db)
+        DB.close_db(db)
+        return True
 
-
-class Followed(DB):
-    table = 'followed'
-    fields = ('bangumi_name', 'episode', 'status')
+    def delete(self, condition=None):
+        self.status = STATUS_NORMAL
+        self.save()

@@ -59,9 +59,18 @@ def main():
 
     elif ret.action == 'delete':
         if ret.delete.clear_all:
-            print 'Clear All'
+            if Followed.delete_followed(batch=False):
+                print_success('all subscribe had been deleted')
+            else:
+                print_error('user canceled')
         elif ret.delete.name:
-            print 'Delete:', ret.delete.name
+            for name in ret.delete.name:
+                followed = Followed(bangumi_name=name)
+                if followed.select():
+                    followed.delete()
+                    print_warning('Bangumi %s has been deleted' % name)
+                else:
+                    print_error('Bangumi %s not exist' % name, exit_=False)
         else:
             print 'Help Delete'
 

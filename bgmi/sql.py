@@ -20,3 +20,8 @@ CREATE_TABLE_FOLLOWED = '''CREATE TABLE followed (
 INSERT_TEST_DATA = '''INSERT INTO bangumi (
   name, subtitle_group, update_time, keyword
   ) VALUES ("test", "rr", "Sun", "test")'''
+
+
+INSERT_TEST_DATA2 = '''INSERT INTO bangumi (
+  name, subtitle_group, update_time, keyword
+  ) VALUES ("testr", "rr", "Sun", "test")'''

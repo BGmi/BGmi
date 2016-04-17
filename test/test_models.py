@@ -2,8 +2,9 @@
 import os
 import unittest
 import sqlite3
-from bgmi.models import Bangumi, STATUS_FOLLOWED
-from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, INSERT_TEST_DATA
+from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED, STATUS_NORMAL
+from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, INSERT_TEST_DATA, \
+    INSERT_TEST_DATA2
 
 
 class ModelsTest(unittest.TestCase):
@@ -62,8 +63,46 @@ class ModelsTest(unittest.TestCase):
         self.assertEqual(b1.select(one=True), None)
 
     def test_delete_bangumi(self):
-        b1 = Bangumi(name='test_delete_all', update_time='Sun')
-        b2 = Bangumi(name='test_delete_all2', update_time='Sun')
-        Bangumi.delete_bangumi()
-        self.assertEqual(b1.select(one=True), None)
-        self.assertEqual(b2.select(one=True), None)
+        # Deprecated test
+
+        # b1 = Bangumi(name='test_delete_all', update_time='Sun')
+        # b2 = Bangumi(name='test_delete_all2', update_time='Sun')
+        # Bangumi.delete_bangumi()
+        # self.assertEqual(b1.select(one=True), None)
+        # self.assertEqual(b2.select(one=True), None)
+        pass
+
+
+class FollowedTest(unittest.TestCase):
+    def setUp(self):
+        db_path = os.path.join(os.path.dirname(__file__), '../bangumi.db')
+        if not os.path.exists(db_path):
+            self.db = sqlite3.connect(db_path)
+            self.conn = self.db.cursor()
+            self.conn.execute(CREATE_TABLE_BANGUMI)
+            self.conn.execute(CREATE_TABLE_FOLLOWED)
+        else:
+            self.db = sqlite3.connect(db_path)
+            self.conn = self.db.cursor()
+            self.conn.execute(INSERT_TEST_DATA2)
+        self.db.commit()
+
+    def tearDown(self):
+        self.conn.execute('DELETE FROM bangumi WHERE name="testr"')
+        self.conn.execute('DELETE FROM followed WHERE bangumi_name="testr"')
+        self.db.commit()
+        self.db.close()
+
+    def test_add_and_remove_followed(self):
+        f = Followed(bangumi_name='testr', status=STATUS_FOLLOWED, episode=6)
+        f.save()
+        b = Bangumi(name='testr')
+        bangumi_data = b.select(one=True, join='LEFT JOIN %s ON %s.bangumi_name=%s.name' % (Followed.table,
+                                                                                            Followed.table,
+                                                                                            Bangumi.table))
+        self.assertEqual(bangumi_data['status'], STATUS_FOLLOWED)
+        f.delete()
+        bangumi_data = b.select(one=True, join='LEFT JOIN %s ON %s.bangumi_name=%s.name' % (Followed.table,
+                                                                                            Followed.table,
+                                                                                            Bangumi.table))
+        self.assertEqual(bangumi_data['status'], STATUS_NORMAL)

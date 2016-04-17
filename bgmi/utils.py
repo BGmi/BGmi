@@ -14,9 +14,10 @@ def print_warning(message):
     print('\033[33m[-] %s\033[0m' % message)
 
 
-def print_error(message):
-    print('\033[1;31m[-] %s\033[0m' % message)
-    exit(1)
+def print_error(message, exit_=True):
+    print('\033[1;31m[x] %s\033[0m' % message)
+    if exit_:
+        exit(1)
 
 
 def print_bilibili():
