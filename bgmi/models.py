@@ -18,14 +18,14 @@ class DB(object):
     conn = None
 
     @staticmethod
-    def _make_sql(method, table, fields=None, data=None, select=None, condition=None):
+    def _make_sql(method, table, fields=None, data=None, condition=None):
         if method not in ('select', 'update', 'delete', 'insert'):
             raise Exception('unexpected operation %s' % method)
 
         if not isinstance(condition, (type(None), tuple, list, set, str)):
             raise Exception('`condition` expected sequences')
 
-        if not isinstance(select, (type(None), tuple, list, set, str)):
+        if not isinstance(fields, (type(None), tuple, list, set, str)):
             raise Exception('`select` expected sequences or string')
 
         if not isinstance(table, str):
@@ -67,16 +67,16 @@ class DB(object):
 
         elif method == 'select':
 
-            if select is None:
+            if fields is None:
                 select = '*'
             else:
-                if not isinstance(select, str):
-                    f = ''
-                    for f in select:
-                        f += '`%s`,' % select
-                    select = f[:-1]
+                if not isinstance(fields, str):
+                    select = ''
+                    for f in fields:
+                        select += '`%s`,' % f
+                    select = select[:-1]
                 else:
-                    select = '`%s`' % select
+                    select = '`%s`' % fields
 
             sql = 'SELECT %s FROM `%s` WHERE ' % (select, table)
             sql += make_condition(condition)
@@ -129,7 +129,7 @@ class DB(object):
         values = tuple([self.__dict__.get(i, '') for i in self.fields])
         return self.fields, values
 
-    def select(self, condition=None, one=False):
+    def select(self, fields=None, condition=None, one=False):
         if not isinstance(condition, (dict, type(None))):
             raise Exception('condition expected dict')
         if condition is None:
@@ -146,7 +146,7 @@ class DB(object):
             k, v = condition.keys(), condition.values()
 
         self._connect_db()
-        sql = Bangumi._make_sql('select', table=self.table, condition=k)
+        sql = Bangumi._make_sql('select', fields=fields, table=self.table, condition=k)
         self.cursor.execute(sql, v)
         ret = self.cursor.fetchall() if not one else self.cursor.fetchone()
         self._close_db()
@@ -192,7 +192,7 @@ class DB(object):
 
 class Bangumi(DB):
     table = 'bangumi'
-    fields = ('name', 'update_time', 'subtitle_group', 'status')
+    fields = ('name', 'update_time', 'subtitle_group', 'status', 'keyword')
     week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
     def __init__(self, **kwargs):
@@ -205,6 +205,7 @@ class Bangumi(DB):
         self.update_time = update_time
         self.subtitle_group = ', '.join(kwargs.get('subtitle_group', []))
         self.status = kwargs.get('status', STATUS_NORMAL)
+        self.keyword = kwargs.get('keyword', '')
 
         self._unicodeize()
 
@@ -270,5 +271,4 @@ class Bangumi(DB):
                 return
 
         cur.execute(sql, v)
-
         Bangumi.close_db(db)
