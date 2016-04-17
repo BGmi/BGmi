@@ -4,7 +4,7 @@ import sqlite3
 from bgmi.command import CommandParser
 from bgmi.fetch import fetch, bangumi_calendar
 from bgmi.utils import print_warning, print_info, print_success, print_bilibili, print_error
-from bgmi.models import Bangumi, STATUS_FOLLOWED
+from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED
 
 
@@ -47,9 +47,15 @@ def main():
             _ = Bangumi(name=bangumi)
             data = _.select(one=True, fields=['id', 'name', 'update_time'])
             if data:
-                print_success('Bangumi<id: %s, name: %s, update time: %s> followed'
-                              % tuple(data))
-                _.update({'status': STATUS_FOLLOWED})
+                f = Followed(bangumi_name=data['name'], episode=0, status=STATUS_FOLLOWED)
+                if not f.select():
+                    print_success('Bangumi<id: %s, name: %s, update time: %s> followed'
+                                  % tuple(data))
+                    f.save()
+                else:
+                    print_warning('Bangumi<id: %s, name: %s, update time: %s> already followed'
+                                  % tuple(data))
+                # _.update({'status': STATUS_FOLLOWED})
 
     elif ret.action == 'delete':
         if ret.delete.clear_all:
@@ -81,7 +87,7 @@ def main():
 def init_db():
     conn = sqlite3.connect('bangumi.db')
     conn.execute(CREATE_TABLE_BANGUMI)
-    conn.execute(CREATE_TABLE_BANGUMI)
+    conn.execute(CREATE_TABLE_FOLLOWED)
 
 if __name__ == '__main__':
     if not os.path.exists('bangumi.db'):

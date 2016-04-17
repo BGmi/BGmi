@@ -17,8 +17,12 @@ class DB(object):
     table = None
     conn = None
 
+    def __init__(self, **kwargs):
+        for f in self.fields:
+            setattr(self, f, kwargs.get(f, ''))
+
     @staticmethod
-    def _make_sql(method, table, fields=None, data=None, condition=None):
+    def _make_sql(method, table, fields=None, data=None, condition=None, join=None):
         if method not in ('select', 'update', 'delete', 'insert'):
             raise Exception('unexpected operation %s' % method)
 
@@ -39,10 +43,16 @@ class DB(object):
 
             if isinstance(condition, (tuple, list, set)):
                 for f in condition:
-                    sql += '`%s`=? %s ' % (f, operation)
+                    if '.' in f:
+                        sql += '%s=? %s ' % (f, operation)
+                    else:
+                        sql += '`%s`=? %s ' % (f, operation)
                 sql = sql[:-(len(operation)+1)]
             elif isinstance(condition, str):
-                sql += '`%s`=?' % condition
+                if '.' in condition:
+                    sql += '%s=?' % condition
+                else:
+                    sql += '`%s`=?' % condition
             else:
                 sql += '1'
             return sql
@@ -50,7 +60,10 @@ class DB(object):
         def make_fields(fields):
             sql = ''
             for f in fields:
-                sql += '`%s`,' % f
+                if '.' in f:
+                    sql += '%s,' % f
+                else:
+                    sql += '`%s`,' % f
             sql = sql[:-1]
             return sql
 
@@ -73,12 +86,18 @@ class DB(object):
                 if not isinstance(fields, str):
                     select = ''
                     for f in fields:
-                        select += '`%s`,' % f
+                        if '.' in f:
+                            select += '%s,' % f
+                        else:
+                            select += '`%s`,' % f
                     select = select[:-1]
                 else:
                     select = '`%s`' % fields
 
-            sql = 'SELECT %s FROM `%s` WHERE ' % (select, table)
+            if not isinstance(join, str):
+                join = ''
+
+            sql = 'SELECT %s FROM `%s` %s WHERE ' % (select, table, join)
             sql += make_condition(condition)
 
         elif method == 'update':
@@ -189,26 +208,6 @@ class DB(object):
         self.cursor.execute(sql, (self._id, ))
         self._close_db()
 
-
-class Bangumi(DB):
-    table = 'bangumi'
-    fields = ('name', 'update_time', 'subtitle_group', 'status', 'keyword')
-    week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
-
-    def __init__(self, **kwargs):
-        if 'name' not in kwargs:
-            raise ValueError('bangumi name required')
-        self.name = kwargs.get('name')
-        update_time = kwargs.get('update_time', '').title()
-        if update_time and update_time not in self.week:
-            raise ValueError('unexcept update time %s' % update_time)
-        self.update_time = update_time
-        self.subtitle_group = ', '.join(kwargs.get('subtitle_group', []))
-        self.status = kwargs.get('status', STATUS_NORMAL)
-        self.keyword = kwargs.get('keyword', '')
-
-        self._unicodeize()
-
     def save(self):
         _f, _v = self._pair()
 
@@ -226,6 +225,24 @@ class Bangumi(DB):
 
         return self
 
+
+class Bangumi(DB):
+    table = 'bangumi'
+    fields = ('name', 'update_time', 'subtitle_group', 'keyword')
+    week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
+
+    def __init__(self, **kwargs):
+        super(Bangumi, self).__init__(**kwargs)
+
+        if 'name' not in kwargs:
+            raise ValueError('bangumi name required')
+        update_time = kwargs.get('update_time', '').title()
+        if update_time and update_time not in self.week:
+            raise ValueError('unexcept update time %s' % update_time)
+        self.update_time = update_time
+        self.subtitle_group = ', '.join(kwargs.get('subtitle_group', []))
+        self._unicodeize()
+
     def __repr__(self):
         return self.name
 
@@ -237,11 +254,15 @@ class Bangumi(DB):
         db = Bangumi.connect_db()
         db.row_factory = sqlite3.Row
         cur = db.cursor()
+        join_sql = Bangumi._make_sql('select', table=Followed.table)
         if status is None:
-            sql = Bangumi._make_sql('select', table=Bangumi.table)
+            sql = Bangumi._make_sql('select', fields=['%s.*' % Bangumi.table, 'status', 'episode'], table=Bangumi.table,
+                                    join='LEFT JOIN (%s) AS F ON bangumi.name=F.bangumi_name' % join_sql)
             cur.execute(sql)
         else:
-            sql = Bangumi._make_sql('select', table=Bangumi.table, condition='status')
+            sql = Bangumi._make_sql('select', fields=['%s.*' % Bangumi.table, 'status', 'episode'], table=Bangumi.table,
+                                    join='LEFT JOIN (%s) AS F ON bangumi.name=F.bangumi_name' % join_sql,
+                                    condition='F.status')
             cur.execute(sql, (status, ))
         data = cur.fetchall()
         Bangumi.close_db(db)
@@ -272,3 +293,8 @@ class Bangumi(DB):
 
         cur.execute(sql, v)
         Bangumi.close_db(db)
+
+
+class Followed(DB):
+    table = 'followed'
+    fields = ('bangumi_name', 'episode', 'status')

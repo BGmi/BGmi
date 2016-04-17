@@ -30,14 +30,14 @@ class ModelsTest(unittest.TestCase):
 
     def test_select_and_save(self):
         b1 = Bangumi(name='test', update_time='Sun')
-        test = b1.select(condition={'name': 'test', 'status': 0}, one=True)
-        self.assertEqual(list(test)[1:], [u'test', u'rr', u'test', u'Sun', u'0'])
+        test = b1.select(condition={'name': 'test'}, one=True)
+        self.assertEqual(list(test)[1:], [u'test', u'rr', u'test', u'Sun'])
         b2 = Bangumi(name='test2', update_time='Sun')
         d = b2.select()
         self.assertEqual(d, [])
         b2.save()
         ret = b2.select(one=True)
-        self.assertEqual(list(ret)[1:], [u'test2', u'', u'', u'Sun', u'0'])
+        self.assertEqual(list(ret)[1:], [u'test2', u'', u'', u'Sun'])
 
     def test_get_all_bangumi(self):
         from collections import defaultdict
@@ -50,9 +50,9 @@ class ModelsTest(unittest.TestCase):
         b1.update()
         ret = b1.select(one=True)
         self.assertEqual(ret['update_time'], 'Mon')
-        b1.update(data={'name': 'test666', 'status': STATUS_FOLLOWED})
+        b1.update(data={'name': 'test666', 'update_time': 'Sat'})
         ret = b1.select(one=True)
-        self.assertEqual(list(ret)[1:], [u'test666', u'', u'', u'Mon', u'%d' % STATUS_FOLLOWED])
+        self.assertEqual(list(ret)[1:], [u'test666', u'', u'', u'Sat'])
 
     def test_delete(self):
         b1 = Bangumi(name='test_delete', update_time='Sun')

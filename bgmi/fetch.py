@@ -18,7 +18,7 @@ SUBTITLE_MATCH = re.compile("<a href=\".*?\">(.*?)</a>")
 
 
 def bangumi_calendar(force_update=False, today=False, followed=False, save=True):
-    print_info('Bangumi Weekly Schedule\n')
+    print_info('Bangumi Weekly Schedule')
     if force_update:
         print_info('fetching bangumi info ...')
         weekly_list = fetch(save=save)
@@ -72,7 +72,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
                 for s in spacial_remove_chars:
                     if s in bangumi['name']:
                         space_count -= 1
-                if bangumi['status'] == str(STATUS_FOLLOWED):
+                if bangumi['status'] == STATUS_FOLLOWED:
                     bangumi['name'] = '\033[1;33m%s\033[0m' % bangumi['name']
 
                 if followed:

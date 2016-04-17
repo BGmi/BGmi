@@ -5,18 +5,18 @@ CREATE_TABLE_BANGUMI = '''CREATE TABLE bangumi (
           name TEXT NOT NULL UNIQUE,
           subtitle_group TEXT NOT NULL,
           keyword TEXT,
-          update_time DATE NOT NULL,
-          status VARCHAR(20) NOT NULL DEFAULT 0
+          update_time CHAR(5) NOT NULL
         )'''
 
 
 CREATE_TABLE_FOLLOWED = '''CREATE TABLE followed (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          bangumi_id INTEGER NOT NULL,
-          episode INTEGER DEFAULT 0
+          bangumi_name INTEGER NOT NULL UNIQUE,
+          episode INTEGER DEFAULT 0,
+          status INTEGER DEFAULT 1
         )'''
 
 
 INSERT_TEST_DATA = '''INSERT INTO bangumi (
-  name, subtitle_group, update_time, status, keyword
-  ) VALUES ("test", "rr", "Sun", 0, "test")'''
+  name, subtitle_group, update_time, keyword
+  ) VALUES ("test", "rr", "Sun", "test")'''
