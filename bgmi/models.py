@@ -14,12 +14,15 @@ DB_PATH = os.path.join(os.path.dirname(__file__), '../bangumi.db')
 
 class DB(object):
     _id = None
+    primary_key = None
     fields = ()
     table = None
     conn = None
 
     def __init__(self, **kwargs):
         for f in self.fields:
+            if f == self.primary_key and kwargs.get(f, None) is None:
+                raise ValueError('primary key %s must be set' % f)
             setattr(self, f, kwargs.get(f, ''))
         self._unicodeize()
 
@@ -155,16 +158,20 @@ class DB(object):
     def select(self, fields=None, condition=None, one=False, join=None):
         if not isinstance(condition, (dict, type(None))):
             raise Exception('condition expected dict')
+
         if condition is None:
             if self._id is None:
-                k = []
-                v = []
-                for i in self.fields:
-                    if self.__dict__.get(i, None):
-                        k.append(i)
-                        v.append(self.__dict__.get(i))
+                if self.primary_key:
+                    k, v = self.primary_key, (self.__dict__.get(self.primary_key, ''), )
+                else:
+                    k = []
+                    v = []
+                    for i in self.fields:
+                        if self.__dict__.get(i, None):
+                            k.append(i)
+                            v.append(self.__dict__.get(i))
             else:
-                k, v = ('%s.id' % self.table, ), (self._id, )
+                k, v = '%s.id' % self.table, (self._id, )
         else:
             k, v = condition.keys(), condition.values()
 
@@ -232,14 +239,13 @@ class DB(object):
 
 class Bangumi(DB):
     table = 'bangumi'
+    primary_key = 'name'
     fields = ('name', 'update_time', 'subtitle_group', 'keyword')
     week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
     def __init__(self, **kwargs):
         super(Bangumi, self).__init__(**kwargs)
 
-        if 'name' not in kwargs:
-            raise ValueError('bangumi name required')
         update_time = kwargs.get('update_time', '').title()
         if update_time and update_time not in self.week:
             raise ValueError('unexcept update time %s' % update_time)
