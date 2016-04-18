@@ -13,11 +13,20 @@ DB_PATH = os.path.join(os.path.dirname(__file__), '../bangumi.db')
 
 
 class DB(object):
+    # `_id` save the id column in database, will be set automatic
     _id = None
+
+    # `primary_key` is one of the fields in a table, which maybe `UNIQUE` or `PRIMARY_KEY`.
+    # It will be set when instantiate a DB object, and `primary_key` is used as query condition
+    # when `_id` is `None`.
     primary_key = None
+
+    # all columns of a table except `id`, must be a sequence instance.
     fields = ()
+
+    # table name
     table = None
-    conn = None
+    _conn = None
 
     def __init__(self, **kwargs):
         for f in self.fields:
@@ -28,6 +37,17 @@ class DB(object):
 
     @staticmethod
     def _make_sql(method, table, fields=None, data=None, condition=None, join=None):
+        '''
+        Make SQL statement (just a simple implementation, don't support complex operation).
+
+        :param method: expect `select`, `update`, `delete`, `insert`
+        :param table: the main table name of the SQL statement
+        :param fields: fields will be operated
+        :param data:
+        :param condition: conditions, only support sequences
+        :param join:
+        :return:
+        '''
         if method not in ('select', 'update', 'delete', 'insert'):
             raise Exception('unexpected operation %s' % method)
 
@@ -142,14 +162,14 @@ class DB(object):
         db_instance.close()
 
     def _connect_db(self):
-        self.conn = sqlite3.connect(DB_PATH)
-        self.conn.row_factory = sqlite3.Row
-        self.cursor = self.conn.cursor()
+        self._conn = sqlite3.connect(DB_PATH)
+        self._conn.row_factory = sqlite3.Row
+        self.cursor = self._conn.cursor()
 
     def _close_db(self):
-        self.conn.commit()
+        self._conn.commit()
         self.cursor.close()
-        self.conn.close()
+        self._conn.close()
 
     def _pair(self):
         values = tuple([self.__dict__.get(i, '') for i in self.fields])
