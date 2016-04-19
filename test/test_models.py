@@ -97,6 +97,7 @@ class FollowedTest(unittest.TestCase):
         f = Followed(bangumi_name='testr', status=STATUS_FOLLOWED, episode=6)
         f.save()
         b = Bangumi(name='testr')
+        b.save()
         bangumi_data = b.select(one=True, join='LEFT JOIN %s ON %s.bangumi_name=%s.name' % (Followed.table,
                                                                                             Followed.table,
                                                                                             Bangumi.table))
