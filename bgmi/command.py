@@ -265,4 +265,8 @@ class CommandParser(_CommandParserMixin):
         return group
 
     def print_help(self):
-        print 'Help'
+        sys.stdout.write('usage: bgmi\n')
+        for group in self.argument_groups.values():
+            sys.stdout.write('%s:\n\n' % group.name)
+            for argument in group.arguments.values():
+                sys.stdout.write('\t%s\n' % argument.name)

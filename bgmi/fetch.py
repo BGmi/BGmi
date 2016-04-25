@@ -3,8 +3,9 @@ import re
 import datetime
 import string
 import requests
+from bs4 import BeautifulSoup
 from collections import defaultdict
-from bgmi.config import FETCH_URL
+from bgmi.config import FETCH_URL, DETAIL_URL
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED
 from bgmi.utils import print_error, print_warning, print_info
 
@@ -152,5 +153,51 @@ def save_data(data):
     b.save()
 
 
+FETCH_EPISODE = re.compile("^[第]?(\d+)]")
+FETCH_EPISODE_FALLBACK = re.compile("^(\d+)$")
+
+
+def parse_episode(data):
+    for i in data.split('['):
+        match = FETCH_EPISODE.findall(i)
+        if match and match[0].isdigit():
+            return int(match[0])
+    for i in data.split():
+        match = FETCH_EPISODE_FALLBACK.findall(i)
+        if match and match[0].isdigit():
+            return int(match[0])
+
+
+def fetch_episode(keyword):
+    response = get_response(DETAIL_URL + keyword)
+    b = BeautifulSoup(response)
+    container = b.find('table', attrs={'class': 'tablesorter'})
+    result = []
+    bangumi_update_info = {}
+
+    for info in container.tbody.find_all('tr'):
+        # bangumi_update_info = {}
+        for i, detail in enumerate(info.find_all('td')):
+            if i == 0:
+                bangumi_update_info['time'] = detail.span.text
+            if i == 2:
+                title = detail.find('a', attrs={'target': '_blank'}).text.strip()
+                bangumi_update_info['title'] = title
+                bangumi_update_info['episode'] = parse_episode(title)
+            if i == 3:
+                bangumi_update_info['download'] = detail.find('a').attrs.get('href')
+        result.append(bangumi_update_info)
+
+    return bangumi_update_info
+
+
+def get_maximum_episode(data):
+    bangumi = max(data, key=lambda i: i['episode'])
+    if bangumi['episode'] is not None:
+        return bangumi
+
+
 if __name__ == '__main__':
-    fetch(save=True, group_by_weekday=False)
+    # fetch(save=True, group_by_weekday=False)
+    fetch_episode('%E5%B0%8F%E4%B8%B8%E5%AD%90')
+    fetch_episode('%E8%81%96%E6%88%B0%E5%88%BB')

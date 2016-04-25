@@ -3,7 +3,8 @@ import os
 import sqlite3
 from bgmi.command import CommandParser
 from bgmi.fetch import fetch, bangumi_calendar
-from bgmi.utils import print_warning, print_info, print_success, print_bilibili, print_error
+from bgmi.utils import print_warning, print_info, print_success, print_bilibili, \
+    print_error, test_connection
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED
 

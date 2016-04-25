@@ -1,6 +1,6 @@
 # coding=utf-8
 import unittest
-from bgmi.fetch import parser_bangumi, process_subtitle
+from bgmi.fetch import parser_bangumi, process_subtitle, parse_episode, get_maximum_episode
 
 
 class BangumiTest(unittest.TestCase):
@@ -49,6 +49,17 @@ class BangumiTest(unittest.TestCase):
                         'subtitle_group': ['WOLF']}]
 
         self.assertEqual(result['wed'], assert_data)
+
+    def test_parse_episode(self):
+        self.assertEqual(2, parse_episode('[Mabors Sub] Sakamoto Desu ga - 02 [GB][720P][PSV&PC]'))
+        self.assertEqual(12, parse_episode('[啊啊字幕组] [在下坂本,有何贵干][12][GB][720P][PSV&PC]'))
+
+    def test_get_maximum_episode(self):
+        data = [{'episode': 12, 'title': 'A'}, {'episode': 11, 'title': 'B'}]
+        self.assertEqual(get_maximum_episode(data)['episode'], 12)
+
+        data = [{'episode': None, 'title': 'A'}, {'episode': None, 'title': 'B'}]
+        self.assertEqual(get_maximum_episode(data), None)
 
 
 if __name__ == '__main__':
