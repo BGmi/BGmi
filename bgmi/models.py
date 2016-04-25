@@ -32,8 +32,9 @@ class DB(object):
         for f in self.fields:
             if f == self.primary_key and kwargs.get(f, None) is None:
                 raise ValueError('primary key %s must be set' % f)
-            setattr(self, f, kwargs.get(f, ''))
+            setattr(self, f, kwargs.get(f, None))
         self._unicodeize()
+        self.select(one=True)
 
     @staticmethod
     def _make_sql(method, table, fields=None, data=None, condition=None, join=None):
@@ -204,6 +205,11 @@ class DB(object):
         if ret and one and 'id' in ret:
             self._id = ret['id']
 
+        if not isinstance(ret, (list, type(None))):
+            for i in self.fields:
+                if getattr(self, i) is None:
+                    setattr(self, i, ret[i])
+
         return ret
 
     def update(self, data=None):
@@ -219,7 +225,7 @@ class DB(object):
         if data is None:
             data = {}
             for i in self.fields:
-                data.update({i: self.__dict__.get(i, '')})
+                data.update({i: getattr(self, i)})
 
         sql = self._make_sql('update', self.table, fields=data.keys(), condition=('id', ))
         self._connect_db()
@@ -274,7 +280,7 @@ class Bangumi(DB):
         self._unicodeize()
 
     def __repr__(self):
-        return self.name
+        return 'Bangumi<%s>' % self.name
 
     def __str__(self):
         return 'Bangumi<%s>' % self.name
@@ -307,6 +313,7 @@ class Bangumi(DB):
 
 class Followed(DB):
     table = 'followed'
+    primary_key = 'bangumi_name'
     fields = ('bangumi_name', 'episode', 'status')
 
     @staticmethod
@@ -333,3 +340,20 @@ class Followed(DB):
     def delete(self, condition=None):
         self.status = STATUS_NORMAL
         self.save()
+
+    @staticmethod
+    def get_all_followed(status=STATUS_FOLLOWED):
+        db = DB.connect_db()
+        db.row_factory = sqlite3.Row
+        cur = db.cursor()
+        sql = DB._make_sql('select', table=Followed.table, condition=['status', ])
+        cur.execute(sql, (status, ))
+        data = cur.fetchall()
+        DB.close_db(db)
+        return data
+
+    def __str__(self):
+        return 'Followed Bangumi<%s>' % self.bangumi_name
+
+    def __repr__(self):
+        return 'Followed Bangumi<%s>' % self.bangumi_name

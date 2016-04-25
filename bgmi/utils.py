@@ -42,7 +42,7 @@ def test_connection():
     import requests
 
     try:
-        requests.head(FETCH_URL)
+        requests.head(FETCH_URL, timeout=5)
     except:
         return False
 

@@ -38,7 +38,7 @@ class ModelsTest(unittest.TestCase):
         self.assertEqual(d, [])
         b2.save()
         ret = b2.select(one=True)
-        self.assertEqual(list(ret)[1:], [u'test2', u'', u'', u'Sun'])
+        self.assertEqual(list(ret)[1:], [u'test2', u'', None, u'Sun'])
 
     def test_get_all_bangumi(self):
         from collections import defaultdict
@@ -53,7 +53,7 @@ class ModelsTest(unittest.TestCase):
         self.assertEqual(ret['update_time'], 'Mon')
         b1.update(data={'name': 'test666', 'update_time': 'Sat'})
         ret = b1.select(one=True)
-        self.assertEqual(list(ret)[1:], [u'test666', u'', u'', u'Sat'])
+        self.assertEqual(list(ret)[1:], [u'test666', u'', None, u'Sat'])
 
     def test_delete(self):
         b1 = Bangumi(name='test_delete', update_time='Sun')

@@ -2,11 +2,12 @@
 import os
 import sqlite3
 from bgmi.command import CommandParser
-from bgmi.fetch import fetch, bangumi_calendar
+from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode
 from bgmi.utils import print_warning, print_info, print_success, print_bilibili, \
     print_error, test_connection
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED
+import bgmi.config
 
 
 ACTION_FETCH = 'fetch'
@@ -39,24 +40,26 @@ def main():
     ret = c.parse_command()
 
     # print_bilibili()
+    # bgmi.config.NETWORK_CONNECTED = test_connection()
+
     if ret.action not in ACTIONS:
         c.print_help()
         exit(0)
 
     if ret.action == 'add':
         for bangumi in ret.add.name:
-            _ = Bangumi(name=bangumi)
-            data = _.select(one=True, fields=['id', 'name', 'update_time'])
+            bangumi_obj = Bangumi(name=bangumi)
+            data = bangumi_obj.select(one=True, fields=['id', 'name', 'keyword'])
             if data:
-                f = Followed(bangumi_name=data['name'], episode=0, status=STATUS_FOLLOWED)
-                if not f.select():
-                    print_success('Bangumi<id: %s, name: %s, update time: %s> followed'
-                                  % tuple(data))
-                    f.save()
+                followed_obj = Followed(bangumi_name=data['name'], status=STATUS_FOLLOWED)
+
+                if not followed_obj.select():
+                    followed_obj.episode = get_maximum_episode(keyword=data['keyword']) if \
+                        bgmi.config.NETWORK_CONNECTED else 0
+                    followed_obj.save()
+                    print_success('%s has followed' % bangumi_obj)
                 else:
-                    print_warning('Bangumi<id: %s, name: %s, update time: %s> already followed'
-                                  % tuple(data))
-                # _.update({'status': STATUS_FOLLOWED})
+                    print_warning('%s already followed' % bangumi_obj)
 
     elif ret.action == 'delete':
         if ret.delete.clear_all:
@@ -80,7 +83,16 @@ def main():
         if ret.action == ACTION_UPDATE:
             pass
         fetch(save=True, group_by_weekday=False)
-        print_success('done')
+        print_info('updating subscribe ...')
+        for subscribe in Followed.get_all_followed():
+            print_info('fetching %s ...' % subscribe['bangumi_name'])
+            keyword = Bangumi(name=subscribe['bangumi_name']).select(one=True)['keyword']
+            episode = get_maximum_episode(keyword)
+            if episode > subscribe['episode']:
+                print_success('%s updated, episode: %d' % (subscribe['bangumi_name'], episode))
+                _ = Followed(bangumi_name=subscribe['bangumi_name'])
+                _.episode = episode
+                _.save()
 
     elif ret.action == ACTION_CAL:
         force = ret.cal.force_update

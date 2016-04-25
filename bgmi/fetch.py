@@ -8,6 +8,7 @@ from collections import defaultdict
 from bgmi.config import FETCH_URL, DETAIL_URL
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED
 from bgmi.utils import print_error, print_warning, print_info
+import bgmi.config
 
 
 BANGUMI_MATCH = re.compile("(?P<update_time>sun|mon|tue|wed|thu|fri|sat)"
@@ -20,6 +21,11 @@ SUBTITLE_MATCH = re.compile("<a href=\".*?\">(.*?)</a>")
 
 def bangumi_calendar(force_update=False, today=False, followed=False, save=True):
     print_info('Bangumi Weekly Schedule')
+
+    if not bgmi.config.NETWORK_CONNECTED:
+        force_update = False
+        print_warning('network not connected')
+
     if force_update:
         print_info('fetching bangumi info ...')
         weekly_list = fetch(save=save, status=True)
@@ -62,6 +68,10 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
             for i, bangumi in enumerate(weekly_list[weekday.lower()]):
                 if isinstance(bangumi['name'], unicode):
                     bangumi['name'] = bangumi['name'].encode('utf-8')
+
+                if bangumi['status'] == STATUS_FOLLOWED and 'episode' in bangumi:
+                    bangumi['name'] = '%s(%d)' % (bangumi['name'], bangumi['episode'])
+
                 half = len(re.findall('[%s]' % string.printable, bangumi['name']))
                 full = (len(bangumi['name']) - half) / 3
                 space_count = 28 - (full * 2 + half)
@@ -73,6 +83,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
                 for s in spacial_remove_chars:
                     if s in bangumi['name']:
                         space_count -= 1
+
                 if bangumi['status'] == STATUS_FOLLOWED:
                     bangumi['name'] = '\033[1;33m%s\033[0m' % bangumi['name']
 
@@ -154,7 +165,7 @@ def save_data(data):
 
 
 FETCH_EPISODE = re.compile("^[第]?(\d+)]")
-FETCH_EPISODE_FALLBACK = re.compile("^(\d+)$")
+FETCH_EPISODE_FALLBACK = re.compile("^(\d{1,3})$")
 
 
 def parse_episode(data):
@@ -162,6 +173,7 @@ def parse_episode(data):
         match = FETCH_EPISODE.findall(i)
         if match and match[0].isdigit():
             return int(match[0])
+
     for i in data.split():
         match = FETCH_EPISODE_FALLBACK.findall(i)
         if match and match[0].isdigit():
@@ -173,10 +185,12 @@ def fetch_episode(keyword):
     b = BeautifulSoup(response)
     container = b.find('table', attrs={'class': 'tablesorter'})
     result = []
-    bangumi_update_info = {}
 
     for info in container.tbody.find_all('tr'):
-        # bangumi_update_info = {}
+        bangumi_update_info = {}
+        if u'動畫' not in info.text:
+            continue
+
         for i, detail in enumerate(info.find_all('td')):
             if i == 0:
                 bangumi_update_info['time'] = detail.span.text
@@ -188,16 +202,15 @@ def fetch_episode(keyword):
                 bangumi_update_info['download'] = detail.find('a').attrs.get('href')
         result.append(bangumi_update_info)
 
-    return bangumi_update_info
+    return result
 
 
-def get_maximum_episode(data):
+def get_maximum_episode(keyword):
+    data = fetch_episode(keyword=keyword)
     bangumi = max(data, key=lambda i: i['episode'])
-    if bangumi['episode'] is not None:
-        return bangumi
+    return bangumi['episode']
 
 
 if __name__ == '__main__':
     # fetch(save=True, group_by_weekday=False)
-    fetch_episode('%E5%B0%8F%E4%B8%B8%E5%AD%90')
-    fetch_episode('%E8%81%96%E6%88%B0%E5%88%BB')
+    print get_maximum_episode('%E5%BE%9E%E9%9B%B6')
