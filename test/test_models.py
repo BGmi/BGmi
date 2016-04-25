@@ -1,4 +1,5 @@
 # coding=utf-8
+from __future__ import print_function, unicode_literals
 import os
 import unittest
 import sqlite3
@@ -32,13 +33,13 @@ class ModelsTest(unittest.TestCase):
     def test_select_and_save(self):
         b1 = Bangumi(name='test', update_time='Sun')
         test = b1.select(condition={'name': 'test'}, one=True)
-        self.assertEqual(list(test)[1:], [u'test', u'rr', u'test', u'Sun'])
+        self.assertEqual(list(test)[1:], ['test', 'rr', 'test', 'Sun'])
         b2 = Bangumi(name='test2', update_time='Sun')
         d = b2.select()
         self.assertEqual(d, [])
         b2.save()
         ret = b2.select(one=True)
-        self.assertEqual(list(ret)[1:], [u'test2', u'', None, u'Sun'])
+        self.assertEqual(list(ret)[1:], ['test2', '', None, 'Sun'])
 
     def test_get_all_bangumi(self):
         from collections import defaultdict
@@ -50,15 +51,15 @@ class ModelsTest(unittest.TestCase):
         b1.update_time = 'Mon'
         b1.update()
         ret = b1.select(one=True)
-        self.assertEqual(ret['update_time'], 'Mon')
+        self.assertEqual(ret[str('update_time')], 'Mon')
         b1.update(data={'name': 'test666', 'update_time': 'Sat'})
         ret = b1.select(one=True)
-        self.assertEqual(list(ret)[1:], [u'test666', u'', None, u'Sat'])
+        self.assertEqual(list(ret)[1:], ['test666', '', None, 'Sat'])
 
     def test_delete(self):
         b1 = Bangumi(name='test_delete', update_time='Sun')
         b1.save()
-        self.assertEqual(b1.select(one=True)['name'], 'test_delete')
+        self.assertEqual(b1.select(one=True)[str('name')], 'test_delete')
         b1.delete()
         self.assertEqual(b1.select(one=True), None)
 
@@ -101,9 +102,9 @@ class FollowedTest(unittest.TestCase):
         bangumi_data = b.select(one=True, join='LEFT JOIN %s ON %s.bangumi_name=%s.name' % (Followed.table,
                                                                                             Followed.table,
                                                                                             Bangumi.table))
-        self.assertEqual(bangumi_data['status'], STATUS_FOLLOWED)
+        self.assertEqual(bangumi_data[str('status')], STATUS_FOLLOWED)
         f.delete()
         bangumi_data = b.select(one=True, join='LEFT JOIN %s ON %s.bangumi_name=%s.name' % (Followed.table,
                                                                                             Followed.table,
                                                                                             Bangumi.table))
-        self.assertEqual(bangumi_data['status'], STATUS_NORMAL)
+        self.assertEqual(bangumi_data[str('status')], STATUS_NORMAL)

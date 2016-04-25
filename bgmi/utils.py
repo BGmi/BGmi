@@ -1,4 +1,5 @@
 # coding=utf-8
+from __future__ import print_function
 from bgmi import __version__
 from bgmi.config import FETCH_URL
 
@@ -22,7 +23,7 @@ def print_error(message, exit_=True):
 
 
 def print_bilibili():
-    print '''
+    print('''
             .cc          ,xc
              .kXO;      .xX0,
         .,;;;;:xKKd:;;:oKKKl:::;,.
@@ -35,7 +36,7 @@ def print_bilibili():
       ,x l           .          ,.xc    | __ ) / ___|  _ __ ___ (_)
       .k;;'.....................,'O:    |  _ \| |  _  | '_ ` _ \| |
        .cddx'  ,doloooooodd.  ;xdd:     | |_) | |_| | | | | | | | |
-           .coo:.         ;odo:.        |____/ \____| |_| |_| |_|_|\n''' % __version__
+           .coo:.         ;odo:.        |____/ \____| |_| |_| |_|_|\n''' % __version__)
 
 
 def test_connection():

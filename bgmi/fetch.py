@@ -1,4 +1,5 @@
 # coding=utf-8
+from __future__ import print_function, unicode_literals
 import re
 import datetime
 import string
@@ -44,7 +45,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
         return seq[n:] + seq[:n]
 
     def print_line():
-        print '+', '-' * 29, '+', '-' * 29, '+', '-' * 29, '+'
+        print('+', '-' * 29, '+', '-' * 29, '+', '-' * 29, '+')
 
     if today:
         weekday_order = (Bangumi.week[datetime.datetime.today().weekday()], )
@@ -56,13 +57,13 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
     for index, weekday in enumerate(weekday_order):
         if weekly_list[weekday.lower()]:
             if not followed:
-                print ' ' * 46,
+                print(' ' * 46, end='')
             if index == 0:
-                print '\033[1;37;40m%s.\033[0m' % weekday,
+                print('\033[1;37;40m%s.\033[0m' % weekday, end='')
             else:
-                print '\033[1;32m%s.\033[0m' % weekday,
+                print('\033[1;32m%s.\033[0m' % weekday, end='')
             if not followed:
-                print
+                print()
                 print_line()
 
             for i, bangumi in enumerate(weekly_list[weekday.lower()]):
@@ -89,14 +90,14 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
 
                 if followed:
                     if i > 0:
-                        print ' ' * 4,
-                    print bangumi['name'], bangumi['subtitle_group']
+                        print(' ' * 4, end='')
+                    print(bangumi['name'], bangumi['subtitle_group'])
                 else:
                     if (i + 1) % 3 == 1:
-                        print '|',
-                    print bangumi['name'], ' ' * space_count, '|' if not followed else ' ',
+                        print('|', end='')
+                    print(bangumi['name'], ' ' * space_count, '|' if not followed else ' ', end='')
                     if (i + 1) % 3 == 0 or i + 1 == len(weekly_list[weekday.lower()]):
-                        print
+                        print()
 
             if not followed:
                 print_line()
@@ -105,7 +106,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
 def get_response(url):
     try:
         return requests.get(url).content
-    except Exception, e:
+    except Exception as e:
         print_error('error: %s' % str(e))
 
 
@@ -188,7 +189,7 @@ def fetch_episode(keyword):
 
     for info in container.tbody.find_all('tr'):
         bangumi_update_info = {}
-        if u'動畫' not in info.text:
+        if '動畫' not in info.text:
             continue
 
         for i, detail in enumerate(info.find_all('td')):
@@ -213,4 +214,4 @@ def get_maximum_episode(keyword):
 
 if __name__ == '__main__':
     # fetch(save=True, group_by_weekday=False)
-    print get_maximum_episode('%E5%BE%9E%E9%9B%B6')
+    print(get_maximum_episode('%E5%BE%9E%E9%9B%B6'))

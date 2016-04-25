@@ -1,9 +1,14 @@
 # coding=utf-8
+from __future__ import print_function, unicode_literals
+import sys
 import os
 import sqlite3
 from collections import defaultdict
-from bgmi.config import DEBUG
 
+if sys.version_info < (3, 0, 0):
+    _unicode = unicode
+else:
+    _unicode = str
 
 STATUS_NORMAL = 0
 STATUS_FOLLOWED = 1
@@ -33,7 +38,7 @@ class DB(object):
             if f == self.primary_key and kwargs.get(f, None) is None:
                 raise ValueError('primary key %s must be set' % f)
             setattr(self, f, kwargs.get(f, None))
-        self._unicodeize()
+        # self._unicodeize()
         self.select(one=True)
 
     @staticmethod
@@ -52,13 +57,13 @@ class DB(object):
         if method not in ('select', 'update', 'delete', 'insert'):
             raise Exception('unexpected operation %s' % method)
 
-        if not isinstance(condition, (type(None), tuple, list, set, str)):
+        if not isinstance(condition, (type(None), tuple, list, set, _unicode)):
             raise Exception('`condition` expected sequences')
 
-        if not isinstance(fields, (type(None), tuple, list, set, str)):
+        if not isinstance(fields, (type(None), tuple, list, set, _unicode)):
             raise Exception('`select` expected sequences or string')
 
-        if not isinstance(table, str):
+        if not isinstance(table, _unicode):
             raise Exception('unexpected type %s of table' % type(table))
 
         def make_condition(condition, operation='AND'):
@@ -74,7 +79,7 @@ class DB(object):
                     else:
                         sql += '`%s`=? %s ' % (f, operation)
                 sql = sql[:-(len(operation)+1)]
-            elif isinstance(condition, str):
+            elif isinstance(condition, _unicode):
                 if '.' in condition:
                     sql += '%s=?' % condition
                 else:
@@ -109,7 +114,7 @@ class DB(object):
             if fields is None:
                 select = '*'
             else:
-                if not isinstance(fields, str):
+                if not isinstance(fields, _unicode):
                     select = ''
                     for f in fields:
                         if '.' in f:
@@ -120,7 +125,7 @@ class DB(object):
                 else:
                     select = '`%s`' % fields
 
-            if not isinstance(join, str):
+            if not isinstance(join, _unicode):
                 join = ''
 
             sql = 'SELECT %s FROM `%s` %s WHERE ' % (select, table, join)
@@ -142,16 +147,17 @@ class DB(object):
             else:
                 sql += '1'
 
-        if DEBUG:
-            print '[DEBUG] SQL: %s' % sql
         return sql
 
     def _unicodeize(self):
+        '''
         for i in self.fields:
             v = self.__dict__.get(i, '')
             if isinstance(v, str):
                 v = unicode(v.decode('utf-8'))
                 self.__dict__[i] = v
+        '''
+        pass
 
     @staticmethod
     def connect_db():
@@ -194,8 +200,10 @@ class DB(object):
             else:
                 k, v = '%s.id' % self.table, (self._id, )
         else:
-            k, v = condition.keys(), condition.values()
+            # hack for python3
+            k, v = list(condition.keys()), list(condition.values())
 
+# hack for python3
         self._connect_db()
         sql = Bangumi._make_sql('select', fields=fields, table=self.table, condition=k, join=join)
         self.cursor.execute(sql, v)
@@ -208,14 +216,14 @@ class DB(object):
         if not isinstance(ret, (list, type(None))):
             for i in self.fields:
                 if getattr(self, i) is None:
-                    setattr(self, i, ret[i])
+                    setattr(self, i, ret[str(i)])
 
         return ret
 
     def update(self, data=None):
         obj = self.select(one=True)
         if obj:
-            self._id = obj['id']
+            self._id = obj[str('id')]
         else:
             raise Exception('%s not exist' % self.__repr__())
 
@@ -227,9 +235,9 @@ class DB(object):
             for i in self.fields:
                 data.update({i: getattr(self, i)})
 
-        sql = self._make_sql('update', self.table, fields=data.keys(), condition=('id', ))
+        sql = self._make_sql('update', self.table, fields=list(data.keys()), condition=('id', ))
         self._connect_db()
-        params = data.values()
+        params = list(data.values())
         params.append(self._id)
         self.cursor.execute(sql, params)
         self._close_db()
@@ -250,7 +258,7 @@ class DB(object):
 
         obj = self.select(one=True)
         if obj:
-            self._id = obj['id']
+            self._id = obj[str('id')]
             self.update()
             return self
 
@@ -306,7 +314,7 @@ class Bangumi(DB):
         weekly_list = defaultdict(list)
 
         for bangumi_item in data:
-            weekly_list[bangumi_item['update_time'].lower()].append(dict(bangumi_item))
+            weekly_list[bangumi_item[str('update_time')].lower()].append(dict(bangumi_item))
 
         return weekly_list
 
@@ -326,7 +334,7 @@ class Followed(DB):
         if condition is None:
             k, v = [], []
         else:
-            k, v = condition.keys(), condition.values()
+            k, v = list(condition.keys()), list(condition.values())
         sql = DB._make_sql('delete', table=Followed.table, condition=k)
 
         if not batch and sql.endswith('WHERE 1'):
