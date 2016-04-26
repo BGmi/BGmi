@@ -111,6 +111,8 @@ def init_db():
     conn = sqlite3.connect('bangumi.db')
     conn.execute(CREATE_TABLE_BANGUMI)
     conn.execute(CREATE_TABLE_FOLLOWED)
+    conn.commit()
+    conn.close()
 
 
 def setup():
