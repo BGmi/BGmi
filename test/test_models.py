@@ -19,27 +19,22 @@ class ModelsTest(unittest.TestCase):
         else:
             self.db = sqlite3.connect(db_path)
             self.conn = self.db.cursor()
-            self.conn.execute(INSERT_TEST_DATA)
         self.db.commit()
 
     def tearDown(self):
-        self.conn.execute('DELETE FROM bangumi WHERE name="test"')
-        self.conn.execute('DELETE FROM bangumi WHERE name="test2"')
+        self.conn.execute('DELETE FROM bangumi WHERE name="test_select_and_save"')
         self.conn.execute('DELETE FROM bangumi WHERE name="test666"')
         self.conn.execute('DELETE FROM bangumi WHERE name="test_update"')
         self.db.commit()
         self.db.close()
 
     def test_select_and_save(self):
-        b1 = Bangumi(name='test', update_time='Sun')
-        test = b1.select(condition={'name': 'test'}, one=True)
-        self.assertEqual(list(test)[1:], ['test', 'rr', 'test', 'Sun'])
-        b2 = Bangumi(name='test2', update_time='Sun')
+        b2 = Bangumi(name='test_select_and_save', update_time='Sun')
         d = b2.select()
         self.assertEqual(d, [])
         b2.save()
         ret = b2.select(one=True)
-        self.assertEqual(list(ret)[1:], ['test2', '', None, 'Sun'])
+        self.assertIsInstance(ret, dict)
 
     def test_get_all_bangumi(self):
         from collections import defaultdict
@@ -51,15 +46,16 @@ class ModelsTest(unittest.TestCase):
         b1.update_time = 'Mon'
         b1.update()
         ret = b1.select(one=True)
-        self.assertEqual(ret[str('update_time')], 'Mon')
+        self.assertEqual(ret['update_time'], 'Mon')
+
         b1.update(data={'name': 'test666', 'update_time': 'Sat'})
         ret = b1.select(one=True)
-        self.assertEqual(list(ret)[1:], ['test666', '', None, 'Sat'])
+        self.assertIsInstance(ret, dict)
 
     def test_delete(self):
         b1 = Bangumi(name='test_delete', update_time='Sun')
         b1.save()
-        self.assertEqual(b1.select(one=True)[str('name')], 'test_delete')
+        self.assertEqual(b1.select(one=True)['name'], 'test_delete')
         b1.delete()
         self.assertEqual(b1.select(one=True), None)
 
@@ -85,26 +81,25 @@ class FollowedTest(unittest.TestCase):
         else:
             self.db = sqlite3.connect(db_path)
             self.conn = self.db.cursor()
-            self.conn.execute(INSERT_TEST_DATA2)
         self.db.commit()
 
     def tearDown(self):
-        self.conn.execute('DELETE FROM bangumi WHERE name="testr"')
-        self.conn.execute('DELETE FROM followed WHERE bangumi_name="testr"')
+        self.conn.execute('DELETE FROM bangumi WHERE name="test_add_and_remove_followed"')
+        self.conn.execute('DELETE FROM followed WHERE bangumi_name="test_add_and_remove_followed"')
         self.db.commit()
         self.db.close()
 
     def test_add_and_remove_followed(self):
-        f = Followed(bangumi_name='testr', status=STATUS_FOLLOWED, episode=6)
+        f = Followed(bangumi_name='test_add_and_remove_followed', status=STATUS_FOLLOWED, episode=6)
         f.save()
-        b = Bangumi(name='testr')
+        b = Bangumi(name='test_add_and_remove_followed')
         b.save()
         bangumi_data = b.select(one=True, join='LEFT JOIN %s ON %s.bangumi_name=%s.name' % (Followed.table,
                                                                                             Followed.table,
                                                                                             Bangumi.table))
-        self.assertEqual(bangumi_data[str('status')], STATUS_FOLLOWED)
+        self.assertEqual(bangumi_data['status'], STATUS_FOLLOWED)
         f.delete()
         bangumi_data = b.select(one=True, join='LEFT JOIN %s ON %s.bangumi_name=%s.name' % (Followed.table,
                                                                                             Followed.table,
                                                                                             Bangumi.table))
-        self.assertEqual(bangumi_data[str('status')], STATUS_NORMAL)
+        self.assertEqual(bangumi_data['status'], STATUS_NORMAL)

@@ -18,6 +18,11 @@ STATUS_REMOVED = 2
 DB_PATH = os.path.join(os.path.dirname(__file__), '../bangumi.db')
 
 
+def make_dicts(cursor, row):
+    return dict((cursor.description[idx][0], value)
+                for idx, value in enumerate(row))
+
+
 class DB(object):
     # `_id` save the id column in database, will be set automatic
     _id = None
@@ -172,7 +177,7 @@ class DB(object):
 
     def _connect_db(self):
         self._conn = sqlite3.connect(DB_PATH)
-        self._conn.row_factory = sqlite3.Row
+        self._conn.row_factory = make_dicts
         self.cursor = self._conn.cursor()
 
     def _close_db(self):
@@ -211,20 +216,20 @@ class DB(object):
         ret = self.cursor.fetchall() if not one else self.cursor.fetchone()
         self._close_db()
 
-        if ret and one and 'id' in ret:
+        if self._id is None and ret and one and 'id' in ret:
             self._id = ret['id']
 
         if not isinstance(ret, (list, type(None))):
             for i in self.fields:
                 if getattr(self, i) is None:
-                    setattr(self, i, ret[str(i)])
+                    setattr(self, i, ret[i])
 
         return ret
 
     def update(self, data=None):
         obj = self.select(one=True)
         if obj:
-            self._id = obj[str('id')]
+            self._id = obj['id']
         else:
             raise Exception('%s not exist' % self.__repr__())
 
@@ -259,7 +264,7 @@ class DB(object):
 
         obj = self.select(one=True)
         if obj:
-            self._id = obj[str('id')]
+            self._id = obj['id']
             self.update()
             return self
 
@@ -298,7 +303,7 @@ class Bangumi(DB):
     @staticmethod
     def get_all_bangumi(status=None):
         db = Bangumi.connect_db()
-        db.row_factory = sqlite3.Row
+        db.row_factory = make_dicts
         cur = db.cursor()
         join_sql = Bangumi._make_sql('select', table=Followed.table)
         if status is None:
@@ -316,7 +321,7 @@ class Bangumi(DB):
         weekly_list = defaultdict(list)
 
         for bangumi_item in data:
-            weekly_list[bangumi_item[str('update_time')].lower()].append(dict(bangumi_item))
+            weekly_list[bangumi_item['update_time'].lower()].append(dict(bangumi_item))
 
         return weekly_list
 
@@ -329,7 +334,7 @@ class Followed(DB):
     @staticmethod
     def delete_followed(condition=None, batch=True):
         db = DB.connect_db()
-        db.row_factory = sqlite3.Row
+        db.row_factory = make_dicts
         cur = db.cursor()
         if not isinstance(condition, (type(None), dict)):
             raise Exception('condition expected dict')
@@ -354,7 +359,7 @@ class Followed(DB):
     @staticmethod
     def get_all_followed(status=STATUS_FOLLOWED):
         db = DB.connect_db()
-        db.row_factory = sqlite3.Row
+        db.row_factory = make_dicts
         cur = db.cursor()
         sql = DB._make_sql('select', table=Followed.table, condition=['status', ])
         cur.execute(sql, (status, ))

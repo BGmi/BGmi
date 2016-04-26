@@ -107,8 +107,8 @@ def main():
             bangumi_calendar(force_update=force, today=today, save=save)
 
 
-def init_db():
-    conn = sqlite3.connect('bangumi.db')
+def init_db(db_path):
+    conn = sqlite3.connect(db_path)
     conn.execute(CREATE_TABLE_BANGUMI)
     conn.execute(CREATE_TABLE_FOLLOWED)
     conn.commit()
@@ -116,8 +116,9 @@ def init_db():
 
 
 def setup():
-    if not os.path.exists('bangumi.db'):
-        init_db()
+    db_path = os.path.join(os.path.dirname(__file__), '../bangumi.db')
+    if not os.path.exists(db_path):
+        init_db(db_path)
     main()
 
 
