@@ -1,3 +1,6 @@
 *.py[cod]
 *.db
 .idea
+dist/
+build/
+bgmi.egg-info
