@@ -20,7 +20,7 @@ setup(
     install_requires=requirements,
     entry_points={
         'console_scripts': [
-            'bgmi = bgmi.main'
+            'bgmi = bgmi.main:setup'
         ]
     },
     license='MIT'

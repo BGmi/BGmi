@@ -112,8 +112,12 @@ def init_db():
     conn.execute(CREATE_TABLE_BANGUMI)
     conn.execute(CREATE_TABLE_FOLLOWED)
 
-if __name__ == '__main__':
+
+def setup():
     if not os.path.exists('bangumi.db'):
         init_db()
-
     main()
+
+
+if __name__ == '__main__':
+    setup()
