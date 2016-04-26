@@ -1,5 +1,5 @@
 # coding=utf-8
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 from bgmi import __version__
 from bgmi.config import FETCH_URL
 
@@ -48,3 +48,17 @@ def test_connection():
         return False
 
     return True
+
+
+def unicodeize(data):
+    import bgmi.config
+    if bgmi.config.IS_PYTHON3:
+        if isinstance(data, bytes):
+            return data.decode('utf-8')
+        else:
+            return data
+            # return bytes(str(data), 'latin-1').decode('utf-8')
+    try:
+        return unicode(data.decode('utf-8'))
+    except UnicodeEncodeError:
+        return data

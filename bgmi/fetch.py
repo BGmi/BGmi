@@ -1,5 +1,6 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
+import sys
 import re
 import datetime
 import string
@@ -8,9 +9,13 @@ from bs4 import BeautifulSoup
 from collections import defaultdict
 from bgmi.config import FETCH_URL, DETAIL_URL
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED
-from bgmi.utils import print_error, print_warning, print_info
+from bgmi.utils import print_error, print_warning, print_info, unicodeize
 import bgmi.config
 
+if bgmi.config.IS_PYTHON3:
+    _unicode = str
+else:
+    _unicode = unicode
 
 BANGUMI_MATCH = re.compile("(?P<update_time>sun|mon|tue|wed|thu|fri|sat)"
                            "array\.push\(\['.*?','(?P<name>.*?)','(?P<ke"
@@ -45,15 +50,16 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
         return seq[n:] + seq[:n]
 
     def print_line():
-        print('+', '-' * 29, '+', '-' * 29, '+', '-' * 29, '+')
+        num = 32
+        print('+', '-' * num, '+', '-' * num, '+', '-' * num, '+')
 
     if today:
         weekday_order = (Bangumi.week[datetime.datetime.today().weekday()], )
     else:
         weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
 
-    spacial_append_chars = ['Ⅱ', 'Ⅲ', '♪']
-    spacial_remove_chars = ['Δ', ]
+    spacial_append_chars = ['Ⅱ', 'Ⅲ', '♪', 'Δ']
+    spacial_remove_chars = []
     for index, weekday in enumerate(weekday_order):
         if weekly_list[weekday.lower()]:
             if not followed:
@@ -67,15 +73,16 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
                 print_line()
 
             for i, bangumi in enumerate(weekly_list[weekday.lower()]):
-                if isinstance(bangumi['name'], unicode):
-                    bangumi['name'] = bangumi['name'].encode('utf-8')
+                if isinstance(bangumi['name'], _unicode):
+                    # bangumi['name'] = bangumi['name']
+                    pass
 
                 if bangumi['status'] == STATUS_FOLLOWED and 'episode' in bangumi:
                     bangumi['name'] = '%s(%d)' % (bangumi['name'], bangumi['episode'])
 
                 half = len(re.findall('[%s]' % string.printable, bangumi['name']))
-                full = (len(bangumi['name']) - half) / 3
-                space_count = 28 - (full * 2 + half)
+                full = (len(bangumi['name']) - half)
+                space_count = 31 - (full * 2 + half)
 
                 for s in spacial_append_chars:
                     if s in bangumi['name']:
@@ -95,7 +102,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
                 else:
                     if (i + 1) % 3 == 1:
                         print('|', end='')
-                    print(bangumi['name'], ' ' * space_count, '|' if not followed else ' ', end='')
+                    print(' ' + bangumi['name'], ' ' * space_count, '|' if not followed else ' ', end='')
                     if (i + 1) % 3 == 0 or i + 1 == len(weekly_list[weekday.lower()]):
                         print()
 
@@ -105,7 +112,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
 
 def get_response(url):
     try:
-        return requests.get(url).content
+        return unicodeize(requests.get(url).content)
     except Exception as e:
         print_error('error: %s' % str(e))
 
@@ -189,7 +196,7 @@ def fetch_episode(keyword):
 
     for info in container.tbody.find_all('tr'):
         bangumi_update_info = {}
-        if '動畫' not in info.text:
+        if '動畫' not in unicodeize(info.text):
             continue
 
         for i, detail in enumerate(info.find_all('td')):
@@ -207,7 +214,7 @@ def fetch_episode(keyword):
 
 
 def get_maximum_episode(keyword):
-    data = fetch_episode(keyword=keyword)
+    data = [i for i in fetch_episode(keyword=keyword) if i['episode'] is not None]
     bangumi = max(data, key=lambda i: i['episode'])
     return bangumi['episode']
 

@@ -1,5 +1,6 @@
 # coding=utf-8
 import os
+import sys
 import sqlite3
 from bgmi.command import CommandParser
 from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode
@@ -76,7 +77,7 @@ def main():
                 else:
                     print_error('Bangumi %s not exist' % name, exit_=False)
         else:
-            print 'Help Delete'
+            print('Help Delete')
 
     elif ret.action in (ACTION_UPDATE, ACTION_FETCH):
         print_info('fetching bangumi data ...')

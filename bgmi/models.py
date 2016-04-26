@@ -4,11 +4,12 @@ import sys
 import os
 import sqlite3
 from collections import defaultdict
+import bgmi.config
 
-if sys.version_info < (3, 0, 0):
-    _unicode = unicode
-else:
+if bgmi.config.IS_PYTHON3:
     _unicode = str
+else:
+    _unicode = unicode
 
 STATUS_NORMAL = 0
 STATUS_FOLLOWED = 1
@@ -38,7 +39,8 @@ class DB(object):
             if f == self.primary_key and kwargs.get(f, None) is None:
                 raise ValueError('primary key %s must be set' % f)
             setattr(self, f, kwargs.get(f, None))
-        # self._unicodeize()
+
+        self._unicodeize()
         self.select(one=True)
 
     @staticmethod
@@ -150,14 +152,14 @@ class DB(object):
         return sql
 
     def _unicodeize(self):
-        '''
         for i in self.fields:
             v = self.__dict__.get(i, '')
             if isinstance(v, str):
-                v = unicode(v.decode('utf-8'))
+                if sys.version_info.major < 3:
+                    v = unicode(v.decode('utf-8'))
+                else:
+                    v = str(v)
                 self.__dict__[i] = v
-        '''
-        pass
 
     @staticmethod
     def connect_db():
@@ -203,7 +205,6 @@ class DB(object):
             # hack for python3
             k, v = list(condition.keys()), list(condition.values())
 
-# hack for python3
         self._connect_db()
         sql = Bangumi._make_sql('select', fields=fields, table=self.table, condition=k, join=join)
         self.cursor.execute(sql, v)
@@ -286,6 +287,7 @@ class Bangumi(DB):
         self.update_time = update_time
         self.subtitle_group = ', '.join(kwargs.get('subtitle_group', []))
         self._unicodeize()
+        self.select(one=True)
 
     def __repr__(self):
         return 'Bangumi<%s>' % self.name
