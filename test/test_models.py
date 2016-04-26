@@ -11,7 +11,6 @@ from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, INSERT_TEST_DA
 class ModelsTest(unittest.TestCase):
     def setUp(self):
         db_path = os.path.join(os.path.dirname(__file__), '../bangumi.db')
-        print(db_path)
         if not os.path.exists(db_path):
             self.db = sqlite3.connect(db_path)
             self.conn = self.db.cursor()
