@@ -1,7 +1,11 @@
 # coding=utf-8
 # Command Line Parser
+from __future__ import print_function, unicode_literals
 import sys
 from collections import OrderedDict
+
+
+HELP = ('-h', '--help')
 
 
 def _error(message):
@@ -75,7 +79,10 @@ class _CommandParserMixin(object):
 
     def _get_positional_args(self):
         self.positional_args = [i for i in self.arguments.values()
-                                if not i.name.startswith('-') and not i.type == 's']
+                                if not i.optional and not i.type == 's']
+        self._optional_args = [i for i in self.arguments.values()
+                               if i not in self.positional_args and not i.type == 's']
+
         self._positional_args = self.positional_args[::-1]
         for i in self.arguments.values():
             if i.type == 's':
@@ -90,6 +97,9 @@ class _CommandParserMixin(object):
                 if arg in parser_group._mutex_list:
                     _error('arguments %s and %s are mutually exclusive' % (arg, _mutex_arg))
                 parser_group._mutex_list.append(_mutex_arg)
+
+            if arg in HELP:
+                self.container.print_help()
 
             sub_parser = self._sub_parser.get(arg, None)
             if sub_parser:
@@ -129,25 +139,26 @@ class _CommandParserMixin(object):
 
         for arg in parser_group.arguments.values():
             if arg.required and self.namespace.__dict__['__value'].get(arg.dest) is None:
-                _error('%s argument is required' % arg.name)
+                _error('argument \'%s\' is required' % arg.name)
 
 
 class ArgumentGroup(_CommandParserMixin):
-    def __init__(self, name, desc='', container=None):
+    def __init__(self, name, help='', container=None):
         self.arguments = OrderedDict()
         self.name = name
-        self.desc = desc
+        self.help = help
         self.container = container
-        self.sub = {}
+        self.sub = self.argument_groups = {}
         self._sub_parser = {}
         self.mutex = {}
         self._mutex_list = []
 
     def add_argument(self, name, dest=None, arg_type=None, required=False, choice=None, default=None, mutex=None,
-                     call=False, help=''):
+                     call=False, help='', hidden=False):
         self.container._check_conflict(name)
         argument = Argument(name=name, dest=dest, arg_type=arg_type, choice=choice,
-                            default=default, call=call, help=help, group=self, required=required)
+                            default=default, call=call, help=help, group=self, required=required,
+                            hidden=hidden)
         self.arguments.update({name: argument})
 
         # update mutex options dict
@@ -160,10 +171,10 @@ class ArgumentGroup(_CommandParserMixin):
             if mutex is not None:
                 self.mutex.update({name: mutex, mutex: name})
 
-    def add_sub_parser(self, name, desc=None):
+    def add_sub_parser(self, name, help=None):
         if name in self.sub:
             _error('conflict sub parser name: %s' % name)
-        sub_parser_group = ArgumentGroup(name=name, desc=desc, container=self)
+        sub_parser_group = ArgumentGroup(name=name, help=help, container=self)
         self.sub.update({name: sub_parser_group})
         self.add_argument(name=name, arg_type='s')
         return sub_parser_group
@@ -183,6 +194,9 @@ class ArgumentGroup(_CommandParserMixin):
 
         return self.namespace
 
+    def print_help(self):
+        return self.container.print_help()
+
     def __str__(self):
         return 'ArgumentGroup:<%s>' % self.name
 
@@ -194,7 +208,7 @@ class Argument(object):
     args_type_list = ('+', '*', '1', None, 's')
 
     def __init__(self, name, dest, arg_type=None, choice=None, required=False, default=None, call=False,
-                 help='', group=None):
+                 help='', group=None, hidden=False):
         # check the validity of arg_type
         if arg_type not in self.args_type_list:
             _error('unexpected args type: %s' % arg_type)
@@ -229,6 +243,7 @@ class Argument(object):
         self.group = group
         self.choice = choice
         self.required = required
+        self.hidden = hidden
         self.optional = self.name.startswith('-')
 
     def __str__(self):
@@ -249,6 +264,7 @@ class CommandParser(_CommandParserMixin):
         self._sub_parser = {}
         self.mutex = {}
         self._mutex_list = []
+        self.container = self
 
     def parse_command(self):
         self.sys_args = self._sys_args = sys.argv[1:][::-1]
@@ -259,14 +275,115 @@ class CommandParser(_CommandParserMixin):
         self._parse_command(self, self._sys_args)
         return self.namespace
 
-    def add_arg_group(self, name, desc=''):
-        group = ArgumentGroup(name=name, desc=desc, container=self)
+    def add_arg_group(self, name, help=''):
+        group = ArgumentGroup(name=name, help=help, container=self)
         self.argument_groups.update({name: group})
         return group
 
     def print_help(self):
-        sys.stdout.write('usage: bgmi\n')
-        for group in self.argument_groups.values():
-            sys.stdout.write('%s:\n\n' % group.name)
-            for argument in group.arguments.values():
-                sys.stdout.write('\t%s\n' % argument.name)
+        self.sys_args = sys.argv[1:][::-1]
+
+        def search(name):
+            if name in self.arguments:
+                ret = self.arguments.get(name)
+                if not ret.type == 's':
+                    return ret
+
+            if name in self.argument_groups:
+                return self.argument_groups.get(name)
+
+            for group in self.argument_groups.values():
+                if name in group.arguments:
+                    ret = group.arguments.get(name)
+                    if not ret.type == 's':
+                        return ret
+
+                if name in group.sub:
+                    return group.sub.get(name)
+
+        def get_arg_form(arg):
+            if not arg.hidden:
+                if arg.optional:
+                    if arg.type == '+':
+                        usage = '%s [%s ...]' % (arg.name, arg.dest.upper())
+                    elif arg.type == '1':
+                        usage = '%s %s' % (arg.name, arg.dest.upper())
+                    elif arg.type is None:
+                        usage = arg.name
+                    else:
+                        usage = ''
+                else:
+                    if arg.type == '+':
+                        usage = '[%s] ... ' % arg.name
+                    elif arg.type is None:
+                        usage = '<%s> ' % arg.name
+                    else:
+                        usage = ''
+                return usage
+            else:
+                return None
+
+        def print_group_help(group):
+            group._get_positional_args()
+            if not group.positional_args and not group._optional_args and not group.sub:
+                return
+
+            sys.stdout.write('\n%s:\n' % group.name.title())
+
+            for arg in group.positional_args:
+                continue
+                usage = get_arg_form(arg)
+                if usage:
+                    sys.stdout.write(usage)
+
+            for sub in group.sub.values():
+                sys.stdout.write('  %-28s%s\n' % (sub.name, sub.help))
+
+        sys.stdout.write('\nUsage: \n')
+
+        def _print_help(container, usage):
+            container._get_positional_args()
+
+            if container._positional_args:
+                for arg in container._positional_args:
+                    if not arg.hidden:
+                        usage += get_arg_form(arg)
+
+            if container._optional_args:
+                usage += '[options] '
+
+            if container.argument_groups:
+                for arg in container.argument_groups.values():
+                    if arg.argument_groups:
+                        usage += '<%s> ' % arg.name
+
+            sys.stdout.write('%s \n' % usage)
+
+            if container.argument_groups:
+                for group in container.argument_groups.values():
+                    print_group_help(group)
+
+            if container._positional_args:
+                sys.stdout.write('\nCommands: \n')
+                for arg in container._positional_args:
+                    sys.stdout.write('  %-28s%s\n' % (arg.name, arg.help))
+
+            if container._optional_args:
+                sys.stdout.write('\nGeneral Options: \n')
+
+            for arg in container._optional_args:
+                form = get_arg_form(arg)
+                if form:
+                    sys.stdout.write('  %-28s%s\n' % (form, arg.help))
+
+        arg = self.sys_args.pop() if self.sys_args else None
+        ret = search(arg)
+
+        usage = '  bgmi '
+        if isinstance(ret, ArgumentGroup):
+            usage += '%s ' % ret.name
+            _print_help(ret, usage)
+        else:
+            _print_help(self, usage)
+
+        exit(0)

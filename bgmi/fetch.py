@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from collections import defaultdict
 from bgmi.config import FETCH_URL, DETAIL_URL
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED
-from bgmi.utils import print_error, print_warning, print_info, unicodeize
+from bgmi.utils import print_error, print_warning, print_info, unicodeize, test_connection
 import bgmi.config
 
 if bgmi.config.IS_PYTHON3:
@@ -27,7 +27,7 @@ SUBTITLE_MATCH = re.compile("<a href=\".*?\">(.*?)</a>")
 def bangumi_calendar(force_update=False, today=False, followed=False, save=True):
     print_info('Bangumi Weekly Schedule')
 
-    if not bgmi.config.NETWORK_CONNECTED:
+    if force_update and not test_connection():
         force_update = False
         print_warning('network not connected')
 
@@ -112,8 +112,8 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
 def get_response(url):
     try:
         return unicodeize(requests.get(url).content)
-    except Exception as e:
-        print_error('error: %s' % str(e))
+    except requests.ConnectionError:
+        print_error('error: failed to establish a new connection', exit_=False)
 
 
 def process_subtitle(data):
@@ -153,6 +153,9 @@ def parser_bangumi(data, group_by_weekday=True, status=False):
 
 def fetch(save=False, group_by_weekday=True, status=False):
     response = get_response(FETCH_URL)
+    if not response:
+        return
+
     result = parser_bangumi(response, group_by_weekday=group_by_weekday, status=status)
     if save:
         if group_by_weekday:
@@ -188,10 +191,14 @@ def parse_episode(data):
 
 
 def fetch_episode(keyword):
+    result = []
     response = get_response(DETAIL_URL + keyword)
+
+    if not response:
+        return result
+
     b = BeautifulSoup(response)
     container = b.find('table', attrs={'class': 'tablesorter'})
-    result = []
 
     for info in container.tbody.find_all('tr'):
         bangumi_update_info = {}
@@ -214,8 +221,11 @@ def fetch_episode(keyword):
 
 def get_maximum_episode(keyword):
     data = [i for i in fetch_episode(keyword=keyword) if i['episode'] is not None]
-    bangumi = max(data, key=lambda i: i['episode'])
-    return bangumi['episode']
+    if data:
+        bangumi = max(data, key=lambda i: i['episode'])
+        return bangumi['episode']
+    else:
+        return 0
 
 
 if __name__ == '__main__':
