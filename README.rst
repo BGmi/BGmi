@@ -12,7 +12,9 @@ Feature
 + Bangumi episode infomartion
 + HTTP Server for RSS feed (for uTorrent, etc.)
 
-## Installation
+============
+Installation
+============
 For **Mac OS X / Linux**:
 
 .. code-block:: bash
