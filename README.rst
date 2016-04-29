@@ -2,7 +2,7 @@ BGmi
 ====
 BGmi is a cli tool for subscribed bangumi.
 
-|travis|
+|travis| 
 
 =======
 Feature
@@ -81,5 +81,5 @@ License
 =======
 MIT
 
-.. |travis| ::image https://travis-ci.org/RicterZ/BGmi.svg?branch=master
+.. |travis| image:: https://travis-ci.org/RicterZ/BGmi.svg?branch=master
    :target: https://travis-ci.org/RicterZ/BGmi
