@@ -20,5 +20,10 @@ if [ $# -eq 1 -a "$1" = "--no-download" ]; then
     DOWNLOAD=""
 fi
 
-(crontab -l;printf "* */2 * * * $BGMI_PATH update $DOWNLOAD\n")|crontab -
-echo "crontab added"
+crontab -l | grep "bgmi update" > /dev/null
+if [ $? -eq 0 ]; then
+    echo "[-] crontab already exist";
+else
+    (crontab -l;printf "* */2 * * * $BGMI_PATH update $DOWNLOAD\n")|crontab -
+    echo "[+] crontab added"
+fi

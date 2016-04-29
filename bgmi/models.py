@@ -1,12 +1,12 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 import sys
-import os
 import sqlite3
 from collections import defaultdict
 import bgmi.config
+from bgmi.config import IS_PYTHON3
 
-if bgmi.config.IS_PYTHON3:
+if IS_PYTHON3:
     _unicode = str
 else:
     _unicode = unicode
@@ -14,8 +14,6 @@ else:
 STATUS_NORMAL = 0
 STATUS_FOLLOWED = 1
 STATUS_REMOVED = 2
-
-DB_PATH = os.path.join(os.path.dirname(__file__), '../bangumi.db')
 
 
 def make_dicts(cursor, row):
@@ -168,7 +166,7 @@ class DB(object):
 
     @staticmethod
     def connect_db():
-        return sqlite3.connect(DB_PATH)
+        return sqlite3.connect(bgmi.config.DB_PATH)
 
     @staticmethod
     def close_db(db_instance):
@@ -176,7 +174,7 @@ class DB(object):
         db_instance.close()
 
     def _connect_db(self):
-        self._conn = sqlite3.connect(DB_PATH)
+        self._conn = sqlite3.connect(bgmi.config.DB_PATH)
         self._conn.row_factory = make_dicts
         self.cursor = self._conn.cursor()
 

@@ -1,15 +1,40 @@
 # coding=utf-8
+import os
 import codecs
 from setuptools import setup, find_packages
+from setuptools.command.install import install
 from bgmi import __version__, __author__, __email__
+from bgmi.utils import print_warning, print_success, print_info
 
 with open('requirements.txt', 'r') as f:
     requirements = f.read().splitlines()
 
 
+ROOT = os.path.abspath(os.path.dirname(__file__))
+
+
 def long_description():
     with codecs.open('README.rst', 'r') as f:
         return f.read()
+
+
+class CustomInstallCommand(install):
+    def run(self):
+        install.run(self)
+        home = os.environ.get('HOME', '')
+        if not home:
+            print_warning('$HOME not set, use \'/tmp/\'')
+            home = '/tmp'
+
+        if not os.path.exists(os.path.join(home, '.bgmi')):
+            print_success('%s created successfully' % os.path.join(home, '.bgmi'))
+            os.mkdir(os.path.join(home, '.bgmi'))
+        else:
+            print_warning('%s are already exist' % os.path.join(home, '.bgmi'))
+
+        print_info('Installing crontab job')
+        os.system('sh crontab.sh')
+
 
 setup(
     name='bgmi',
@@ -32,7 +57,5 @@ setup(
         ]
     },
     license='MIT',
-    data_files=[
-        ('', ['crontab.sh']),
-    ]
+    cmdclass={'install': CustomInstallCommand},
 )

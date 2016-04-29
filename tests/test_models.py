@@ -4,29 +4,28 @@ import os
 import unittest
 import sqlite3
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED, STATUS_NORMAL
-from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, INSERT_TEST_DATA, \
-    INSERT_TEST_DATA2
+from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED
+import bgmi.config
+
+bgmi.config.DB_PATH = '/tmp/bangumi.db'
+DB_PATH = bgmi.config.DB_PATH
 
 
 class ModelsTest(unittest.TestCase):
     def setUp(self):
-        db_path = os.path.join(os.path.dirname(__file__), '../bangumi.db')
-        if not os.path.exists(db_path):
-            self.db = sqlite3.connect(db_path)
+        if not os.path.exists(DB_PATH):
+            self.db = sqlite3.connect(DB_PATH)
             self.conn = self.db.cursor()
             self.conn.execute(CREATE_TABLE_BANGUMI)
             self.conn.execute(CREATE_TABLE_FOLLOWED)
         else:
-            self.db = sqlite3.connect(db_path)
+            self.db = sqlite3.connect(DB_PATH)
             self.conn = self.db.cursor()
         self.db.commit()
 
     def tearDown(self):
-        self.conn.execute('DELETE FROM bangumi WHERE name="test_select_and_save"')
-        self.conn.execute('DELETE FROM bangumi WHERE name="test666"')
-        self.conn.execute('DELETE FROM bangumi WHERE name="test_update"')
-        self.db.commit()
         self.db.close()
+        os.remove(DB_PATH)
 
     def test_select_and_save(self):
         b2 = Bangumi(name='test_select_and_save', update_time='Sun')
@@ -72,22 +71,19 @@ class ModelsTest(unittest.TestCase):
 
 class FollowedTest(unittest.TestCase):
     def setUp(self):
-        db_path = os.path.join(os.path.dirname(__file__), '../bangumi.db')
-        if not os.path.exists(db_path):
-            self.db = sqlite3.connect(db_path)
+        if not os.path.exists(DB_PATH):
+            self.db = sqlite3.connect(DB_PATH)
             self.conn = self.db.cursor()
             self.conn.execute(CREATE_TABLE_BANGUMI)
             self.conn.execute(CREATE_TABLE_FOLLOWED)
         else:
-            self.db = sqlite3.connect(db_path)
+            self.db = sqlite3.connect(DB_PATH)
             self.conn = self.db.cursor()
         self.db.commit()
 
     def tearDown(self):
-        self.conn.execute('DELETE FROM bangumi WHERE name="test_add_and_remove_followed"')
-        self.conn.execute('DELETE FROM followed WHERE bangumi_name="test_add_and_remove_followed"')
-        self.db.commit()
         self.db.close()
+        os.remove(DB_PATH)
 
     def test_add_and_remove_followed(self):
         f = Followed(bangumi_name='test_add_and_remove_followed', status=STATUS_FOLLOWED, episode=6)

@@ -7,6 +7,7 @@ from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode
 from bgmi.utils import print_warning, print_info, print_success, print_error, write_download_xml
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED
+from bgmi.config import BGMI_PATH, DB_PATH
 
 
 ACTION_HTTP = 'http'
@@ -14,8 +15,7 @@ ACTION_ADD = 'add'
 ACTION_DELETE = 'delete'
 ACTION_UPDATE = 'update'
 ACTION_CAL = 'cal'
-ACTION_CRONTAB = 'crontab'
-ACTIONS = (ACTION_HTTP, ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL, ACTION_CRONTAB)
+ACTIONS = (ACTION_HTTP, ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL)
 
 FILTER_CHOICE_TODAY = 'today'
 FILTER_CHOICE_ALL = 'all'
@@ -26,7 +26,7 @@ FILTER_CHOICES = (FILTER_CHOICE_ALL, FILTER_CHOICE_FOLLOWED, FILTER_CHOICE_TODAY
 def main():
     c = CommandParser()
     positional = c.add_arg_group('action')
-    positional.add_argument('action', hidden=True, help='Bangumi operation %s.' % str(ACTIONS), choice=ACTIONS)
+    positional.add_argument('action', hidden=True, help='Bangumi operation %s.' % ', '.join(ACTIONS), choice=ACTIONS)
 
     sub_parser_add = positional.add_sub_parser(ACTION_ADD, help='Subscribe bangumi.')
     sub_parser_add.add_argument('name', arg_type='+', required=True, help='Bangumi name to subscribe.')
@@ -42,13 +42,10 @@ def main():
 
     sub_parser_cal = positional.add_sub_parser(ACTION_CAL, help='Print bangumi calendar.')
     sub_parser_cal.add_argument('filter', default='today', choice=FILTER_CHOICES,
-                                help='Calendar form filter %s.' % str(FILTER_CHOICES))
+                                help='Calendar form filter %s.' % ', '.join(FILTER_CHOICES))
     sub_parser_cal.add_argument('--today', help='Show bangumi calendar of today.')
     sub_parser_cal.add_argument('--force-update', help='Get the newest bangumi calendar from dmhy.')
     sub_parser_cal.add_argument('--no-save', help='Not save the bangumi data when force update.')
-
-    sub_parser_crontab = positional.add_sub_parser(ACTION_CRONTAB, help='Add crontab for bgmi.')
-    sub_parser_crontab.add_argument('--download', help='Download bangumi when updated.')
 
     sub_parser_http = positional.add_sub_parser(ACTION_HTTP, help='BGmi HTTP Server.')
     sub_parser_http.add_argument('--port', default='23333', arg_type='1', dest='port',
@@ -76,16 +73,8 @@ def main():
 
     elif ret.action == ACTION_CAL:
         cal(ret)
-    elif ret.action == ACTION_CRONTAB:
-        crontab(ret)
     else:
         c.print_help()
-
-
-def crontab(ret):
-    download = '--no-download' if not ret.crontab.download else ''
-    path = os.path.join(os.path.dirname(__file__), '../')
-    os.system('/bin/sh %s/crontab.sh %s' % (path, download))
 
 
 def add(ret):
@@ -170,9 +159,11 @@ def init_db(db_path):
 
 
 def setup():
-    db_path = os.path.join(os.path.dirname(__file__), '../bangumi.db')
-    if not os.path.exists(db_path):
-        init_db(db_path)
+    if not os.path.exists(BGMI_PATH):
+        print_error('BGMI_PATH %s not exist, try to reinstall' % BGMI_PATH)
+
+    if not os.path.exists(DB_PATH):
+        init_db(DB_PATH)
     main()
 
 

@@ -133,7 +133,7 @@ class _CommandParserMixin(object):
                 if arg_instance.choice:
                     if value not in arg_instance.choice:
                         _error('unexpected choice of %s%s: %s' % (arg_instance.name,
-                                                                  str(arg_instance.choice), value))
+                                                                  ', '.join(arg_instance.choice), value))
             setattr(self.namespace, arg_instance.dest, value)
 
         for arg in parser_group.arguments.values():
