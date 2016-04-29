@@ -18,6 +18,7 @@ setup(
     description='BGmi is a cli tool for subscribed bangumi.',
     long_description=long_description(),
     url='https://github.com/RicterZ/BGmi',
+    download_url='https://github.com/RicterZ/BGmi/tarball/0.2',
 
     packages=find_packages(),
     include_package_data=True,
