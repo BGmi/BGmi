@@ -5,13 +5,18 @@ from bgmi import __version__, __author__, __email__
 with open('requirements.txt', 'r') as f:
     requirements = f.read().splitlines()
 
+def long_description():
+    with open('README.md', 'r') as f:
+        return f.read()
+
 setup(
     name='bgmi',
     version=__version__,
     author=__author__,
     author_email=__email__,
     keywords='bangumi, bgmi, feed',
-    description='subscribe bangumi!',
+    description='BGmi is a cli tool for subscribed bangumi.',
+    long_description=long_description(),
     url='https://github.com/RicterZ/BGmi',
 
     packages=find_packages(),
