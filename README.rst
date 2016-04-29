@@ -4,7 +4,7 @@ BGmi is a cli tool for subscribed bangumi.
 
 ---
 
-[![Build Status](https://travis-ci.org/RicterZ/BGmi.svg?branch=master)](https://travis-ci.org/RicterZ/BGmi)
+|travis|
 
 ---
 
@@ -33,7 +33,9 @@ Or use pip:
 
 For **Windows**: BGmi dose not support Windows now.  
 
-## Usage
+=====
+Usage
+=====
 Show bangumi calendar of this week:
 
 .. code-block:: bash
@@ -70,3 +72,10 @@ Add crontab job:
 
     bgmi crontab --download
 
+=======
+License
+=======
+MIT
+
+.. |travis| ::image https://travis-ci.org/RicterZ/BGmi.svg?branch=master
+   :target: https://travis-ci.org/RicterZ/BGmi
