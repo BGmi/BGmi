@@ -2,11 +2,7 @@ BGmi
 ====
 BGmi is a cli tool for subscribed bangumi.
 
----
-
 |travis|
-
----
 
 =======
 Feature
@@ -42,11 +38,13 @@ Show bangumi calendar of this week:
 
     bgmi cal all
 
+
 Subscribe bangumi:
 
 .. code-block:: bash
 
     bgmi add "Re：從零開始的異世界生活" "暗殺教室Ⅱ" "線上遊戲的老婆不可能是女生？" "在下坂本，有何貴幹？" "JoJo的奇妙冒險 不滅鑽石"
+
 
 Unsubscribe bangumi:
 
@@ -54,11 +52,13 @@ Unsubscribe bangumi:
 
     bgmi del --name "暗殺教室Ⅱ"
 
-Update bangumi calendar and episode, and write to download.xml:  
+
+Update bangumi calendar and episode, and write to download.xml:
 
 .. code-block:: bash
 
     bgmi update --update
+
 
 Start a HTTP Server for download.xml:
 
@@ -66,11 +66,13 @@ Start a HTTP Server for download.xml:
 
     bgmi http --port 12345
 
+
 Add crontab job:
 
 .. code-block:: bash
 
     bgmi crontab --download
+
 
 =======
 License
