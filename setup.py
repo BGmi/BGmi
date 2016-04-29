@@ -23,5 +23,8 @@ setup(
             'bgmi = bgmi.main:setup'
         ]
     },
-    license='MIT'
+    license='MIT',
+    data_files=[
+        ('', ['crontab.sh']),
+    ]
 )
