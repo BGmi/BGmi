@@ -81,3 +81,10 @@ def write_download_xml(data):
             f.write('</item>')
 
         f.write('</channel></rss>')
+
+
+def bug_report():
+    print_error('It seems not any bangumi found, if http://dmhy.ricter.me can '
+                'be opened normally, please report bug to ricterzheng@gmail.co'
+                'm or submit issue at: https://github.com/RicterZ/BGmi/issues',
+                exit_=False)

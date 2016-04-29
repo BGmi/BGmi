@@ -95,6 +95,8 @@ def add(ret):
                 print_success('%s has followed' % bangumi_obj)
             else:
                 print_warning('%s already followed' % bangumi_obj)
+        else:
+            print_warning('%s not found, please check the name' % bangumi)
 
 
 def delete(ret):

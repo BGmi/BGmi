@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from collections import defaultdict
 from bgmi.config import FETCH_URL, DETAIL_URL
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED
-from bgmi.utils import print_error, print_warning, print_info, unicodeize, test_connection
+from bgmi.utils import print_error, print_warning, print_info, unicodeize, test_connection, bug_report
 import bgmi.config
 
 if bgmi.config.IS_PYTHON3:
@@ -148,6 +148,8 @@ def parser_bangumi(data, group_by_weekday=True, status=False):
         else:
             weekly_list.append(bangumi_item)
 
+    if not weekly_list:
+        bug_report()
     return weekly_list
 
 
