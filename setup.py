@@ -26,11 +26,12 @@ class CustomInstallCommand(install):
             print_warning('$HOME not set, use \'/tmp/\'')
             home = '/tmp'
 
-        if not os.path.exists(os.path.join(home, '.bgmi')):
-            print_success('%s created successfully' % os.path.join(home, '.bgmi'))
+        bgmi_path = os.path.exists(os.path.join(home, '.bgmi'))
+        if not bgmi_path:
+            print_success('%s created successfully' % bgmi_path)
             os.mkdir(os.path.join(home, '.bgmi'))
         else:
-            print_warning('%s are already exist' % os.path.join(home, '.bgmi'))
+            print_warning('%s are already exist' % bgmi_path)
 
         print_info('Installing crontab job')
         os.system('sh crontab.sh')
@@ -53,7 +54,8 @@ setup(
     install_requires=requirements,
     entry_points={
         'console_scripts': [
-            'bgmi = bgmi.main:setup'
+            'bgmi = bgmi.main:setup',
+            'bgmi-lx = tools:xunlei-lixian.lixian_cli:execute_command'
         ]
     },
     license='MIT',
