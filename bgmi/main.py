@@ -81,7 +81,7 @@ def main():
                 else:
                     print_error('Bangumi %s not exist' % name, exit_=False)
         else:
-            print('Help Delete')
+            c.print_help()
 
     elif ret.action == ACTION_UPDATE:
         print_info('updating bangumi data ...')
