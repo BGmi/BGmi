@@ -20,7 +20,7 @@ def long_description():
 
 class CustomInstallCommand(install):
     def run(self):
-        install.run(self)
+        install.do_egg_install(self)
         home = os.environ.get('HOME', '')
         if not home:
             print_warning('$HOME not set, use \'/tmp/\'')
