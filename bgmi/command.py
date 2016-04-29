@@ -147,8 +147,8 @@ class ArgumentGroup(_CommandParserMixin):
         self.name = name
         self.help = help
         self.container = container
-        self.sub = self.argument_groups = {}
-        self._sub_parser = {}
+        self.sub = self.argument_groups = OrderedDict()
+        self._sub_parser = OrderedDict()
         self.mutex = {}
         self._mutex_list = []
 

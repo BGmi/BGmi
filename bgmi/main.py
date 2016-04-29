@@ -143,7 +143,8 @@ def update(ret):
             _.episode = episode['episode']
             _.save()
             download_queue.append(episode)
-    if ret.update.download:
+
+    if ret.update and ret.update.download:
         write_download_xml(download_queue)
 
 
