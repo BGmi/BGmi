@@ -1,6 +1,5 @@
 # coding=utf-8
 # Command Line Parser
-from __future__ import print_function, unicode_literals
 import sys
 from collections import OrderedDict
 
