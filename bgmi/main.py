@@ -4,17 +4,18 @@ import os
 import sqlite3
 from bgmi.command import CommandParser
 from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode
-from bgmi.utils import print_warning, print_info, print_success, print_error, print_bilibili
+from bgmi.utils import print_warning, print_info, print_success, print_error, write_download_xml
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED
 
 
+ACTION_HTTP = 'http'
 ACTION_ADD = 'add'
 ACTION_DELETE = 'delete'
 ACTION_UPDATE = 'update'
 ACTION_CAL = 'cal'
 ACTION_CRONTAB = 'crontab'
-ACTIONS = (ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL, ACTION_CRONTAB)
+ACTIONS = (ACTION_HTTP, ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL, ACTION_CRONTAB)
 
 FILTER_CHOICE_TODAY = 'today'
 FILTER_CHOICE_ALL = 'all'
@@ -49,9 +50,22 @@ def main():
     sub_parser_crontab = positional.add_sub_parser(ACTION_CRONTAB, help='Add crontab for bgmi.')
     sub_parser_crontab.add_argument('--download', help='Download bangumi when updated.')
 
+    sub_parser_http = positional.add_sub_parser(ACTION_HTTP, help='BGmi HTTP Server.')
+    sub_parser_http.add_argument('--port', default='23333', arg_type='1', dest='port',
+                                 help='The port of BGmi HTTP Server listened, default 23333.')
+
     ret = c.parse_command()
 
-    if ret.action == ACTION_ADD:
+    if ret.action == ACTION_HTTP:
+        import bgmi.http
+        port = ret.http.port
+        if port.isdigit():
+            port = int(port)
+        else:
+            print_error('Invalid port %s' % port)
+        bgmi.http.main(port)
+
+    elif ret.action == ACTION_ADD:
         add(ret)
 
     elif ret.action == ACTION_DELETE:
@@ -87,7 +101,7 @@ def add(ret):
             followed_obj = Followed(bangumi_name=data['name'], status=STATUS_FOLLOWED)
 
             if not followed_obj.select():
-                followed_obj.episode = get_maximum_episode(keyword=data['keyword'])
+                followed_obj.episode = get_maximum_episode(keyword=data['keyword'])['episode']
                 followed_obj.save()
                 print_success('%s has followed' % bangumi_obj)
             else:
@@ -118,15 +132,19 @@ def update(ret):
     print_info('updating bangumi data ...')
     fetch(save=True, group_by_weekday=False)
     print_info('updating subscribe ...')
+    download_queue = []
     for subscribe in Followed.get_all_followed():
         print_info('fetching %s ...' % subscribe['bangumi_name'])
         keyword = Bangumi(name=subscribe['bangumi_name']).select(one=True)['keyword']
         episode = get_maximum_episode(keyword)
-        if episode > subscribe['episode']:
-            print_success('%s updated, episode: %d' % (subscribe['bangumi_name'], episode))
+        if episode.get('episode') > subscribe['episode']:
+            print_success('%s updated, episode: %d' % (subscribe['bangumi_name'], episode['episode']))
             _ = Followed(bangumi_name=subscribe['bangumi_name'])
-            _.episode = episode
+            _.episode = episode['episode']
             _.save()
+            download_queue.append(episode)
+    if ret.update.download:
+        write_download_xml(download_queue)
 
 
 def cal(ret):

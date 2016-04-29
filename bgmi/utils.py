@@ -62,3 +62,22 @@ def unicodeize(data):
         return unicode(data.decode('utf-8'))
     except UnicodeEncodeError:
         return data
+
+
+def write_download_xml(data):
+    import os
+    file_path = os.path.join(os.path.dirname(__file__), '../download.xml')
+    with open(file_path, 'w') as f:
+        f.write('<?xml version="1.0" encoding="utf-8"?>')
+        f.write('<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"'
+                ' xmlns:wfw="http://wellformedweb.org/CommentAPI/">')
+        f.write('<channel><title><![CDATA[BGmi Feed]]></title>')
+
+        for i in data:
+            f.write('<item>')
+            f.write('<title><![CDATA[ %s ]]></title>' % i['title'].encode('utf-8'))
+            f.write('<enclosure url="%s" length="1" type="application/x-bittorrent">'
+                    '</enclosure>' % i['download'].encode('utf-8'))
+            f.write('</item>')
+
+        f.write('</channel></rss>')
