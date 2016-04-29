@@ -3,8 +3,10 @@ from __future__ import print_function
 import os
 import sqlite3
 from bgmi.command import CommandParser
+from bgmi.download import download_prepare
 from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode
-from bgmi.utils import print_warning, print_info, print_success, print_error, write_download_xml
+from bgmi.utils import print_warning, print_info, print_success, print_error,\
+    print_version, write_download_xml
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED
 from bgmi.config import BGMI_PATH, DB_PATH
@@ -50,8 +52,13 @@ def main():
     sub_parser_http = positional.add_sub_parser(ACTION_HTTP, help='BGmi HTTP Server.')
     sub_parser_http.add_argument('--port', default='23333', arg_type='1', dest='port',
                                  help='The port of BGmi HTTP Server listened, default 23333.')
+    positional.add_argument('--version', help='Show the version of BGmi.')
 
     ret = c.parse_command()
+
+    if ret.version:
+        print_version()
+        raise SystemExit
 
     if ret.action == ACTION_HTTP:
         import bgmi.http
@@ -136,7 +143,8 @@ def update(ret):
             download_queue.append(episode)
 
     if ret.update and ret.update.download:
-        write_download_xml(download_queue)
+        # write_download_xml(download_queue)
+        download_prepare(download_queue)
 
 
 def cal(ret):

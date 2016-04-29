@@ -22,21 +22,12 @@ def print_error(message, exit_=True):
         exit(1)
 
 
-def print_bilibili():
-    print('''
-            .cc          ,xc
-             .kXO;      .xX0,
-        .,;;;;:xKKd:;;:oKKKl:::;,.
-       xOl;;;;;;;;,,,,,,,,,,,;:::dx.
-      'k '                      ..do
-      ,x ' 'kkOKOc      .xK0OOl ..do
-      ,x ,    ;K;        'X:    ..oo
-      ,x ,    ,X;        .K:    ..ol                    \033[1;33mversion %s\033[0m
-      ;x ;     ,.        .c.    '.ol     ____   ____             _
-      ,x l           .          ,.xc    | __ ) / ___|  _ __ ___ (_)
-      .k;;'.....................,'O:    |  _ \| |  _  | '_ ` _ \| |
-       .cddx'  ,doloooooodd.  ;xdd:     | |_) | |_| | | | | | | | |
-           .coo:.         ;odo:.        |____/ \____| |_| |_| |_|_|\n''' % __version__)
+def print_version():
+    print('''BGmi \033[1;33mver. %s\033[0m built by \033[1;33mRicterZ\033[0m with ❤️
+
+Github: https://github.com/RicterZ/BGmi
+Email: ricterzheng@gmail.com
+Blog: http://www.ricter.me''' % __version__)
 
 
 def test_connection():
