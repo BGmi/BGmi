@@ -1,12 +1,14 @@
 # coding=utf-8
+import codecs
 from setuptools import setup, find_packages
 from bgmi import __version__, __author__, __email__
 
 with open('requirements.txt', 'r') as f:
     requirements = f.read().splitlines()
 
+
 def long_description():
-    with open('README.md', 'r') as f:
+    with codecs.open('README.md', 'r') as f:
         return f.read()
 
 setup(
