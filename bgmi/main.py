@@ -32,6 +32,7 @@ def main():
     sub_parser_del = positional.add_sub_parser(ACTION_DELETE, help='Unsubscribe bangumi.')
     sub_parser_del.add_argument('--name', arg_type='+', mutex='--clear-all', help='Bangumi name to unsubscribe.')
     sub_parser_del.add_argument('--clear-all', help='Clear all the subscriptions.')
+    sub_parser_del.add_argument('--batch', help='No confirm.')
 
     sub_parser_update = positional.add_sub_parser(ACTION_UPDATE, help='Update bangumi calendar and '
                                                                       'subscribed bangumi episode.')
@@ -68,7 +69,7 @@ def main():
         # action delete
         # just delete subscribed bangumi or clear all the subscribed bangumi
         if ret.delete.clear_all:
-            if Followed.delete_followed(batch=False):
+            if Followed.delete_followed(batch=ret.delete.batch):
                 print_success('all subscribe had been deleted')
             else:
                 print_error('user canceled')

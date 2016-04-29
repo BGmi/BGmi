@@ -19,5 +19,5 @@ script:
     - bgmi cal all
     - bgmi update
     - bgmi delete --name "暗殺教室Ⅱ"
-    - bgmi delete --clear-all
+    - bgmi delete --clear-all --batch
     - bgmi cal followed

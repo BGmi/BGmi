@@ -327,13 +327,13 @@ class CommandParser(_CommandParserMixin):
             if not group.positional_args and not group._optional_args and not group.sub:
                 return
 
-            sys.stdout.write('\n%s:\n' % group.name.title())
+            group_name = group.name.title() if not group.name.startswith('-') else group.name
+            sys.stdout.write('\n%s:\n' % group_name)
 
-            for arg in group.positional_args:
-                continue
+            for arg in group.arguments.values():
                 usage = get_arg_form(arg)
                 if usage:
-                    sys.stdout.write(usage)
+                    sys.stdout.write('  %-28s%s\n' % (arg.name, arg.help))
 
             for sub in group.sub.values():
                 sys.stdout.write('  %-28s%s\n' % (sub.name, sub.help))
