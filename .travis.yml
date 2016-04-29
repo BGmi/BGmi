@@ -15,8 +15,8 @@ install:
 
 script:
     - python -m unittest discover
-    - bgmi add "Re：從零開始的異世界生活" "暗殺教室Ⅱ" "線上遊戲的老婆不可能是女生？" "在下坂本，有何貴幹？" "JoJo的奇妙冒險 不滅鑽石"
     - bgmi cal all
+    - bgmi add "Re：從零開始的異世界生活" "暗殺教室Ⅱ" "線上遊戲的老婆不可能是女生？" "在下坂本，有何貴幹？" "JoJo的奇妙冒險 不滅鑽石"
     - bgmi update
     - bgmi delete --name "暗殺教室Ⅱ"
     - bgmi delete --clear-all --batch

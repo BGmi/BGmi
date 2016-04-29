@@ -1,5 +1,5 @@
 # coding=utf-8
-from __future__ import print_function, unicode_literals
+from __future__ import print_function
 from bgmi import __version__
 from bgmi.config import FETCH_URL
 
