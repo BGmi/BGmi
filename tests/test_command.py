@@ -13,13 +13,12 @@ class CommandTest(unittest.TestCase):
         sys.argv = ['test.py', '--id-aa--', '123456']
         namespace_1 = c.parse_command()
 
-        self.assertEqual(namespace_1.id_aa__, '123456')
+        self.assertEqual(namespace_1.test.id_aa__, '123456')
 
     def test_parse_positional_argument(self):
         c = CommandParser()
-        group_1 = c.add_arg_group('test')
-        group_1.add_argument('method')
-        group_1.add_argument('sub_method')
+        c.add_argument('method')
+        c.add_argument('sub_method')
         sys.argv = ['test.py', 'method_test', 'sub_method_test']
         namespace_1 = c.parse_command()
 
@@ -29,8 +28,8 @@ class CommandTest(unittest.TestCase):
     def test_sub_parser(self):
         c = CommandParser()
         group_1 = c.add_arg_group('test')
-        sub_1 = group_1.add_sub_parser('--sub_action')
-        sub_2 = group_1.add_sub_parser('--sub_action2')
+        sub_1 = group_1.add_sub_parser('sub_action')
+        sub_2 = group_1.add_sub_parser('sub_action2')
 
         # conflict action name: --sub_action
         self.assertRaises(SystemExit, group_1.add_sub_parser, '--sub_action')
@@ -39,20 +38,18 @@ class CommandTest(unittest.TestCase):
         sub_1.add_argument('--id', arg_type='+')
         sub_2.add_argument('--verbose', arg_type='+')
 
-        sys.argv = ['test.py', '--sub_action', '--force']
+        sys.argv = ['test.py', 'sub_action', '--force']
         namespace_1 = c.parse_command()
-        self.assertEqual(namespace_1.sub_action.force, True)
+        self.assertEqual(namespace_1.test.sub_action.force, True)
 
-        sys.argv = ['test.py', '--sub_action', '--force', '--sub_action2', '--verbose', '1']
+        sys.argv = ['test.py', 'sub_action', '--force', '--sub_action2', '--verbose', '1']
         # unrecognized arguments: --sub_action2
         self.assertRaises(SystemExit, c.parse_command)
 
-        sys.argv = ['test.py', '--sub_action2', '--force']
+        sys.argv = ['test.py', 'sub_action2', '--force']
         # unrecognized arguments: --force
         self.assertRaises(SystemExit, c.parse_command)
-        self.assertEqual(namespace_1.sub_action.force, True)
-
-        sys.argv = ['test.py', '--sub_action2', '--verbose', '666']
+        sys.argv = ['test.py', 'sub_action2', '--verbose', '666']
         namespace_1 = c.parse_command()
         self.assertEqual(namespace_1.sub_action2.verbose, ['666', ])
 
@@ -83,17 +80,17 @@ class CommandTest(unittest.TestCase):
 
         sys.argv = ['test.py', 'method_test1']
         namespace_1 = c.parse_command()
-        self.assertFalse(namespace_1.verbose)
+        self.assertFalse(namespace_1.test.verbose)
 
         sys.argv = ['test.py', 'method_test2', '-v']
         namespace_2 = c.parse_command()
-        self.assertTrue(namespace_2.verbose)
+        self.assertTrue(namespace_2.test.verbose)
 
         sys.argv = ['test.py', 'method_test3', '-v', '--id', '1', '--id2', '1', '2']
         namespace_3 = c.parse_command()
-        self.assertEqual(namespace_3.method, 'method_test3')
-        self.assertEqual(namespace_3.id, '1')
-        self.assertEqual(namespace_3.id2, ['1', '2'])
+        self.assertEqual(namespace_3.test.method, 'method_test3')
+        self.assertEqual(namespace_3.test.id, '1')
+        self.assertEqual(namespace_3.test.id2, ['1', '2'])
 
     def test_choice(self):
         c = CommandParser()
@@ -104,18 +101,15 @@ class CommandTest(unittest.TestCase):
 
         c = CommandParser()
         g2 = c.add_arg_group('test')
-        sub_1 = g2.add_sub_parser('--get-method')
+        sub_1 = g2.add_sub_parser('get_method')
         sub_1.add_argument('--get', arg_type='1', choice=('GET', 'HEAD', ), default='GET')
 
-        sub_2 = g2.add_sub_parser('--post-method')
+        sub_2 = g2.add_sub_parser('post_method')
         sub_2.add_argument('--post', arg_type='1', choice=('POST', 'PUT', ))
 
-        sub_3 = g2.add_sub_parser('get-method')
-        sub_3.add_argument('--verbose')
-
-        sys.argv = ['test.py', '--get-method']
+        sys.argv = ['test.py', 'get_method']
         namespace = c.parse_command()
-        self.assertEqual(namespace.get_method.get, 'GET')
+        self.assertEqual(namespace.test.get_method.get, 'GET')
 
     def test_required(self):
         c = CommandParser()
@@ -139,7 +133,7 @@ class CommandTest(unittest.TestCase):
         g1.add_argument('--verbose')
         sys.argv = ['test.py', 'AAA', 'BBB', 'CCC', '--verbose']
         namespace = c.parse_command()
-        self.assertEqual(namespace.position, ['AAA', 'BBB', 'CCC'])
+        self.assertEqual(namespace.test.position, ['AAA', 'BBB', 'CCC'])
 
     def test_mutex_arg(self):
         # ordinary
@@ -156,7 +150,7 @@ class CommandTest(unittest.TestCase):
         sub = g2.add_sub_parser('sub')
         sub.add_argument('--clear-all', mutex='--delete')
         sub.add_argument('--delete', arg_type='+')
-        sys.argv = ['test.py', '--delete', 'AAA', '--clear-all']
+        sys.argv = ['test.py', 'sub', '--delete', 'AAA', '--clear-all']
         self.assertRaises(SystemExit, c.parse_command)
 
         c = CommandParser()

@@ -59,7 +59,7 @@ Update bangumi calendar and episode, and write to download.xml:
 
 .. code-block:: bash
 
-    bgmi update --update
+    bgmi update --download
 
 
 Start a HTTP Server for download.xml:
@@ -68,12 +68,6 @@ Start a HTTP Server for download.xml:
 
     bgmi http --port 12345
 
-
-Add crontab job:
-
-.. code-block:: bash
-
-    bgmi crontab --download
 
 
 =======

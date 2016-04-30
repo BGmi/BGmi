@@ -1,5 +1,6 @@
 # coding=utf-8
 import os
+import shutil
 import codecs
 from setuptools import setup, find_packages
 from setuptools.command.install import install
@@ -26,15 +27,24 @@ class CustomInstallCommand(install):
             print_warning('$HOME not set, use \'/tmp/\'')
             home = '/tmp'
 
-        bgmi_path = os.path.exists(os.path.join(home, '.bgmi'))
+        bgmi_path = os.path.join(home, '.bgmi')
         if not bgmi_path:
             print_success('%s created successfully' % bgmi_path)
-            os.mkdir(os.path.join(home, '.bgmi'))
+            os.mkdir(bgmi_path)
         else:
             print_warning('%s are already exist' % bgmi_path)
 
         print_info('Installing crontab job')
         os.system('sh crontab.sh')
+        print_info('Copy xunlei-lixian to %s' % bgmi_path)
+
+        if not os.path.exists(os.path.join(bgmi_path, 'tools/xunlei-lixian')):
+            os.mkdir(os.path.join(bgmi_path, 'tools'))
+            shutil.copytree('tools/xunlei-lixian', os.path.join(bgmi_path, 'tools/xunlei-lixian'))
+            print_info('Create link file')
+            os.symlink(os.path.join(bgmi_path, 'tools/xunlei-lixian/lixian_cli.py'), os.path.join(bgmi_path, 'bgmi-lx'))
+        else:
+            print_warning('%s already exists' % os.path.join(bgmi_path, 'tools/xunlei-lixian'))
 
 
 setup(
@@ -55,7 +65,6 @@ setup(
     entry_points={
         'console_scripts': [
             'bgmi = bgmi.main:setup',
-            'bgmi-lx = tools:xunlei-lixian.lixian_cli:execute_command'
         ]
     },
     license='MIT',

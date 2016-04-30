@@ -28,7 +28,7 @@ FILTER_CHOICES = (FILTER_CHOICE_ALL, FILTER_CHOICE_FOLLOWED, FILTER_CHOICE_TODAY
 def main():
     c = CommandParser()
     positional = c.add_arg_group('action')
-    positional.add_argument('action', hidden=True, help='Bangumi operation %s.' % ', '.join(ACTIONS), choice=ACTIONS)
+    # positional.add_argument('action', hidden=True, help='Bangumi operation %s.' % ', '.join(ACTIONS), choice=ACTIONS)
 
     sub_parser_add = positional.add_sub_parser(ACTION_ADD, help='Subscribe bangumi.')
     sub_parser_add.add_argument('name', arg_type='+', required=True, help='Bangumi name to subscribe.')
@@ -52,7 +52,10 @@ def main():
     sub_parser_http = positional.add_sub_parser(ACTION_HTTP, help='BGmi HTTP Server.')
     sub_parser_http.add_argument('--port', default='23333', arg_type='1', dest='port',
                                  help='The port of BGmi HTTP Server listened, default 23333.')
-    positional.add_argument('--version', help='Show the version of BGmi.')
+
+    c.add_argument('--version', help='Show the version of BGmi.')
+    c.add_argument('--debug', help='Enable DEBUG mode.')
+    c.add_argument('--help', help='Print help text.')
 
     ret = c.parse_command()
 
@@ -62,7 +65,7 @@ def main():
 
     if ret.action == ACTION_HTTP:
         import bgmi.http
-        port = ret.http.port
+        port = ret.action.http.port
         if port.isdigit():
             port = int(port)
         else:
@@ -90,7 +93,8 @@ def add(ret):
     if not Bangumi.get_all_bangumi():
         print_warning('No bangumi data in database, fetching...')
         update(ret)
-    for bangumi in ret.add.name:
+
+    for bangumi in ret.action.add.name:
         bangumi_obj = Bangumi(name=bangumi)
         data = bangumi_obj.select(one=True, fields=['id', 'name', 'keyword'])
         if data:
@@ -109,13 +113,13 @@ def add(ret):
 def delete(ret):
     # action delete
     # just delete subscribed bangumi or clear all the subscribed bangumi
-    if ret.delete.clear_all:
-        if Followed.delete_followed(batch=ret.delete.batch):
+    if ret.action.delete.clear_all:
+        if Followed.delete_followed(batch=ret.action.delete.batch):
             print_success('all subscribe had been deleted')
         else:
             print_error('user canceled')
-    elif ret.delete.name:
-        for name in ret.delete.name:
+    elif ret.action.delete.name:
+        for name in ret.action.delete.name:
             followed = Followed(bangumi_name=name)
             if followed.select():
                 followed.delete()
@@ -142,18 +146,18 @@ def update(ret):
             _.save()
             download_queue.append(episode)
 
-    if ret.update and ret.update.download:
+    if ret.action.update and ret.action.update.download:
         # write_download_xml(download_queue)
         download_prepare(download_queue)
 
 
 def cal(ret):
-    force = ret.cal.force_update
-    save = not ret.cal.no_save
-    today = ret.cal.today
-    if ret.cal.filter == FILTER_CHOICE_TODAY:
+    force = ret.action.cal.force_update
+    save = not ret.action.cal.no_save
+    today = ret.action.cal.today
+    if ret.action.cal.filter == FILTER_CHOICE_TODAY:
         bangumi_calendar(force_update=force, today=True, save=save)
-    elif ret.cal.filter == FILTER_CHOICE_FOLLOWED:
+    elif ret.action.cal.filter == FILTER_CHOICE_FOLLOWED:
         bangumi_calendar(force_update=force, followed=True, today=today, save=save)
     else:
         # fallback

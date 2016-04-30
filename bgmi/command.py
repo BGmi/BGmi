@@ -1,6 +1,7 @@
 # coding=utf-8
 # Command Line Parser
 import sys
+import re
 from collections import OrderedDict
 
 
@@ -9,15 +10,20 @@ HELP = ('-h', '--help')
 
 def _error(message):
     sys.stderr.write('error: %s\n' % message)
-    exit(1)
+    raise SystemExit(1)
 
 
 class NameSpace(object):
+    NameSpace_Action_Name = None
+
     def __init__(self):
         self.__dict__['__value'] = {}
 
     def __setattr__(self, key, value):
-        self.__value[key] = value
+        if key == 'NameSpace_Action_Name':
+            self.__dict__['NameSpace_Action_Name'] = value
+        else:
+            self.__value[key] = value
 
     def __getattr__(self, item):
         if item == '_NameSpace__value':
@@ -28,15 +34,55 @@ class NameSpace(object):
         else:
             return self.__dict__[item]
 
+    def __getitem__(self, item):
+        return self.__getattr__(item)
+
     def __str__(self):
         return 'Namespace(\'%s\')' % str(self.__value)
+
+    def __repr__(self):
+        return '\'%s\'' % self.__str__()
+
+    def __eq__(self, other):
+        return other == self.NameSpace_Action_Name
 
 
 class _CommandParserMixin(object):
 
+    def add_argument(self, name, dest=None, arg_type=None, required=False, choice=None, default=None, mutex=None,
+                     call=False, help='', hidden=False):
+        # self.container._check_conflict(name)
+        self._check_conflict(name)
+        argument = Argument(name=name, dest=dest, arg_type=arg_type, choice=choice,
+                            default=default, call=call, help=help, group=self, required=required,
+                            hidden=hidden)
+        self.arguments.update({name: argument})
+
+        # update mutex options dict
+        if mutex is not None:
+            self.mutex.update({name: mutex, mutex: name})
+
+        '''
+        if self.container.sub is None:
+            self.container.arguments.update({name: argument})
+            if mutex is not None:
+                self.container.mutex.update({name: mutex, mutex: name})
+        else:
+            if mutex is not None:
+                self.mutex.update({name: mutex, mutex: name})
+        '''
+
     def _check_conflict(self, name):
         if name in self.arguments:
             _error('conflict argument name: %s' % name)
+
+    def _check_group_conflict(self, name):
+        if name in self.argument_groups:
+            _error('conflict argument group name: %s' % name)
+
+    def _check_group_name(self, name):
+        if re.match('^([a-zA-Z0-9_]+)$', name) is None or re.match('^[0-9]', name):
+            _error('invalid argument_name \'%s\'' % name)
 
     def _get_args(self, arg, _sys_args):
         '''Get argument(s) by arg_type
@@ -57,10 +103,6 @@ class _CommandParserMixin(object):
             if not _sys_args:
                 _error('%s expected one argument' % arg.name)
             return _sys_args.pop()
-        elif arg.type == 's':
-            # Sub parser
-            # TODO: _(:3」∠)_ ooooooooh, strange
-            return arg.group.sub
         elif arg.type is None:
             # None
             return True
@@ -75,6 +117,10 @@ class _CommandParserMixin(object):
                 value = None
 
             setattr(self.namespace, arg.dest, value)
+
+        for group in self.argument_groups.values():
+            group._set_default()
+            setattr(self.namespace, group.name, group.namespace)
 
     def _get_positional_args(self):
         self.positional_args = [i for i in self.arguments.values()
@@ -98,51 +144,56 @@ class _CommandParserMixin(object):
                 parser_group._mutex_list.append(_mutex_arg)
 
             if arg in HELP:
-                self.container.print_help()
+                parser_group.container.print_help()
 
-            sub_parser = self._sub_parser.get(arg, None)
-            if sub_parser:
-                value = sub_parser.group.parse_command(sub_parser.name, _sys_args_list)
-                arg_instance = sub_parser
-                setattr(self.namespace, sub_parser.group.name, sub_parser.name)
-            else:
-                if arg.startswith('-'):
-                    arg_instance = parser_group.arguments.get(arg, None)
-                    if arg_instance is None:
+            if arg.startswith('-'):
+                arg_instance = parser_group.arguments.get(arg, None)
+                if arg_instance is None:
+                    if not parser_group.argument_groups:
                         _error('unrecognized arguments: %s' % arg)
-                    else:
-                        value = self._get_args(arg_instance, _sys_args_list)
+                    _sys_args_list.append(arg)
+                    break
                 else:
-                    # value = arg
-                    if parser_group._positional_args:
-                        arg_instance = parser_group._positional_args.pop()
-                    else:
+                    value = self._get_args(arg_instance, _sys_args_list)
+            else:
+                if parser_group._positional_args:
+                    arg_instance = parser_group._positional_args.pop()
+                else:
+                    if not parser_group.argument_groups:
                         _error('unrecognized arguments: %s' % arg)
-                    if arg_instance.type is None:
-                        value = arg
-                    elif arg_instance.type == '+':
-                        value = [arg]
-                        for i in _sys_args_list[::-1]:
-                            if not i.startswith('-'):
-                                value.append(_sys_args_list.pop())
-                            else:
-                                break
-                    else:
-                        _error('unsupported arg type: %s' % arg.type)
+                    _sys_args_list.append(arg)
+                    break
 
-                if arg_instance.choice:
-                    if value not in arg_instance.choice:
-                        _error('unexpected choice of %s%s: %s' % (arg_instance.name,
-                                                                  ', '.join(arg_instance.choice), value))
-            setattr(self.namespace, arg_instance.dest, value)
+                if arg_instance.type is None:
+                    value = arg
+                elif arg_instance.type == '+':
+                    value = [arg]
+                    for i in _sys_args_list[::-1]:
+                        if not i.startswith('-'):
+                            value.append(_sys_args_list.pop())
+                        else:
+                            break
+                else:
+                    _error('unsupported arg type: %s' % arg.type)
+
+            if arg_instance.choice:
+                if value not in arg_instance.choice:
+                    _error('unexpected choice of %s (%s): %s' % (arg_instance.name,
+                                                                 ', '.join(arg_instance.choice), value))
+
+            setattr(parser_group.namespace, arg_instance.dest, value)
 
         for arg in parser_group.arguments.values():
-            if arg.required and self.namespace.__dict__['__value'].get(arg.dest) is None:
+            if arg.required and parser_group.namespace.__dict__['__value'].get(arg.dest) is None:
                 _error('argument \'%s\' is required' % arg.name)
+
+        if isinstance(parser_group, ArgumentGroup):
+            setattr(parser_group.container.namespace, parser_group.name, parser_group.namespace)
 
 
 class ArgumentGroup(_CommandParserMixin):
     def __init__(self, name, help='', container=None):
+        self.namespace = NameSpace()
         self.arguments = OrderedDict()
         self.name = name
         self.help = help
@@ -152,44 +203,30 @@ class ArgumentGroup(_CommandParserMixin):
         self.mutex = {}
         self._mutex_list = []
 
-    def add_argument(self, name, dest=None, arg_type=None, required=False, choice=None, default=None, mutex=None,
-                     call=False, help='', hidden=False):
-        self.container._check_conflict(name)
-        argument = Argument(name=name, dest=dest, arg_type=arg_type, choice=choice,
-                            default=default, call=call, help=help, group=self, required=required,
-                            hidden=hidden)
-        self.arguments.update({name: argument})
-
-        # update mutex options dict
-
-        if self.container.sub is None:
-            self.container.arguments.update({name: argument})
-            if mutex is not None:
-                self.container.mutex.update({name: mutex, mutex: name})
-        else:
-            if mutex is not None:
-                self.mutex.update({name: mutex, mutex: name})
-
     def add_sub_parser(self, name, help=None):
-        if name in self.sub:
+        self._check_group_name(name)
+        if name in self.argument_groups:
             _error('conflict sub parser name: %s' % name)
         sub_parser_group = ArgumentGroup(name=name, help=help, container=self)
-        self.sub.update({name: sub_parser_group})
-        self.add_argument(name=name, arg_type='s')
+        self.argument_groups.update({name: sub_parser_group})
         return sub_parser_group
 
-    def parse_command(self, sub_parser, _sys_args_list):
-        self.namespace = NameSpace()
-        sub_parser_group = self.sub.get(sub_parser, None)
-        if sub_parser_group is None:
-            return self.namespace
+    def parse_command(self, _sys_args_list):
+        self._get_positional_args()
+        self._set_default()
 
-        ArgumentGroup._get_positional_args(sub_parser_group)
-        sub_parser_group.namespace = self.namespace
-        ArgumentGroup._set_default(sub_parser_group)
+        self._parse_command(self, _sys_args_list)
 
-        # parse command
-        self._parse_command(sub_parser_group, _sys_args_list)
+        while _sys_args_list:
+            arg = _sys_args_list.pop()
+            sub_parser = self.argument_groups.get(arg, None)
+
+            if sub_parser:
+                sub_parser.parse_command(_sys_args_list)
+                self.namespace.NameSpace_Action_Name = sub_parser.name
+            else:
+                _sys_args_list.append(arg)
+                break
 
         return self.namespace
 
@@ -204,7 +241,7 @@ class ArgumentGroup(_CommandParserMixin):
 
 
 class Argument(object):
-    args_type_list = ('+', '*', '1', None, 's')
+    args_type_list = ('+', '*', '1', None)
 
     def __init__(self, name, dest, arg_type=None, choice=None, required=False, default=None, call=False,
                  help='', group=None, hidden=False):
@@ -213,7 +250,7 @@ class Argument(object):
             _error('unexpected args type: %s' % arg_type)
 
         # positional arguments' argument type should be None
-        if not name.startswith('-') and arg_type not in ('s', '+', None):
+        if not name.startswith('-') and arg_type not in ('+', None):
             _error('unexpected positional argument type: %s' % arg_type)
 
         if not isinstance(choice, (list, tuple, set, str, type(None), )):
@@ -254,8 +291,10 @@ class Argument(object):
 
 class CommandParser(_CommandParserMixin):
     sub = None
+    name = None
 
     def __init__(self):
+        self.namespace = NameSpace()
         self._positional_args = []
         self._optional_args = []
         self.arguments = OrderedDict()
@@ -267,14 +306,18 @@ class CommandParser(_CommandParserMixin):
 
     def parse_command(self):
         self.sys_args = self._sys_args = sys.argv[1:][::-1]
-        self.namespace = NameSpace()
         self._get_positional_args()
         self._set_default()
 
         self._parse_command(self, self._sys_args)
+
+        for group in self.argument_groups.values():
+            group.parse_command(self._sys_args)
+
         return self.namespace
 
     def add_arg_group(self, name, help=''):
+        self._check_group_conflict(name)
         group = ArgumentGroup(name=name, help=help, container=self)
         self.argument_groups.update({name: group})
         return group
@@ -283,20 +326,11 @@ class CommandParser(_CommandParserMixin):
         self.sys_args = sys.argv[1:][::-1]
 
         def search(name):
-            if name in self.arguments:
-                ret = self.arguments.get(name)
-                if not ret.type == 's':
-                    return ret
 
             if name in self.argument_groups:
                 return self.argument_groups.get(name)
 
             for group in self.argument_groups.values():
-                if name in group.arguments:
-                    ret = group.arguments.get(name)
-                    if not ret.type == 's':
-                        return ret
-
                 if name in group.sub:
                     return group.sub.get(name)
 
