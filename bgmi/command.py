@@ -121,9 +121,6 @@ class _CommandParserMixin(object):
                                if i not in self.positional_args and not i.type == 's']
 
         self._positional_args = self.positional_args[::-1]
-        for i in self.arguments.values():
-            if i.type == 's':
-                self._sub_parser.update({i.name: i})
 
     def _parse_command(self, parser_group, _sys_args_list):
         while _sys_args_list:
@@ -149,6 +146,7 @@ class _CommandParserMixin(object):
                     value = self._get_args(arg_instance, _sys_args_list)
             else:
                 if parser_group._positional_args:
+                    print(parser_group._positional_args)
                     arg_instance = parser_group._positional_args.pop()
                 else:
                     if not parser_group.argument_groups:
@@ -191,7 +189,6 @@ class ArgumentGroup(_CommandParserMixin):
         self.help = help
         self.container = container
         self.sub = self.argument_groups = OrderedDict()
-        self._sub_parser = OrderedDict()
         self.mutex = {}
         self._mutex_list = []
 
@@ -204,6 +201,8 @@ class ArgumentGroup(_CommandParserMixin):
         return sub_parser_group
 
     def parse_command(self, _sys_args_list):
+        import pdb
+        # pdb.set_trace()
         self._get_positional_args()
         self._set_default()
 
@@ -290,8 +289,7 @@ class CommandParser(_CommandParserMixin):
         self._positional_args = []
         self._optional_args = []
         self.arguments = OrderedDict()
-        self.argument_groups = {}
-        self._sub_parser = {}
+        self.argument_groups = OrderedDict()
         self.mutex = {}
         self._mutex_list = []
         self.container = self

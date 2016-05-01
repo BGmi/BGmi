@@ -91,7 +91,8 @@ def main():
     elif ret.action == ACTION_CAL:
         cal(ret)
     else:
-        c.print_help()
+        print('fallback to print_help')
+        # c.print_help()
 
 
 def add(ret):
