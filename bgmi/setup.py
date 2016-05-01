@@ -1,7 +1,6 @@
 # coding=utf-8
 import os
 import tarfile
-import requests
 from tempfile import NamedTemporaryFile
 from bgmi.utils import print_success, print_warning, print_info
 from bgmi.config import IS_PYTHON3
@@ -41,6 +40,7 @@ def create_dir():
 
 
 def install_xunlei_lixian():
+    import requests
     print_info('Downloading xunlei-lixian from https://github.com/iambus/xunlei-lixian/')
     r = requests.get('https://github.com/iambus/xunlei-lixian/tarball/master', stream=True,
                      headers={'Accept-Encoding': ''})
