@@ -11,17 +11,15 @@ CREATE_TABLE_BANGUMI = '''CREATE TABLE bangumi (
 
 CREATE_TABLE_FOLLOWED = '''CREATE TABLE followed (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          bangumi_name INTEGER NOT NULL UNIQUE,
+          bangumi_name TEXT NOT NULL UNIQUE,
           episode INTEGER DEFAULT 0,
           status INTEGER DEFAULT 1
         )'''
 
 
-INSERT_TEST_DATA = '''INSERT INTO bangumi (
-  name, subtitle_group, update_time, keyword
-  ) VALUES ("test", "rr", "Sun", "test")'''
-
-
-INSERT_TEST_DATA2 = '''INSERT INTO bangumi (
-  name, subtitle_group, update_time, keyword
-  ) VALUES ("testr", "rr", "Sun", "test")'''
+CREATE_TABLE_DOWNLOAD = '''CREATE TABLE download (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          title TEXT NOT NULL,
+          episode INTEGER DEFAULT 0,
+          download TEXT DEFAULT 1
+        )'''

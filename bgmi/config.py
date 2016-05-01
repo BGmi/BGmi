@@ -1,4 +1,5 @@
 # coding=utf-8
+from __future__ import unicode_literals
 import os
 import sys
 FETCH_URL = 'http://dmhy.ricter.me/cms/page/name/programme.html'
@@ -8,3 +9,5 @@ DEBUG = False
 
 BGMI_PATH = os.path.join(os.environ.get('HOME', '/tmp'), '.bgmi')
 DB_PATH = os.path.join(BGMI_PATH, 'bangumi.db')
+BGMI_LX_PATH = os.path.join(BGMI_PATH, 'bgmi-lx')
+BGMI_SAVE_PATH = os.path.join(BGMI_PATH, 'bangumi')

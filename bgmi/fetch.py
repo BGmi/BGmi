@@ -225,9 +225,9 @@ def get_maximum_episode(keyword):
     data = [i for i in fetch_episode(keyword=keyword) if i['episode'] is not None]
     if data:
         bangumi = max(data, key=lambda i: i['episode'])
-        return bangumi
+        return bangumi, data
     else:
-        return {'episode': 0}
+        return {'episode': 0}, []
 
 
 if __name__ == '__main__':

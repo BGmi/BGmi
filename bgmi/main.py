@@ -1,14 +1,14 @@
 # coding=utf-8
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 import os
 import sqlite3
 from bgmi.command import CommandParser
 from bgmi.download import download_prepare
 from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode
 from bgmi.utils import print_warning, print_info, print_success, print_error,\
-    print_version, write_download_xml
+    print_version
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED
-from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED
+from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD
 from bgmi.config import BGMI_PATH, DB_PATH
 
 
@@ -38,7 +38,7 @@ def main():
     sub_parser_del.add_argument('--batch', help='No confirm.')
 
     sub_parser_update = action.add_sub_parser(ACTION_UPDATE, help='Update bangumi calendar and '
-                                                                      'subscribed bangumi episode.')
+                                                                  'subscribed bangumi episode.')
     sub_parser_update.add_argument('--download', help='Download the bangumi when updated.')
 
     sub_parser_cal = action.add_sub_parser(ACTION_CAL, help='Print bangumi calendar.')
@@ -108,13 +108,13 @@ def add(ret):
             followed_obj = Followed(bangumi_name=data['name'], status=STATUS_FOLLOWED)
 
             if not followed_obj.select():
-                followed_obj.episode = get_maximum_episode(keyword=data['keyword'])['episode']
+                followed_obj.episode, _ = get_maximum_episode(keyword=data['keyword'])['episode']
                 followed_obj.save()
-                print_success('%s has followed' % bangumi_obj)
+                print_success('{} has followed'.format(bangumi_obj))
             else:
-                print_warning('%s already followed' % bangumi_obj)
+                print_warning('{} already followed'.format(bangumi_obj))
         else:
-            print_warning('%s not found, please check the name' % bangumi)
+            print_warning('{} not found, please check the name'.format(bangumi))
 
 
 def delete(ret):
@@ -145,16 +145,21 @@ def update(ret):
     for subscribe in Followed.get_all_followed():
         print_info('fetching %s ...' % subscribe['bangumi_name'])
         keyword = Bangumi(name=subscribe['bangumi_name']).select(one=True)['keyword']
-        episode = get_maximum_episode(keyword)
+        episode, all_episode_data = get_maximum_episode(keyword)
         if episode.get('episode') > subscribe['episode']:
+            episode_range = range(subscribe['episode'] + 1, episode.get('episode'))
             print_success('%s updated, episode: %d' % (subscribe['bangumi_name'], episode['episode']))
             _ = Followed(bangumi_name=subscribe['bangumi_name'])
             _.episode = episode['episode']
             _.save()
             download_queue.append(episode)
+            for i in episode_range:
+                for epi in all_episode_data:
+                    if epi['episode'] == i:
+                        download_queue.append(epi)
+                        break
 
     if ret.action.update and ret.action.update.download:
-        # write_download_xml(download_queue)
         download_prepare(download_queue)
 
 
@@ -175,6 +180,7 @@ def init_db(db_path):
     conn = sqlite3.connect(db_path)
     conn.execute(CREATE_TABLE_BANGUMI)
     conn.execute(CREATE_TABLE_FOLLOWED)
+    conn.execute(CREATE_TABLE_DOWNLOAD)
     conn.commit()
     conn.close()
 

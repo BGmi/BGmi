@@ -40,7 +40,7 @@ class DB(object):
 
     def __init__(self, **kwargs):
         for f in self.fields:
-            if f == self.primary_key and kwargs.get(f, None) is None:
+            if f in self.primary_key and kwargs.get(f, None) is None:
                 raise ValueError('primary key %s must be set' % f)
             setattr(self, f, kwargs.get(f, None))
 
@@ -195,7 +195,7 @@ class DB(object):
         if condition is None:
             if self._id is None:
                 if self.primary_key:
-                    k, v = self.primary_key, (self.__dict__.get(self.primary_key, ''), )
+                    k, v = self.primary_key, [self.__dict__.get(i, '') for i in self.primary_key]
                 else:
                     k = []
                     v = []
@@ -278,9 +278,9 @@ class DB(object):
 
 class Bangumi(DB):
     table = 'bangumi'
-    primary_key = 'name'
-    fields = ('name', 'update_time', 'subtitle_group', 'keyword')
-    week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
+    primary_key = ('name', )
+    fields = ('name', 'update_time', 'subtitle_group', 'keyword', )
+    week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', )
 
     def __init__(self, **kwargs):
         super(Bangumi, self).__init__(**kwargs)
@@ -327,8 +327,8 @@ class Bangumi(DB):
 
 class Followed(DB):
     table = 'followed'
-    primary_key = 'bangumi_name'
-    fields = ('bangumi_name', 'episode', 'status')
+    primary_key = ('bangumi_name', )
+    fields = ('bangumi_name', 'episode', 'status', )
 
     @staticmethod
     def delete_followed(condition=None, batch=True):
@@ -371,3 +371,20 @@ class Followed(DB):
 
     def __repr__(self):
         return 'Followed Bangumi<%s>' % self.bangumi_name
+
+
+class Download(DB):
+    table = 'download'
+    primary_key = ('title', 'episode', )
+    fields = ('title', 'episode', 'download', )
+
+    @staticmethod
+    def get_all_downloads():
+        db = DB.connect_db()
+        db.row_factory = make_dicts
+        cur = db.cursor()
+        sql = DB._make_sql('select', table=Download.table)
+        cur.execute(sql)
+        data = cur.fetchall()
+        DB.close_db(db)
+        return data

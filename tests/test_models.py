@@ -4,7 +4,7 @@ import os
 import unittest
 import sqlite3
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED, STATUS_NORMAL
-from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED
+from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD
 import bgmi.config
 
 bgmi.config.DB_PATH = '/tmp/bangumi.db'
@@ -18,6 +18,7 @@ class ModelsTest(unittest.TestCase):
             self.conn = self.db.cursor()
             self.conn.execute(CREATE_TABLE_BANGUMI)
             self.conn.execute(CREATE_TABLE_FOLLOWED)
+            self.conn.execute(CREATE_TABLE_DOWNLOAD)
         else:
             self.db = sqlite3.connect(DB_PATH)
             self.conn = self.db.cursor()
@@ -76,6 +77,7 @@ class FollowedTest(unittest.TestCase):
             self.conn = self.db.cursor()
             self.conn.execute(CREATE_TABLE_BANGUMI)
             self.conn.execute(CREATE_TABLE_FOLLOWED)
+            self.conn.execute(CREATE_TABLE_DOWNLOAD)
         else:
             self.db = sqlite3.connect(DB_PATH)
             self.conn = self.db.cursor()

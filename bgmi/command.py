@@ -1,8 +1,10 @@
 # coding=utf-8
 # Command Line Parser
+from __future__ import print_function, unicode_literals
 import sys
 import re
 from collections import OrderedDict
+from bgmi.utils import unicodeize
 
 
 HELP = ('-h', '--help')
@@ -295,7 +297,8 @@ class CommandParser(_CommandParserMixin):
         self.container = self
 
     def parse_command(self):
-        self.sys_args = self._sys_args = sys.argv[1:][::-1]
+        sys_argv = list(map(unicodeize, sys.argv))
+        self.sys_args = self._sys_args = sys_argv[1:][::-1]
         self._get_positional_args()
         self._set_default()
 
