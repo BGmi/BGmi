@@ -51,7 +51,7 @@ class CommandTest(unittest.TestCase):
         self.assertRaises(SystemExit, c.parse_command)
         sys.argv = ['test.py', 'sub_action2', '--verbose', '666']
         namespace_1 = c.parse_command()
-        self.assertEqual(namespace_1.sub_action2.verbose, ['666', ])
+        self.assertEqual(namespace_1.test.sub_action2.verbose, ['666', ])
 
         d = CommandParser()
         group_2 = d.add_arg_group('action')
@@ -62,11 +62,11 @@ class CommandTest(unittest.TestCase):
 
         sys.argv = ['test.py', 'update', 'help']
         namespace_2 = d.parse_command()
-        self.assertEqual(namespace_2.update.subaction, 'help')
+        self.assertEqual(namespace_2.action.update.subaction, 'help')
 
         sys.argv = ['test.py', 'delete', '--subaction2']
         namespace_2 = d.parse_command()
-        self.assertEqual(namespace_2.delete.subaction2, True)
+        self.assertEqual(namespace_2.action.delete.subaction2, True)
 
     def test_parse_command(self):
         c = CommandParser()

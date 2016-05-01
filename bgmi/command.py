@@ -62,16 +62,6 @@ class _CommandParserMixin(object):
         if mutex is not None:
             self.mutex.update({name: mutex, mutex: name})
 
-        '''
-        if self.container.sub is None:
-            self.container.arguments.update({name: argument})
-            if mutex is not None:
-                self.container.mutex.update({name: mutex, mutex: name})
-        else:
-            if mutex is not None:
-                self.mutex.update({name: mutex, mutex: name})
-        '''
-
     def _check_conflict(self, name):
         if name in self.arguments:
             _error('conflict argument name: %s' % name)
