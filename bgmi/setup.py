@@ -67,8 +67,8 @@ def install_xunlei_lixian():
         print_warning('%s already exists' % bgmi_lx_path)
 
     print_success('All done')
-    print_info('Run command \'%s config\'' % bgmi_lx_path)
-    os.system('%s login' % bgmi_lx_path)
+    print_info('Please run command \'%s config\' to configure your lixian-xunlei (Notice: only for Thunder VIP)'
+               % bgmi_lx_path)
 
 
 if __name__ == '__main__':
