@@ -5,7 +5,7 @@ import codecs
 from setuptools import setup, find_packages
 from setuptools.command.install import install
 from bgmi import __version__, __author__, __email__
-from bgmi.utils import print_warning, print_success, print_info
+from bgmi.setup import install_crontab, create_dir, install_xunlei_lixian
 
 with open('requirements.txt', 'r') as f:
     requirements = f.read().splitlines()
@@ -22,29 +22,9 @@ def long_description():
 class CustomInstallCommand(install):
     def run(self):
         install.do_egg_install(self)
-        home = os.environ.get('HOME', '')
-        if not home:
-            print_warning('$HOME not set, use \'/tmp/\'')
-            home = '/tmp'
-
-        bgmi_path = os.path.join(home, '.bgmi')
-        if not os.path.exists(bgmi_path):
-            print_success('%s created successfully' % bgmi_path)
-            os.mkdir(bgmi_path)
-        else:
-            print_warning('%s are already exist' % bgmi_path)
-
-        print_info('Installing crontab job')
-        os.system('sh crontab.sh')
-
-        if not os.path.exists(os.path.join(bgmi_path, 'tools/xunlei-lixian')):
-            print_info('Copy xunlei-lixian to %s' % bgmi_path)
-            os.mkdir(os.path.join(bgmi_path, 'tools'))
-            shutil.copytree('tools/xunlei-lixian', os.path.join(bgmi_path, 'tools/xunlei-lixian'))
-            print_info('Create link file')
-            os.symlink(os.path.join(bgmi_path, 'tools/xunlei-lixian/lixian_cli.py'), os.path.join(bgmi_path, 'bgmi-lx'))
-        else:
-            print_warning('%s already exists' % os.path.join(bgmi_path, 'tools/xunlei-lixian'))
+        install_crontab()
+        create_dir()
+        install_xunlei_lixian()
 
 
 setup(
@@ -57,7 +37,6 @@ setup(
     long_description=long_description(),
     url='https://github.com/RicterZ/BGmi',
     download_url='https://github.com/RicterZ/BGmi/tarball/0.2',
-    dependency_links=['https://github.com/iambus/xunlei-lixian/tarball/master'],
 
     packages=find_packages(),
     include_package_data=True,

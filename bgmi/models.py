@@ -9,6 +9,7 @@ from bgmi.config import IS_PYTHON3
 if IS_PYTHON3:
     _unicode = str
 else:
+    input = raw_input
     _unicode = unicode
 
 STATUS_NORMAL = 0
@@ -343,7 +344,7 @@ class Followed(DB):
         sql = DB._make_sql('delete', table=Followed.table, condition=k)
 
         if not batch and sql.endswith('WHERE 1'):
-            if not raw_input('[+] are you sure want to CLEAR ALL THE BANGUMI? (y/N): ') == 'y':
+            if not input('[+] are you sure want to CLEAR ALL THE BANGUMI? (y/N): ') == 'y':
                 return False
 
         cur.execute(sql, v)
