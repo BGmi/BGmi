@@ -24,7 +24,6 @@ class CustomInstallCommand(install):
         install.do_egg_install(self)
         install_crontab()
         create_dir()
-        install_xunlei_lixian()
 
 
 setup(

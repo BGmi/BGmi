@@ -27,40 +27,47 @@ FILTER_CHOICES = (FILTER_CHOICE_ALL, FILTER_CHOICE_FOLLOWED, FILTER_CHOICE_TODAY
 
 def main():
     c = CommandParser()
-    positional = c.add_arg_group('action')
-    # positional.add_argument('action', hidden=True, help='Bangumi operation %s.' % ', '.join(ACTIONS), choice=ACTIONS)
+    action = c.add_arg_group('action')
 
-    sub_parser_add = positional.add_sub_parser(ACTION_ADD, help='Subscribe bangumi.')
+    sub_parser_add = action.add_sub_parser(ACTION_ADD, help='Subscribe bangumi.')
     sub_parser_add.add_argument('name', arg_type='+', required=True, help='Bangumi name to subscribe.')
 
-    sub_parser_del = positional.add_sub_parser(ACTION_DELETE, help='Unsubscribe bangumi.')
+    sub_parser_del = action.add_sub_parser(ACTION_DELETE, help='Unsubscribe bangumi.')
     sub_parser_del.add_argument('--name', arg_type='+', mutex='--clear-all', help='Bangumi name to unsubscribe.')
     sub_parser_del.add_argument('--clear-all', help='Clear all the subscriptions.')
     sub_parser_del.add_argument('--batch', help='No confirm.')
 
-    sub_parser_update = positional.add_sub_parser(ACTION_UPDATE, help='Update bangumi calendar and '
+    sub_parser_update = action.add_sub_parser(ACTION_UPDATE, help='Update bangumi calendar and '
                                                                       'subscribed bangumi episode.')
     sub_parser_update.add_argument('--download', help='Download the bangumi when updated.')
 
-    sub_parser_cal = positional.add_sub_parser(ACTION_CAL, help='Print bangumi calendar.')
+    sub_parser_cal = action.add_sub_parser(ACTION_CAL, help='Print bangumi calendar.')
     sub_parser_cal.add_argument('filter', default='today', choice=FILTER_CHOICES,
                                 help='Calendar form filter %s.' % ', '.join(FILTER_CHOICES))
     sub_parser_cal.add_argument('--today', help='Show bangumi calendar of today.')
     sub_parser_cal.add_argument('--force-update', help='Get the newest bangumi calendar from dmhy.')
     sub_parser_cal.add_argument('--no-save', help='Not save the bangumi data when force update.')
 
-    sub_parser_http = positional.add_sub_parser(ACTION_HTTP, help='BGmi HTTP Server.')
+    sub_parser_http = action.add_sub_parser(ACTION_HTTP, help='BGmi HTTP Server.')
     sub_parser_http.add_argument('--port', default='23333', arg_type='1', dest='port',
                                  help='The port of BGmi HTTP Server listened, default 23333.')
 
+    positional = c.add_arg_group('positional')
+    positional.add_argument('install', help='Install xunlei-lixian for BGmi.')
+
+    c.add_argument('-h', help='Print help text.')
     c.add_argument('--version', help='Show the version of BGmi.')
     c.add_argument('--debug', help='Enable DEBUG mode.')
-    c.add_argument('--help', help='Print help text.')
 
     ret = c.parse_command()
 
     if ret.version:
         print_version()
+        raise SystemExit
+
+    if ret.positional.install == 'install':
+        import bgmi.setup
+        bgmi.setup.install_xunlei_lixian()
         raise SystemExit
 
     if ret.action == ACTION_HTTP:

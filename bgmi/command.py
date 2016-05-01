@@ -391,10 +391,19 @@ class CommandParser(_CommandParserMixin):
                 for arg in container._positional_args:
                     sys.stdout.write('  %-28s%s\n' % (arg.name, arg.help))
 
-            if container._optional_args:
+            if isinstance(container, ArgumentGroup):
+                if container._optional_args:
+                    sys.stdout.write('\nOptions: \n')
+
+                for arg in container._optional_args:
+                    form = get_arg_form(arg)
+                    if form:
+                        sys.stdout.write('  %-28s%s\n' % (form, arg.help))
+
+            if self._optional_args:
                 sys.stdout.write('\nGeneral Options: \n')
 
-            for arg in container._optional_args:
+            for arg in self._optional_args:
                 form = get_arg_form(arg)
                 if form:
                     sys.stdout.write('  %-28s%s\n' % (form, arg.help))
