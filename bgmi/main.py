@@ -108,7 +108,8 @@ def add(ret):
             followed_obj = Followed(bangumi_name=data['name'], status=STATUS_FOLLOWED)
 
             if not followed_obj.select():
-                followed_obj.episode, _ = get_maximum_episode(keyword=data['keyword'])['episode']
+                ret, _ = get_maximum_episode(keyword=data['keyword'])
+                followed_obj.episode = ret['episode']
                 followed_obj.save()
                 print_success('{} has followed'.format(bangumi_obj))
             else:
