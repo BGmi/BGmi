@@ -1,5 +1,5 @@
 # coding=utf-8
-from utils import write_download_xml
+from bgmi.utils import write_download_xml
 
 
 def download_prepare(data):
