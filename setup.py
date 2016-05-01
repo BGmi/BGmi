@@ -36,9 +36,9 @@ class CustomInstallCommand(install):
 
         print_info('Installing crontab job')
         os.system('sh crontab.sh')
-        print_info('Copy xunlei-lixian to %s' % bgmi_path)
 
         if not os.path.exists(os.path.join(bgmi_path, 'tools/xunlei-lixian')):
+            print_info('Copy xunlei-lixian to %s' % bgmi_path)
             os.mkdir(os.path.join(bgmi_path, 'tools'))
             shutil.copytree('tools/xunlei-lixian', os.path.join(bgmi_path, 'tools/xunlei-lixian'))
             print_info('Create link file')
@@ -57,6 +57,7 @@ setup(
     long_description=long_description(),
     url='https://github.com/RicterZ/BGmi',
     download_url='https://github.com/RicterZ/BGmi/tarball/0.2',
+    dependency_links=['https://github.com/iambus/xunlei-lixian/tarball/master'],
 
     packages=find_packages(),
     include_package_data=True,
