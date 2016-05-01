@@ -28,7 +28,7 @@ class CustomInstallCommand(install):
             home = '/tmp'
 
         bgmi_path = os.path.join(home, '.bgmi')
-        if not bgmi_path:
+        if not os.path.exists(bgmi_path):
             print_success('%s created successfully' % bgmi_path)
             os.mkdir(bgmi_path)
         else:
