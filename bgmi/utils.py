@@ -71,9 +71,9 @@ def download_xml(data):
 
     for i in data:
         f += '<item>'
-        f += '<title><![CDATA[ %s ]]></title>' % i['title'].encode('utf-8')
+        f += '<title><![CDATA[ %s ]]></title>' % i['title']
         f += ('<enclosure url="%s" length="1" type="application/x-bittorrent">'
-              '</enclosure>' % i['download'].encode('utf-8'))
+              '</enclosure>' % i['download'])
         f += '</item>'
 
     f += '</channel></rss>'

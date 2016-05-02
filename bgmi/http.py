@@ -5,14 +5,9 @@ from bgmi.utils import print_success, download_xml
 from bgmi.models import Download
 
 
-def process_data(data):
-    return data
-
 if IS_PYTHON3:
     from http.server import BaseHTTPRequestHandler, HTTPServer
 
-    def process_data(data):
-        return bytes(data, 'utf-8')
 else:
     from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
@@ -25,7 +20,7 @@ class TorrentFeedHandler(BaseHTTPRequestHandler):
         self.send_header("Content-type", "%s; charset=utf-8" % content_type)
         self.send_header("Content-Length", str(len(data)))
         self.end_headers()
-        self.wfile.write(process_data(data))
+        self.wfile.write(data.encode('utf-8'))
 
 
 def main(port):
