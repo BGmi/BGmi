@@ -13,7 +13,8 @@ def download_prepare(data):
 def download_xunlei_lixian(data):
     for i in data:
         subprocess.call([BGMI_LX_PATH, 'download', '--torrent', '--overwrite',
-                         '--output-dir=%s' % BGMI_SAVE_PATH, i['download']])
+                         '--output-dir=%s' % BGMI_SAVE_PATH, i['download']],
+                         env={'PATH': '/usr/local/bin:/usr/bin:/bin'})
         d = Download(**i)
         d.delete()
 
