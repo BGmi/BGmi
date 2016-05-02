@@ -146,7 +146,6 @@ class _CommandParserMixin(object):
                     value = self._get_args(arg_instance, _sys_args_list)
             else:
                 if parser_group._positional_args:
-                    print(parser_group._positional_args)
                     arg_instance = parser_group._positional_args.pop()
                 else:
                     if not parser_group.argument_groups:

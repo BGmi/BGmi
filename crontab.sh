@@ -24,6 +24,6 @@ crontab -l | grep "bgmi update" > /dev/null
 if [ $? -eq 0 ]; then
     echo "[-] crontab already exist";
 else
-    (crontab -l;printf "* */2 * * * $BGMI_PATH update $DOWNLOAD\n")|crontab -
+    (crontab -l;printf "0 */2 * * * $BGMI_PATH update $DOWNLOAD\n")|crontab -
     echo "[+] crontab added"
 fi
