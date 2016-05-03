@@ -1,6 +1,5 @@
 # coding=utf-8
 import os
-import shutil
 import codecs
 from setuptools import setup, find_packages
 from setuptools.command.install import install
@@ -35,7 +34,7 @@ setup(
     description='BGmi is a cli tool for subscribed bangumi.',
     long_description=long_description(),
     url='https://github.com/RicterZ/BGmi',
-    download_url='https://github.com/RicterZ/BGmi/tarball/0.2',
+    download_url='https://github.com/RicterZ/BGmi/tarball/master',
 
     packages=find_packages(),
     include_package_data=True,

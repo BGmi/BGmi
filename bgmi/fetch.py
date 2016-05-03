@@ -8,7 +8,8 @@ from bs4 import BeautifulSoup
 from collections import defaultdict
 from bgmi.config import FETCH_URL, DETAIL_URL
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED
-from bgmi.utils import print_error, print_warning, print_info, unicodeize, test_connection, bug_report
+from bgmi.utils import print_error, print_warning, print_success,\
+    print_info, unicodeize, test_connection, bug_report
 import bgmi.config
 
 if bgmi.config.IS_PYTHON3:
@@ -25,7 +26,7 @@ SUBTITLE_MATCH = re.compile("<a href=\".*?\">(.*?)</a>")
 
 
 def bangumi_calendar(force_update=False, today=False, followed=False, save=True):
-    print_info('Bangumi Weekly Schedule')
+    # print_info('Bangumi Weekly Schedule')
 
     if force_update and not test_connection():
         force_update = False
@@ -49,8 +50,10 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
         return seq[n:] + seq[:n]
 
     def print_line():
-        num = 32
-        print('+', '-' * num, '+', '-' * num, '+', '-' * num, '+')
+        num = 33
+        # print('+', '-' * num, '+', '-' * num, '+', '-' * num, '+')
+        split = '-'
+        print(split * num, ' ', split * num, ' ', split * num)
 
     if today:
         weekday_order = (Bangumi.week[datetime.datetime.today().weekday()], )
@@ -61,12 +64,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
     spacial_remove_chars = []
     for index, weekday in enumerate(weekday_order):
         if weekly_list[weekday.lower()]:
-            if not followed:
-                print(' ' * 46, end='')
-            if index == 0:
-                print('\033[1;37;40m%s.\033[0m' % weekday, end='')
-            else:
-                print('\033[1;32m%s.\033[0m' % weekday, end='')
+            print('\033[1;32m%s. \033[0m' % (weekday if not today else 'Bangumi Schedule of Today (%s)' % weekday), end='')
             if not followed:
                 print()
                 print_line()
@@ -81,7 +79,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
 
                 half = len(re.findall('[%s]' % string.printable, bangumi['name']))
                 full = (len(bangumi['name']) - half)
-                space_count = 31 - (full * 2 + half)
+                space_count = 34 - (full * 2 + half)
 
                 for s in spacial_append_chars:
                     if s in bangumi['name']:
@@ -99,14 +97,13 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
                         print(' ' * 4, end='')
                     print(bangumi['name'], bangumi['subtitle_group'])
                 else:
-                    if (i + 1) % 3 == 1:
-                        print('|', end='')
-                    print(' ' + bangumi['name'], ' ' * space_count, '|' if not followed else ' ', end='')
+                    print(' ' + bangumi['name'], ' ' * space_count, end='')
                     if (i + 1) % 3 == 0 or i + 1 == len(weekly_list[weekday.lower()]):
                         print()
 
             if not followed:
-                print_line()
+                print()
+                # print_line()
 
 
 def get_response(url):
