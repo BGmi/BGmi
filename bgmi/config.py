@@ -2,8 +2,8 @@
 from __future__ import unicode_literals
 import os
 import sys
-FETCH_URL = 'http://dmhy.ricter.me/cms/page/name/programme.html'
-DETAIL_URL = 'http://dmhy.ricter.me/topics/list?keyword='
+FETCH_URL = 'http://dmhy.ricterz.me/cms/page/name/programme.html'
+DETAIL_URL = 'http://dmhy.ricterz.me/topics/list?keyword='
 IS_PYTHON3 = sys.version_info.major == 3
 DEBUG = False
 
