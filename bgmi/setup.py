@@ -3,7 +3,8 @@ import os
 import tarfile
 from tempfile import NamedTemporaryFile
 from bgmi.utils import print_success, print_warning, print_info
-from bgmi.config import IS_PYTHON3, BGMI_LX_PATH, BGMI_SAVE_PATH, BGMI_PATH
+from bgmi.config import IS_PYTHON3, BGMI_SAVE_PATH, BGMI_PATH, BGMI_LX_PATH
+
 
 if not IS_PYTHON3:
     input = raw_input
@@ -16,10 +17,8 @@ def install_crontab():
 
 
 def create_dir():
-    home = os.environ.get('HOME', '')
-    if not home:
+    if not os.environ.get('HOME', ''):
         print_warning('$HOME not set, use \'/tmp/\'')
-        home = '/tmp'
 
     tools_path = os.path.join(BGMI_PATH, 'tools')
     # bgmi home dir

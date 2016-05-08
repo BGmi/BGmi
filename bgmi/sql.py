@@ -21,5 +21,6 @@ CREATE_TABLE_DOWNLOAD = '''CREATE TABLE download (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           title TEXT NOT NULL,
           episode INTEGER DEFAULT 0,
-          download TEXT DEFAULT 1
+          download TEXT,
+          status INTEGER DEFAULT 0
         )'''

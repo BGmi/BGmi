@@ -91,8 +91,7 @@ def main():
     elif ret.action == ACTION_CAL:
         cal(ret)
     else:
-        print('fallback to print_help')
-        # c.print_help()
+        c.print_help()
 
 
 def add(ret):
@@ -112,11 +111,11 @@ def add(ret):
                 ret, _ = get_maximum_episode(keyword=data['keyword'])
                 followed_obj.episode = ret['episode']
                 followed_obj.save()
-                print_success('{} has followed'.format(bangumi_obj))
+                print_success('{0} has followed'.format(bangumi_obj))
             else:
-                print_warning('{} already followed'.format(bangumi_obj))
+                print_warning('{0} already followed'.format(bangumi_obj))
         else:
-            print_warning('{} not found, please check the name'.format(bangumi))
+            print_warning('{0} not found, please check the name'.format(bangumi))
 
 
 def delete(ret):

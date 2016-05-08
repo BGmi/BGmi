@@ -12,9 +12,16 @@ else:
     input = raw_input
     _unicode = unicode
 
+
+# bangumi subscription and download status
 STATUS_NORMAL = 0
 STATUS_FOLLOWED = 1
-STATUS_REMOVED = 2
+BANGUMI_STATUS = (STATUS_NORMAL, STATUS_FOLLOWED)
+
+STATUS_NOT_DOWNLOAD = 0
+STATUS_DOWNLOADING = 1
+STATUS_DOWNLOADED = 2
+DOWNLOAD_STATUS = (STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, STATUS_DOWNLOADED)
 
 
 def make_dicts(cursor, row):
@@ -376,15 +383,19 @@ class Followed(DB):
 class Download(DB):
     table = 'download'
     primary_key = ('title', 'episode', )
-    fields = ('title', 'episode', 'download', )
+    fields = ('title', 'episode', 'download', 'status', )
 
     @staticmethod
-    def get_all_downloads():
+    def get_all_downloads(status=STATUS_NOT_DOWNLOAD):
         db = DB.connect_db()
         db.row_factory = make_dicts
         cur = db.cursor()
-        sql = DB._make_sql('select', table=Download.table)
-        cur.execute(sql)
+        sql = DB._make_sql('select', table=Download.table, condition=['status', ])
+        cur.execute(sql, (status, ))
         data = cur.fetchall()
         DB.close_db(db)
         return data
+
+    def delete(self, condition=None):
+        self.status = STATUS_DOWNLOADED
+        self.save()
