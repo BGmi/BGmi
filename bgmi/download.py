@@ -12,12 +12,15 @@ DOWNLOAD_DELEGATE_DICT = {
 }
 
 
-def get_download_class(torrent, overwrite, save_path):
+def get_download_class(torrent='', overwrite=True, save_path='', instance=True):
     if DOWNLOAD_DELEGATE not in DOWNLOAD_DELEGATE_DICT:
         print_error('unexpected download delegate {0}'.format(DOWNLOAD_DELEGATE))
-    delegate = DOWNLOAD_DELEGATE_DICT.get(DOWNLOAD_DELEGATE)(torrent=torrent,
-                                                             overwrite=overwrite,
-                                                             save_path=save_path)
+
+    delegate = DOWNLOAD_DELEGATE_DICT.get(DOWNLOAD_DELEGATE)\
+
+    if instance:
+        delegate = delegate(torrent=torrent, overwrite=overwrite, save_path=save_path)
+
     return delegate
 
 

@@ -2,21 +2,77 @@
 from __future__ import unicode_literals
 import os
 import sys
+import ConfigParser
 
 
-# Setting dmhy url
-DMHY_URL = 'http://dmhy.ricterz.me'
-FETCH_URL = '{0}/cms/page/name/programme.html'.format(DMHY_URL)
-DETAIL_URL = '{0}/topics/list?keyword='.format(DMHY_URL)
+__all__ = ('DMHY_URL', 'BGMI_PATH', 'DB_PATH', 'BGMI_SAVE_PATH',
+           'BGMI_LX_PATH', 'DOWNLOAD_DELEGATE', 'CONFIG_FILE_PATH',
+           'DETAIL_URL', 'FETCH_URL', 'IS_PYTHON3')
 
-IS_PYTHON3 = sys.version_info.major == 3
+__readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
+                'IS_PYTHON3', 'DETAIL_URL', 'FETCH_URL')
 
-# Debug Mode
-DEBUG = False
+__writeable__ = tuple([i for i in __all__ if i not in __readonly__])
 
-# BGmi user path
+
+# --------- Immutable ---------- #
 BGMI_PATH = os.path.join(os.environ.get('HOME', '/tmp'), '.bgmi')
 DB_PATH = os.path.join(BGMI_PATH, 'bangumi.db')
+CONFIG_FILE_PATH = os.path.join(BGMI_PATH, 'bgmi.cfg')
+
+
+def read_config():
+    c = ConfigParser.ConfigParser()
+    if not os.path.exists(CONFIG_FILE_PATH):
+        return
+    c.read(CONFIG_FILE_PATH)
+    for i in __writeable__:
+        if c.has_option('bgmi', i):
+            globals().update({i: c.get('bgmi', i)})
+
+
+def print_config():
+    c = ConfigParser.ConfigParser()
+    if not os.path.exists(CONFIG_FILE_PATH):
+        return
+    c.read(CONFIG_FILE_PATH)
+    for i in __writeable__:
+        print('{0}={1}'.format(i, c.get('bgmi', i)))
+
+
+def write_config(config=None, value=None):
+    c = ConfigParser.ConfigParser()
+    if not c.has_section('bgmi'):
+        c.add_section('bgmi')
+
+    if config is not None and config not in __writeable__:
+        print('{0} is not exist or not writeable'.format(config))
+        exit(1)
+
+    for i in __writeable__:
+        v = globals().get(i, None)
+        c.set('bgmi', i, v)
+
+    if config is None and value is None:
+        print_config()
+        return
+    elif value is None:
+        print('{0}={1}'.format(config, c.get('bgmi', config)))
+        return
+    else:
+        if config in __writeable__:
+            c.set('bgmi', config, value)
+            c.write(open(CONFIG_FILE_PATH, 'w'))
+            print_config()
+
+
+def _refresh_config():
+    pass
+# --------- Writeable ---------- #
+# Setting dmhy url
+DMHY_URL = 'http://dmhy.ricterz.me'
+
+# BGmi user path
 BGMI_SAVE_PATH = os.path.join(BGMI_PATH, 'bangumi')
 
 # Xunlei offline download
@@ -24,3 +80,23 @@ BGMI_LX_PATH = os.path.join(BGMI_PATH, 'bgmi-lx')
 
 # Download delegate
 DOWNLOAD_DELEGATE = 'xunlei'
+
+
+# ------------------------------ #
+# !!! Read config from file and write to globals() !!!
+read_config()
+# ------------------------------ #
+
+
+# --------- Read-Only ---------- #
+# Python version
+IS_PYTHON3 = sys.version_info.major == 3
+
+# Detail URL
+FETCH_URL = '{0}/cms/page/name/programme.html'.format(DMHY_URL)
+DETAIL_URL = '{0}/topics/list?keyword='.format(DMHY_URL)
+
+
+if __name__ == '__main__':
+    for i in __all__:
+        print(i, globals().get(i, None))

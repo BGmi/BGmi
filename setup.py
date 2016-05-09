@@ -4,7 +4,7 @@ import codecs
 from setuptools import setup, find_packages
 from setuptools.command.install import install
 from bgmi import __version__, __author__, __email__
-from bgmi.setup import install_crontab, create_dir, install_xunlei_lixian
+from bgmi.setup import install_crontab, create_dir
 
 with open('requirements.txt', 'r') as f:
     requirements = f.read().splitlines()

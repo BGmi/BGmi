@@ -9,7 +9,7 @@ from bgmi.utils import print_warning, print_info, print_success, print_error,\
     print_version
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD
-from bgmi.config import BGMI_PATH, DB_PATH
+from bgmi.config import BGMI_PATH, DB_PATH, write_config
 
 
 ACTION_HTTP = 'http'
@@ -17,7 +17,8 @@ ACTION_ADD = 'add'
 ACTION_DELETE = 'delete'
 ACTION_UPDATE = 'update'
 ACTION_CAL = 'cal'
-ACTIONS = (ACTION_HTTP, ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL)
+ACTION_CONFIG = 'config'
+ACTIONS = (ACTION_HTTP, ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL, ACTION_CONFIG)
 
 FILTER_CHOICE_TODAY = 'today'
 FILTER_CHOICE_ALL = 'all'
@@ -51,6 +52,9 @@ def main():
     sub_parser_http = action.add_sub_parser(ACTION_HTTP, help='BGmi HTTP Server.')
     sub_parser_http.add_argument('--port', default='23333', arg_type='1', dest='port',
                                  help='The port of BGmi HTTP Server listened, default 23333.')
+    sub_parser_config = action.add_sub_parser(ACTION_CONFIG, help='Config BGmi.')
+    sub_parser_config.add_argument('name', help='Config name')
+    sub_parser_config.add_argument('value', help='Config value')
 
     positional = c.add_arg_group('positional')
     positional.add_argument('install', help='Install xunlei-lixian for BGmi.')
@@ -67,7 +71,7 @@ def main():
 
     if ret.positional.install == 'install':
         import bgmi.setup
-        bgmi.setup.install_xunlei_lixian()
+        bgmi.setup.install()
         raise SystemExit
 
     if ret.action == ACTION_HTTP:
@@ -90,6 +94,8 @@ def main():
 
     elif ret.action == ACTION_CAL:
         cal(ret)
+    elif ret.action == ACTION_CONFIG:
+        write_config(ret.action.config.name, ret.action.config.value)
     else:
         c.print_help()
 
