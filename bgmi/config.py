@@ -2,7 +2,11 @@
 from __future__ import unicode_literals
 import os
 import sys
-import ConfigParser
+
+try:
+    import ConfigParser as configparser
+except ImportError:
+    import configparser
 
 
 __all__ = ('DMHY_URL', 'BGMI_PATH', 'DB_PATH', 'BGMI_SAVE_PATH',
@@ -22,7 +26,7 @@ CONFIG_FILE_PATH = os.path.join(BGMI_PATH, 'bgmi.cfg')
 
 
 def read_config():
-    c = ConfigParser.ConfigParser()
+    c = configparser.ConfigParser()
     if not os.path.exists(CONFIG_FILE_PATH):
         return
     c.read(CONFIG_FILE_PATH)
@@ -32,7 +36,7 @@ def read_config():
 
 
 def print_config():
-    c = ConfigParser.ConfigParser()
+    c = configparser.ConfigParser()
     if not os.path.exists(CONFIG_FILE_PATH):
         return
     c.read(CONFIG_FILE_PATH)
@@ -41,7 +45,7 @@ def print_config():
 
 
 def write_config(config=None, value=None):
-    c = ConfigParser.ConfigParser()
+    c = configparser.ConfigParser()
     if not c.has_section('bgmi'):
         c.add_section('bgmi')
 
