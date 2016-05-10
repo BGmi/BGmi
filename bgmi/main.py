@@ -7,7 +7,7 @@ from bgmi.command import CommandParser
 from bgmi.download import download_prepare
 from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode
 from bgmi.utils import print_warning, print_info, print_success, print_error, print_version
-from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED
+from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED, STATUS_UPDATED
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD
 from bgmi.config import BGMI_PATH, DB_PATH, write_config
 
@@ -165,6 +165,7 @@ def update(ret):
             print_success('%s updated, episode: %d' % (subscribe['bangumi_name'], episode['episode']))
             _ = Followed(bangumi_name=subscribe['bangumi_name'])
             _.episode = episode['episode']
+            _.status = STATUS_UPDATED
             _.save()
             download_queue.append(episode)
             for i in episode_range:

@@ -4,12 +4,12 @@ import re
 import datetime
 import string
 import requests
+from itertools import chain
 from bs4 import BeautifulSoup
 from collections import defaultdict
 from bgmi.config import FETCH_URL, DETAIL_URL
-from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED
-from bgmi.utils import print_error, print_warning, print_success,\
-    print_info, unicodeize, test_connection, bug_report
+from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED, STATUS_UPDATED
+from bgmi.utils import print_error, print_warning, print_info, unicodeize, test_connection, bug_report
 import bgmi.config
 
 if bgmi.config.IS_PYTHON3:
@@ -36,7 +36,14 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
         print_info('fetching bangumi info ...')
         weekly_list = fetch(save=save, status=True)
     else:
-        weekly_list = Bangumi.get_all_bangumi(status=STATUS_FOLLOWED if followed else None)
+        if followed:
+            weekly_list_followed = Bangumi.get_all_bangumi(status=STATUS_FOLLOWED)
+            weekly_list_updated = Bangumi.get_all_bangumi(status=STATUS_UPDATED)
+            weekly_list = defaultdict(list)
+            for k, v in chain(weekly_list_followed.items(), weekly_list_updated.items()):
+                weekly_list[k].extend(v)
+        else:
+            weekly_list = Bangumi.get_all_bangumi()
 
     if not weekly_list:
         if not followed:
@@ -74,7 +81,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
                     # bangumi['name'] = bangumi['name']
                     pass
 
-                if bangumi['status'] == STATUS_FOLLOWED and 'episode' in bangumi:
+                if bangumi['status'] in (STATUS_UPDATED, STATUS_FOLLOWED) and 'episode' in bangumi:
                     bangumi['name'] = '%s(%d)' % (bangumi['name'], bangumi['episode'])
 
                 half = len(re.findall('[%s]' % string.printable, bangumi['name']))
@@ -92,9 +99,12 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
                 if bangumi['status'] == STATUS_FOLLOWED:
                     bangumi['name'] = '\033[1;33m%s\033[0m' % bangumi['name']
 
+                if bangumi['status'] == STATUS_UPDATED:
+                    bangumi['name'] = '\033[1;32m%s\033[0m' % bangumi['name']
+
                 if followed:
                     if i > 0:
-                        print(' ' * 4, end='')
+                        print(' ' * 5, end='')
                     print(bangumi['name'], bangumi['subtitle_group'])
                 else:
                     print(' ' + bangumi['name'], ' ' * space_count, end='')
