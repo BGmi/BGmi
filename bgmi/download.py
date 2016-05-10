@@ -46,8 +46,6 @@ def download_xunlei_lixian(queue):
             download.delete()
         except Exception as e:
             print_error('Error: {0}'.format(e))
-        except KeyboardInterrupt:
-            print_error('You pressed Ctrl+C, exit')
 
 
 def save_to_bangumi_download_queue(data):

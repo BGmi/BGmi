@@ -2,11 +2,11 @@
 from __future__ import print_function, unicode_literals
 import os
 import sqlite3
+import signal
 from bgmi.command import CommandParser
 from bgmi.download import download_prepare
 from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode
-from bgmi.utils import print_warning, print_info, print_success, print_error,\
-    print_version
+from bgmi.utils import print_warning, print_info, print_success, print_error, print_version
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD
 from bgmi.config import BGMI_PATH, DB_PATH, write_config
@@ -26,6 +26,13 @@ FILTER_CHOICE_FOLLOWED = 'followed'
 FILTER_CHOICES = (FILTER_CHOICE_ALL, FILTER_CHOICE_FOLLOWED, FILTER_CHOICE_TODAY)
 
 
+# global Ctrl-C signal handler
+def signal_handler(signal, frame):
+    print_error('User aborted, quit')
+signal.signal(signal.SIGINT, signal_handler)
+
+
+# main function
 def main():
     c = CommandParser()
     action = c.add_arg_group('action')
