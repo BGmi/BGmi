@@ -3,6 +3,7 @@ from __future__ import print_function, unicode_literals
 import os
 import sqlite3
 import signal
+import datetime
 from bgmi.command import CommandParser
 from bgmi.download import download_prepare
 from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode
@@ -152,6 +153,14 @@ def delete(ret):
 
 
 def update(ret):
+    print_info('marking bangumi status ...')
+    week = Bangumi.week[datetime.datetime.today().weekday()]
+    for i in Bangumi.get_all_bangumi(status=STATUS_UPDATED, order=False):
+        if i['update_time'] != week:
+            _ = Followed(bangumi_name=i['name'])
+            _.status = STATUS_FOLLOWED
+            _.save()
+
     print_info('updating bangumi data ...')
     fetch(save=True, group_by_weekday=False)
     print_info('updating subscribe ...')

@@ -1,5 +1,6 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
+import os
 import re
 import datetime
 import string
@@ -9,7 +10,8 @@ from bs4 import BeautifulSoup
 from collections import defaultdict
 from bgmi.config import FETCH_URL, DETAIL_URL
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED, STATUS_UPDATED
-from bgmi.utils import print_error, print_warning, print_info, unicodeize, test_connection, bug_report
+from bgmi.utils import print_error, print_warning, print_info, unicodeize, \
+    test_connection, bug_report, get_terminal_col
 import bgmi.config
 
 if bgmi.config.IS_PYTHON3:
@@ -26,7 +28,11 @@ SUBTITLE_MATCH = re.compile("<a href=\".*?\">(.*?)</a>")
 
 
 def bangumi_calendar(force_update=False, today=False, followed=False, save=True):
-    # print_info('Bangumi Weekly Schedule')
+    env_columns = get_terminal_col()
+
+    if env_columns < 36:
+        print_error('Terminal columns is too small.')
+    row = env_columns / 36 if env_columns / 36 <= 3 else 3
 
     if force_update and not test_connection():
         force_update = False
@@ -59,8 +65,8 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
     def print_line():
         num = 33
         # print('+', '-' * num, '+', '-' * num, '+', '-' * num, '+')
-        split = '-'
-        print(split * num, ' ', split * num, ' ', split * num)
+        split = '-' * num + '   '
+        print(split * row)
 
     if today:
         weekday_order = (Bangumi.week[datetime.datetime.today().weekday()], )
@@ -108,7 +114,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
                     print(bangumi['name'], bangumi['subtitle_group'])
                 else:
                     print(' ' + bangumi['name'], ' ' * space_count, end='')
-                    if (i + 1) % 3 == 0 or i + 1 == len(weekly_list[weekday.lower()]):
+                    if (i + 1) % row == 0 or i + 1 == len(weekly_list[weekday.lower()]):
                         print()
 
             if not followed:

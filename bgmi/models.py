@@ -81,6 +81,8 @@ class DB(object):
             raise Exception('unexpected type %s of table' % type(table))
 
         def make_condition(condition, operation='AND'):
+            operator = ''
+
             if not condition:
                 return '1'
 
@@ -94,10 +96,17 @@ class DB(object):
                         sql += '`%s`=? %s ' % (f, operation)
                 sql = sql[:-(len(operation)+1)]
             elif isinstance(condition, _unicode):
+                if condition.startswith('!'):
+                    operator = '!'
+                    condition = condition[1:]
+
                 if '.' in condition:
-                    sql += '%s=?' % condition
+                    name = '%s' % condition
                 else:
-                    sql += '`%s`=?' % condition
+                    name = '`%s`' % condition
+
+                sql += '%s%s=?' % (name, operator)
+
             else:
                 sql += '1'
             return sql
@@ -308,7 +317,7 @@ class Bangumi(DB):
         return 'Bangumi<%s>' % self.name
 
     @staticmethod
-    def get_all_bangumi(status=None):
+    def get_all_bangumi(status=None, order=True):
         db = Bangumi.connect_db()
         db.row_factory = make_dicts
         cur = db.cursor()
@@ -325,10 +334,12 @@ class Bangumi(DB):
         data = cur.fetchall()
         Bangumi.close_db(db)
 
-        weekly_list = defaultdict(list)
-
-        for bangumi_item in data:
-            weekly_list[bangumi_item['update_time'].lower()].append(dict(bangumi_item))
+        if order:
+            weekly_list = defaultdict(list)
+            for bangumi_item in data:
+                weekly_list[bangumi_item['update_time'].lower()].append(dict(bangumi_item))
+        else:
+            weekly_list = data
 
         return weekly_list
 

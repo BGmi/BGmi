@@ -85,3 +85,12 @@ def bug_report():
                 'be opened normally, please report bug to ricterzheng@gmail.co'
                 'm or submit issue at: https://github.com/RicterZ/BGmi/issues',
                 exit_=False)
+
+
+def get_terminal_col():
+    import fcntl
+    import termios
+    import struct
+    _, col, _, _ = struct.unpack('HHHH', fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0, 0)))
+
+    return col
