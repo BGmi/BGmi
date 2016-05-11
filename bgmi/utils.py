@@ -13,19 +13,19 @@ def print_(message):
 
 
 def print_info(message):
-    print_('[*] {}'.format(message))
+    print_('[*] {0}'.format(message))
 
 
 def print_success(message):
-    print_('\033[1;32m[+] {}\033[0m'.format(message))
+    print_('\033[1;32m[+] {0}\033[0m'.format(message))
 
 
 def print_warning(message):
-    print_('\033[33m[-] {}\033[0m'.format(message))
+    print_('\033[33m[-] {0}\033[0m'.format(message))
 
 
 def print_error(message, exit_=True):
-    print_('\033[1;31m[x] {}\033[0m'.format(message))
+    print_('\033[1;31m[x] {0}\033[0m'.format(message))
     if exit_:
         exit(1)
 
