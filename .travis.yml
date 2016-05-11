@@ -12,7 +12,7 @@ python:
     - 3.4
 
 install:
-    - pip install bgmi
+    - python setup.py install
 
 script:
     - python -m unittest discover
