@@ -32,7 +32,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
 
     if env_columns < 36:
         print_error('Terminal columns is too small.')
-    row = env_columns / 36 if env_columns / 36 <= 3 else 3
+    row = int(env_columns / 36 if env_columns / 36 <= 3 else 3)
 
     if force_update and not test_connection():
         force_update = False
