@@ -94,7 +94,7 @@ read_config()
 
 # --------- Read-Only ---------- #
 # Python version
-IS_PYTHON3 = sys.version_info.major == 3
+IS_PYTHON3 = sys.version_info > (3, 0)
 
 # Detail URL
 FETCH_URL = '{0}/cms/page/name/programme.html'.format(DMHY_URL)
