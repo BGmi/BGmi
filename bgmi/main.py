@@ -8,7 +8,7 @@ from bgmi.command import CommandParser
 from bgmi.download import download_prepare
 from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode
 from bgmi.utils import print_warning, print_info, print_success, print_error, print_version
-from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED, STATUS_UPDATED
+from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NORMAL
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD
 from bgmi.config import BGMI_PATH, DB_PATH, write_config
 
@@ -120,14 +120,18 @@ def add(ret):
         data = bangumi_obj.select(one=True, fields=['id', 'name', 'keyword'])
         if data:
             followed_obj = Followed(bangumi_name=data['name'], status=STATUS_FOLLOWED)
-
             if not followed_obj.select():
                 ret, _ = get_maximum_episode(keyword=data['keyword'])
                 followed_obj.episode = ret['episode']
                 followed_obj.save()
                 print_success('{0} has followed'.format(bangumi_obj))
             else:
-                print_warning('{0} already followed'.format(bangumi_obj))
+                if followed_obj.status == STATUS_NORMAL:
+                    followed_obj.status = STATUS_FOLLOWED
+                    followed_obj.save()
+                    print_success('{0} has followed'.format(bangumi_obj))
+                else:
+                    print_warning('{0} already followed'.format(bangumi_obj))
         else:
             print_warning('{0} not found, please check the name'.format(bangumi))
 
