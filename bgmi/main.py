@@ -120,18 +120,19 @@ def add(ret):
         data = bangumi_obj.select(one=True, fields=['id', 'name', 'keyword'])
         if data:
             followed_obj = Followed(bangumi_name=data['name'], status=STATUS_FOLLOWED)
-            if not followed_obj.select():
-                ret, _ = get_maximum_episode(keyword=data['keyword'])
-                followed_obj.episode = ret['episode']
-                followed_obj.save()
-                print_success('{0} has followed'.format(bangumi_obj))
-            else:
-                if followed_obj.status == STATUS_NORMAL:
+            followed_data = followed_obj.select(one=True)
+            if not followed_data or followed_data['status'] == STATUS_NORMAL:
+                if not followed_data:
+                    ret, _ = get_maximum_episode(keyword=data['keyword'])
+                    followed_obj.episode = ret['episode']
+                    followed_obj.save()
+                else:
                     followed_obj.status = STATUS_FOLLOWED
                     followed_obj.save()
-                    print_success('{0} has followed'.format(bangumi_obj))
-                else:
-                    print_warning('{0} already followed'.format(bangumi_obj))
+                print_success('{0} has followed'.format(bangumi_obj))
+            else:
+                print_warning('{0} already followed'.format(bangumi_obj))
+
         else:
             print_warning('{0} not found, please check the name'.format(bangumi))
 
