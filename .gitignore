@@ -5,3 +5,4 @@ dist/
 build/
 bgmi.egg-info
 download.xml
+.python-version
