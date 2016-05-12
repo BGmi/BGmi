@@ -84,7 +84,7 @@ def write_config(config=None, value=None):
                 c.write(open(CONFIG_FILE_PATH, 'w'))
                 print_config()
 
-    except configparser.NoOptionError:
+    except (configparser.NoOptionError, configparser.NoSectionError):
         write_default_config()
 
 
