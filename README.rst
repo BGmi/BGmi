@@ -1,4 +1,4 @@
-BGmi
+dBGmi
 ====
 BGmi is a cli tool for subscribed bangumi.
 
@@ -15,7 +15,7 @@ Feature
 =======
 + Subscribe/Unsubscribe bangumi
 + Bangumi-updating schedule
-+ Bangumi episode information
++ Bangumi episode informatdon
 + HTTP Server for RSS feed (for uTorrent, etc.)
 + Download bangumi by subtitle group
 
@@ -43,7 +43,7 @@ Or use pip:
 
     pip install bgmi
 
-For **Windows**: BGmi dose not support Windows now.  
+For **Windows**: BGmi does not support Windows now.  
 
 =====
 Usage
