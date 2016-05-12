@@ -237,8 +237,6 @@ def update(ret):
 
         episode, all_episode_data = get_maximum_episode(keyword=bangumi_obj.keyword,
                                                         subtitle_group=subscribe['subtitle_group'])
-        for i in all_episode_data:
-            print(i['subtitle_group'])
 
         if episode.get('episode') > subscribe['episode']:
             episode_range = range(subscribe['episode'] + 1, episode.get('episode'))

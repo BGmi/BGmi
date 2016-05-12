@@ -21,6 +21,7 @@ script:
     - bgmi delete --name "暗殺教室Ⅱ"
     - bgmi delete --clear-all --batch
     - bgmi cal followed
+    - bgmi add "在下坂本，有何貴幹？"
     - bgmi filter "在下坂本，有何貴幹？" "動漫國,KNA,悠哈C9"
     - bgmi filter "在下坂本，有何貴幹？" "KNA,悠哈C9" --remove
     - bgmi filter "在下坂本，有何貴幹？" --remove-all
