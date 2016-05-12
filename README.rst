@@ -15,9 +15,9 @@ Feature
 =======
 + Subscribe/Unsubscribe bangumi
 + Bangumi-updating schedule
-+ Bangumi episode infomartion
++ Bangumi episode information
 + HTTP Server for RSS feed (for uTorrent, etc.)
-+ Download Bangumi by subtitle group
++ Download bangumi by subtitle group
 
 ============
 Installation
@@ -59,7 +59,7 @@ Unsubscribe bangumi:
 
 .. code-block:: bash
 
-    bgmi del --name "暗殺教室Ⅱ"
+    bgmi delete --name "暗殺教室Ⅱ"
 
 
 Update bangumi calendar and episode, and write to download.xml:
@@ -76,6 +76,20 @@ Start a HTTP Server for download.xml:
     bgmi http --port 12345
 
 
+Set bangumi filter and fetch entries by subtitle group:
+
+.. code-block:: bash
+
+    bgmi filter "線上遊戲的老婆不可能是女生？" "KNA,惡魔島"
+    bgmi fetch "線上遊戲的老婆不可能是女生？"
+
+Install [xunlei-lixian](https://github.com/iambus/xunlei-lixian/):
+
+.. code-block:: bash
+
+    bgmi install
+
+
 
 =======
 License
@@ -84,3 +98,4 @@ MIT
 
 .. |travis| image:: https://travis-ci.org/RicterZ/BGmi.svg?branch=master
    :target: https://travis-ci.org/RicterZ/BGmi
+
