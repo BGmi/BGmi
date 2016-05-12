@@ -41,7 +41,6 @@ def print_config():
     if not os.path.exists(CONFIG_FILE_PATH):
         return
     c.read(CONFIG_FILE_PATH)
-
     for i in __writeable__:
         print('{0}={1}'.format(i, c.get('bgmi', i)))
 
@@ -60,6 +59,8 @@ def write_default_config():
 
 def write_config(config=None, value=None):
     c = configparser.ConfigParser()
+    c.read(CONFIG_FILE_PATH)
+
     if not c.has_section('bgmi'):
         c.add_section('bgmi')
 
@@ -81,11 +82,13 @@ def write_config(config=None, value=None):
         else:
             if config in __writeable__:
                 c.set('bgmi', config, value)
-                c.write(open(CONFIG_FILE_PATH, 'w'))
-                print_config()
+                with open(CONFIG_FILE_PATH, 'w') as f:
+                    c.write(f)
+            print_config()
 
-    except (configparser.NoOptionError, configparser.NoSectionError):
+    except (configparser.NoOptionError):
         write_default_config()
+
 
 
 def _refresh_config():

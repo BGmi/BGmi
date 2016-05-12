@@ -367,7 +367,7 @@ class CommandParser(_CommandParserMixin):
             container._get_positional_args()
 
             if container._positional_args:
-                for arg in container._positional_args[::-1]:
+                for arg in list(container._positional_args)[::-1]:
                     if not arg.hidden:
                         usage += get_arg_form(arg)
 
@@ -375,14 +375,14 @@ class CommandParser(_CommandParserMixin):
                 usage += '[options] '
 
             if container.argument_groups:
-                for arg in container.argument_groups.values()[::-1]:
+                for arg in list(container.argument_groups.values())[::-1]:
                     if arg.argument_groups:
                         usage += '<%s> ' % arg.name
 
             sys.stdout.write('%s \n' % usage)
 
             if container.argument_groups:
-                for group in container.argument_groups.values()[::-1]:
+                for group in list(container.argument_groups.values())[::-1]:
                     print_group_help(group)
 
             if container._positional_args:
