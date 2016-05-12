@@ -132,9 +132,24 @@ def get_response(url):
 def process_subtitle(data):
     '''get subtitle group name from links
     '''
+    special_subtitle_group = ['A.I.R.nes', ]
+
     result = SUBTITLE_MATCH.findall(data)
 
-    # split non-value
+    '''
+    subtitle_list = []
+    for i in result:
+        s_list = []
+        for s in special_subtitle_group:
+            if s in i:
+                index_of_s = i.index(s)
+                s_list.append(i[index_of_s:(len(s)+index_of_s)])
+                i = i[0:index_of_s] + i[(len(s)+index_of_s):]
+
+        subtitle_list.extend(i.split('.'))
+        subtitle_list.extend(s_list)
+    '''
+    print(result)
     # ['', 'a'] -> ['a']
     return [i for i in result if i]
 
@@ -205,7 +220,7 @@ def parse_episode(data):
             return int(match[0])
 
 
-def fetch_episode(keyword):
+def fetch_episode(keyword, subtitle_group=None):
     result = []
     response = get_response(DETAIL_URL + keyword)
 
@@ -225,17 +240,28 @@ def fetch_episode(keyword):
                 bangumi_update_info['time'] = detail.span.text
             if i == 2:
                 title = detail.find('a', attrs={'target': '_blank'}).text.strip()
+                subtitle = detail.find('span', attrs={'class': 'tag'})
+                subtitle = subtitle.a.text.strip() if subtitle else ''
+
                 bangumi_update_info['title'] = title
+                bangumi_update_info['subtitle_group'] = subtitle
                 bangumi_update_info['episode'] = parse_episode(title)
             if i == 3:
                 bangumi_update_info['download'] = detail.find('a').attrs.get('href')
-        result.append(bangumi_update_info)
+
+        # filter subtitle group
+        if subtitle_group is not None:
+            subtitle_group_list = map(lambda s: s.strip(), subtitle_group.split(','))
+            for s in subtitle_group_list:
+                if s in bangumi_update_info['subtitle_group']:
+                    result.append(bangumi_update_info)
 
     return result
 
 
-def get_maximum_episode(keyword):
-    data = [i for i in fetch_episode(keyword=keyword) if i['episode'] is not None]
+def get_maximum_episode(keyword, subtitle_group=None):
+    data = [i for i in fetch_episode(keyword=keyword, subtitle_group=subtitle_group)
+            if i['episode'] is not None]
     if data:
         bangumi = max(data, key=lambda i: i['episode'])
         return bangumi, data

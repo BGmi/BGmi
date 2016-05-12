@@ -30,6 +30,11 @@ def make_dicts(cursor, row):
                 for idx, value in enumerate(row))
 
 
+class FalseType(type):
+    def __nonzero__(self):
+        return False
+
+
 class DB(object):
     # `_id` save the id column in database, will be set automatic
     _id = None
@@ -45,6 +50,9 @@ class DB(object):
     # table name
     table = None
     _conn = None
+
+    # nonzero
+    __nonzero = True
 
     def __init__(self, **kwargs):
         for f in self.fields:
@@ -205,6 +213,21 @@ class DB(object):
         values = tuple([self.__dict__.get(i, '') for i in self.fields])
         return self.fields, values
 
+    def select_obj(self):
+        data = self.select(one=True)
+        if not data:
+            self.__nonzero = False
+        else:
+            self.__nonzero = True
+            for k, v in data.items():
+                setattr(self, k, v)
+
+    def __bool__(self):
+        return self.__nonzero
+
+    def __nonzero__(self):
+        return self.__nonzero
+
     def select(self, fields=None, condition=None, one=False, join=None):
         if not isinstance(condition, (dict, type(None))):
             raise Exception('condition expected dict')
@@ -347,7 +370,7 @@ class Bangumi(DB):
 class Followed(DB):
     table = 'followed'
     primary_key = ('bangumi_name', )
-    fields = ('bangumi_name', 'episode', 'status', )
+    fields = ('bangumi_name', 'episode', 'status', 'subtitle_group', )
 
     @staticmethod
     def delete_followed(condition=None, batch=True):

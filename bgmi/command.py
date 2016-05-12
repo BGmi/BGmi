@@ -11,7 +11,7 @@ HELP = ('-h', '--help')
 
 
 def _error(message):
-    sys.stderr.write('error: %s\n' % message)
+    sys.stderr.write('error: %s, try \'-h\' for help\n' % message)
     raise SystemExit(1)
 
 
@@ -314,6 +314,7 @@ class CommandParser(_CommandParserMixin):
 
     def print_help(self):
         self.sys_args = sys.argv[1:][::-1]
+        sys.stdout.write('\nUsage: \n')
 
         def search(name):
 
@@ -362,13 +363,11 @@ class CommandParser(_CommandParserMixin):
             for sub in group.sub.values():
                 sys.stdout.write('  %-28s%s\n' % (sub.name, sub.help))
 
-        sys.stdout.write('\nUsage: \n')
-
         def _print_help(container, usage):
             container._get_positional_args()
 
             if container._positional_args:
-                for arg in container._positional_args:
+                for arg in container._positional_args[::-1]:
                     if not arg.hidden:
                         usage += get_arg_form(arg)
 
@@ -376,19 +375,19 @@ class CommandParser(_CommandParserMixin):
                 usage += '[options] '
 
             if container.argument_groups:
-                for arg in container.argument_groups.values():
+                for arg in container.argument_groups.values()[::-1]:
                     if arg.argument_groups:
                         usage += '<%s> ' % arg.name
 
             sys.stdout.write('%s \n' % usage)
 
             if container.argument_groups:
-                for group in container.argument_groups.values():
+                for group in container.argument_groups.values()[::-1]:
                     print_group_help(group)
 
             if container._positional_args:
                 sys.stdout.write('\nCommands: \n')
-                for arg in container._positional_args:
+                for arg in container._positional_args[::-1]:
                     sys.stdout.write('  %-28s%s\n' % (arg.name, arg.help))
 
             if isinstance(container, ArgumentGroup):

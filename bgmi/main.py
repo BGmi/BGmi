@@ -15,11 +15,12 @@ from bgmi.config import BGMI_PATH, DB_PATH, write_config
 
 ACTION_HTTP = 'http'
 ACTION_ADD = 'add'
+ACTION_FILTER = 'filter'
 ACTION_DELETE = 'delete'
 ACTION_UPDATE = 'update'
 ACTION_CAL = 'cal'
 ACTION_CONFIG = 'config'
-ACTIONS = (ACTION_HTTP, ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL, ACTION_CONFIG)
+ACTIONS = (ACTION_HTTP, ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL, ACTION_CONFIG, ACTION_FILTER)
 
 FILTER_CHOICE_TODAY = 'today'
 FILTER_CHOICE_ALL = 'all'
@@ -40,6 +41,12 @@ def main():
 
     sub_parser_add = action.add_sub_parser(ACTION_ADD, help='Subscribe bangumi.')
     sub_parser_add.add_argument('name', arg_type='+', required=True, help='Bangumi name to subscribe.')
+
+    sub_parser_filter = action.add_sub_parser(ACTION_FILTER, help='Set bangumi fetch filter.')
+    sub_parser_filter.add_argument('name', required=True, help='Bangumi name to set the filter')
+    sub_parser_filter.add_argument('subtitle_group', help='Subtitle group name.')
+    sub_parser_filter.add_argument('--remove', help='Remove subtitle group filter.')
+    sub_parser_filter.add_argument('--remove-all', help='Remove all the subtitle group filter.', mutex='--remove')
 
     sub_parser_del = action.add_sub_parser(ACTION_DELETE, help='Unsubscribe bangumi.')
     sub_parser_del.add_argument('--name', arg_type='+', mutex='--clear-all', help='Bangumi name to unsubscribe.')
@@ -94,6 +101,9 @@ def main():
     elif ret.action == ACTION_ADD:
         add(ret)
 
+    elif ret.action == ACTION_FILTER:
+        filter_(ret)
+
     elif ret.action == ACTION_DELETE:
         delete(ret)
 
@@ -120,9 +130,9 @@ def add(ret):
         data = bangumi_obj.select(one=True, fields=['id', 'name', 'keyword'])
         if data:
             followed_obj = Followed(bangumi_name=data['name'], status=STATUS_FOLLOWED)
-            followed_data = followed_obj.select(one=True)
-            if not followed_data or followed_data['status'] == STATUS_NORMAL:
-                if not followed_data:
+            followed_obj.select_obj()
+            if not followed_obj or followed_obj.status == STATUS_NORMAL:
+                if not followed_obj:
                     ret, _ = get_maximum_episode(keyword=data['keyword'])
                     followed_obj.episode = ret['episode']
                     followed_obj.save()
@@ -134,7 +144,51 @@ def add(ret):
                 print_warning('{0} already followed'.format(bangumi_obj))
 
         else:
-            print_warning('{0} not found, please check the name'.format(bangumi))
+            print_error('{0} not found, please check the name'.format(bangumi))
+
+
+def filter_(ret):
+    bangumi_obj = Bangumi(name=ret.action.filter.name)
+    bangumi_obj.select_obj()
+    if not bangumi_obj:
+        print_error('Bangumi {0} not exist.'.format(bangumi_obj.name))
+
+    followed_obj = Followed(bangumi_name=bangumi_obj.name)
+    followed_obj.select_obj()
+
+    if not followed_obj:
+        print_error('Bangumi {0} not subscribed, try \'bgmi add "{1}"\'.'.format(bangumi_obj.name,
+                                                                                 bangumi_obj.name))
+
+    subtitle = ret.action.filter.subtitle_group
+    if subtitle:
+        if not ret.action.filter.remove and not ret.action.filter.remove_all:
+            if not followed_obj.subtitle_group:
+                followed_obj.subtitle_group = subtitle
+            else:
+                group = followed_obj.subtitle_group.split(',')
+                for i in subtitle.split(','):
+                    if i not in group:
+                        group.append(i)
+                followed_obj.subtitle_group = ','.join(group)
+                followed_obj.save()
+        elif ret.action.filter.remove:
+            if followed_obj.subtitle_group:
+                group = followed_obj.subtitle_group.split(',')
+                new_group = []
+                while group:
+                    _ = group.pop()
+                    if _ not in subtitle:
+                        new_group.append(_)
+                followed_obj.subtitle_group = ','.join(new_group)
+                followed_obj.save()
+
+    if ret.action.filter.remove_all:
+        followed_obj.subtitle_group = None
+        followed_obj.save()
+
+    print_info('Usable subtitle group: {0}'.format(bangumi_obj.subtitle_group))
+    print_info('Added subtitle group: {0}'.format(followed_obj.subtitle_group))
 
 
 def delete(ret):
@@ -170,10 +224,22 @@ def update(ret):
     fetch(save=True, group_by_weekday=False)
     print_info('updating subscribe ...')
     download_queue = []
+
     for subscribe in Followed.get_all_followed():
         print_info('fetching %s ...' % subscribe['bangumi_name'])
-        keyword = Bangumi(name=subscribe['bangumi_name']).select(one=True)['keyword']
-        episode, all_episode_data = get_maximum_episode(keyword)
+        bangumi_obj = Bangumi(name=subscribe['bangumi_name'])
+        bangumi_obj.select_obj()
+
+        # filter by subtitle group
+        if not bangumi_obj:
+            print_error('You subscribed bangumi {0} not exists ..'.format(subscribe['bangumi_name']), exit_=False)
+            continue
+
+        episode, all_episode_data = get_maximum_episode(keyword=bangumi_obj.keyword,
+                                                        subtitle_group=subscribe['subtitle_group'])
+        for i in all_episode_data:
+            print(i['subtitle_group'])
+
         if episode.get('episode') > subscribe['episode']:
             episode_range = range(subscribe['episode'] + 1, episode.get('episode'))
             print_success('%s updated, episode: %d' % (subscribe['bangumi_name'], episode['episode']))
