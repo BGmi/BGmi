@@ -1,11 +1,12 @@
 # coding=utf-8
 # Command Line Parser
 from __future__ import print_function, unicode_literals
-import sys
-import re
-from collections import OrderedDict
-from bgmi.utils import unicodeize
 
+import re
+import sys
+from collections import OrderedDict
+
+from bgmi.utils.utils import unicodeize
 
 HELP = ('-h', '--help')
 
@@ -200,7 +201,6 @@ class ArgumentGroup(_CommandParserMixin):
         return sub_parser_group
 
     def parse_command(self, _sys_args_list):
-        import pdb
         # pdb.set_trace()
         self._get_positional_args()
         self._set_default()

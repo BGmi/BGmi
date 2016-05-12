@@ -1,18 +1,20 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
-import os
-import re
+
 import datetime
+import re
 import string
-import requests
-from itertools import chain
-from bs4 import BeautifulSoup
 from collections import defaultdict
-from bgmi.config import FETCH_URL, DETAIL_URL
-from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED, STATUS_UPDATED
-from bgmi.utils import print_error, print_warning, print_info, unicodeize, \
-    test_connection, bug_report, get_terminal_col
+from itertools import chain
+
+import requests
+from bs4 import BeautifulSoup
+
 import bgmi.config
+from bgmi.config import FETCH_URL, DETAIL_URL, MAX_PAGE
+from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED, STATUS_UPDATED
+from bgmi.utils.utils import print_error, print_warning, print_info, unicodeize, \
+    test_connection, bug_report, get_terminal_col, _
 
 if bgmi.config.IS_PYTHON3:
     _unicode = str
@@ -203,58 +205,62 @@ def save_data(data):
     b.save()
 
 
-FETCH_EPISODE = re.compile("^[第]?(\d+)]")
+FETCH_EPISODE = re.compile("^[第]?\s?(\d+)")
 FETCH_EPISODE_FALLBACK = re.compile("^(\d{1,3})$")
 
 
 def parse_episode(data):
-    for i in data.split('['):
-        match = FETCH_EPISODE.findall(i)
-        if match and match[0].isdigit():
-            return int(match[0])
+    for split_token in ['[', '【', ' ']:
+        for i in data.split(split_token):
+            match = FETCH_EPISODE.findall(i)
+            if match and match[0].isdigit():
+                return int(match[0])
 
-    for i in data.split():
-        match = FETCH_EPISODE_FALLBACK.findall(i)
-        if match and match[0].isdigit():
-            return int(match[0])
+    match = FETCH_EPISODE_FALLBACK.findall(data)
+    if match and match[0].isdigit():
+        return int(match[0])
 
 
 def fetch_episode(keyword, subtitle_group=None):
     result = []
-    response = get_response(DETAIL_URL + keyword)
 
-    if not response:
-        return result
+    for page in range(1, int(MAX_PAGE)+1):
+        response = get_response(DETAIL_URL.replace('[PAGE]', str(page)) + keyword)
 
-    b = BeautifulSoup(response)
-    container = b.find('table', attrs={'class': 'tablesorter'})
+        if not response:
+            return result
 
-    for info in container.tbody.find_all('tr'):
-        bangumi_update_info = {}
-        if '動畫' not in unicodeize(info.text):
-            continue
+        b = BeautifulSoup(response)
+        container = b.find('table', attrs={'class': 'tablesorter'})
 
-        for i, detail in enumerate(info.find_all('td')):
-            if i == 0:
-                bangumi_update_info['time'] = detail.span.text
-            if i == 2:
-                title = detail.find('a', attrs={'target': '_blank'}).text.strip()
-                subtitle = detail.find('span', attrs={'class': 'tag'})
-                subtitle = subtitle.a.text.strip() if subtitle else ''
+        if not container:
+            return result
 
-                bangumi_update_info['title'] = title
-                bangumi_update_info['subtitle_group'] = subtitle
-                bangumi_update_info['episode'] = parse_episode(title)
-            if i == 3:
-                bangumi_update_info['download'] = detail.find('a').attrs.get('href')
+        for info in container.tbody.find_all('tr'):
+            bangumi_update_info = {}
+            if '動畫' not in unicodeize(info.text):
+                continue
 
-        # filter subtitle group
-        if subtitle_group is not None:
-            subtitle_group_list = map(lambda s: s.strip(), subtitle_group.split(','))
-            for s in subtitle_group_list:
-                if s in bangumi_update_info['subtitle_group']:
-                    result.append(bangumi_update_info)
+            for i, detail in enumerate(info.find_all('td')):
+                if i == 0:
+                    bangumi_update_info['time'] = detail.span.text
+                if i == 2:
+                    title = detail.find('a', attrs={'target': '_blank'}).text.strip()
+                    subtitle = detail.find('span', attrs={'class': 'tag'})
+                    subtitle = subtitle.a.text.strip() if subtitle else ''
 
+                    bangumi_update_info['title'] = title
+                    bangumi_update_info['subtitle_group'] = subtitle
+                    bangumi_update_info['episode'] = parse_episode(title)
+                if i == 3:
+                    bangumi_update_info['download'] = detail.find('a').attrs.get('href')
+
+            # filter subtitle group
+            if subtitle_group is not None:
+                subtitle_group_list = map(lambda s: s.strip(), subtitle_group.split(','))
+                for s in subtitle_group_list:
+                    if _(s) in _(bangumi_update_info['subtitle_group']):
+                        result.append(bangumi_update_info)
     return result
 
 

@@ -3,6 +3,11 @@ from __future__ import print_function, unicode_literals
 import sys
 from bgmi import __version__
 from bgmi.config import FETCH_URL
+from bgmi.utils.langconv import Converter
+
+
+def _(data):
+    return Converter('zh-hans').convert(data)
 
 
 def print_(message):
@@ -94,3 +99,7 @@ def get_terminal_col():
     _, col, _, _ = struct.unpack('HHHH', fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0, 0)))
 
     return col
+
+
+if __name__ == '__main__':
+    print(_('西農YUI'))

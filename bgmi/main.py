@@ -1,17 +1,18 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
-import os
-import sqlite3
-import signal
+
 import datetime
+import os
+import signal
+import sqlite3
+
 from bgmi.command import CommandParser
+from bgmi.config import BGMI_PATH, DB_PATH, write_config
 from bgmi.download import download_prepare
 from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode
-from bgmi.utils import print_warning, print_info, print_success, print_error, print_version
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NORMAL
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD
-from bgmi.config import BGMI_PATH, DB_PATH, write_config
-
+from bgmi.utils.utils import print_warning, print_info, print_success, print_error, print_version
 
 ACTION_HTTP = 'http'
 ACTION_ADD = 'add'
@@ -56,7 +57,7 @@ def main():
     sub_parser_del.add_argument('--batch', help='No confirm.')
 
     sub_parser_fetch = action.add_sub_parser(ACTION_FETCH, help='Fetch specified bangumi.')
-    sub_parser_fetch.add_argument('name', help='Bangumi name to fetch.')
+    sub_parser_fetch.add_argument('name', help='Bangumi name to fetch.', required=True)
 
     sub_parser_update = action.add_sub_parser(ACTION_UPDATE, help='Update bangumi calendar and '
                                                                   'subscribed bangumi episode.')
@@ -108,6 +109,23 @@ def main():
 
     elif ret.action == ACTION_FILTER:
         filter_(ret)
+
+    elif ret.action == ACTION_FETCH:
+        bangumi_obj = Bangumi(name=ret.action.fetch.name)
+        bangumi_obj.select_obj()
+
+        followed_obj = Followed(bangumi_name=bangumi_obj.name)
+        followed_obj.select_obj()
+        subtitle = None if not followed_obj else followed_obj.subtitle_group
+
+        if bangumi_obj:
+            print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
+            _, data = get_maximum_episode(bangumi_obj.keyword, subtitle_group=subtitle)
+            for i in data:
+                print_success(i['title'])
+
+        else:
+            print_error('Bangumi {0} not exist'.format(ret.action.fetch.name))
 
     elif ret.action == ACTION_DELETE:
         delete(ret)

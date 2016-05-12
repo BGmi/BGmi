@@ -1,10 +1,12 @@
 # coding=utf-8
 from __future__ import unicode_literals, print_function
+
 import os
 import subprocess
 from tempfile import NamedTemporaryFile
-from bgmi.utils import print_warning, print_info, print_error, print_success
+
 from bgmi.config import BGMI_LX_PATH, BGMI_PATH
+from bgmi.utils.utils import print_warning, print_info, print_error, print_success
 
 
 #######################

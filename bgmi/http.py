@@ -1,9 +1,9 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
-from bgmi.config import IS_PYTHON3
-from bgmi.utils import print_success, download_xml
-from bgmi.models import Download
 
+from bgmi.config import IS_PYTHON3
+from bgmi.models import Download
+from bgmi.utils.utils import print_success, download_xml
 
 if IS_PYTHON3:
     from http.server import BaseHTTPRequestHandler, HTTPServer

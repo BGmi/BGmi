@@ -1,11 +1,12 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
+
 import os
+
 from bgmi.config import BGMI_SAVE_PATH, DOWNLOAD_DELEGATE
 from bgmi.models import Download, STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD
 from bgmi.services import XunleiLixianDownload
-from bgmi.utils import print_error
-
+from bgmi.utils.utils import print_error
 
 DOWNLOAD_DELEGATE_DICT = {
     'xunlei': XunleiLixianDownload,

@@ -1,6 +1,5 @@
 # coding=utf-8
 import unittest
-from bgmi.utils import test_connection
 
 
 class UtilsTest(unittest.TestCase):
