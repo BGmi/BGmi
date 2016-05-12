@@ -22,9 +22,8 @@ Feature
 .. image:: https://raw.githubusercontent.com/RicterZ/BGmi/master/images/1.png
     :alt: BGmi
     :align: center
-
 .. image:: https://raw.githubusercontent.com/RicterZ/BGmi/master/images/2.png
-:alt: BGmi
+    :alt: BGmi
     :align: center
 
 ============
