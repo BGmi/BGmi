@@ -7,7 +7,7 @@ BGmi is a cli tool for subscribed bangumi.
 ====
 TODO
 ====
-+ Download Bangumi by -subtitle group-, file format, file size
++ Download Bangumi by file format, file size
 + Email remind when the bangumi been downloaded
 
 =======
