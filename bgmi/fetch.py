@@ -15,6 +15,7 @@ from bgmi.config import FETCH_URL, DETAIL_URL, MAX_PAGE
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED, STATUS_UPDATED
 from bgmi.utils.utils import print_error, print_warning, print_info, unicodeize, \
     test_connection, bug_report, get_terminal_col, _
+import bgmi.patches.bangumi
 
 if bgmi.config.IS_PYTHON3:
     _unicode = str
@@ -221,18 +222,17 @@ def parse_episode(data):
 
 def fetch_episode(keyword, subtitle_group=None):
     result = []
-
     for page in range(1, int(MAX_PAGE)+1):
         response = get_response(DETAIL_URL.replace('[PAGE]', str(page)) + keyword)
 
         if not response:
-            return result
+            break
 
         b = BeautifulSoup(response)
         container = b.find('table', attrs={'class': 'tablesorter'})
 
         if not container:
-            return result
+            break
 
         for info in container.tbody.find_all('tr'):
             bangumi_update_info = {}
@@ -259,6 +259,8 @@ def fetch_episode(keyword, subtitle_group=None):
                 for s in subtitle_group_list:
                     if _(s) in _(bangumi_update_info['subtitle_group']):
                         result.append(bangumi_update_info)
+
+    result = bgmi.patches.bangumi.main(data=result)
     return result
 
 
