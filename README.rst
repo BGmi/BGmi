@@ -90,7 +90,7 @@ Set bangumi filter and fetch entries by subtitle group:
     bgmi filter "線上遊戲的老婆不可能是女生？" "KNA,惡魔島"
     bgmi fetch "線上遊戲的老婆不可能是女生？"
 
-Install [xunlei-lixian](https://github.com/iambus/xunlei-lixian/):
+Install `xunlei-lixian <https://github.com/iambus/xunlei-lixian/>`_:
 
 .. code-block:: bash
 
