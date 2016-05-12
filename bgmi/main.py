@@ -15,12 +15,14 @@ from bgmi.config import BGMI_PATH, DB_PATH, write_config
 
 ACTION_HTTP = 'http'
 ACTION_ADD = 'add'
+ACTION_FETCH = 'fetch'
 ACTION_FILTER = 'filter'
 ACTION_DELETE = 'delete'
 ACTION_UPDATE = 'update'
 ACTION_CAL = 'cal'
 ACTION_CONFIG = 'config'
-ACTIONS = (ACTION_HTTP, ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL, ACTION_CONFIG, ACTION_FILTER)
+ACTIONS = (ACTION_HTTP, ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL,
+           ACTION_CONFIG, ACTION_FILTER, ACTION_FETCH)
 
 FILTER_CHOICE_TODAY = 'today'
 FILTER_CHOICE_ALL = 'all'
@@ -43,7 +45,7 @@ def main():
     sub_parser_add.add_argument('name', arg_type='+', required=True, help='Bangumi name to subscribe.')
 
     sub_parser_filter = action.add_sub_parser(ACTION_FILTER, help='Set bangumi fetch filter.')
-    sub_parser_filter.add_argument('name', required=True, help='Bangumi name to set the filter')
+    sub_parser_filter.add_argument('name', required=True, help='Bangumi name to set the filter.')
     sub_parser_filter.add_argument('subtitle_group', help='Subtitle group name.')
     sub_parser_filter.add_argument('--remove', help='Remove subtitle group filter.')
     sub_parser_filter.add_argument('--remove-all', help='Remove all the subtitle group filter.', mutex='--remove')
@@ -52,6 +54,9 @@ def main():
     sub_parser_del.add_argument('--name', arg_type='+', mutex='--clear-all', help='Bangumi name to unsubscribe.')
     sub_parser_del.add_argument('--clear-all', help='Clear all the subscriptions.')
     sub_parser_del.add_argument('--batch', help='No confirm.')
+
+    sub_parser_fetch = action.add_sub_parser(ACTION_FETCH, help='Fetch specified bangumi.')
+    sub_parser_fetch.add_argument('name', help='Bangumi name to fetch.')
 
     sub_parser_update = action.add_sub_parser(ACTION_UPDATE, help='Update bangumi calendar and '
                                                                   'subscribed bangumi episode.')
