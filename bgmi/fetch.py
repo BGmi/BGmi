@@ -205,20 +205,18 @@ def save_data(data):
     b.save()
 
 
-FETCH_EPISODE = re.compile("^[第]?\s?(\d+)")
-FETCH_EPISODE_FALLBACK = re.compile("^(\d{1,3})$")
+FETCH_EPISODE_ZH = re.compile("[第]\s?(\d{1,2})\s?[話|话]")
+FETCH_EPISODE_ONLY_NUM = re.compile("^(\d{1,3})[\]|】]?$")
+FETCH_EPISODE = (FETCH_EPISODE_ONLY_NUM, FETCH_EPISODE_ZH)
 
 
 def parse_episode(data):
     for split_token in ['[', '【', ' ']:
         for i in data.split(split_token):
-            match = FETCH_EPISODE.findall(i)
-            if match and match[0].isdigit():
-                return int(match[0])
-
-    match = FETCH_EPISODE_FALLBACK.findall(data)
-    if match and match[0].isdigit():
-        return int(match[0])
+            for regexp in FETCH_EPISODE:
+                match = regexp.findall(i)
+                if match and match[0].isdigit():
+                    return int(match[0])
 
 
 def fetch_episode(keyword, subtitle_group=None):

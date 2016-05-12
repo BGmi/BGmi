@@ -24,6 +24,13 @@ class BangumiTest(unittest.TestCase):
 
     def test_parse_episode(self):
         self.assertEqual(2, parse_episode('[Mabors Sub] Sakamoto Desu ga - 02 [GB][720P][PSV&PC]'))
+        self.assertEqual(2, parse_episode('[Mabors Sub] Sakamoto Desu ga - 02 GB 720P PSV&PC'))
+        self.assertEqual(4, parse_episode('【西農YUI漢化組】★四月新番【在下坂本，有何貴幹？ Sakamoto'
+                                          ' Desu ga?】第04話 BIG5繁體 720P MP4'))
+        self.assertEqual(3, parse_episode('【西农YUI汉化组】★四月新番【在下坂本，有何贵干？ Sakamoto'
+                                          ' Desu ga?】第03话 GB简体 720P MP4'))
+        self.assertEqual(5, parse_episode('【幻樱字幕组】【4月新番】【线上游戏的老婆不可能是女生？ Net'
+                                          'oge no Yome wa Onnanoko ja Nai to Omotta】【05】【GB_MP4】【1280X720】'))
         self.assertEqual(12, parse_episode('[啊啊字幕组] [在下坂本,有何贵干][12][GB][720P][PSV&PC]'))
 
     def test_get_maximum_episode(self):
