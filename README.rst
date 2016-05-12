@@ -1,4 +1,4 @@
-dBGmi
+BGmi
 ====
 BGmi is a cli tool for subscribed bangumi.
 
