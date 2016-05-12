@@ -215,6 +215,7 @@ class DB(object):
 
     def select_obj(self):
         data = self.select(one=True)
+        print(data)
         if not data:
             self.__nonzero = False
         else:

@@ -162,6 +162,7 @@ def filter_(ret):
 
     subtitle = ret.action.filter.subtitle_group
     if subtitle:
+        print(not ret.action.filter.remove and not ret.action.filter.remove_all)
         if not ret.action.filter.remove and not ret.action.filter.remove_all:
             if not followed_obj.subtitle_group:
                 followed_obj.subtitle_group = subtitle
@@ -171,8 +172,8 @@ def filter_(ret):
                     if i not in group:
                         group.append(i)
                 followed_obj.subtitle_group = ','.join(group)
-                followed_obj.save()
         elif ret.action.filter.remove:
+            print(followed_obj.subtitle_group)
             if followed_obj.subtitle_group:
                 group = followed_obj.subtitle_group.split(',')
                 new_group = []
@@ -181,12 +182,11 @@ def filter_(ret):
                     if _ not in subtitle:
                         new_group.append(_)
                 followed_obj.subtitle_group = ','.join(new_group)
-                followed_obj.save()
 
     if ret.action.filter.remove_all:
         followed_obj.subtitle_group = None
-        followed_obj.save()
 
+    followed_obj.save()
     print_info('Usable subtitle group: {0}'.format(bangumi_obj.subtitle_group))
     print_info('Added subtitle group: {0}'.format(followed_obj.subtitle_group))
 

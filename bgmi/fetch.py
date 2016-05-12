@@ -149,7 +149,6 @@ def process_subtitle(data):
         subtitle_list.extend(i.split('.'))
         subtitle_list.extend(s_list)
     '''
-    print(result)
     # ['', 'a'] -> ['a']
     return [i for i in result if i]
 
