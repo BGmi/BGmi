@@ -350,7 +350,6 @@ class Bangumi(DB):
             sql = Bangumi._make_sql('select', fields=['%s.*' % Bangumi.table, 'status', 'episode'], table=Bangumi.table,
                                     join='LEFT JOIN (%s) AS F ON bangumi.name=F.bangumi_name' % join_sql,
                                     condition='F.status')
-            print(sql)
             cur.execute(sql, (status, ))
         data = cur.fetchall()
         Bangumi.close_db(db)
