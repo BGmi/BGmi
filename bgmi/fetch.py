@@ -220,7 +220,7 @@ def parse_episode(data):
                     return int(match[0])
 
 
-def fetch_episode(keyword, subtitle_group=None):
+def fetch_episode(keyword, name='', subtitle_group=None):
     result = []
     for page in range(1, int(MAX_PAGE)+1):
         response = get_response(DETAIL_URL.replace('[PAGE]', str(page)) + keyword)
@@ -246,7 +246,7 @@ def fetch_episode(keyword, subtitle_group=None):
                     title = detail.find('a', attrs={'target': '_blank'}).text.strip()
                     subtitle = detail.find('span', attrs={'class': 'tag'})
                     subtitle = subtitle.a.text.strip() if subtitle else ''
-
+                    bangumi_update_info['name'] = name
                     bangumi_update_info['title'] = title
                     bangumi_update_info['subtitle_group'] = subtitle
                     bangumi_update_info['episode'] = parse_episode(title)
@@ -254,18 +254,21 @@ def fetch_episode(keyword, subtitle_group=None):
                     bangumi_update_info['download'] = detail.find('a').attrs.get('href')
 
             # filter subtitle group
-            if subtitle_group is not None:
+            if subtitle_group and subtitle_group is not None:
                 subtitle_group_list = map(lambda s: s.strip(), subtitle_group.split(','))
                 for s in subtitle_group_list:
                     if _(s) in _(bangumi_update_info['subtitle_group']):
                         result.append(bangumi_update_info)
+            else:
+                result.append(bangumi_update_info)
 
     result = bgmi.patches.bangumi.main(data=result)
     return result
 
 
-def get_maximum_episode(keyword, subtitle_group=None):
-    data = [i for i in fetch_episode(keyword=keyword, subtitle_group=subtitle_group)
+def get_maximum_episode(bangumi, subtitle=True):
+    data = [i for i in fetch_episode(keyword=bangumi.keyword, name=bangumi.name,
+                                     subtitle_group=bangumi.subtitle_group if subtitle else None)
             if i['episode'] is not None]
     if data:
         bangumi = max(data, key=lambda i: i['episode'])

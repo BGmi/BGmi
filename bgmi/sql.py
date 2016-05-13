@@ -20,6 +20,7 @@ CREATE_TABLE_FOLLOWED = '''CREATE TABLE followed (
 
 CREATE_TABLE_DOWNLOAD = '''CREATE TABLE download (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
           title TEXT NOT NULL,
           episode INTEGER DEFAULT 0,
           download TEXT,

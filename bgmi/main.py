@@ -120,7 +120,7 @@ def main():
 
         if bangumi_obj:
             print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
-            _, data = get_maximum_episode(bangumi_obj.keyword, subtitle_group=subtitle)
+            _, data = get_maximum_episode(bangumi_obj)
             for i in data:
                 print_success(i['title'])
 
@@ -156,7 +156,7 @@ def add(ret):
             followed_obj.select_obj()
             if not followed_obj or followed_obj.status == STATUS_NORMAL:
                 if not followed_obj:
-                    ret, _ = get_maximum_episode(keyword=data['keyword'])
+                    ret, _ = get_maximum_episode(bangumi_obj, subtitle=False)
                     followed_obj.episode = ret['episode']
                     followed_obj.save()
                 else:
@@ -256,9 +256,7 @@ def update(ret):
             print_error('You subscribed bangumi {0} not exists ..'.format(subscribe['bangumi_name']), exit_=False)
             continue
 
-        episode, all_episode_data = get_maximum_episode(keyword=bangumi_obj.keyword,
-                                                        subtitle_group=subscribe['subtitle_group'])
-
+        episode, all_episode_data = get_maximum_episode(bangumi=bangumi_obj)
         if episode.get('episode') > subscribe['episode']:
             episode_range = range(subscribe['episode'] + 1, episode.get('episode'))
             print_success('%s updated, episode: %d' % (subscribe['bangumi_name'], episode['episode']))

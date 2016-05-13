@@ -414,8 +414,8 @@ class Followed(DB):
 
 class Download(DB):
     table = 'download'
-    primary_key = ('title', 'episode', )
-    fields = ('title', 'episode', 'download', 'status', )
+    primary_key = ('name', 'episode', )
+    fields = ('name', 'title', 'episode', 'download', 'status', )
 
     @staticmethod
     def get_all_downloads(status=STATUS_NOT_DOWNLOAD):
