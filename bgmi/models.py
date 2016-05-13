@@ -89,32 +89,29 @@ class DB(object):
             raise Exception('unexpected type %s of table' % type(table))
 
         def make_condition(condition, operation='AND'):
-            operator = ''
-
             if not condition:
                 return '1'
 
             sql = ''
 
+            if isinstance(condition, _unicode):
+                condition = (condition, )
+
             if isinstance(condition, (tuple, list, set)):
                 for f in condition:
-                    if '.' in f:
-                        sql += '%s=? %s ' % (f, operation)
+                    if f.startswith('!'):
+                        operator = '!'
+                        f = f[1:]
                     else:
-                        sql += '`%s`=? %s ' % (f, operation)
+                        operator = ''
+
+                    if '.' in f:
+                        name = '%s' % f
+                    else:
+                        name = '`%s`' % f
+                    sql += '%s%s=? %s' % (name, operator, operation)
+
                 sql = sql[:-(len(operation)+1)]
-            elif isinstance(condition, _unicode):
-                if condition.startswith('!'):
-                    operator = '!'
-                    condition = condition[1:]
-
-                if '.' in condition:
-                    name = '%s' % condition
-                else:
-                    name = '`%s`' % condition
-
-                sql += '%s%s=?' % (name, operator)
-
             else:
                 sql += '1'
             return sql
@@ -353,6 +350,7 @@ class Bangumi(DB):
             sql = Bangumi._make_sql('select', fields=['%s.*' % Bangumi.table, 'status', 'episode'], table=Bangumi.table,
                                     join='LEFT JOIN (%s) AS F ON bangumi.name=F.bangumi_name' % join_sql,
                                     condition='F.status')
+            print(sql)
             cur.execute(sql, (status, ))
         data = cur.fetchall()
         Bangumi.close_db(db)
@@ -398,11 +396,11 @@ class Followed(DB):
         self.save()
 
     @staticmethod
-    def get_all_followed(status=STATUS_FOLLOWED):
+    def get_all_followed(status=STATUS_NORMAL):
         db = DB.connect_db()
         db.row_factory = make_dicts
         cur = db.cursor()
-        sql = DB._make_sql('select', table=Followed.table, condition=['status', ])
+        sql = DB._make_sql('select', table=Followed.table, condition=['!status', ])
         cur.execute(sql, (status, ))
         data = cur.fetchall()
         DB.close_db(db)
