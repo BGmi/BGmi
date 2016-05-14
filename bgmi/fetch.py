@@ -267,8 +267,15 @@ def fetch_episode(keyword, name='', subtitle_group=None):
 
 
 def get_maximum_episode(bangumi, subtitle=True):
+    subtitle_group = bangumi.subtitle_group
+    if subtitle:
+        followed_obj = Followed(bangumi_name=bangumi.name)
+        followed_obj.select_obj()
+        if followed_obj:
+            subtitle_group = followed_obj.subtitle_group
+
     data = [i for i in fetch_episode(keyword=bangumi.keyword, name=bangumi.name,
-                                     subtitle_group=bangumi.subtitle_group if subtitle else None)
+                                     subtitle_group=subtitle_group if subtitle else None)
             if i['episode'] is not None]
     if data:
         bangumi = max(data, key=lambda i: i['episode'])
