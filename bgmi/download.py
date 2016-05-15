@@ -28,7 +28,7 @@ def get_download_class(torrent='', overwrite=True, save_path='', instance=True):
 def download_prepare(data):
     queue = save_to_bangumi_download_queue(data)
     for download in queue:
-        save_path = os.path.join(BGMI_SAVE_PATH, download.name)
+        save_path = os.path.join(os.path.join(BGMI_SAVE_PATH, download.name), str(download.episode))
         # mark as downloading
         download.status = STATUS_DOWNLOADING
         download.save()

@@ -116,7 +116,6 @@ def main():
 
         followed_obj = Followed(bangumi_name=bangumi_obj.name)
         followed_obj.select_obj()
-        subtitle = None if not followed_obj else followed_obj.subtitle_group
 
         if bangumi_obj:
             print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
