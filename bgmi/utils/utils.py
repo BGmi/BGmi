@@ -96,7 +96,8 @@ def get_terminal_col():
     import fcntl
     import termios
     import struct
-    _, col, _, _ = struct.unpack('HHHH', fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0, 0)))
+    _, col, _, _ = struct.unpack(str('HHHH'), fcntl.ioctl(0, termios.TIOCGWINSZ,
+                                                          struct.pack(str('HHHH'), 0, 0, 0, 0)))
 
     return col
 
