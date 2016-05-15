@@ -90,9 +90,6 @@ def write_config(config=None, value=None):
         write_default_config()
 
 
-
-def _refresh_config():
-    pass
 # --------- Writeable ---------- #
 # Setting dmhy url
 DMHY_URL = 'http://dmhy.ricterz.me'

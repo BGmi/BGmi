@@ -129,7 +129,7 @@ def get_response(url):
     try:
         return unicodeize(requests.get(url).content)
     except requests.ConnectionError:
-        print_error('error: failed to establish a new connection', exit_=False)
+        print_error('error: failed to establish a new connection')
 
 
 def process_subtitle(data):
