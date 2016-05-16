@@ -51,7 +51,7 @@ def download_prepare(data):
 def save_to_bangumi_download_queue(data):
     queue = []
     for i in data:
-        download = Download(status=STATUS_NOT_DOWNLOAD, name=i['name'],
+        download = Download(status=STATUS_NOT_DOWNLOAD, name=i['name'], title=i['title'],
                             episode=i['episode'], download=i['download'])
         download.save()
         queue.append(download)
