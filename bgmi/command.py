@@ -392,10 +392,13 @@ class CommandParser(_CommandParserMixin):
             sys.stdout.write('%s \n' % usage)
 
             if container.argument_groups:
-                sys.stdout.write('\nSub Commands:\n')
+                help_text = ''
                 for group in list(container.argument_groups.values())[::-1]:
                     if group.type == SUB_PARSER:
-                        sys.stdout.write('  %-28s%s\n' % (group.name, group.help))
+                        help_text += '  %-28s%s\n' % (group.name, group.help)
+                if help_text:
+                    sys.stdout.write('\nSub Commands:\n')
+                    sys.stdout.write(help_text)
 
                 for group in list(container.argument_groups.values())[::-1]:
                     if group.type == JUST_GROUP:
