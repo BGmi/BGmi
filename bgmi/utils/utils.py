@@ -17,20 +17,20 @@ def print_(message):
         print(message)
 
 
-def print_info(message):
-    print_('[*] {0}'.format(message))
+def print_info(message, indicator=True):
+    print_('{0}{1}'.format('[*] ' if indicator else '', message))
 
 
-def print_success(message):
-    print_('\033[1;32m[+] {0}\033[0m'.format(message))
+def print_success(message, indicator=True):
+    print_('\033[1;32m{0}{1}\033[0m'.format('[+] ' if indicator else '', message))
 
 
-def print_warning(message):
-    print_('\033[33m[-] {0}\033[0m'.format(message))
+def print_warning(message, indicator=True):
+    print_('\033[33m{0}{1}\033[0m'.format('[-] ' if indicator else '', message))
 
 
-def print_error(message, exit_=True):
-    print_('\033[1;31m[x] {0}\033[0m'.format(message))
+def print_error(message, exit_=True, indicator=True):
+    print_('\033[1;31m{0}{1}\033[0m'.format('[x] ' if indicator else '', message))
     if exit_:
         exit(1)
 

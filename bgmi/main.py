@@ -10,7 +10,8 @@ from bgmi.command import CommandParser
 from bgmi.config import BGMI_PATH, DB_PATH, write_config
 from bgmi.download import download_prepare
 from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode
-from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NORMAL
+from bgmi.models import Bangumi, Followed, Download, STATUS_FOLLOWED, STATUS_UPDATED,\
+    STATUS_NORMAL, STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADED, STATUS_DOWNLOADING
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD
 from bgmi.utils.utils import print_warning, print_info, print_success, print_error, print_version
 
@@ -22,13 +23,32 @@ ACTION_DELETE = 'delete'
 ACTION_UPDATE = 'update'
 ACTION_CAL = 'cal'
 ACTION_CONFIG = 'config'
+ACTION_DOWNLOAD = 'download'
 ACTIONS = (ACTION_HTTP, ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL,
-           ACTION_CONFIG, ACTION_FILTER, ACTION_FETCH)
+           ACTION_CONFIG, ACTION_FILTER, ACTION_FETCH, ACTION_DOWNLOAD)
 
 FILTER_CHOICE_TODAY = 'today'
 FILTER_CHOICE_ALL = 'all'
 FILTER_CHOICE_FOLLOWED = 'followed'
 FILTER_CHOICES = (FILTER_CHOICE_ALL, FILTER_CHOICE_FOLLOWED, FILTER_CHOICE_TODAY)
+
+
+DOWNLOAD_ACTION_LIST = 'list'
+DOWNLOAD_ACTION_MARK = 'mark'
+DOWNLOAD_ACTION = (DOWNLOAD_ACTION_LIST, DOWNLOAD_ACTION_MARK)
+
+
+DOWNLOAD_CHOICE_LIST_ALL = 'all'
+DOWNLOAD_CHOICE_LIST_NOT_DOWNLOAD = 'not_downloaded'
+DOWNLOAD_CHOICE_LIST_DOWNLOADING = 'downloading'
+DOWNLOAD_CHOICE_LIST_DOWNLOADED = 'downloaded'
+DOWNLOAD_CHOICE_LIST_DICT = {
+    DOWNLOAD_CHOICE_LIST_NOT_DOWNLOAD: 0,
+    DOWNLOAD_CHOICE_LIST_DOWNLOADING: 1,
+    DOWNLOAD_CHOICE_LIST_DOWNLOADED: 2,
+}
+DOWNLOAD_CHOICE = (DOWNLOAD_CHOICE_LIST_ALL, DOWNLOAD_CHOICE_LIST_DOWNLOADED,
+                   DOWNLOAD_CHOICE_LIST_DOWNLOADING, DOWNLOAD_CHOICE_LIST_NOT_DOWNLOAD)
 
 
 # global Ctrl-C signal handler
@@ -76,6 +96,15 @@ def main():
     sub_parser_config = action.add_sub_parser(ACTION_CONFIG, help='Config BGmi.')
     sub_parser_config.add_argument('name', help='Config name')
     sub_parser_config.add_argument('value', help='Config value')
+
+    sub_parser_download = action.add_sub_parser(ACTION_DOWNLOAD, help='Download manager.')
+    download_list = sub_parser_download.add_sub_parser('list', help='List download queue.')
+    download_list.add_argument('status', help='Bangumi status: {0}'.format(', '.join(DOWNLOAD_CHOICE)),
+                               choice=DOWNLOAD_CHOICE)
+
+    download_mark = sub_parser_download.add_sub_parser('mark', help='Mark download status with specified id.')
+    download_mark.add_argument('id', help='Download id')
+    download_mark.add_argument('status', help='Status will be marked', choice=(0, 1, 2))
 
     positional = c.add_arg_group('positional')
     positional.add_argument('install', help='Install xunlei-lixian for BGmi.')
@@ -134,8 +163,15 @@ def main():
 
     elif ret.action == ACTION_CAL:
         cal(ret)
+
     elif ret.action == ACTION_CONFIG:
         write_config(ret.action.config.name, ret.action.config.value)
+
+    elif ret.action == ACTION_DOWNLOAD:
+        if ret.action.download in DOWNLOAD_ACTION:
+            download_manager(ret)
+        else:
+            c.print_help()
     else:
         c.print_help()
 
@@ -272,6 +308,8 @@ def update(ret):
 
     if ret.action.update and ret.action.update.download:
         download_prepare(download_queue)
+        print_info('Re-downloading ...')
+        download_prepare(Download.get_all_downloads())
 
 
 def cal(ret):
@@ -285,6 +323,46 @@ def cal(ret):
     else:
         # fallback
         bangumi_calendar(force_update=force, today=today, save=save)
+
+
+def download_manager(ret):
+    print_warning('Not Downloaded: 0 / Downloading: 1 / Downloaded: 2\n', indicator=False)
+    if ret.action.download == DOWNLOAD_ACTION_LIST:
+        status = DOWNLOAD_CHOICE_LIST_DICT.get(ret.action.download.list.status, None)
+        last_status = -1
+        for download_data in Download.get_all_downloads(status=status):
+            latest_status = download_data['status']
+            name = '  {0}. <{1}: {2}>'.format(download_data['id'], download_data['name'],
+                                              download_data['episode'])
+            if latest_status != last_status:
+                if latest_status == STATUS_DOWNLOADING:
+                    print('Downloading items:')
+                elif latest_status == STATUS_NOT_DOWNLOAD:
+                    print('Not downloaded items:')
+                elif latest_status == STATUS_DOWNLOADED:
+                    print('Downloaded items:')
+
+            if download_data['status'] == STATUS_NOT_DOWNLOAD:
+                print_info(name, indicator=False)
+            elif download_data['status'] == STATUS_DOWNLOADING:
+                print_warning(name, indicator=False)
+            elif download_data['status'] == STATUS_DOWNLOADED:
+                print_success(name, indicator=False)
+            last_status = download_data['status']
+    elif ret.action.download == DOWNLOAD_ACTION_MARK:
+        download_id = ret.action.download.mark.id
+        status = ret.action.download.mark.status
+        if not download_id or not status:
+            print_error('No id or status specified.')
+        download_obj = Download(_id=download_id)
+        download_obj.select_obj()
+        if not download_obj:
+            print_error('Download object not exist.')
+        print_success('Download Object <{0} - {1}>, Status: {2}'.format(download_obj.name, download_obj.episode,
+                                                                        download_obj.status))
+        download_obj.status = status
+        download_obj.save()
+        print_success('Download status has been marked as {0}'.format(status))
 
 
 def init_db(db_path):

@@ -55,9 +55,13 @@ class DB(object):
     __nonzero = True
 
     def __init__(self, **kwargs):
+        if '_id' in kwargs:
+            self._id = kwargs.get('_id')
+
         for f in self.fields:
             if f in self.primary_key and kwargs.get(f, None) is None:
-                raise ValueError('primary key %s must be set' % f)
+                if '_id' not in kwargs:
+                    raise ValueError('primary key %s must be set' % f)
             setattr(self, f, kwargs.get(f, None))
 
         self._unicodeize()
@@ -422,8 +426,15 @@ class Download(DB):
         db = DB.connect_db()
         db.row_factory = make_dicts
         cur = db.cursor()
-        sql = DB._make_sql('select', table=Download.table, condition=['status', ])
-        cur.execute(sql, (status, ))
+
+        if status is None:
+            sql = DB._make_sql('select', table=Download.table)
+            sql += ' order by status'
+            cur.execute(sql)
+        else:
+            sql = DB._make_sql('select', table=Download.table, condition=['status', ])
+            cur.execute(sql, (status, ))
+
         data = cur.fetchall()
         DB.close_db(db)
         return data

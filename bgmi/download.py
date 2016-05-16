@@ -37,16 +37,22 @@ def download_prepare(data):
             download_class = get_download_class(torrent=download.download, overwrite=True, save_path=save_path)
             download_class.download()
 
+            if not os.path.exists(save_path):
+                raise Exception('It seems the bangumi {0} not be downloaded'.format(download.name))
+
             # mark as downloaded
             download.delete()
         except Exception as e:
-            print_error('Error: {0}'.format(e))
+            print_error('Error: {0}'.format(e), exit_=False)
+            download.status = STATUS_NOT_DOWNLOAD
+            download.save()
 
 
 def save_to_bangumi_download_queue(data):
     queue = []
     for i in data:
-        download = Download(status=STATUS_NOT_DOWNLOAD, **i)
+        download = Download(status=STATUS_NOT_DOWNLOAD, name=i['name'],
+                            episode=i['episode'], download=i['download'])
         download.save()
         queue.append(download)
 

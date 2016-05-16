@@ -9,6 +9,8 @@ from collections import OrderedDict
 from bgmi.utils.utils import unicodeize
 
 HELP = ('-h', '--help')
+JUST_GROUP = 0
+SUB_PARSER = 1
 
 
 def _error(message):
@@ -64,6 +66,12 @@ class _CommandParserMixin(object):
         # update mutex options dict
         if mutex is not None:
             self.mutex.update({name: mutex, mutex: name})
+
+    def add_arg_group(self, name, help=''):
+        self._check_group_conflict(name)
+        group = ArgumentGroup(name=name, help=help, container=self)
+        self.argument_groups.update({name: group})
+        return group
 
     def _check_conflict(self, name):
         if name in self.arguments:
@@ -167,9 +175,9 @@ class _CommandParserMixin(object):
                     _error('unsupported arg type: %s' % arg.type)
 
             if arg_instance.choice:
-                if value not in arg_instance.choice:
+                if value not in map(str, arg_instance.choice):
                     _error('unexpected choice of %s (%s): %s' % (arg_instance.name,
-                                                                 ', '.join(arg_instance.choice), value))
+                                                                 ', '.join(map(str, arg_instance.choice)), value))
 
             setattr(parser_group.namespace, arg_instance.dest, value)
 
@@ -182,7 +190,7 @@ class _CommandParserMixin(object):
 
 
 class ArgumentGroup(_CommandParserMixin):
-    def __init__(self, name, help='', container=None):
+    def __init__(self, name, help='', container=None, type=0):
         self.namespace = NameSpace()
         self.arguments = OrderedDict()
         self.name = name
@@ -191,29 +199,37 @@ class ArgumentGroup(_CommandParserMixin):
         self.sub = self.argument_groups = OrderedDict()
         self.mutex = {}
         self._mutex_list = []
+        # 0 - 普通的 group 我们普通的摇
+        # 1 - sub parser group
+        self.type = type
 
     def add_sub_parser(self, name, help=None):
         self._check_group_name(name)
         if name in self.argument_groups:
             _error('conflict sub parser name: %s' % name)
-        sub_parser_group = ArgumentGroup(name=name, help=help, container=self)
+        sub_parser_group = ArgumentGroup(name=name, help=help, container=self, type=1)
         self.argument_groups.update({name: sub_parser_group})
         return sub_parser_group
 
     def parse_command(self, _sys_args_list):
-        # pdb.set_trace()
         self._get_positional_args()
         self._set_default()
 
         self._parse_command(self, _sys_args_list)
-
         while _sys_args_list:
             arg = _sys_args_list.pop()
+
             sub_parser = self.argument_groups.get(arg, None)
+            if not sub_parser:
+                for group in self.argument_groups.values():
+                    if arg in group.argument_groups:
+                        sub_parser = group.argument_groups.get(arg)
+                        break
 
             if sub_parser:
                 sub_parser.parse_command(_sys_args_list)
                 self.namespace.NameSpace_Action_Name = sub_parser.name
+                break
             else:
                 _sys_args_list.append(arg)
                 break
@@ -306,24 +322,15 @@ class CommandParser(_CommandParserMixin):
 
         return self.namespace
 
-    def add_arg_group(self, name, help=''):
-        self._check_group_conflict(name)
-        group = ArgumentGroup(name=name, help=help, container=self)
-        self.argument_groups.update({name: group})
-        return group
-
     def print_help(self):
-        self.sys_args = sys.argv[1:][::-1]
-        sys.stdout.write('\nUsage: \n')
 
-        def search(name):
-
-            if name in self.argument_groups:
-                return self.argument_groups.get(name)
-
-            for group in self.argument_groups.values():
-                if name in group.sub:
-                    return group.sub.get(name)
+        def search(name, group):
+            if name in group.argument_groups:
+                return group.argument_groups.get(name)
+            else:
+                for group in group.argument_groups.values():
+                    if name in group.argument_groups:
+                        return group.argument_groups.get(name)
 
         def get_arg_form(arg):
             if not arg.hidden:
@@ -375,18 +382,27 @@ class CommandParser(_CommandParserMixin):
                 usage += '[options] '
 
             if container.argument_groups:
-                for arg in list(container.argument_groups.values())[::-1]:
-                    if arg.argument_groups:
-                        usage += '<%s> ' % arg.name
+                groups = [group.name for group in container.argument_groups.values() if group.type == JUST_GROUP]
+                for group in container.argument_groups.values():
+                    if group.type == SUB_PARSER:
+                        groups.append('sub_commands')
+                        break
+                usage += '<{0}>'.format('|'.join(groups))
 
             sys.stdout.write('%s \n' % usage)
 
             if container.argument_groups:
+                sys.stdout.write('\nSub Commands:\n')
                 for group in list(container.argument_groups.values())[::-1]:
-                    print_group_help(group)
+                    if group.type == SUB_PARSER:
+                        sys.stdout.write('  %-28s%s\n' % (group.name, group.help))
+
+                for group in list(container.argument_groups.values())[::-1]:
+                    if group.type == JUST_GROUP:
+                        print_group_help(group)
 
             if container._positional_args:
-                sys.stdout.write('\nCommands: \n')
+                sys.stdout.write('\nArguments: \n')
                 for arg in container._positional_args[::-1]:
                     sys.stdout.write('  %-28s%s\n' % (arg.name, arg.help))
 
@@ -407,12 +423,32 @@ class CommandParser(_CommandParserMixin):
                 if form:
                     sys.stdout.write('  %-28s%s\n' % (form, arg.help))
 
-        arg = self.sys_args.pop() if self.sys_args else None
-        ret = search(arg)
+        self.sys_args = sys.argv[1:][::-1]
+        self._sys_args = sys.argv[1:]
+        sys.stdout.write('\nUsage: \n')
+
+        arg_list = []
+        while self.sys_args:
+            arg = self.sys_args.pop()
+            if arg not in HELP:
+                arg_list.append(arg)
+                break
+        else:
+            arg = None
+
+        ret = search(arg, self)
+        while ret and self.sys_args:
+            arg = self.sys_args.pop()
+            if arg not in HELP:
+                _ = search(arg, ret)
+                if _:
+                    ret = _
+                    arg_list.append(arg)
 
         usage = '  bgmi '
         if isinstance(ret, ArgumentGroup):
-            usage += '%s ' % ret.name
+            usage += ' '.join(arg_list)
+            usage += ' '
             _print_help(ret, usage)
         else:
             _print_help(self, usage)
