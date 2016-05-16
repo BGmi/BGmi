@@ -2,7 +2,7 @@ BGmi
 ====
 BGmi is a cli tool for subscribed bangumi.
 
-|travis| 
+|travis| |pypi|
 
 ====
 TODO
@@ -106,3 +106,5 @@ MIT
 .. |travis| image:: https://travis-ci.org/RicterZ/BGmi.svg?branch=master
    :target: https://travis-ci.org/RicterZ/BGmi
 
+.. |pypi| image:: https://img.shields.io/pypi/v/bgmi.svg
+   :target: https://pypi.python.org/pypi/bgmi
