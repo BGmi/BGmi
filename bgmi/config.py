@@ -100,6 +100,9 @@ BGMI_SAVE_PATH = os.path.join(BGMI_PATH, 'bangumi')
 # Xunlei offline download
 BGMI_LX_PATH = os.path.join(BGMI_PATH, 'bgmi-lx')
 
+# temp path
+BGMI_TMP_PATH = os.path.join(BGMI_PATH, 'tmp')
+
 # Download delegate
 DOWNLOAD_DELEGATE = 'xunlei'
 

@@ -5,7 +5,7 @@ import os
 import subprocess
 from tempfile import NamedTemporaryFile
 
-from bgmi.config import BGMI_LX_PATH, BGMI_PATH
+from bgmi.config import BGMI_LX_PATH, BGMI_PATH, BGMI_TMP_PATH
 from bgmi.utils.utils import print_warning, print_info, print_error, print_success
 
 
@@ -39,16 +39,18 @@ class DownloadService(object):
 
 class XunleiLixianDownload(DownloadService):
     def __init__(self, torrent, overwrite, save_path):
-        self.check_delegate_bin_exist(BGMI_LX_PATH)
+        self.check_delegate_bin_exist(BGMI_PATH)
         super(XunleiLixianDownload, self).__init__(torrent, overwrite, save_path)
 
     def download(self):
         overwrite = '--overwrite' if self.overwrite else ''
 
         command = [BGMI_LX_PATH, 'download', '--torrent', overwrite,
-                   '--output-dir={0}'.format(self.save_path), self.torrent]
+                   '--output-dir={0}'.format(self.save_path), self.torrent,
+                   '--verification-code-path={0}'.format(os.path.join(BGMI_TMP_PATH, 'vcode.jpg'))]
 
         print_info('Run command {0}'.format(' '.join(command)))
+        print_warning('Verification code path: {0}'.format(os.path.join(BGMI_TMP_PATH, 'vcode.jpg')))
         subprocess.call(command, env={'PATH': '/usr/local/bin:/usr/bin:/bin',
                                       'HOME': os.environ.get('HOME', '/tmp')})
 
