@@ -11,7 +11,8 @@ except ImportError:
 
 __all__ = ('DMHY_URL', 'BGMI_PATH', 'DB_PATH', 'BGMI_SAVE_PATH',
            'BGMI_LX_PATH', 'DOWNLOAD_DELEGATE', 'CONFIG_FILE_PATH',
-           'DETAIL_URL', 'FETCH_URL', 'IS_PYTHON3', 'MAX_PAGE')
+           'DETAIL_URL', 'FETCH_URL', 'IS_PYTHON3', 'MAX_PAGE',
+           'BGMI_TMP_PATH', 'ARIA2_PATH')
 
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
                 'IS_PYTHON3', 'DETAIL_URL', 'FETCH_URL')
@@ -99,6 +100,9 @@ BGMI_SAVE_PATH = os.path.join(BGMI_PATH, 'bangumi')
 
 # Xunlei offline download
 BGMI_LX_PATH = os.path.join(BGMI_PATH, 'bgmi-lx')
+
+# aria2 path
+ARIA2_PATH = '/usr/local/bin/aria2c'
 
 # temp path
 BGMI_TMP_PATH = os.path.join(BGMI_PATH, 'tmp')

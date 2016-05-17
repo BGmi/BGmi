@@ -5,7 +5,7 @@ import os
 import subprocess
 from tempfile import NamedTemporaryFile
 
-from bgmi.config import BGMI_LX_PATH, BGMI_PATH, BGMI_TMP_PATH
+from bgmi.config import BGMI_LX_PATH, BGMI_PATH, BGMI_TMP_PATH, ARIA2_PATH
 from bgmi.utils.utils import print_warning, print_info, print_error, print_success
 
 
@@ -36,10 +36,29 @@ class DownloadService(object):
         if not os.path.exists(path):
             print_error('{0} not exist, please run command \'bgmi install\' to install'.format(path))
 
+    def call(self, command):
+        subprocess.call(command, env={'PATH': '/usr/local/bin:/usr/bin:/bin',
+                                      'HOME': os.environ.get('HOME', '/tmp')})
+
+
+class Aria2Download(DownloadService):
+    def __init__(self, torrent, overwrite, save_path):
+        self.check_delegate_bin_exist(ARIA2_PATH)
+        super(Aria2Download, self).__init__(torrent, overwrite, save_path)
+
+    def download(self):
+        command = [ARIA2_PATH, '-d', self.save_path, self.torrent]
+        print_info('Run command {0}'.format(' '.join(command)))
+        self.call(command)
+
+    @staticmethod
+    def install():
+        print_warning('Please install aria2 by yourself')
+
 
 class XunleiLixianDownload(DownloadService):
     def __init__(self, torrent, overwrite, save_path):
-        self.check_delegate_bin_exist(BGMI_PATH)
+        self.check_delegate_bin_exist(BGMI_LX_PATH)
         super(XunleiLixianDownload, self).__init__(torrent, overwrite, save_path)
 
     def download(self):
@@ -51,8 +70,7 @@ class XunleiLixianDownload(DownloadService):
 
         print_info('Run command {0}'.format(' '.join(command)))
         print_warning('Verification code path: {0}'.format(os.path.join(BGMI_TMP_PATH, 'vcode.jpg')))
-        subprocess.call(command, env={'PATH': '/usr/local/bin:/usr/bin:/bin',
-                                      'HOME': os.environ.get('HOME', '/tmp')})
+        self.call(command)
 
     @staticmethod
     def install():
