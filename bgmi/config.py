@@ -29,6 +29,7 @@ CONFIG_FILE_PATH = os.path.join(BGMI_PATH, 'bgmi.cfg')
 def read_config():
     c = configparser.ConfigParser()
     if not os.path.exists(CONFIG_FILE_PATH):
+        write_default_config()
         return
     c.read(CONFIG_FILE_PATH)
 
