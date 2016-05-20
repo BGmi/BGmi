@@ -56,7 +56,10 @@ def write_default_config():
         v = globals().get(i, None)
         c.set('bgmi', i, v)
 
-    c.write(open(CONFIG_FILE_PATH, 'w'))
+    try:
+        c.write(open(CONFIG_FILE_PATH, 'w'))
+    except IOError:
+        print('[-] write config file error and ignored')
 
 
 def write_config(config=None, value=None):
