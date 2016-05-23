@@ -47,7 +47,7 @@ class Aria2Download(DownloadService):
         super(Aria2Download, self).__init__(torrent, overwrite, save_path)
 
     def download(self):
-        command = [ARIA2_PATH, '-d', self.save_path, self.torrent, '--seed-time', '0']
+        command = [ARIA2_PATH, '--seed-time=0', '-d', self.save_path, self.torrent]
         print_info('Run command {0}'.format(' '.join(command)))
         self.call(command)
 
