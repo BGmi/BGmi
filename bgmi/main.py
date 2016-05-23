@@ -1,8 +1,10 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
-import time
-import datetime
 import os
+import sys
+import locale
+import codecs
+import datetime
 import signal
 import sqlite3
 
@@ -14,6 +16,11 @@ from bgmi.models import Bangumi, Followed, Download, STATUS_FOLLOWED, STATUS_UPD
     STATUS_NORMAL, STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADED, STATUS_DOWNLOADING
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD
 from bgmi.utils.utils import print_warning, print_info, print_success, print_error, print_version
+
+
+# Wrap sys.stdout into a StreamWriter to allow writing unicode.
+sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.stdout)
+
 
 ACTION_HTTP = 'http'
 ACTION_ADD = 'add'
