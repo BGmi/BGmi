@@ -5,7 +5,7 @@ import os
 import subprocess
 from tempfile import NamedTemporaryFile
 
-from bgmi.config import BGMI_LX_PATH, BGMI_PATH, BGMI_TMP_PATH, ARIA2_PATH
+from bgmi.config import BGMI_LX_PATH, BGMI_PATH, BGMI_TMP_PATH, ARIA2_PATH, ARIA2_RPC_URL
 from bgmi.utils.utils import print_warning, print_info, print_error, print_success
 
 
@@ -50,6 +50,24 @@ class Aria2Download(DownloadService):
         command = [ARIA2_PATH, '--seed-time=0', '-d', self.save_path, self.torrent]
         print_info('Run command {0}'.format(' '.join(command)))
         self.call(command)
+
+    @staticmethod
+    def install():
+        print_warning('Please install aria2 by yourself')
+
+
+class Aria2DownloadRPC(DownloadService):
+    def download(self):
+        import bgmi.config
+        if bgmi.config.IS_PYTHON3:
+            from xmlrpc.client import ServerProxy
+        else:
+            from xmlrpclib import ServerProxy
+
+        server = ServerProxy(ARIA2_RPC_URL)
+        server.aria2.addUri([self.torrent], {"dir": self.save_path})
+        print_info('Add torrent into the download queue, the file will be saved at {0}'.format(self.save_path))
+        print_warning('Download status will be marked as `downloaded\' but I don\'t know the real status.')
 
     @staticmethod
     def install():
