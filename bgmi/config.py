@@ -106,7 +106,7 @@ BGMI_SAVE_PATH = os.path.join(BGMI_PATH, 'bangumi')
 BGMI_LX_PATH = os.path.join(BGMI_PATH, 'bgmi-lx')
 
 # aria2 path
-ARIA2_PATH = '/usr/local/bin/aria2c'
+ARIA2_PATH = '/usr/bin/aria2c'
 
 # temp path
 BGMI_TMP_PATH = os.path.join(BGMI_PATH, 'tmp')
