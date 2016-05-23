@@ -40,6 +40,10 @@ class DownloadService(object):
         subprocess.call(command, env={'PATH': '/usr/local/bin:/usr/bin:/bin',
                                       'HOME': os.environ.get('HOME', '/tmp')})
 
+    def check_download(self):
+        if not os.path.exists(self.save_path):
+            raise Exception('It seems the bangumi {0} not be downloaded'.format(download.name))
+
 
 class Aria2Download(DownloadService):
     def __init__(self, torrent, overwrite, save_path):
@@ -67,11 +71,13 @@ class Aria2DownloadRPC(DownloadService):
         server = ServerProxy(ARIA2_RPC_URL)
         server.aria2.addUri([self.torrent], {"dir": self.save_path})
         print_info('Add torrent into the download queue, the file will be saved at {0}'.format(self.save_path))
-        print_warning('Download status will be marked as `downloaded\' but I don\'t know the real status.')
 
     @staticmethod
     def install():
         print_warning('Please install aria2 by yourself')
+
+    def check_download(self):
+        print_warning('Download status will be marked as `downloaded\' but I don\'t know the real status.')
 
 
 class XunleiLixianDownload(DownloadService):

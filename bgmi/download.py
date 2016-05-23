@@ -38,9 +38,7 @@ def download_prepare(data):
             # start download
             download_class = get_download_class(torrent=download.download, overwrite=True, save_path=save_path)
             download_class.download()
-
-            if not os.path.exists(save_path):
-                raise Exception('It seems the bangumi {0} not be downloaded'.format(download.name))
+            download_class.check_download()
 
             # mark as downloaded
             download.delete()
