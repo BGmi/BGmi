@@ -8,6 +8,7 @@ import datetime
 import signal
 import sqlite3
 
+import bgmi.config
 from bgmi.command import CommandParser
 from bgmi.config import BGMI_PATH, DB_PATH, write_config
 from bgmi.download import download_prepare
@@ -19,7 +20,12 @@ from bgmi.utils.utils import print_warning, print_info, print_success, print_err
 
 
 # Wrap sys.stdout into a StreamWriter to allow writing unicode.
-sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.stdout.buffer)
+if bgmi.config.IS_PYTHON3:
+    file_ = sys.stdout.buffer
+else:
+    file_ = sys.stdout
+
+sys.stdout = codecs.getwriter(locale.getpreferredencoding())(file_)
 
 
 ACTION_HTTP = 'http'
