@@ -19,7 +19,7 @@ from bgmi.utils.utils import print_warning, print_info, print_success, print_err
 
 
 # Wrap sys.stdout into a StreamWriter to allow writing unicode.
-sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.stdout)
+sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.stdout.buffer)
 
 
 ACTION_HTTP = 'http'
