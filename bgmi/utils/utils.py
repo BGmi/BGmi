@@ -10,27 +10,20 @@ def _(data):
     return Converter('zh-hans').convert(data)
 
 
-def print_(message):
-    if not sys.stdout.isatty():
-        print(message.encode('utf-8'))
-    else:
-        print(message)
-
-
 def print_info(message, indicator=True):
-    print_('{0}{1}'.format('[*] ' if indicator else '', message))
+    print('{0}{1}'.format('[*] ' if indicator else '', message))
 
 
 def print_success(message, indicator=True):
-    print_('\033[1;32m{0}{1}\033[0m'.format('[+] ' if indicator else '', message))
+    print('\033[1;32m{0}{1}\033[0m'.format('[+] ' if indicator else '', message))
 
 
 def print_warning(message, indicator=True):
-    print_('\033[33m{0}{1}\033[0m'.format('[-] ' if indicator else '', message))
+    print('\033[33m{0}{1}\033[0m'.format('[-] ' if indicator else '', message))
 
 
 def print_error(message, exit_=True, indicator=True):
-    print_('\033[1;31m{0}{1}\033[0m'.format('[x] ' if indicator else '', message))
+    print('\033[1;31m{0}{1}\033[0m'.format('[x] ' if indicator else '', message))
     if exit_:
         exit(1)
 
