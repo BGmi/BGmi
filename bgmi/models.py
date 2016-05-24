@@ -292,7 +292,7 @@ class DB(object):
         if not self._id:
             obj = self.select(one=True)
             if not obj:
-                raise Exception('%s not exist' % self.__repr__())
+                raise Exception('%s does not exist' % self.__repr__())
 
         sql = self._make_sql('delete', self.table, condition=('id', ))
         self._connect_db()

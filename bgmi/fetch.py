@@ -34,12 +34,12 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
     env_columns = get_terminal_col()
 
     if env_columns < 36:
-        print_error('Terminal columns is too small.')
+        print_error('Terminal window is too small.')
     row = int(env_columns / 36 if env_columns / 36 <= 3 else 3)
 
     if force_update and not test_connection():
         force_update = False
-        print_warning('network not connected')
+        print_warning('network is unreachable')
 
     if force_update:
         print_info('fetching bangumi info ...')
@@ -59,7 +59,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
             print_warning('warning: no bangumi schedule, fetching ...')
             weekly_list = fetch(save=save)
         else:
-            print_warning('you have not subscribe any bangumi')
+            print_warning('you have not subscribed any bangumi')
 
     def shift(seq, n):
         n = n % len(seq)
@@ -80,7 +80,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
     spacial_remove_chars = []
     for index, weekday in enumerate(weekday_order):
         if weekly_list[weekday.lower()]:
-            print('\033[1;32m%s. \033[0m' % (weekday if not today else 'Bangumi Schedule of Today (%s)' % weekday), end='')
+            print('\033[1;32m%s. \033[0m' % (weekday if not today else 'Bangumi Schedule for Today (%s)' % weekday), end='')
             if not followed:
                 print()
                 print_line()
