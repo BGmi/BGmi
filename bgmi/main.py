@@ -87,9 +87,9 @@ def main():
     sub_parser_del = action.add_sub_parser(ACTION_DELETE, help='Unsubscribe bangumi.')
     sub_parser_del.add_argument('--name', arg_type='+', mutex='--clear-all', help='Bangumi name to unsubscribe.')
     sub_parser_del.add_argument('--clear-all', help='Clear all the subscriptions.')
-    sub_parser_del.add_argument('--batch', help='No confirm.')
+    sub_parser_del.add_argument('--batch', help='No confirmation.')
 
-    sub_parser_fetch = action.add_sub_parser(ACTION_FETCH, help='Fetch specified bangumi.')
+    sub_parser_fetch = action.add_sub_parser(ACTION_FETCH, help='Fetch a specific bangumi.')
     sub_parser_fetch.add_argument('name', help='Bangumi name to fetch.', required=True)
 
     sub_parser_update = action.add_sub_parser(ACTION_UPDATE, help='Update bangumi calendar and '
@@ -99,9 +99,9 @@ def main():
     sub_parser_cal = action.add_sub_parser(ACTION_CAL, help='Print bangumi calendar.')
     sub_parser_cal.add_argument('filter', default='today', choice=FILTER_CHOICES,
                                 help='Calendar form filter %s.' % ', '.join(FILTER_CHOICES))
-    sub_parser_cal.add_argument('--today', help='Show bangumi calendar of today.')
+    sub_parser_cal.add_argument('--today', help='Show bangumi calendar for today.')
     sub_parser_cal.add_argument('--force-update', help='Get the newest bangumi calendar from dmhy.')
-    sub_parser_cal.add_argument('--no-save', help='Not save the bangumi data when force update.')
+    sub_parser_cal.add_argument('--no-save', help='Do not save the bangumi data when force update.')
 
     sub_parser_http = action.add_sub_parser(ACTION_HTTP, help='BGmi HTTP Server.')
     sub_parser_http.add_argument('--port', default='23333', arg_type='1', dest='port',
@@ -115,7 +115,7 @@ def main():
     download_list.add_argument('status', help='Bangumi status: {0}'.format(', '.join(DOWNLOAD_CHOICE)),
                                choice=DOWNLOAD_CHOICE)
 
-    download_mark = sub_parser_download.add_sub_parser('mark', help='Mark download status with specified id.')
+    download_mark = sub_parser_download.add_sub_parser('mark', help='Mark download status with a specific id.')
     download_mark.add_argument('id', help='Download id')
     download_mark.add_argument('status', help='Status will be marked', choice=(0, 1, 2))
 
@@ -222,13 +222,13 @@ def filter_(ret):
     bangumi_obj = Bangumi(name=ret.action.filter.name)
     bangumi_obj.select_obj()
     if not bangumi_obj:
-        print_error('Bangumi {0} not exist.'.format(bangumi_obj.name))
+        print_error('Bangumi {0} does not exist.'.format(bangumi_obj.name))
 
     followed_obj = Followed(bangumi_name=bangumi_obj.name)
     followed_obj.select_obj()
 
     if not followed_obj:
-        print_error('Bangumi {0} not subscribed, try \'bgmi add "{1}"\'.'.format(bangumi_obj.name,
+        print_error('Bangumi {0} has not subscribed, try \'bgmi add "{1}"\'.'.format(bangumi_obj.name,
                                                                                  bangumi_obj.name))
 
     subtitle = ret.action.filter.subtitle_group
@@ -265,7 +265,7 @@ def delete(ret):
     # just delete subscribed bangumi or clear all the subscribed bangumi
     if ret.action.delete.clear_all:
         if Followed.delete_followed(batch=ret.action.delete.batch):
-            print_success('all subscribe had been deleted')
+            print_success('all subscriptions have been deleted')
         else:
             print_error('user canceled')
     elif ret.action.delete.name:
@@ -275,7 +275,7 @@ def delete(ret):
                 followed.delete()
                 print_warning('Bangumi %s has been deleted' % name)
             else:
-                print_error('Bangumi %s not exist' % name, exit_=False)
+                print_error('Bangumi %s does not exist' % name, exit_=False)
     else:
         print_warning('Nothing has been done.')
 
@@ -291,7 +291,7 @@ def update(ret):
 
     print_info('updating bangumi data ...')
     fetch(save=True, group_by_weekday=False)
-    print_info('updating subscribe ...')
+    print_info('updating subscriptions ...')
     download_queue = []
 
     for subscribe in Followed.get_all_followed():
@@ -301,7 +301,7 @@ def update(ret):
 
         # filter by subtitle group
         if not bangumi_obj:
-            print_error('You subscribed bangumi {0} not exists ..'.format(subscribe['bangumi_name']), exit_=False)
+            print_error('The bangumi {0} you subscribed does not exists ..'.format(subscribe['bangumi_name']), exit_=False)
             continue
 
         episode, all_episode_data = get_maximum_episode(bangumi=bangumi_obj)
@@ -370,7 +370,7 @@ def download_manager(ret):
         download_obj = Download(_id=download_id)
         download_obj.select_obj()
         if not download_obj:
-            print_error('Download object not exist.')
+            print_error('Download object does not exist.')
         print_success('Download Object <{0} - {1}>, Status: {2}'.format(download_obj.name, download_obj.episode,
                                                                         download_obj.status))
         download_obj.status = status
@@ -389,7 +389,7 @@ def init_db(db_path):
 
 def setup():
     if not os.path.exists(BGMI_PATH):
-        print_error('BGMI_PATH %s not exist, try to reinstall' % BGMI_PATH)
+        print_error('BGMI_PATH %s does not exist, try to reinstall' % BGMI_PATH)
 
     if not os.path.exists(DB_PATH):
         init_db(DB_PATH)
