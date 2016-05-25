@@ -151,12 +151,11 @@ class Aria2DownloadRPC(DownloadService):
                 params = ()
             data = server.aria2[method](*params)
             if data:
-                print_info('RPC {0}:'.format(method), indicator=False)
+                print_warning('RPC {0}:'.format(method), indicator=False)
             for row in data:
                 print_success('- {0}'.format(row['dir']), indicator=False)
                 for file in row['files']:
                     print_info('    * {0}'.format(file['path']), indicator=False)
-                print()
 
 
 class XunleiLixianDownload(DownloadService):
