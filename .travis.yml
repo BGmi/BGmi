@@ -28,4 +28,4 @@ script:
     - bgmi config MAX_PAGE 3
     - bgmi fetch "在下坂本，有何貴幹？"
     - bgmi filter "在下坂本，有何貴幹？" --remove-all
-    - bgmi download list all
+    - bgmi download list
