@@ -36,9 +36,9 @@ def download_prepare(data):
         download.save()
         try:
             # start download
-            download_class = get_download_class(torrent=download.download, overwrite=True, save_path=save_path)
+            download_class = get_download_class(download_obj=download, overwrite=True, save_path=save_path)
             download_class.download()
-            download_class.check_download()
+            download_class.check_download(download.name)
 
             # mark as downloaded
             download.delete()

@@ -342,26 +342,6 @@ def download_manager(ret):
     print_warning('Not Downloaded: 0 / Downloading: 1 / Downloaded: 2\n', indicator=False)
     if ret.action.download == DOWNLOAD_ACTION_LIST:
         status = DOWNLOAD_CHOICE_LIST_DICT.get(ret.action.download.list.status, None)
-        last_status = -1
-        for download_data in Download.get_all_downloads(status=status):
-            latest_status = download_data['status']
-            name = '  {0}. <{1}: {2}>'.format(download_data['id'], download_data['name'],
-                                              download_data['episode'])
-            if latest_status != last_status:
-                if latest_status == STATUS_DOWNLOADING:
-                    print('Downloading items:')
-                elif latest_status == STATUS_NOT_DOWNLOAD:
-                    print('Not downloaded items:')
-                elif latest_status == STATUS_DOWNLOADED:
-                    print('Downloaded items:')
-
-            if download_data['status'] == STATUS_NOT_DOWNLOAD:
-                print_info(name, indicator=False)
-            elif download_data['status'] == STATUS_DOWNLOADING:
-                print_warning(name, indicator=False)
-            elif download_data['status'] == STATUS_DOWNLOADED:
-                print_success(name, indicator=False)
-            last_status = download_data['status']
     elif ret.action.download == DOWNLOAD_ACTION_MARK:
         download_id = ret.action.download.mark.id
         status = ret.action.download.mark.status

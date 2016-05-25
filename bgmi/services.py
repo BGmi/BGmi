@@ -5,18 +5,21 @@ import os
 import subprocess
 from tempfile import NamedTemporaryFile
 
+import bgmi.config
 from bgmi.config import BGMI_LX_PATH, BGMI_PATH, BGMI_TMP_PATH, ARIA2_PATH, ARIA2_RPC_URL
 from bgmi.utils.utils import print_warning, print_info, print_error, print_success
+from bgmi.models import Download, STATUS_DOWNLOADED, STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING
 
 
 #######################
 #   DownloadService   #
 #######################
 class DownloadService(object):
-    def __init__(self, torrent, overwrite, save_path):
-        self.torrent = torrent
+    def __init__(self, download_obj, save_path, overwrite=True):
+        self.name = download_obj.name
+        self.torrent = download_obj.download
         self.overwrite = overwrite
-        self.save_path = save_path
+        self.save_path = download_obj.save_path
 
     def download(self):
         # download
@@ -40,15 +43,38 @@ class DownloadService(object):
         subprocess.call(command, env={'PATH': '/usr/local/bin:/usr/bin:/bin',
                                       'HOME': os.environ.get('HOME', '/tmp')})
 
-    def check_download(self):
+    def check_download(self, name):
         if not os.path.exists(self.save_path):
-            raise Exception('It seems the bangumi {0} not be downloaded'.format(download.name))
+            raise Exception('It seems the bangumi {0} not be downloaded'.format(name))
+
+    @staticmethod
+    def download_status(self, status=None):
+        last_status = -1
+        for download_data in Download.get_all_downloads(status=status):
+            latest_status = download_data['status']
+            name = '  {0}. <{1}: {2}>'.format(download_data['id'], download_data['name'],
+                                              download_data['episode'])
+            if latest_status != last_status:
+                if latest_status == STATUS_DOWNLOADING:
+                    print('Downloading items:')
+                elif latest_status == STATUS_NOT_DOWNLOAD:
+                    print('Not downloaded items:')
+                elif latest_status == STATUS_DOWNLOADED:
+                    print('Downloaded items:')
+
+            if download_data['status'] == STATUS_NOT_DOWNLOAD:
+                print_info(name, indicator=False)
+            elif download_data['status'] == STATUS_DOWNLOADING:
+                print_warning(name, indicator=False)
+            elif download_data['status'] == STATUS_DOWNLOADED:
+                print_success(name, indicator=False)
+            last_status = download_data['status']
 
 
 class Aria2Download(DownloadService):
-    def __init__(self, torrent, overwrite, save_path):
+    def __init__(self, download_obj, overwrite, save_path):
         self.check_delegate_bin_exist(ARIA2_PATH)
-        super(Aria2Download, self).__init__(torrent, overwrite, save_path)
+        super(Aria2Download, self).__init__(download_obj, save_path, overwrite)
 
     def download(self):
         command = [ARIA2_PATH, '--seed-time=0', '-d', self.save_path, self.torrent]
@@ -61,29 +87,36 @@ class Aria2Download(DownloadService):
 
 
 class Aria2DownloadRPC(DownloadService):
-    def download(self):
-        import bgmi.config
+    def __init__(self, **kwargs):
         if bgmi.config.IS_PYTHON3:
             from xmlrpc.client import ServerProxy
         else:
             from xmlrpclib import ServerProxy
 
-        server = ServerProxy(ARIA2_RPC_URL)
-        server.aria2.addUri([self.torrent], {"dir": self.save_path})
+        self.server = ServerProxy(ARIA2_RPC_URL)
+        super(Aria2DownloadRPC, self).__init__(**kwargs)
+
+    def download(self):
+        self.server.aria2.addUri([self.torrent], {"dir": self.save_path})
         print_info('Add torrent into the download queue, the file will be saved at {0}'.format(self.save_path))
 
     @staticmethod
     def install():
         print_warning('Please install aria2 by yourself')
 
-    def check_download(self):
-        print_warning('Download status will be marked as `downloaded\' but I don\'t know the real status.')
+    def check_download(self, name):
+        pass
+
+    @staticmethod
+    def download_status(self, status=None):
+        # self.server.aria2
+        pass
 
 
 class XunleiLixianDownload(DownloadService):
-    def __init__(self, torrent, overwrite, save_path):
+    def __init__(self, download_obj, save_path, overwrite):
         self.check_delegate_bin_exist(BGMI_LX_PATH)
-        super(XunleiLixianDownload, self).__init__(torrent, overwrite, save_path)
+        super(XunleiLixianDownload, self).__init__(download_obj, save_path, overwrite)
 
     def download(self):
         overwrite = '--overwrite' if self.overwrite else ''
