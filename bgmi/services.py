@@ -11,6 +11,33 @@ from bgmi.utils.utils import print_warning, print_info, print_error, print_succe
 from bgmi.models import Download, STATUS_DOWNLOADED, STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING
 
 
+if bgmi.config.IS_PYTHON3:
+    from xmlrpc.client import ServerProxy, _Method
+else:
+    from xmlrpclib import ServerProxy, _Method
+
+
+class _PatchedMethod(_Method):
+    def __getitem__(self, name):
+        return _Method.__getattr__(self, name)
+
+    def __getattr__(self, name):
+        if name == '__getitem__':
+            return self.__getitem__
+        return _Method.__getattr__(self, name)
+
+    def __call__(self, *args):
+        print(args)
+
+
+class PatchedServerProxy(ServerProxy):
+    def __request(self, methodname, params):
+        return ServerProxy._ServerProxy__request(self, methodname, params)
+
+    def __getattr__(self, name):
+        return _PatchedMethod(self.__request, name)
+
+
 #######################
 #   DownloadService   #
 #######################
@@ -19,7 +46,8 @@ class DownloadService(object):
         self.name = download_obj.name
         self.torrent = download_obj.download
         self.overwrite = overwrite
-        self.save_path = download_obj.save_path
+        self.save_path = save_path
+        self.episode = download_obj.episode
 
     def download(self):
         # download
@@ -48,7 +76,7 @@ class DownloadService(object):
             raise Exception('It seems the bangumi {0} not be downloaded'.format(name))
 
     @staticmethod
-    def download_status(self, status=None):
+    def download_status(status=None):
         last_status = -1
         for download_data in Download.get_all_downloads(status=status):
             latest_status = download_data['status']
@@ -72,9 +100,9 @@ class DownloadService(object):
 
 
 class Aria2Download(DownloadService):
-    def __init__(self, download_obj, overwrite, save_path):
+    def __init__(self, *args, **kwargs):
         self.check_delegate_bin_exist(ARIA2_PATH)
-        super(Aria2Download, self).__init__(download_obj, save_path, overwrite)
+        super(Aria2Download, self).__init__(*args, **kwargs)
 
     def download(self):
         command = [ARIA2_PATH, '--seed-time=0', '-d', self.save_path, self.torrent]
@@ -87,13 +115,8 @@ class Aria2Download(DownloadService):
 
 
 class Aria2DownloadRPC(DownloadService):
-    def __init__(self, **kwargs):
-        if bgmi.config.IS_PYTHON3:
-            from xmlrpc.client import ServerProxy
-        else:
-            from xmlrpclib import ServerProxy
-
-        self.server = ServerProxy(ARIA2_RPC_URL)
+    def __init__(self, *args, **kwargs):
+        self.server = PatchedServerProxy(ARIA2_RPC_URL)
         super(Aria2DownloadRPC, self).__init__(**kwargs)
 
     def download(self):
@@ -108,15 +131,38 @@ class Aria2DownloadRPC(DownloadService):
         pass
 
     @staticmethod
-    def download_status(self, status=None):
+    def download_status(status=None):
+        print_info('Print download status in database')
+        DownloadService.download_status(status=status)
+        print()
+        print_info('Print download status in aria2c-rpc')
+        server = PatchedServerProxy(ARIA2_RPC_URL)
         # self.server.aria2
-        pass
+        status_dict = {
+            STATUS_DOWNLOADING: ['tellActive'],
+            STATUS_NOT_DOWNLOAD: ['tellWaiting'],
+            STATUS_DOWNLOADED: ['tellStopped'],
+            None: ['tellStopped', 'tellWaiting', 'tellActive'],
+        }
+        for method in status_dict.get(status):
+            if method not in ('tellActive', ):
+                params = (0, 1000)
+            else:
+                params = ()
+            data = server.aria2[method](*params)
+            if data:
+                print_info('RPC {0}:'.format(method), indicator=False)
+            for row in data:
+                print_success('- {0}'.format(row['dir']), indicator=False)
+                for file in row['files']:
+                    print_info('    * {0}'.format(file['path']), indicator=False)
+                print()
 
 
 class XunleiLixianDownload(DownloadService):
-    def __init__(self, download_obj, save_path, overwrite):
+    def __init__(self, *args, **kwargs):
         self.check_delegate_bin_exist(BGMI_LX_PATH)
-        super(XunleiLixianDownload, self).__init__(download_obj, save_path, overwrite)
+        super(XunleiLixianDownload, self).__init__(*args, **kwargs)
 
     def download(self):
         overwrite = '--overwrite' if self.overwrite else ''

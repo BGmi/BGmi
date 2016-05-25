@@ -14,9 +14,10 @@ from bgmi.config import BGMI_PATH, DB_PATH, write_config
 from bgmi.download import download_prepare
 from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode
 from bgmi.models import Bangumi, Followed, Download, STATUS_FOLLOWED, STATUS_UPDATED,\
-    STATUS_NORMAL, STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADED, STATUS_DOWNLOADING
+    STATUS_NORMAL
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD
 from bgmi.utils.utils import print_warning, print_info, print_success, print_error, print_version
+from bgmi.download import get_download_class
 
 
 # Wrap sys.stdout into a StreamWriter to allow writing unicode.
@@ -56,9 +57,10 @@ DOWNLOAD_CHOICE_LIST_NOT_DOWNLOAD = 'not_downloaded'
 DOWNLOAD_CHOICE_LIST_DOWNLOADING = 'downloading'
 DOWNLOAD_CHOICE_LIST_DOWNLOADED = 'downloaded'
 DOWNLOAD_CHOICE_LIST_DICT = {
-    DOWNLOAD_CHOICE_LIST_NOT_DOWNLOAD: 0,
-    DOWNLOAD_CHOICE_LIST_DOWNLOADING: 1,
-    DOWNLOAD_CHOICE_LIST_DOWNLOADED: 2,
+    None: DOWNLOAD_CHOICE_LIST_ALL,
+    0: DOWNLOAD_CHOICE_LIST_NOT_DOWNLOAD,
+    1: DOWNLOAD_CHOICE_LIST_DOWNLOADING,
+    2: DOWNLOAD_CHOICE_LIST_DOWNLOADED,
 }
 DOWNLOAD_CHOICE = (DOWNLOAD_CHOICE_LIST_ALL, DOWNLOAD_CHOICE_LIST_DOWNLOADED,
                    DOWNLOAD_CHOICE_LIST_DOWNLOADING, DOWNLOAD_CHOICE_LIST_NOT_DOWNLOAD)
@@ -112,8 +114,7 @@ def main():
 
     sub_parser_download = action.add_sub_parser(ACTION_DOWNLOAD, help='Download manager.')
     download_list = sub_parser_download.add_sub_parser('list', help='List download queue.')
-    download_list.add_argument('status', help='Bangumi status: {0}'.format(', '.join(DOWNLOAD_CHOICE)),
-                               choice=DOWNLOAD_CHOICE)
+    download_list.add_argument('status', help='Download status: 0, 1, 2', choice=(0, 1, 2, None))
 
     download_mark = sub_parser_download.add_sub_parser('mark', help='Mark download status with a specific id.')
     download_mark.add_argument('id', help='Download id')
@@ -229,7 +230,7 @@ def filter_(ret):
 
     if not followed_obj:
         print_error('Bangumi {0} has not subscribed, try \'bgmi add "{1}"\'.'.format(bangumi_obj.name,
-                                                                                 bangumi_obj.name))
+                                                                                     bangumi_obj.name))
 
     subtitle = ret.action.filter.subtitle_group
     if subtitle:
@@ -301,7 +302,8 @@ def update(ret):
 
         # filter by subtitle group
         if not bangumi_obj:
-            print_error('The bangumi {0} you subscribed does not exists ..'.format(subscribe['bangumi_name']), exit_=False)
+            print_error('The bangumi {0} you subscribed does not exists ..'.format(subscribe['bangumi_name']),
+                        exit_=False)
             continue
 
         episode, all_episode_data = get_maximum_episode(bangumi=bangumi_obj)
@@ -339,9 +341,14 @@ def cal(ret):
 
 
 def download_manager(ret):
-    print_warning('Not Downloaded: 0 / Downloading: 1 / Downloaded: 2\n', indicator=False)
+    print_info('Download status value: Not Downloaded: 0 / Downloading: 1 / Downloaded: 2\n', indicator=False)
+
     if ret.action.download == DOWNLOAD_ACTION_LIST:
-        status = DOWNLOAD_CHOICE_LIST_DICT.get(ret.action.download.list.status, None)
+        status = ret.action.download.list.status
+        status = int(status) if status is not None else None
+        delegate = get_download_class(instance=False)
+        delegate.download_status(status=status)
+
     elif ret.action.download == DOWNLOAD_ACTION_MARK:
         download_id = ret.action.download.mark.id
         status = ret.action.download.mark.status
@@ -351,11 +358,11 @@ def download_manager(ret):
         download_obj.select_obj()
         if not download_obj:
             print_error('Download object does not exist.')
-        print_success('Download Object <{0} - {1}>, Status: {2}'.format(download_obj.name, download_obj.episode,
+        print_info('Download Object <{0} - {1}>, Status: {2}'.format(download_obj.name, download_obj.episode,
                                                                         download_obj.status))
         download_obj.status = status
         download_obj.save()
-        print_success('Download status has been marked as {0}'.format(status))
+        print_success('Download status has been marked as {0}'.format(DOWNLOAD_CHOICE_LIST_DICT.get(int(status))))
 
 
 def init_db(db_path):
