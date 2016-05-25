@@ -59,7 +59,7 @@ def write_default_config():
     try:
         c.write(open(CONFIG_FILE_PATH, 'w'))
     except IOError:
-        print('[-] write config file error and ignored')
+        print('[-] Error writing to config file and ignored')
 
 
 def write_config(config=None, value=None):
@@ -70,7 +70,7 @@ def write_config(config=None, value=None):
         c.add_section('bgmi')
 
     if config is not None and config not in __writeable__:
-        print('{0} is not exist or not writeable'.format(config))
+        print('{0} does not exist or not writeable'.format(config))
         exit(1)
 
     for i in __writeable__:

@@ -28,7 +28,7 @@ def create_dir():
             print_success('%s created successfully' % path)
             os.mkdir(path)
         else:
-            print_warning('%s are already exist' % path)
+            print_warning('%s already exists' % path)
 
 
 def install():
