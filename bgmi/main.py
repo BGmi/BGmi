@@ -20,17 +20,13 @@ from bgmi.utils.utils import print_warning, print_info, print_success, print_err
 from bgmi.download import get_download_class
 
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
 # Wrap sys.stdout into a StreamWriter to allow writing unicode.
-'''
 if bgmi.config.IS_PYTHON3:
     file_ = sys.stdout.buffer
+    sys.stdout = codecs.getwriter(locale.getpreferredencoding())(file_)
 else:
-    file_ = sys.stdout
-
-sys.stdout = codecs.getwriter(locale.getpreferredencoding())(file_)
-'''
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
 
 
 ACTION_HTTP = 'http'
