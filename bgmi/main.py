@@ -38,8 +38,9 @@ ACTION_UPDATE = 'update'
 ACTION_CAL = 'cal'
 ACTION_CONFIG = 'config'
 ACTION_DOWNLOAD = 'download'
+ACTION_FOLLOWED = 'followed'
 ACTIONS = (ACTION_HTTP, ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL,
-           ACTION_CONFIG, ACTION_FILTER, ACTION_FETCH, ACTION_DOWNLOAD)
+           ACTION_CONFIG, ACTION_FILTER, ACTION_FETCH, ACTION_DOWNLOAD, ACTION_FOLLOWED)
 
 FILTER_CHOICE_TODAY = 'today'
 FILTER_CHOICE_ALL = 'all'
@@ -112,6 +113,12 @@ def main():
     sub_parser_config.add_argument('name', help='Config name')
     sub_parser_config.add_argument('value', help='Config value')
 
+    sub_parser_followed = action.add_sub_parser(ACTION_FOLLOWED, help='Followed bangumi manager.')
+    sub_parser_followed.add_argument('--list', help='List followed bangumi.')
+    followed_mark = sub_parser_followed.add_sub_parser('mark', help='Mark specific bangumi\'s episode.')
+    followed_mark.add_argument('name', help='Bangumi name.', required=True)
+    followed_mark.add_argument('episode', help='Bangumi episode.')
+
     sub_parser_download = action.add_sub_parser(ACTION_DOWNLOAD, help='Download manager.')
     download_list = sub_parser_download.add_sub_parser('list', help='List download queue.')
     download_list.add_argument('status', help='Download status: 0, 1, 2', choice=(0, 1, 2, None))
@@ -180,6 +187,12 @@ def main():
 
     elif ret.action == ACTION_CONFIG:
         write_config(ret.action.config.name, ret.action.config.value)
+
+    elif ret.action == ACTION_FOLLOWED:
+        if not ret.action.followed == 'mark' and not ret.action.followed.list:
+            c.print_help()
+        else:
+            followed(ret)
 
     elif ret.action == ACTION_DOWNLOAD:
         if ret.action.download in DOWNLOAD_ACTION:
@@ -359,10 +372,30 @@ def download_manager(ret):
         if not download_obj:
             print_error('Download object does not exist.')
         print_info('Download Object <{0} - {1}>, Status: {2}'.format(download_obj.name, download_obj.episode,
-                                                                        download_obj.status))
+                                                                     download_obj.status))
         download_obj.status = status
         download_obj.save()
         print_success('Download status has been marked as {0}'.format(DOWNLOAD_CHOICE_LIST_DICT.get(int(status))))
+
+
+def followed(ret):
+    if ret.action.followed.list:
+        bangumi_calendar(force_update=False, followed=True, save=False)
+    else:
+        name = ret.action.followed.mark.name
+        episode = ret.action.followed.mark.episode
+        followed_obj = Followed(bangumi_name=name)
+        followed_obj.select_obj()
+
+        if not followed_obj:
+            print_error('Subscribe <%s> does not exist.' % name)
+
+        if episode:
+            followed_obj.episode = episode
+            followed_obj.save()
+            print_success('%s has been mark as episode: %s' % (followed_obj, followed_obj.episode))
+        else:
+            print_info('%s, episode: %s' % (followed_obj, followed_obj.episode))
 
 
 def init_db(db_path):

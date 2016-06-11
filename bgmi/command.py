@@ -216,6 +216,7 @@ class ArgumentGroup(_CommandParserMixin):
         self._set_default()
 
         self._parse_command(self, _sys_args_list)
+
         while _sys_args_list:
             arg = _sys_args_list.pop()
 
@@ -231,8 +232,7 @@ class ArgumentGroup(_CommandParserMixin):
                 self.namespace.NameSpace_Action_Name = sub_parser.name
                 break
             else:
-                _sys_args_list.append(arg)
-                break
+                _error('unrecognized arguments: %s' % arg)
 
         return self.namespace
 
