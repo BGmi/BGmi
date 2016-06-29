@@ -262,7 +262,8 @@ class DB(object):
         if not isinstance(ret, (list, type(None))):
             for i in self.fields:
                 if getattr(self, i) is None:
-                    setattr(self, i, ret[i])
+                    if i in ret:
+                        setattr(self, i, ret[i])
 
         return ret
 
