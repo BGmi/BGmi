@@ -322,7 +322,7 @@ class Bangumi(DB):
     table = 'bangumi'
     primary_key = ('name', )
     fields = ('name', 'update_time', 'subtitle_group', 'keyword', )
-    week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', )
+    week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
     def __init__(self, **kwargs):
         super(Bangumi, self).__init__(**kwargs)
