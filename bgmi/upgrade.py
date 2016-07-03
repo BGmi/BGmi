@@ -22,5 +22,5 @@ def upgrade():
             try:
                 print_success('Run SQL: %s' % upgrade_info['sql'])
                 DB.execute(upgrade_info['sql'])
-            except Exception, e:
+            except Exception as e:
                 print_error('Error: %s' % str(e), exit_=False)
