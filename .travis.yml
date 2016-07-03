@@ -29,5 +29,5 @@ script:
     - bgmi fetch "在下坂本，有何貴幹？"
     - bgmi filter "在下坂本，有何貴幹？" --remove-all
     - bgmi download list
-    - bgmi followed --list
+    - bgmi followed list
     - bgmi followed mark "在下坂本，有何貴幹？" 0
