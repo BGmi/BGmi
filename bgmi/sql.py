@@ -5,7 +5,8 @@ CREATE_TABLE_BANGUMI = '''CREATE TABLE bangumi (
           name TEXT NOT NULL UNIQUE,
           subtitle_group TEXT NOT NULL,
           keyword TEXT,
-          update_time CHAR(5) NOT NULL
+          update_time CHAR(5) NOT NULL,
+          status INTEGER DEFAULT 0
         )'''
 
 

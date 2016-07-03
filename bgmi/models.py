@@ -14,10 +14,14 @@ else:
 
 
 # bangumi subscription and download status
+STATUS_UPDATING = 0
+STATUS_END = 1
+BANGUMI_STATUS = (STATUS_UPDATING, STATUS_END)
+
 STATUS_NORMAL = 0
 STATUS_FOLLOWED = 1
 STATUS_UPDATED = 2
-BANGUMI_STATUS = (STATUS_NORMAL, STATUS_FOLLOWED, STATUS_UPDATED)
+FOLLOWED_STATUS = (STATUS_NORMAL, STATUS_FOLLOWED, STATUS_UPDATED)
 
 STATUS_NOT_DOWNLOAD = 0
 STATUS_DOWNLOADING = 1
@@ -113,7 +117,7 @@ class DB(object):
                         name = '%s' % f
                     else:
                         name = '`%s`' % f
-                    sql += '%s%s=? %s' % (name, operator, operation)
+                    sql += '%s%s=? %s ' % (name, operator, operation)
 
                 sql = sql[:-(len(operation)+1)]
             else:
@@ -317,11 +321,17 @@ class DB(object):
 
         return self
 
+    @staticmethod
+    def execute(sql):
+        db = DB.connect_db()
+        db.execute(sql)
+        DB.close_db(db)
+
 
 class Bangumi(DB):
     table = 'bangumi'
     primary_key = ('name', )
-    fields = ('name', 'update_time', 'subtitle_group', 'keyword', )
+    fields = ('name', 'update_time', 'subtitle_group', 'keyword', 'status', )
     week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
     def __init__(self, **kwargs):
@@ -342,20 +352,31 @@ class Bangumi(DB):
         return 'Bangumi<%s>' % self.name
 
     @staticmethod
+    def delete_all():
+        db = Bangumi.connect_db()
+        sql = Bangumi._make_sql('update', table=Bangumi.table, fields=('status'))
+        cur = db.cursor()
+        cur.execute(sql, (STATUS_END, ))
+        Bangumi.close_db(db)
+
+    @staticmethod
     def get_all_bangumi(status=None, order=True):
         db = Bangumi.connect_db()
         db.row_factory = make_dicts
         cur = db.cursor()
         join_sql = Bangumi._make_sql('select', table=Followed.table)
         if status is None:
-            sql = Bangumi._make_sql('select', fields=['%s.*' % Bangumi.table, 'status', 'episode'], table=Bangumi.table,
+            sql = Bangumi._make_sql('select', fields=['%s.*' % Bangumi.table, 'F.status',
+                                                      'episode'], table=Bangumi.table,
+                                    condition=('%s.status' % Bangumi.table),
                                     join='LEFT JOIN (%s) AS F ON bangumi.name=F.bangumi_name' % join_sql)
-            cur.execute(sql)
+            cur.execute(sql, (STATUS_UPDATING, ))
         else:
-            sql = Bangumi._make_sql('select', fields=['%s.*' % Bangumi.table, 'status', 'episode'], table=Bangumi.table,
+            sql = Bangumi._make_sql('select', fields=['%s.*' % Bangumi.table, 'F.status',
+                                                      'episode'], table=Bangumi.table,
                                     join='LEFT JOIN (%s) AS F ON bangumi.name=F.bangumi_name' % join_sql,
-                                    condition='F.status')
-            cur.execute(sql, (status, ))
+                                    condition=('F.status', '%s.status' % Bangumi.table))
+            cur.execute(sql, (status, STATUS_UPDATING, ))
         data = cur.fetchall()
         Bangumi.close_db(db)
 

@@ -18,6 +18,7 @@ from bgmi.models import Bangumi, Followed, Download, STATUS_FOLLOWED, STATUS_UPD
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD
 from bgmi.utils.utils import print_warning, print_info, print_success, print_error, print_version
 from bgmi.download import get_download_class
+from bgmi.upgrade import upgrade
 
 
 # Wrap sys.stdout into a StreamWriter to allow writing unicode.
@@ -39,8 +40,9 @@ ACTION_CAL = 'cal'
 ACTION_CONFIG = 'config'
 ACTION_DOWNLOAD = 'download'
 ACTION_FOLLOWED = 'followed'
+ACTION_UPGRADE = 'upgrade'
 ACTIONS = (ACTION_HTTP, ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL,
-           ACTION_CONFIG, ACTION_FILTER, ACTION_FETCH, ACTION_DOWNLOAD, ACTION_FOLLOWED)
+           ACTION_CONFIG, ACTION_FILTER, ACTION_FETCH, ACTION_DOWNLOAD, ACTION_FOLLOWED, ACTION_UPGRADE)
 
 FILTER_CHOICE_TODAY = 'today'
 FILTER_CHOICE_ALL = 'all'
@@ -63,9 +65,13 @@ DOWNLOAD_CHOICE_LIST_DICT = {
     1: DOWNLOAD_CHOICE_LIST_DOWNLOADING,
     2: DOWNLOAD_CHOICE_LIST_DOWNLOADED,
 }
+
 DOWNLOAD_CHOICE = (DOWNLOAD_CHOICE_LIST_ALL, DOWNLOAD_CHOICE_LIST_DOWNLOADED,
                    DOWNLOAD_CHOICE_LIST_DOWNLOADING, DOWNLOAD_CHOICE_LIST_NOT_DOWNLOAD)
 
+FOLLOWED_ACTION_LIST = 'list'
+FOLLOWED_ACTION_MARK = 'mark'
+FOLLOWED_CHOICE = (FOLLOWED_ACTION_LIST, FOLLOWED_ACTION_MARK)
 
 # global Ctrl-C signal handler
 def signal_handler(signal, frame):
@@ -114,7 +120,7 @@ def main():
     sub_parser_config.add_argument('value', help='Config value')
 
     sub_parser_followed = action.add_sub_parser(ACTION_FOLLOWED, help='Followed bangumi manager.')
-    sub_parser_followed.add_argument('--list', help='List followed bangumi.')
+    sub_parser_followed.add_sub_parser('list', help='List followed bangumi.')
     followed_mark = sub_parser_followed.add_sub_parser('mark', help='Mark specific bangumi\'s episode.')
     followed_mark.add_argument('name', help='Bangumi name.', required=True)
     followed_mark.add_argument('episode', help='Bangumi episode.')
@@ -131,6 +137,7 @@ def main():
     positional.add_argument('install', help='Install xunlei-lixian for BGmi.')
 
     c.add_argument('-h', help='Print help text.')
+    c.add_argument('--upgrade', help='Upgrade bgmi.')
     c.add_argument('--version', help='Show the version of BGmi.')
     c.add_argument('--debug', help='Enable DEBUG mode.')
 
@@ -138,6 +145,10 @@ def main():
 
     if ret.version:
         print_version()
+        raise SystemExit
+
+    if ret.upgrade:
+        upgrade()
         raise SystemExit
 
     if ret.positional.install == 'install':
@@ -379,9 +390,7 @@ def download_manager(ret):
 
 
 def followed(ret):
-    if ret.action.followed.list:
-        bangumi_calendar(force_update=False, followed=True, save=False)
-    else:
+    if ret.action.followed == FOLLOWED_ACTION_MARK:
         name = ret.action.followed.mark.name
         episode = ret.action.followed.mark.episode
         followed_obj = Followed(bangumi_name=name)
@@ -396,6 +405,8 @@ def followed(ret):
             print_success('%s has been mark as episode: %s' % (followed_obj, followed_obj.episode))
         else:
             print_info('%s, episode: %s' % (followed_obj, followed_obj.episode))
+    else:
+        bangumi_calendar(force_update=False, followed=True, save=False)
 
 
 def init_db(db_path):

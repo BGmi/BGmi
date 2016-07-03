@@ -42,6 +42,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
         print_warning('network is unreachable')
 
     if force_update:
+        Bangumi.delete_all()
         print_info('fetching bangumi info ...')
         weekly_list = fetch(save=save, status=True)
     else:
