@@ -21,6 +21,7 @@ script:
     - bgmi update
     - bgmi delete --name "食戟之靈 貳之皿"
     - bgmi delete --clear-all --batch
+    - bgmi add "Re：從零開始的異世界生活"
     - bgmi cal followed
     - bgmi filter "Re：從零開始的異世界生活" "惡魔島,DHR"
     - bgmi filter "Re：從零開始的異世界生活" "DHR" --remove
