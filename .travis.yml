@@ -17,17 +17,16 @@ script:
     - python -m unittest discover
     - bgmi
     - bgmi cal all
-    - bgmi add "Re：從零開始的異世界生活" "暗殺教室Ⅱ" "線上遊戲的老婆不可能是女生？" "在下坂本，有何貴幹？" "JoJo的奇妙冒險 不滅鑽石"
+    - bgmi add "Re：從零開始的異世界生活" "NEW GAME!" "天真與閃電" "食戟之靈 貳之皿"
     - bgmi update
-    - bgmi delete --name "暗殺教室Ⅱ"
+    - bgmi delete --name "食戟之靈 貳之皿"
     - bgmi delete --clear-all --batch
     - bgmi cal followed
-    - bgmi add "在下坂本，有何貴幹？"
-    - bgmi filter "在下坂本，有何貴幹？" "動漫國,KNA,悠哈C9"
-    - bgmi filter "在下坂本，有何貴幹？" "KNA,悠哈C9" --remove
+    - bgmi filter "Re：從零開始的異世界生活" "惡魔島,DHR"
+    - bgmi filter "Re：從零開始的異世界生活" "DHR" --remove
     - bgmi config MAX_PAGE 3
-    - bgmi fetch "在下坂本，有何貴幹？"
-    - bgmi filter "在下坂本，有何貴幹？" --remove-all
+    - bgmi fetch "Re：從零開始的異世界生活"
+    - bgmi filter "Re：從零開始的異世界生活" --remove-all
     - bgmi download list
     - bgmi followed list
-    - bgmi followed mark "在下坂本，有何貴幹？" 0
+    - bgmi followed mark "Re：從零開始的異世界生活" 0
