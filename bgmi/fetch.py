@@ -16,6 +16,7 @@ from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED, STATUS_UPDATED
 from bgmi.utils.utils import print_error, print_warning, print_info, unicodeize, \
     test_connection, bug_report, get_terminal_col, _
 import bgmi.patches.bangumi
+import bgmi.patches.keyword
 
 if bgmi.config.IS_PYTHON3:
     _unicode = str
@@ -223,6 +224,8 @@ def parse_episode(data):
 
 def fetch_episode(keyword, name='', subtitle_group=None):
     result = []
+    keyword = bgmi.patches.keyword.main(name, keyword)
+
     for page in range(1, int(MAX_PAGE)+1):
         response = get_response(DETAIL_URL.replace('[PAGE]', str(page)) + keyword)
 

@@ -79,7 +79,7 @@ def download_xml(data):
 
 
 def bug_report():
-    print_error('It seems that no bangumi found, if http://dmhy.ricter.me can '
+    print_error('It seems that no bangumi found, if http://dmhy.ricterz.me can '
                 'be opened normally, please report bug to ricterzheng@gmail.co'
                 'm or submit issue at: https://github.com/RicterZ/BGmi/issues',
                 exit_=False)

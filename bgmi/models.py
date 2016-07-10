@@ -425,8 +425,10 @@ class Followed(DB):
         db = DB.connect_db()
         db.row_factory = make_dicts
         cur = db.cursor()
-        sql = DB._make_sql('select', table=Followed.table, condition=['!status', ])
-        cur.execute(sql, (status, ))
+        sql = DB._make_sql('select', table=Followed.table,
+                           join='LEFT JOIN (bangumi) on bangumi.name=followed.bangumi_name',
+                           condition=['!followed.status', 'bangumi.status'])
+        cur.execute(sql, (status, 0))
         data = cur.fetchall()
         DB.close_db(db)
         return data
