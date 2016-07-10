@@ -7,6 +7,7 @@ import codecs
 import datetime
 import signal
 import sqlite3
+import time
 
 import bgmi.config
 from bgmi.command import CommandParser
@@ -337,6 +338,7 @@ def update(ret):
             _ = Followed(bangumi_name=subscribe['bangumi_name'])
             _.episode = episode['episode']
             _.status = STATUS_UPDATED
+            _.updated_time = int(time.time())
             _.save()
             download_queue.append(episode)
             for i in episode_range:

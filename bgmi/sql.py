@@ -15,7 +15,8 @@ CREATE_TABLE_FOLLOWED = '''CREATE TABLE followed (
           bangumi_name TEXT NOT NULL UNIQUE,
           episode INTEGER DEFAULT 0,
           status INTEGER DEFAULT 1,
-          subtitle_group TEXT
+          subtitle_group TEXT,
+          updated_time INTEGER DEFAULT 0
         )'''
 
 

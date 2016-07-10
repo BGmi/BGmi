@@ -393,7 +393,7 @@ class Bangumi(DB):
 class Followed(DB):
     table = 'followed'
     primary_key = ('bangumi_name', )
-    fields = ('bangumi_name', 'episode', 'status', 'subtitle_group', )
+    fields = ('bangumi_name', 'episode', 'status', 'subtitle_group', 'updated_time', )
 
     @staticmethod
     def delete_followed(condition=None, batch=True):
