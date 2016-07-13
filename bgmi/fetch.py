@@ -78,7 +78,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
     else:
         weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
 
-    spacial_append_chars = ['Ⅱ', 'Ⅲ', '♪', 'Δ']
+    spacial_append_chars = ['Ⅱ', 'Ⅲ', '♪', 'Δ', '×']
     spacial_remove_chars = []
     for index, weekday in enumerate(weekday_order):
         if weekly_list[weekday.lower()]:
