@@ -209,12 +209,20 @@ def save_data(data):
 
 
 FETCH_EPISODE_ZH = re.compile("[第]\s?(\d{1,2})\s?[話|话]")
-FETCH_EPISODE_ONLY_NUM = re.compile("^(\d{1,3})[\]|】]?$")
+FETCH_EPISODE_ONLY_NUM = re.compile('(?:【|\[)(\d+)(?:】|\])')
 FETCH_EPISODE = (FETCH_EPISODE_ONLY_NUM, FETCH_EPISODE_ZH)
 
 
 def parse_episode(data):
-    for split_token in ['[', '【', ' ']:
+    _ = FETCH_EPISODE_ZH.findall(data)
+    if _ and _[0].isdigit():
+        return int(_[0])
+
+    _ = FETCH_EPISODE_ONLY_NUM.findall(data)
+    if _ and _[0].isdigit():
+        return int(_[0])
+
+    for split_token in ['【', '[', ' ']:
         for i in data.split(split_token):
             for regexp in FETCH_EPISODE:
                 match = regexp.findall(i)
@@ -290,4 +298,7 @@ def get_maximum_episode(bangumi, subtitle=True):
 
 if __name__ == '__main__':
     # fetch(save=True, group_by_weekday=False)
-    print(get_maximum_episode('%E5%BE%9E%E9%9B%B6'))
+    b = Bangumi(name='槍彈辯駁3未來篇')
+    b.select_obj()
+    a, _ = get_maximum_episode(b)
+    print(a['episode'])
