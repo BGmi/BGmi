@@ -210,7 +210,7 @@ def save_data(data):
 
 FETCH_EPISODE_ZH = re.compile("[第]\s?(\d{1,2})\s?[話|话]")
 FETCH_EPISODE_WITH_BRACKETS = re.compile('(?:【|\[)(\d+)(?:】|\])')
-FETCH_EPISODE_ONLY_NUM = re.compile('([\d]{2,})')
+FETCH_EPISODE_ONLY_NUM = re.compile('^([\d]{2,})$')
 FETCH_EPISODE = (FETCH_EPISODE_ZH, FETCH_EPISODE_WITH_BRACKETS, FETCH_EPISODE_ONLY_NUM)
 
 
