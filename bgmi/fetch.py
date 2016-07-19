@@ -209,8 +209,9 @@ def save_data(data):
 
 
 FETCH_EPISODE_ZH = re.compile("[第]\s?(\d{1,2})\s?[話|话]")
-FETCH_EPISODE_ONLY_NUM = re.compile('(?:【|\[)(\d+)(?:】|\])')
-FETCH_EPISODE = (FETCH_EPISODE_ONLY_NUM, FETCH_EPISODE_ZH)
+FETCH_EPISODE_WITH_BRACKETS = re.compile('(?:【|\[)(\d+)(?:】|\])')
+FETCH_EPISODE_ONLY_NUM = re.compile('([\d]{2,})')
+FETCH_EPISODE = (FETCH_EPISODE_ZH, FETCH_EPISODE_WITH_BRACKETS, FETCH_EPISODE_ONLY_NUM)
 
 
 def parse_episode(data):
@@ -228,6 +229,7 @@ def parse_episode(data):
                 match = regexp.findall(i)
                 if match and match[0].isdigit():
                     return int(match[0])
+    return 0
 
 
 def fetch_episode(keyword, name='', subtitle_group=None):
