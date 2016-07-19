@@ -219,7 +219,7 @@ def parse_episode(data):
     if _ and _[0].isdigit():
         return int(_[0])
 
-    _ = FETCH_EPISODE_ONLY_NUM.findall(data)
+    _ = FETCH_EPISODE_WITH_BRACKETS.findall(data)
     if _ and _[0].isdigit():
         return int(_[0])
 
