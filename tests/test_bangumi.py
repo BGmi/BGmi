@@ -32,6 +32,7 @@ class BangumiTest(unittest.TestCase):
         self.assertEqual(5, parse_episode('【幻樱字幕组】【4月新番】【线上游戏的老婆不可能是女生？ Net'
                                           'oge no Yome wa Onnanoko ja Nai to Omotta】【05】【GB_MP4】【1280X720】'))
         self.assertEqual(12, parse_episode('[啊啊字幕组] [在下坂本,有何贵干][12][GB][720P][PSV&PC]'))
+        self.assertEqual(0, parse_episode('[KNA][NEW GAME!][SP][1280x720][x264_AAC][BIG5]'))
 
     def test_get_maximum_episode(self):
         # Deprecated test
