@@ -35,7 +35,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
     env_columns = get_terminal_col()
 
     if env_columns < 36:
-        print_error('Terminal window is too small.')
+        print_error('terminal window is too small.')
     row = int(env_columns / 36 if env_columns / 36 <= 3 else 3)
 
     if force_update and not test_connection():
@@ -43,9 +43,9 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
         print_warning('network is unreachable')
 
     if force_update:
-        Bangumi.delete_all()
         print_info('fetching bangumi info ...')
         weekly_list = fetch(save=save, status=True)
+        Bangumi.delete_all()
     else:
         if followed:
             weekly_list_followed = Bangumi.get_all_bangumi(status=STATUS_FOLLOWED)
