@@ -44,8 +44,8 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
 
     if force_update:
         print_info('fetching bangumi info ...')
-        weekly_list = fetch(save=save, status=True)
         Bangumi.delete_all()
+        weekly_list = fetch(save=save, status=True)
     else:
         if followed:
             weekly_list_followed = Bangumi.get_all_bangumi(status=STATUS_FOLLOWED)
