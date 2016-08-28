@@ -45,9 +45,10 @@ Or use pip:
 
 For **Windows**: BGmi does not support Windows now.  
 
-=====
-Usage
-=====
+=============
+Usage of bgmi
+=============
+
 Show bangumi calendar of this week:
 
 .. code-block:: bash
@@ -96,6 +97,54 @@ Install `xunlei-lixian <https://github.com/iambus/xunlei-lixian/>`_:
 
     bgmi install
 
+
+==================
+Usage of bgmi_http
+==================
+
+Start BGmi HTTP Service bind on `0.0.0.0:8888`:
+
+.. code-block:: bash
+
+    bgmi_http --port=8888 --address=0.0.0.0
+
+Configure tornado with nginx:
+
+.. code-block:: bash
+
+    server {
+        listen 80;
+        root /var/www/html/bangumi;
+        autoindex on;
+        charset utf8;
+        server_name bangumi.example.com;
+
+        location /bangumi {
+            alias /var/www/html/bangumi;
+        }
+
+        location / {
+            # reverse proxy to tornado listened port.
+            proxy_pass http://127.0.0.1:8888;
+        }
+    }
+
+Always you can use `yaaw <https://github.com/binux/yaaw/>`_ to manage download items if you use aria2c to download bangumi.
+
+.. code-block:: bash
+
+    ...
+    location /bgmi_admin {
+        auth_basic "BGmi admin (yaaw)";
+        auth_basic_user_file /etc/nginx/htpasswd;
+        alias /var/www/html/yaaw/;
+    }
+
+    location /jsonrpc {
+        # aria2c listened port
+        proxy_pass http://127.0.0.1:6800;
+    }
+    ...
 
 
 =======
