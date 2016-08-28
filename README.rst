@@ -25,6 +25,9 @@ Feature
 .. image:: https://raw.githubusercontent.com/RicterZ/BGmi/master/images/2.png
     :alt: BGmi
     :align: center
+.. image:: https://raw.githubusercontent.com/RicterZ/BGmi/master/images/bgmi_http.png
+:alt: BGmi HTTP Service
+    :align: center
 
 ============
 Installation
