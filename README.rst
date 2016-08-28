@@ -19,10 +19,7 @@ Feature
 + HTTP Server for RSS feed (for uTorrent, etc.)
 + Download bangumi by subtitle group
 
-.. image:: https://raw.githubusercontent.com/RicterZ/BGmi/master/images/1.png
-    :alt: BGmi
-    :align: center
-.. image:: https://raw.githubusercontent.com/RicterZ/BGmi/master/images/2.png
+.. image:: https://raw.githubusercontent.com/RicterZ/BGmi/master/images/bgmi.png
     :alt: BGmi
     :align: center
 .. image:: https://raw.githubusercontent.com/RicterZ/BGmi/master/images/bgmi_http.png
