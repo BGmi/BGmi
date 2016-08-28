@@ -26,7 +26,7 @@ Feature
     :alt: BGmi
     :align: center
 .. image:: https://raw.githubusercontent.com/RicterZ/BGmi/master/images/bgmi_http.png
-:alt: BGmi HTTP Service
+    :alt: BGmi HTTP Service
     :align: center
 
 ============
