@@ -43,6 +43,7 @@ setup(
     entry_points={
         'console_scripts': [
             'bgmi = bgmi.main:setup',
+            'bgmi_http = bgmi.front.http:main'
         ]
     },
     license='MIT',
