@@ -18,6 +18,7 @@ Feature
 + Bangumi episode informatdon
 + HTTP Server for RSS feed (for uTorrent, etc.)
 + Download bangumi by subtitle group
++ Web page to view all subscribed bangumi
 
 .. image:: https://raw.githubusercontent.com/RicterZ/BGmi/master/images/bgmi.png
     :alt: BGmi
