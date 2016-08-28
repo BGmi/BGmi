@@ -6,6 +6,7 @@ import re
 import sys
 from collections import OrderedDict
 
+from bgmi import __version__
 from bgmi.utils.utils import unicodeize
 
 HELP = ('-h', '--help')
@@ -428,7 +429,7 @@ class CommandParser(_CommandParserMixin):
 
         self.sys_args = sys.argv[1:][::-1]
         self._sys_args = sys.argv[1:]
-        sys.stdout.write('\nUsage: \n')
+        sys.stdout.write('BGmi %s (https://github.com/RicterZ/BGmi)\n\nUsage: \n' % __version__)
 
         arg_list = []
         while self.sys_args:

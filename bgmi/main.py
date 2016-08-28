@@ -19,7 +19,6 @@ from bgmi.models import Bangumi, Followed, Download, STATUS_FOLLOWED, STATUS_UPD
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD
 from bgmi.utils.utils import print_warning, print_info, print_success, print_error, print_version
 from bgmi.download import get_download_class
-from bgmi.upgrade import upgrade
 
 
 # Wrap sys.stdout into a StreamWriter to allow writing unicode.
@@ -41,9 +40,8 @@ ACTION_CAL = 'cal'
 ACTION_CONFIG = 'config'
 ACTION_DOWNLOAD = 'download'
 ACTION_FOLLOWED = 'followed'
-ACTION_UPGRADE = 'upgrade'
 ACTIONS = (ACTION_HTTP, ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL,
-           ACTION_CONFIG, ACTION_FILTER, ACTION_FETCH, ACTION_DOWNLOAD, ACTION_FOLLOWED, ACTION_UPGRADE)
+           ACTION_CONFIG, ACTION_FILTER, ACTION_FETCH, ACTION_DOWNLOAD, ACTION_FOLLOWED,)
 
 FILTER_CHOICE_TODAY = 'today'
 FILTER_CHOICE_ALL = 'all'
@@ -138,7 +136,6 @@ def main():
     positional.add_argument('install', help='Install xunlei-lixian for BGmi.')
 
     c.add_argument('-h', help='Print help text.')
-    c.add_argument('--upgrade', help='Upgrade bgmi.')
     c.add_argument('--version', help='Show the version of BGmi.')
     c.add_argument('--debug', help='Enable DEBUG mode.')
 
@@ -146,10 +143,6 @@ def main():
 
     if ret.version:
         print_version()
-        raise SystemExit
-
-    if ret.upgrade:
-        upgrade()
         raise SystemExit
 
     if ret.positional.install == 'install':
@@ -308,12 +301,11 @@ def delete(ret):
 
 def update(ret):
     print_info('marking bangumi status ...')
-    week = Bangumi.week[datetime.datetime.today().weekday()]
-    for i in Bangumi.get_all_bangumi(status=STATUS_UPDATED, order=False):
-        if i['update_time'] != week:
-            _ = Followed(bangumi_name=i['name'])
-            _.status = STATUS_FOLLOWED
-            _.save()
+    now = int(time.time())
+    for i in Followed.get_all_followed(status=STATUS_UPDATED):
+        if i['updated_time'] and int(i['updated_time'] - 86400) > now:
+            i.status = STATUS_FOLLOWED
+            i.save()
 
     print_info('updating bangumi data ...')
     fetch(save=True, group_by_weekday=False)
