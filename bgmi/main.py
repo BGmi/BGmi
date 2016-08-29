@@ -4,7 +4,6 @@ import os
 import sys
 import locale
 import codecs
-import datetime
 import signal
 import sqlite3
 import time
@@ -30,7 +29,6 @@ else:
     sys.setdefaultencoding('utf-8')
 
 
-ACTION_HTTP = 'http'
 ACTION_ADD = 'add'
 ACTION_FETCH = 'fetch'
 ACTION_FILTER = 'filter'
@@ -40,7 +38,7 @@ ACTION_CAL = 'cal'
 ACTION_CONFIG = 'config'
 ACTION_DOWNLOAD = 'download'
 ACTION_FOLLOWED = 'followed'
-ACTIONS = (ACTION_HTTP, ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL,
+ACTIONS = (ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL,
            ACTION_CONFIG, ACTION_FILTER, ACTION_FETCH, ACTION_DOWNLOAD, ACTION_FOLLOWED,)
 
 FILTER_CHOICE_TODAY = 'today'
@@ -71,6 +69,7 @@ DOWNLOAD_CHOICE = (DOWNLOAD_CHOICE_LIST_ALL, DOWNLOAD_CHOICE_LIST_DOWNLOADED,
 FOLLOWED_ACTION_LIST = 'list'
 FOLLOWED_ACTION_MARK = 'mark'
 FOLLOWED_CHOICE = (FOLLOWED_ACTION_LIST, FOLLOWED_ACTION_MARK)
+
 
 # global Ctrl-C signal handler
 def signal_handler(signal, frame):
@@ -111,9 +110,6 @@ def main():
     sub_parser_cal.add_argument('--force-update', help='Get the newest bangumi calendar from dmhy.')
     sub_parser_cal.add_argument('--no-save', help='Do not save the bangumi data when force update.')
 
-    sub_parser_http = action.add_sub_parser(ACTION_HTTP, help='BGmi HTTP Server.')
-    sub_parser_http.add_argument('--port', default='23333', arg_type='1', dest='port',
-                                 help='The port of BGmi HTTP Server listened, default 23333.')
     sub_parser_config = action.add_sub_parser(ACTION_CONFIG, help='Config BGmi.')
     sub_parser_config.add_argument('name', help='Config name')
     sub_parser_config.add_argument('value', help='Config value')
@@ -149,15 +145,6 @@ def main():
         import bgmi.setup
         bgmi.setup.install()
         raise SystemExit
-
-    if ret.action == ACTION_HTTP:
-        import bgmi.http
-        port = ret.action.http.port
-        if port.isdigit():
-            port = int(port)
-        else:
-            print_error('Invalid port %s' % port)
-        bgmi.http.main(port)
 
     elif ret.action == ACTION_ADD:
         add(ret)

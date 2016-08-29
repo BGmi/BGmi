@@ -61,23 +61,6 @@ def unicodeize(data):
         return data
 
 
-def download_xml(data):
-    f = '<?xml version="1.0" encoding="utf-8"?>'
-    f += ('<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"'
-          ' xmlns:wfw="http://wellformedweb.org/CommentAPI/">')
-    f += '<channel><title><![CDATA[BGmi Feed]]></title>'
-
-    for i in data:
-        f += '<item>'
-        f += '<title><![CDATA[ %s ]]></title>' % i['title']
-        f += ('<enclosure url="%s" length="1" type="application/x-bittorrent">'
-              '</enclosure>' % i['download'])
-        f += '</item>'
-
-    f += '</channel></rss>'
-    return f
-
-
 def bug_report():
     print_error('It seems that no bangumi found, if http://dmhy.ricterz.me can \n'
                 '    be opened normally, please report bug to ricterzheng@gmail.com\n'

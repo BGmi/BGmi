@@ -1,17 +1,18 @@
 # encoding: utf-8
+from __future__ import print_function, unicode_literals
 import os
 import json
 import datetime
 import hashlib
-import sqlite3
 import tornado.ioloop
 import tornado.options
 import tornado.httpserver
 import tornado.web
 import tornado.template
 from tornado.options import options, define
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict
 from bgmi.config import BGMI_SAVE_PATH, DB_PATH
+from bgmi.models import Download, Bangumi, Followed, STATUS_NORMAL, STATUS_UPDATING, STATUS_END
 
 
 WEEK = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
@@ -50,20 +51,16 @@ class BangumiHandler(tornado.web.RequestHandler):
 
 class ImageCSSHandler(tornado.web.RequestHandler):
     def get(self):
-        try:
-            conn = sqlite3.connect(DB_PATH)
-            conn.row_factory = make_dicts
-            cur = conn.cursor()
-            cur.execute('SELECT bangumi_name FROM followed')
-            data = cur.fetchall()
-            cur.close()
-            conn.close()
+        data = Followed.get_all_followed()
+        self.set_header('Content-Type', 'text/css')
+        self.render('templates/image.css', data=data, image_url=IMAGE_URL)
 
-            self.set_header('Content-Type', 'text/css')
-            self.render('templates/image.css', data=data, image_url=IMAGE_URL)
-        except Exception, e:
-            self.write(str(e))
-            self.finish()
+
+class RssHandler(tornado.web.RequestHandler):
+    def get(self):
+        data = Download.get_all_downloads()
+        self.set_header('Content-Type', 'text/xml')
+        self.render('templates/download.xml', data=data)
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -76,42 +73,25 @@ class MainHandler(tornado.web.RequestHandler):
             self.finish()
             return
 
-        try:
-            conn = sqlite3.connect(DB_PATH)
-            conn.row_factory = make_dicts
-            cur = conn.cursor()
-            cur.execute('SELECT followed.* FROM followed LEFT JOIN '
-                        'bangumi ON bangumi.name = followed.bangumi_name WHERE '
-                        'followed.status != 0 and bangumi.status = %d'
-                        ' ORDER BY followed.updated_time desc' % (1 if is_old else 0))
-            data = cur.fetchall()
-            cur.execute('SELECT name, update_time FROM bangumi WHERE bangumi.status = 0')
-            calendar = cur.fetchall()
-            cur.close()
-            conn.close()
+        data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING if not is_old else STATUS_END,
+                                         order='followed.updated_time', desc=True)
+        calendar = Bangumi.get_all_bangumi()
 
-            def shift(seq, n):
-                n = n % len(seq)
-                return seq[n:] + seq[:n]
+        def shift(seq, n):
+            n = n % len(seq)
+            return seq[n:] + seq[:n]
 
-            cal = defaultdict(list)
-            for row in calendar:
-                cal[row['update_time']].append(row['name'])
+        weekday_order = shift(WEEK, datetime.datetime.today().weekday())
+        cal_ordered = OrderedDict()
 
-            weekday_order = shift(WEEK, datetime.datetime.today().weekday())
-            cal_ordered = OrderedDict()
+        for week in weekday_order:
+            cal_ordered[week] = calendar[week.lower()]
 
-            for week in weekday_order:
-                cal_ordered[week] = cal[week]
-
-            if is_json:
-                self.write(json.dumps(cal_ordered))
-                self.finish()
-            else:
-                self.render('templates/bangumi.html', data=data, cal=cal_ordered)
-        except Exception, e:
-            self.write(str(e))
+        if is_json:
+            self.write(json.dumps(cal_ordered))
             self.finish()
+        else:
+            self.render('templates/bangumi.html', data=data, cal=cal_ordered)
 
 
 def make_app():
@@ -124,6 +104,7 @@ def make_app():
         (r'/', MainHandler),
         (r'/css/image.css', ImageCSSHandler),
         (r'/bangumi/(.*)', BangumiHandler),
+        (r'/rss', RssHandler),
     ], **settings)
 
 

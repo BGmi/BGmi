@@ -10,6 +10,18 @@
     <script src="/static/js/material.min.js"></script>
     <script src="/static/js/dialog-polyfill.js"></script>
     <style>
+        .strong {
+            font-weight: 900;
+        }
+        .strong::after {
+            content: "Today";
+            font-size: 12px;
+            font-weight: 200;
+            position: absolute;
+        }
+        .title {
+            text-align: center;
+        }
       .logo {
         overflow: hidden;
         text-align: center;
@@ -136,7 +148,7 @@
 	{% for i, v in enumerate(cal.items()) %}
 	    <h5 class="{% if i == 0 %}strong{% end %}">{{ v[0] }}.</h5>
 	    {% for row in v[1] %}
-	        {{ row }} /
+	        {{ row['name'] }} /
 	    {% end %}
 	{% end %}
         </p>

@@ -72,7 +72,7 @@ class DB(object):
         self.select(one=True)
 
     @staticmethod
-    def _make_sql(method, table, fields=None, data=None, condition=None, join=None):
+    def _make_sql(method, table, fields=None, data=None, condition=None, join=None, order=None, desc=None):
         '''
         Make SQL statement (just a simple implementation, don't support complex operation).
 
@@ -166,6 +166,13 @@ class DB(object):
 
             sql = 'SELECT %s FROM `%s` %s WHERE ' % (select, table, join)
             sql += make_condition(condition)
+            if order:
+                if '.' in order:
+                    sql += 'ORDER BY %s ' % order
+                else:
+                    sql += 'ORDER BY `%s` ' % order
+            if desc:
+                sql += 'DESC'
 
         elif method == 'update':
             sql = 'UPDATE %s SET ' % table
@@ -421,14 +428,14 @@ class Followed(DB):
         self.save()
 
     @staticmethod
-    def get_all_followed(status=STATUS_NORMAL):
+    def get_all_followed(status=STATUS_NORMAL, bangumi_status=STATUS_UPDATING, order=None, desc=None):
         db = DB.connect_db()
         db.row_factory = make_dicts
         cur = db.cursor()
         sql = DB._make_sql('select', fields=['followed.*'], table=Followed.table,
                            join='LEFT JOIN bangumi on bangumi.name=followed.bangumi_name',
-                           condition=['!followed.status', 'bangumi.status'])
-        cur.execute(sql, (status, 0))
+                           condition=['!followed.status', 'bangumi.status'], order=order, desc=desc)
+        cur.execute(sql, (status, bangumi_status))
         data = cur.fetchall()
         DB.close_db(db)
         return data
