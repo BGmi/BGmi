@@ -7,18 +7,18 @@ BGmi is a cli tool for subscribed bangumi.
 ====
 TODO
 ====
-+ Download Bangumi by file format, file size
-+ Email remind when the bangumi been downloaded
++ Download bangumi by file format, file size, etc.
++ <del>Email remind when the bangumi been downloaded</del>
 
 =======
 Feature
 =======
-+ Subscribe/Unsubscribe bangumi
-+ Bangumi-updating schedule
++ Subscribe/unsubscribe bangumi
++ Bangumi calendar
 + Bangumi episode informatdon
-+ HTTP Server for RSS feed (for uTorrent, etc.)
 + Download bangumi by subtitle group
 + Web page to view all subscribed bangumi
++ RSS feed for uTorrent
 
 .. image:: https://raw.githubusercontent.com/RicterZ/BGmi/master/images/bgmi.png
     :alt: BGmi
@@ -50,7 +50,7 @@ For **Windows**: BGmi does not support Windows now.
 Usage of bgmi
 =============
 
-Show bangumi calendar of this week:
+Show bangumi calendar:
 
 .. code-block:: bash
 
@@ -71,26 +71,38 @@ Unsubscribe bangumi:
     bgmi delete --name "暗殺教室Ⅱ"
 
 
-Update bangumi calendar and episode, and write to download.xml:
+Update bangumi database which locates at ~/.bgmi/bangumi.db defaultly:
 
 .. code-block:: bash
 
     bgmi update --download
 
 
-Set bangumi filter and fetch entries by subtitle group:
+Set up the bangumi subtitle group filter and fetch entries:
 
 .. code-block:: bash
 
     bgmi filter "線上遊戲的老婆不可能是女生？" "KNA,惡魔島"
     bgmi fetch "線上遊戲的老婆不可能是女生？"
 
-Install `xunlei-lixian <https://github.com/iambus/xunlei-lixian/>`_:
+
+Show BGmi configure and modify it:
 
 .. code-block:: bash
 
-    bgmi install
+    bgmi config
+    bgmi config MAX_PAGE 3
 
+Fields of configure file:
+
++ `DMHY_URL`: url of dmhy mirror
++ `BGMI_SAVE_PATH`: path which save the bangumi
++ `DOWNLOAD_DELEGATE`: which ways used to download bangumi (aria2, aria2-rpc, xunlei)
++ `MAX_PAGE`: the max page of fetching bangumi info
++ `BGMI_TMP_PATH`: just a temporary path
++ `ARIA2_PATH`: path of the aria2c binary
++ `ARIA2_RPC_URL`: rpc url of aria2c deamon
++ `BGMI_LX_PATH`: path of xunlei-lixian binary
 
 ==================
 Usage of bgmi_http
