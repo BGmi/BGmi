@@ -123,7 +123,7 @@ Configure tornado with nginx:
         }
     }
 
-Always you can use `yaaw <https://github.com/binux/yaaw/>`_ to manage download items if you use aria2c to download bangumi.
+Of cause you can use `yaaw <https://github.com/binux/yaaw/>`_ to manage download items if you use aria2c to download bangumi.
 
 .. code-block:: bash
 
