@@ -78,13 +78,6 @@ Update bangumi calendar and episode, and write to download.xml:
     bgmi update --download
 
 
-Start a HTTP Server for download.xml:
-
-.. code-block:: bash
-
-    bgmi http --port 12345
-
-
 Set bangumi filter and fetch entries by subtitle group:
 
 .. code-block:: bash
