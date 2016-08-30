@@ -290,7 +290,7 @@ def update(ret):
     print_info('marking bangumi status ...')
     now = int(time.time())
     for i in Followed.get_all_followed(status=STATUS_UPDATED):
-        if i['updated_time'] and int(i['updated_time'] - 86400) > now:
+        if i['updated_time'] and int(i['updated_time'] + 86400) > now:
             i.status = STATUS_FOLLOWED
             i.save()
 
