@@ -289,10 +289,11 @@ def delete(ret):
 def update(ret):
     print_info('marking bangumi status ...')
     now = int(time.time())
-    for i in Followed.get_all_followed(status=STATUS_UPDATED):
+    for i in Followed.get_all_followed():
         if i['updated_time'] and int(i['updated_time'] + 86400) < now:
-            i.status = STATUS_FOLLOWED
-            i.save()
+            followed_obj = Followed(bangumi_name=i['bangumi_name'])
+            followed_obj.status = STATUS_FOLLOWED
+            followed_obj.save()
 
     print_info('updating bangumi data ...')
     fetch(save=True, group_by_weekday=False)
