@@ -392,12 +392,15 @@ def followed(ret):
 
 
 def init_db(db_path):
-    conn = sqlite3.connect(db_path)
-    conn.execute(CREATE_TABLE_BANGUMI)
-    conn.execute(CREATE_TABLE_FOLLOWED)
-    conn.execute(CREATE_TABLE_DOWNLOAD)
-    conn.commit()
-    conn.close()
+    try:
+        conn = sqlite3.connect(db_path)
+        conn.execute(CREATE_TABLE_BANGUMI)
+        conn.execute(CREATE_TABLE_FOLLOWED)
+        conn.execute(CREATE_TABLE_DOWNLOAD)
+        conn.commit()
+        conn.close()
+    except sqlite3.OperationalError:
+        print_error('Open database file failed, path %s is not writable.' % BGMI_PATH)
 
 
 def setup():
