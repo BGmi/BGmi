@@ -8,7 +8,6 @@ BGmi is a cli tool for subscribed bangumi.
 TODO
 ====
 + Download bangumi by file format, file size, etc.
-+ <del>Email remind when the bangumi been downloaded</del>
 
 =======
 Feature
