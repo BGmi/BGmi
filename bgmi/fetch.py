@@ -242,7 +242,7 @@ def fetch_episode(keyword, name='', subtitle_group=None):
         if not response:
             break
 
-        b = BeautifulSoup(response, 'html')
+        b = BeautifulSoup(response, 'lxml')
         container = b.find('table', attrs={'class': 'tablesorter'})
 
         if not container:
