@@ -216,7 +216,7 @@ def add(ret):
                 else:
                     followed_obj.status = STATUS_FOLLOWED
                     followed_obj.save()
-                print_success('{0} has followed'.format(bangumi_obj))
+                print_success('{0} has been followed'.format(bangumi_obj))
             else:
                 print_warning('{0} already followed'.format(bangumi_obj))
 
