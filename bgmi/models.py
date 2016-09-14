@@ -71,6 +71,9 @@ class DB(object):
         self._unicodeize()
         self.select(one=True)
 
+    def __getitem__(self, item):
+        return getattr(self, item)
+
     @staticmethod
     def _make_sql(method, table, fields=None, data=None, condition=None, join=None, order=None, desc=None):
         '''

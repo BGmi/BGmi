@@ -310,7 +310,16 @@ def update(ret):
     print_info('updating subscriptions ...')
     download_queue = []
 
-    for subscribe in Followed.get_all_followed():
+    if ret.action.update.name is None:
+        updated_bangumi_obj = Followed.get_all_followed()
+    else:
+        updated_bangumi_obj = []
+        for i in ret.action.update.name:
+            f = Followed(bangumi_name=i)
+            f.select_obj()
+            updated_bangumi_obj.append(f)
+
+    for subscribe in updated_bangumi_obj:
         print_info('fetching %s ...' % subscribe['bangumi_name'])
         bangumi_obj = Bangumi(name=subscribe['bangumi_name'])
         bangumi_obj.select_obj()

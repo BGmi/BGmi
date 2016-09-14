@@ -81,6 +81,7 @@ Update bangumi database which locates at ~/.bgmi/bangumi.db defaultly:
 .. code-block:: bash
 
     bgmi update --download
+    bgmi update --name Rewrite 天真與閃電 --download
 
 
 Set up the bangumi subtitle group filter and fetch entries:
