@@ -27,5 +27,5 @@ script:
     - bgmi fetch "Re：從零開始的異世界生活"
     - bgmi filter "Re：從零開始的異世界生活" --remove-all
     - bgmi download list
-    - bgmi followed list
-    - bgmi followed mark "Re：從零開始的異世界生活" 0
+    - bgmi mark Rewrite 0
+    - bgmi update --name "Rewrite" "天真與閃電"
