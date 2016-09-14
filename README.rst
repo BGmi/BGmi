@@ -9,6 +9,12 @@ TODO
 ====
 + Download bangumi by file format, file size, etc.
 
+==========
+Update Log
+==========
++ `bgmi followed` is deprecated.
++ Update specified bangumi rather than update all bangumi.
+
 =======
 Feature
 =======

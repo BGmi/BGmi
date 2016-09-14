@@ -38,8 +38,10 @@ ACTION_CAL = 'cal'
 ACTION_CONFIG = 'config'
 ACTION_DOWNLOAD = 'download'
 ACTION_FOLLOWED = 'followed'
+ACTION_MARK = 'mark'
 ACTIONS = (ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL,
-           ACTION_CONFIG, ACTION_FILTER, ACTION_FETCH, ACTION_DOWNLOAD, ACTION_FOLLOWED,)
+           ACTION_CONFIG, ACTION_FILTER, ACTION_FETCH, ACTION_DOWNLOAD, ACTION_FOLLOWED,
+           ACTION_MARK, )
 
 FILTER_CHOICE_TODAY = 'today'
 FILTER_CHOICE_ALL = 'all'
@@ -101,6 +103,7 @@ def main():
 
     sub_parser_update = action.add_sub_parser(ACTION_UPDATE, help='Update bangumi calendar and '
                                                                   'subscribed bangumi episode.')
+    sub_parser_update.add_argument('--name', arg_type='+', help='Update specified bangumi.')
     sub_parser_update.add_argument('--download', help='Download the bangumi when updated.')
 
     sub_parser_cal = action.add_sub_parser(ACTION_CAL, help='Print bangumi calendar.')
@@ -114,11 +117,15 @@ def main():
     sub_parser_config.add_argument('name', help='Config name')
     sub_parser_config.add_argument('value', help='Config value')
 
-    sub_parser_followed = action.add_sub_parser(ACTION_FOLLOWED, help='Followed bangumi manager.')
-    sub_parser_followed.add_sub_parser('list', help='List followed bangumi.')
+    sub_parser_followed = action.add_sub_parser(ACTION_FOLLOWED, help='Subscribed bangumi manager.')
+    sub_parser_followed.add_sub_parser('list', help='List subscribed bangumi.')
     followed_mark = sub_parser_followed.add_sub_parser('mark', help='Mark specific bangumi\'s episode.')
     followed_mark.add_argument('name', help='Bangumi name.', required=True)
     followed_mark.add_argument('episode', help='Bangumi episode.')
+
+    sub_parser_mark = action.add_sub_parser(ACTION_MARK, help='Mark subscribed bangumi status.')
+    sub_parser_mark.add_argument('name', help='Bangumi name.', required=True)
+    sub_parser_mark.add_argument('episode', help='Bangumi episode.')
 
     sub_parser_download = action.add_sub_parser(ACTION_DOWNLOAD, help='Download manager.')
     download_list = sub_parser_download.add_sub_parser('list', help='List download queue.')
@@ -185,6 +192,9 @@ def main():
             c.print_help()
         else:
             followed(ret)
+
+    elif ret.action == ACTION_MARK:
+        mark(ret)
 
     elif ret.action == ACTION_DOWNLOAD:
         if ret.action.download in DOWNLOAD_ACTION:
@@ -371,23 +381,30 @@ def download_manager(ret):
         print_success('Download status has been marked as {0}'.format(DOWNLOAD_CHOICE_LIST_DICT.get(int(status))))
 
 
+def mark(ret):
+    name = ret.action.mark.name
+    episode = ret.action.mark.episode
+    followed_obj = Followed(bangumi_name=name)
+    followed_obj.select_obj()
+
+    if not followed_obj:
+        print_error('Subscribe <%s> does not exist.' % name)
+
+    if episode:
+        followed_obj.episode = episode
+        followed_obj.save()
+        print_success('%s has been mark as episode: %s' % (followed_obj, followed_obj.episode))
+    else:
+        print_info('%s, episode: %s' % (followed_obj, followed_obj.episode))
+
+
 def followed(ret):
     if ret.action.followed == FOLLOWED_ACTION_MARK:
-        name = ret.action.followed.mark.name
-        episode = ret.action.followed.mark.episode
-        followed_obj = Followed(bangumi_name=name)
-        followed_obj.select_obj()
-
-        if not followed_obj:
-            print_error('Subscribe <%s> does not exist.' % name)
-
-        if episode:
-            followed_obj.episode = episode
-            followed_obj.save()
-            print_success('%s has been mark as episode: %s' % (followed_obj, followed_obj.episode))
-        else:
-            print_info('%s, episode: %s' % (followed_obj, followed_obj.episode))
+        print_warning('Warning: bgmi followed mark is deprecated, please use bgmi mark instead.')
+        ret.action.mark = ret.action.followed.mark
+        mark(ret)
     else:
+        print_warning('Warning: bgmi followed list is deprecated, please use bgmi cal followed instead.')
         bangumi_calendar(force_update=False, followed=True, save=False)
 
 
