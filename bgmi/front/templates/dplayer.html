@@ -98,7 +98,6 @@
         }
 	{% end %}
     };
-
     var dp = new DPlayer(config);
     dp.on('canplay', function () {
         dp.play()
@@ -106,6 +105,8 @@
 
     var episode = document.getElementById('episode-container');
     episode.addEventListener('click', function (e) {
+        var player = document.getElementsByClassName('dplayer')[0];
+        document.removeChild(player);
         var k = e.target.attributes['data-epi'].value;
         config.video.url = '/bangumi' + bangumi_data[k]['path'];
         {% if DANMAKU_URL %}
@@ -114,9 +115,8 @@
             api: '{{ DANMAKU_URL }}',
             maximum: 3000
         };
-        config.reset = 1;
         {% end %}
-        dp.constructor(config);
+        var dp = new DPlayer(config);
         dp.on('canplay', function () {
             dp.play()
         });
