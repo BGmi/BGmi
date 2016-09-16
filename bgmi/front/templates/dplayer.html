@@ -108,7 +108,12 @@
     episode.addEventListener('click', function (e) {
         var k = e.target.attributes['data-epi'].value;
         {% if DANMAKU_URL %}
-            // update danmaku
+        config = {
+            id: '{{ md5(bangumi_name) }}_' + k,
+            api: '{{ DANMAKU_URL }}',
+            maximum: 3000
+        };
+        dp.update_danmaku(config);
         {% end %}
         dp.video.src = '/bangumi' + bangumi_data[k]['path'];
         dp.video.load();
