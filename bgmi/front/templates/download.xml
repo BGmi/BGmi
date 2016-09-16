@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wfw="http://wellformedweb.org/CommentAPI/">
+    <channel><title><![CDATA[BGmi Feed]]></title>
+        {% for d in data %}
+        <item>
+            <title><![CDATA[ {{ d['title'] }} ]]></title>
+            <enclosure url="{{ d['download'] }}" length="1" type="application/x-bittorrent" />
+        </item>
+        {% end %}
+    </channel>
+</rss>
