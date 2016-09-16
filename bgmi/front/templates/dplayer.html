@@ -48,8 +48,9 @@
         }
 
         .episode {
+            display: inline-block;
             padding: 5px 20px;
-            margin: 0 5px;
+            margin: 5px;
             color: #000;
             border: 2px solid #000;
             cursor: pointer;
@@ -117,16 +118,13 @@
         console.log('pause');
     });
     dp.on('canplay', function () {
-        console.log('canplay');
-    });
-    dp.on('playing', function () {
-        console.log('playing');
+        dp.play()
     });
     dp.on('ended', function () {
         console.log('ended');
     });
     dp.on('error', function () {
-        console.log('error');
+        alert('error?');
     });
 
 </script>
