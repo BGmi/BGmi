@@ -132,3 +132,5 @@ IS_PYTHON3 = sys.version_info > (3, 0)
 # Detail URL
 FETCH_URL = '{0}/cms/page/name/programme.html'.format(DMHY_URL)
 DETAIL_URL = '{0}/topics/list/page/[PAGE]?keyword='.format(DMHY_URL)
+
+DANMAKU_API_URL = ''
