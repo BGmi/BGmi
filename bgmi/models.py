@@ -462,7 +462,7 @@ class Download(DB):
     fields = ('name', 'title', 'episode', 'download', 'status', )
 
     @staticmethod
-    def get_all_downloads(status=STATUS_NOT_DOWNLOAD):
+    def get_all_downloads(status=None):
         db = DB.connect_db()
         db.row_factory = make_dicts
         cur = db.cursor()
