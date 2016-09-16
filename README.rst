@@ -169,7 +169,9 @@ DPlayer and Danmaku
 ===================
 
 BGmi use `DPlayer <https://github.com/DIYgod/DPlayer>`_ to play bangumi.
-First, setup nginx to access bangumi files. Second, switch one danmaku backend at `DPlayer#related-projects <https://github.com/DIYgod/DPlayer#related-projects>`_.
+
+First, setup nginx to access bangumi files. Second, choose one danmaku backend at `DPlayer#related-projects <https://github.com/DIYgod/DPlayer#related-projects>`_.
+
 Use `bgmi config` to setup the url of danmaku api.
 
 .. code-block:: bash
