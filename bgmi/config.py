@@ -119,6 +119,9 @@ DOWNLOAD_DELEGATE = 'xunlei'
 # max page number of fetch bangumi info
 MAX_PAGE = '2'
 
+# danmaku api url, https://github.com/DIYgod/DPlayer#related-projects
+DANMAKU_API_URL = ''
+
 
 # ------------------------------ #
 # !!! Read config from file and write to globals() !!!
@@ -133,5 +136,3 @@ IS_PYTHON3 = sys.version_info > (3, 0)
 # Detail URL
 FETCH_URL = '{0}/cms/page/name/programme.html'.format(DMHY_URL)
 DETAIL_URL = '{0}/topics/list/page/[PAGE]?keyword='.format(DMHY_URL)
-
-DANMAKU_API_URL = ''
