@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ bangumi_name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        .container {
+            max-width: 60rem;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 50px;
+        }
+        h1 {
+            font-size: 54px;
+            color: #333;
+            margin: 30px 0 10px;
+        }
+        h2 {
+            font-size: 22px;
+            color: #555;
+        }
+        h3 {
+            font-size: 24px;
+            color: #555;
+        }
+        hr {
+            display: block;
+            width: 7rem;
+            height: 1px;
+            margin: 2.5rem 0;
+            background-color: #eee;
+            border: 0;
+        }
+        a {
+            color: #08c;
+            text-decoration: none;
+        }
+        p {
+            font-size: 18px;
+        }
+
+        .episode {
+            padding: 5px 20px;
+            margin: 0 5px;
+            color: #000;
+            border: 2px solid #000;
+            cursor: pointer;
+        }
+
+        .episode:hover {
+            background: #9e9e9e;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>{{ bangumi_name }}</h1>
+    <div id="episode-container">
+        {% for k in sorted(bangumi.keys()) %}
+            <a class="episode" data-epi="{{ k }}">{{ k }}</a>
+        {% end %}
+    </div>
+    <hr>
+    <div class="dplayer"></div>
+    <p>DPlayer: Made by <a href="https://www.anotherhome.net/" target="_blank">DIYgod</a>. Available on <a href="https://github.com/DIYgod/DPlayer" target="_blank">GitHub</a>. Licensed SATA.</p>
+</div>
+<script src="/static/dplayer/DPlayer.min.js"></script>
+<script>
+    {% autoescape None %}
+    var bangumi_data = {{ json_encode(bangumi) }};
+
+    config = {
+        element: document.getElementsByClassName('dplayer')[0],
+        autoplay: false,
+        theme: '#FADFA3',
+        loop: true,
+        screenshot: true,
+        hotkey: true,
+        video: {
+            url: "/bangumi{{ bangumi[max(bangumi.keys())]['path'] }}"
+            /*pic: 'http://devtest.qiniudn.com/若能绽放光芒.png'*/
+        }
+        /*
+         danmaku: {
+         id: '',
+         api: '',
+         token: '',
+         maximum: 3000
+         }
+         */
+    };
+    var dp = new DPlayer(config);
+
+    var episode = document.getElementById('episode-container');
+    episode.addEventListener('click', function (e) {
+        var k = e.target.attributes['data-epi'].value;
+        config.video.url = '/bangumi' + bangumi_data[k]['path'];
+        dp = new DPlayer(config);
+    });
+
+
+    dp.on('play', function () {
+        console.log('play');
+    });
+    dp.on('play', function () {
+        console.log('play play');
+    });
+    dp.on('pause', function () {
+        console.log('pause');
+    });
+    dp.on('canplay', function () {
+        console.log('canplay');
+    });
+    dp.on('playing', function () {
+        console.log('playing');
+    });
+    dp.on('ended', function () {
+        console.log('ended');
+    });
+    dp.on('error', function () {
+        console.log('error');
+    });
+
+</script>
+</body>
+</html>

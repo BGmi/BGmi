@@ -49,6 +49,31 @@ class BangumiHandler(tornado.web.RequestHandler):
         self.finish()
 
 
+class BangumiPlayerHandler(tornado.web.RequestHandler):
+    def get(self, bangumi_name):
+        data = Followed(bangumi_name=bangumi_name)
+        data.select_obj()
+        if not data:
+            return self.write_error(404)
+        episode_list = {}
+        bangumi_path = os.path.join(BGMI_SAVE_PATH, bangumi_name)
+        for root, _, files in os.walk(bangumi_path):
+            if not _ and files:
+                _ = root.replace(bangumi_path, '').split('/')
+                base_path = root.replace(BGMI_SAVE_PATH, '')
+                if len(_) >= 2:
+                    episode_path = root.replace(os.path.join(BGMI_SAVE_PATH, bangumi_name), '')
+                    episode = int(episode_path.split('/')[1])
+                else:
+                    episode = -1
+
+                for bangumi in files:
+                    episode_list[episode] = {'path': os.path.join(base_path, bangumi),
+                                             'playable': bangumi.endswith('.mp4')}
+                    break
+        self.render('templates/dplayer.html', bangumi=episode_list, bangumi_name=bangumi_name)
+
+
 class ImageCSSHandler(tornado.web.RequestHandler):
     def get(self):
         data = Followed.get_all_followed()
@@ -102,9 +127,10 @@ def make_app():
     }
     return tornado.web.Application([
         (r'/', MainHandler),
-        (r'/css/image.css', ImageCSSHandler),
-        (r'/bangumi/(.*)', BangumiHandler),
-        (r'/rss', RssHandler),
+        (r'^/css/image.css$', ImageCSSHandler),
+        (r'^/player/(.*)/$', BangumiPlayerHandler),
+        (r'^/bangumi/(.*)', BangumiHandler),
+        (r'^/rss$', RssHandler),
     ], **settings)
 
 
