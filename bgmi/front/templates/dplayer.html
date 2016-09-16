@@ -99,32 +99,18 @@
          */
     };
     var dp = new DPlayer(config);
+    dp.on('canplay', function () {
+        dp.play()
+    });
 
     var episode = document.getElementById('episode-container');
     episode.addEventListener('click', function (e) {
         var k = e.target.attributes['data-epi'].value;
         config.video.url = '/bangumi' + bangumi_data[k]['path'];
         dp = new DPlayer(config);
-    });
-
-
-    dp.on('play', function () {
-        console.log('play');
-    });
-    dp.on('play', function () {
-        console.log('play play');
-    });
-    dp.on('pause', function () {
-        console.log('pause');
-    });
-    dp.on('canplay', function () {
-        dp.play()
-    });
-    dp.on('ended', function () {
-        console.log('ended');
-    });
-    dp.on('error', function () {
-        alert('error?');
+        dp.on('canplay', function () {
+            dp.play()
+        });
     });
 
 </script>
