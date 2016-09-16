@@ -131,11 +131,11 @@
             更新到第 {{ bangumi['episode'] }} 集
           </div>
           <div class="mdl-card__actions mdl-card--border">
+            <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" href="/player/{{ bangumi['bangumi_name'] }}/">
+              Play
+            </a>
             <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" href="/bangumi/{{ bangumi['bangumi_name'] }}/{{ bangumi['episode'] }}/">
               Download
-            </a>
-            <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" href="/bangumi/{{ bangumi['bangumi_name'] }}/">
-              View All
             </a>
           </div>
         </div>
