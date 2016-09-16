@@ -70,7 +70,7 @@
         {% end %}
     </div>
     <hr>
-    <div class="dplayer"></div>
+    <div id="dplayer-container"><div class="dplayer"></div></div>
     <p>DPlayer: Made by <a href="https://www.anotherhome.net/" target="_blank">DIYgod</a>. Available on <a href="https://github.com/DIYgod/DPlayer" target="_blank">GitHub</a>. Licensed SATA.</p>
 </div>
 <script src="/static/dplayer/DPlayer.min.js"></script>
@@ -105,8 +105,11 @@
 
     var episode = document.getElementById('episode-container');
     episode.addEventListener('click', function (e) {
-        var player = document.getElementsByClassName('dplayer')[0];
-        document.removeChild(player);
+        var player = document.getElementById('dplayer-container');
+        player.removeChild(document.getElementsByClassName('player')[0]);
+        var player_div = document.createElement('div');
+        player_div.setAttribute('class', 'player');
+        player.appendChild(player_div);
         var k = e.target.attributes['data-epi'].value;
         config.video.url = '/bangumi' + bangumi_data[k]['path'];
         {% if DANMAKU_URL %}
