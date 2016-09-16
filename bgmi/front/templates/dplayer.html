@@ -98,19 +98,22 @@
         }
 	{% end %}
     };
-    var dp = new DPlayer(config);
+    dp = new DPlayer(config);
     dp.on('canplay', function () {
         dp.play()
     });
 
     var episode = document.getElementById('episode-container');
     episode.addEventListener('click', function (e) {
+        dp.pause();
+
         var player = document.getElementById('dplayer-container');
         player.removeChild(document.getElementsByClassName('dplayer')[0]);
         var player_div = document.createElement('div');
         player_div.setAttribute('class', 'dplayer');
         player.appendChild(player_div);
         var k = e.target.attributes['data-epi'].value;
+        config.element = document.getElementsByClassName('dplayer')[0];
         config.video.url = '/bangumi' + bangumi_data[k]['path'];
         {% if DANMAKU_URL %}
         config.danmaku = {
@@ -119,7 +122,7 @@
             maximum: 3000
         };
         {% end %}
-        var dp = new DPlayer(config);
+        dp = new DPlayer(config);
         dp.on('canplay', function () {
             dp.play()
         });
