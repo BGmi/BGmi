@@ -106,8 +106,8 @@
     var episode = document.getElementById('episode-container');
     episode.addEventListener('click', function (e) {
         var k = e.target.attributes['data-epi'].value;
-        config.video.url = '/bangumi' + bangumi_data[k]['path'];
-        dp = new DPlayer(config);
+        dp.video.src = '/bangumi' + bangumi_data[k]['path'];
+        dp.video.load();
         dp.on('canplay', function () {
             dp.play()
         });
