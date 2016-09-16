@@ -164,6 +164,19 @@ Of cause you can use `yaaw <https://github.com/binux/yaaw/>`_ to manage download
     }
     ...
 
+===================
+DPlayer and Danmaku
+===================
+
+BGmi use `DPlayer <https://github.com/DIYgod/DPlayer>`_ to play bangumi.
+First, setup nginx to access bangumi files. Second, switch one danmaku backend at `DPlayer#related-projects <https://github.com/DIYgod/DPlayer#related-projects>`_.
+Use `bgmi config` to setup the url of danmaku api.
+
+.. code-block:: bash
+
+    bgmi config DANMAKU_API_URL http://127.0.0.1:1207/
+
+... and enjoy :D
 
 =======
 License
