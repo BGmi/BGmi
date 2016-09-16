@@ -43,6 +43,10 @@
             font-size: 18px;
         }
 
+        .container > h1 > a {
+            color: #000;
+        }
+
         .episode {
             padding: 5px 20px;
             margin: 0 5px;
@@ -58,7 +62,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>{{ bangumi_name }}</h1>
+    <h1><a href="/">BGmi</a> / {{ bangumi_name }}</h1>
     <div id="episode-container">
         {% for k in sorted(bangumi.keys()) %}
             <a class="episode" data-epi="{{ k }}">{{ k }}</a>
