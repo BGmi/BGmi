@@ -99,6 +99,26 @@
 	{% end %}
     };
 
+    DPlayer.update_danmaku = function(a){
+        a.danIndex=0;
+        var e=new XMLHttpRequest;
+        e.onreadystatechange = function(){
+            if(4===e.readyState)
+                if(e.status>=200&&e.status<300||304===e.status){
+                    var r=JSON.parse(e.responseText);
+                    1!==r.code?alert(r.msg):(a.dan=r.danmaku.sort(
+                            function(e,t){
+                                return e.time-t.time
+                            }),
+                            a.element.getElementsByClassName("dplayer-danloading")[0].style.display="none",
+                            t.autoplay&&!o?a.play():o&&a.pause())}
+                else
+                    console.log("Request was unsuccessful: "+e.status)};
+        var r=void 0;
+        r=t.danmaku.maximum?t.danmaku.api+"?id="+t.danmaku.id+"&max="+t.danmaku.maximum:t.danmaku.api+"?id="+t.danmaku.id,
+                e.open("get",r,!0),e.send(null)
+    }
+
     var dp = new DPlayer(config);
     dp.on('canplay', function () {
         dp.play()
@@ -107,6 +127,14 @@
     var episode = document.getElementById('episode-container');
     episode.addEventListener('click', function (e) {
         var k = e.target.attributes['data-epi'].value;
+        {% if DANMAKU_URL %}
+        config = {danmaku: {
+            id: '{{ md5(bangumi_name) }}_' + k,
+            api: '{{ DANMAKU_URL }}',
+            maximum: 3000
+        }};
+        dp.update_danmaku(config);
+        {% end %}
         dp.video.src = '/bangumi' + bangumi_data[k]['path'];
         dp.video.load();
         dp.on('canplay', function () {
