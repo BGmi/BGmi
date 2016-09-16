@@ -14,6 +14,7 @@ Update Log
 ==========
 + `bgmi followed` is deprecated.
 + Update specified bangumi rather than update all bangumi.
++ Play bangumi online with danmaku
 
 =======
 Feature
@@ -24,11 +25,15 @@ Feature
 + Download bangumi by subtitle group
 + Web page to view all subscribed bangumi
 + RSS feed for uTorrent
++ Play bangumi online with danmaku (`DPlayer <https://github.com/DIYgod/DPlayer#related-projects>`_)
 
 .. image:: https://raw.githubusercontent.com/RicterZ/BGmi/master/images/bgmi.png
     :alt: BGmi
     :align: center
 .. image:: https://raw.githubusercontent.com/RicterZ/BGmi/master/images/bgmi_http.png
+    :alt: BGmi HTTP Service
+    :align: center
+.. image:: https://raw.githubusercontent.com/RicterZ/BGmi/master/images/bgmi_player.png
     :alt: BGmi HTTP Service
     :align: center
 
@@ -109,6 +114,7 @@ Fields of configure file:
 + `ARIA2_PATH`: path of the aria2c binary
 + `ARIA2_RPC_URL`: rpc url of aria2c deamon
 + `BGMI_LX_PATH`: path of xunlei-lixian binary
++ `DANMAKU_API_URL`: url of danmaku api, read more at `DPlayer <https://github.com/DIYgod/DPlayer#related-projects>`_
 
 ==================
 Usage of bgmi_http
