@@ -14,7 +14,7 @@ from bgmi.config import BGMI_PATH, DB_PATH, write_config
 from bgmi.download import download_prepare
 from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode
 from bgmi.models import Bangumi, Followed, Download, STATUS_FOLLOWED, STATUS_UPDATED,\
-    STATUS_NORMAL
+    STATUS_NORMAL, STATUS_NOT_DOWNLOAD
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD
 from bgmi.utils.utils import print_warning, print_info, print_success, print_error, print_version
 from bgmi.download import get_download_class
@@ -349,7 +349,7 @@ def update(ret):
     if ret.action.update and ret.action.update.download:
         download_prepare(download_queue)
         print_info('Re-downloading ...')
-        download_prepare(Download.get_all_downloads())
+        download_prepare(Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD))
 
 
 def cal(ret):
