@@ -11,6 +11,7 @@ import tornado.web
 import tornado.template
 from tornado.options import options, define
 from collections import OrderedDict
+from bgmi import __version__
 from bgmi.config import BGMI_SAVE_PATH, DB_PATH, DANMAKU_API_URL
 from bgmi.models import Download, Bangumi, Followed, STATUS_NORMAL, STATUS_UPDATING, STATUS_END
 
@@ -117,7 +118,7 @@ class MainHandler(tornado.web.RequestHandler):
             self.write(json.dumps(cal_ordered))
             self.finish()
         else:
-            self.render('templates/bangumi.html', data=data, cal=cal_ordered)
+            self.render('templates/bangumi.html', data=data, cal=cal_ordered, version=__version__)
 
 
 def make_app():
