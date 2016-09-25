@@ -115,6 +115,7 @@ Fields of configure file:
 + `ARIA2_RPC_URL`: rpc url of aria2c deamon
 + `BGMI_LX_PATH`: path of xunlei-lixian binary
 + `DANMAKU_API_URL`: url of danmaku api, read more at `DPlayer <https://github.com/DIYgod/DPlayer#related-projects>`_
++ `CONVER_URL`: url of bangumi's cover
 
 ==================
 Usage of bgmi_http
