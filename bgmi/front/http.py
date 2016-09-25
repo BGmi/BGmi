@@ -12,16 +12,14 @@ import tornado.template
 from tornado.options import options, define
 from collections import OrderedDict
 from bgmi import __version__
-from bgmi.config import BGMI_SAVE_PATH, DB_PATH, DANMAKU_API_URL
+from bgmi.config import BGMI_SAVE_PATH, DB_PATH, DANMAKU_API_URL, COVER_URL
 from bgmi.models import Download, Bangumi, Followed, STATUS_NORMAL, STATUS_UPDATING, STATUS_END
+
 
 
 WEEK = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 define('port', default=8888, help='listen on the port', type=int)
 define('address', default='0.0.0.0', help='binding at given address', type=str)
-
-
-IMAGE_URL = 'http://bangumi.redrock-team.com'
 
 
 def md5(_, string):
@@ -80,7 +78,7 @@ class ImageCSSHandler(tornado.web.RequestHandler):
     def get(self):
         data = Followed.get_all_followed(status=None, bangumi_status=None)
         self.set_header('Content-Type', 'text/css')
-        self.render('templates/image.css', data=data, image_url=IMAGE_URL)
+        self.render('templates/image.css', data=data, image_url=COVER_URL)
 
 
 class RssHandler(tornado.web.RequestHandler):
