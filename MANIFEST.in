@@ -1,5 +1,2 @@
-include MANIFEST.in
-include setup.py README.md requirements.txt
-include crontab.sh
 include tests
 recursive-include bgmi *

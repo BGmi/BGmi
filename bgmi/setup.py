@@ -8,7 +8,7 @@ from bgmi.utils.utils import print_success, print_warning, print_info, print_err
 
 def install_crontab():
     print_info('Installing crontab job')
-    path = os.path.join(os.path.dirname(__file__), '../crontab.sh')
+    path = os.path.join(os.path.dirname(__file__), 'crontab.sh')
     os.system('sh \'%s\'' % path)
 
 
