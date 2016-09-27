@@ -5,9 +5,6 @@ from bgmi.config import IS_PYTHON3, BGMI_SAVE_PATH, BGMI_PATH, DOWNLOAD_DELEGATE
 from bgmi.download import get_download_class
 from bgmi.utils.utils import print_success, print_warning, print_info, print_error
 
-if not IS_PYTHON3:
-    input = raw_input
-
 
 def install_crontab():
     print_info('Installing crontab job')

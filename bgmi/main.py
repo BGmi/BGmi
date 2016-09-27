@@ -27,6 +27,7 @@ if bgmi.config.IS_PYTHON3:
 else:
     reload(sys)
     sys.setdefaultencoding('utf-8')
+    input = raw_input
 
 
 ACTION_ADD = 'add'
@@ -432,8 +433,9 @@ def init_db(db_path):
 def setup():
     if not os.path.exists(BGMI_PATH):
         print_warning('BGMI_PATH %s does not exist, installing' % BGMI_PATH)
-        from bgmi.setup import create_dir
+        from bgmi.setup import create_dir, install_crontab
         create_dir()
+        install_crontab()
 
     if not os.path.exists(DB_PATH):
         init_db(DB_PATH)
