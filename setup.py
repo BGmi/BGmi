@@ -4,7 +4,6 @@ import codecs
 from setuptools import setup, find_packages
 from setuptools.command.install import install
 from bgmi import __version__, __author__, __email__
-from bgmi.setup import install_crontab, create_dir
 
 with open('requirements.txt', 'r') as f:
     requirements = f.read().splitlines()
@@ -16,13 +15,6 @@ ROOT = os.path.abspath(os.path.dirname(__file__))
 def long_description():
     with codecs.open('README.rst', 'r') as f:
         return f.read()
-
-
-class CustomInstallCommand(install):
-    def run(self):
-        install.do_egg_install(self)
-        install_crontab()
-        create_dir()
 
 
 setup(
@@ -47,5 +39,4 @@ setup(
         ]
     },
     license='MIT',
-    cmdclass={'install': CustomInstallCommand},
 )

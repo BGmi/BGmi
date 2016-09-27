@@ -431,7 +431,9 @@ def init_db(db_path):
 
 def setup():
     if not os.path.exists(BGMI_PATH):
-        print_error('BGMI_PATH %s does not exist, try to reinstall' % BGMI_PATH)
+        print_warning('BGMI_PATH %s does not exist, installing' % BGMI_PATH)
+        from bgmi.setup import create_dir
+        create_dir()
 
     if not os.path.exists(DB_PATH):
         init_db(DB_PATH)

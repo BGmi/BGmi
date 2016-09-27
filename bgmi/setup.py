@@ -3,7 +3,7 @@ import os
 
 from bgmi.config import IS_PYTHON3, BGMI_SAVE_PATH, BGMI_PATH, DOWNLOAD_DELEGATE, BGMI_TMP_PATH
 from bgmi.download import get_download_class
-from bgmi.utils.utils import print_success, print_warning, print_info
+from bgmi.utils.utils import print_success, print_warning, print_info, print_error
 
 if not IS_PYTHON3:
     input = raw_input
@@ -23,12 +23,15 @@ def create_dir():
     # bgmi home dir
     path_to_create = (BGMI_PATH, BGMI_SAVE_PATH, BGMI_TMP_PATH, tools_path)
 
-    for path in path_to_create:
-        if not os.path.exists(path):
-            print_success('%s created successfully' % path)
-            os.mkdir(path)
-        else:
-            print_warning('%s already exists' % path)
+    try:
+        for path in path_to_create:
+            if not os.path.exists(path):
+                print_success('%s created successfully' % path)
+                os.mkdir(path)
+            else:
+                print_warning('%s already exists' % path)
+    except OSError as e:
+        print_error('Error: {0}'.format(str(e)))
 
 
 def install():
