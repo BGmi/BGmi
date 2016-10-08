@@ -1,6 +1,7 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 
+import time
 import datetime
 import re
 import string
@@ -255,7 +256,9 @@ def fetch_episode(keyword, name='', subtitle_group=None):
 
             for i, detail in enumerate(info.find_all('td')):
                 if i == 0:
-                    bangumi_update_info['time'] = detail.span.text
+                    row_time = int(time.mktime(datetime.datetime.strptime(detail.span.text,
+                                                                          "%Y/%m/%d %H:%M").timetuple()))
+                    bangumi_update_info['time'] = row_time
                 if i == 2:
                     title = detail.find('a', attrs={'target': '_blank'}).text.strip()
                     subtitle = detail.find('span', attrs={'class': 'tag'})
@@ -280,7 +283,7 @@ def fetch_episode(keyword, name='', subtitle_group=None):
     return result
 
 
-def get_maximum_episode(bangumi, subtitle=True):
+def get_maximum_episode(bangumi, subtitle=True, ignore_old_row=True):
     subtitle_group = bangumi.subtitle_group
     if subtitle:
         followed_obj = Followed(bangumi_name=bangumi.name)
@@ -292,6 +295,8 @@ def get_maximum_episode(bangumi, subtitle=True):
                                      subtitle_group=subtitle_group if subtitle else None)
             if i['episode'] is not None]
     if data:
+        if ignore_old_row:
+            data = [row for row in data if row['time'] > int(time.time()) - 3600 * 24 * 30 * 3]  # three month
         bangumi = max(data, key=lambda i: i['episode'])
         return bangumi, data
     else:

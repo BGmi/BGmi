@@ -16,7 +16,6 @@ from bgmi.config import BGMI_SAVE_PATH, DB_PATH, DANMAKU_API_URL, COVER_URL
 from bgmi.models import Download, Bangumi, Followed, STATUS_NORMAL, STATUS_UPDATING, STATUS_END
 
 
-
 WEEK = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 define('port', default=8888, help='listen on the port', type=int)
 define('address', default='0.0.0.0', help='binding at given address', type=str)
@@ -70,8 +69,12 @@ class BangumiPlayerHandler(tornado.web.RequestHandler):
                     episode_list[episode] = {'path': os.path.join(base_path, bangumi),
                                              'playable': bangumi.endswith('.mp4')}
                     break
-        self.render('templates/dplayer.html', bangumi=episode_list, bangumi_name=bangumi_name,
-                    DANMAKU_URL=DANMAKU_API_URL)
+        if not episode_list:
+            self.write('_(:3 There are nothing to play, please try again later.')
+            self.finish()
+        else:
+            self.render('templates/dplayer.html', bangumi=episode_list, bangumi_name=bangumi_name,
+                        DANMAKU_URL=DANMAKU_API_URL)
 
 
 class ImageCSSHandler(tornado.web.RequestHandler):

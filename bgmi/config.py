@@ -137,5 +137,9 @@ read_config()
 IS_PYTHON3 = sys.version_info > (3, 0)
 
 # Detail URL
-FETCH_URL = '{0}/cms/page/name/programme.html'.format(DMHY_URL)
+if os.environ.get('TRAVIS_CI', None):
+    FETCH_URL = 'http://bangumi.ricterz.me/calendars/2016-3.html'  # for test
+else:
+    FETCH_URL = '{0}/cms/page/name/programme.html'.format(DMHY_URL)
+
 DETAIL_URL = '{0}/topics/list/page/[PAGE]?keyword='.format(DMHY_URL)
