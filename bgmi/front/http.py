@@ -71,6 +71,7 @@ class BangumiPlayerHandler(tornado.web.RequestHandler):
                     break
         if not episode_list:
             self.write('_(:3 There are nothing to play, please try again later.')
+            self.finish()
         else:
             self.render('templates/dplayer.html', bangumi=episode_list, bangumi_name=bangumi_name,
                         DANMAKU_URL=DANMAKU_API_URL)

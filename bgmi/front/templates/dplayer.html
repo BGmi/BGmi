@@ -107,22 +107,19 @@
     episode.addEventListener('click', function (e) {
         dp.pause();
 
-        var player = document.getElementById('dplayer-container');
-        player.removeChild(document.getElementsByClassName('dplayer')[0]);
-        var player_div = document.createElement('div');
-        player_div.setAttribute('class', 'dplayer');
-        player.appendChild(player_div);
         var k = e.target.attributes['data-epi'].value;
-        config.element = document.getElementsByClassName('dplayer')[0];
-        config.video.url = '/bangumi' + bangumi_data[k]['path'];
+        var danmaku = {};
         {% if DANMAKU_URL %}
-        config.danmaku = {
+        danmaku = {
             id: '{{ md5(bangumi_name) }}_' + k,
             api: '{{ DANMAKU_URL }}',
             maximum: 3000
         };
         {% end %}
-        dp = new DPlayer(config);
+        dp.switchVideo({
+            'url': '/bangumi' + bangumi_data[k]['path']
+        }, danmaku);
+
         dp.on('canplay', function () {
             dp.play()
         });
