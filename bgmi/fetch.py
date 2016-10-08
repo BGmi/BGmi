@@ -256,7 +256,7 @@ def fetch_episode(keyword, name='', subtitle_group=None):
 
             for i, detail in enumerate(info.find_all('td')):
                 if i == 0:
-                    row_time = int(time.mktime(datetime.datetime.strptime(s, "%Y/%m/%d %H:%M").timetuple()))
+                    row_time = int(time.mktime(datetime.datetime.strptime(row_time, "%Y/%m/%d %H:%M").timetuple()))
                     bangumi_update_info['time'] = row_time
                 if i == 2:
                     title = detail.find('a', attrs={'target': '_blank'}).text.strip()
