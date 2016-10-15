@@ -106,6 +106,7 @@ def main():
                                                                   'subscribed bangumi episode.')
     sub_parser_update.add_argument('--name', arg_type='+', help='Update specified bangumi.')
     sub_parser_update.add_argument('--download', help='Download the bangumi when updated.')
+    sub_parser_update.add_argument('--not-ignore', help='Do not ignore the old bangumi detail rows (3 month ago).')
 
     sub_parser_cal = action.add_sub_parser(ACTION_CAL, help='Print bangumi calendar.')
     sub_parser_cal.add_argument('filter', default='today', choice=FILTER_CHOICES,
@@ -139,9 +140,8 @@ def main():
     positional = c.add_arg_group('positional')
     positional.add_argument('install', help='Install xunlei-lixian for BGmi.')
 
-    c.add_argument('-h', help='Print help text.')
+    c.add_argument('-h / --help', help='Print help text.')
     c.add_argument('--version', help='Show the version of BGmi.')
-    c.add_argument('--debug', help='Enable DEBUG mode.')
 
     ret = c.parse_command()
 
@@ -298,6 +298,7 @@ def delete(ret):
 
 
 def update(ret):
+    ignore = False if ret.action.update.not_ignore else True
     print_info('marking bangumi status ...')
     now = int(time.time())
     for i in Followed.get_all_followed():
@@ -310,6 +311,7 @@ def update(ret):
     fetch(save=True, group_by_weekday=False)
     print_info('updating subscriptions ...')
     download_queue = []
+
 
     if ret.action.update.name is None:
         updated_bangumi_obj = Followed.get_all_followed()
@@ -331,7 +333,7 @@ def update(ret):
                         exit_=False)
             continue
 
-        episode, all_episode_data = get_maximum_episode(bangumi=bangumi_obj)
+        episode, all_episode_data = get_maximum_episode(bangumi=bangumi_obj, ignore_old_row=ignore)
         if episode.get('episode') > subscribe['episode']:
             episode_range = range(subscribe['episode'] + 1, episode.get('episode'))
             print_success('%s updated, episode: %d' % (subscribe['bangumi_name'], episode['episode']))
