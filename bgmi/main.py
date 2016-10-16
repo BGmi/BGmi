@@ -101,6 +101,7 @@ def main():
 
     sub_parser_fetch = action.add_sub_parser(ACTION_FETCH, help='Fetch a specific bangumi.')
     sub_parser_fetch.add_argument('name', help='Bangumi name to fetch.', required=True)
+    sub_parser_fetch.add_argument('--not-ignore', help='Do not ignore the old bangumi detail rows (3 month ago).')
 
     sub_parser_update = action.add_sub_parser(ACTION_UPDATE, help='Update bangumi calendar and '
                                                                   'subscribed bangumi episode.')
@@ -169,7 +170,8 @@ def main():
 
         if bangumi_obj:
             print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
-            _, data = get_maximum_episode(bangumi_obj)
+            _, data = get_maximum_episode(bangumi_obj,
+                                          ignore_old_row=False if ret.action.fetch.not_ignore else True)
             for i in data:
                 print_success(i['title'])
 
