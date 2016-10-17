@@ -33,7 +33,7 @@ def print_version():
 
 Github: https://github.com/RicterZ/BGmi
 Email: ricterzheng@gmail.com
-Blog: http://www.ricterz.me''' % __version__)
+Blog: https://ricterz.me''' % __version__)
 
 
 def test_connection():
