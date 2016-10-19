@@ -4,7 +4,7 @@ import platform
 import struct
 import functools
 from bgmi import __version__
-from bgmi.config import FETCH_URL
+from bgmi.config import FETCH_URL, IS_PYTHON3
 from bgmi.utils.langconv import Converter
 
 if platform.system() == 'Windows':
@@ -38,7 +38,11 @@ def indicator(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         if kwargs.get('indicator', True):
-            args = (indicator_map.get(f.func_name, '') + args[0], )
+            if IS_PYTHON3:
+                func_name = f.__qualname__
+            else:
+                func_name = f.func_name
+            args = (indicator_map.get(func_name, '') + args[0], )
         return f(*args, **kwargs)
     return wrapper
 
@@ -46,7 +50,11 @@ def indicator(f):
 def colorize(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
-        b, e = color_map.get(f.func_name, ''), COLOR_END if color_map.get(f.func_name) else ''
+        if IS_PYTHON3:
+            func_name = f.__qualname__
+        else:
+            func_name = f.func_name
+        b, e = color_map.get(func_name, ''), COLOR_END if color_map.get(func_name) else ''
         args = tuple(map(lambda s: b + s + e, args))
         return f(*args, **kwargs)
     return wrapper
