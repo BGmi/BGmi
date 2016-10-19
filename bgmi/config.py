@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 import os
 import sys
+import platform
 
 try:
     import ConfigParser as configparser
@@ -22,7 +23,13 @@ __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
 
 
 # --------- Immutable ---------- #
-BGMI_PATH = os.path.join(os.environ.get('HOME', '/tmp'), '.bgmi')
+if platform.system() == 'Windows':
+    BGMI_PATH = os.path.join(os.environ.get('USERPROFILE', None), '.bgmi')
+    if not BGMI_PATH:
+        raise SystemExit
+else:
+    BGMI_PATH = os.path.join(os.environ.get('HOME', '/tmp'), '.bgmi')
+
 DB_PATH = os.path.join(BGMI_PATH, 'bangumi.db')
 CONFIG_FILE_PATH = os.path.join(BGMI_PATH, 'bgmi.cfg')
 
