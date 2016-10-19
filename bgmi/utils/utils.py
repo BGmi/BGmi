@@ -1,29 +1,59 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
-import sys
+import platform
+import functools
 from bgmi import __version__
 from bgmi.config import FETCH_URL
 from bgmi.utils.langconv import Converter
+
+
+GREEN = '\033[1;32m'
+YELLOW = '\033[33m'
+RED = '\033[1;31m'
+COLOR_END = '\033[0m'
+
+color_map = {
+    'print_info': '',
+    'print_success': GREEN,
+    'print_warning': YELLOW,
+    'print_error': RED,
+}
+
+
+def colorize(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        if platform.system() == 'Windows':
+            b, e = '', ''
+        else:
+            b, e = color_map.get(f.func_name, ''), COLOR_END if color_map.get(f.func_name) else ''
+        args = tuple(map(lambda s: b + s + e, args))
+        return f(*args, **kwargs)
+    return wrapper
 
 
 def _(data):
     return Converter('zh-hans').convert(data)
 
 
+@colorize
 def print_info(message, indicator=True):
     print('{0}{1}'.format('[*] ' if indicator else '', message))
 
 
+@colorize
 def print_success(message, indicator=True):
-    print('\033[1;32m{0}{1}\033[0m'.format('[+] ' if indicator else '', message))
+    print('{0}{1}'.format('[+] ' if indicator else '', message))
 
 
+@colorize
 def print_warning(message, indicator=True):
-    print('\033[33m{0}{1}\033[0m'.format('[-] ' if indicator else '', message))
+    print('{0}{1}'.format('[-] ' if indicator else '', message))
 
 
+@colorize
 def print_error(message, exit_=True, indicator=True):
-    print('\033[1;31m{0}{1}\033[0m'.format('[x] ' if indicator else '', message))
+    print('{0}{1}'.format('[x] ' if indicator else '', message))
     if exit_:
         exit(1)
 
