@@ -112,6 +112,8 @@ def unicodeize(data):
     try:
         return unicode(data.decode('utf-8'))
     except (UnicodeEncodeError, UnicodeDecodeError):
+        return unicode(data.decode('gbk'))
+    except (UnicodeEncodeError, UnicodeDecodeError):
         return data
 
 

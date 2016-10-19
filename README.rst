@@ -12,6 +12,7 @@ TODO
 ==========
 Update Log
 ==========
++ **BGmi have supported Windows now**
 + `bgmi followed` is deprecated.
 + Update specified bangumi rather than update all bangumi.
 + Play bangumi online with danmaku
@@ -40,7 +41,7 @@ Feature
 ============
 Installation
 ============
-For **Mac OS X / Linux**:
+For **Mac OS X / Linux / Windows**:
 
 .. code-block:: bash
 
@@ -53,8 +54,6 @@ Or use pip:
 .. code-block:: bash
 
     pip install bgmi
-
-For **Windows**: BGmi does not support Windows now.  
 
 =============
 Usage of bgmi
