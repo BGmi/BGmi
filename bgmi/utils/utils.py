@@ -19,6 +19,22 @@ color_map = {
     'print_error': RED,
 }
 
+indicator_map = {
+    'print_info': '[*] ',
+    'print_success': '[+] ',
+    'print_warning': '[-] ',
+    'print_error': '[x] ',
+}
+
+
+def indicator(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        if kwargs.get('indicator', True):
+            args = (indicator_map.get(f.func_name, '') + args[0], )
+        return f(*args, **kwargs)
+    return wrapper
+
 
 def colorize(f):
     @functools.wraps(f)
@@ -36,24 +52,28 @@ def _(data):
     return Converter('zh-hans').convert(data)
 
 
+@indicator
 @colorize
 def print_info(message, indicator=True):
-    print('{0}{1}'.format('[*] ' if indicator else '', message))
+    print(message)
 
 
+@indicator
 @colorize
 def print_success(message, indicator=True):
-    print('{0}{1}'.format('[+] ' if indicator else '', message))
+    print(message)
 
 
+@indicator
 @colorize
 def print_warning(message, indicator=True):
-    print('{0}{1}'.format('[-] ' if indicator else '', message))
+    print(message)
 
 
+@indicator
 @colorize
 def print_error(message, exit_=True, indicator=True):
-    print('{0}{1}'.format('[x] ' if indicator else '', message))
+    print(message)
     if exit_:
         exit(1)
 
