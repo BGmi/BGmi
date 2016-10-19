@@ -1,6 +1,7 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 import platform
+import struct
 import functools
 from bgmi import __version__
 from bgmi.config import FETCH_URL
@@ -119,13 +120,32 @@ def bug_report():
 
 
 def get_terminal_col():
-    import fcntl
-    import termios
-    import struct
-    _, col, _, _ = struct.unpack(str('HHHH'), fcntl.ioctl(0, termios.TIOCGWINSZ,
-                                                          struct.pack(str('HHHH'), 0, 0, 0, 0)))
+    # https://gist.github.com/jtriley/1108174
+    if not platform.system() == 'Windows':
+        import fcntl
+        import termios
+        _, col, _, _ = struct.unpack(str('HHHH'), fcntl.ioctl(0, termios.TIOCGWINSZ,
+                                                              struct.pack(str('HHHH'), 0, 0, 0, 0)))
 
-    return col
+        return col
+    else:
+        try:
+            from ctypes import windll, create_string_buffer
+            # stdin handle is -10
+            # stdout handle is -11
+            # stderr handle is -12
+            h = windll.kernel32.GetStdHandle(-12)
+            csbi = create_string_buffer(22)
+            res = windll.kernel32.GetConsoleScreenBufferInfo(h, csbi)
+            if res:
+                (bufx, bufy, curx, cury, wattr,
+                 left, top, right, bottom,
+                 maxx, maxy) = struct.unpack("hhhhHhhhhhh", csbi.raw)
+                sizex = right - left + 1
+                # sizey = bottom - top + 1
+                return sizex
+        except:
+            return 80
 
 
 if __name__ == '__main__':
