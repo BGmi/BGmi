@@ -15,7 +15,7 @@ import bgmi.config
 from bgmi.config import FETCH_URL, DETAIL_URL, MAX_PAGE
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED, STATUS_UPDATED
 from bgmi.utils.utils import print_error, print_warning, print_info, unicodeize, \
-    test_connection, bug_report, get_terminal_col, _
+    test_connection, bug_report, get_terminal_col, _, GREEN, YELLOW, COLOR_END
 import bgmi.patches.bangumi
 import bgmi.patches.keyword
 
@@ -83,7 +83,9 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
     spacial_remove_chars = []
     for index, weekday in enumerate(weekday_order):
         if weekly_list[weekday.lower()]:
-            print('\033[1;32m%s. \033[0m' % (weekday if not today else 'Bangumi Schedule for Today (%s)' % weekday), end='')
+            print('%s%s. %s' % (GREEN,
+                                weekday if not today else 'Bangumi Schedule for Today (%s)' % weekday, COLOR_END),
+                  end='')
             if not followed:
                 print()
                 print_line()
@@ -109,10 +111,10 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
                         space_count -= 1
 
                 if bangumi['status'] == STATUS_FOLLOWED:
-                    bangumi['name'] = '\033[1;33m%s\033[0m' % bangumi['name']
+                    bangumi['name'] = '%s%s%s' % (YELLOW, bangumi['name'], COLOR_END)
 
                 if bangumi['status'] == STATUS_UPDATED:
-                    bangumi['name'] = '\033[1;32m%s\033[0m' % bangumi['name']
+                    bangumi['name'] = '%s%s%s' % (GREEN, bangumi['name'], COLOR_END)
 
                 if followed:
                     if i > 0:

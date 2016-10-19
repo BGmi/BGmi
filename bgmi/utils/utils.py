@@ -7,11 +7,17 @@ from bgmi import __version__
 from bgmi.config import FETCH_URL
 from bgmi.utils.langconv import Converter
 
+if platform.system() == 'Windows':
+    GREEN = ''
+    YELLOW = ''
+    RED = ''
+    COLOR_END = ''
+else:
+    GREEN = '\033[1;32m'
+    YELLOW = '\033[1;33m'
+    RED = '\033[1;31m'
+    COLOR_END = '\033[0m'
 
-GREEN = '\033[1;32m'
-YELLOW = '\033[33m'
-RED = '\033[1;31m'
-COLOR_END = '\033[0m'
 
 color_map = {
     'print_info': '',
@@ -40,10 +46,7 @@ def indicator(f):
 def colorize(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
-        if platform.system() == 'Windows':
-            b, e = '', ''
-        else:
-            b, e = color_map.get(f.func_name, ''), COLOR_END if color_map.get(f.func_name) else ''
+        b, e = color_map.get(f.func_name, ''), COLOR_END if color_map.get(f.func_name) else ''
         args = tuple(map(lambda s: b + s + e, args))
         return f(*args, **kwargs)
     return wrapper
@@ -80,11 +83,11 @@ def print_error(message, exit_=True, indicator=True):
 
 
 def print_version():
-    print('''BGmi \033[1;33mver. %s\033[0m built by \033[1;33mRicterZ\033[0m with ❤️
+    print('''BGmi %sver. %s%s built by %sRicterZ%s with ❤️
 
 Github: https://github.com/RicterZ/BGmi
 Email: ricterzheng@gmail.com
-Blog: https://ricterz.me''' % __version__)
+Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END))
 
 
 def test_connection():
