@@ -283,13 +283,13 @@ def fetch_episode(keyword, name='', subtitle_group=None, include=None, exclude=N
 
             if include:
                 include_list = map(lambda s: s.strip(), include.split(','))
-                result = filter(lambda s: True if all(map(lambda t: _(t) in _(s['title']),
-                                                          include_list)) else False, result)
+                result = list(filter(lambda s: True if all(map(lambda t: _(t) in _(s['title']),
+                                                               include_list)) else False, result))
 
             if exclude:
                 exclude_list = map(lambda s: s.strip(), exclude.split(','))
-                result = filter(lambda s: True if all(map(lambda t: _(t) not in _(s['title']),
-                                                          exclude_list)) else False, result)
+                result = list(filter(lambda s: True if all(map(lambda t: _(t) not in _(s['title']),
+                                                               exclude_list)) else False, result))
 
     result = bgmi.patches.bangumi.main(data=result)
     return result
