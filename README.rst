@@ -105,16 +105,16 @@ Show BGmi configure and modify it:
 
 Fields of configure file:
 
-+ `DMHY_URL`: url of dmhy mirror
-+ `BGMI_SAVE_PATH`: path which save the bangumi
-+ `DOWNLOAD_DELEGATE`: which ways used to download bangumi (aria2, aria2-rpc, xunlei)
-+ `MAX_PAGE`: the max page of fetching bangumi info
-+ `BGMI_TMP_PATH`: just a temporary path
-+ `ARIA2_PATH`: path of the aria2c binary
-+ `ARIA2_RPC_URL`: rpc url of aria2c deamon
-+ `BGMI_LX_PATH`: path of xunlei-lixian binary
-+ `DANMAKU_API_URL`: url of danmaku api, read more at `DPlayer <https://github.com/DIYgod/DPlayer#related-projects>`_
-+ `CONVER_URL`: url of bangumi's cover
++ :code:`DMHY_URL`: url of dmhy mirror
++ :code:`BGMI_SAVE_PATH`: bangumi saving path
++ :code:`DOWNLOAD_DELEGATE`: the ways of downloading bangumi (aria2, aria2-rpc, xunlei)
++ :code:`MAX_PAGE`: the max page of fetching bangumi info
++ :code:`BGMI_TMP_PATH`: just a temporary path
++ :code:`ARIA2_PATH`: the aria2c binary path
++ :code:`ARIA2_RPC_URL`: aria2c deamon RPC url
++ :code:`BGMI_LX_PATH`: path of xunlei-lixian binary
++ :code:`DANMAKU_API_URL`: url of danmaku api, read more at `DPlayer <https://github.com/DIYgod/DPlayer#related-projects>`_
++ :code:`CONVER_URL`: url of bangumi's cover
 
 ==================
 Usage of bgmi_http
