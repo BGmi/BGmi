@@ -7,13 +7,14 @@ BGmi is a cli tool for subscribed bangumi.
 ====
 TODO
 ====
-+ Download bangumi by file format, file size, etc.
+Empty as my wallet.
 
 ==========
 Update Log
 ==========
++ Download bangumi by specified keywords (included and excluded).
 + **BGmi have supported Windows now**
-+ `bgmi followed` is deprecated.
++ :code:`bgmi followed` is deprecated.
 + Update specified bangumi rather than update all bangumi.
 + Play bangumi online with danmaku
 
