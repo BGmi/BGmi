@@ -7,15 +7,16 @@ import codecs
 import signal
 import sqlite3
 import time
+import platform
 
 import bgmi.config
 from bgmi.command import CommandParser
 from bgmi.config import BGMI_PATH, DB_PATH, write_config
 from bgmi.download import download_prepare
 from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode
-from bgmi.models import Bangumi, Followed, Download, STATUS_FOLLOWED, STATUS_UPDATED,\
+from bgmi.models import Bangumi, Followed, Download, Filter, STATUS_FOLLOWED, STATUS_UPDATED,\
     STATUS_NORMAL, STATUS_NOT_DOWNLOAD
-from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD
+from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER
 from bgmi.utils.utils import print_warning, print_info, print_success, print_error, print_version
 from bgmi.download import get_download_class
 
@@ -90,9 +91,13 @@ def main():
 
     sub_parser_filter = action.add_sub_parser(ACTION_FILTER, help='Set bangumi fetch filter.')
     sub_parser_filter.add_argument('name', required=True, help='Bangumi name to set the filter.')
-    sub_parser_filter.add_argument('subtitle_group', help='Subtitle group name.')
-    sub_parser_filter.add_argument('--remove', help='Remove subtitle group filter.')
-    sub_parser_filter.add_argument('--remove-all', help='Remove all the subtitle group filter.', mutex='--remove')
+    sub_parser_filter.add_argument('--subtitle', arg_type='1', help='Subtitle group name, split by ",".')
+    sub_parser_filter.add_argument('--include', arg_type='1',
+                                   help='Filter by keywords which in the title, split by ",".')
+    sub_parser_filter.add_argument('--exclude', arg_type='1',
+                                   help='Filter by keywords which not int the title, split by ",".')
+    # sub_parser_filter.add_argument('--remove', help='Remove subtitle group filter.')
+    # sub_parser_filter.add_argument('--remove-all', help='Remove all the subtitle group filter.', mutex='--remove')
 
     sub_parser_del = action.add_sub_parser(ACTION_DELETE, help='Unsubscribe bangumi.')
     sub_parser_del.add_argument('--name', arg_type='+', mutex='--clear-all', help='Bangumi name to unsubscribe.')
@@ -172,6 +177,8 @@ def main():
             print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
             _, data = get_maximum_episode(bangumi_obj,
                                           ignore_old_row=False if ret.action.fetch.not_ignore else True)
+            if not data:
+                print_warning('Nothing.')
             for i in data:
                 print_success(i['title'])
 
@@ -250,33 +257,34 @@ def filter_(ret):
         print_error('Bangumi {0} has not subscribed, try \'bgmi add "{1}"\'.'.format(bangumi_obj.name,
                                                                                      bangumi_obj.name))
 
-    subtitle = ret.action.filter.subtitle_group
-    if subtitle:
-        if not ret.action.filter.remove and not ret.action.filter.remove_all:
-            if not followed_obj.subtitle_group:
-                followed_obj.subtitle_group = subtitle
-            else:
-                group = followed_obj.subtitle_group.split(',')
-                for i in subtitle.split(','):
-                    if i not in group:
-                        group.append(i)
-                followed_obj.subtitle_group = ','.join(group)
-        elif ret.action.filter.remove:
-            if followed_obj.subtitle_group:
-                group = followed_obj.subtitle_group.split(',')
-                new_group = []
-                while group:
-                    _ = group.pop()
-                    if _ not in subtitle:
-                        new_group.append(_)
-                followed_obj.subtitle_group = ','.join(new_group)
+    subtitle = ret.action.filter.subtitle
+    include = ret.action.filter.include
+    exclude = ret.action.filter.exclude
 
-    if ret.action.filter.remove_all:
-        followed_obj.subtitle_group = ''
+    followed_filter_obj = Filter(bangumi_name=bangumi_obj.name)
+    followed_filter_obj.select_obj()
 
-    followed_obj.save()
+    if not followed_filter_obj:
+        followed_filter_obj.save()
+
+    if subtitle is not None:
+        subtitle = map(lambda s: s.strip(), subtitle.split(','))
+        subtitle = filter(lambda s: True if s in bangumi_obj.subtitle_group.split(', ') else False, subtitle)
+        subtitle = ', '.join(subtitle)
+        followed_filter_obj.subtitle = subtitle
+
+    if include is not None:
+        followed_filter_obj.include = include
+
+    if exclude is not None:
+        followed_filter_obj.exclude = exclude
+
+    followed_filter_obj.save()
+
     print_info('Usable subtitle group: {0}'.format(bangumi_obj.subtitle_group))
-    print_info('Added subtitle group: {0}'.format(followed_obj.subtitle_group))
+    print_success('Added subtitle group: {0}'.format(followed_filter_obj.subtitle))
+    print_success('Include keywords: {0}'.format(followed_filter_obj.include))
+    print_success('Exclude keywords: {0}'.format(followed_filter_obj.exclude))
 
 
 def delete(ret):
@@ -313,7 +321,6 @@ def update(ret):
     fetch(save=True, group_by_weekday=False)
     print_info('updating subscriptions ...')
     download_queue = []
-
 
     if ret.action.update.name is None:
         updated_bangumi_obj = Followed.get_all_followed()
@@ -428,6 +435,7 @@ def init_db(db_path):
         conn.execute(CREATE_TABLE_BANGUMI)
         conn.execute(CREATE_TABLE_FOLLOWED)
         conn.execute(CREATE_TABLE_DOWNLOAD)
+        conn.execute(CREATE_TABLE_FOLLOWED_FILTER)
         conn.commit()
         conn.close()
     except sqlite3.OperationalError:
@@ -439,10 +447,12 @@ def setup():
         print_warning('BGMI_PATH %s does not exist, installing' % BGMI_PATH)
         from bgmi.setup import create_dir, install_crontab
         create_dir()
-        install_crontab()
+        if not platform.system() == 'Windows':
+            # if not input('Do you want to install a crontab to auto-download bangumi?(Y/n): ') == 'n':
+            install_crontab()
 
-    if not os.path.exists(DB_PATH):
-        init_db(DB_PATH)
+    # if not os.path.exists(DB_PATH):
+    init_db(DB_PATH)
     main()
 
 

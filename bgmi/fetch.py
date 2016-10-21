@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 
 import bgmi.config
 from bgmi.config import FETCH_URL, DETAIL_URL, MAX_PAGE
-from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED, STATUS_UPDATED
+from bgmi.models import Bangumi, Followed, Filter, STATUS_FOLLOWED, STATUS_UPDATED
 from bgmi.utils.utils import print_error, print_warning, print_info, unicodeize, \
     test_connection, bug_report, get_terminal_col, _, GREEN, YELLOW, COLOR_END
 import bgmi.patches.bangumi
@@ -235,7 +235,7 @@ def parse_episode(data):
     return 0
 
 
-def fetch_episode(keyword, name='', subtitle_group=None):
+def fetch_episode(keyword, name='', subtitle_group=None, include=None, exclude=None):
     result = []
     keyword = bgmi.patches.keyword.main(name, keyword)
 
@@ -273,7 +273,7 @@ def fetch_episode(keyword, name='', subtitle_group=None):
                     bangumi_update_info['download'] = detail.find('a').attrs.get('href')
 
             # filter subtitle group
-            if subtitle_group and subtitle_group is not None:
+            if subtitle_group:
                 subtitle_group_list = map(lambda s: s.strip(), subtitle_group.split(','))
                 for s in subtitle_group_list:
                     if _(s) in _(bangumi_update_info['subtitle_group']):
@@ -281,20 +281,32 @@ def fetch_episode(keyword, name='', subtitle_group=None):
             else:
                 result.append(bangumi_update_info)
 
+            if include:
+                include_list = map(lambda s: s.strip(), include.split(','))
+                result = list(filter(lambda s: True if all(map(lambda t: _(t) in _(s['title']),
+                                                               include_list)) else False, result))
+
+            if exclude:
+                exclude_list = map(lambda s: s.strip(), exclude.split(','))
+                result = list(filter(lambda s: True if all(map(lambda t: _(t) not in _(s['title']),
+                                                               exclude_list)) else False, result))
+
     result = bgmi.patches.bangumi.main(data=result)
     return result
 
 
 def get_maximum_episode(bangumi, subtitle=True, ignore_old_row=True):
-    subtitle_group = bangumi.subtitle_group
-    if subtitle:
-        followed_obj = Followed(bangumi_name=bangumi.name)
-        followed_obj.select_obj()
-        if followed_obj:
-            subtitle_group = followed_obj.subtitle_group
+
+    followed_filter_obj = Filter(bangumi_name=bangumi.name)
+    followed_filter_obj.select_obj()
+
+    subtitle_group = followed_filter_obj.subtitle if followed_filter_obj and subtitle else None
+    include = followed_filter_obj.include if followed_filter_obj and subtitle else None
+    exclude = followed_filter_obj.exclude if followed_filter_obj and subtitle else None
 
     data = [i for i in fetch_episode(keyword=bangumi.keyword, name=bangumi.name,
-                                     subtitle_group=subtitle_group if subtitle else None)
+                                     subtitle_group=subtitle_group,
+                                     include=include, exclude=exclude)
             if i['episode'] is not None]
     if data:
         if ignore_old_row:

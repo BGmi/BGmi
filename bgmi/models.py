@@ -403,7 +403,7 @@ class Bangumi(DB):
 class Followed(DB):
     table = 'followed'
     primary_key = ('bangumi_name', )
-    fields = ('bangumi_name', 'episode', 'status', 'subtitle_group', 'updated_time', )
+    fields = ('bangumi_name', 'episode', 'status', 'updated_time', )
 
     @staticmethod
     def delete_followed(condition=None, batch=True):
@@ -482,3 +482,9 @@ class Download(DB):
     def delete(self, condition=None):
         self.status = STATUS_DOWNLOADED
         self.save()
+
+
+class Filter(DB):
+    table = 'filter'
+    primary_key = ('bangumi_name', )
+    fields = ('bangumi_name', 'subtitle', 'include', 'exclude', )
