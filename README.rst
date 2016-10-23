@@ -94,7 +94,10 @@ Set up the bangumi subtitle group filter and fetch entries:
 
 .. code-block:: bash
 
-    bgmi filter "線上遊戲的老婆不可能是女生？" "KNA,惡魔島"
+    bgmi filter "線上遊戲的老婆不可能是女生？" --subtitle "KNA,惡魔島" --include 720p,720P --exclude BIG5
+    bgmi fetch "線上遊戲的老婆不可能是女生？"
+    # remove subtitle and exclude keyword filter
+    bgmi filter "線上遊戲的老婆不可能是女生？" --subtitle "" --exclude ""
     bgmi fetch "線上遊戲的老婆不可能是女生？"
 
 
