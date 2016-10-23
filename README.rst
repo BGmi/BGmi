@@ -28,7 +28,7 @@ Feature
 + Download bangumi by subtitle group
 + Web page to view all subscribed bangumi
 + RSS feed for uTorrent
-+ Play bangumi online with danmaku (`DPlayer <https://github.com/DIYgod/DPlayer#related-projects>`_)
++ Play bangumi online with danmaku
 
 .. image:: https://raw.githubusercontent.com/RicterZ/BGmi/master/images/bgmi.png
     :alt: BGmi
