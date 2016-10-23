@@ -2,7 +2,8 @@ BGmi
 ====
 BGmi is a cli tool for subscribed bangumi.
 
-|travis| |pypi|
+|travis|
+|pypi|
 
 ====
 TODO
@@ -114,7 +115,7 @@ Fields of configure file:
 + :code:`ARIA2_PATH`: the aria2c binary path
 + :code:`ARIA2_RPC_URL`: aria2c deamon RPC url
 + :code:`BGMI_LX_PATH`: path of xunlei-lixian binary
-+ :code:`DANMAKU_API_URL`: url of danmaku api, read more at `DPlayer <https://github.com/DIYgod/DPlayer#related-projects>`_
++ :code:`DANMAKU_API_URL`: url of danmaku api
 + :code:`CONVER_URL`: url of bangumi's cover
 
 ==================
