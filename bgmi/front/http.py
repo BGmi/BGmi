@@ -66,9 +66,10 @@ class BangumiPlayerHandler(tornado.web.RequestHandler):
                     episode = -1
 
                 for bangumi in files:
-                    episode_list[episode] = {'path': os.path.join(base_path, bangumi),
-                                             'playable': bangumi.endswith('.mp4')}
-                    break
+                    if bangumi.endswith('.mp4'):
+                        episode_list[episode] = {'path': os.path.join(base_path, bangumi)}
+                        break
+
         if not episode_list:
             self.write('_(:3 There are nothing to play, please try again later.')
             self.finish()
