@@ -17,7 +17,7 @@ DOWNLOAD_DELEGATE_DICT = {
 
 def get_download_class(download_obj=None, save_path='', overwrite=True, instance=True):
     if DOWNLOAD_DELEGATE not in DOWNLOAD_DELEGATE_DICT:
-        print_error('unexpected download delegate {0}'.format(DOWNLOAD_DELEGATE))
+        print_error('unexpected delegate {0}'.format(DOWNLOAD_DELEGATE))
 
     delegate = DOWNLOAD_DELEGATE_DICT.get(DOWNLOAD_DELEGATE)
 

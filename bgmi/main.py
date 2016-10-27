@@ -143,9 +143,7 @@ def main():
     download_mark.add_argument('id', help='Download id')
     download_mark.add_argument('status', help='Status will be marked', choice=(0, 1, 2))
 
-    positional = c.add_arg_group('positional')
-    positional.add_argument('install', help='Install xunlei-lixian for BGmi.')
-
+    c.add_argument('install', help='Install xunlei-lixian for BGmi.')
     c.add_argument('-h / --help', help='Print help text.')
     c.add_argument('--version', help='Show the version of BGmi.')
 
@@ -155,7 +153,7 @@ def main():
         print_version()
         raise SystemExit
 
-    if ret.positional.install == 'install':
+    if ret.install == 'install':
         import bgmi.setup
         bgmi.setup.install()
         raise SystemExit

@@ -232,8 +232,8 @@ class ArgumentGroup(_CommandParserMixin):
                 sub_parser.parse_command(_sys_args_list)
                 self.namespace.NameSpace_Action_Name = sub_parser.name
                 break
-            else:
-                _error('unrecognized arguments: %s' % arg)
+            # else:
+            #     _error('unrecognized arguments: %s' % arg)
 
         return self.namespace
 
