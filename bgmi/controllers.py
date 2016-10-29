@@ -2,6 +2,7 @@
 import time
 
 from bgmi.constants import *
+from bgmi.config import write_config
 from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode
 from bgmi.models import Bangumi, Followed, Download, Filter, STATUS_FOLLOWED, STATUS_UPDATED, \
     STATUS_NORMAL, STATUS_NOT_DOWNLOAD
@@ -52,12 +53,11 @@ def filter_(ret):
         print_error('Bangumi {0} has not subscribed, try \'bgmi add "{1}"\'.'.format(bangumi_obj.name,
                                                                                      bangumi_obj.name))
 
-    print(repr(bangumi_obj.name))
     subtitle = ret.subtitle
     include = ret.include
     exclude = ret.exclude
 
-    followed_filter_obj = Filter(bangumi_name=bangumi_obj.name)
+    followed_filter_obj = Filter(bangumi_name=ret.name)
     followed_filter_obj.select_obj()
 
     if not followed_filter_obj:
@@ -222,6 +222,30 @@ def followed(ret):
         mark(ret)
 
 
+def fetch_(ret):
+    bangumi_obj = Bangumi(name=ret.name)
+    bangumi_obj.select_obj()
+
+    followed_obj = Followed(bangumi_name=bangumi_obj.name)
+    followed_obj.select_obj()
+
+    if bangumi_obj:
+        print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
+        _, data = get_maximum_episode(bangumi_obj,
+                                      ignore_old_row=False if ret.not_ignore else True)
+        if not data:
+            print_warning('Nothing.')
+        for i in data:
+            print_success(i['title'])
+
+    else:
+        print_error('Bangumi {0} not exist'.format(ret.action.fetch.name))
+
+
+def config(ret):
+    write_config(ret.name, ret.value)
+
+
 CONTROLLERS_DICT = {
     ACTION_ADD: add,
     ACTION_FILTER: filter_,
@@ -229,6 +253,9 @@ CONTROLLERS_DICT = {
     ACTION_DELETE: delete,
     ACTION_DOWNLOAD: download_manager,
     ACTION_UPDATE: update,
+    ACTION_FETCH: fetch_,
+    ACTION_CONFIG: config,
+    ACTION_FOLLOWED: followed,
 }
 
 
