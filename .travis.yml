@@ -17,7 +17,7 @@ env:
 
 script:
     - python -m unittest discover
-    - bgmi
+    - bgmi -h
     - bgmi cal all
     - bgmi add "Re：從零開始的異世界生活" "NEW GAME!" "天真與閃電" "食戟之靈 貳之皿"
     - bgmi update
