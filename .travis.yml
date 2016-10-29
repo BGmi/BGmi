@@ -25,10 +25,10 @@ script:
     - bgmi delete --clear-all --batch
     - bgmi add "Re：從零開始的異世界生活"
     - bgmi cal followed
-    - bgmi config MAX_PAGE 3
-    - bgmi download list
+    - bgmi config --name MAX_PAGE --value 3
+    - bgmi download --list
     - bgmi add "Rewrite" "天真與閃電"
-    - bgmi mark Rewrite 0
+    - bgmi followed --mark Rewrite --episode 0
     - bgmi update --name "Rewrite" "天真與閃電"
     - bgmi filter "Rewrite" --subtitle "愛戀,星岡,千夏" --include "简体" --exclude "720p,720P"
     - bgmi fetch "Rewrite"
