@@ -8,9 +8,9 @@ import signal
 import sqlite3
 import time
 import platform
+import argparse
 
 import bgmi.config
-from bgmi.command import CommandParser
 from bgmi.config import BGMI_PATH, DB_PATH, write_config
 from bgmi.download import download_prepare
 from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode
@@ -83,77 +83,80 @@ signal.signal(signal.SIGINT, signal_handler)
 
 # main function
 def main():
-    c = CommandParser()
-    action = c.add_arg_group('action')
+    c = argparse.ArgumentParser()
 
-    sub_parser_add = action.add_sub_parser(ACTION_ADD, help='Subscribe bangumi.')
-    sub_parser_add.add_argument('name', arg_type='+', required=True, help='Bangumi name to subscribe.')
+    def stop():
+        pass
 
-    sub_parser_filter = action.add_sub_parser(ACTION_FILTER, help='Set bangumi fetch filter.')
-    sub_parser_filter.add_argument('name', required=True, help='Bangumi name to set the filter.')
-    sub_parser_filter.add_argument('--subtitle', arg_type='1', help='Subtitle group name, split by ",".')
-    sub_parser_filter.add_argument('--include', arg_type='1',
+    sub_parser = c.add_subparsers(help='BGmi actions', dest='action')
+    sub_parser_add = sub_parser.add_parser(ACTION_ADD, help='Subscribe bangumi.')
+    sub_parser_add.add_argument('name', metavar='name', type=str, nargs='+', help='Bangumi name')
+
+    sub_parser_filter = sub_parser.add_parser(ACTION_FILTER, help='Set bangumi fetch filter.')
+    sub_parser_filter.add_argument('name', metavar='name', type=str, help='Bangumi name to set the filter.')
+    sub_parser_filter.add_argument('--subtitle', metavar='subtitle', type=str, help='Subtitle group name, split by ",".')
+    sub_parser_filter.add_argument('--include', metavar='include', type=str,
                                    help='Filter by keywords which in the title, split by ",".')
-    sub_parser_filter.add_argument('--exclude', arg_type='1',
+    sub_parser_filter.add_argument('--exclude', metavar='exclude', type=str,
                                    help='Filter by keywords which not int the title, split by ",".')
-    # sub_parser_filter.add_argument('--remove', help='Remove subtitle group filter.')
-    # sub_parser_filter.add_argument('--remove-all', help='Remove all the subtitle group filter.', mutex='--remove')
 
-    sub_parser_del = action.add_sub_parser(ACTION_DELETE, help='Unsubscribe bangumi.')
-    sub_parser_del.add_argument('--name', arg_type='+', mutex='--clear-all', help='Bangumi name to unsubscribe.')
-    sub_parser_del.add_argument('--clear-all', help='Clear all the subscriptions.')
-    sub_parser_del.add_argument('--batch', help='No confirmation.')
+    sub_parser_del = sub_parser.add_parser(ACTION_DELETE, help='Unsubscribe bangumi.')
+    sub_parser_del_mutex = sub_parser_del.add_mutually_exclusive_group(required=True)
+    sub_parser_del_mutex.add_argument('--name', metavar='name', nargs='+', type=str,
+                                      help='Bangumi name to unsubscribe.')
+    sub_parser_del_mutex.add_argument('--clear-all', action='store_true',
+                                      help='Clear all the subscriptions.')
+    sub_parser_del.add_argument('--batch', action='store_true', help='No confirmation.')
 
-    sub_parser_fetch = action.add_sub_parser(ACTION_FETCH, help='Fetch a specific bangumi.')
-    sub_parser_fetch.add_argument('name', help='Bangumi name to fetch.', required=True)
-    sub_parser_fetch.add_argument('--not-ignore', help='Do not ignore the old bangumi detail rows (3 month ago).')
+    sub_parser_update = sub_parser.add_parser(ACTION_UPDATE, help='Update bangumi calendar and '
+                                              'subscribed bangumi episode.')
+    sub_parser_update.add_argument('--name', metavar='name', type=str, nargs='+', help='Update specified bangumi.')
+    sub_parser_update.add_argument('--download', action='store_true', help='Download the bangumi when updated.')
+    sub_parser_update.add_argument('--not-ignore', action='store_true',
+                                   help='Do not ignore the old bangumi detail rows (3 month ago).')
 
-    sub_parser_update = action.add_sub_parser(ACTION_UPDATE, help='Update bangumi calendar and '
-                                                                  'subscribed bangumi episode.')
-    sub_parser_update.add_argument('--name', arg_type='+', help='Update specified bangumi.')
-    sub_parser_update.add_argument('--download', help='Download the bangumi when updated.')
-    sub_parser_update.add_argument('--not-ignore', help='Do not ignore the old bangumi detail rows (3 month ago).')
+    sub_parser_cal = sub_parser.add_parser(ACTION_CAL, help='Print bangumi calendar.')
+    sub_parser_cal.add_argument('filter', type=str, metavar='filter', choices=FILTER_CHOICES,
+                                help='Calendar form filter ({}).'.format(', '.join(FILTER_CHOICES)))
+    sub_parser_cal.add_argument('--today', action='store_true', help='Show bangumi calendar for today.')
+    sub_parser_cal.add_argument('--force-update', action='store_true',
+                                help='Get the newest bangumi calendar from dmhy.')
+    sub_parser_cal.add_argument('--no-save', action='store_true',
+                                help='Do not save the bangumi data when force update.')
 
-    sub_parser_cal = action.add_sub_parser(ACTION_CAL, help='Print bangumi calendar.')
-    sub_parser_cal.add_argument('filter', default='today', choice=FILTER_CHOICES,
-                                help='Calendar form filter %s.' % ', '.join(FILTER_CHOICES))
-    sub_parser_cal.add_argument('--today', help='Show bangumi calendar for today.')
-    sub_parser_cal.add_argument('--force-update', help='Get the newest bangumi calendar from dmhy.')
-    sub_parser_cal.add_argument('--no-save', help='Do not save the bangumi data when force update.')
+    sub_parser_config = sub_parser.add_parser(ACTION_CONFIG, help='Config BGmi.')
+    sub_parser_config.add_argument('name', type=str, metavar='name', help='Config name')
+    sub_parser_config.add_argument('value', type=str, metavar='value', help='Config value')
 
-    sub_parser_config = action.add_sub_parser(ACTION_CONFIG, help='Config BGmi.')
-    sub_parser_config.add_argument('name', help='Config name')
-    sub_parser_config.add_argument('value', help='Config value')
+    sub_parser_followed = sub_parser.add_parser(ACTION_FOLLOWED, help='Subscribed bangumi manager.')
 
-    sub_parser_followed = action.add_sub_parser(ACTION_FOLLOWED, help='Subscribed bangumi manager.')
-    sub_parser_followed.add_sub_parser('list', help='List subscribed bangumi.')
-    followed_mark = sub_parser_followed.add_sub_parser('mark', help='Mark specific bangumi\'s episode.')
-    followed_mark.add_argument('name', help='Bangumi name.', required=True)
-    followed_mark.add_argument('episode', help='Bangumi episode.')
+    sub_parser_followed_sub = sub_parser_followed.add_subparsers()
+    sub_parser_followed_sub.add_parser('list', help='List subscribed bangumi.')
+    sub_parser_followed_sub_mark = sub_parser_followed_sub.add_parser('mark', help='Mark specific bangumi\'s episode.')
+    sub_parser_followed_sub_mark.add_argument('name', type=str, metavar='name', help='Bnaugmi name.')
+    sub_parser_followed_sub_mark.add_argument('episode', type=int, metavar='episode', help='Bangumi episode.')
 
-    sub_parser_mark = action.add_sub_parser(ACTION_MARK, help='Mark subscribed bangumi status.')
-    sub_parser_mark.add_argument('name', help='Bangumi name.', required=True)
-    sub_parser_mark.add_argument('episode', help='Bangumi episode.')
+    sub_parser_download = sub_parser.add_parser(ACTION_DOWNLOAD, help='Download manager.')
+    sub_parser_download_sub = sub_parser_download.add_subparsers()
+    sub_parser_download_sub_list = sub_parser_download_sub.add_parser('list', help='List download queue.')
+    sub_parser_download_sub_list.add_argument('status', type=int, choices=[0, 1, 2, None],
+                                              help='Download status: 0, 1, 2')
+    sub_parser_download_sub_mark = sub_parser_download_sub.add_parser('mark',
+                                                                      help='Mark download status with a specific id.')
+    sub_parser_download_sub_mark.add_argument('id', metavar='id', type=int, help='Download id')
+    sub_parser_download_sub_mark.add_argument('static', metavar='static', type=int, choices=[0, 1, 2],
+                                              help='Status of download item')
 
-    sub_parser_download = action.add_sub_parser(ACTION_DOWNLOAD, help='Download manager.')
-    download_list = sub_parser_download.add_sub_parser('list', help='List download queue.')
-    download_list.add_argument('status', help='Download status: 0, 1, 2', choice=(0, 1, 2, None))
+    sub_parser.add_parser('install', help='Install BGmi download delegate.')
+    c.add_argument('--version', help='Show the version of BGmi.', action='version', version=print_version())
 
-    download_mark = sub_parser_download.add_sub_parser('mark', help='Mark download status with a specific id.')
-    download_mark.add_argument('id', help='Download id')
-    download_mark.add_argument('status', help='Status will be marked', choice=(0, 1, 2))
+    ret = c.parse_args()
 
-    c.add_argument('install', help='Install xunlei-lixian for BGmi.')
-    c.add_argument('-h / --help', help='Print help text.')
-    c.add_argument('--version', help='Show the version of BGmi.')
-
-    ret = c.parse_command()
-
-    if ret.version:
+    if ret.action == '--version':
         print_version()
         raise SystemExit
 
-    if ret.install == 'install':
+    if ret.action == 'install':
         import bgmi.setup
         bgmi.setup.install()
         raise SystemExit
