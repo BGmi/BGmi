@@ -94,6 +94,11 @@ def main():
     sub_parser_download.add_argument('--mark', help='Mark download status with a specific id.', dest='id', type=int)
     sub_parser_download.add_argument('--status', type=int, help='Download items status (0, 1, 2).', choices=[0, 1, 2])
 
+    sub_parser_fetch = sub_parser.add_parser(ACTION_FETCH, help='Fetch bangumi.')
+    sub_parser_fetch.add_argument('name', help='Bangumi name', type=str)
+    sub_parser_fetch.add_argument('--not-ignore', action='store_true',
+                                  help='Do not ignore the old bangumi detail rows (3 month ago).')
+
     sub_parser.add_parser('install', help='Install BGmi download delegate.')
     c.add_argument('--version', help='Show the version of BGmi.', action='version', version=print_version())
 
@@ -104,7 +109,7 @@ def main():
         bgmi.setup.install()
         raise SystemExit
     elif ret.action == ACTION_FETCH:
-        bangumi_obj = Bangumi(name=ret.action.fetch.name)
+        bangumi_obj = Bangumi(name=ret.name)
         bangumi_obj.select_obj()
 
         followed_obj = Followed(bangumi_name=bangumi_obj.name)
@@ -113,7 +118,7 @@ def main():
         if bangumi_obj:
             print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
             _, data = get_maximum_episode(bangumi_obj,
-                                          ignore_old_row=False if ret.action.fetch.not_ignore else True)
+                                          ignore_old_row=False if ret.not_ignore else True)
             if not data:
                 print_warning('Nothing.')
             for i in data:

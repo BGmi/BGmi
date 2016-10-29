@@ -52,6 +52,7 @@ def filter_(ret):
         print_error('Bangumi {0} has not subscribed, try \'bgmi add "{1}"\'.'.format(bangumi_obj.name,
                                                                                      bangumi_obj.name))
 
+    print(repr(bangumi_obj.name))
     subtitle = ret.subtitle
     include = ret.include
     exclude = ret.exclude
