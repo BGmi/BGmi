@@ -136,26 +136,29 @@ class Aria2DownloadRPC(DownloadService):
         DownloadService.download_status(status=status)
         print()
         print_info('Print download status in aria2c-rpc')
-        server = PatchedServerProxy(ARIA2_RPC_URL)
-        # self.server.aria2
-        status_dict = {
-            STATUS_DOWNLOADING: ['tellActive'],
-            STATUS_NOT_DOWNLOAD: ['tellWaiting'],
-            STATUS_DOWNLOADED: ['tellStopped'],
-            None: ['tellStopped', 'tellWaiting', 'tellActive'],
-        }
-        for method in status_dict.get(status):
-            if method not in ('tellActive', ):
-                params = (0, 1000)
-            else:
-                params = ()
-            data = server.aria2[method](*params)
-            if data:
-                print_warning('RPC {0}:'.format(method), indicator=False)
-            for row in data:
-                print_success('- {0}'.format(row['dir']), indicator=False)
-                for file in row['files']:
-                    print_info('    * {0}'.format(file['path']), indicator=False)
+        try:
+            server = PatchedServerProxy(ARIA2_RPC_URL)
+            # self.server.aria2
+            status_dict = {
+                STATUS_DOWNLOADING: ['tellActive'],
+                STATUS_NOT_DOWNLOAD: ['tellWaiting'],
+                STATUS_DOWNLOADED: ['tellStopped'],
+                None: ['tellStopped', 'tellWaiting', 'tellActive'],
+            }
+            for method in status_dict.get(status):
+                if method not in ('tellActive', ):
+                    params = (0, 1000)
+                else:
+                    params = ()
+                data = server.aria2[method](*params)
+                if data:
+                    print_warning('RPC {0}:'.format(method), indicator=False)
+                for row in data:
+                    print_success('- {0}'.format(row['dir']), indicator=False)
+                    for file in row['files']:
+                        print_info('    * {0}'.format(file['path']), indicator=False)
+        except Exception as e:
+            print_error('Cannot connect to aria2-rpc server')
 
 
 class XunleiLixianDownload(DownloadService):

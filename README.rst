@@ -13,11 +13,7 @@ Empty as my wallet.
 ==========
 Update Log
 ==========
-+ Download bangumi by specified keywords (included and excluded).
-+ **BGmi have supported Windows now**
-+ :code:`bgmi followed` is deprecated.
-+ Update specified bangumi rather than update all bangumi.
-+ Play bangumi online with danmaku
++ Use argparse to parser command line arguments.
 
 =======
 Feature
@@ -29,6 +25,8 @@ Feature
 + Web page to view all subscribed bangumi
 + RSS feed for uTorrent
 + Play bangumi online with danmaku
++ Download bangumi by specified keywords (included and excluded).
++ **BGmi have supported Windows now**
 
 .. image:: https://raw.githubusercontent.com/RicterZ/BGmi/master/images/bgmi.png
     :alt: BGmi
@@ -101,12 +99,34 @@ Set up the bangumi subtitle group filter and fetch entries:
     bgmi fetch "線上遊戲的老婆不可能是女生？"
 
 
+Modify bangumi episode:
+
+.. code-block:: bash
+
+    bgmi followed --list
+    bgmi followed --mark Doraemon --episode 1
+
+
+Manage download items:
+
+.. code-block:: bash
+
+    bgmi download --list
+    bgmi download --list --status 0
+    bgmi download --mark 1 --status 2
+
+Status code:
+
++ 0 - Not downloaded items
++ 1 - Downloading items
++ 2 - Downloaded items
+
 Show BGmi configure and modify it:
 
 .. code-block:: bash
 
     bgmi config
-    bgmi config MAX_PAGE 3
+    bgmi config --name MAX_PAGE --value 3
 
 Fields of configure file:
 
