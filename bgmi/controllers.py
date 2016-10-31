@@ -132,21 +132,23 @@ def update(ret):
         bangumi_obj = Bangumi(name=subscribe['bangumi_name'])
         bangumi_obj.select_obj()
 
+        followed_obj = Followed(bangumi_name=subscribe['bangumi_name'])
+        followed_obj.select_obj()
+
         # filter by subtitle group
-        if not bangumi_obj:
-            print_error('The bangumi {0} you subscribed does not exists ..'.format(subscribe['bangumi_name']),
+        if not bangumi_obj or not followed_obj:
+            print_error('Bangumi<{0}> does not exist or not been followed.'.format(subscribe['bangumi_name']),
                         exit_=False)
             continue
 
         episode, all_episode_data = get_maximum_episode(bangumi=bangumi_obj, ignore_old_row=ignore)
         if episode.get('episode') > subscribe['episode']:
-            episode_range = range(subscribe['episode'] + 1, episode.get('episode'))
+            episode_range = range(subscribe['episode'] + 1, episode.get('episode', 0))
             print_success('%s updated, episode: %d' % (subscribe['bangumi_name'], episode['episode']))
-            _ = Followed(bangumi_name=subscribe['bangumi_name'])
-            _.episode = episode['episode']
-            _.status = STATUS_UPDATED
-            _.updated_time = int(time.time())
-            _.save()
+            followed_obj.episode = episode['episode']
+            followed_obj.status = STATUS_UPDATED
+            followed_obj.updated_time = int(time.time())
+            followed_obj.save()
             download_queue.append(episode)
             for i in episode_range:
                 for epi in all_episode_data:
