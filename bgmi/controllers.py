@@ -187,7 +187,7 @@ def download_manager(ret):
     elif ret.id:
         download_id = ret.id
         status = ret.status
-        if not download_id or not status:
+        if download_id is None or status is None:
             print_error('No id or status specified.')
         download_obj = Download(_id=download_id)
         download_obj.select_obj()
