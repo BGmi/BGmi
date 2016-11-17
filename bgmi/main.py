@@ -44,6 +44,8 @@ def main():
     sub_parser = c.add_subparsers(help='BGmi actions', dest='action')
     sub_parser_add = sub_parser.add_parser(ACTION_ADD, help='Subscribe bangumi.')
     sub_parser_add.add_argument('name', metavar='name', type=unicode, nargs='+', help='Bangumi name')
+    sub_parser_add.add_argument('--not-ignore', action='store_true',
+                                help='Do not ignore the old bangumi detail rows (3 month ago).')
 
     sub_parser_filter = sub_parser.add_parser(ACTION_FILTER, help='Set bangumi fetch filter.')
     sub_parser_filter.add_argument('name', metavar='name', type=unicode, help='Bangumi name to set the filter.')
@@ -53,8 +55,6 @@ def main():
                                    help='Filter by keywords which in the title, split by ",".')
     sub_parser_filter.add_argument('--exclude', metavar='exclude', type=unicode,
                                    help='Filter by keywords which not int the title, split by ",".')
-    sub_parser_update.add_argument('--not-ignore', action='store_true',
-                                   help='Do not ignore the old bangumi detail rows (3 month ago).')
 
     sub_parser_del = sub_parser.add_parser(ACTION_DELETE, help='Unsubscribe bangumi.')
     sub_parser_del_mutex = sub_parser_del.add_mutually_exclusive_group(required=True)
