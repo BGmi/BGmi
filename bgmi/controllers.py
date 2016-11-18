@@ -16,7 +16,7 @@ def add(ret):
     # add bangumi by a list of bangumi name
     if not Bangumi.get_all_bangumi():
         print_warning('No bangumi data in database, fetching...')
-        update(ret)
+        fetch(save=True, group_by_weekday=False)
 
     for bangumi in ret.name:
         bangumi_obj = Bangumi(name=bangumi)
