@@ -66,7 +66,7 @@ class BangumiPlayerHandler(tornado.web.RequestHandler):
                     episode = -1
 
                 for bangumi in files:
-                    if bangumi.endswith('.mp4'):
+                    if bangumi.lower().endswith('.mp4'):
                         episode_list[episode] = {'path': os.path.join(base_path, bangumi)}
                         break
 
