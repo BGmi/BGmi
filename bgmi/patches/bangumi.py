@@ -12,6 +12,10 @@ class Patch(object):
         # patching for WWW.WORKING!!
         return [i for i in data if '[WWW.迷糊餐厅!! WWW.WORKING!!][80][BIG5]' not in i['title']]
 
+    def patch_one_piece(self, data):
+        # patching for ONE PIECE 海贼王
+        return [i for i in data if '161108' not in i['title']]
+
 
 def main(data):
     patch = Patch()
