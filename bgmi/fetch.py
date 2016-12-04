@@ -310,9 +310,11 @@ def get_maximum_episode(bangumi, subtitle=True, ignore_old_row=True):
                                      subtitle_group=subtitle_group,
                                      include=include, exclude=exclude)
             if i['episode'] is not None]
+
+    if ignore_old_row:
+        data = [row for row in data if row['time'] > int(time.time()) - 3600 * 24 * 30 * 3]  # three month
+
     if data:
-        if ignore_old_row:
-            data = [row for row in data if row['time'] > int(time.time()) - 3600 * 24 * 30 * 3]  # three month
         bangumi = max(data, key=lambda i: i['episode'])
         return bangumi, data
     else:
