@@ -241,7 +241,7 @@ def fetch_(ret):
             print_success(i['title'])
 
     else:
-        print_error('Bangumi {0} not exist'.format(ret.action.fetch.name))
+        print_error('Bangumi {0} not exist'.format(ret.name))
 
 
 def config(ret):

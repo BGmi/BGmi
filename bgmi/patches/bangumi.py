@@ -4,6 +4,10 @@ import inspect
 
 
 class Patch(object):
+    def patch_all_fuck_off_cc_anime(self, data):
+        # c.c动漫
+        return [i for i in data if 'c.c动漫' not in i['title']]
+
     def patch_bangumi_parser_netoge_no_yome_wa_onnanoko_ja_nai_to_omotta(self, data):
         # patching for 线上游戏的老婆不可能是女生？
         return [i for i in data if '[TSDM&LoveEcho!漫画组]' not in i['title']]
