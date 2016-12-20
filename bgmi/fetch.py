@@ -226,7 +226,6 @@ def parse_episode(data):
 
     _ = FETCH_EPISODE_WITH_BRACKETS.findall(data)
     if _ and _[0].isdigit():
-        print(_)
         return int(_[0])
 
     for split_token in ['【', '[', ' ']:
