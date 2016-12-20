@@ -33,6 +33,7 @@ class BangumiTest(unittest.TestCase):
                                           'oge no Yome wa Onnanoko ja Nai to Omotta】【05】【GB_MP4】【1280X720】'))
         self.assertEqual(12, parse_episode('[啊啊字幕组] [在下坂本,有何贵干][12][GB][720P][PSV&PC]'))
         self.assertEqual(0, parse_episode('[KNA][NEW GAME!][SP][1280x720][x264_AAC][BIG5]'))
+        self.assertEqual(10, parse_episode('【极影字幕社】★ Occultic;Nine 第10集 BIG5 AVC 720p MP4'))
 
     def test_get_maximum_episode(self):
         # Deprecated test
