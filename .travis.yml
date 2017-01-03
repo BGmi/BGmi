@@ -1,6 +1,5 @@
 os:
     - linux
-    - windows
 
 language: python
 python:
@@ -13,7 +12,7 @@ install:
     - python setup.py install
 
 env:
-    - TRAVIS_CI=23333
+    - TRAVIS_CI=TRAVIS_CI
 
 script:
     - python -m unittest discover
