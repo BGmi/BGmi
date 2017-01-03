@@ -35,7 +35,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 
 def unicode_(s):
-    if bgmi.config.IS_PYTHON3:
+    if not bgmi.config.IS_PYTHON3:
         unicode_string = s.decode(sys.getfilesystemencoding())
         return unicode_string
     else:
