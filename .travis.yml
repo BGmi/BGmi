@@ -30,6 +30,6 @@ script:
     - bgmi add "Rewrite" "天真與閃電"
     - bgmi followed --mark Rewrite --episode 0
     - bgmi mark Rewrite 1
-    - bgmi update --name "Rewrite" "天真與閃電"
+    - bgmi update "Rewrite" "天真與閃電"
     - bgmi filter "Rewrite" --subtitle "愛戀,星岡,千夏" --include "简体" --exclude "720p,720P"
     - bgmi fetch "Rewrite"
