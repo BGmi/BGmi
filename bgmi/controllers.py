@@ -118,7 +118,7 @@ def update(ret):
     print_info('updating subscriptions ...')
     download_queue = []
 
-    if ret.name is None:
+    if not ret.name:
         updated_bangumi_obj = Followed.get_all_followed()
     else:
         updated_bangumi_obj = []
@@ -224,6 +224,10 @@ def followed(ret):
         mark(ret)
 
 
+def list_(ret):
+     bangumi_calendar(force_update=False, followed=True, save=False)
+
+
 def fetch_(ret):
     bangumi_obj = Bangumi(name=ret.name)
     bangumi_obj.select_obj()
@@ -258,6 +262,8 @@ CONTROLLERS_DICT = {
     ACTION_FETCH: fetch_,
     ACTION_CONFIG: config,
     ACTION_FOLLOWED: followed,
+    ACTION_MARK: mark,
+    ACTION_LIST: list_,
 }
 
 

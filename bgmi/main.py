@@ -47,6 +47,8 @@ def main():
     sub_parser_add.add_argument('--not-ignore', action='store_true',
                                 help='Do not ignore the old bangumi detail rows (3 month ago).')
 
+    sub_parser_list = sub_parser.add_parser(ACTION_LIST, help='List subscribed bangumi.')
+
     sub_parser_filter = sub_parser.add_parser(ACTION_FILTER, help='Set bangumi fetch filter.')
     sub_parser_filter.add_argument('name', metavar='name', type=unicode, help='Bangumi name to set the filter.')
     sub_parser_filter.add_argument('--subtitle', metavar='subtitle', type=unicode,
@@ -66,7 +68,7 @@ def main():
 
     sub_parser_update = sub_parser.add_parser(ACTION_UPDATE, help='Update bangumi calendar and '
                                               'subscribed bangumi episode.')
-    sub_parser_update.add_argument('--name', metavar='name', type=unicode, nargs='+', help='Update specified bangumi.')
+    sub_parser_update.add_argument('name', metavar='name', type=unicode, nargs='*', help='Update specified bangumi.')
     sub_parser_update.add_argument('--download', action='store_true', help='Download the bangumi when updated.')
     sub_parser_update.add_argument('--not-ignore', action='store_true',
                                    help='Do not ignore the old bangumi detail rows (3 month ago).')
@@ -83,6 +85,10 @@ def main():
     sub_parser_config = sub_parser.add_parser(ACTION_CONFIG, help='Config BGmi.')
     sub_parser_config.add_argument('--name', type=unicode, help='Config name')
     sub_parser_config.add_argument('--value', type=unicode, help='Config value')
+
+    sub_parser_mark = sub_parser.add_parser(ACTION_MARK, help='Mark bangumi episode.')
+    sub_parser_mark.add_argument('name', help='Bangumi name')
+    sub_parser_mark.add_argument('episode', help='Bangumi episode', type=int)
 
     sub_parser_followed = sub_parser.add_parser(ACTION_FOLLOWED, help='Subscribed bangumi manager.')
     sub_parser_followed_mutex = sub_parser_followed.add_mutually_exclusive_group(required=True)
