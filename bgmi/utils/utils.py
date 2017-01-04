@@ -1,11 +1,16 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
+import os
+import time
 import platform
 import struct
 import functools
+import requests
 from bgmi import __version__
-from bgmi.config import FETCH_URL, IS_PYTHON3
+from bgmi.config import FETCH_URL, IS_PYTHON3, BGMI_PATH
 from bgmi.utils.langconv import Converter
+
+requests.packages.urllib3.disable_warnings()
 
 if platform.system() == 'Windows':
     GREEN = ''
@@ -99,8 +104,6 @@ Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END
 
 
 def test_connection():
-    import requests
-
     try:
         requests.head(FETCH_URL, timeout=5)
     except:
@@ -159,6 +162,28 @@ def get_terminal_col():
                 return sizex
         except:
             return 80
+
+
+def check_update():
+    def update():
+        print_info('Checking update ...')
+        version = requests.get('https://pypi.python.org/pypi/bgmi/json', verify=False).json()['info']['version']
+        if version > __version__:
+            print_warning('Please update bgmi to the latest version {}{}{}'.format(GREEN, version, COLOR_END))
+
+    version_file = os.path.join(BGMI_PATH, 'version')
+    if not os.path.exists(version_file):
+        with open(version_file, 'w') as f:
+            f.write(str(int(time.time())))
+        return update()
+
+    with open(version_file, 'r') as f:
+        try:
+            data = int(f.read())
+            if time.time() - 1 * 24 * 3600 > data:
+                return update()
+        except ValueError:
+            pass
 
 
 if __name__ == '__main__':
