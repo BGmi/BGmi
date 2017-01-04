@@ -44,8 +44,6 @@ def unicode_(s):
 
 # main function
 def main():
-    check_update()
-
     c = argparse.ArgumentParser()
 
     def stop():
@@ -126,6 +124,7 @@ def main():
         bgmi.setup.install()
         raise SystemExit
     else:
+        check_update()
         controllers(ret)
 
 
