@@ -164,12 +164,17 @@ def get_terminal_col():
             return 80
 
 
-def check_update():
+def check_update(mark=True):
     def update():
         print_info('Checking update ...')
         version = requests.get('https://pypi.python.org/pypi/bgmi/json', verify=False).json()['info']['version']
         if version > __version__:
             print_warning('Please update bgmi to the latest version {}{}{}'.format(GREEN, version, COLOR_END))
+        else:
+            print_success('Your BGmi is the latest version.')
+    if not mark:
+        update()
+        raise SystemExit
 
     version_file = os.path.join(BGMI_PATH, 'version')
     if not os.path.exists(version_file):
@@ -180,7 +185,7 @@ def check_update():
     with open(version_file, 'r') as f:
         try:
             data = int(f.read())
-            if time.time() - 1 * 24 * 3600 > data:
+            if time.time() - 7 * 24 * 3600 > data:
                 return update()
         except ValueError:
             pass

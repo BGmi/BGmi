@@ -46,12 +46,12 @@ def unicode_(s):
 def main():
     c = argparse.ArgumentParser()
 
-    def stop():
-        pass
+    c.add_argument('--version', help='Show the version of BGmi.', action='version', version=print_version())
 
     sub_parser = c.add_subparsers(help='BGmi actions', dest='action')
     sub_parser_add = sub_parser.add_parser(ACTION_ADD, help='Subscribe bangumi.')
     sub_parser_add.add_argument('name', metavar='name', type=unicode_, nargs='+', help='Bangumi name')
+    sub_parser_add.add_argument('--episode', metavar='episode', help='Add bangumi and mark it as specified episode.', type=int)
     sub_parser_add.add_argument('--not-ignore', action='store_true',
                                 help='Do not ignore the old bangumi detail rows (3 month ago).')
 
@@ -115,7 +115,7 @@ def main():
                                   help='Do not ignore the old bangumi detail rows (3 month ago).')
 
     sub_parser.add_parser('install', help='Install BGmi download delegate.')
-    c.add_argument('--version', help='Show the version of BGmi.', action='version', version=print_version())
+    sub_parser.add_parser('upgrade', help='Check update.')
 
     ret = c.parse_args()
 
@@ -123,6 +123,8 @@ def main():
         import bgmi.setup
         bgmi.setup.install()
         raise SystemExit
+    elif ret.action == 'upgrade':
+        check_update(mark=False)
     else:
         check_update()
         controllers(ret)

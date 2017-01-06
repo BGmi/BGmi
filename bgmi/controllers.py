@@ -26,8 +26,8 @@ def add(ret):
             followed_obj.select_obj()
             if not followed_obj or followed_obj.status == STATUS_NORMAL:
                 if not followed_obj:
-                    ret, _ = get_maximum_episode(bangumi_obj, subtitle=False)
-                    followed_obj.episode = ret['episode']
+                    bangumi_data, _ = get_maximum_episode(bangumi_obj, subtitle=False)
+                    followed_obj.episode = bangumi_data['episode'] if ret.episode is None else ret.episode
                     followed_obj.save()
                 else:
                     followed_obj.status = STATUS_FOLLOWED
