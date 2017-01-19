@@ -209,7 +209,7 @@ def mark(ret):
     if not followed_obj:
         print_error('Subscribe <%s> does not exist.' % name)
 
-    if episode:
+    if episode is not None:
         followed_obj.episode = episode
         followed_obj.save()
         print_success('%s has been mark as episode: %s' % (followed_obj, followed_obj.episode))
