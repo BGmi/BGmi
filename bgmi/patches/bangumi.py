@@ -20,6 +20,11 @@ class Patch(object):
         # patching for ONE PIECE 海贼王
         return [i for i in data if '161108' not in i['title']]
 
+    def patch_tales_of_zestiria_the_x(self, data):
+        # pathcing for Tales of Zestiria the X
+        return [i for i in data if '[钉铛字幕组]' not in i['title']]
+
+
 
 def main(data):
     patch = Patch()

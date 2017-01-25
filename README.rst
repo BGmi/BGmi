@@ -13,7 +13,7 @@ Empty as my wallet.
 ==========
 Update Log
 ==========
-+ Use argparse to parser command line arguments.
++ Follow bangumi with specified episode
 
 =======
 Feature
@@ -70,7 +70,8 @@ Subscribe bangumi:
 
 .. code-block:: bash
 
-    bgmi add "Re：從零開始的異世界生活" "暗殺教室Ⅱ" "線上遊戲的老婆不可能是女生？" "在下坂本，有何貴幹？" "JoJo的奇妙冒險 不滅鑽石"
+    bgmi add "暗殺教室Ⅱ" "線上遊戲的老婆不可能是女生？" "在下坂本，有何貴幹？" "JoJo的奇妙冒險 不滅鑽石"
+    bgmi add "Re：從零開始的異世界生活" --episode 0
 
 
 Unsubscribe bangumi:
@@ -210,7 +211,7 @@ License
 =======
 The MIT License (MIT)
 
-Copyright (c) 2016 Ricter Zheng
+Copyright (c) 2017 Ricter Zheng
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

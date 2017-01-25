@@ -105,7 +105,7 @@ def write_config(config=None, value=None):
 
 # --------- Writeable ---------- #
 # Setting dmhy url
-DMHY_URL = 'http://dmhy.ricterz.me'
+DMHY_URL = 'https://dmhy.ricterz.me'
 
 # BGmi user path
 BGMI_SAVE_PATH = os.path.join(BGMI_PATH, 'bangumi')
@@ -130,7 +130,7 @@ MAX_PAGE = '2'
 DANMAKU_API_URL = ''
 
 # bangumi cover url
-COVER_URL = 'http://bangumi.ricterz.me/images/'
+COVER_URL = 'https://bangumi.ricterz.me/images/'
 
 
 # ------------------------------ #
@@ -145,7 +145,7 @@ IS_PYTHON3 = sys.version_info > (3, 0)
 
 # Detail URL
 if os.environ.get('TRAVIS_CI', None):
-    FETCH_URL = 'http://bangumi.ricterz.me/calendars/2016-3.html'  # for test
+    FETCH_URL = 'https://bangumi.ricterz.me/calendars/2016-3.html'  # for test
 else:
     FETCH_URL = '{0}/cms/page/name/programme.html'.format(DMHY_URL)
 

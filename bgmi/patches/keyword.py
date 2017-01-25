@@ -9,6 +9,7 @@ patch_dict = {
     '食戟之靈 貳之皿': '食戟%20皿',
     'Show by ROCK!!': 'SHOW+BY+ROCK+第二季',
     '我老婆是學生會長!+!': '老婆%20生會',
+    'Rewrite 2nd': 'Rewrite%202nd',
 }
 
 

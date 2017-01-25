@@ -26,8 +26,8 @@ def add(ret):
             followed_obj.select_obj()
             if not followed_obj or followed_obj.status == STATUS_NORMAL:
                 if not followed_obj:
-                    ret, _ = get_maximum_episode(bangumi_obj, subtitle=False)
-                    followed_obj.episode = ret['episode']
+                    bangumi_data, _ = get_maximum_episode(bangumi_obj, subtitle=False)
+                    followed_obj.episode = bangumi_data['episode'] if ret.episode is None else ret.episode
                     followed_obj.save()
                 else:
                     followed_obj.status = STATUS_FOLLOWED
@@ -118,7 +118,7 @@ def update(ret):
     print_info('updating subscriptions ...')
     download_queue = []
 
-    if ret.name is None:
+    if not ret.name:
         updated_bangumi_obj = Followed.get_all_followed()
     else:
         updated_bangumi_obj = []
@@ -209,7 +209,7 @@ def mark(ret):
     if not followed_obj:
         print_error('Subscribe <%s> does not exist.' % name)
 
-    if episode:
+    if episode is not None:
         followed_obj.episode = episode
         followed_obj.save()
         print_success('%s has been mark as episode: %s' % (followed_obj, followed_obj.episode))
@@ -222,6 +222,10 @@ def followed(ret):
         bangumi_calendar(force_update=False, followed=True, save=False)
     else:
         mark(ret)
+
+
+def list_(ret):
+     bangumi_calendar(force_update=False, followed=True, save=False)
 
 
 def fetch_(ret):
@@ -258,6 +262,8 @@ CONTROLLERS_DICT = {
     ACTION_FETCH: fetch_,
     ACTION_CONFIG: config,
     ACTION_FOLLOWED: followed,
+    ACTION_MARK: mark,
+    ACTION_LIST: list_,
 }
 
 
