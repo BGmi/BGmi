@@ -14,6 +14,7 @@ from bgmi.config import BGMI_PATH, DB_PATH
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER
 from bgmi.utils.utils import print_warning, print_error, print_version, unicodeize, check_update
 from bgmi.controllers import controllers
+from bgmi.update import update_database
 from bgmi.constants import *
 
 
@@ -124,6 +125,7 @@ def main():
         bgmi.setup.install()
         raise SystemExit
     elif ret.action == 'upgrade':
+        update_database()
         check_update(mark=False)
     else:
         check_update()
@@ -159,4 +161,3 @@ def setup():
 
 if __name__ == '__main__':
     setup()
-

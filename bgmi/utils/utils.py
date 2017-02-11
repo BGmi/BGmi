@@ -169,7 +169,8 @@ def check_update(mark=True):
         print_info('Checking update ...')
         version = requests.get('https://pypi.python.org/pypi/bgmi/json', verify=False).json()['info']['version']
         if version > __version__:
-            print_warning('Please update bgmi to the latest version {}{}{}'.format(GREEN, version, COLOR_END))
+            print_warning('Please update bgmi to the latest version {}{}{}.'
+                          '\nThen execute `bgmi upgrade` to migrate database'.format(GREEN, version, COLOR_END))
         else:
             print_success('Your BGmi is the latest version.')
     if not mark:

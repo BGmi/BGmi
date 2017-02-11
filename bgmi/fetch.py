@@ -237,9 +237,13 @@ def parse_episode(data):
     return 0
 
 
-def fetch_episode(keyword, name='', subtitle_group=None, include=None, exclude=None):
+def fetch_episode(keyword, name='', subtitle_group=None, **kwargs):
     result = []
     keyword = bgmi.patches.keyword.main(name, keyword)
+
+    include = kwargs.get('include', None)
+    exclude = kwargs.get('exclude', None)
+    regex = kwargs.get('regex', None)
 
     for page in range(1, int(MAX_PAGE)+1):
         response = get_response(DETAIL_URL.replace('[PAGE]', str(page)) + keyword)
@@ -293,6 +297,13 @@ def fetch_episode(keyword, name='', subtitle_group=None, include=None, exclude=N
                 result = list(filter(lambda s: True if all(map(lambda t: _(t) not in _(s['title']),
                                                                exclude_list)) else False, result))
 
+            if regex:
+                try:
+                    match = re.compile(regex)
+                    result = list(filter(lambda s: True if match.findall(s) else False, result))
+                except re.error:
+                    pass
+
     result = bgmi.patches.bangumi.main(data=result)
     return result
 
@@ -305,10 +316,11 @@ def get_maximum_episode(bangumi, subtitle=True, ignore_old_row=True):
     subtitle_group = followed_filter_obj.subtitle if followed_filter_obj and subtitle else None
     include = followed_filter_obj.include if followed_filter_obj and subtitle else None
     exclude = followed_filter_obj.exclude if followed_filter_obj and subtitle else None
+    regex = followed_filter_obj.regex if followed_filter_obj and subtitle else None
 
     data = [i for i in fetch_episode(keyword=bangumi.keyword, name=bangumi.name,
                                      subtitle_group=subtitle_group,
-                                     include=include, exclude=exclude)
+                                     include=include, exclude=exclude, regex=regex)
             if i['episode'] is not None]
 
     if ignore_old_row:
