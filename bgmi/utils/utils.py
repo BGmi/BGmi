@@ -186,6 +186,8 @@ def check_update(mark=True):
         try:
             data = int(f.read())
             if time.time() - 7 * 24 * 3600 > data:
+                with open(version_file, 'w') as f:
+                    f.write(str(int(time.time())))
                 return update()
         except ValueError:
             pass
