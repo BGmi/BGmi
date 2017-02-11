@@ -76,7 +76,7 @@ def filter_(ret):
     if exclude is not None:
         followed_filter_obj.exclude = exclude
 
-    if exclude is not None:
+    if regex is not None:
         followed_filter_obj.regex = regex
 
     followed_filter_obj.save()

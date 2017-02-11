@@ -300,7 +300,7 @@ def fetch_episode(keyword, name='', subtitle_group=None, **kwargs):
             if regex:
                 try:
                     match = re.compile(regex)
-                    result = list(filter(lambda s: True if match.findall(s) else False, result))
+                    result = list(filter(lambda s: True if match.findall(s['title']) else False, result))
                 except re.error:
                     pass
 
