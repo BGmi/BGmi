@@ -487,4 +487,4 @@ class Download(DB):
 class Filter(DB):
     table = 'filter'
     primary_key = ('bangumi_name', )
-    fields = ('bangumi_name', 'subtitle', 'include', 'exclude', )
+    fields = ('bangumi_name', 'subtitle', 'include', 'exclude', 'regex', )

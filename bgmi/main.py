@@ -66,6 +66,8 @@ def main():
                                    help='Filter by keywords which in the title, split by ",".')
     sub_parser_filter.add_argument('--exclude', metavar='exclude', type=unicode_,
                                    help='Filter by keywords which not int the title, split by ",".')
+    sub_parser_filter.add_argument('--regex', metavar='regex', type=unicode_,
+                                   help='Filter by regular expression')
 
     sub_parser_del = sub_parser.add_parser(ACTION_DELETE, help='Unsubscribe bangumi.')
     sub_parser_del_mutex = sub_parser_del.add_mutually_exclusive_group(required=True)
