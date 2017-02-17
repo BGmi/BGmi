@@ -66,7 +66,10 @@ def filter_(ret):
 
     if subtitle is not None:
         subtitle = map(lambda s: s.strip(), subtitle.split(','))
-        subtitle = filter(lambda s: True if s in bangumi_obj.subtitle_group.split(', ') else False, subtitle)
+
+        subtitle_list = [s.split('.')[0] for s in bangumi_obj.subtitle_group.split(', ') if '.' in s]
+
+        subtitle = filter(lambda s: True if s in subtitle_list else False, subtitle)
         subtitle = ', '.join(subtitle)
         followed_filter_obj.subtitle = subtitle
 
