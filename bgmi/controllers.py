@@ -56,6 +56,7 @@ def filter_(ret):
     subtitle = ret.subtitle
     include = ret.include
     exclude = ret.exclude
+    regex = ret.regex
 
     followed_filter_obj = Filter(bangumi_name=ret.name)
     followed_filter_obj.select_obj()
@@ -65,7 +66,12 @@ def filter_(ret):
 
     if subtitle is not None:
         subtitle = map(lambda s: s.strip(), subtitle.split(','))
-        subtitle = filter(lambda s: True if s in bangumi_obj.subtitle_group.split(', ') else False, subtitle)
+
+        subtitle_list = [s.split('.')[0] for s in bangumi_obj.subtitle_group.split(', ')
+                         if '.' in s]
+        subtitle_list.extend(bangumi_obj.subtitle_group.split(', '))
+
+        subtitle = filter(lambda s: True if s in subtitle_list else False, subtitle)
         subtitle = ', '.join(subtitle)
         followed_filter_obj.subtitle = subtitle
 
@@ -75,12 +81,16 @@ def filter_(ret):
     if exclude is not None:
         followed_filter_obj.exclude = exclude
 
+    if regex is not None:
+        followed_filter_obj.regex = regex
+
     followed_filter_obj.save()
 
     print_info('Usable subtitle group: {0}'.format(bangumi_obj.subtitle_group))
     print_success('Added subtitle group: {0}'.format(followed_filter_obj.subtitle))
     print_success('Include keywords: {0}'.format(followed_filter_obj.include))
     print_success('Exclude keywords: {0}'.format(followed_filter_obj.exclude))
+    print_success('Regular expression: {0}'.format(followed_filter_obj.regex))
 
 
 def delete(ret):

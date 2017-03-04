@@ -14,6 +14,7 @@ from bgmi.config import BGMI_PATH, DB_PATH
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER
 from bgmi.utils.utils import print_warning, print_error, print_version, unicodeize, check_update
 from bgmi.controllers import controllers
+from bgmi.update import update_database
 from bgmi.constants import *
 
 
@@ -65,6 +66,8 @@ def main():
                                    help='Filter by keywords which in the title, split by ",".')
     sub_parser_filter.add_argument('--exclude', metavar='exclude', type=unicode_,
                                    help='Filter by keywords which not int the title, split by ",".')
+    sub_parser_filter.add_argument('--regex', metavar='regex', type=unicode_,
+                                   help='Filter by regular expression')
 
     sub_parser_del = sub_parser.add_parser(ACTION_DELETE, help='Unsubscribe bangumi.')
     sub_parser_del_mutex = sub_parser_del.add_mutually_exclusive_group(required=True)
@@ -124,6 +127,7 @@ def main():
         bgmi.setup.install()
         raise SystemExit
     elif ret.action == 'upgrade':
+        update_database()
         check_update(mark=False)
     else:
         check_update()
@@ -159,4 +163,3 @@ def setup():
 
 if __name__ == '__main__':
     setup()
-

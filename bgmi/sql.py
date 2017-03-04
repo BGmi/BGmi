@@ -34,5 +34,6 @@ CREATE_TABLE_FOLLOWED_FILTER = '''CREATE TABLE IF NOT EXISTS filter (
           bangumi_name TEXT  UNIQUE NOT NULL,
           subtitle TEXT,
           include TEXT,
-          exclude TEXT
+          exclude TEXT,
+          regex TEXT
         )'''
