@@ -10,6 +10,10 @@
     <script src="/static/js/material.min.js"></script>
     <script src="/static/js/dialog-polyfill.js"></script>
     <style>
+        .followed {
+          color: #000;
+        }
+
         .strong {
             font-weight: 900;
         }
@@ -149,7 +153,7 @@
 	{% for i, v in enumerate(cal.items()) %}
 	    <h5 class="{% if i == 0 %}strong{% end %}">{{ v[0] }}.</h5>
 	    {% for row in v[1] %}
-	        {{ row['name'] }} /
+	        {% if row['name'] in followed %}<b class="followed">{{ row['name'] }}</b>{% else %}{{ row['name'] }}{% end %} /
 	    {% end %}
 	{% end %}
         </p>
