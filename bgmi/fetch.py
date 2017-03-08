@@ -10,15 +10,13 @@ from collections import defaultdict
 from itertools import chain
 
 import requests
-from bs4 import BeautifulSoup
 
 import bgmi.config
-from bgmi.config import FETCH_URL, TEAM_URL, NAME_URL, DETAIL_URL, MAX_PAGE
-from bgmi.models import Bangumi, Followed, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED
+from bgmi.config import FETCH_URL, TEAM_URL, NAME_URL, DETAIL_URL, MAX_PAGE, IS_PYTHON3
+from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED
 from bgmi.utils.utils import print_error, print_warning, print_info, \
-    test_connection, bug_report, get_terminal_col, _, GREEN, YELLOW, COLOR_END
-import bgmi.patches.bangumi
-import bgmi.patches.keyword
+    test_connection, bug_report, get_terminal_col, GREEN, YELLOW, COLOR_END
+
 
 if bgmi.config.IS_PYTHON3:
     _unicode = str

@@ -10,18 +10,6 @@ class BangumiTest(unittest.TestCase):
         with open(os.path.join(os.path.dirname(__file__), 'programme.html')) as f:
             self.bangumi_data = f.read()
 
-    def test_process_subtitle(self):
-        test_data = '<a href="/topics/list?keyword=%E7%88%86%E9%9F%B3%E5%B0%91%E5%A5%B3%7Cbakuon+t' \
-                    'eam_id%3A533">花語</a><a href="/topics/list?keyword=%E7%88%86%E9%9F%B3%E5%B0%' \
-                    '91%E5%A5%B3%7Cbakuon+team_id%3A459">紫音</a><a href="/topics/list?keyword=%E7' \
-                    '%88%86%E9%9F%B3%E5%B0%91%E5%A5%B3%7Cbakuon+team_id%3A533"></a>'
-        ret_data = process_subtitle(test_data)
-        self.assertEqual(['花語', '紫音'], ret_data)
-
-    def test_parse_bangumi(self):
-        result = parser_bangumi(self.bangumi_data)
-        self.assertEqual(sum(map(len, result.values())), 71)
-
     def test_parse_episode(self):
         self.assertEqual(2, parse_episode('[Mabors Sub] Sakamoto Desu ga - 02 [GB][720P][PSV&PC]'))
         self.assertEqual(2, parse_episode('[Mabors Sub] Sakamoto Desu ga - 02 GB 720P PSV&PC'))

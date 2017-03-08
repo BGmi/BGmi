@@ -8,7 +8,6 @@ import functools
 import requests
 from bgmi import __version__
 from bgmi.config import FETCH_URL, IS_PYTHON3, BGMI_PATH
-from bgmi.utils.langconv import Converter
 
 requests.packages.urllib3.disable_warnings()
 
@@ -63,10 +62,6 @@ def colorize(f):
         args = tuple(map(lambda s: b + s + e, args))
         return f(*args, **kwargs)
     return wrapper
-
-
-def _(data):
-    return Converter('zh-hans').convert(data)
 
 
 @indicator
@@ -193,6 +188,3 @@ def check_update(mark=True):
         except ValueError:
             pass
 
-
-if __name__ == '__main__':
-    print(_('西農YUI'))
