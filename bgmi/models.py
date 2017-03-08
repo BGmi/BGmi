@@ -501,30 +501,26 @@ class Subtitle(DB):
 
     @staticmethod
     def get_subtitle(l=None):
+        l = list(l)
         db = DB.connect_db()
         db.row_factory = make_dicts
         cur = db.cursor()
-        if not isinstance(l, list):
-            l = [l]
-
         sql = DB._make_sql('select', fields='name', table=Subtitle.table,
                            condition=['id'] * len(l), operation='OR')
-        cur.execute(sql, tuple(l))
+        cur.execute(sql, l)
         data = cur.fetchall()
         DB.close_db(db)
         return data
 
     @staticmethod
     def get_subtitle_by_name(l=None):
+        l = list(l)
         db = DB.connect_db()
         db.row_factory = make_dicts
         cur = db.cursor()
-        if not isinstance(l, list):
-            l = [l]
-
         sql = DB._make_sql('select', fields='id', table=Subtitle.table,
                            condition=['name'] * len(l), operation='OR')
-        cur.execute(sql, tuple(l))
+        cur.execute(sql, l)
         data = cur.fetchall()
         DB.close_db(db)
         return data
