@@ -105,7 +105,7 @@ def write_config(config=None, value=None):
 
 # --------- Writeable ---------- #
 # Setting dmhy url
-BANGUMI_MOE_URL = 'https://bangumi.moe'
+BANGUMI_MOE_URL = 'http://bangumi_moe.ricterz.me'
 
 # BGmi user path
 BGMI_SAVE_PATH = os.path.join(BGMI_PATH, 'bangumi')
