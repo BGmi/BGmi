@@ -263,12 +263,12 @@ def fetch_episode(_id, name='', **kwargs):
 
     if include:
         include_list = map(lambda s: s.strip(), include.split(','))
-        result = list(filter(lambda s: True if all(map(lambda t: _(t) in _(s['title']),
+        result = list(filter(lambda s: True if all(map(lambda t: t in s['title'],
                                                        include_list)) else False, result))
 
     if exclude:
         exclude_list = map(lambda s: s.strip(), exclude.split(','))
-        result = list(filter(lambda s: True if all(map(lambda t: _(t) not in _(s['title']),
+        result = list(filter(lambda s: True if all(map(lambda t: t not in s['title'],
                                                        exclude_list)) else False, result))
 
     if regex:
