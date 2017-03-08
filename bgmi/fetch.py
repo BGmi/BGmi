@@ -1,6 +1,7 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 
+import os
 import time
 import datetime
 import re
@@ -12,9 +13,9 @@ import requests
 from bs4 import BeautifulSoup
 
 import bgmi.config
-from bgmi.config import FETCH_URL, DETAIL_URL, MAX_PAGE
-from bgmi.models import Bangumi, Followed, Filter, STATUS_FOLLOWED, STATUS_UPDATED
-from bgmi.utils.utils import print_error, print_warning, print_info, unicodeize, \
+from bgmi.config import FETCH_URL, TEAM_URL, NAME_URL, DETAIL_URL, MAX_PAGE
+from bgmi.models import Bangumi, Followed, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED
+from bgmi.utils.utils import print_error, print_warning, print_info, \
     test_connection, bug_report, get_terminal_col, _, GREEN, YELLOW, COLOR_END
 import bgmi.patches.bangumi
 import bgmi.patches.keyword
@@ -24,22 +25,17 @@ if bgmi.config.IS_PYTHON3:
 else:
     _unicode = unicode
 
-BANGUMI_MATCH = re.compile("(?P<update_time>sun|mon|tue|wed|thu|fri|sat)"
-                           "array\.push\(\['.*?','(?P<name>.*?)','(?P<ke"
-                           "yword>.*?)','(?P<subtitle_group>.*?)','.*?'"
-                           "\]\)")
-
-SUBTITLE_MATCH = re.compile("<a href=\".*?\">(.*?)</a>")
-
 
 def bangumi_calendar(force_update=False, today=False, followed=False, save=True):
     env_columns = get_terminal_col()
 
-    if env_columns < 36:
-        print_warning('terminal window is too small.')
-        env_columns = 36
+    COL = 42
 
-    row = int(env_columns / 36 if env_columns / 36 <= 3 else 3)
+    if env_columns < COL:
+        print_warning('terminal window is too small.')
+        env_columns = COL
+
+    row = int(env_columns / COL if env_columns / COL <= 3 else 3)
 
     if force_update and not test_connection():
         force_update = False
@@ -71,7 +67,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
         return seq[n:] + seq[:n]
 
     def print_line():
-        num = 33
+        num = COL - 3
         # print('+', '-' * num, '+', '-' * num, '+', '-' * num, '+')
         split = '-' * num + '   '
         print(split * row)
@@ -81,8 +77,9 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
     else:
         weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
 
-    spacial_append_chars = ['Ⅱ', 'Ⅲ', '♪', 'Δ', '×', '☆', 'é']
+    spacial_append_chars = ['Ⅱ', 'Ⅲ', '♪', 'Δ', '×', '☆', 'é', '·']
     spacial_remove_chars = []
+
     for index, weekday in enumerate(weekday_order):
         if weekly_list[weekday.lower()]:
             print('%s%s. %s' % (GREEN,
@@ -102,7 +99,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
 
                 half = len(re.findall('[%s]' % string.printable, bangumi['name']))
                 full = (len(bangumi['name']) - half)
-                space_count = 34 - (full * 2 + half)
+                space_count = COL - 2 - (full * 2 + half)
 
                 for s in spacial_append_chars:
                     if s in bangumi['name']:
@@ -121,7 +118,8 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
                 if followed:
                     if i > 0:
                         print(' ' * 5, end='')
-                    print(bangumi['name'], bangumi['subtitle_group'])
+                    f = map(lambda s: s['name'], Subtitle.get_subtitle(bangumi['subtitle_group'].split(', ')))
+                    print(bangumi['name'], ', '.join(f))
                 else:
                     print(' ' + bangumi['name'], ' ' * space_count, end='')
                     if (i + 1) % row == 0 or i + 1 == len(weekly_list[weekday.lower()]):
@@ -132,9 +130,11 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
                 # print_line()
 
 
-def get_response(url):
+def get_response(url, method='GET', **kwargs):
+    if os.environ.get('DEBUG'):
+        print_info('Request URL: {0}'.format(url))
     try:
-        return unicodeize(requests.get(url).content)
+        return getattr(requests, method.lower())(url, **kwargs).json()
     except requests.ConnectionError:
         print_error('error: failed to establish a new connection')
 
@@ -142,48 +142,44 @@ def get_response(url):
 def process_subtitle(data):
     '''get subtitle group name from links
     '''
-    special_subtitle_group = ['A.I.R.nes', ]
-
-    result = SUBTITLE_MATCH.findall(data)
-
-    '''
-    subtitle_list = []
-    for i in result:
-        s_list = []
-        for s in special_subtitle_group:
-            if s in i:
-                index_of_s = i.index(s)
-                s_list.append(i[index_of_s:(len(s)+index_of_s)])
-                i = i[0:index_of_s] + i[(len(s)+index_of_s):]
-
-        subtitle_list.extend(i.split('.'))
-        subtitle_list.extend(s_list)
-    '''
-    # ['', 'a'] -> ['a']
-    return [i for i in result if i]
+    result = []
+    for s in data:
+        f = Subtitle(id=s['tag_id'], name=s['name'])
+        if not f.select():
+            f.save()
+        result.append(s['tag_id'])
+    return result
 
 
-def parser_bangumi(data, group_by_weekday=True, status=False):
+def process_name(data):
+    return {i['_id']: i['locale']['zh_cn'] for i in data}
+
+
+def parser_bangumi(data, group_by_weekday=True):
     '''match weekly bangumi list from data
     '''
-    result = BANGUMI_MATCH.finditer(data)
+
+    ids = list(map(lambda b: b['tag_id'], data))
+    subtitle = get_response(TEAM_URL, 'POST', json={'tag_ids': ids})
+    name = process_name(get_response(NAME_URL, 'POST', json={'_ids': ids}))
+
     if group_by_weekday:
         weekly_list = defaultdict(list)
     else:
         weekly_list = []
-    for i in result:
-        bangumi_item = i.groupdict()
-        bangumi_item['status'] = 0
-        bangumi_item['subtitle_group'] = process_subtitle(bangumi_item['subtitle_group'])
-        if status:
-            f = Followed(bangumi_name=bangumi_item['name']).select(one=True, fields='status')
-            if f:
-                bangumi_item['status'] = f['status']
+
+    for bangumi_item in data:
+        item = {}
+        item['status'] = 0
+        item['subtitle_group'] = process_subtitle(subtitle.get(bangumi_item['tag_id'], []))
+        item['name'] = name[bangumi_item['tag_id']]
+        item['keyword'] = bangumi_item['tag_id']
+        item['update_time'] = Bangumi.week[bangumi_item['showOn']-1]
 
         if group_by_weekday:
-            weekly_list[bangumi_item['update_time']].append(bangumi_item)
+            weekly_list[Bangumi.week[bangumi_item['showOn']-1].lower()].append(item)
         else:
-            weekly_list.append(bangumi_item)
+            weekly_list.append(item)
 
     if not weekly_list:
         bug_report()
@@ -195,15 +191,16 @@ def fetch(save=False, group_by_weekday=True, status=False):
     if not response:
         return
 
-    result = parser_bangumi(response, group_by_weekday=group_by_weekday, status=status)
+    result = parser_bangumi(response, group_by_weekday=group_by_weekday)
+
     if save:
         if group_by_weekday:
-            data = parser_bangumi(response, group_by_weekday=False)
+            for i in result.values():
+                for bangumi in i:
+                    save_data(bangumi)
         else:
-            data = result
-
-        for bangumi in data:
-            save_data(bangumi)
+            for bangumi in result:
+                save_data(bangumi)
 
     return result
 
@@ -237,74 +234,52 @@ def parse_episode(data):
     return 0
 
 
-def fetch_episode(keyword, name='', subtitle_group=None, **kwargs):
+def fetch_episode(_id, name='', **kwargs):
     result = []
-    keyword = bgmi.patches.keyword.main(name, keyword)
+    response_data = []
 
+    subtitle_group = kwargs.get('subtitle_group', None)
     include = kwargs.get('include', None)
     exclude = kwargs.get('exclude', None)
     regex = kwargs.get('regex', None)
 
-    for page in range(1, int(MAX_PAGE)+1):
-        response = get_response(DETAIL_URL.replace('[PAGE]', str(page)) + keyword)
+    if subtitle_group and subtitle_group.split(', '):
+        condition = subtitle_group.split(', ')
+        for c in condition:
+            data = {'tag_id': [_id, c]}
+            response = get_response(DETAIL_URL, 'POST', json=data)
+            response_data.extend(response['torrents'])
+    else:
+        response_data = get_response(DETAIL_URL, 'POST', json={'tag_id': [_id]})['torrents']
 
-        if not response:
-            break
+    for info in response_data:
+        result.append({
+            'download': info['magnet'],
+            'name': name,
+            'subtitle_group': info['team_id'],
+            'title': info['title'],
+            'episode': parse_episode(info['title']),
+            'time': int(time.mktime(datetime.datetime.strptime(info['publish_time'].split('.')[0],
+                                                               "%Y-%m-%dT%H:%M:%S").timetuple()))
+        })
 
-        b = BeautifulSoup(response, 'lxml')
-        container = b.find('table', attrs={'class': 'tablesorter'})
+    if include:
+        include_list = map(lambda s: s.strip(), include.split(','))
+        result = list(filter(lambda s: True if all(map(lambda t: _(t) in _(s['title']),
+                                                       include_list)) else False, result))
 
-        if not container:
-            break
+    if exclude:
+        exclude_list = map(lambda s: s.strip(), exclude.split(','))
+        result = list(filter(lambda s: True if all(map(lambda t: _(t) not in _(s['title']),
+                                                       exclude_list)) else False, result))
 
-        for info in container.tbody.find_all('tr'):
-            bangumi_update_info = {}
-            if '動畫' not in unicodeize(info.text):
-                continue
+    if regex:
+        try:
+            match = re.compile(regex)
+            result = list(filter(lambda s: True if match.findall(s['title']) else False, result))
+        except re.error:
+            pass
 
-            for i, detail in enumerate(info.find_all('td')):
-                if i == 0:
-                    row_time = int(time.mktime(datetime.datetime.strptime(detail.span.text,
-                                                                          "%Y/%m/%d %H:%M").timetuple()))
-                    bangumi_update_info['time'] = row_time
-                if i == 2:
-                    title = detail.find('a', attrs={'target': '_blank'}).text.strip()
-                    subtitle = detail.find('span', attrs={'class': 'tag'})
-                    subtitle = subtitle.a.text.strip() if subtitle else ''
-                    bangumi_update_info['name'] = name
-                    bangumi_update_info['title'] = title
-                    bangumi_update_info['subtitle_group'] = subtitle
-                    bangumi_update_info['episode'] = parse_episode(title)
-                if i == 3:
-                    bangumi_update_info['download'] = detail.find('a').attrs.get('href')
-
-            # filter subtitle group
-            if subtitle_group:
-                subtitle_group_list = map(lambda s: s.strip(), subtitle_group.split(','))
-                for s in subtitle_group_list:
-                    if _(s) in _(bangumi_update_info['subtitle_group']):
-                        result.append(bangumi_update_info)
-            else:
-                result.append(bangumi_update_info)
-
-            if include:
-                include_list = map(lambda s: s.strip(), include.split(','))
-                result = list(filter(lambda s: True if all(map(lambda t: _(t) in _(s['title']),
-                                                               include_list)) else False, result))
-
-            if exclude:
-                exclude_list = map(lambda s: s.strip(), exclude.split(','))
-                result = list(filter(lambda s: True if all(map(lambda t: _(t) not in _(s['title']),
-                                                               exclude_list)) else False, result))
-
-            if regex:
-                try:
-                    match = re.compile(regex)
-                    result = list(filter(lambda s: True if match.findall(s['title']) else False, result))
-                except re.error:
-                    pass
-
-    result = bgmi.patches.bangumi.main(data=result)
     return result
 
 
@@ -318,7 +293,7 @@ def get_maximum_episode(bangumi, subtitle=True, ignore_old_row=True):
     exclude = followed_filter_obj.exclude if followed_filter_obj and subtitle else None
     regex = followed_filter_obj.regex if followed_filter_obj and subtitle else None
 
-    data = [i for i in fetch_episode(keyword=bangumi.keyword, name=bangumi.name,
+    data = [i for i in fetch_episode(_id=bangumi.keyword, name=bangumi.name,
                                      subtitle_group=subtitle_group,
                                      include=include, exclude=exclude, regex=regex)
             if i['episode'] is not None]

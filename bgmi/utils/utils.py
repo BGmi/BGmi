@@ -105,7 +105,7 @@ Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END
 
 def test_connection():
     try:
-        requests.head(FETCH_URL, timeout=5)
+        requests.head(FETCH_URL, timeout=10)
     except:
         return False
 

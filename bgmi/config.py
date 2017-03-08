@@ -10,11 +10,11 @@ except ImportError:
     import configparser
 
 
-__all__ = ('DMHY_URL', 'BGMI_PATH', 'DB_PATH', 'BGMI_SAVE_PATH',
+__all__ = ('BANGUMI_MOE_URL', 'BGMI_PATH', 'DB_PATH', 'BGMI_SAVE_PATH',
            'BGMI_LX_PATH', 'DOWNLOAD_DELEGATE', 'CONFIG_FILE_PATH',
            'DETAIL_URL', 'FETCH_URL', 'IS_PYTHON3', 'MAX_PAGE',
            'BGMI_TMP_PATH', 'ARIA2_PATH', 'ARIA2_RPC_URL',
-           'DANMAKU_API_URL', 'COVER_URL', )
+           'DANMAKU_API_URL', 'COVER_URL',)
 
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
                 'IS_PYTHON3', 'DETAIL_URL', 'FETCH_URL')
@@ -105,7 +105,7 @@ def write_config(config=None, value=None):
 
 # --------- Writeable ---------- #
 # Setting dmhy url
-DMHY_URL = 'https://dmhy.ricterz.me'
+BANGUMI_MOE_URL = 'https://bangumi.moe'
 
 # BGmi user path
 BGMI_SAVE_PATH = os.path.join(BGMI_PATH, 'bangumi')
@@ -144,9 +144,7 @@ read_config()
 IS_PYTHON3 = sys.version_info > (3, 0)
 
 # Detail URL
-if os.environ.get('TRAVIS_CI', None):
-    FETCH_URL = 'https://bangumi.ricterz.me/calendars/2016-3.html'  # for test
-else:
-    FETCH_URL = '{0}/cms/page/name/programme.html'.format(DMHY_URL)
-
-DETAIL_URL = '{0}/topics/list/page/[PAGE]?keyword='.format(DMHY_URL)
+FETCH_URL = '{0}/api/bangumi/current'.format(BANGUMI_MOE_URL)
+TEAM_URL = '{0}/api/team/working'.format(BANGUMI_MOE_URL)
+NAME_URL = '{0}/api/tag/fetch'.format(BANGUMI_MOE_URL)
+DETAIL_URL = '{0}/api/torrent/search'.format(BANGUMI_MOE_URL)

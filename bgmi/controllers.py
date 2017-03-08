@@ -4,7 +4,7 @@ import time
 from bgmi.constants import *
 from bgmi.config import write_config
 from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode
-from bgmi.models import Bangumi, Followed, Download, Filter, STATUS_FOLLOWED, STATUS_UPDATED, \
+from bgmi.models import Bangumi, Followed, Download, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, \
     STATUS_NORMAL, STATUS_NOT_DOWNLOAD
 from bgmi.utils.utils import print_warning, print_info, print_success, print_error
 from bgmi.download import download_prepare
@@ -67,10 +67,11 @@ def filter_(ret):
     if subtitle is not None:
         subtitle = map(lambda s: s.strip(), subtitle.split(','))
 
+        subtitle = map(lambda s: s['id'], Subtitle.get_subtitle_by_name(subtitle))
+
         subtitle_list = [s.split('.')[0] for s in bangumi_obj.subtitle_group.split(', ')
                          if '.' in s]
         subtitle_list.extend(bangumi_obj.subtitle_group.split(', '))
-
         subtitle = filter(lambda s: True if s in subtitle_list else False, subtitle)
         subtitle = ', '.join(subtitle)
         followed_filter_obj.subtitle = subtitle
@@ -86,8 +87,10 @@ def filter_(ret):
 
     followed_filter_obj.save()
 
-    print_info('Usable subtitle group: {0}'.format(bangumi_obj.subtitle_group))
-    print_success('Added subtitle group: {0}'.format(followed_filter_obj.subtitle))
+    print_info('Usable subtitle group: {0}'.format(', '.join(map(lambda s: s['name'],
+                                                   Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', '))))))
+    print_success('Added subtitle group: {0}'.format(', '.join(map(lambda s: s['name'],
+                                                     Subtitle.get_subtitle(followed_filter_obj.subtitle.split(', '))))))
     print_success('Include keywords: {0}'.format(followed_filter_obj.include))
     print_success('Exclude keywords: {0}'.format(followed_filter_obj.exclude))
     print_success('Regular expression: {0}'.format(followed_filter_obj.regex))

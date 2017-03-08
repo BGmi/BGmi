@@ -37,3 +37,9 @@ CREATE_TABLE_FOLLOWED_FILTER = '''CREATE TABLE IF NOT EXISTS filter (
           exclude TEXT,
           regex TEXT
         )'''
+
+
+CREATE_TABLE_SUBTITLE = '''CREATE TABLE IF NOT EXISTS subtitle (
+        id TEXT PRIMARY KEY UNIQUE NOT NULL,
+        name TEXT
+        )'''
