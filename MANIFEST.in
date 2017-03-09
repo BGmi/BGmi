@@ -1,2 +1,3 @@
 include tests
+include requirements.txt
 recursive-include bgmi *
