@@ -102,6 +102,10 @@ class MainHandler(tornado.web.RequestHandler):
             self.finish()
             return
 
+
+        data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING,
+                                         order='followed.updated_time', desc=True)
+        followed = map(lambda b: b['bangumi_name'], data)
         data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING if not is_old else STATUS_END,
                                          order='followed.updated_time', desc=True)
         calendar = Bangumi.get_all_bangumi()
@@ -120,7 +124,8 @@ class MainHandler(tornado.web.RequestHandler):
             self.write(json.dumps(cal_ordered))
             self.finish()
         else:
-            self.render('templates/bangumi.html', data=data, cal=cal_ordered, version=__version__)
+            self.render('templates/bangumi.html', data=data, cal=cal_ordered,
+                        followed=followed, version=__version__)
 
 
 def make_app():
