@@ -304,6 +304,7 @@ class DB(object):
         self._connect_db()
         params = list(data.values())
         params.append(self._id)
+        print(sql, params)
         self.cursor.execute(sql, params)
         self._close_db()
 
@@ -345,7 +346,7 @@ class DB(object):
 class Bangumi(DB):
     table = 'bangumi'
     primary_key = ('name', )
-    fields = ('name', 'update_time', 'subtitle_group', 'keyword', 'status', )
+    fields = ('name', 'update_time', 'subtitle_group', 'keyword', 'status', 'cover', )
     week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
     def __init__(self, **kwargs):
@@ -407,7 +408,7 @@ class Bangumi(DB):
 class Followed(DB):
     table = 'followed'
     primary_key = ('bangumi_name', )
-    fields = ('bangumi_name', 'episode', 'status', 'updated_time', )
+    fields = ('bangumi_name', 'episode', 'status', 'updated_time',)
 
     @staticmethod
     def delete_followed(condition=None, batch=True):
@@ -440,12 +441,12 @@ class Followed(DB):
         db.row_factory = make_dicts
         cur = db.cursor()
         if status is None and bangumi_status is None:
-            sql = DB._make_sql('select', fields=['followed.*'], table=Followed.table,
+            sql = DB._make_sql('select', fields=['followed.*', 'bangumi.cover'], table=Followed.table,
                                join='LEFT JOIN bangumi on bangumi.name=followed.bangumi_name', order=order,
                                desc=desc)
             cur.execute(sql)
         else:
-            sql = DB._make_sql('select', fields=['followed.*'], table=Followed.table,
+            sql = DB._make_sql('select', fields=['followed.*', 'bangumi.cover'], table=Followed.table,
                                join='LEFT JOIN bangumi on bangumi.name=followed.bangumi_name',
                                condition=['!followed.status', 'bangumi.status'], order=order, desc=desc)
             cur.execute(sql, (status, bangumi_status))

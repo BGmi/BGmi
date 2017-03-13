@@ -6,6 +6,7 @@ CREATE_TABLE_BANGUMI = '''CREATE TABLE IF NOT EXISTS bangumi (
           subtitle_group TEXT NOT NULL,
           keyword TEXT,
           update_time CHAR(5) NOT NULL,
+          cover TEXT,
           status INTEGER DEFAULT 0
         )'''
 

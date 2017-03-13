@@ -124,7 +124,7 @@ def unicodeize(data):
 
 
 def bug_report():
-    print_error('It seems that no bangumi found, if https://dmhy.ricterz.me can \n'
+    print_error('It seems that no bangumi found, if https://bangumi.moe can \n'
                 '    be opened normally, please report bug to ricterzheng@gmail.com\n'
                 '    or submit issue at: https://github.com/RicterZ/BGmi/issues',
                 exit_=True)

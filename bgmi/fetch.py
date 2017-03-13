@@ -173,6 +173,7 @@ def parser_bangumi(data, group_by_weekday=True):
         item['name'] = name[bangumi_item['tag_id']]
         item['keyword'] = bangumi_item['tag_id']
         item['update_time'] = Bangumi.week[bangumi_item['showOn']-1]
+        item['cover'] = bangumi_item['cover']
 
         if group_by_weekday:
             weekly_list[Bangumi.week[bangumi_item['showOn']-1].lower()].append(item)
@@ -204,6 +205,7 @@ def fetch(save=False, group_by_weekday=True, status=False):
 
 
 def save_data(data):
+    print(data)
     b = Bangumi(**data)
     b.save()
 
@@ -248,7 +250,9 @@ def fetch_episode(_id, name='', **kwargs):
             response = get_response(DETAIL_URL, 'POST', json=data)
             response_data.extend(response['torrents'])
     else:
-        response_data = get_response(DETAIL_URL, 'POST', json={'tag_id': [_id]})['torrents']
+        response_data = get_response(DETAIL_URL, 'POST', json={'tag_id': [_id]})
+        if response_data:
+            response_data = response_data['torrents']
 
     for info in response_data:
         result.append({
