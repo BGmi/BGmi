@@ -205,7 +205,6 @@ def fetch(save=False, group_by_weekday=True, status=False):
 
 
 def save_data(data):
-    print(data)
     b = Bangumi(**data)
     b.save()
 
