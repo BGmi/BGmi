@@ -10,7 +10,9 @@ import tornado.httpserver
 import tornado.web
 import tornado.template
 from tornado.options import options, define
-from collections import OrderedDict
+from icalendar import Calendar, Event, vText
+
+from collections import OrderedDict, defaultdict
 from bgmi import __version__
 from bgmi.config import BGMI_SAVE_PATH, DB_PATH, DANMAKU_API_URL, COVER_URL
 from bgmi.models import Download, Bangumi, Followed, STATUS_NORMAL, STATUS_UPDATING, STATUS_END
@@ -92,6 +94,33 @@ class RssHandler(tornado.web.RequestHandler):
         self.render('templates/download.xml', data=data)
 
 
+class CalendarHandler(tornado.web.RequestHandler):
+    def get(self):
+        data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING,
+                                         order='followed.updated_time', desc=True)
+
+        bangumi = defaultdict(list)
+        [bangumi[Bangumi.week.index(i['update_time']) + 1].append(i['bangumi_name']) for i in data]
+
+        cal = Calendar()
+        cal.add('prodid', '-//BGmi Followed Bangumi Calendar//bangumi.ricterz.me//')
+        cal.add('version', '2.0')
+
+        weekday = datetime.datetime.now().weekday()
+        for i, k in enumerate(range(weekday, weekday + 7)):
+            event = Event()
+            v = bangumi[k % 7]
+            event.add('summary', ', '.join(v))
+            event.add('dtstart', datetime.datetime.now().date() + datetime.timedelta(i) +
+                      datetime.timedelta(hours=8, minutes=0))
+            event.add('dtend', datetime.datetime.now().date() + datetime.timedelta(i) +
+                      datetime.timedelta(hours=10, minutes=0))
+            cal.add_component(event)
+
+        self.write(cal.to_ical())
+        self.finish()
+
+
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         is_json = self.get_argument('json', False)
@@ -101,7 +130,6 @@ class MainHandler(tornado.web.RequestHandler):
             self.write('BGmi db file not found.')
             self.finish()
             return
-
 
         data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING,
                                          order='followed.updated_time', desc=True)
@@ -140,6 +168,7 @@ def make_app():
         (r'^/player/(.*)/$', BangumiPlayerHandler),
         (r'^/bangumi/(.*)', BangumiHandler),
         (r'^/rss$', RssHandler),
+        (r'^/calendar.ics$', CalendarHandler),
     ], **settings)
 
 

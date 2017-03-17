@@ -440,12 +440,14 @@ class Followed(DB):
         db.row_factory = make_dicts
         cur = db.cursor()
         if status is None and bangumi_status is None:
-            sql = DB._make_sql('select', fields=['followed.*', 'bangumi.cover'], table=Followed.table,
+            sql = DB._make_sql('select', fields=['followed.*', 'bangumi.cover', 'bangumi.update_time'],
+                               table=Followed.table,
                                join='LEFT JOIN bangumi on bangumi.name=followed.bangumi_name', order=order,
                                desc=desc)
             cur.execute(sql)
         else:
-            sql = DB._make_sql('select', fields=['followed.*', 'bangumi.cover'], table=Followed.table,
+            sql = DB._make_sql('select', fields=['followed.*', 'bangumi.cover', 'bangumi.update_time'],
+                               table=Followed.table,
                                join='LEFT JOIN bangumi on bangumi.name=followed.bangumi_name',
                                condition=['!followed.status', 'bangumi.status'], order=order, desc=desc)
             cur.execute(sql, (status, bangumi_status))
