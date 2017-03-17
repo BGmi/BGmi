@@ -108,14 +108,18 @@ class CalendarHandler(tornado.web.RequestHandler):
 
         weekday = datetime.datetime.now().weekday()
         for i, k in enumerate(range(weekday, weekday + 7)):
-            event = Event()
-            v = bangumi[k % 7]
-            event.add('summary', ', '.join(v))
-            event.add('dtstart', datetime.datetime.now().date() + datetime.timedelta(i) +
-                      datetime.timedelta(hours=8, minutes=0))
-            event.add('dtend', datetime.datetime.now().date() + datetime.timedelta(i) +
-                      datetime.timedelta(hours=10, minutes=0))
-            cal.add_component(event)
+            if k in bangumi:
+                event = Event()
+                v = bangumi[k % 7]
+                event.add('summary', ', '.join(v))
+                event.add('dtstart', datetime.datetime.now().date() + datetime.timedelta(i))
+                event.add('dtend', datetime.datetime.now().date() + datetime.timedelta(i))
+                cal.add_component(event)
+
+        cal.add('name', 'Bangumi Calendar')
+        cal.add('X-WR-CALNAM', 'Bangumi Calendar')
+        cal.add('description', 'Followed Bangumi Calendar')
+        cal.add('X-WR-CALDESC', 'Followed Bangumi Calendar')
 
         self.write(cal.to_ical())
         self.finish()
