@@ -304,7 +304,6 @@ class DB(object):
         self._connect_db()
         params = list(data.values())
         params.append(self._id)
-        print(sql, params)
         self.cursor.execute(sql, params)
         self._close_db()
 
