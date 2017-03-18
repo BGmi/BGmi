@@ -14,7 +14,7 @@ __all__ = ('BANGUMI_MOE_URL', 'BGMI_PATH', 'DB_PATH', 'BGMI_SAVE_PATH',
            'BGMI_LX_PATH', 'DOWNLOAD_DELEGATE', 'CONFIG_FILE_PATH',
            'DETAIL_URL', 'FETCH_URL', 'IS_PYTHON3', 'MAX_PAGE',
            'BGMI_TMP_PATH', 'ARIA2_PATH', 'ARIA2_RPC_URL',
-           'DANMAKU_API_URL', 'COVER_URL',)
+           'DANMAKU_API_URL', 'COVER_URL', 'LANG')
 
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
                 'IS_PYTHON3', 'DETAIL_URL', 'FETCH_URL')
@@ -131,6 +131,9 @@ DANMAKU_API_URL = ''
 
 # bangumi cover url
 COVER_URL = 'http://bangumi_moe.ricterz.me'
+
+# language
+LANG = 'zh_cn'
 
 
 # ------------------------------ #

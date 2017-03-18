@@ -12,7 +12,7 @@ from itertools import chain
 import requests
 
 import bgmi.config
-from bgmi.config import FETCH_URL, TEAM_URL, NAME_URL, DETAIL_URL, MAX_PAGE, IS_PYTHON3
+from bgmi.config import FETCH_URL, TEAM_URL, NAME_URL, DETAIL_URL, LANG
 from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED
 from bgmi.utils.utils import print_error, print_warning, print_info, \
     test_connection, bug_report, get_terminal_col, GREEN, YELLOW, COLOR_END
@@ -150,7 +150,8 @@ def process_subtitle(data):
 
 
 def process_name(data):
-    return {i['_id']: i['locale']['zh_cn'] for i in data}
+    lang = 'zh_cn' if LANG not in ('zh_cn', 'zh_tw', 'ja', 'en') else LANG
+    return {i['_id']: i['locale'][lang] for i in data}
 
 
 def parser_bangumi(data, group_by_weekday=True):
