@@ -149,6 +149,7 @@
     <dialog class="mdl-dialog dialog-calendar">
       <h4 class="mdl-dialog__title">Bangumi Calendar</h4>
       <div class="mdl-dialog__content">
+        <a class="mdl-color-text--blue-grey-400" target="_blank" href="/calendar.ics">ICS Calendar for iOS / Android</a>
         <p>
 	{% for i, v in enumerate(cal.items()) %}
 	    <h5 class="{% if i == 0 %}strong{% end %}">{{ v[0] }}.</h5>
