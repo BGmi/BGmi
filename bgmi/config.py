@@ -130,7 +130,7 @@ MAX_PAGE = '2'
 DANMAKU_API_URL = ''
 
 # bangumi cover url
-COVER_URL = 'http://bangumi_moe.ricterz.me'
+COVER_URL = 'https://bangumi_moe.ricterz.me'
 
 # language
 LANG = 'zh_cn'
