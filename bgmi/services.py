@@ -6,7 +6,7 @@ import subprocess
 from tempfile import NamedTemporaryFile
 
 import bgmi.config
-from bgmi.config import BGMI_LX_PATH, BGMI_PATH, BGMI_TMP_PATH, ARIA2_PATH, ARIA2_RPC_URL
+from bgmi.config import BGMI_LX_PATH, BGMI_PATH, BGMI_TMP_PATH, ARIA2_PATH, ARIA2_RPC_URL, WGET_PATH
 from bgmi.utils.utils import print_warning, print_info, print_error, print_success
 from bgmi.models import Download, STATUS_DOWNLOADED, STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING
 
@@ -48,6 +48,7 @@ class DownloadService(object):
         self.overwrite = overwrite
         self.save_path = save_path
         self.episode = download_obj.episode
+        self.return_code = 0
 
     def download(self):
         # download
@@ -68,11 +69,11 @@ class DownloadService(object):
             print_error('{0} not exist, please run command \'bgmi install\' to install'.format(path))
 
     def call(self, command):
-        subprocess.call(command, env={'PATH': '/usr/local/bin:/usr/bin:/bin',
-                                      'HOME': os.environ.get('HOME', '/tmp')})
+        self.return_code = subprocess.call(command, env={'PATH': '/usr/local/bin:/usr/bin:/bin',
+                                                         'HOME': os.environ.get('HOME', '/tmp')})
 
     def check_download(self, name):
-        if not os.path.exists(self.save_path):
+        if not os.path.exists(self.save_path) or self.return_code != 0:
             raise Exception('It seems the bangumi {0} not be downloaded'.format(name))
 
     @staticmethod
@@ -208,6 +209,27 @@ class XunleiLixianDownload(DownloadService):
         print_success('All done')
         print_info('Please run command \'{0} config\' to configure your lixian-xunlei '
                    '(Notice: only for Thunder VIP)'.format(BGMI_LX_PATH))
+
+
+class RRDownload(DownloadService):
+    def __init__(self, *args, **kwargs):
+        self.check_delegate_bin_exist(WGET_PATH)
+        super(RRDownload, self).__init__(*args, **kwargs)
+
+    @staticmethod
+    def install():
+        print_info('Please install curl by yourself')
+
+    def download(self):
+        if not os.path.exists(self.save_path):
+            os.makedirs(self.save_path)
+
+        command = [WGET_PATH, '--no-parent', '-r', '--no-host-directories',
+                   '--cut-dirs', '100', '--reject', 'index.html',
+                   '-P', '{0}/'.format(self.save_path),
+                   'https://bgmi.ricterz.me/bangumi/{0}/{1}/'.format(self.name, self.episode)]
+        print_info('Start download ...')
+        self.call(command)
 
 
 #######################
