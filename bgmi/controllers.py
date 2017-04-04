@@ -88,9 +88,11 @@ def filter_(ret):
     followed_filter_obj.save()
 
     print_info('Usable subtitle group: {0}'.format(', '.join(map(lambda s: s['name'],
-                                                   Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', '))))))
+                                                   Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', ')))))
+               if bangumi_obj.subtitle_group else 'None')
     print_success('Added subtitle group: {0}'.format(', '.join(map(lambda s: s['name'],
-                                                     Subtitle.get_subtitle(followed_filter_obj.subtitle.split(', '))))))
+                                                     Subtitle.get_subtitle(followed_filter_obj.subtitle.split(', '))))
+                  if followed_filter_obj.subtitle else 'None'))
     print_success('Include keywords: {0}'.format(followed_filter_obj.include))
     print_success('Exclude keywords: {0}'.format(followed_filter_obj.exclude))
     print_success('Regular expression: {0}'.format(followed_filter_obj.regex))
