@@ -83,7 +83,7 @@ class BangumiPlayerHandler(tornado.web.RequestHandler):
 class ImageCSSHandler(tornado.web.RequestHandler):
     def get(self):
         data = Followed.get_all_followed(status=None, bangumi_status=None)
-        self.set_header('Content-Type', 'text/css')
+        self.set_header('Content-Type', 'text/css; charset=utf-8')
         self.render('templates/image.css', data=data, image_url=COVER_URL)
 
 
