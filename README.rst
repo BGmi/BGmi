@@ -131,7 +131,7 @@ Show BGmi configure and modify it:
 
 Fields of configure file:
 
-+ :code:`DMHY_URL`: url of dmhy mirror
++ :code:`BANGUMI_MOE_URL`: url of bangumi.moe mirror
 + :code:`BGMI_SAVE_PATH`: bangumi saving path
 + :code:`DOWNLOAD_DELEGATE`: the ways of downloading bangumi (aria2, aria2-rpc, xunlei)
 + :code:`MAX_PAGE`: the max page of fetching bangumi info
@@ -141,6 +141,7 @@ Fields of configure file:
 + :code:`BGMI_LX_PATH`: path of xunlei-lixian binary
 + :code:`DANMAKU_API_URL`: url of danmaku api
 + :code:`CONVER_URL`: url of bangumi's cover
++ :code:`LANG`: language
 
 ==================
 Usage of bgmi_http

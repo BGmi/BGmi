@@ -104,7 +104,7 @@ def write_config(config=None, value=None):
 
 
 # --------- Writeable ---------- #
-# Setting dmhy url
+# Setting bangumi.moe url
 BANGUMI_MOE_URL = 'http://bangumi_moe.ricterz.me'
 
 # BGmi user path
