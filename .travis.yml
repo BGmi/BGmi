@@ -18,17 +18,17 @@ script:
     - python -m unittest discover
     - bgmi -h
     - bgmi cal all
-    - bgmi add "Re：從零開始的異世界生活" "NEW GAME!" "天真與閃電" "食戟之靈 貳之皿"
+    - bgmi add "乌菈菈迷路帖" "One Room" "动物好友" "政宗君的复仇"
     - bgmi update
-    - bgmi delete --name "食戟之靈 貳之皿"
+    - bgmi delete --name "政宗君的复仇"
     - bgmi delete --clear-all --batch
-    - bgmi add "Re：從零開始的異世界生活"
+    - bgmi add "One Room" --episode 1
     - bgmi cal followed
     - bgmi config --name MAX_PAGE --value 3
     - bgmi download --list
-    - bgmi add "Rewrite" "天真與閃電"
-    - bgmi followed --mark Rewrite --episode 0
-    - bgmi mark Rewrite 1
-    - bgmi update "Rewrite" "天真與閃電"
-    - bgmi filter "Rewrite" --subtitle "动漫國,星岡," --exclude "MKV" --regex "720p|720P"
-    - bgmi fetch "Rewrite"
+    - bgmi add "乌菈菈迷路帖" "小林家的龙女仆"
+    - bgmi followed --mark "小林家的龙女仆" --episode 0
+    - bgmi mark "小林家的龙女仆" 1
+    - bgmi update "小林家的龙女仆" "One Room"
+    - bgmi filter "One Room" --subtitle "小林家的龙女仆,RH字幕組,動漫國字幕組,LoliHouse" --exclude "MKV" --regex "720p|720P"
+    - bgmi fetch "One Room"

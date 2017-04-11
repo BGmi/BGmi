@@ -1,5 +1,6 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
+import os
 import sys
 import sqlite3
 from collections import defaultdict
@@ -46,7 +47,7 @@ class DB(object):
     # `primary_key` is one of the fields in a table, which maybe `UNIQUE` or `PRIMARY_KEY`.
     # It will be set when instantiate a DB object, and `primary_key` is used as query condition
     # when `_id` is `None`.
-    primary_key = None
+    primary_key = ()
 
     # all columns of a table except `id`, must be a sequence instance.
     fields = ()
@@ -75,7 +76,8 @@ class DB(object):
         return getattr(self, item)
 
     @staticmethod
-    def _make_sql(method, table, fields=None, data=None, condition=None, join=None, order=None, desc=None):
+    def _make_sql(method, table, fields=None, data=None, condition=None, operation='AND',
+                  join=None, order=None, desc=None):
         '''
         Make SQL statement (just a simple implementation, don't support complex operation).
 
@@ -168,7 +170,7 @@ class DB(object):
                 join = ''
 
             sql = 'SELECT %s FROM `%s` %s WHERE ' % (select, table, join)
-            sql += make_condition(condition)
+            sql += make_condition(condition, operation=operation)
             if order:
                 if '.' in order:
                     sql += 'ORDER BY %s ' % order
@@ -193,6 +195,8 @@ class DB(object):
             else:
                 sql += '1'
 
+        if os.environ.get('DEBUG'):
+            print('EXEC SQL: {0}'.format(sql))
         return sql
 
     def _unicodeize(self):
@@ -341,7 +345,7 @@ class DB(object):
 class Bangumi(DB):
     table = 'bangumi'
     primary_key = ('name', )
-    fields = ('name', 'update_time', 'subtitle_group', 'keyword', 'status', )
+    fields = ('name', 'update_time', 'subtitle_group', 'keyword', 'status', 'cover', )
     week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
     def __init__(self, **kwargs):
@@ -403,7 +407,7 @@ class Bangumi(DB):
 class Followed(DB):
     table = 'followed'
     primary_key = ('bangumi_name', )
-    fields = ('bangumi_name', 'episode', 'status', 'updated_time', )
+    fields = ('bangumi_name', 'episode', 'status', 'updated_time',)
 
     @staticmethod
     def delete_followed(condition=None, batch=True):
@@ -436,12 +440,14 @@ class Followed(DB):
         db.row_factory = make_dicts
         cur = db.cursor()
         if status is None and bangumi_status is None:
-            sql = DB._make_sql('select', fields=['followed.*'], table=Followed.table,
+            sql = DB._make_sql('select', fields=['followed.*', 'bangumi.cover', 'bangumi.update_time'],
+                               table=Followed.table,
                                join='LEFT JOIN bangumi on bangumi.name=followed.bangumi_name', order=order,
                                desc=desc)
             cur.execute(sql)
         else:
-            sql = DB._make_sql('select', fields=['followed.*'], table=Followed.table,
+            sql = DB._make_sql('select', fields=['followed.*', 'bangumi.cover', 'bangumi.update_time'],
+                               table=Followed.table,
                                join='LEFT JOIN bangumi on bangumi.name=followed.bangumi_name',
                                condition=['!followed.status', 'bangumi.status'], order=order, desc=desc)
             cur.execute(sql, (status, bangumi_status))
@@ -488,3 +494,35 @@ class Filter(DB):
     table = 'filter'
     primary_key = ('bangumi_name', )
     fields = ('bangumi_name', 'subtitle', 'include', 'exclude', 'regex', )
+
+
+class Subtitle(DB):
+    table = 'subtitle'
+    primary_key = ('id', )
+    fields = ('id', 'name', )
+
+    @staticmethod
+    def get_subtitle(l=None):
+        l = list(l)
+        db = DB.connect_db()
+        db.row_factory = make_dicts
+        cur = db.cursor()
+        sql = DB._make_sql('select', fields='name', table=Subtitle.table,
+                           condition=['id'] * len(l), operation='OR')
+        cur.execute(sql, l)
+        data = cur.fetchall()
+        DB.close_db(db)
+        return data
+
+    @staticmethod
+    def get_subtitle_by_name(l=None):
+        l = list(l)
+        db = DB.connect_db()
+        db.row_factory = make_dicts
+        cur = db.cursor()
+        sql = DB._make_sql('select', fields='id', table=Subtitle.table,
+                           condition=['name'] * len(l), operation='OR')
+        cur.execute(sql, l)
+        data = cur.fetchall()
+        DB.close_db(db)
+        return data

@@ -8,7 +8,6 @@ import functools
 import requests
 from bgmi import __version__
 from bgmi.config import FETCH_URL, IS_PYTHON3, BGMI_PATH
-from bgmi.utils.langconv import Converter
 
 requests.packages.urllib3.disable_warnings()
 
@@ -65,10 +64,6 @@ def colorize(f):
     return wrapper
 
 
-def _(data):
-    return Converter('zh-hans').convert(data)
-
-
 @indicator
 @colorize
 def print_info(message, indicator=True):
@@ -105,7 +100,7 @@ Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END
 
 def test_connection():
     try:
-        requests.head(FETCH_URL, timeout=5)
+        requests.head(FETCH_URL, timeout=10)
     except:
         return False
 
@@ -129,7 +124,7 @@ def unicodeize(data):
 
 
 def bug_report():
-    print_error('It seems that no bangumi found, if https://dmhy.ricterz.me can \n'
+    print_error('It seems that no bangumi found, if https://bangumi.moe can \n'
                 '    be opened normally, please report bug to ricterzheng@gmail.com\n'
                 '    or submit issue at: https://github.com/RicterZ/BGmi/issues',
                 exit_=True)
@@ -193,6 +188,3 @@ def check_update(mark=True):
         except ValueError:
             pass
 
-
-if __name__ == '__main__':
-    print(_('西農YUI'))

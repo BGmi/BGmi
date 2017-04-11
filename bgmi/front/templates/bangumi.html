@@ -149,6 +149,7 @@
     <dialog class="mdl-dialog dialog-calendar">
       <h4 class="mdl-dialog__title">Bangumi Calendar</h4>
       <div class="mdl-dialog__content">
+        <a class="mdl-color-text--blue-grey-400" target="_blank" href="/calendar.ics">ICS Calendar for iOS / Android</a>
         <p>
 	{% for i, v in enumerate(cal.items()) %}
 	    <h5 class="{% if i == 0 %}strong{% end %}">{{ v[0] }}.</h5>
@@ -168,10 +169,10 @@
         <p>
           <h5>关于</h5>
           BGmi HTTP Service 基于 <a class="mdl-color-text--blue-grey-400" href="https://github.com/RicterZ/BGmi" target="_blank">BGmi</a> 构建。<br>
-          其中，BGmi 的所有数据来源于<a class="mdl-color-text--blue-grey-400" href="https://share.dmhy.org" target="_blank">動漫花園資源網</a>。
+          其中，BGmi 的所有数据来源于<a class="mdl-color-text--blue-grey-400" href="https://bangumi.moe" target="_blank">萌番组<sup>大好きだよ</sup></a>。
           <br>
           <h5>致谢</h5>
-          <a class="mdl-color-text--blue-grey-400" href="https://share.dmhy.org" target="_blank">動漫花園資源網</a><br>
+          <a class="mdl-color-text--blue-grey-400" href="https://bangumi.moe" target="_blank">萌番组</a><br>
           <a class="mdl-color-text--blue-grey-400" href="https://aria2.github.io" target="_blank">aria2</a><br>
           <a class="mdl-color-text--blue-grey-400" href="https://github.com/DIYgod/DPlayer" target="_blank">DPlayer</a><br>
         </p>

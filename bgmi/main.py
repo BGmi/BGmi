@@ -11,7 +11,8 @@ import argparse
 
 import bgmi.config
 from bgmi.config import BGMI_PATH, DB_PATH
-from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER
+from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER, \
+    CREATE_TABLE_SUBTITLE
 from bgmi.utils.utils import print_warning, print_error, print_version, unicodeize, check_update
 from bgmi.controllers import controllers
 from bgmi.update import update_database
@@ -141,6 +142,7 @@ def init_db(db_path):
         conn.execute(CREATE_TABLE_FOLLOWED)
         conn.execute(CREATE_TABLE_DOWNLOAD)
         conn.execute(CREATE_TABLE_FOLLOWED_FILTER)
+        conn.execute(CREATE_TABLE_SUBTITLE)
         conn.commit()
         conn.close()
     except sqlite3.OperationalError:

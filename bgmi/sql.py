@@ -6,6 +6,7 @@ CREATE_TABLE_BANGUMI = '''CREATE TABLE IF NOT EXISTS bangumi (
           subtitle_group TEXT NOT NULL,
           keyword TEXT,
           update_time CHAR(5) NOT NULL,
+          cover TEXT,
           status INTEGER DEFAULT 0
         )'''
 
@@ -36,4 +37,10 @@ CREATE_TABLE_FOLLOWED_FILTER = '''CREATE TABLE IF NOT EXISTS filter (
           include TEXT,
           exclude TEXT,
           regex TEXT
+        )'''
+
+
+CREATE_TABLE_SUBTITLE = '''CREATE TABLE IF NOT EXISTS subtitle (
+        id TEXT PRIMARY KEY UNIQUE NOT NULL,
+        name TEXT
         )'''

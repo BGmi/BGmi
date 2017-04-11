@@ -10,7 +10,9 @@ import tornado.httpserver
 import tornado.web
 import tornado.template
 from tornado.options import options, define
-from collections import OrderedDict
+from icalendar import Calendar, Event, vText
+
+from collections import OrderedDict, defaultdict
 from bgmi import __version__
 from bgmi.config import BGMI_SAVE_PATH, DB_PATH, DANMAKU_API_URL, COVER_URL
 from bgmi.models import Download, Bangumi, Followed, STATUS_NORMAL, STATUS_UPDATING, STATUS_END
@@ -81,7 +83,7 @@ class BangumiPlayerHandler(tornado.web.RequestHandler):
 class ImageCSSHandler(tornado.web.RequestHandler):
     def get(self):
         data = Followed.get_all_followed(status=None, bangumi_status=None)
-        self.set_header('Content-Type', 'text/css')
+        self.set_header('Content-Type', 'text/css; charset=utf-8')
         self.render('templates/image.css', data=data, image_url=COVER_URL)
 
 
@@ -90,6 +92,37 @@ class RssHandler(tornado.web.RequestHandler):
         data = Download.get_all_downloads()
         self.set_header('Content-Type', 'text/xml')
         self.render('templates/download.xml', data=data)
+
+
+class CalendarHandler(tornado.web.RequestHandler):
+    def get(self):
+        data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING,
+                                         order='followed.updated_time', desc=True)
+
+        bangumi = defaultdict(list)
+        [bangumi[Bangumi.week.index(i['update_time']) + 1].append(i['bangumi_name']) for i in data]
+
+        cal = Calendar()
+        cal.add('prodid', '-//BGmi Followed Bangumi Calendar//bangumi.ricterz.me//')
+        cal.add('version', '2.0')
+
+        weekday = datetime.datetime.now().weekday()
+        for i, k in enumerate(range(weekday, weekday + 7)):
+            if k % 7 in bangumi:
+                event = Event()
+                v = bangumi[k % 7]
+                event.add('summary', ', '.join(v))
+                event.add('dtstart', datetime.datetime.now().date() + datetime.timedelta(i))
+                event.add('dtend', datetime.datetime.now().date() + datetime.timedelta(i))
+                cal.add_component(event)
+
+        cal.add('name', 'Bangumi Calendar')
+        cal.add('X-WR-CALNAM', 'Bangumi Calendar')
+        cal.add('description', 'Followed Bangumi Calendar')
+        cal.add('X-WR-CALDESC', 'Followed Bangumi Calendar')
+
+        self.write(cal.to_ical())
+        self.finish()
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -101,7 +134,6 @@ class MainHandler(tornado.web.RequestHandler):
             self.write('BGmi db file not found.')
             self.finish()
             return
-
 
         data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING,
                                          order='followed.updated_time', desc=True)
@@ -140,6 +172,7 @@ def make_app():
         (r'^/player/(.*)/$', BangumiPlayerHandler),
         (r'^/bangumi/(.*)', BangumiHandler),
         (r'^/rss$', RssHandler),
+        (r'^/calendar.ics$', CalendarHandler),
     ], **settings)
 
 
