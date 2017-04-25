@@ -116,7 +116,7 @@ BGMI_LX_PATH = os.path.join(BGMI_PATH, 'bgmi-lx')
 # aria2
 ARIA2_PATH = '/usr/bin/aria2c'
 ARIA2_RPC_URL = 'http://localhost:6800/rpc'
-ARIA2_RPC_TOKEN = ''
+ARIA2_RPC_TOKEN = 'token:'
 
 # temp path
 BGMI_TMP_PATH = os.path.join(BGMI_PATH, 'tmp')
