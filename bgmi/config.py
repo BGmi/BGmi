@@ -13,7 +13,7 @@ except ImportError:
 __all__ = ('BANGUMI_MOE_URL', 'BGMI_PATH', 'DB_PATH', 'BGMI_SAVE_PATH',
            'BGMI_LX_PATH', 'DOWNLOAD_DELEGATE', 'CONFIG_FILE_PATH',
            'DETAIL_URL', 'FETCH_URL', 'IS_PYTHON3', 'MAX_PAGE',
-           'BGMI_TMP_PATH', 'ARIA2_PATH', 'ARIA2_RPC_URL',
+           'BGMI_TMP_PATH', 'ARIA2_PATH', 'ARIA2_RPC_URL', 'ARIA2_RPC_TOKEN',
            'DANMAKU_API_URL', 'COVER_URL', 'LANG', 'WGET_PATH')
 
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
@@ -116,6 +116,7 @@ BGMI_LX_PATH = os.path.join(BGMI_PATH, 'bgmi-lx')
 # aria2
 ARIA2_PATH = '/usr/bin/aria2c'
 ARIA2_RPC_URL = 'http://localhost:6800/rpc'
+ARIA2_RPC_TOKEN = ''
 
 # temp path
 BGMI_TMP_PATH = os.path.join(BGMI_PATH, 'tmp')

@@ -138,6 +138,7 @@ Fields of configure file:
 + :code:`BGMI_TMP_PATH`: just a temporary path
 + :code:`ARIA2_PATH`: the aria2c binary path
 + :code:`ARIA2_RPC_URL`: aria2c deamon RPC url
++ :code:`ARIA2_RPC_TOKEN`: aria2c deamon RPC token
 + :code:`BGMI_LX_PATH`: path of xunlei-lixian binary
 + :code:`DANMAKU_API_URL`: url of danmaku api
 + :code:`CONVER_URL`: url of bangumi's cover
