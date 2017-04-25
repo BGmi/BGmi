@@ -127,14 +127,13 @@ Show BGmi configure and modify it:
 .. code-block:: bash
 
     bgmi config
-    bgmi config --name MAX_PAGE --value 3
+    bgmi config ARIA2_RPC_TOKEN 'token:token233'
 
 Fields of configure file:
 
 + :code:`BANGUMI_MOE_URL`: url of bangumi.moe mirror
 + :code:`BGMI_SAVE_PATH`: bangumi saving path
 + :code:`DOWNLOAD_DELEGATE`: the ways of downloading bangumi (aria2, aria2-rpc, xunlei)
-+ :code:`MAX_PAGE`: the max page of fetching bangumi info
 + :code:`BGMI_TMP_PATH`: just a temporary path
 + :code:`ARIA2_PATH`: the aria2c binary path
 + :code:`ARIA2_RPC_URL`: aria2c deamon RPC url

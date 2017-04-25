@@ -12,7 +12,7 @@ except ImportError:
 
 __all__ = ('BANGUMI_MOE_URL', 'BGMI_PATH', 'DB_PATH', 'BGMI_SAVE_PATH',
            'BGMI_LX_PATH', 'DOWNLOAD_DELEGATE', 'CONFIG_FILE_PATH',
-           'DETAIL_URL', 'FETCH_URL', 'IS_PYTHON3', 'MAX_PAGE',
+           'DETAIL_URL', 'FETCH_URL', 'IS_PYTHON3',
            'BGMI_TMP_PATH', 'ARIA2_PATH', 'ARIA2_RPC_URL', 'ARIA2_RPC_TOKEN',
            'DANMAKU_API_URL', 'COVER_URL', 'LANG', 'WGET_PATH')
 
@@ -123,9 +123,6 @@ BGMI_TMP_PATH = os.path.join(BGMI_PATH, 'tmp')
 
 # Download delegate
 DOWNLOAD_DELEGATE = 'xunlei'
-
-# max page number of fetch bangumi info
-MAX_PAGE = '2'
 
 # danmaku api url, https://github.com/DIYgod/DPlayer#related-projects
 DANMAKU_API_URL = ''
