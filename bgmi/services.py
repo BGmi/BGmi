@@ -6,7 +6,7 @@ import subprocess
 from tempfile import NamedTemporaryFile
 
 import bgmi.config
-from bgmi.config import BGMI_LX_PATH, BGMI_PATH, BGMI_TMP_PATH, ARIA2_PATH, ARIA2_RPC_URL, WGET_PATH
+from bgmi.config import BGMI_LX_PATH, BGMI_PATH, BGMI_TMP_PATH, ARIA2_PATH, ARIA2_RPC_URL, ARIA2_RPC_TOKEN, WGET_PATH
 from bgmi.utils.utils import print_warning, print_info, print_error, print_success
 from bgmi.models import Download, STATUS_DOWNLOADED, STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING
 
@@ -121,7 +121,7 @@ class Aria2DownloadRPC(DownloadService):
         super(Aria2DownloadRPC, self).__init__(**kwargs)
 
     def download(self):
-        self.server.aria2.addUri([self.torrent], {"dir": self.save_path})
+        self.server.aria2.addUri(ARIA2_RPC_TOKEN, [self.torrent], {"dir": self.save_path})
         print_info('Add torrent into the download queue, the file will be saved at {0}'.format(self.save_path))
 
     @staticmethod
@@ -151,7 +151,7 @@ class Aria2DownloadRPC(DownloadService):
                     params = (0, 1000)
                 else:
                     params = ()
-                data = server.aria2[method](*params)
+                data = server.aria2[method](ARIA2_RPC_TOKEN, *params)
                 if data:
                     print_warning('RPC {0}:'.format(method), indicator=False)
                 for row in data:
