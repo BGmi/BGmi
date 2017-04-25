@@ -24,7 +24,7 @@ script:
     - bgmi delete --clear-all --batch
     - bgmi add "我的妹妹是工口漫画老师" --episode 1
     - bgmi cal followed
-    - bgmi config MAX_PAGE 3
+    - bgmi config ARIA2_RPC_TOKEN 'token:233'
     - bgmi download --list
     - bgmi followed --mark "我的妹妹是工口漫画老师" --episode 0
     - bgmi mark "我的妹妹是工口漫画老师" 1
