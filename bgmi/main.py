@@ -95,8 +95,8 @@ def main():
                                 help='Do not save the bangumi data when force update.')
 
     sub_parser_config = sub_parser.add_parser(ACTION_CONFIG, help='Config BGmi.')
-    sub_parser_config.add_argument('name', type=unicode_, help='Config name')
-    sub_parser_config.add_argument('value', type=unicode_, help='Config value')
+    sub_parser_config.add_argument('name', nargs='?', type=unicode_, help='Config name')
+    sub_parser_config.add_argument('value', nargs='?', type=unicode_, help='Config value')
 
     sub_parser_mark = sub_parser.add_parser(ACTION_MARK, help='Mark bangumi episode.')
     sub_parser_mark.add_argument('name', help='Bangumi name')
