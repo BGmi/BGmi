@@ -2,6 +2,7 @@
 from __future__ import unicode_literals, print_function
 
 import os
+import re
 import subprocess
 from tempfile import NamedTemporaryFile
 
@@ -116,13 +117,30 @@ class Aria2Download(DownloadService):
 
 
 class Aria2DownloadRPC(DownloadService):
+    old_version = False
+
     def __init__(self, *args, **kwargs):
         self.server = PatchedServerProxy(ARIA2_RPC_URL)
+        Aria2DownloadRPC.check_aria2c_version()
         super(Aria2DownloadRPC, self).__init__(**kwargs)
 
     def download(self):
-        self.server.aria2.addUri(ARIA2_RPC_TOKEN, [self.torrent], {"dir": self.save_path})
+        if self.old_version:
+            self.server.aria2.addUri([self.torrent], {"dir": self.save_path})
+        else:
+            self.server.aria2.addUri(ARIA2_RPC_TOKEN, [self.torrent], {"dir": self.save_path})
         print_info('Add torrent into the download queue, the file will be saved at {0}'.format(self.save_path))
+
+    @staticmethod
+    def check_aria2c_version():
+        command = [ARIA2_PATH, '--version']
+        p = subprocess.Popen(command, env={'PATH': '/usr/local/bin:/usr/bin:/bin',
+                             'HOME': os.environ.get('HOME', '/tmp')}, stdout=subprocess.PIPE)
+        version = re.findall('aria2 version (.*)', p.stdout.read().splitlines()[0])
+        if version:
+            Aria2DownloadRPC.old_version = version[0] < '1.18.4'
+        else:
+            print_warning('Get aria2c version failed')
 
     @staticmethod
     def install():
@@ -151,9 +169,14 @@ class Aria2DownloadRPC(DownloadService):
                     params = (0, 1000)
                 else:
                     params = ()
-                data = server.aria2[method](ARIA2_RPC_TOKEN, *params)
+                if Aria2DownloadRPC.old_version:
+                    data = server.aria2[method](ARIA2_RPC_TOKEN, *params)
+                else:
+                    data = server.aria2[method](*params)
+
                 if data:
                     print_warning('RPC {0}:'.format(method), indicator=False)
+
                 for row in data:
                     print_success('- {0}'.format(row['dir']), indicator=False)
                     for file in row['files']:
