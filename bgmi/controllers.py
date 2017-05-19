@@ -40,6 +40,15 @@ def add(ret):
             print_error('{0} not found, please check the name'.format(bangumi))
 
 
+def print_filter(followed_filter_obj):
+    print_info('Followed subtitle group: {0}'.format(', '.join(map(lambda s: s['name'],
+                                                                  Subtitle.get_subtitle(followed_filter_obj.subtitle.split(', '))))
+                                                        if followed_filter_obj.subtitle else 'None'))
+    print_info('Include keywords: {0}'.format(followed_filter_obj.include))
+    print_info('Exclude keywords: {0}'.format(followed_filter_obj.exclude))
+    print_info('Regular expression: {0}'.format(followed_filter_obj.regex))
+
+
 def filter_(ret):
     bangumi_obj = Bangumi(name=ret.name)
     bangumi_obj.select_obj()
@@ -86,16 +95,10 @@ def filter_(ret):
         followed_filter_obj.regex = regex
 
     followed_filter_obj.save()
-
     print_info('Usable subtitle group: {0}'.format(', '.join(map(lambda s: s['name'],
-                                                   Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', ')))))
+                                                                 Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', ')))))
                if bangumi_obj.subtitle_group else 'None')
-    print_success('Added subtitle group: {0}'.format(', '.join(map(lambda s: s['name'],
-                                                     Subtitle.get_subtitle(followed_filter_obj.subtitle.split(', '))))
-                  if followed_filter_obj.subtitle else 'None'))
-    print_success('Include keywords: {0}'.format(followed_filter_obj.include))
-    print_success('Exclude keywords: {0}'.format(followed_filter_obj.exclude))
-    print_success('Regular expression: {0}'.format(followed_filter_obj.regex))
+    print_filter(followed_filter_obj)
 
 
 def delete(ret):
@@ -249,6 +252,10 @@ def fetch_(ret):
 
     followed_obj = Followed(bangumi_name=bangumi_obj.name)
     followed_obj.select_obj()
+
+    followed_filter_obj = Filter(bangumi_name=ret.name)
+    followed_filter_obj.select_obj()
+    print_filter(followed_filter_obj)
 
     if bangumi_obj:
         print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
