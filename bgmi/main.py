@@ -111,7 +111,9 @@ def main():
     sub_parser_download = sub_parser.add_parser(ACTION_DOWNLOAD, help='Download manager.')
     sub_parser_download.add_argument('--list', help='List download queue.', action='store_true')
     sub_parser_download.add_argument('--mark', help='Mark download status with a specific id.', dest='id', type=int)
-    sub_parser_download.add_argument('--status', type=int, help='Download items status (0, 1, 2).', choices=[0, 1, 2])
+    sub_parser_download.add_argument('--status', type=int, help='Download items status (0: not download, 1: '
+                                                                'downloading, 2: alrealy downloaded).',
+                                     choices=[0, 1, 2])
 
     sub_parser_fetch = sub_parser.add_parser(ACTION_FETCH, help='Fetch bangumi.')
     sub_parser_fetch.add_argument('name', help='Bangumi name', type=unicode_)
