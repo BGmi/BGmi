@@ -194,15 +194,7 @@ def cal(ret):
 
 
 def download_manager(ret):
-    print_info('Download status value: Not Downloaded: 0 / Downloading: 1 / Downloaded: 2\n', indicator=False)
-
-    if ret.list:
-        status = ret.status
-        status = int(status) if status is not None else None
-        delegate = get_download_class(instance=False)
-        delegate.download_status(status=status)
-
-    elif ret.id:
+    if ret.id:
         download_id = ret.id
         status = ret.status
         if download_id is None or status is None:
@@ -216,6 +208,11 @@ def download_manager(ret):
         download_obj.status = status
         download_obj.save()
         print_success('Download status has been marked as {0}'.format(DOWNLOAD_CHOICE_LIST_DICT.get(int(status))))
+    else:
+        status = ret.status
+        status = int(status) if status is not None else None
+        delegate = get_download_class(instance=False)
+        delegate.download_status(status=status)
 
 
 def mark(ret):
