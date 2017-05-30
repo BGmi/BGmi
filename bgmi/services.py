@@ -170,17 +170,18 @@ class Aria2DownloadRPC(DownloadService):
                 else:
                     params = ()
                 if Aria2DownloadRPC.old_version:
-                    data = server.aria2[method](ARIA2_RPC_TOKEN, *params)
-                else:
                     data = server.aria2[method](*params)
+                else:
+                    data = server.aria2[method](ARIA2_RPC_TOKEN, *params)
 
                 if data:
                     print_warning('RPC {0}:'.format(method), indicator=False)
 
                 for row in data:
                     print_success('- {0}'.format(row['dir']), indicator=False)
-                    for file in row['files']:
-                        print_info('    * {0}'.format(file['path']), indicator=False)
+                    for file_ in row['files']:
+                        print_info('    * {0}'.format(file_['path']), indicator=False)
+
         except Exception as e:
             print_error('Cannot connect to aria2-rpc server')
 
