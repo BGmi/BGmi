@@ -136,7 +136,7 @@ class Aria2DownloadRPC(DownloadService):
         command = [ARIA2_PATH, '--version']
         p = subprocess.Popen(command, env={'PATH': '/usr/local/bin:/usr/bin:/bin',
                              'HOME': os.environ.get('HOME', '/tmp')}, stdout=subprocess.PIPE)
-        version = re.findall('aria2 version (.*)', p.stdout.read().splitlines()[0])
+        version = re.findall('aria2 version (.*)', str(p.stdout.read()).splitlines()[0])
         if version:
             Aria2DownloadRPC.old_version = version[0] < '1.18.4'
         else:

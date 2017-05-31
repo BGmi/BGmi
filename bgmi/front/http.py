@@ -157,7 +157,7 @@ class MainHandler(tornado.web.RequestHandler):
             self.finish()
         else:
             self.render('templates/bangumi.html', data=data, cal=cal_ordered,
-                        followed=followed, version=__version__)
+                        followed=list(followed), version=__version__)
 
 
 def make_app():
