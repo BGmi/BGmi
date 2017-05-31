@@ -122,7 +122,7 @@ ARIA2_RPC_TOKEN = 'token:'
 BGMI_TMP_PATH = os.path.join(BGMI_PATH, 'tmp')
 
 # Download delegate
-DOWNLOAD_DELEGATE = 'xunlei'
+DOWNLOAD_DELEGATE = 'aria2-rpc'
 
 # danmaku api url, https://github.com/DIYgod/DPlayer#related-projects
 DANMAKU_API_URL = ''
