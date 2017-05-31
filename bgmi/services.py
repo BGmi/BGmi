@@ -151,6 +151,8 @@ class Aria2DownloadRPC(DownloadService):
 
     @staticmethod
     def download_status(status=None):
+        Aria2DownloadRPC.check_aria2c_version()
+
         print_info('Print download status in database')
         DownloadService.download_status(status=status)
         print()
