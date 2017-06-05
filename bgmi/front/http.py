@@ -109,9 +109,9 @@ class CalendarHandler(tornado.web.RequestHandler):
         weekday = datetime.datetime.now().weekday()
         for i, k in enumerate(range(weekday, weekday + 7)):
             if k % 7 in bangumi:
-                event = Event()
                 # v = bangumi[k % 7]
                 for v in bangumi[k % 7]:
+                    event = Event()
                     event.add('summary', v)
                     event.add('dtstart', datetime.datetime.now().date() + datetime.timedelta(i))
                     event.add('dtend', datetime.datetime.now().date() + datetime.timedelta(i))
