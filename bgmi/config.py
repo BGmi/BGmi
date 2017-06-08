@@ -20,7 +20,7 @@ __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 
 # fake __all__
 __all__ = ('BANGUMI_MOE_URL', 'BGMI_PATH', 'DB_PATH', 'BGMI_SAVE_PATH',
-           'DOWNLOAD_DELEGATE', 'CONFIG_FILE_PATH',
+           'DOWNLOAD_DELEGATE', 'CONFIG_FILE_PATH', 'MAX_PAGE',
            'DETAIL_URL', 'FETCH_URL', 'IS_PYTHON3',
            'BGMI_TMP_PATH', 'DANMAKU_API_URL', 'COVER_URL', 'LANG')
 
@@ -167,11 +167,6 @@ BGMI_SAVE_PATH = os.path.join(BGMI_PATH, 'bangumi')
 # Xunlei offline download
 XUNLEI_LX_PATH = os.path.join(BGMI_PATH, 'bgmi-lx')
 
-# aria2
-ARIA2_PATH = '/usr/bin/aria2c'
-ARIA2_RPC_URL = 'http://localhost:6800/rpc'
-ARIA2_RPC_TOKEN = 'token:'
-
 # temp path
 BGMI_TMP_PATH = os.path.join(BGMI_PATH, 'tmp')
 
@@ -186,6 +181,14 @@ COVER_URL = 'https://bangumi_moe.ricterz.me'
 
 # language
 LANG = 'zh_cn'
+
+# max page
+MAX_PAGE = 3
+
+# aria2
+ARIA2_PATH = '/usr/bin/aria2c'
+ARIA2_RPC_URL = 'http://localhost:6800/rpc'
+ARIA2_RPC_TOKEN = 'token:'
 
 # path of wget
 WGET_PATH = '/usr/bin/wget'
