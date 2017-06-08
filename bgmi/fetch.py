@@ -252,7 +252,7 @@ def fetch_episode(_id, name='', **kwargs):
             response_data.extend(response['torrents'])
     else:
         response_data = []
-        for i in range(MAX_PAGE):
+        for i in range(int(MAX_PAGE)):
             print_info('Fetch page {0} ...'.format(i + 1))
             response = get_response(DETAIL_URL, 'POST', json={'tag_id': [_id], 'p': i + 1})
             if response:
