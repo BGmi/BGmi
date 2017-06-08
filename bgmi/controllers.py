@@ -42,8 +42,9 @@ def add(ret):
 
 def print_filter(followed_filter_obj):
     print_info('Followed subtitle group: {0}'.format(', '.join(map(lambda s: s['name'],
-                                                                  Subtitle.get_subtitle(followed_filter_obj.subtitle.split(', '))))
-                                                        if followed_filter_obj.subtitle else 'None'))
+                                                                   Subtitle.get_subtitle(
+                                                                       followed_filter_obj.subtitle.split(', '))))
+                                                     if followed_filter_obj.subtitle else 'None'))
     print_info('Include keywords: {0}'.format(followed_filter_obj.include))
     print_info('Exclude keywords: {0}'.format(followed_filter_obj.exclude))
     print_info('Regular expression: {0}'.format(followed_filter_obj.regex))
@@ -96,7 +97,8 @@ def filter_(ret):
 
     followed_filter_obj.save()
     print_info('Usable subtitle group: {0}'.format(', '.join(map(lambda s: s['name'],
-                                                                 Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', ')))))
+                                                                 Subtitle.get_subtitle(
+                                                                     bangumi_obj.subtitle_group.split(', ')))))
                if bangumi_obj.subtitle_group else 'None')
     print_filter(followed_filter_obj)
 
@@ -240,7 +242,7 @@ def followed(ret):
 
 
 def list_(ret):
-     bangumi_calendar(force_update=False, followed=True, save=False)
+    bangumi_calendar(force_update=False, followed=True, save=False)
 
 
 def fetch_(ret):
