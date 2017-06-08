@@ -138,6 +138,12 @@ def update(ret):
     print_info('updating subscriptions ...')
     download_queue = []
 
+    if ret.download is not None:
+        if not ret.name:
+            print_warning('No specified bangumi, ignore `--download` option')
+        if len(ret.name) > 1:
+            print_warning('Multiple specified bangumi, ignore `--download` option')
+
     if not ret.name:
         updated_bangumi_obj = Followed.get_all_followed()
     else:
@@ -162,21 +168,25 @@ def update(ret):
             continue
 
         episode, all_episode_data = get_maximum_episode(bangumi=bangumi_obj, ignore_old_row=ignore)
-        if episode.get('episode') > subscribe['episode']:
-            episode_range = range(subscribe['episode'] + 1, episode.get('episode', 0))
-            print_success('%s updated, episode: %d' % (subscribe['bangumi_name'], episode['episode']))
-            followed_obj.episode = episode['episode']
-            followed_obj.status = STATUS_UPDATED
-            followed_obj.updated_time = int(time.time())
-            followed_obj.save()
-            download_queue.append(episode)
+
+        if (episode.get('episode') > subscribe['episode']) or (len(ret.name) == 1 and ret.download):
+            if len(ret.name) == 1 and ret.download:
+                episode_range = ret.download
+            else:
+                episode_range = range(subscribe['episode'] + 1, episode.get('episode', 0))
+                print_success('%s updated, episode: %d' % (subscribe['bangumi_name'], episode['episode']))
+                followed_obj.episode = episode['episode']
+                followed_obj.status = STATUS_UPDATED
+                followed_obj.updated_time = int(time.time())
+                followed_obj.save()
+
             for i in episode_range:
                 for epi in all_episode_data:
                     if epi['episode'] == i:
                         download_queue.append(epi)
                         break
 
-    if ret.download:
+    if ret.download is not None:
         download_prepare(download_queue)
         print_info('Re-downloading ...')
         download_prepare(Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD))
@@ -290,7 +300,7 @@ CONTROLLERS_DICT = {
 
 def controllers(ret):
     func = CONTROLLERS_DICT.get(ret.action, None)
-    if func is None:
+    if func is None or not callable(func):
         return
     else:
         return func(ret)

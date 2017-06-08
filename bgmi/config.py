@@ -66,6 +66,9 @@ def read_config():
         if c.has_option('bgmi', i):
             globals().update({i: c.get('bgmi', i)})
 
+    for i in download_delegate_map.get(DOWNLOAD_DELEGATE):
+        if c.has_option(DOWNLOAD_DELEGATE, i):
+            globals().update({i: c.get(DOWNLOAD_DELEGATE, i)})
 
 def print_config():
     c = configparser.ConfigParser()
