@@ -243,6 +243,7 @@ def fetch_episode(_id, name='', **kwargs):
     include = kwargs.get('include', None)
     exclude = kwargs.get('exclude', None)
     regex = kwargs.get('regex', None)
+    max_page = kwargs.get('max', MAX_PAGE)
 
     if subtitle_group and subtitle_group.split(', '):
         condition = subtitle_group.split(', ')
@@ -252,8 +253,9 @@ def fetch_episode(_id, name='', **kwargs):
             response_data.extend(response['torrents'])
     else:
         response_data = []
-        for i in range(int(MAX_PAGE)):
-            print_info('Fetch page {0} ...'.format(i + 1))
+        for i in range(int(max_page)):
+            if max_page > 1:
+                print_info('Fetch page {0} ...'.format(i + 1))
             response = get_response(DETAIL_URL, 'POST', json={'tag_id': [_id], 'p': i + 1})
             if response:
                 response_data.extend(response['torrents'])
@@ -289,7 +291,7 @@ def fetch_episode(_id, name='', **kwargs):
     return result
 
 
-def get_maximum_episode(bangumi, subtitle=True, ignore_old_row=True):
+def get_maximum_episode(bangumi, subtitle=True, ignore_old_row=True, max_page=MAX_PAGE):
 
     followed_filter_obj = Filter(bangumi_name=bangumi.name)
     followed_filter_obj.select_obj()
@@ -301,7 +303,7 @@ def get_maximum_episode(bangumi, subtitle=True, ignore_old_row=True):
 
     data = [i for i in fetch_episode(_id=bangumi.keyword, name=bangumi.name,
                                      subtitle_group=subtitle_group,
-                                     include=include, exclude=exclude, regex=regex)
+                                     include=include, exclude=exclude, regex=regex, max=max_page)
             if i['episode'] is not None]
 
     if ignore_old_row:

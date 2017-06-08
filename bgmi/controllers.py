@@ -26,7 +26,7 @@ def add(ret):
             followed_obj.select_obj()
             if not followed_obj or followed_obj.status == STATUS_NORMAL:
                 if not followed_obj:
-                    bangumi_data, _ = get_maximum_episode(bangumi_obj, subtitle=False)
+                    bangumi_data, _ = get_maximum_episode(bangumi_obj, subtitle=False, max_page=1)
                     followed_obj.episode = bangumi_data['episode'] if ret.episode is None else ret.episode
                     followed_obj.save()
                 else:
@@ -139,7 +139,7 @@ def update(ret):
     download_queue = []
 
     if ret.download is not None:
-        if not ret.name:
+        if not ret.name and ret.download:
             print_warning('No specified bangumi, ignore `--download` option')
         if len(ret.name) > 1:
             print_warning('Multiple specified bangumi, ignore `--download` option')
@@ -167,7 +167,7 @@ def update(ret):
                         exit_=False)
             continue
 
-        episode, all_episode_data = get_maximum_episode(bangumi=bangumi_obj, ignore_old_row=ignore)
+        episode, all_episode_data = get_maximum_episode(bangumi=bangumi_obj, ignore_old_row=ignore, max_page=1)
 
         if (episode.get('episode') > subscribe['episode']) or (len(ret.name) == 1 and ret.download):
             if len(ret.name) == 1 and ret.download:
