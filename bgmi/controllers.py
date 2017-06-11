@@ -173,7 +173,7 @@ def update(ret):
             if len(ret.name) == 1 and ret.download:
                 episode_range = ret.download
             else:
-                episode_range = range(subscribe['episode'] + 1, episode.get('episode', 0))
+                episode_range = range(subscribe['episode'] + 1, episode.get('episode', 0) + 1)
                 print_success('%s updated, episode: %d' % (subscribe['bangumi_name'], episode['episode']))
                 followed_obj.episode = episode['episode']
                 followed_obj.status = STATUS_UPDATED
