@@ -7,7 +7,9 @@ import subprocess
 from tempfile import NamedTemporaryFile
 
 import bgmi.config
-from bgmi.config import BGMI_LX_PATH, BGMI_PATH, BGMI_TMP_PATH, ARIA2_PATH, ARIA2_RPC_URL, ARIA2_RPC_TOKEN, WGET_PATH
+from bgmi.config import XUNLEI_LX_PATH, BGMI_PATH, BGMI_TMP_PATH, ARIA2_PATH, ARIA2_RPC_URL, ARIA2_RPC_TOKEN,\
+    WGET_PATH, TRANSMISSION_RPC_PORT, TRANSMISSION_RPC_URL
+
 from bgmi.utils.utils import print_warning, print_info, print_error, print_success
 from bgmi.models import Download, STATUS_DOWNLOADED, STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING
 
@@ -67,7 +69,7 @@ class DownloadService(object):
 
     def check_delegate_bin_exist(self, path):
         if not os.path.exists(path):
-            print_error('{0} not exist, please run command \'bgmi install\' to install'.format(path))
+            raise Exception('{0} not exist, please run command \'bgmi install\' to install'.format(path))
 
     def call(self, command):
         self.return_code = subprocess.call(command, env={'PATH': '/usr/local/bin:/usr/bin:/bin',
@@ -101,19 +103,47 @@ class DownloadService(object):
             last_status = download_data['status']
 
 
-class Aria2Download(DownloadService):
+class TransmissionRPC(DownloadService):
+
     def __init__(self, *args, **kwargs):
-        self.check_delegate_bin_exist(ARIA2_PATH)
-        super(Aria2Download, self).__init__(*args, **kwargs)
+        self.check_delegate_bin_exist('')
+        super(TransmissionRPC, self).__init__(*args, **kwargs)
 
     def download(self):
-        command = [ARIA2_PATH, '--seed-time=0', '-d', self.save_path, self.torrent]
-        print_info('Run command {0}'.format(' '.join(command)))
-        self.call(command)
+        try:
+            import transmissionrpc
+            tc = transmissionrpc.Client(TRANSMISSION_RPC_URL, port=TRANSMISSION_RPC_PORT)
+            tc.add_torrent(self.torrent, download_dir=self.save_path)
+            print_info('Add torrent into the download queue, the file will be saved at {0}'.format(self.save_path))
+        except ImportError:
+            pass
+
+    def check_delegate_bin_exist(self, path):
+        try:
+            import transmissionrpc
+        except ImportError:
+            raise Exception('Please run `pip install transmissionrpc`')
+
+    def check_download(self, name):
+        pass
+
+    @staticmethod
+    def download_status(status=None):
+        print_info('Print download status in database')
+        DownloadService.download_status(status=status)
+        print()
+        print_info('Print download status in transmission-rpc')
+        try:
+            import transmissionrpc
+            tc = transmissionrpc.Client(TRANSMISSION_RPC_URL, port=TRANSMISSION_RPC_PORT)
+            for torrent in tc.get_torrents():
+                print_info('  * {0}: {1}'.format(torrent.status, torrent), indicator=False)
+        except ImportError:
+            pass
 
     @staticmethod
     def install():
-        print_warning('Please install aria2 by yourself')
+        print_warning('Please run `pip install transmissionrpc`')
 
 
 class Aria2DownloadRPC(DownloadService):
@@ -190,13 +220,13 @@ class Aria2DownloadRPC(DownloadService):
 
 class XunleiLixianDownload(DownloadService):
     def __init__(self, *args, **kwargs):
-        self.check_delegate_bin_exist(BGMI_LX_PATH)
+        self.check_delegate_bin_exist(XUNLEI_LX_PATH)
         super(XunleiLixianDownload, self).__init__(*args, **kwargs)
 
     def download(self):
         overwrite = '--overwrite' if self.overwrite else ''
 
-        command = [BGMI_LX_PATH, 'download', '--torrent', overwrite,
+        command = [XUNLEI_LX_PATH, 'download', '--torrent', overwrite,
                    '--output-dir={0}'.format(self.save_path), self.torrent,
                    '--verification-code-path={0}'.format(os.path.join(BGMI_TMP_PATH, 'vcode.jpg'))]
 
@@ -226,15 +256,15 @@ class XunleiLixianDownload(DownloadService):
 
         print_info('Create link file ...')
 
-        if not os.path.exists(BGMI_LX_PATH):
+        if not os.path.exists(XUNLEI_LX_PATH):
             os.symlink(os.path.join(BGMI_PATH, 'tools/xunlei-lixian/{0}/lixian_cli.py'.format(dir_name)),
-                       BGMI_LX_PATH)
+                       XUNLEI_LX_PATH)
         else:
-            print_warning('{0} already exists'.format(BGMI_LX_PATH))
+            print_warning('{0} already exists'.format(XUNLEI_LX_PATH))
 
         print_success('All done')
         print_info('Please run command \'{0} config\' to configure your lixian-xunlei '
-                   '(Notice: only for Thunder VIP)'.format(BGMI_LX_PATH))
+                   '(Notice: only for Thunder VIP)'.format(XUNLEI_LX_PATH))
 
 
 class RRDownload(DownloadService):

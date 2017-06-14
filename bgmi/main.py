@@ -18,7 +18,6 @@ from bgmi.controllers import controllers
 from bgmi.update import update_database
 from bgmi.constants import *
 
-
 # Wrap sys.stdout into a StreamWriter to allow writing unicode.
 if bgmi.config.IS_PYTHON3:
     unicode = str
@@ -33,6 +32,8 @@ else:
 # global Ctrl-C signal handler
 def signal_handler(signal, frame):
     print_error('User aborted, quit')
+
+
 signal.signal(signal.SIGINT, signal_handler)
 
 
@@ -53,7 +54,8 @@ def main():
     sub_parser = c.add_subparsers(help='BGmi actions', dest='action')
     sub_parser_add = sub_parser.add_parser(ACTION_ADD, help='Subscribe bangumi.')
     sub_parser_add.add_argument('name', metavar='name', type=unicode_, nargs='+', help='Bangumi name')
-    sub_parser_add.add_argument('--episode', metavar='episode', help='Add bangumi and mark it as specified episode.', type=int)
+    sub_parser_add.add_argument('--episode', metavar='episode', help='Add bangumi and mark it as specified episode.',
+                                type=int)
     sub_parser_add.add_argument('--not-ignore', action='store_true',
                                 help='Do not ignore the old bangumi detail rows (3 month ago).')
 
@@ -79,9 +81,11 @@ def main():
     sub_parser_del.add_argument('--batch', action='store_true', help='No confirmation.')
 
     sub_parser_update = sub_parser.add_parser(ACTION_UPDATE, help='Update bangumi calendar and '
-                                              'subscribed bangumi episode.')
+                                                                  'subscribed bangumi episode.')
     sub_parser_update.add_argument('name', metavar='name', type=unicode_, nargs='*', help='Update specified bangumi.')
-    sub_parser_update.add_argument('--download', action='store_true', help='Download the bangumi when updated.')
+    sub_parser_update.add_argument('--download', action='store',
+                                   help='Download specified episode of the bangumi when updated.',
+                                   nargs='*', type=int, metavar='episode')
     sub_parser_update.add_argument('--not-ignore', action='store_true',
                                    help='Do not ignore the old bangumi detail rows (3 month ago).')
 

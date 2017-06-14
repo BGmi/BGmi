@@ -26,7 +26,7 @@ def add(ret):
             followed_obj.select_obj()
             if not followed_obj or followed_obj.status == STATUS_NORMAL:
                 if not followed_obj:
-                    bangumi_data, _ = get_maximum_episode(bangumi_obj, subtitle=False)
+                    bangumi_data, _ = get_maximum_episode(bangumi_obj, subtitle=False, max_page=1)
                     followed_obj.episode = bangumi_data['episode'] if ret.episode is None else ret.episode
                     followed_obj.save()
                 else:
@@ -42,8 +42,9 @@ def add(ret):
 
 def print_filter(followed_filter_obj):
     print_info('Followed subtitle group: {0}'.format(', '.join(map(lambda s: s['name'],
-                                                                  Subtitle.get_subtitle(followed_filter_obj.subtitle.split(', '))))
-                                                        if followed_filter_obj.subtitle else 'None'))
+                                                                   Subtitle.get_subtitle(
+                                                                       followed_filter_obj.subtitle.split(', '))))
+                                                     if followed_filter_obj.subtitle else 'None'))
     print_info('Include keywords: {0}'.format(followed_filter_obj.include))
     print_info('Exclude keywords: {0}'.format(followed_filter_obj.exclude))
     print_info('Regular expression: {0}'.format(followed_filter_obj.regex))
@@ -96,7 +97,8 @@ def filter_(ret):
 
     followed_filter_obj.save()
     print_info('Usable subtitle group: {0}'.format(', '.join(map(lambda s: s['name'],
-                                                                 Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', ')))))
+                                                                 Subtitle.get_subtitle(
+                                                                     bangumi_obj.subtitle_group.split(', ')))))
                if bangumi_obj.subtitle_group else 'None')
     print_filter(followed_filter_obj)
 
@@ -136,6 +138,12 @@ def update(ret):
     print_info('updating subscriptions ...')
     download_queue = []
 
+    if ret.download is not None:
+        if not ret.name and ret.download:
+            print_warning('No specified bangumi, ignore `--download` option')
+        if len(ret.name) > 1:
+            print_warning('Multiple specified bangumi, ignore `--download` option')
+
     if not ret.name:
         updated_bangumi_obj = Followed.get_all_followed()
     else:
@@ -159,22 +167,26 @@ def update(ret):
                         exit_=False)
             continue
 
-        episode, all_episode_data = get_maximum_episode(bangumi=bangumi_obj, ignore_old_row=ignore)
-        if episode.get('episode') > subscribe['episode']:
-            episode_range = range(subscribe['episode'] + 1, episode.get('episode', 0))
-            print_success('%s updated, episode: %d' % (subscribe['bangumi_name'], episode['episode']))
-            followed_obj.episode = episode['episode']
-            followed_obj.status = STATUS_UPDATED
-            followed_obj.updated_time = int(time.time())
-            followed_obj.save()
-            download_queue.append(episode)
+        episode, all_episode_data = get_maximum_episode(bangumi=bangumi_obj, ignore_old_row=ignore, max_page=1)
+
+        if (episode.get('episode') > subscribe['episode']) or (len(ret.name) == 1 and ret.download):
+            if len(ret.name) == 1 and ret.download:
+                episode_range = ret.download
+            else:
+                episode_range = range(subscribe['episode'] + 1, episode.get('episode', 0) + 1)
+                print_success('%s updated, episode: %d' % (subscribe['bangumi_name'], episode['episode']))
+                followed_obj.episode = episode['episode']
+                followed_obj.status = STATUS_UPDATED
+                followed_obj.updated_time = int(time.time())
+                followed_obj.save()
+
             for i in episode_range:
                 for epi in all_episode_data:
                     if epi['episode'] == i:
                         download_queue.append(epi)
                         break
 
-    if ret.download:
+    if ret.download is not None:
         download_prepare(download_queue)
         print_info('Re-downloading ...')
         download_prepare(Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD))
@@ -240,7 +252,7 @@ def followed(ret):
 
 
 def list_(ret):
-     bangumi_calendar(force_update=False, followed=True, save=False)
+    bangumi_calendar(force_update=False, followed=True, save=False)
 
 
 def fetch_(ret):
@@ -288,7 +300,7 @@ CONTROLLERS_DICT = {
 
 def controllers(ret):
     func = CONTROLLERS_DICT.get(ret.action, None)
-    if func is None:
+    if func is None or not callable(func):
         return
     else:
         return func(ret)

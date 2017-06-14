@@ -13,14 +13,17 @@ Empty as my wallet.
 ==========
 Update Log
 ==========
-+ Follow bangumi with specified episode
++ Download specified episode
++ Transmission-rpc support
++ Remove aria2 download method
++ Bugs fixed
 
 =======
 Feature
 =======
 + Subscribe/unsubscribe bangumi
 + Bangumi calendar
-+ Bangumi episode informatdon
++ Bangumi episode information
 + Download bangumi by subtitle group
 + Web page to view all subscribed bangumi
 + RSS feed for uTorrent
@@ -70,15 +73,15 @@ Subscribe bangumi:
 
 .. code-block:: bash
 
-    bgmi add "暗殺教室Ⅱ" "線上遊戲的老婆不可能是女生？" "在下坂本，有何貴幹？" "JoJo的奇妙冒險 不滅鑽石"
-    bgmi add "Re：從零開始的異世界生活" --episode 0
+    bgmi add "Re:CREATORS" "夏目友人帐 陆" "进击的巨人 season 2"
+    bgmi add "樱花任务" --episode 0
 
 
 Unsubscribe bangumi:
 
 .. code-block:: bash
 
-    bgmi delete --name "暗殺教室Ⅱ"
+    bgmi delete --name "Re:CREATORS"
 
 
 Update bangumi database which locates at ~/.bgmi/bangumi.db defaultly:
@@ -86,26 +89,30 @@ Update bangumi database which locates at ~/.bgmi/bangumi.db defaultly:
 .. code-block:: bash
 
     bgmi update --download
-    bgmi update --name Rewrite 天真與閃電 --download
+    bgmi update "从零开始的魔法书" --download 2 3
+    bgmi update "时钟机关之星" --download
 
 
 Set up the bangumi subtitle group filter and fetch entries:
 
 .. code-block:: bash
 
-    bgmi filter "線上遊戲的老婆不可能是女生？" --subtitle "KNA,惡魔島" --include 720p,720P --exclude BIG5
-    bgmi fetch "線上遊戲的老婆不可能是女生？"
-    # remove subtitle and exclude keyword filter
-    bgmi filter "線上遊戲的老婆不可能是女生？" --subtitle "" --exclude ""
-    bgmi fetch "線上遊戲的老婆不可能是女生？"
+    bgmi list
+    bgmi fetch "Re:CREATORS"
+    bgmi filter "Re:CREATORS" --subtitle "DHR動研字幕組,豌豆字幕组" --include 720P --exclude BIG5
+    bgmi fetch "Re:CREATORS"
+    # remove subtitle, include and exclude keyword filter and add regex filter
+    bgmi filter "Re:CREATORS" --subtitle "" --include "" --exclude "" --regex
+    bgmi filter "Re:CREATORS" --regex "(DHR動研字幕組|豌豆字幕组).*(720P)"
+    bgmi fetch "Re:CREATORS"
 
 
 Modify bangumi episode:
 
 .. code-block:: bash
 
-    bgmi followed --list
-    bgmi followed --mark Doraemon --episode 1
+    bgmi list
+    bgmi mark "Re:CREATORS" 1
 
 
 Manage download items:
@@ -131,17 +138,28 @@ Show BGmi configure and modify it:
 
 Fields of configure file:
 
+BGmi configure:
 + :code:`BANGUMI_MOE_URL`: url of bangumi.moe mirror
 + :code:`BGMI_SAVE_PATH`: bangumi saving path
-+ :code:`DOWNLOAD_DELEGATE`: the ways of downloading bangumi (aria2, aria2-rpc, xunlei)
++ :code:`DOWNLOAD_DELEGATE`: the ways of downloading bangumi (aria2-rpc, transmission-rpc, xunlei)
++ :code:`MAX_PAGE`: max page for fetching bangumi information
 + :code:`BGMI_TMP_PATH`: just a temporary path
-+ :code:`ARIA2_PATH`: the aria2c binary path
-+ :code:`ARIA2_RPC_URL`: aria2c deamon RPC url
-+ :code:`ARIA2_RPC_TOKEN`: aria2c deamon RPC token
-+ :code:`BGMI_LX_PATH`: path of xunlei-lixian binary
 + :code:`DANMAKU_API_URL`: url of danmaku api
 + :code:`CONVER_URL`: url of bangumi's cover
 + :code:`LANG`: language
+
+Aria2-rpc configure:
++ :code:`ARIA2_RPC_URL`: aria2c deamon RPC url
++ :code:`ARIA2_PATH`: the aria2c binary path
++ :code:`ARIA2_RPC_TOKEN`: aria2c deamon RPC token("token:" for no token)
+
+Xunlei configure:
++ :code:`XUNLEI_LX_PATH`: path of xunlei-lixian binary
+
+Transmission-rpc configure:
++ :code:`TRANSMISSION_RPC_URL`: transmission rpc host
++ :code:`TRANSMISSION_RPC_PORT`: transmission rpc port
+
 
 ==================
 Usage of bgmi_http
@@ -182,7 +200,7 @@ Of cause you can use `yaaw <https://github.com/binux/yaaw/>`_ to manage download
     location /bgmi_admin {
         auth_basic "BGmi admin (yaaw)";
         auth_basic_user_file /etc/nginx/htpasswd;
-        alias /var/www/html/yaaw/;
+        alias /var/www/html/yaaw;
     }
 
     location /jsonrpc {

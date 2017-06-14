@@ -18,6 +18,7 @@ script:
     - python -m unittest discover
     - bgmi -h
     - bgmi cal all
+    - bgmi config DOWNLOAD_DELEGATE 'rr!'
     - bgmi add "雏子的笔记" "Re:CREATORS" "我的妹妹是工口漫画老师"
     - bgmi update
     - bgmi delete --name "我的妹妹是工口漫画老师"
