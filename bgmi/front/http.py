@@ -113,8 +113,8 @@ class CalendarHandler(tornado.web.RequestHandler):
                 for v in bangumi[k % 7]:
                     event = Event()
                     event.add('summary', v)
-                    event.add('dtstart', datetime.datetime.now().date() + datetime.timedelta(i))
-                    event.add('dtend', datetime.datetime.now().date() + datetime.timedelta(i))
+                    event.add('dtstart', datetime.datetime.now().date() + datetime.timedelta(i - 1))
+                    event.add('dtend', datetime.datetime.now().date() + datetime.timedelta(i - 1))
                     cal.add_component(event)
 
         cal.add('name', 'Bangumi Calendar')
