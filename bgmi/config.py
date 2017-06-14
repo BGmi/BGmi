@@ -183,7 +183,7 @@ COVER_URL = 'https://bangumi_moe.ricterz.me'
 LANG = 'zh_cn'
 
 # max page
-MAX_PAGE = 3
+MAX_PAGE = '3'
 
 # aria2
 ARIA2_PATH = '/usr/bin/aria2c'
