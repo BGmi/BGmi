@@ -243,7 +243,7 @@ def fetch_episode(_id, name='', **kwargs):
     include = kwargs.get('include', None)
     exclude = kwargs.get('exclude', None)
     regex = kwargs.get('regex', None)
-    max_page = kwargs.get('max', MAX_PAGE)
+    max_page = kwargs.get('max', int(MAX_PAGE))
 
     if subtitle_group and subtitle_group.split(', '):
         condition = subtitle_group.split(', ')
