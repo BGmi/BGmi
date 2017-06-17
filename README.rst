@@ -16,6 +16,7 @@ Update Log
 + Download specified episode
 + Transmission-rpc support
 + Remove aria2 download method
++ Followed Bangumis Calendar for iOS / Android
 + Bugs fixed
 
 =======
