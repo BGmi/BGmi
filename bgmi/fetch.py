@@ -12,7 +12,7 @@ from itertools import chain
 import requests
 
 import bgmi.config
-from bgmi.config import FETCH_URL, TEAM_URL, NAME_URL, DETAIL_URL, LANG, MAX_PAGE
+from bgmi.config import FETCH_URL, TEAM_URL, NAME_URL, DETAIL_URL, LANG, MAX_PAGE, SEARCH_URL
 from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED
 from bgmi.utils.utils import print_error, print_warning, print_info, \
     test_connection, bug_report, get_terminal_col, GREEN, YELLOW, COLOR_END
@@ -214,7 +214,9 @@ FETCH_EPISODE_ZH = re.compile("[第]\s?(\d{1,2})\s?[話|话|集]")
 FETCH_EPISODE_WITH_BRACKETS = re.compile('(?:【|\[)(\d+)\s?(?:END)?(?:】|\])')
 FETCH_EPISODE_ONLY_NUM = re.compile('^([\d]{2,})$')
 FETCH_EPISODE_RANGE = re.compile('[\d]{2,}\s?-\s?([\d]{2,})')
-FETCH_EPISODE = (FETCH_EPISODE_ZH, FETCH_EPISODE_WITH_BRACKETS, FETCH_EPISODE_ONLY_NUM, FETCH_EPISODE_RANGE)
+FETCH_EPISODE_OVA_OAD = re.compile('([\d]{2,})\s?\((?:OVA|OAD)\)]')
+FETCH_EPISODE = (FETCH_EPISODE_ZH, FETCH_EPISODE_WITH_BRACKETS, FETCH_EPISODE_ONLY_NUM, FETCH_EPISODE_RANGE,
+                 FETCH_EPISODE_OVA_OAD)
 
 
 def parse_episode(data):
@@ -314,6 +316,48 @@ def get_maximum_episode(bangumi, subtitle=True, ignore_old_row=True, max_page=MA
         return bangumi, data
     else:
         return {'episode': 0}, []
+
+
+def search(keyword, count, filter_=None):
+    ret = []
+    rows = []
+    result = []
+
+    for i in range(count):
+
+        data = get_response(SEARCH_URL, 'POST', json={'query': keyword, 'p': i + 1})
+        rows.extend(data['torrents'])
+
+    for info in rows:
+        if not filter_:
+            filter_ = '(.*)'
+
+        match_title = re.compile(filter_)
+        if match_title.match(info['title']):
+            result.append({
+                'download': info['magnet'],
+                'name': keyword,
+                'subtitle_group': info['team_id'],
+                'title': info['title'],
+                'episode': parse_episode(info['title']),
+                'time': int(time.mktime(datetime.datetime.strptime(info['publish_time'].split('.')[0],
+                                                                   "%Y-%m-%dT%H:%M:%S").timetuple()))
+            })
+
+    # Avoid bangumi collection. It's ok but it will waste your traffic and bandwidth.
+    result = result[::-1]
+
+    episodes = list({i['episode'] for i in result})
+    for i in result:
+        if i['episode'] in episodes:
+            ret.append(i)
+            del episodes[episodes.index(i['episode'])]
+
+    if os.environ.get('DEBUG', None):
+        for i in ret:
+            print(i['title'], i['download'])
+
+    return ret
 
 
 if __name__ == '__main__':

@@ -124,6 +124,13 @@ def main():
     sub_parser_fetch.add_argument('--not-ignore', action='store_true',
                                   help='Do not ignore the old bangumi detail rows (3 month ago).')
 
+    sub_parser_search = sub_parser.add_parser(ACTION_SEARCH)
+    sub_parser_search.add_argument('keyword', help='Search keyword', type=unicode_)
+    sub_parser_search.add_argument('--count', type=int, help='The max page count of search result.')
+    sub_parser_search.add_argument('--regex-filter', type=unicode_, help='Regular expression filter of title.')
+    sub_parser_search.add_argument('--download', action='store_true',
+                                   help='Download search result.')
+
     sub_parser.add_parser('install', help='Install BGmi download delegate.')
     sub_parser.add_parser('upgrade', help='Check update.')
 

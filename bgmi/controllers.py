@@ -3,7 +3,7 @@ import time
 
 from bgmi.constants import *
 from bgmi.config import write_config
-from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode
+from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode, search
 from bgmi.models import Bangumi, Followed, Download, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, \
     STATUS_NORMAL, STATUS_NOT_DOWNLOAD
 from bgmi.utils.utils import print_warning, print_info, print_success, print_error
@@ -246,13 +246,13 @@ def mark(ret):
 
 def followed(ret):
     if ret.list:
-        bangumi_calendar(force_update=False, followed=True, save=False)
+        bangumi_calendar(followed=True, save=False)
     else:
         mark(ret)
 
 
 def list_(ret):
-    bangumi_calendar(force_update=False, followed=True, save=False)
+    bangumi_calendar(followed=True, save=False)
 
 
 def fetch_(ret):
@@ -279,6 +279,18 @@ def fetch_(ret):
         print_error('Bangumi {0} not exist'.format(ret.name))
 
 
+def search_(ret):
+    if not ret.count:
+        ret.count = 3
+
+    data = search(ret.keyword, count=ret.count, filter_=ret.regex_filter)
+
+    for i in data:
+        print_success(i['title'])
+    if ret.download:
+        download_prepare(data)
+
+
 def config(ret):
     write_config(ret.name, ret.value)
 
@@ -295,6 +307,7 @@ CONTROLLERS_DICT = {
     ACTION_FOLLOWED: followed,
     ACTION_MARK: mark,
     ACTION_LIST: list_,
+    ACTION_SEARCH: search_,
 }
 
 
