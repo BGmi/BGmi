@@ -70,7 +70,7 @@
     <h1><a href="/">BGmi</a> / {{ bangumi_name }}</h1>
     <div id="episode-container">
         {% for k in sorted(bangumi.keys()) %}
-        <a class="episode" data-epi="{{ k }}" href="##{{ k }}">{{ k }}</a>
+        <a class="episode" data-epi="{{ k }}" href="#episode_{{ k }}" id="episode_{{ k }}">{{ k }}</a>
         {% end %}
     </div>
     <hr>
