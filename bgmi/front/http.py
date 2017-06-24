@@ -81,7 +81,7 @@ class BangumiPlayerHandler(tornado.web.RequestHandler):
             self.finish()
         else:
             self.render('templates/dplayer.html', bangumi=episode_list, bangumi_name=bangumi_name,
-                        bangumi_cover=bangumi_obj['cover'], DANMAKU_URL=DANMAKU_API_URL)
+                        bangumi_cover='{}/{}'.format(COVER_URL, bangumi_obj['cover']), DANMAKU_URL=DANMAKU_API_URL)
 
 
 class ImageCSSHandler(tornado.web.RequestHandler):
