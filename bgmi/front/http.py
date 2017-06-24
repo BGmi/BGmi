@@ -55,6 +55,8 @@ class BangumiPlayerHandler(tornado.web.RequestHandler):
         data.select_obj()
 
         bangumi = Bangumi(name=bangumi_name)
+        bangumi.select_obj()
+
         if not data:
             return self.write_error(404)
         episode_list = {}
