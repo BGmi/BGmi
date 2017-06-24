@@ -89,7 +89,7 @@
     var bangumi_data = {{ json_encode(bangumi) }};
 
     config = {
-        pic: '{{ bangumi_over }}',
+        pic: '{{ bangumi[0]['over'] }}',
         element: document.getElementsByClassName('dplayer')[0],
         autoplay: false,
         theme: '#FADFA3',
