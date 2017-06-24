@@ -59,6 +59,10 @@
         .episode:hover {
             background: #9e9e9e;
         }
+
+        .episode:link {
+            background: #9e9e9e;
+        }
     </style>
 </head>
 <body>
@@ -66,7 +70,7 @@
     <h1><a href="/">BGmi</a> / {{ bangumi_name }}</h1>
     <div id="episode-container">
         {% for k in sorted(bangumi.keys()) %}
-            <a class="episode" data-epi="{{ k }}">{{ k }}</a>
+        <a class="episode" data-epi="{{ k }}" href="##{{ k }}">{{ k }}</a>
         {% end %}
     </div>
     <hr>
@@ -90,17 +94,17 @@
             /*pic: 'http://devtest.qiniudn.com/若能绽放光芒.png'*/
         }
     {% if DANMAKU_URL %}
-        ,
-        danmaku: {
-            id: '{{ md5(bangumi_name) }}_{{ max(bangumi.keys()) }}',
-            api: '{{ DANMAKU_URL }}',
-            maximum: 3000
-        }
-	{% end %}
+    ,
+    danmaku: {
+        id: '{{ md5(bangumi_name) }}_{{ max(bangumi.keys()) }}',
+                api: '{{ DANMAKU_URL }}',
+                maximum: 3000
+    }
+    {% end %}
     };
     dp = new DPlayer(config);
     dp.on('canplay', function () {
-        dp.play()
+        // dp.play()
     });
 
     var episode = document.getElementById('episode-container');
