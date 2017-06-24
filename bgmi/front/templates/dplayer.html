@@ -89,7 +89,7 @@
     var bangumi_data = {{ json_encode(bangumi) }};
 
     config = {
-        pic: '{{ bangumi[0]['over'] }}',
+        pic: '{{ bangumi_cover }}',
         element: document.getElementsByClassName('dplayer')[0],
         autoplay: false,
         theme: '#FADFA3',
@@ -110,9 +110,6 @@
     {% end %}
     };
     dp = new DPlayer(config);
-    dp.on('canplay', function () {
-        // dp.play()
-    });
 
     var episode = document.getElementById('episode-container');
     episode.addEventListener('click', function (e) {
