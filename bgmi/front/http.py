@@ -54,8 +54,8 @@ class BangumiPlayerHandler(tornado.web.RequestHandler):
         data = Followed(bangumi_name=bangumi_name)
         data.select_obj()
 
-        bangumi = Bangumi(name=bangumi_name)
-        bangumi.select_obj()
+        bangumi_obj = Bangumi(name=bangumi_name)
+        bangumi_obj.select_obj()
 
         if not data:
             return self.write_error(404)
@@ -81,7 +81,7 @@ class BangumiPlayerHandler(tornado.web.RequestHandler):
             self.finish()
         else:
             self.render('templates/dplayer.html', bangumi=episode_list, bangumi_name=bangumi_name,
-                        bangumi_cover=bangumi['cover'], DANMAKU_URL=DANMAKU_API_URL)
+                        bangumi_cover=bangumi_obj['cover'], DANMAKU_URL=DANMAKU_API_URL)
 
 
 class ImageCSSHandler(tornado.web.RequestHandler):
