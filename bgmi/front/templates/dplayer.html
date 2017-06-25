@@ -92,7 +92,28 @@
     {% autoescape None %}
     var bangumi_data = {{ json_encode(bangumi) }};
 
-    config = {
+    var swtichVideo = function(k) {
+        console.log('Load: /bangumi' + bangumi_data[k]['path']);
+        dp.switchVideo({
+            url: '/bangumi' + bangumi_data[k]['path'],
+            pic: '{{ bangumi_cover }}',
+            type: 'auto'
+        }
+        {% if DANMAKU_URL %}
+        , {
+            id: '{{ md5(bangumi_name) }}_' + k,
+                    api: '{{ DANMAKU_URL }}',
+                    maximum: 3000
+        }
+        {% end %}
+        );
+
+        dp.on('canplay', function () {
+            dp.play()
+        });
+    };
+
+    var config = {
         element: document.getElementsByClassName('dplayer')[0],
         autoplay: false,
         theme: '#FADFA3',
@@ -112,33 +133,12 @@
         }
         {% end %}
     };
-    dp = new DPlayer(config);
+    var dp = new DPlayer(config);
 
     var episode = document.getElementById('episode-container');
     episode.addEventListener('click', function (e) {
-        var k = e.target.attributes['data-epi'].value;
-        console.log('/bangumi' + bangumi_data[k]['path']);
-        dp.switchVideo({
-            url: '/bangumi' + bangumi_data[k]['path'],
-            pic: '{{ bangumi_cover }}',
-            type: 'auto'
-        }
-        {% if DANMAKU_URL %}
-            , {
-                id: '{{ md5(bangumi_name) }}_' + k,
-                api: '{{ DANMAKU_URL }}',
-                maximum: 3000
-            }
-        {% end %}
-        );
-
-        dp.on('canplay', function () {
-            dp.play()
-        });
-    });
-
-    dp.on('ended', function () {
-        dp.pause();
+            var k = e.target.attributes['data-epi'].value;
+            swtichVideo(k);
     });
 
 </script>
