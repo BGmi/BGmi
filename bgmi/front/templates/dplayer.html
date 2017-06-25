@@ -104,33 +104,31 @@
             url: "/bangumi{{ bangumi[max(bangumi.keys())]['path'] }}",
             pic: '{{ bangumi_cover }}'
         }
-    {% if DANMAKU_URL %}
-    ,
-    danmaku: {
-        id: '{{ md5(bangumi_name) }}_{{ max(bangumi.keys()) }}',
-                api: '{{ DANMAKU_URL }}',
-                maximum: 3000
-    }
-    {% end %}
+        {% if DANMAKU_URL %}
+        ,
+        danmaku: {
+            id: '{{ md5(bangumi_name) }}_{{ max(bangumi.keys()) }}',
+                    api: '{{ DANMAKU_URL }}',
+                    maximum: 3000
+        }
+        {% end %}
     };
     dp = new DPlayer(config);
 
     var episode = document.getElementById('episode-container');
     episode.addEventListener('click', function (e) {
-        dp.pause();
-
         var k = e.target.attributes['data-epi'].value;
-        var danmaku = {};
-        {% if DANMAKU_URL %}
-        danmaku = {
-            id: '{{ md5(bangumi_name) }}_' + k,
-            api: '{{ DANMAKU_URL }}',
-            maximum: 3000
-        };
-        {% end %}
         dp.switchVideo({
             'url': '/bangumi' + bangumi_data[k]['path']
-        }, danmaku);
+        }
+        {% if DANMAKU_URL %}
+            , {
+                id: '{{ md5(bangumi_name) }}_' + k,
+                api: '{{ DANMAKU_URL }}',
+                maximum: 3000
+            }
+        {% end %}
+        );
 
         dp.on('canplay', function () {
             dp.play()
