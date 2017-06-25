@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>{{ bangumi_name }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/dplayer/DPlayer.min.css">
     <style>
         body {
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -118,8 +117,11 @@
     var episode = document.getElementById('episode-container');
     episode.addEventListener('click', function (e) {
         var k = e.target.attributes['data-epi'].value;
+        console.log('/bangumi' + bangumi_data[k]['path']);
         dp.switchVideo({
-            'url': '/bangumi' + bangumi_data[k]['path']
+            url: '/bangumi' + bangumi_data[k]['path'],
+            pic: '{{ bangumi_cover }}',
+            type: 'auto'
         }
         {% if DANMAKU_URL %}
             , {
@@ -133,6 +135,10 @@
         dp.on('canplay', function () {
             dp.play()
         });
+    });
+
+    dp.on('ended', function () {
+        dp.pause();
     });
 
 </script>
