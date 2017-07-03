@@ -32,3 +32,4 @@ script:
     - bgmi update "我的妹妹是工口漫画老师"
     - bgmi filter "我的妹妹是工口漫画老师" --subtitle "RH字幕組,動漫國字幕組,LoliHouse" --exclude "MKV" --regex "720p|720P"
     - bgmi fetch "我的妹妹是工口漫画老师"
+    - bgmi search "为美好的世界献上祝福！" --regex-filter '.*动漫国字幕组.*为美好的世界献上祝福！].*720P.*'

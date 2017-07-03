@@ -263,15 +263,16 @@ def fetch_episode(_id, name='', **kwargs):
                 response_data.extend(response['torrents'])
 
     for info in response_data:
-        result.append({
-            'download': info['magnet'],
-            'name': name,
-            'subtitle_group': info['team_id'],
-            'title': info['title'],
-            'episode': parse_episode(info['title']),
-            'time': int(time.mktime(datetime.datetime.strptime(info['publish_time'].split('.')[0],
-                                                               "%Y-%m-%dT%H:%M:%S").timetuple()))
-        })
+        if '合集' not in info['title']:
+            result.append({
+                'download': info['magnet'],
+                'name': name,
+                'subtitle_group': info['team_id'],
+                'title': info['title'],
+                'episode': parse_episode(info['title']),
+                'time': int(time.mktime(datetime.datetime.strptime(info['publish_time'].split('.')[0],
+                                                                   "%Y-%m-%dT%H:%M:%S").timetuple()))
+            })
 
     if include:
         include_list = map(lambda s: s.strip(), include.split(','))
