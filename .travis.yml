@@ -13,11 +13,11 @@ install:
 
 env:
     - TRAVIS_CI=TRAVIS_CI
-    - BANGUMI_1=捏造陷阱NTR
-    - BANGUMI_2=骑士魔法
-    - BANGUMI_3=异世界食堂
 
 script:
+    - export BANGUMI_1=捏造陷阱NTR
+    - export BANGUMI_2=骑士魔法
+    - export BANGUMI_3=异世界食堂
     - python -m unittest discover
     - bgmi -h
     - bgmi cal
