@@ -22,7 +22,7 @@ script:
     - bgmi -h
     - bgmi cal
     - bgmi config DOWNLOAD_DELEGATE 'rr!'
-    - bgmi add $BANGUMI_1 $BANGUMI_2
+    - bgmi add $BANGUMI_1 $BANGUMI_2 $BANGUMI_3
     - bgmi update
     - bgmi delete --name $BANGUMI_3
     - bgmi delete --clear-all --batch
