@@ -53,6 +53,10 @@ class BangumiPlayerHandler(tornado.web.RequestHandler):
     def get(self, bangumi_name):
         data = Followed(bangumi_name=bangumi_name)
         data.select_obj()
+
+        bangumi_obj = Bangumi(name=bangumi_name)
+        bangumi_obj.select_obj()
+
         if not data:
             return self.write_error(404)
         episode_list = {}
@@ -77,7 +81,7 @@ class BangumiPlayerHandler(tornado.web.RequestHandler):
             self.finish()
         else:
             self.render('templates/dplayer.html', bangumi=episode_list, bangumi_name=bangumi_name,
-                        DANMAKU_URL=DANMAKU_API_URL)
+                        bangumi_cover='{}/{}'.format(COVER_URL, bangumi_obj['cover']), DANMAKU_URL=DANMAKU_API_URL)
 
 
 class ImageCSSHandler(tornado.web.RequestHandler):
@@ -96,26 +100,35 @@ class RssHandler(tornado.web.RequestHandler):
 
 class CalendarHandler(tornado.web.RequestHandler):
     def get(self):
-        data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING,
-                                         order='followed.updated_time', desc=True)
-
-        bangumi = defaultdict(list)
-        [bangumi[Bangumi.week.index(i['update_time']) + 1].append(i['bangumi_name']) for i in data]
+        type_ = self.get_argument('type', 0)
 
         cal = Calendar()
         cal.add('prodid', '-//BGmi Followed Bangumi Calendar//bangumi.ricterz.me//')
         cal.add('version', '2.0')
 
-        weekday = datetime.datetime.now().weekday()
-        for i, k in enumerate(range(weekday, weekday + 7)):
-            if k % 7 in bangumi:
-                # v = bangumi[k % 7]
-                for v in bangumi[k % 7]:
-                    event = Event()
-                    event.add('summary', v)
-                    event.add('dtstart', datetime.datetime.now().date() + datetime.timedelta(i - 1))
-                    event.add('dtend', datetime.datetime.now().date() + datetime.timedelta(i - 1))
-                    cal.add_component(event)
+        data = Followed.get_all_followed(order='followed.updated_time', desc=True)
+        if type_ == 0:
+
+            bangumi = defaultdict(list)
+            [bangumi[Bangumi.week.index(i['update_time']) + 1].append(i['bangumi_name']) for i in data]
+
+            weekday = datetime.datetime.now().weekday()
+            for i, k in enumerate(range(weekday, weekday + 7)):
+                if k % 7 in bangumi:
+                    for v in bangumi[k % 7]:
+                        event = Event()
+                        event.add('summary', v)
+                        event.add('dtstart', datetime.datetime.now().date() + datetime.timedelta(i - 1))
+                        event.add('dtend', datetime.datetime.now().date() + datetime.timedelta(i - 1))
+                        cal.add_component(event)
+        else:
+            data = [bangumi for bangumi in data if bangumi['status'] == 2]
+            for bangumi in data:
+                event = Event()
+                event.add('summary', 'Updated: {}'.format(bangumi['bangumi_name']))
+                event.add('dtstart', datetime.datetime.now().date())
+                event.add('dtend', datetime.datetime.now().date())
+                cal.add_component(event)
 
         cal.add('name', 'Bangumi Calendar')
         cal.add('X-WR-CALNAM', 'Bangumi Calendar')
@@ -144,7 +157,7 @@ class MainHandler(tornado.web.RequestHandler):
         calendar = Bangumi.get_all_bangumi()
 
         def shift(seq, n):
-            n = n % len(seq)
+            n %= len(seq)
             return seq[n:] + seq[:n]
 
         weekday_order = shift(WEEK, datetime.datetime.today().weekday())

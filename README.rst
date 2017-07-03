@@ -13,9 +13,11 @@ Empty as my wallet.
 ==========
 Update Log
 ==========
++ Search / Download bangumi filter by regex
 + Download specified episode
 + Transmission-rpc support
 + Remove aria2 download method
++ Followed Bangumis Calendar for iOS / Android
 + Bugs fixed
 
 =======
@@ -105,6 +107,15 @@ Set up the bangumi subtitle group filter and fetch entries:
     bgmi filter "Re:CREATORS" --subtitle "" --include "" --exclude "" --regex
     bgmi filter "Re:CREATORS" --regex "(DHR動研字幕組|豌豆字幕组).*(720P)"
     bgmi fetch "Re:CREATORS"
+
+
+Search bangumi and download:
+
+.. code-block:: bash
+
+    bgmi search '为美好的世界献上祝福！' --regex-filter '.*动漫国字幕组.*为美好的世界献上祝福！].*720P.*'
+    # download
+    bgmi search '为美好的世界献上祝福！' --regex-filter '.*合集.* --download
 
 
 Modify bangumi episode:

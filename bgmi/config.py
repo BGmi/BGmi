@@ -14,25 +14,24 @@ except ImportError:
 __wget__ = ('WGET_PATH', )
 __thunder__ = ('XUNLEI_LX_PATH', )
 __aria2__ = ('ARIA2_RPC_URL', 'ARIA2_PATH', 'ARIA2_RPC_TOKEN', )
-__transmission__ = ('TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT')
+__transmission__ = ('TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT', )
 
 __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 
 # fake __all__
-__all__ = ('BANGUMI_MOE_URL', 'BGMI_PATH', 'DB_PATH', 'BGMI_SAVE_PATH',
-           'DOWNLOAD_DELEGATE', 'CONFIG_FILE_PATH', 'MAX_PAGE',
-           'DETAIL_URL', 'FETCH_URL', 'IS_PYTHON3',
-           'BGMI_TMP_PATH', 'DANMAKU_API_URL', 'COVER_URL', 'LANG')
+__all__ = ('BANGUMI_MOE_URL', 'BGMI_SAVE_PATH', 'DOWNLOAD_DELEGATE', 'MAX_PAGE',
+           'BGMI_TMP_PATH', 'DANMAKU_API_URL', 'COVER_URL', 'LANG', )
 
 # cannot be rewrite
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
-                'IS_PYTHON3', 'DETAIL_URL', 'FETCH_URL')
+                'IS_PYTHON3', 'DETAIL_URL', 'FETCH_URL',
+                'SEARCH_URL', )
 
 # writeable
 __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
 
 # the real __all__
-__all__ = __all__ + __download_delegate__
+__all__ = __all__ + __download_delegate__ + __readonly__
 
 
 download_delegate_map = {
@@ -69,6 +68,7 @@ def read_config():
     for i in download_delegate_map.get(DOWNLOAD_DELEGATE):
         if c.has_option(DOWNLOAD_DELEGATE, i):
             globals().update({i: c.get(DOWNLOAD_DELEGATE, i)})
+
 
 def print_config():
     c = configparser.ConfigParser()
@@ -214,3 +214,4 @@ FETCH_URL = '{0}{1}api/bangumi/current'.format(BANGUMI_MOE_URL, __split)
 TEAM_URL = '{0}{1}api/team/working'.format(BANGUMI_MOE_URL, __split)
 NAME_URL = '{0}{1}api/tag/fetch'.format(BANGUMI_MOE_URL, __split)
 DETAIL_URL = '{0}{1}api/torrent/search'.format(BANGUMI_MOE_URL, __split)
+SEARCH_URL = '{0}{1}api/v2/torrent/search'.format(BANGUMI_MOE_URL, __split)

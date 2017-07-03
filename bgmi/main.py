@@ -90,8 +90,9 @@ def main():
                                    help='Do not ignore the old bangumi detail rows (3 month ago).')
 
     sub_parser_cal = sub_parser.add_parser(ACTION_CAL, help='Print bangumi calendar.')
-    sub_parser_cal.add_argument('filter', type=unicode_, metavar='filter', choices=FILTER_CHOICES,
-                                help='Calendar form filter ({}).'.format(', '.join(FILTER_CHOICES)))
+    # use `bgmi list`
+    # sub_parser_cal.add_argument('filter', type=unicode_, metavar='filter', choices=FILTER_CHOICES,
+    #                             help='Calendar form filter ({}).'.format(', '.join(FILTER_CHOICES)))
     sub_parser_cal.add_argument('--today', action='store_true', help='Show bangumi calendar for today.')
     sub_parser_cal.add_argument('--force-update', action='store_true',
                                 help='Get the newest bangumi calendar from bangumi.moe.')
@@ -106,11 +107,12 @@ def main():
     sub_parser_mark.add_argument('name', help='Bangumi name')
     sub_parser_mark.add_argument('episode', help='Bangumi episode', type=int)
 
-    sub_parser_followed = sub_parser.add_parser(ACTION_FOLLOWED, help='Subscribed bangumi manager.')
-    sub_parser_followed_mutex = sub_parser_followed.add_mutually_exclusive_group(required=True)
-    sub_parser_followed_mutex.add_argument('--list', help='List subscribed bangumi.', action='store_true')
-    sub_parser_followed_mutex.add_argument('--mark', help='Specific bangumi name.', dest='name', type=unicode_)
-    sub_parser_followed.add_argument('--episode', help='Specifical bangumi episode.', metavar='episode')
+    # Deprecated
+    # sub_parser_followed = sub_parser.add_parser(ACTION_FOLLOWED, help='Subscribed bangumi manager.')
+    # sub_parser_followed_mutex = sub_parser_followed.add_mutually_exclusive_group(required=True)
+    # sub_parser_followed_mutex.add_argument('--list', help='List subscribed bangumi.', action='store_true')
+    # sub_parser_followed_mutex.add_argument('--mark', help='Specific bangumi name.', dest='name', type=unicode_)
+    # sub_parser_followed.add_argument('--episode', help='Specifical bangumi episode.', metavar='episode')
 
     sub_parser_download = sub_parser.add_parser(ACTION_DOWNLOAD, help='Download manager.')
     sub_parser_download.add_argument('--list', help='List download queue.', action='store_true')
@@ -123,6 +125,13 @@ def main():
     sub_parser_fetch.add_argument('name', help='Bangumi name', type=unicode_)
     sub_parser_fetch.add_argument('--not-ignore', action='store_true',
                                   help='Do not ignore the old bangumi detail rows (3 month ago).')
+
+    sub_parser_search = sub_parser.add_parser(ACTION_SEARCH)
+    sub_parser_search.add_argument('keyword', help='Search keyword', type=unicode_)
+    sub_parser_search.add_argument('--count', type=int, help='The max page count of search result.')
+    sub_parser_search.add_argument('--regex-filter', type=unicode_, help='Regular expression filter of title.')
+    sub_parser_search.add_argument('--download', action='store_true',
+                                   help='Download search result.')
 
     sub_parser.add_parser('install', help='Install BGmi download delegate.')
     sub_parser.add_parser('upgrade', help='Check update.')
