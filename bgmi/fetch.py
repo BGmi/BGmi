@@ -245,7 +245,7 @@ def fetch_episode(_id, name='', **kwargs):
     include = kwargs.get('include', None)
     exclude = kwargs.get('exclude', None)
     regex = kwargs.get('regex', None)
-    max_page = kwargs.get('max', int(MAX_PAGE))
+    max_page = int(kwargs.get('max', int(MAX_PAGE)))
 
     if subtitle_group and subtitle_group.split(', '):
         condition = subtitle_group.split(', ')
@@ -255,7 +255,7 @@ def fetch_episode(_id, name='', **kwargs):
             response_data.extend(response['torrents'])
     else:
         response_data = []
-        for i in range(int(max_page)):
+        for i in range(max_page):
             if max_page > 1:
                 print_info('Fetch page {0} ...'.format(i + 1))
             response = get_response(DETAIL_URL, 'POST', json={'tag_id': [_id], 'p': i + 1})
