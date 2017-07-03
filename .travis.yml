@@ -13,23 +13,25 @@ install:
 
 env:
     - TRAVIS_CI=TRAVIS_CI
+    - BANGUMI_1=捏造陷阱NTR
+    - BANGUMI_2=骑士魔法
+    - BANGUMI_3=异世界食堂
 
 script:
     - python -m unittest discover
     - bgmi -h
     - bgmi cal all
     - bgmi config DOWNLOAD_DELEGATE 'rr!'
-    - bgmi add "雏子的笔记" "Re:CREATORS" "我的妹妹是工口漫画老师"
+    - bgmi add $BANGUMI_1 $BANGUMI_2
     - bgmi update
-    - bgmi delete --name "我的妹妹是工口漫画老师"
+    - bgmi delete --name $BANGUMI_3
     - bgmi delete --clear-all --batch
-    - bgmi add "我的妹妹是工口漫画老师" --episode 1
+    - bgmi add $BANGUMI_2 --episode 1
     - bgmi cal followed
     - bgmi config ARIA2_RPC_TOKEN 'token:233'
     - bgmi download --list
-    - bgmi followed --mark "我的妹妹是工口漫画老师" --episode 0
-    - bgmi mark "我的妹妹是工口漫画老师" 1
-    - bgmi update "我的妹妹是工口漫画老师"
-    - bgmi filter "我的妹妹是工口漫画老师" --subtitle "RH字幕組,動漫國字幕組,LoliHouse" --exclude "MKV" --regex "720p|720P"
-    - bgmi fetch "我的妹妹是工口漫画老师"
+    - bgmi mark $BANGUMI_1 1
+    - bgmi update $BANGUMI_2
+    - bgmi filter $BANGUMI_2 --subtitle "" --exclude "MKV" --regex "720p|720P"
+    - bgmi fetch $BANGUMI_2
     - bgmi search "为美好的世界献上祝福！" --regex-filter '.*动漫国字幕组.*为美好的世界献上祝福！].*720P.*'

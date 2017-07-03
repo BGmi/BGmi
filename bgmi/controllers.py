@@ -193,16 +193,7 @@ def update(ret):
 
 
 def cal(ret):
-    force = ret.force_update
-    save = not ret.no_save
-    today = ret.today
-    if ret.filter == FILTER_CHOICE_TODAY:
-        bangumi_calendar(force_update=force, today=True, save=save)
-    elif ret.filter == FILTER_CHOICE_FOLLOWED:
-        bangumi_calendar(force_update=force, followed=True, today=today, save=save)
-    else:
-        # fallback
-        bangumi_calendar(force_update=force, today=today, save=save)
+    bangumi_calendar(force_update=ret.force_update, today=ret.today, save=not ret.no_save)
 
 
 def download_manager(ret):
