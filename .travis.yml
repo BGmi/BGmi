@@ -30,7 +30,7 @@ script:
     - bgmi list
     - bgmi config ARIA2_RPC_TOKEN 'token:233'
     - bgmi download --list
-    - bgmi mark $BANGUMI_1 1
+    - bgmi mark $BANGUMI_2 1
     - bgmi update $BANGUMI_2
     - bgmi filter $BANGUMI_2 --subtitle "" --exclude "MKV" --regex "720p|720P"
     - bgmi fetch $BANGUMI_2
