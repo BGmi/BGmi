@@ -7,7 +7,7 @@ import subprocess
 from tempfile import NamedTemporaryFile
 
 import bgmi.config
-from bgmi.config import XUNLEI_LX_PATH, BGMI_PATH, BGMI_TMP_PATH, ARIA2_PATH, ARIA2_RPC_URL, ARIA2_RPC_TOKEN,\
+from bgmi.config import XUNLEI_LX_PATH, BGMI_PATH, BGMI_TMP_PATH, ARIA2_RPC_URL, ARIA2_RPC_TOKEN, \
     WGET_PATH, TRANSMISSION_RPC_PORT, TRANSMISSION_RPC_URL
 
 from bgmi.utils.utils import print_warning, print_info, print_error, print_success
@@ -167,10 +167,10 @@ class Aria2DownloadRPC(DownloadService):
         url[2] = ARIA2_RPC_TOKEN + '@' + url[2]
         url = '/'.join(url)
         s = ServerProxy(url)
-        r = s.aria2.getVersion('token:{}'.format(ARIA2_RPC_TOKEN), )
+        r = s.aria2.getVersion(ARIA2_RPC_TOKEN, )
         version = r['version']
         if version:
-            Aria2DownloadRPC.old_version = version[0] < '1.18.4'
+            Aria2DownloadRPC.old_version = version < '1.18.4'
         else:
             print_warning('Get aria2c version failed')
 
