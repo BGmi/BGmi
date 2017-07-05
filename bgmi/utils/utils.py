@@ -187,4 +187,3 @@ def check_update(mark=True):
                 return update()
         except ValueError:
             pass
-
