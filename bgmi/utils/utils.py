@@ -155,6 +155,10 @@ def get_terminal_col():
                 sizex = right - left + 1
                 # sizey = bottom - top + 1
                 return sizex
+            else:
+                import subprocess
+                cols = int(subprocess.check_output('tput cols'))
+                return cols
         except:
             return 80
 
