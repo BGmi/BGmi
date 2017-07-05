@@ -12,7 +12,7 @@ from itertools import chain
 import requests
 
 import bgmi.config
-from bgmi.config import FETCH_URL, TEAM_URL, NAME_URL, DETAIL_URL, LANG, MAX_PAGE, SEARCH_URL
+from bgmi.config import FETCH_URL, TEAM_URL, NAME_URL, DETAIL_URL, LANG, MAX_PAGE, SEARCH_URL, BANGUMI_TAG
 from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED
 from bgmi.utils.utils import print_error, print_warning, print_info, \
     test_connection, bug_report, get_terminal_col, GREEN, YELLOW, COLOR_END
@@ -75,7 +75,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
     else:
         weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
 
-    spacial_append_chars = ['Ⅱ', 'Ⅲ', '♪', 'Δ', '×', '☆', 'é', '·']
+    spacial_append_chars = ['Ⅱ', 'Ⅲ', '♪', 'Δ', '×', '☆', 'é', '·', '♭']
     spacial_remove_chars = []
 
     for index, weekday in enumerate(weekday_order):
@@ -250,7 +250,7 @@ def fetch_episode(_id, name='', **kwargs):
     if subtitle_group and subtitle_group.split(', '):
         condition = subtitle_group.split(', ')
         for c in condition:
-            data = {'tag_id': [_id, c]}
+            data = {'tag_id': [_id, c, BANGUMI_TAG]}
             response = get_response(DETAIL_URL, 'POST', json=data)
             response_data.extend(response['torrents'])
     else:
@@ -258,7 +258,8 @@ def fetch_episode(_id, name='', **kwargs):
         for i in range(max_page):
             if max_page > 1:
                 print_info('Fetch page {0} ...'.format(i + 1))
-            response = get_response(DETAIL_URL, 'POST', json={'tag_id': [_id], 'p': i + 1})
+            data = {'tag_id': [_id, BANGUMI_TAG], 'p': i + 1}
+            response = get_response(DETAIL_URL, 'POST', json=data)
             if response:
                 response_data.extend(response['torrents'])
 

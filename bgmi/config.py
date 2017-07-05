@@ -25,7 +25,7 @@ __all__ = ('BANGUMI_MOE_URL', 'BGMI_SAVE_PATH', 'DOWNLOAD_DELEGATE', 'MAX_PAGE',
 # cannot be rewrite
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
                 'IS_PYTHON3', 'DETAIL_URL', 'FETCH_URL',
-                'SEARCH_URL', )
+                'SEARCH_URL', 'BANGUMI_TAG')
 
 # writeable
 __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
@@ -196,6 +196,9 @@ WGET_PATH = '/usr/bin/wget'
 # transmission-rpc
 TRANSMISSION_RPC_URL = '127.0.0.1'
 TRANSMISSION_RPC_PORT = '9091'
+
+# tag of bangumi on bangumi.moe
+BANGUMI_TAG = '549ef207fe682f7549f1ea90'
 
 
 # ------------------------------ #
