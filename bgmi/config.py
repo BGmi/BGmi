@@ -13,8 +13,8 @@ except ImportError:
 # download delegate
 __wget__ = ('WGET_PATH', )
 __thunder__ = ('XUNLEI_LX_PATH', )
-__aria2__ = ('ARIA2_RPC_URL', 'ARIA2_PATH', 'ARIA2_RPC_TOKEN', )
 __transmission__ = ('TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT', )
+__aria2__ = ('ARIA2_RPC_URL', 'ARIA2_RPC_TOKEN',)
 
 __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 
@@ -25,7 +25,7 @@ __all__ = ('BANGUMI_MOE_URL', 'BGMI_SAVE_PATH', 'DOWNLOAD_DELEGATE', 'MAX_PAGE',
 # cannot be rewrite
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
                 'IS_PYTHON3', 'DETAIL_URL', 'FETCH_URL',
-                'SEARCH_URL', )
+                'SEARCH_URL', 'BANGUMI_TAG')
 
 # writeable
 __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
@@ -186,7 +186,6 @@ LANG = 'zh_cn'
 MAX_PAGE = '3'
 
 # aria2
-ARIA2_PATH = '/usr/bin/aria2c'
 ARIA2_RPC_URL = 'http://localhost:6800/rpc'
 ARIA2_RPC_TOKEN = 'token:'
 
@@ -196,6 +195,9 @@ WGET_PATH = '/usr/bin/wget'
 # transmission-rpc
 TRANSMISSION_RPC_URL = '127.0.0.1'
 TRANSMISSION_RPC_PORT = '9091'
+
+# tag of bangumi on bangumi.moe
+BANGUMI_TAG = '549ef207fe682f7549f1ea90'
 
 
 # ------------------------------ #
