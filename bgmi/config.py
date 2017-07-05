@@ -13,8 +13,8 @@ except ImportError:
 # download delegate
 __wget__ = ('WGET_PATH', )
 __thunder__ = ('XUNLEI_LX_PATH', )
-__aria2__ = ('ARIA2_RPC_URL', 'ARIA2_PATH', 'ARIA2_RPC_TOKEN', )
 __transmission__ = ('TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT', )
+__aria2__ = ('ARIA2_RPC_URL', 'ARIA2_RPC_TOKEN',)
 
 __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 
@@ -186,7 +186,6 @@ LANG = 'zh_cn'
 MAX_PAGE = '3'
 
 # aria2
-ARIA2_PATH = '/usr/bin/aria2c'
 ARIA2_RPC_URL = 'http://localhost:6800/rpc'
 ARIA2_RPC_TOKEN = 'token:'
 

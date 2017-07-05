@@ -161,7 +161,6 @@ BGmi configure:
 
 Aria2-rpc configure:
 + :code:`ARIA2_RPC_URL`: aria2c deamon RPC url
-+ :code:`ARIA2_PATH`: the aria2c binary path
 + :code:`ARIA2_RPC_TOKEN`: aria2c deamon RPC token("token:" for no token)
 
 Xunlei configure:
