@@ -132,9 +132,14 @@ def get_response(url, method='GET', **kwargs):
     if os.environ.get('DEBUG'):
         print_info('Request URL: {0}'.format(url))
     try:
+        if os.environ.get('DEBUG'):
+            print(getattr(requests, method.lower())(url, **kwargs).text)
+
         return getattr(requests, method.lower())(url, **kwargs).json()
     except requests.ConnectionError:
         print_error('error: failed to establish a new connection')
+    except ValueError:
+        print_error('error: server returned data maybe not be json, please contact ricterzheng@gmail.com')
 
 
 def process_subtitle(data):

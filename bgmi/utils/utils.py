@@ -1,6 +1,7 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 import os
+import sys
 import time
 import platform
 import struct
@@ -47,7 +48,8 @@ def indicator(f):
             else:
                 func_name = f.func_name
             args = (indicator_map.get(func_name, '') + args[0], )
-        return f(*args, **kwargs)
+        f(*args, **kwargs)
+        sys.stdout.flush()
     return wrapper
 
 
