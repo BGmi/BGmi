@@ -132,9 +132,14 @@ def get_response(url, method='GET', **kwargs):
     if os.environ.get('DEBUG'):
         print_info('Request URL: {0}'.format(url))
     try:
+        if os.environ.get('DEBUG'):
+            print(getattr(requests, method.lower())(url, **kwargs).text)
+
         return getattr(requests, method.lower())(url, **kwargs).json()
     except requests.ConnectionError:
         print_error('error: failed to establish a new connection')
+    except ValueError:
+        print_error('error: server returned data maybe not be json, please contact ricterzheng@gmail.com')
 
 
 def process_subtitle(data):
@@ -276,12 +281,12 @@ def fetch_episode(_id, name='', **kwargs):
             })
 
     if include:
-        include_list = map(lambda s: s.strip(), include.split(','))
+        include_list = list(map(lambda s: s.strip(), include.split(',')))
         result = list(filter(lambda s: True if all(map(lambda t: t in s['title'],
                                                        include_list)) else False, result))
 
     if exclude:
-        exclude_list = map(lambda s: s.strip(), exclude.split(','))
+        exclude_list = list(map(lambda s: s.strip(), exclude.split(',')))
         result = list(filter(lambda s: True if all(map(lambda t: t not in s['title'],
                                                        exclude_list)) else False, result))
 

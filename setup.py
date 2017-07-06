@@ -14,7 +14,7 @@ ROOT = os.path.abspath(os.path.dirname(__file__))
 
 def long_description():
     with codecs.open('README.rst', 'rb') as f:
-        return str(f.read())
+        return f.read().decode('utf-8')
 
 
 setup(
