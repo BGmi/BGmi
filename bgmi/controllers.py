@@ -138,8 +138,8 @@ def update(ret):
     print_info('updating subscriptions ...')
     download_queue = []
 
-    if ret.download is not None:
-        if not ret.name and ret.download:
+    if ret.download:
+        if not ret.name:
             print_warning('No specified bangumi, ignore `--download` option')
         if len(ret.name) > 1:
             print_warning('Multiple specified bangumi, ignore `--download` option')
