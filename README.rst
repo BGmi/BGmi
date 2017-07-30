@@ -60,6 +60,24 @@ Or use pip:
 
     pip install bgmi
 
+
+Build Docker: 
+
+.. code-block:: bash
+
+    git clone https://github.com/RicterZ/BGmi
+    docker build -t bgmi .
+    docker run -p8899:80 -d -v ~/.bgmi:/root/.bgmi bgmi
+
+You can use bgmi command at client to add / remove bangumi, or get into the docker container to manage bangumi.
+
+Or just: 
+
+.. code-block:: bash
+
+    docker pull ricterz/bgmi
+
+
 =============
 Usage of bgmi
 =============
