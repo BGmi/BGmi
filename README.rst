@@ -68,7 +68,7 @@ Show bangumi calendar:
 
 .. code-block:: bash
 
-    bgmi cal all
+    bgmi cal
 
 
 Subscribe bangumi:
