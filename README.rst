@@ -66,6 +66,7 @@ Build Docker:
 .. code-block:: bash
 
     git clone https://github.com/RicterZ/BGmi
+    cd BGmi
     docker build -t bgmi .
     docker run -p8899:80 -d -v ~/.bgmi:/root/.bgmi bgmi
 
