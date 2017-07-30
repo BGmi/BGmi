@@ -12,10 +12,10 @@ RUN pip3 install -r requirements.txt \
     && python3 setup.py install
 
 COPY others/aria2c.conf /root
-COPY others/bgmi.conf /etc/nginx/site-enabled
+COPY others/bgmi.conf /etc/nginx/sites-enabled/default
 COPY others/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-CMD ["/usr/bin/supervisord", "/usr/sbin/nginx"]
+CMD /usr/sbin/nginx; /usr/bin/supervisord
 
 EXPOSE 80
 
