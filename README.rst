@@ -169,6 +169,7 @@ Show BGmi configure and modify it:
 Fields of configure file:
 
 BGmi configure:
+
 + :code:`BANGUMI_MOE_URL`: url of bangumi.moe mirror
 + :code:`BGMI_SAVE_PATH`: bangumi saving path
 + :code:`DOWNLOAD_DELEGATE`: the ways of downloading bangumi (aria2-rpc, transmission-rpc, xunlei)
