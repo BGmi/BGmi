@@ -37,7 +37,7 @@ def download_prepare(data):
         download.save()
         try:
             # start download
-            download_class = get_download_class(download_obj=download, save_path=save_path, overwrite=True)
+            download_class = get_download_class(download_obj=download, save_path=save_path)
             download_class.download()
             download_class.check_download(download.name)
 

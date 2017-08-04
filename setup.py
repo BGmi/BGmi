@@ -2,8 +2,8 @@
 import os
 import codecs
 from setuptools import setup, find_packages
-from setuptools.command.install import install
 from bgmi import __version__, __author__, __email__
+
 
 with open('requirements.txt', 'r') as f:
     requirements = f.read().splitlines()

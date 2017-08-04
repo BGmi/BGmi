@@ -61,7 +61,7 @@ def bangumi_calendar(force_update=False, today=False, followed=False, save=True)
             print_warning('you have not subscribed any bangumi')
 
     def shift(seq, n):
-        n = n % len(seq)
+        n %= len(seq)
         return seq[n:] + seq[:n]
 
     def print_line():
@@ -365,11 +365,3 @@ def search(keyword, count, filter_=None):
             print(i['title'], i['download'])
 
     return ret
-
-
-if __name__ == '__main__':
-    # fetch(save=True, group_by_weekday=False)
-    b = Bangumi(name='槍彈辯駁3未來篇')
-    b.select_obj()
-    a, _ = get_maximum_episode(b)
-    print(a['episode'])
