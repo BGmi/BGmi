@@ -196,7 +196,7 @@ Transmission-rpc configure:
 Bangumi Script
 ==============
 
-Bangumi Script is scripts which you can write the bangumi parser own.
+Bangumi Script is a script which you can write the bangumi parser own.
 BGmi will load the script and call the method you write before the native functionality.
 
 Bangumi Script Runner will catch the data you returned, update the database, and download the bangumi.
