@@ -181,13 +181,16 @@ BGmi configure:
 + :code:`LANG`: language
 
 Aria2-rpc configure:
+
 + :code:`ARIA2_RPC_URL`: aria2c deamon RPC url
 + :code:`ARIA2_RPC_TOKEN`: aria2c deamon RPC token("token:" for no token)
 
 Xunlei configure:
+
 + :code:`XUNLEI_LX_PATH`: path of xunlei-lixian binary
 
 Transmission-rpc configure:
+
 + :code:`TRANSMISSION_RPC_URL`: transmission rpc host
 + :code:`TRANSMISSION_RPC_PORT`: transmission rpc port
 
@@ -228,7 +231,7 @@ Bangumi Script is located at :code:`BGMI_PATH/script`, inherited :code:`ScriptBa
 
     class Script(ScriptBase):
         bangumi_name = '猜谜王'
-        download_delegate = 'aria2-rpc'  # the attribute not working now :(
+        download_delegate = 'aria2-rpc'  # the attribute is not working now :(
         ignore_if_finished = True
 
         def get_download_url(self):
