@@ -9,6 +9,7 @@ from bgmi.models import Bangumi, Followed, Download, Filter, Subtitle, STATUS_FO
 from bgmi.utils.utils import print_warning, print_info, print_success, print_error
 from bgmi.download import download_prepare
 from bgmi.download import get_download_class
+from bgmi.script import ScriptRunner
 
 
 def add(ret):
@@ -100,6 +101,7 @@ def filter_(ret):
                                                                  Subtitle.get_subtitle(
                                                                      bangumi_obj.subtitle_group.split(', ')))))
                if bangumi_obj.subtitle_group else 'None')
+
     print_filter(followed_filter_obj)
 
 
@@ -153,6 +155,9 @@ def update(ret):
             f.select_obj()
             updated_bangumi_obj.append(f)
 
+    runner = ScriptRunner()
+    script_download_queue = runner.run(updated_bangumi_obj)
+
     for subscribe in updated_bangumi_obj:
         print_info('fetching %s ...' % subscribe['bangumi_name'])
         bangumi_obj = Bangumi(name=subscribe['bangumi_name'])
@@ -188,6 +193,7 @@ def update(ret):
 
     if ret.download is not None:
         download_prepare(download_queue)
+        download_prepare(script_download_queue)
         print_info('Re-downloading ...')
         download_prepare(Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD))
 

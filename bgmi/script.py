@@ -14,6 +14,7 @@ from bgmi.download import DOWNLOAD_DELEGATE_DICT, download_prepare
 
 class ScriptRunner(object):
     scripts = []
+    download_queue = []
 
     def __init__(self):
         script_files = glob.glob('{}{}*.py'.format(SCRIPT_PATH, os.path.sep))
@@ -70,8 +71,15 @@ class ScriptRunner(object):
             'download': v
         } for k, v in script.get_download_url().items()]
 
-    def run(self):
+    def run(self, bangumi_list=None, return_=True, download=False):
+        bangumi_list = list(map(lambda b: b['bangumi_name'], bangumi_list))
         for script in self.scripts:
+            print_info('fetching {} ...'.format(script.bangumi_name))
+
+            if isinstance(bangumi_list, (list, tuple)):
+                if script.bangumi_name not in bangumi_list:
+                    break
+
             followed_obj = Followed(bangumi_name=script.bangumi_name)
             followed_obj.select_obj()
 
@@ -79,14 +87,14 @@ class ScriptRunner(object):
 
             if not download_item:
                 print_info('Got nothing, quit script {}.'.format(script))
-                return
+                break
 
             max_episode = max(download_item, key=lambda d: d['episode'])
             episode = max_episode['episode']
             episode_range = range(followed_obj.episode + 1, episode + 1)
 
             if episode <= followed_obj.episode:
-                return
+                break
 
             print_success('{} updated, episode: {}'.format(script.bangumi_name, episode))
             followed_obj.episode = episode
@@ -100,8 +108,15 @@ class ScriptRunner(object):
                     if i == e['episode']:
                         download_queue.append(e)
 
-            print_success('Start downloading of {}'.format(script))
-            download_prepare(download_queue)
+            if return_:
+                self.download_queue.extend(download_queue)
+                continue
+
+            if download:
+                print_success('Start downloading of {}'.format(script))
+                download_prepare(download_queue)
+
+        return self.download_queue
 
 
 class ScriptBase(object):
