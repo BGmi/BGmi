@@ -18,8 +18,6 @@ from bgmi.controllers import controllers
 from bgmi.update import update_database
 from bgmi.constants import *
 
-LC_ALL = os.getenv('LC_ALL', '')
-os.putenv('LC_ALL', 'en_US.utf8')
 
 # Wrap sys.stdout into a StreamWriter to allow writing unicode.
 if bgmi.config.IS_PYTHON3:
@@ -28,8 +26,7 @@ if bgmi.config.IS_PYTHON3:
         file_ = sys.stdout.buffer
         sys.stdout = codecs.getwriter(locale.getpreferredencoding())(file_)
 else:
-    reload(sys)
-    sys.setdefaultencoding('utf-8')
+    sys.stdout = codecs.getwriter("utf-8")(sys.stdout)
     input = raw_input
 
 
