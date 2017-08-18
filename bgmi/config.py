@@ -25,7 +25,7 @@ __all__ = ('BANGUMI_MOE_URL', 'BGMI_SAVE_PATH', 'DOWNLOAD_DELEGATE', 'MAX_PAGE',
 # cannot be rewrite
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
                 'IS_PYTHON3', 'DETAIL_URL', 'FETCH_URL',
-                'SEARCH_URL', 'BANGUMI_TAG')
+                'SEARCH_URL', 'BANGUMI_TAG', 'SCRIPT_PATH', )
 
 # writeable
 __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
@@ -52,6 +52,7 @@ else:
 
 DB_PATH = os.path.join(BGMI_PATH, 'bangumi.db')
 CONFIG_FILE_PATH = os.path.join(BGMI_PATH, 'bgmi.cfg')
+SCRIPT_PATH = os.path.join(BGMI_PATH, 'scripts')
 
 
 def read_config():

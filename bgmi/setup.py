@@ -1,7 +1,7 @@
 # coding=utf-8
 import os
 
-from bgmi.config import IS_PYTHON3, BGMI_SAVE_PATH, BGMI_PATH, DOWNLOAD_DELEGATE, BGMI_TMP_PATH
+from bgmi.config import BGMI_SAVE_PATH, BGMI_PATH, DOWNLOAD_DELEGATE, BGMI_TMP_PATH, SCRIPT_PATH
 from bgmi.download import get_download_class
 from bgmi.utils.utils import print_success, print_warning, print_info, print_error
 
@@ -18,7 +18,7 @@ def create_dir():
 
     tools_path = os.path.join(BGMI_PATH, 'tools')
     # bgmi home dir
-    path_to_create = (BGMI_PATH, BGMI_SAVE_PATH, BGMI_TMP_PATH, tools_path)
+    path_to_create = (BGMI_PATH, BGMI_SAVE_PATH, BGMI_TMP_PATH, SCRIPT_PATH, tools_path)
 
     try:
         for path in path_to_create:
