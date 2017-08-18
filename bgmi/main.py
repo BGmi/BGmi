@@ -26,7 +26,7 @@ if bgmi.config.IS_PYTHON3:
         file_ = sys.stdout.buffer
         sys.stdout = codecs.getwriter(locale.getpreferredencoding())(file_)
 else:
-    sys.stdout = codecs.getwriter("utf-8")(sys.stdout)
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
     input = raw_input
 
 
