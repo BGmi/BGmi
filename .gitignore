@@ -1,6 +1,7 @@
 *.py[cod]
 *.db
 .idea
+.vscode
 dist/
 build/
 bgmi.egg-info

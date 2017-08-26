@@ -9,23 +9,22 @@ try:
 except ImportError:
     import configparser
 
-
 # download delegate
-__wget__ = ('WGET_PATH', )
-__thunder__ = ('XUNLEI_LX_PATH', )
-__transmission__ = ('TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT', )
+__wget__ = ('WGET_PATH',)
+__thunder__ = ('XUNLEI_LX_PATH',)
+__transmission__ = ('TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT',)
 __aria2__ = ('ARIA2_RPC_URL', 'ARIA2_RPC_TOKEN',)
 
 __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 
 # fake __all__
-__all__ = ('BANGUMI_MOE_URL', 'BGMI_SAVE_PATH', 'DOWNLOAD_DELEGATE', 'MAX_PAGE',
-           'BGMI_TMP_PATH', 'DANMAKU_API_URL', 'COVER_URL', 'LANG', )
+__all__ = ('SUPPORT_WEBSITE', 'BANGUMI_MOE_URL', 'WEBSITE_NAME',
+           'BGMI_SAVE_PATH', 'DOWNLOAD_DELEGATE', 'MAX_PAGE',
+           'BGMI_TMP_PATH', 'DANMAKU_API_URL', 'LANG',)
 
 # cannot be rewrite
-__readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
-                'IS_PYTHON3', 'DETAIL_URL', 'FETCH_URL',
-                'SEARCH_URL', 'BANGUMI_TAG', 'SCRIPT_PATH', )
+__readonly__ = ('SUPPORT_WEBSITE', 'BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
+                'IS_PYTHON3', 'FETCH_URL',)
 
 # writeable
 __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
@@ -33,14 +32,12 @@ __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
 # the real __all__
 __all__ = __all__ + __download_delegate__ + __readonly__
 
-
 download_delegate_map = {
     'rr!': __wget__,
     'aria2-rpc': __aria2__,
     'xunlei': __thunder__,
     'transmission-rpc': __transmission__,
 }
-
 
 # --------- Immutable ---------- #
 if platform.system() == 'Windows':
@@ -162,6 +159,21 @@ def write_config(config=None, value=None):
 # Setting bangumi.moe url
 BANGUMI_MOE_URL = 'https://bangumi_moe.ricterz.me'
 
+# Setting bangumi.moe url
+WEBSITE_NAME = 'bangumi_moe'
+SUPPORT_WEBSITE = [
+    {
+        'view': '萌番组 https://bangumi.moe/',
+        'id': "bangumi_moe",
+        'url': BANGUMI_MOE_URL
+    },
+    {
+        'view': '蜜柑计划 https://mikanani.me/',
+        'id': 'mikan_project',
+        'url': 'https://mikanani.me/'
+    },
+]
+
 # BGmi user path
 BGMI_SAVE_PATH = os.path.join(BGMI_PATH, 'bangumi')
 
@@ -197,10 +209,6 @@ WGET_PATH = '/usr/bin/wget'
 TRANSMISSION_RPC_URL = '127.0.0.1'
 TRANSMISSION_RPC_PORT = '9091'
 
-# tag of bangumi on bangumi.moe
-BANGUMI_TAG = '549ef207fe682f7549f1ea90'
-
-
 # ------------------------------ #
 # !!! Read config from file and write to globals() !!!
 read_config()
@@ -212,9 +220,3 @@ read_config()
 IS_PYTHON3 = sys.version_info > (3, 0)
 
 # Detail URL
-__split = '/' if not BANGUMI_MOE_URL.endswith('/') else ''
-FETCH_URL = '{0}{1}api/bangumi/current'.format(BANGUMI_MOE_URL, __split)
-TEAM_URL = '{0}{1}api/team/working'.format(BANGUMI_MOE_URL, __split)
-NAME_URL = '{0}{1}api/tag/fetch'.format(BANGUMI_MOE_URL, __split)
-DETAIL_URL = '{0}{1}api/torrent/search'.format(BANGUMI_MOE_URL, __split)
-SEARCH_URL = '{0}{1}api/v2/torrent/search'.format(BANGUMI_MOE_URL, __split)
