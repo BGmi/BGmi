@@ -182,7 +182,7 @@ BGmi configure:
 
 Additional config
 
-+ :code:`WEBSITE_NAME`: data source now support :code:`mikan_project` and :code:`bangumi_moe`
++ :code:`DATA_SOURCE`: data source now support :code:`bangumi_moe`(default) and :code:`mikan_project` 
 
 Aria2-rpc configure:
 

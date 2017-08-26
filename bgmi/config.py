@@ -18,7 +18,7 @@ __aria2__ = ('ARIA2_RPC_URL', 'ARIA2_RPC_TOKEN',)
 __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 
 # fake __all__
-__all__ = ('SUPPORT_WEBSITE', 'BANGUMI_MOE_URL', 'WEBSITE_NAME',
+__all__ = ('SUPPORT_WEBSITE', 'BANGUMI_MOE_URL', 'DATA_SOURCE',
            'BGMI_SAVE_PATH', 'DOWNLOAD_DELEGATE', 'MAX_PAGE',
            'BGMI_TMP_PATH', 'DANMAKU_API_URL', 'LANG',)
 
@@ -160,7 +160,7 @@ def write_config(config=None, value=None):
 BANGUMI_MOE_URL = 'https://bangumi_moe.ricterz.me'
 
 # Setting bangumi.moe url
-WEBSITE_NAME = 'bangumi_moe'
+DATA_SOURCE = 'bangumi_moe'
 SUPPORT_WEBSITE = [
     {
         'view': '萌番组 https://bangumi.moe/',

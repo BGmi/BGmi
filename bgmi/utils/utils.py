@@ -8,7 +8,7 @@ import struct
 import functools
 import requests
 from bgmi import __version__
-from bgmi.config import IS_PYTHON3, BGMI_PATH, WEBSITE_NAME, SUPPORT_WEBSITE
+from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, SUPPORT_WEBSITE
 
 requests.packages.urllib3.disable_warnings()
 
@@ -104,7 +104,7 @@ Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END
 def test_connection():
     try:
         for website in SUPPORT_WEBSITE:
-            if WEBSITE_NAME == website['id']:
+            if DATA_SOURCE == website['id']:
                 requests.head(website['url'], timeout=10)
     except:
         return False

@@ -182,7 +182,7 @@ def setup():
             ds = int(ds) - 1
         else:
             ds = 0
-        bgmi.config.write_config('WEBSITE_NAME', SUPPORT_WEBSITE[ds]['id'])
+        bgmi.config.write_config('DATA_SOURCE', SUPPORT_WEBSITE[ds]['id'])
 
     # if not os.path.exists(DB_PATH):
     init_db(DB_PATH)
