@@ -1,16 +1,16 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
-
 import time
 
-from bgmi.config import write_config
 from bgmi.constants import *
+from bgmi.config import write_config
+from bgmi.fetch import website
+from bgmi.models import Bangumi, Followed, Download, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, \
+    STATUS_NORMAL, STATUS_NOT_DOWNLOAD
+from bgmi.utils.utils import print_warning, print_info, print_success, print_error
 from bgmi.download import download_prepare
 from bgmi.download import get_download_class
-from bgmi.fetch import website
-from bgmi.models import (Bangumi, Followed, Download, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED,
-                         STATUS_NORMAL, STATUS_NOT_DOWNLOAD)
-from bgmi.utils.utils import print_warning, print_info, print_success, print_error
+from bgmi.script import ScriptRunner
 
 
 def add(ret):
@@ -29,7 +29,6 @@ def add(ret):
             if not followed_obj or followed_obj.status == STATUS_NORMAL:
                 if not followed_obj:
                     bangumi_data, _ = website.get_maximum_episode(bangumi_obj, subtitle=False, max_page=1)
-                    # print(bangumi_data, _)
                     followed_obj.episode = bangumi_data['episode'] if ret.episode is None else ret.episode
                     followed_obj.save()
                 else:
@@ -128,7 +127,6 @@ def delete(ret):
 
 
 def update(ret):
-    # ignore = False if ret.not_ignore else True
     ignore = not bool(ret.not_ignore)
     print_info('marking bangumi status ...')
     now = int(time.time())
@@ -158,7 +156,8 @@ def update(ret):
             f.select_obj()
             updated_bangumi_obj.append(f)
 
-    # print(updated_bangumi_obj)
+    runner = ScriptRunner()
+    script_download_queue = runner.run(updated_bangumi_obj)
 
     for subscribe in updated_bangumi_obj:
         print_info('fetching %s ...' % subscribe['bangumi_name'])
@@ -195,6 +194,7 @@ def update(ret):
 
     if ret.download is not None:
         download_prepare(download_queue)
+        download_prepare(script_download_queue)
         print_info('Re-downloading ...')
         download_prepare(Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD))
 
@@ -268,7 +268,6 @@ def fetch_(ret):
         print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
         _, data = website.get_maximum_episode(bangumi_obj,
                                               ignore_old_row=False if ret.not_ignore else True)
-        # print(_, data)
         if not data:
             print_warning('Nothing.')
         for i in data:

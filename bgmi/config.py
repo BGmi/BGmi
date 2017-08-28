@@ -9,6 +9,7 @@ try:
 except ImportError:
     import configparser
 
+
 # download delegate
 __wget__ = ('WGET_PATH',)
 __thunder__ = ('XUNLEI_LX_PATH',)
@@ -18,13 +19,12 @@ __aria2__ = ('ARIA2_RPC_URL', 'ARIA2_RPC_TOKEN',)
 __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 
 # fake __all__
-__all__ = ('SUPPORT_WEBSITE', 'BANGUMI_MOE_URL', 'DATA_SOURCE',
-           'BGMI_SAVE_PATH', 'DOWNLOAD_DELEGATE', 'MAX_PAGE',
-           'BGMI_TMP_PATH', 'DANMAKU_API_URL', 'LANG',)
+__all__ = ('BANGUMI_MOE_URL', 'BGMI_SAVE_PATH', 'DOWNLOAD_DELEGATE', 'MAX_PAGE',
+           'DATA_SOURCE', 'SUPPORT_WEBSITE', 'BGMI_TMP_PATH', 'DANMAKU_API_URL', 'LANG',)
 
 # cannot be rewrite
-__readonly__ = ('SUPPORT_WEBSITE', 'BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
-                'IS_PYTHON3', 'FETCH_URL',)
+__readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
+                'SUPPORT_WEBSITE', 'IS_PYTHON3', 'FETCH_URL', 'SCRIPT_PATH',)
 
 # writeable
 __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
@@ -32,12 +32,14 @@ __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
 # the real __all__
 __all__ = __all__ + __download_delegate__ + __readonly__
 
+
 download_delegate_map = {
     'rr!': __wget__,
     'aria2-rpc': __aria2__,
     'xunlei': __thunder__,
     'transmission-rpc': __transmission__,
 }
+
 
 # --------- Immutable ---------- #
 if platform.system() == 'Windows':
@@ -208,6 +210,10 @@ WGET_PATH = '/usr/bin/wget'
 # transmission-rpc
 TRANSMISSION_RPC_URL = '127.0.0.1'
 TRANSMISSION_RPC_PORT = '9091'
+
+# tag of bangumi on bangumi.moe
+BANGUMI_TAG = '549ef207fe682f7549f1ea90'
+
 
 # ------------------------------ #
 # !!! Read config from file and write to globals() !!!

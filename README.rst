@@ -177,12 +177,11 @@ BGmi configure:
 + :code:`MAX_PAGE`: max page for fetching bangumi information
 + :code:`BGMI_TMP_PATH`: just a temporary path
 + :code:`DANMAKU_API_URL`: url of danmaku api
-+ :code:`CONVER_URL`: url of bangumi's cover
 + :code:`LANG`: language
 
 Additional config
 
-+ :code:`DATA_SOURCE`: data source now support :code:`bangumi_moe`(default) and :code:`mikan_project` 
++ :code:`DATA_SOURCE`: data source now support :code:`bangumi_moe`(default) and :code:`mikan_project`
 
 Aria2-rpc configure:
 
@@ -198,6 +197,74 @@ Transmission-rpc configure:
 + :code:`TRANSMISSION_RPC_URL`: transmission rpc host
 + :code:`TRANSMISSION_RPC_PORT`: transmission rpc port
 
+
+==============
+Bangumi Script
+==============
+
+Bangumi Script is a script which you can write the bangumi parser own.
+BGmi will load the script and call the method you write before the native functionality.
+
+Bangumi Script Runner will catch the data you returned, update the database, and download the bangumi.
+You only just write the parser and return the data.
+
+Bangumi Script is located at :code:`BGMI_PATH/script`, inherited :code:`ScriptBase` class. There is a example:
+
+.. code-block:: python
+
+    # coding=utf-8
+    from __future__ import print_function, unicode_literals
+
+    import re
+    import json
+    import requests
+    import urllib
+
+    from bgmi.script import ScriptBase
+    from bgmi.fetch import parse_episode
+    from bgmi.utils.utils import print_error
+    from bgmi.config import IS_PYTHON3
+
+
+    if IS_PYTHON3:
+        unquote = urllib.parse.unquote
+    else:
+        unquote = urllib.unquote
+
+
+    class Script(ScriptBase):
+        bangumi_name = '猜谜王'
+        download_delegate = 'aria2-rpc'  # the attribute is not working now :(
+        ignore_if_finished = True
+
+        def get_download_url(self):
+            # fetch and return dict
+            resp = requests.get('http://www.kirikiri.tv/?m=vod-play-id-4414-src-1-num-2.html').text
+            data = re.findall("mac_url=unescape\('(.*)?'\)", resp)
+            if not data:
+                print_error('No data found, maybe the script is out-of-date.', exit_=False)
+                return {}
+
+            data = unquote(json.loads('["{}"]'.format(data[0].replace('%u', '\\u')))[0])
+
+            ret = {}
+            for i in data.split('#'):
+                title, url = i.split('$')
+                ret[parse_episode(title)] = url
+
+            return ret
+
+The returned dict as follows.
+
+.. code-block:: bash
+
+    {
+        1: 'http://example.com/Bangumi/1/1.mp4'
+        2: 'http://example.com/Bangumi/1/2.mp4'
+        3: 'http://example.com/Bangumi/1/3.mp4'
+    }
+
+The keys `1`, `2`, `3` is the episode, the value is the url of bangumi.
 
 ==================
 Usage of bgmi_http
