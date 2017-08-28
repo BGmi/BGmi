@@ -24,7 +24,7 @@ __all__ = ('BANGUMI_MOE_URL', 'BGMI_SAVE_PATH', 'DOWNLOAD_DELEGATE', 'MAX_PAGE',
 
 # cannot be rewrite
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
-                'SUPPORT_WEBSITE', 'IS_PYTHON3', 'FETCH_URL', 'SCRIPT_PATH',)
+                'SUPPORT_WEBSITE', 'IS_PYTHON3', 'SCRIPT_PATH',)
 
 # writeable
 __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
