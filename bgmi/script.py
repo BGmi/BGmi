@@ -132,7 +132,6 @@ class ScriptBase(object):
     def get_download_url(self):
         """Get the download url, and return a dict of episode and the url.
         Download url also can be magnet link.
-
         For example:
         ```
             {
@@ -141,9 +140,7 @@ class ScriptBase(object):
                 3: 'http://example.com/Bangumi/1/3.mp4'
             }
         ```
-
         The keys `1`, `2`, `3` is the episode, the value is the url of bangumi.
-
         :return: dict
         """
         return {}

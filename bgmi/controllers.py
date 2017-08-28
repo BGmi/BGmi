@@ -4,7 +4,7 @@ import time
 
 from bgmi.constants import *
 from bgmi.config import write_config
-from bgmi.fetch import fetch, bangumi_calendar, get_maximum_episode, search
+from bgmi.fetch import website
 from bgmi.models import Bangumi, Followed, Download, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, \
     STATUS_NORMAL, STATUS_NOT_DOWNLOAD
 from bgmi.utils.utils import print_warning, print_info, print_success, print_error
@@ -18,7 +18,7 @@ def add(ret):
     # add bangumi by a list of bangumi name
     if not Bangumi.get_all_bangumi():
         print_warning('No bangumi data in database, fetching...')
-        fetch(save=True, group_by_weekday=False)
+        website.fetch(save=True, group_by_weekday=False)
 
     for bangumi in ret.name:
         bangumi_obj = Bangumi(name=bangumi)
@@ -28,7 +28,7 @@ def add(ret):
             followed_obj.select_obj()
             if not followed_obj or followed_obj.status == STATUS_NORMAL:
                 if not followed_obj:
-                    bangumi_data, _ = get_maximum_episode(bangumi_obj, subtitle=False, max_page=1)
+                    bangumi_data, _ = website.get_maximum_episode(bangumi_obj, subtitle=False, max_page=1)
                     followed_obj.episode = bangumi_data['episode'] if ret.episode is None else ret.episode
                     followed_obj.save()
                 else:
@@ -127,7 +127,7 @@ def delete(ret):
 
 
 def update(ret):
-    ignore = False if ret.not_ignore else True
+    ignore = not bool(ret.not_ignore)
     print_info('marking bangumi status ...')
     now = int(time.time())
     for i in Followed.get_all_followed():
@@ -137,7 +137,7 @@ def update(ret):
             followed_obj.save()
 
     print_info('updating bangumi data ...')
-    fetch(save=True, group_by_weekday=False)
+    website.fetch(save=True, group_by_weekday=False)
     print_info('updating subscriptions ...')
     download_queue = []
 
@@ -173,7 +173,7 @@ def update(ret):
                         exit_=False)
             continue
 
-        episode, all_episode_data = get_maximum_episode(bangumi=bangumi_obj, ignore_old_row=ignore, max_page=1)
+        episode, all_episode_data = website.get_maximum_episode(bangumi=bangumi_obj, ignore_old_row=ignore, max_page=1)
 
         if (episode.get('episode') > subscribe['episode']) or (len(ret.name) == 1 and ret.download):
             if len(ret.name) == 1 and ret.download:
@@ -200,7 +200,7 @@ def update(ret):
 
 
 def cal(ret):
-    bangumi_calendar(force_update=ret.force_update, today=ret.today, save=not ret.no_save)
+    website.bangumi_calendar(force_update=ret.force_update, today=ret.today, save=not ret.no_save)
 
 
 def download_manager(ret):
@@ -244,13 +244,13 @@ def mark(ret):
 
 def followed(ret):
     if ret.list:
-        bangumi_calendar(followed=True, save=False)
+        website.bangumi_calendar(followed=True, save=False)
     else:
         mark(ret)
 
 
 def list_(ret):
-    bangumi_calendar(followed=True, save=False)
+    website.bangumi_calendar(followed=True, save=False)
 
 
 def fetch_(ret):
@@ -266,8 +266,8 @@ def fetch_(ret):
 
     if bangumi_obj:
         print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
-        _, data = get_maximum_episode(bangumi_obj,
-                                      ignore_old_row=False if ret.not_ignore else True)
+        _, data = website.get_maximum_episode(bangumi_obj,
+                                              ignore_old_row=False if ret.not_ignore else True)
         if not data:
             print_warning('Nothing.')
         for i in data:
@@ -281,7 +281,7 @@ def search_(ret):
     if not ret.count:
         ret.count = 3
 
-    data = search(ret.keyword, count=ret.count, filter_=ret.regex_filter)
+    data = website.search(ret.keyword, count=ret.count, filter_=ret.regex_filter)
 
     for i in data:
         print_success(i['title'])

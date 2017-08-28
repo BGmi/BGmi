@@ -14,9 +14,11 @@ from icalendar import Calendar, Event, vText
 
 from collections import OrderedDict, defaultdict
 from bgmi import __version__
-from bgmi.config import BGMI_SAVE_PATH, DB_PATH, DANMAKU_API_URL, COVER_URL
+from bgmi.config import BGMI_SAVE_PATH, DB_PATH, DANMAKU_API_URL
 from bgmi.models import Download, Bangumi, Followed, STATUS_NORMAL, STATUS_UPDATING, STATUS_END
+from bgmi.fetch import website
 
+COVER_URL = website.cover_url
 
 WEEK = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 define('port', default=8888, help='listen on the port', type=int)

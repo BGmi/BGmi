@@ -62,7 +62,7 @@ Or use pip:
     pip install bgmi
 
 
-Build Docker: 
+Build Docker:
 
 .. code-block:: bash
 
@@ -73,7 +73,7 @@ Build Docker:
 
 You can use bgmi command at client to add / remove bangumi, or get into the docker container to manage bangumi.
 
-Or just: 
+Or just:
 
 .. code-block:: bash
 
@@ -177,8 +177,11 @@ BGmi configure:
 + :code:`MAX_PAGE`: max page for fetching bangumi information
 + :code:`BGMI_TMP_PATH`: just a temporary path
 + :code:`DANMAKU_API_URL`: url of danmaku api
-+ :code:`CONVER_URL`: url of bangumi's cover
 + :code:`LANG`: language
+
+Additional config
+
++ :code:`DATA_SOURCE`: data source now support :code:`bangumi_moe`(default) and :code:`mikan_project`
 
 Aria2-rpc configure:
 

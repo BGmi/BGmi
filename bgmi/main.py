@@ -10,14 +10,13 @@ import platform
 import argparse
 
 import bgmi.config
-from bgmi.config import BGMI_PATH, DB_PATH
-from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER, \
-    CREATE_TABLE_SUBTITLE
+from bgmi.config import BGMI_PATH, DB_PATH, SUPPORT_WEBSITE
+from bgmi.sql import (CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER,
+                      CREATE_TABLE_SUBTITLE)
 from bgmi.utils.utils import print_warning, print_error, print_version, unicodeize, check_update
 from bgmi.controllers import controllers
 from bgmi.update import update_database
 from bgmi.constants import *
-
 
 # Wrap sys.stdout into a StreamWriter to allow writing unicode.
 if bgmi.config.IS_PYTHON3:
@@ -141,6 +140,7 @@ def main():
 
     if ret.action == 'install':
         import bgmi.setup
+
         bgmi.setup.install()
         raise SystemExit
     elif ret.action == 'upgrade':
@@ -169,10 +169,20 @@ def setup():
     if not os.path.exists(BGMI_PATH):
         print_warning('BGMI_PATH %s does not exist, installing' % BGMI_PATH)
         from bgmi.setup import create_dir, install_crontab
+
         create_dir()
         if not platform.system() == 'Windows':
             # if not input('Do you want to install a crontab to auto-download bangumi?(Y/n): ') == 'n':
             install_crontab()
+        print('select data source')
+        for index, website in enumerate(SUPPORT_WEBSITE):
+            print('{}. {}'.format(index + 1, website['view']))
+        if not os.environ.get('TRAVIS_CI', False):
+            ds = input('select data source by input index: ')
+            ds = int(ds) - 1
+        else:
+            ds = 0
+        bgmi.config.write_config('DATA_SOURCE', SUPPORT_WEBSITE[ds]['id'])
 
     # if not os.path.exists(DB_PATH):
     init_db(DB_PATH)
