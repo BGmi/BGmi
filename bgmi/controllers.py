@@ -7,7 +7,7 @@ from bgmi.config import write_config
 from bgmi.fetch import website
 from bgmi.models import Bangumi, Followed, Download, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, \
     STATUS_NORMAL, STATUS_NOT_DOWNLOAD
-from bgmi.utils.utils import print_warning, print_info, print_success, print_error
+from bgmi.utils import print_warning, print_info, print_success, print_error
 from bgmi.download import download_prepare
 from bgmi.download import get_download_class
 from bgmi.script import ScriptRunner

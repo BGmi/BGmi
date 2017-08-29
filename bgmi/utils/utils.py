@@ -12,6 +12,7 @@ from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, SUPPORT_WEBSITE
 
 requests.packages.urllib3.disable_warnings()
 
+
 if platform.system() == 'Windows':
     GREEN = ''
     YELLOW = ''

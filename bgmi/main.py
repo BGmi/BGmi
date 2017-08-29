@@ -13,7 +13,7 @@ import bgmi.config
 from bgmi.config import BGMI_PATH, DB_PATH, SUPPORT_WEBSITE
 from bgmi.sql import (CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER,
                       CREATE_TABLE_SUBTITLE)
-from bgmi.utils.utils import print_warning, print_error, print_version, unicodeize, check_update
+from bgmi.utils import print_warning, print_error, print_version, check_update
 from bgmi.controllers import controllers
 from bgmi.update import update_database
 from bgmi.constants import *

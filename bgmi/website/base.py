@@ -11,8 +11,8 @@ from itertools import chain
 import bgmi.config
 from bgmi.config import MAX_PAGE
 from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED
-from bgmi.utils.utils import (print_warning, print_info,
-                              test_connection, get_terminal_col, GREEN, YELLOW, COLOR_END)
+from bgmi.utils import (print_warning, print_info,
+                        test_connection, get_terminal_col, GREEN, YELLOW, COLOR_END)
 
 if bgmi.config.IS_PYTHON3:
     _unicode = str

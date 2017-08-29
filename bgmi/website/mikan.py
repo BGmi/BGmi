@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 import bs4
 
 from bgmi.config import LANG, MAX_PAGE
-# from bgmi.utils.utils import (print_warning, print_info, print_error)
+# from bgmi.utils import (print_warning, print_info, print_error)
 
 from bgmi.website.base import BaseWebsite
 

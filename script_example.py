@@ -6,9 +6,8 @@ import json
 import requests
 import urllib
 
-from bgmi.script import ScriptBase
-from bgmi.fetch import parse_episode
-from bgmi.utils.utils import print_error
+from bgmi.script import ScriptBase, parse_episode
+from bgmi.utils import print_error
 from bgmi.config import IS_PYTHON3
 
 

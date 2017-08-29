@@ -5,11 +5,16 @@ import os
 import imp
 import glob
 import time
+import traceback
 
 from bgmi.models import Bangumi, Followed, STATUS_UPDATED, STATUS_UPDATING
-from bgmi.utils.utils import print_success, print_warning, print_info
+from bgmi.utils import print_success, print_warning, print_info
 from bgmi.config import SCRIPT_PATH, DOWNLOAD_DELEGATE
 from bgmi.download import DOWNLOAD_DELEGATE_DICT, download_prepare
+from bgmi.website.base import BaseWebsite
+
+
+parse_episode = BaseWebsite.parse_episode
 
 
 class ScriptRunner(object):
@@ -26,8 +31,7 @@ class ScriptRunner(object):
                 print_success('Load script {} successfully.'.format(i))
             except Exception as e:
                 print_warning('Load script {} failed, ignored'.format(i))
-                if os.getenv('DEBUG'):
-                    print(e)
+                traceback.print_stack()
 
         self.scripts = filter(self._check_followed, self.scripts)
         self.scripts = filter(self._check_delegate, self.scripts)
