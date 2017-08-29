@@ -8,7 +8,6 @@ import string
 import time
 from collections import defaultdict
 from itertools import chain
-
 import bgmi.config
 from bgmi.config import MAX_PAGE
 from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED
@@ -34,51 +33,20 @@ class BaseWebsite(object):
         :rtype: int
         """
 
-        def cn2int(cn):
-            cn_num = {
-                u'零': 0,
-                u'〇': 0,
-                u'一': 1,
-                u'二': 2,
-                u'三': 3,
-                u'四': 4,
-                u'五': 5,
-                u'六': 6,
-                u'七': 7,
-                u'八': 8,
-                u'九': 9,
-            }
-            li = list(cn)
-            if len(li) == 2:
-                ret = 10
-                char = li[-1]
-                ret += cn_num[char]
-            else:
-                char = cn
-                ret = cn_num[char]
-            return ret
-
-        FETCH_EPISODE_ZH = re.compile("[第]\s?(\d{1,2})\s?[話话集]")
-        FETCH_EPISODE_ALL_ZH = re.compile('[第]([\u4e00-\u9fa5]*)[話话集]')
-        FETCH_EPISODE_WITH_BRACKETS = re.compile('[【\[](\d+)\s?(?:END)?[】]')
+        FETCH_EPISODE_ZH = re.compile("第?\s?(\d{1,3})\s?[話话集]")
+        FETCH_EPISODE_WITH_BRACKETS = re.compile('[【\[](\d+)\s?(?:END)?[】\]]')
         FETCH_EPISODE_ONLY_NUM = re.compile('^([\d]{2,})$')
         FETCH_EPISODE_RANGE = re.compile('[\d]{2,}\s?-\s?([\d]{2,})')
         FETCH_EPISODE_OVA_OAD = re.compile('([\d]{2,})\s?\((?:OVA|OAD)\)]')
-        FETCH_EPISODE_WITH_VERSION = re.compile('[【\[](\d+)\s? *v\d(?:END)?[】]')
+        FETCH_EPISODE_WITH_VERSION = re.compile('[【\[](\d+)\s? *v\d(?:END)?[】\]]')
         FETCH_EPISODE = (
-            FETCH_EPISODE_ZH, FETCH_EPISODE_ALL_ZH, FETCH_EPISODE_WITH_BRACKETS, FETCH_EPISODE_ONLY_NUM,
+            FETCH_EPISODE_ZH, FETCH_EPISODE_WITH_BRACKETS, FETCH_EPISODE_ONLY_NUM,
             FETCH_EPISODE_RANGE,
             FETCH_EPISODE_OVA_OAD, FETCH_EPISODE_WITH_VERSION)
 
         _ = FETCH_EPISODE_ZH.findall(episode_title)
         if _ and _[0].isdigit():
             return int(_[0])
-
-        _ = FETCH_EPISODE_ALL_ZH.findall(episode_title)
-        if _:
-            if re.compile('.*合集.*').findall(episode_title):
-                return
-            return cn2int(_[0])
 
         _ = FETCH_EPISODE_WITH_BRACKETS.findall(episode_title)
         if _ and _[0].isdigit():
@@ -102,7 +70,6 @@ class BaseWebsite(object):
         match_title = re.compile(filter_)
 
         result = self.search_by_keyword(keyword, count)
-
         # filter
         filtered_result = []
         for episode in result:
