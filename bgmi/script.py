@@ -31,7 +31,7 @@ class ScriptRunner(object):
                 print_success('Load script {} successfully.'.format(i))
             except Exception as e:
                 print_warning('Load script {} failed, ignored'.format(i))
-                traceback.print_stack()
+                traceback.print_exception()
 
         self.scripts = filter(self._check_followed, self.scripts)
         self.scripts = filter(self._check_delegate, self.scripts)
