@@ -220,9 +220,8 @@ Bangumi Script is located at :code:`BGMI_PATH/script`, inherited :code:`ScriptBa
     import requests
     import urllib
 
-    from bgmi.script import ScriptBase
-    from bgmi.fetch import parse_episode
-    from bgmi.utils.utils import print_error
+    from bgmi.script import ScriptBase, parse_episode
+    from bgmi.utils import print_error
     from bgmi.config import IS_PYTHON3
 
 
