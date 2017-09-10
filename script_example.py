@@ -22,7 +22,7 @@ class Script(ScriptBase):
     class Model(ScriptBase.Model):
         bangumi_name = '猜谜王(BGmi Script)'
         cover = 'COVER URL'
-        updated_time = 'Tue'
+        update_time = 'Tue'
 
     def get_download_url(self):
         # fetch and return dict

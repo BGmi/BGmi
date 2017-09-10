@@ -195,7 +195,7 @@ class MainHandler(BaseHandler):
         calendar = Bangumi.get_all_bangumi()
 
         for i in self.patch_list:
-            calendar[i['updated_time'].lower()].append(i)
+            calendar[i['update_time'].lower()].append(i)
 
         def shift(seq, n):
             n %= len(seq)

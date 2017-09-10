@@ -136,6 +136,12 @@ def update(ret):
             followed_obj.status = STATUS_FOLLOWED
             followed_obj.save()
 
+    for script in ScriptRunner().scripts:
+        obj = script.Model().obj
+        if obj['updated_time'] and int(obj['updated_time'] + 86400) < now:
+            obj.status = STATUS_FOLLOWED
+            obj.save()
+
     print_info('updating bangumi data ...')
     website.fetch(save=True, group_by_weekday=False)
     print_info('updating subscriptions ...')

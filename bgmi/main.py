@@ -171,15 +171,6 @@ def setup():
         if not platform.system() == 'Windows':
             # if not input('Do you want to install a crontab to auto-download bangumi?(Y/n): ') == 'n':
             install_crontab()
-        print('select data source')
-        for index, website in enumerate(SUPPORT_WEBSITE):
-            print('{}. {}'.format(index + 1, website['view']))
-        if not os.environ.get('TRAVIS_CI', False):
-            ds = input('select data source by input index: ')
-            ds = int(ds) - 1
-        else:
-            ds = 0
-        bgmi.config.write_config('DATA_SOURCE', SUPPORT_WEBSITE[ds]['id'])
 
     # if not os.path.exists(DB_PATH):
     init_db()
