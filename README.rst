@@ -232,11 +232,27 @@ Bangumi Script is located at :code:`BGMI_PATH/script`, inherited :code:`ScriptBa
 
 
     class Script(ScriptBase):
-        bangumi_name = '猜谜王'
-        download_delegate = 'aria2-rpc'  # the attribute is not working now :(
-        ignore_if_finished = True
+
+        # 定义 Model, 此处 Model 为显示在 BGmi HTTP 以及其他地方的名称、封面及其它信息
+        class Model(ScriptBase.Model):
+            bangumi_name = '猜谜王(BGmi Script)' # 名称, 随意填写即可
+            cover = 'COVER URL' # 封面的 URL
+            updated_time = 'Tue' # 每周几更新
 
         def get_download_url(self):
+            """Get the download url, and return a dict of episode and the url.
+            Download url also can be magnet link.
+            For example:
+            ```
+                {
+                    1: 'http://example.com/Bangumi/1/1.mp4'
+                    2: 'http://example.com/Bangumi/1/2.mp4'
+                    3: 'http://example.com/Bangumi/1/3.mp4'
+                }
+            ```
+            The keys `1`, `2`, `3` is the episode, the value is the url of bangumi.
+            :return: dict
+            """
             # fetch and return dict
             resp = requests.get('http://www.kirikiri.tv/?m=vod-play-id-4414-src-1-num-2.html').text
             data = re.findall("mac_url=unescape\('(.*)?'\)", resp)
@@ -249,6 +265,7 @@ Bangumi Script is located at :code:`BGMI_PATH/script`, inherited :code:`ScriptBa
             ret = {}
             for i in data.split('#'):
                 title, url = i.split('$')
+                # parse_episode 为内置的解析集数的方法, 可以应对大多数情况。如若不可用, 可以自己实现解析
                 ret[parse_episode(title)] = url
 
             return ret
