@@ -196,7 +196,9 @@ class DB(object):
                 sql += '1'
 
         if os.environ.get('DEBUG'):
-            print('EXEC SQL: {0}'.format(sql))
+            # print('EXEC SQL: {0}'.format(sql))
+            pass
+
         return sql
 
     def _unicodeize(self):
@@ -380,13 +382,13 @@ class Bangumi(DB):
         cur = db.cursor()
         join_sql = Bangumi._make_sql('select', table=Followed.table)
         if status is None:
-            sql = Bangumi._make_sql('select', fields=['%s.*' % Bangumi.table, 'F.status',
+            sql = Bangumi._make_sql('select', fields=['%s.*' % Bangumi.table, 'F.status AS status',
                                                       'episode'], table=Bangumi.table,
                                     condition=('%s.status' % Bangumi.table),
                                     join='LEFT JOIN (%s) AS F ON bangumi.name=F.bangumi_name' % join_sql)
             cur.execute(sql, (STATUS_UPDATING, ))
         else:
-            sql = Bangumi._make_sql('select', fields=['%s.*' % Bangumi.table, 'F.status',
+            sql = Bangumi._make_sql('select', fields=['%s.*' % Bangumi.table, 'F.status AS status',
                                                       'episode'], table=Bangumi.table,
                                     join='LEFT JOIN (%s) AS F ON bangumi.name=F.bangumi_name' % join_sql,
                                     condition=('F.status', '%s.status' % Bangumi.table))

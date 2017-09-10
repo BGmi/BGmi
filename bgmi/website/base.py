@@ -11,6 +11,7 @@ from itertools import chain
 import bgmi.config
 from bgmi.config import MAX_PAGE
 from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED
+from bgmi.script import ScriptRunner
 from bgmi.utils import (print_warning, print_info,
                         test_connection, get_terminal_col, GREEN, YELLOW, COLOR_END)
 
@@ -18,6 +19,18 @@ if bgmi.config.IS_PYTHON3:
     _unicode = str
 else:
     _unicode = unicode
+
+
+FETCH_EPISODE_ZH = re.compile("第?\s?(\d{1,3})\s?[話话集]")
+FETCH_EPISODE_WITH_BRACKETS = re.compile('[【\[](\d+)\s?(?:END)?[】\]]')
+FETCH_EPISODE_ONLY_NUM = re.compile('^([\d]{2,})$')
+FETCH_EPISODE_RANGE = re.compile('[\d]{2,}\s?-\s?([\d]{2,})')
+FETCH_EPISODE_OVA_OAD = re.compile('([\d]{2,})\s?\((?:OVA|OAD)\)]')
+FETCH_EPISODE_WITH_VERSION = re.compile('[【\[](\d+)\s? *v\d(?:END)?[】\]]')
+FETCH_EPISODE = (
+    FETCH_EPISODE_ZH, FETCH_EPISODE_WITH_BRACKETS, FETCH_EPISODE_ONLY_NUM,
+    FETCH_EPISODE_RANGE,
+    FETCH_EPISODE_OVA_OAD, FETCH_EPISODE_WITH_VERSION)
 
 
 class BaseWebsite(object):
@@ -32,17 +45,6 @@ class BaseWebsite(object):
         :return: episode of this title
         :rtype: int
         """
-
-        FETCH_EPISODE_ZH = re.compile("第?\s?(\d{1,3})\s?[話话集]")
-        FETCH_EPISODE_WITH_BRACKETS = re.compile('[【\[](\d+)\s?(?:END)?[】\]]')
-        FETCH_EPISODE_ONLY_NUM = re.compile('^([\d]{2,})$')
-        FETCH_EPISODE_RANGE = re.compile('[\d]{2,}\s?-\s?([\d]{2,})')
-        FETCH_EPISODE_OVA_OAD = re.compile('([\d]{2,})\s?\((?:OVA|OAD)\)]')
-        FETCH_EPISODE_WITH_VERSION = re.compile('[【\[](\d+)\s? *v\d(?:END)?[】\]]')
-        FETCH_EPISODE = (
-            FETCH_EPISODE_ZH, FETCH_EPISODE_WITH_BRACKETS, FETCH_EPISODE_ONLY_NUM,
-            FETCH_EPISODE_RANGE,
-            FETCH_EPISODE_OVA_OAD, FETCH_EPISODE_WITH_VERSION)
 
         _ = FETCH_EPISODE_ZH.findall(episode_title)
         if _ and _[0].isdigit():
@@ -138,6 +140,8 @@ class BaseWebsite(object):
         else:
             if followed:
                 weekly_list_followed = Bangumi.get_all_bangumi(status=STATUS_FOLLOWED)
+                from pprint import pprint
+                pprint(dict(weekly_list_followed))
                 weekly_list_updated = Bangumi.get_all_bangumi(status=STATUS_UPDATED)
                 weekly_list = defaultdict(list)
                 for k, v in chain(weekly_list_followed.items(), weekly_list_updated.items()):
@@ -158,7 +162,6 @@ class BaseWebsite(object):
 
         def print_line():
             num = col - 3
-            # print('+', '-' * num, '+', '-' * num, '+', '-' * num, '+')
             split = '-' * num + '   '
             print(split * row)
 
@@ -166,6 +169,12 @@ class BaseWebsite(object):
             weekday_order = (Bangumi.week[datetime.datetime.today().weekday()],)
         else:
             weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
+
+        runner = ScriptRunner()
+        patch_list = runner.get_models()
+
+        for i in patch_list:
+            weekly_list[i['updated_time'].lower()].append(i)
 
         spacial_append_chars = ['Ⅱ', 'Ⅲ', '♪', 'Δ', '×', '☆', 'é', '·', '♭']
         spacial_remove_chars = []
@@ -180,10 +189,6 @@ class BaseWebsite(object):
                     print_line()
 
                 for i, bangumi in enumerate(weekly_list[weekday.lower()]):
-                    if isinstance(bangumi['name'], _unicode):
-                        # bangumi['name'] = bangumi['name']
-                        pass
-
                     if bangumi['status'] in (STATUS_UPDATED, STATUS_FOLLOWED) and 'episode' in bangumi:
                         bangumi['name'] = '%s(%d)' % (bangumi['name'], bangumi['episode'])
 
@@ -237,7 +242,7 @@ class BaseWebsite(object):
             data = [row for row in data if row['time'] > int(time.time()) - 3600 * 24 * 30 * 3]  # three month
 
         if data:
-            bangumi = max(data, key=lambda i: i['episode'])
+            bangumi = max(data, key=lambda _i: _i['episode'])
             # pprint(bangumi)
             # pprint(data)
             return bangumi, data

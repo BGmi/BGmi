@@ -2,11 +2,13 @@
 from __future__ import print_function, unicode_literals
 
 from bgmi.config import DATA_SOURCE
+from bgmi.website import bangumi_moe, mikan
 
-from bgmi.website.bangumimoe import BangumiMoe
-from bgmi.website.mikan import Mikanani
 
-if DATA_SOURCE == 'mikan_project':
-    website = Mikanani()
-else:
-    website = BangumiMoe()
+DATA_SOURCE_MAP = {
+    'mikan_project': mikan.Mikanani,
+    'bangumi_moe': bangumi_moe.BangumiMoe
+}
+
+
+website = DATA_SOURCE_MAP.get(DATA_SOURCE)()

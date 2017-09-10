@@ -1,6 +1,7 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 
+import re
 import os
 import imp
 import glob
@@ -11,31 +12,75 @@ from bgmi.models import Bangumi, Followed, STATUS_UPDATED, STATUS_UPDATING
 from bgmi.utils import print_success, print_warning, print_info
 from bgmi.config import SCRIPT_PATH, DOWNLOAD_DELEGATE
 from bgmi.download import DOWNLOAD_DELEGATE_DICT, download_prepare
-from bgmi.website.base import BaseWebsite
 
 
-parse_episode = BaseWebsite.parse_episode
+FETCH_EPISODE_ZH = re.compile("第?\s?(\d{1,3})\s?[話话集]")
+FETCH_EPISODE_WITH_BRACKETS = re.compile('[【\[](\d+)\s?(?:END)?[】\]]')
+FETCH_EPISODE_ONLY_NUM = re.compile('^([\d]{2,})$')
+FETCH_EPISODE_RANGE = re.compile('[\d]{2,}\s?-\s?([\d]{2,})')
+FETCH_EPISODE_OVA_OAD = re.compile('([\d]{2,})\s?\((?:OVA|OAD)\)]')
+FETCH_EPISODE_WITH_VERSION = re.compile('[【\[](\d+)\s? *v\d(?:END)?[】\]]')
+FETCH_EPISODE = (
+    FETCH_EPISODE_ZH, FETCH_EPISODE_WITH_BRACKETS, FETCH_EPISODE_ONLY_NUM,
+    FETCH_EPISODE_RANGE,
+    FETCH_EPISODE_OVA_OAD, FETCH_EPISODE_WITH_VERSION)
+
+
+def parse_episode(episode_title):
+    """
+    parse episode from title
+
+    :param episode_title: episode title
+    :type episode_title: str
+    :return: episode of this title
+    :rtype: int
+    """
+
+    _ = FETCH_EPISODE_ZH.findall(episode_title)
+    if _ and _[0].isdigit():
+        return int(_[0])
+
+    _ = FETCH_EPISODE_WITH_BRACKETS.findall(episode_title)
+    if _ and _[0].isdigit():
+        return int(_[0])
+
+    _ = FETCH_EPISODE_WITH_VERSION.findall(episode_title)
+    if _ and _[0].isdigit():
+        return int(_[0])
+
+    for split_token in ['【', '[', ' ']:
+        for i in episode_title.split(split_token):
+            for regexp in FETCH_EPISODE:
+                match = regexp.findall(i)
+                if match and match[0].isdigit():
+                    return int(match[0])
+    return 0
 
 
 class ScriptRunner(object):
+    _defined = None
     scripts = []
     download_queue = []
 
-    def __init__(self):
-        script_files = glob.glob('{}{}*.py'.format(SCRIPT_PATH, os.path.sep))
-        for i in script_files:
-            try:
-                s = imp.load_source('script', os.path.join(SCRIPT_PATH, i))
-                script_class = getattr(s, 'Script')()
-                self.scripts.append(script_class)
-                print_success('Load script {} successfully.'.format(i))
-            except Exception as e:
-                print_warning('Load script {} failed, ignored'.format(i))
-                traceback.print_exc()
+    def __new__(cls, *args, **kwargs):
+        if cls._defined is None:
 
-        self.scripts = filter(self._check_followed, self.scripts)
-        self.scripts = filter(self._check_delegate, self.scripts)
-        self.scripts = filter(self._check_bangumi, self.scripts)
+            script_files = glob.glob('{}{}*.py'.format(SCRIPT_PATH, os.path.sep))
+            for i in script_files:
+                try:
+                    s = imp.load_source('script', os.path.join(SCRIPT_PATH, i))
+                    script_class = getattr(s, 'Script')()
+                    cls.scripts.append(script_class)
+                    print_success('Load script {} successfully.'.format(i))
+                except:
+                    print_warning('Load script {} failed, ignored'.format(i))
+                    traceback.print_exc()
+                    # self.scripts = filter(self._check_followed, self.scripts)
+                    # self.scripts = filter(self._check_bangumi, self.scripts)
+
+            cls._defined = super(ScriptRunner, cls).__new__(cls, *args, **kwargs)
+
+        return cls._defined
 
     @staticmethod
     def _check_bangumi(script):
@@ -55,16 +100,8 @@ class ScriptRunner(object):
             return False
         return True
 
-    @staticmethod
-    def _check_delegate(script):
-        if script.download_delegate is None:
-            script.download_delegate = DOWNLOAD_DELEGATE
-
-        elif script.download_delegate not in DOWNLOAD_DELEGATE_DICT.keys():
-            print_warning('Invalid download delegate of script: {}, ignored.'.format(script))
-            return False
-
-        return True
+    def get_models(self):
+        return [dict(script.Model()) for script in self.scripts if script.bangumi_name is not None]
 
     @staticmethod
     def make_dict(script):
@@ -124,8 +161,38 @@ class ScriptRunner(object):
 
 
 class ScriptBase(object):
-    bangumi_name = None
-    download_delegate = None
+
+    class Model(object):
+        bangumi_name = None
+        cover = None
+        updated_time = None
+
+        def __iter__(self):
+            for i in ('bangumi_name', 'cover', 'updated_time'):
+                yield (i, getattr(self, i))
+
+            # patch for cal
+            yield ('update_time', self.updated_time)
+            yield ('name', self.bangumi_name)
+            yield ('status', 1)
+            yield ('subtitle_group', '')
+            yield ('episode', 0)
+
+    @property
+    def name(self):
+        return self.Model.bangumi_name
+
+    @property
+    def bangumi_name(self):
+        return self.Model.bangumi_name
+
+    @property
+    def cover(self):
+        return self.Model.cover
+
+    @property
+    def updated_time(self):
+        return self.Model.updated_time
 
     def __unicode__(self):
         return self.__str__()

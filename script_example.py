@@ -18,8 +18,12 @@ else:
 
 
 class Script(ScriptBase):
-    bangumi_name = '猜谜王'
-    download_delegate = 'aria2-rpc'  # the attribute not working now :(
+
+    class Model(ScriptBase.Model):
+        bangumi_name = '猜谜王_user_defined'
+        cover_url = 'http://wx2.sinaimg.cn/mw690/0065saCngy1fhcz4fof2tj30fa0llmzg.jpg'
+        updated_time = 'Mon'
+
     ignore_if_finished = True
 
     def get_download_url(self):
