@@ -6,3 +6,4 @@ dist/
 build/
 bgmi.egg-info
 .python-version
+.DS_Store
