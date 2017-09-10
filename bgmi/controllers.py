@@ -3,8 +3,7 @@ from __future__ import print_function, unicode_literals
 
 import time
 
-from bgmi.config import SUPPORT_WEBSITE
-from bgmi.config import write_config
+from bgmi.config import write_config, SUPPORT_WEBSITE
 from bgmi.constants import *
 from bgmi.download import download_prepare
 from bgmi.download import get_download_class

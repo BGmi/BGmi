@@ -4,34 +4,29 @@ from __future__ import print_function, unicode_literals
 import os
 import time
 
+import bs4
 import requests
 from bs4 import BeautifulSoup
-import bs4
 
 from bgmi.config import LANG, MAX_PAGE
-# from bgmi.utils import (print_warning, print_info, print_error)
-
 from bgmi.website.base import BaseWebsite
 
+# from bgmi.utils import (print_warning, print_info, print_error)
+
+
 week = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+if os.environ.get('DEV', False):
+    server_root = 'http://localhost:8092/https/mikanani.me/'
+else:
+    server_root = 'https://mikanani.me/'
+
+
+
 
 
 def process_name(data):
     lang = 'zh_cn' if LANG not in ('zh_cn', 'zh_tw', 'ja', 'en') else LANG
     return {i['_id']: i['locale'][lang] for i in data}
-
-
-def get_weekly_bangumi():
-    r = requests.get('https://mikanani.me/')
-    soup = BeautifulSoup(r.text, 'lxml')
-    sunday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "0"})
-    monday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "1"})
-    tuesday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "2"})
-    wednesday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "3"})
-    thursday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "4"})
-    friday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "5"})
-    saturday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "6"})
-    return [sunday, monday, tuesday, wednesday, thursday, friday, saturday]
 
 
 def parser_day_bangumi(soup):
@@ -59,10 +54,11 @@ def parser_day_bangumi(soup):
 
 def parser_subtitle_of_bangumi(bangumi_id):
     bangumi_id = int(bangumi_id)
-    url = "https://mikanani.me/Home/ExpandBangumi"
+    url = server_root + "Home/ExpandBangumi"
     data = {'bangumiId': bangumi_id, 'showSubscribed': False}
     if os.environ.get('DEBUG', False):
         print(url, data)
+        # r = get_response(url, 'post', data=data)
     r = requests.post(url, data=data, ).text
     soup = BeautifulSoup(r, 'lxml')
     g = soup.find('ul', class_='list-unstyled res-ul')
@@ -95,8 +91,22 @@ def parser_subtitle_of_bangumi(bangumi_id):
     return subtitle_list
 
 
+def get_weekly_bangumi():
+    r = requests.get(server_root)
+    soup = BeautifulSoup(r.text, 'lxml')
+    sunday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "0"})
+    monday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "1"})
+    tuesday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "2"})
+    wednesday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "3"})
+    thursday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "4"})
+    friday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "5"})
+    saturday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "6"})
+    return [sunday, monday, tuesday, wednesday, thursday, friday, saturday]
+
+
+
 class Mikanani(BaseWebsite):
-    cover_url = 'https://mikanani.me'
+    cover_url = server_root[:-1]
 
     def search_by_keyword(self, keyword, count):
         """
@@ -123,8 +133,8 @@ class Mikanani(BaseWebsite):
 
         result = []
         if os.environ.get('DEBUG', False):
-            print('https://mikanani.me/Home/Search', {'searchstr': keyword})
-        r = requests.get('https://mikanani.me/Home/Search', params={'searchstr': keyword}).text
+            print(server_root + "Home/Search", {'searchstr': keyword})
+        r = requests.get(server_root + "Home/Search", params={'searchstr': keyword}).text
         s = BeautifulSoup(r, 'lxml')
         td_list = s.find_all('tr', attrs={'class': 'js-search-results-row'})  # type:list[bs4.Tag]
         for tr in td_list:
@@ -168,8 +178,8 @@ class Mikanani(BaseWebsite):
 
         result = []
         if os.environ.get('DEBUG', False):
-            print('https://mikanani.me/Home/Bangumi/{}'.format(bangumi_id))
-        r = requests.get('https://mikanani.me/Home/Bangumi/{}'.format(bangumi_id)).text
+            print(server_root + 'Bangumi/{}'.format(bangumi_id))
+        r = requests.get(server_root + 'Home/Bangumi/{}'.format(bangumi_id)).text
 
         soup = BeautifulSoup(r, 'lxml')
         # name = soup.find('p', class_='bangumi-title').text

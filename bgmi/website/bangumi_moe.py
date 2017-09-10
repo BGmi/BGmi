@@ -7,9 +7,8 @@ import time
 import requests
 
 from bgmi.config import (LANG, MAX_PAGE, COVER_URL, BANGUMI_MOE_URL)
-from bgmi.utils import (print_info, print_error, bug_report)
 from bgmi.models import Bangumi
-
+from bgmi.utils import (print_info, bug_report, print_error)
 from bgmi.website.base import BaseWebsite
 
 # tag of bangumi on bangumi.moe
@@ -24,6 +23,9 @@ SEARCH_URL = '{0}{1}api/v2/torrent/search'.format(BANGUMI_MOE_URL, __split)
 
 
 def get_response(url, method='GET', **kwargs):
+    # kwargs['proxies'] = {'http': "http://localhost:1080"}
+    if os.environ.get('DEV'):
+        url = url.replace('https://', 'http://localhost:8092/https/')
     if os.environ.get('DEBUG'):
         print_info('Request URL: {0}'.format(url))
     try:
@@ -67,7 +69,7 @@ def parser_bangumi(data):
     for bangumi_item in data:
         subtitle_of_bangumi = process_subtitle(subtitle.get(bangumi_item['tag_id'], []))
         item = {'status': 0,
-                'subtitle_group': subtitle_of_bangumi.keys(),
+                'subtitle_group': list(subtitle_of_bangumi.keys()),
                 'name': name[bangumi_item['tag_id']],
                 'keyword': bangumi_item['tag_id'],
                 'update_time': Bangumi.week[bangumi_item['showOn'] - 1],
