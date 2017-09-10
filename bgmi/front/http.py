@@ -135,7 +135,7 @@ class CalendarHandler(BaseHandler):
         cal.add('prodid', '-//BGmi Followed Bangumi Calendar//bangumi.ricterz.me//')
         cal.add('version', '2.0')
 
-        data = Followed.get_all_followed(order='followed.update_time', desc=True)
+        data = Followed.get_all_followed(order='followed.updated_time', desc=True)
         data.extend(self.patch_list)
 
         if type_ == 0:
@@ -181,13 +181,13 @@ class MainHandler(BaseHandler):
             return
 
         data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING,
-                                         order='followed.update_time', desc=True)
+                                         order='followed.updated_time', desc=True)
 
         followed = map(lambda b: b['bangumi_name'], data)
         followed.extend(list(map(lambda b: b['bangumi_name'], self.patch_list)))
 
         data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING if not is_old else STATUS_END,
-                                         order='followed.update_time', desc=True)
+                                         order='followed.updated_time', desc=True)
         data.extend(self.patch_list)
         data.sort(key=lambda _: _['status'])
         data.reverse()
