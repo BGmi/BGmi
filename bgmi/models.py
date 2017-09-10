@@ -41,6 +41,8 @@ class FalseType(type):
 
 
 class DB(object):
+    db_path = ''
+
     # `_id` save the id column in database, will be set automatic
     _id = None
 
@@ -221,7 +223,7 @@ class DB(object):
         db_instance.close()
 
     def _connect_db(self):
-        self._conn = sqlite3.connect(bgmi.config.DB_PATH)
+        self._conn = sqlite3.connect(bgmi.config.DB_PATH if not self.db_path else self.db_path)
         self._conn.row_factory = make_dicts
         self.cursor = self._conn.cursor()
 
@@ -528,3 +530,10 @@ class Subtitle(DB):
         data = cur.fetchall()
         DB.close_db(db)
         return data
+
+
+class Script(DB):
+    db_path = bgmi.config.SCRIPT_DB_PATH
+    table = 'scripts'
+    primary_key = ('bangumi_name', )
+    fields = ('bangumi_name', 'episode', 'status', )

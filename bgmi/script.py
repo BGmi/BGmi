@@ -8,10 +8,11 @@ import glob
 import time
 import traceback
 
-from bgmi.models import Bangumi, Followed, STATUS_UPDATED, STATUS_UPDATING
+from bgmi.models import STATUS_UPDATED, STATUS_FOLLOWED
 from bgmi.utils import print_success, print_warning, print_info
-from bgmi.config import SCRIPT_PATH, DOWNLOAD_DELEGATE
-from bgmi.download import DOWNLOAD_DELEGATE_DICT, download_prepare
+from bgmi.config import SCRIPT_PATH
+from bgmi.download import download_prepare
+from bgmi.models import Script
 
 
 FETCH_EPISODE_ZH = re.compile("第?\s?(\d{1,3})\s?[話话集]")
@@ -82,24 +83,6 @@ class ScriptRunner(object):
 
         return cls._defined
 
-    @staticmethod
-    def _check_bangumi(script):
-        bangumi_obj = Bangumi(name=script.bangumi_name)
-        bangumi_obj.select_obj()
-        if script.ignore_if_finished and not bangumi_obj.status == STATUS_UPDATING:
-            print_warning('Bangumi finished, ignore script: {}'.format(script.bangumi_name, script))
-            return False
-        return True
-
-    @staticmethod
-    def _check_followed(script):
-        followed_obj = Followed(bangumi_name=script.bangumi_name)
-        followed_obj.select_obj()
-        if not followed_obj:
-            print_warning('Invalid bangumi of script: {}, ignored.'.format(script.bangumi_name, script))
-            return False
-        return True
-
     def get_models(self):
         return [dict(script.Model()) for script in self.scripts if script.bangumi_name is not None]
 
@@ -112,19 +95,12 @@ class ScriptRunner(object):
             'download': v
         } for k, v in script.get_download_url().items()]
 
-    def run(self, bangumi_list=None, return_=True, download=False):
-        bangumi_list = list(map(lambda b: b['bangumi_name'], bangumi_list))
+    def run(self, return_=True, download=False):
         for script in self.scripts:
             print_info('fetching {} ...'.format(script.bangumi_name))
-
-            if isinstance(bangumi_list, (list, tuple)):
-                if script.bangumi_name not in bangumi_list:
-                    break
-
-            followed_obj = Followed(bangumi_name=script.bangumi_name)
-            followed_obj.select_obj()
-
             download_item = self.make_dict(script)
+
+            script_obj = script.Model().obj
 
             if not download_item:
                 print_info('Got nothing, quit script {}.'.format(script))
@@ -132,16 +108,16 @@ class ScriptRunner(object):
 
             max_episode = max(download_item, key=lambda d: d['episode'])
             episode = max_episode['episode']
-            episode_range = range(followed_obj.episode + 1, episode + 1)
+            episode_range = range(script_obj.episode + 1, episode + 1)
 
-            if episode <= followed_obj.episode:
+            if episode <= script_obj.episode:
                 break
 
             print_success('{} updated, episode: {}'.format(script.bangumi_name, episode))
-            followed_obj.episode = episode
-            followed_obj.status = STATUS_UPDATED
-            followed_obj.updated_time = int(time.time())
-            followed_obj.save()
+            script_obj.episode = episode
+            script_obj.status = STATUS_UPDATED
+            script_obj.updated_time = int(time.time())
+            script_obj.save()
 
             download_queue = []
             for i in episode_range:
@@ -163,9 +139,18 @@ class ScriptRunner(object):
 class ScriptBase(object):
 
     class Model(object):
+        obj = None
         bangumi_name = None
         cover = None
         updated_time = None
+
+        def __init__(self):
+            if self.bangumi_name is not None:
+                s = Script(bangumi_name=self.bangumi_name, episode=0, status=STATUS_FOLLOWED)
+                s.select_obj()
+                if not s:
+                    s.save()
+                self.obj = s
 
         def __iter__(self):
             for i in ('bangumi_name', 'cover', 'updated_time'):
@@ -174,9 +159,9 @@ class ScriptBase(object):
             # patch for cal
             yield ('update_time', self.updated_time)
             yield ('name', self.bangumi_name)
-            yield ('status', 1)
+            yield ('status', self.obj['status'])
             yield ('subtitle_group', '')
-            yield ('episode', 0)
+            yield ('episode', self.obj['episode'])
 
     @property
     def name(self):

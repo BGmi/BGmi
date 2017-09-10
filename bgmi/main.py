@@ -10,9 +10,9 @@ import platform
 import argparse
 
 import bgmi.config
-from bgmi.config import BGMI_PATH, DB_PATH, SUPPORT_WEBSITE
-from bgmi.sql import (CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER,
-                      CREATE_TABLE_SUBTITLE)
+from bgmi.config import BGMI_PATH, DB_PATH, SCRIPT_DB_PATH, SUPPORT_WEBSITE
+from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER, \
+                      CREATE_TABLE_SUBTITLE, CREATE_TABLE_SCRIPT
 from bgmi.utils import print_warning, print_error, print_version, check_update
 from bgmi.controllers import controllers
 from bgmi.update import update_database
@@ -151,14 +151,21 @@ def main():
         controllers(ret)
 
 
-def init_db(db_path):
+def init_db():
     try:
-        conn = sqlite3.connect(db_path)
+        # bangumi.db
+        conn = sqlite3.connect(DB_PATH)
         conn.execute(CREATE_TABLE_BANGUMI)
         conn.execute(CREATE_TABLE_FOLLOWED)
         conn.execute(CREATE_TABLE_DOWNLOAD)
         conn.execute(CREATE_TABLE_FOLLOWED_FILTER)
         conn.execute(CREATE_TABLE_SUBTITLE)
+        conn.commit()
+        conn.close()
+
+        # script.db
+        conn = sqlite3.connect(SCRIPT_DB_PATH)
+        conn.execute(CREATE_TABLE_SCRIPT)
         conn.commit()
         conn.close()
     except sqlite3.OperationalError:
@@ -185,7 +192,7 @@ def setup():
         bgmi.config.write_config('DATA_SOURCE', SUPPORT_WEBSITE[ds]['id'])
 
     # if not os.path.exists(DB_PATH):
-    init_db(DB_PATH)
+    init_db()
     main()
 
 

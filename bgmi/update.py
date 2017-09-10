@@ -3,16 +3,16 @@ import os
 import sqlite3
 
 from bgmi import __version__
-from bgmi.config import DB_PATH, BGMI_PATH
+from bgmi.config import DB_PATH, BGMI_PATH, SCRIPT_DB_PATH
 from bgmi.utils import print_error, print_info
 
 OLD = os.path.join(BGMI_PATH, 'old')
 
 
-def exec_sql(sql):
+def exec_sql(sql, db=DB_PATH):
     try:
         print_info('Execute {}'.format(sql))
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(db)
         conn.execute(sql)
         conn.commit()
         conn.close()

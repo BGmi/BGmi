@@ -157,7 +157,7 @@ def update(ret):
             updated_bangumi_obj.append(f)
 
     runner = ScriptRunner()
-    script_download_queue = runner.run(updated_bangumi_obj)
+    script_download_queue = runner.run()
 
     for subscribe in updated_bangumi_obj:
         print_info('fetching %s ...' % subscribe['bangumi_name'])
