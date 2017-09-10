@@ -6,7 +6,7 @@ import os
 from bgmi.config import BGMI_SAVE_PATH, DOWNLOAD_DELEGATE
 from bgmi.models import Download, STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD
 from bgmi.services import XunleiLixianDownload, Aria2DownloadRPC, RRDownload, TransmissionRPC
-from bgmi.utils.utils import print_error
+from bgmi.utils import print_error
 
 DOWNLOAD_DELEGATE_DICT = {
     'xunlei': XunleiLixianDownload,

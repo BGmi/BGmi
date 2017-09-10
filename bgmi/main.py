@@ -10,14 +10,13 @@ import platform
 import argparse
 
 import bgmi.config
-from bgmi.config import BGMI_PATH, DB_PATH
+from bgmi.config import BGMI_PATH, DB_PATH, SCRIPT_DB_PATH, SUPPORT_WEBSITE
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER, \
-    CREATE_TABLE_SUBTITLE
-from bgmi.utils.utils import print_warning, print_error, print_version, unicodeize, check_update
+                      CREATE_TABLE_SUBTITLE, CREATE_TABLE_SCRIPT
+from bgmi.utils import print_warning, print_error, print_version, check_update
 from bgmi.controllers import controllers
 from bgmi.update import update_database
 from bgmi.constants import *
-
 
 # Wrap sys.stdout into a StreamWriter to allow writing unicode.
 if bgmi.config.IS_PYTHON3:
@@ -91,9 +90,6 @@ def main():
                                    help='Do not ignore the old bangumi detail rows (3 month ago).')
 
     sub_parser_cal = sub_parser.add_parser(ACTION_CAL, help='Print bangumi calendar.')
-    # use `bgmi list`
-    # sub_parser_cal.add_argument('filter', type=unicode_, metavar='filter', choices=FILTER_CHOICES,
-    #                             help='Calendar form filter ({}).'.format(', '.join(FILTER_CHOICES)))
     sub_parser_cal.add_argument('--today', action='store_true', help='Show bangumi calendar for today.')
     sub_parser_cal.add_argument('--force-update', action='store_true',
                                 help='Get the newest bangumi calendar from bangumi.moe.')
@@ -105,15 +101,8 @@ def main():
     sub_parser_config.add_argument('value', nargs='?', type=unicode_, help='Config value')
 
     sub_parser_mark = sub_parser.add_parser(ACTION_MARK, help='Mark bangumi episode.')
-    sub_parser_mark.add_argument('name', help='Bangumi name')
+    sub_parser_mark.add_argument('name', type=unicode_, help='Bangumi name')
     sub_parser_mark.add_argument('episode', help='Bangumi episode', type=int)
-
-    # Deprecated
-    # sub_parser_followed = sub_parser.add_parser(ACTION_FOLLOWED, help='Subscribed bangumi manager.')
-    # sub_parser_followed_mutex = sub_parser_followed.add_mutually_exclusive_group(required=True)
-    # sub_parser_followed_mutex.add_argument('--list', help='List subscribed bangumi.', action='store_true')
-    # sub_parser_followed_mutex.add_argument('--mark', help='Specific bangumi name.', dest='name', type=unicode_)
-    # sub_parser_followed.add_argument('--episode', help='Specifical bangumi episode.', metavar='episode')
 
     sub_parser_download = sub_parser.add_parser(ACTION_DOWNLOAD, help='Download manager.')
     sub_parser_download.add_argument('--list', help='List download queue.', action='store_true')
@@ -141,6 +130,7 @@ def main():
 
     if ret.action == 'install':
         import bgmi.setup
+
         bgmi.setup.install()
         raise SystemExit
     elif ret.action == 'upgrade':
@@ -151,14 +141,21 @@ def main():
         controllers(ret)
 
 
-def init_db(db_path):
+def init_db():
     try:
-        conn = sqlite3.connect(db_path)
+        # bangumi.db
+        conn = sqlite3.connect(DB_PATH)
         conn.execute(CREATE_TABLE_BANGUMI)
         conn.execute(CREATE_TABLE_FOLLOWED)
         conn.execute(CREATE_TABLE_DOWNLOAD)
         conn.execute(CREATE_TABLE_FOLLOWED_FILTER)
         conn.execute(CREATE_TABLE_SUBTITLE)
+        conn.commit()
+        conn.close()
+
+        # script.db
+        conn = sqlite3.connect(SCRIPT_DB_PATH)
+        conn.execute(CREATE_TABLE_SCRIPT)
         conn.commit()
         conn.close()
     except sqlite3.OperationalError:
@@ -169,13 +166,23 @@ def setup():
     if not os.path.exists(BGMI_PATH):
         print_warning('BGMI_PATH %s does not exist, installing' % BGMI_PATH)
         from bgmi.setup import create_dir, install_crontab
+
         create_dir()
         if not platform.system() == 'Windows':
             # if not input('Do you want to install a crontab to auto-download bangumi?(Y/n): ') == 'n':
             install_crontab()
+        print('select data source')
+        for index, website in enumerate(SUPPORT_WEBSITE):
+            print('{}. {}'.format(index + 1, website['view']))
+        if not os.environ.get('TRAVIS_CI', False):
+            ds = input('select data source by input index: ')
+            ds = int(ds) - 1
+        else:
+            ds = 0
+        bgmi.config.write_config('DATA_SOURCE', SUPPORT_WEBSITE[ds]['id'])
 
     # if not os.path.exists(DB_PATH):
-    init_db(DB_PATH)
+    init_db()
     main()
 
 

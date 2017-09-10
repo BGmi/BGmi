@@ -8,9 +8,10 @@ import struct
 import functools
 import requests
 from bgmi import __version__
-from bgmi.config import FETCH_URL, IS_PYTHON3, BGMI_PATH
+from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, SUPPORT_WEBSITE
 
 requests.packages.urllib3.disable_warnings()
+
 
 if platform.system() == 'Windows':
     GREEN = ''
@@ -22,7 +23,6 @@ else:
     YELLOW = '\033[1;33m'
     RED = '\033[1;31m'
     COLOR_END = '\033[0m'
-
 
 color_map = {
     'print_info': '',
@@ -47,9 +47,10 @@ def indicator(f):
                 func_name = f.__qualname__
             else:
                 func_name = f.func_name
-            args = (indicator_map.get(func_name, '') + args[0], )
+            args = (indicator_map.get(func_name, '') + args[0],)
         f(*args, **kwargs)
         sys.stdout.flush()
+
     return wrapper
 
 
@@ -63,6 +64,7 @@ def colorize(f):
         b, e = color_map.get(func_name, ''), COLOR_END if color_map.get(func_name) else ''
         args = tuple(map(lambda s: b + s + e, args))
         return f(*args, **kwargs)
+
     return wrapper
 
 
@@ -102,7 +104,9 @@ Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END
 
 def test_connection():
     try:
-        requests.head(FETCH_URL, timeout=10)
+        for website in SUPPORT_WEBSITE:
+            if DATA_SOURCE == website['id']:
+                requests.head(website['url'], timeout=10)
     except:
         return False
 
@@ -111,6 +115,7 @@ def test_connection():
 
 def unicodeize(data):
     import bgmi.config
+
     if bgmi.config.IS_PYTHON3:
         if isinstance(data, bytes):
             return data.decode('utf-8')
@@ -137,6 +142,7 @@ def get_terminal_col():
     if not platform.system() == 'Windows':
         import fcntl
         import termios
+
         _, col, _, _ = struct.unpack(str('HHHH'), fcntl.ioctl(0, termios.TIOCGWINSZ,
                                                               struct.pack(str('HHHH'), 0, 0, 0, 0)))
 
@@ -144,6 +150,7 @@ def get_terminal_col():
     else:
         try:
             from ctypes import windll, create_string_buffer
+
             # stdin handle is -10
             # stdout handle is -11
             # stderr handle is -12
@@ -159,6 +166,7 @@ def get_terminal_col():
                 return sizex
             else:
                 import subprocess
+
                 cols = int(subprocess.check_output('tput cols'))
                 return cols
         except:
@@ -174,6 +182,7 @@ def check_update(mark=True):
                           '\nThen execute `bgmi upgrade` to migrate database'.format(GREEN, version, COLOR_END))
         else:
             print_success('Your BGmi is the latest version.')
+
     if not mark:
         update()
         raise SystemExit

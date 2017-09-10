@@ -41,6 +41,8 @@ class FalseType(type):
 
 
 class DB(object):
+    db_path = ''
+
     # `_id` save the id column in database, will be set automatic
     _id = None
 
@@ -196,7 +198,9 @@ class DB(object):
                 sql += '1'
 
         if os.environ.get('DEBUG'):
-            print('EXEC SQL: {0}'.format(sql))
+            # print('EXEC SQL: {0}'.format(sql))
+            pass
+
         return sql
 
     def _unicodeize(self):
@@ -219,7 +223,7 @@ class DB(object):
         db_instance.close()
 
     def _connect_db(self):
-        self._conn = sqlite3.connect(bgmi.config.DB_PATH)
+        self._conn = sqlite3.connect(bgmi.config.DB_PATH if not self.db_path else self.db_path)
         self._conn.row_factory = make_dicts
         self.cursor = self._conn.cursor()
 
@@ -380,13 +384,13 @@ class Bangumi(DB):
         cur = db.cursor()
         join_sql = Bangumi._make_sql('select', table=Followed.table)
         if status is None:
-            sql = Bangumi._make_sql('select', fields=['%s.*' % Bangumi.table, 'F.status',
+            sql = Bangumi._make_sql('select', fields=['%s.*' % Bangumi.table, 'F.status AS status',
                                                       'episode'], table=Bangumi.table,
                                     condition=('%s.status' % Bangumi.table),
                                     join='LEFT JOIN (%s) AS F ON bangumi.name=F.bangumi_name' % join_sql)
             cur.execute(sql, (STATUS_UPDATING, ))
         else:
-            sql = Bangumi._make_sql('select', fields=['%s.*' % Bangumi.table, 'F.status',
+            sql = Bangumi._make_sql('select', fields=['%s.*' % Bangumi.table, 'F.status AS status',
                                                       'episode'], table=Bangumi.table,
                                     join='LEFT JOIN (%s) AS F ON bangumi.name=F.bangumi_name' % join_sql,
                                     condition=('F.status', '%s.status' % Bangumi.table))
@@ -526,3 +530,13 @@ class Subtitle(DB):
         data = cur.fetchall()
         DB.close_db(db)
         return data
+
+
+class Script(DB):
+    db_path = bgmi.config.SCRIPT_DB_PATH
+    table = 'scripts'
+    primary_key = ('bangumi_name', )
+    fields = ('bangumi_name', 'episode', 'status', )
+
+    def __str__(self):
+        return 'Script Model <%s>' % self.bangumi_name

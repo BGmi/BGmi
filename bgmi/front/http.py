@@ -14,9 +14,12 @@ from icalendar import Calendar, Event, vText
 
 from collections import OrderedDict, defaultdict
 from bgmi import __version__
-from bgmi.config import BGMI_SAVE_PATH, DB_PATH, DANMAKU_API_URL, COVER_URL
+from bgmi.config import BGMI_SAVE_PATH, DB_PATH, DANMAKU_API_URL
 from bgmi.models import Download, Bangumi, Followed, STATUS_NORMAL, STATUS_UPDATING, STATUS_END
+from bgmi.fetch import website
+from bgmi.script import ScriptRunner
 
+COVER_URL = website.cover_url
 
 WEEK = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 define('port', default=8888, help='listen on the port', type=int)
@@ -32,7 +35,22 @@ def make_dicts(cursor, row):
                 for idx, value in enumerate(row))
 
 
-class BangumiHandler(tornado.web.RequestHandler):
+class BaseHandler(tornado.web.RequestHandler):
+    patch_list = None
+
+    def data_received(self, chunk):
+        pass
+
+    def __init__(self, *args, **kwargs):
+
+        if self.patch_list is None:
+            runner = ScriptRunner()
+            self.patch_list = runner.get_models_dict()
+
+        super(BaseHandler, self).__init__(*args, **kwargs)
+
+
+class BangumiHandler(BaseHandler):
     def get(self, _):
         self.set_header('Content-Type', 'text/html')
         self.write('<h1>BGmi HTTP Service</h1>')
@@ -49,7 +67,7 @@ class BangumiHandler(tornado.web.RequestHandler):
         self.finish()
 
 
-class BangumiPlayerHandler(tornado.web.RequestHandler):
+class BangumiPlayerHandler(BaseHandler):
     def get(self, bangumi_name):
         data = Followed(bangumi_name=bangumi_name)
         data.select_obj()
@@ -58,7 +76,14 @@ class BangumiPlayerHandler(tornado.web.RequestHandler):
         bangumi_obj.select_obj()
 
         if not data:
+            for i in self.patch_list:
+                if bangumi_name == i['bangumi_name']:
+                    data = i
+                    break
+
+        if not data:
             return self.write_error(404)
+
         episode_list = {}
         bangumi_path = os.path.join(BGMI_SAVE_PATH, bangumi_name)
         for root, _, files in os.walk(bangumi_path):
@@ -84,21 +109,25 @@ class BangumiPlayerHandler(tornado.web.RequestHandler):
                         bangumi_cover='{}/{}'.format(COVER_URL, bangumi_obj['cover']), DANMAKU_URL=DANMAKU_API_URL)
 
 
-class ImageCSSHandler(tornado.web.RequestHandler):
+class ImageCSSHandler(BaseHandler):
     def get(self):
         data = Followed.get_all_followed(status=None, bangumi_status=None)
+        for _ in data:
+            _['cover'] = '{}/{}'.format(COVER_URL, _['cover'])
+        data.extend(self.patch_list)
+
         self.set_header('Content-Type', 'text/css; charset=utf-8')
-        self.render('templates/image.css', data=data, image_url=COVER_URL)
+        self.render('templates/image.css', data=data)
 
 
-class RssHandler(tornado.web.RequestHandler):
+class RssHandler(BaseHandler):
     def get(self):
         data = Download.get_all_downloads()
         self.set_header('Content-Type', 'text/xml')
         self.render('templates/download.xml', data=data)
 
 
-class CalendarHandler(tornado.web.RequestHandler):
+class CalendarHandler(BaseHandler):
     def get(self):
         type_ = self.get_argument('type', 0)
 
@@ -107,6 +136,8 @@ class CalendarHandler(tornado.web.RequestHandler):
         cal.add('version', '2.0')
 
         data = Followed.get_all_followed(order='followed.updated_time', desc=True)
+        data.extend(self.patch_list)
+
         if type_ == 0:
 
             bangumi = defaultdict(list)
@@ -139,7 +170,7 @@ class CalendarHandler(tornado.web.RequestHandler):
         self.finish()
 
 
-class MainHandler(tornado.web.RequestHandler):
+class MainHandler(BaseHandler):
     def get(self):
         is_json = self.get_argument('json', False)
         is_old = self.get_argument('old', False)
@@ -151,10 +182,20 @@ class MainHandler(tornado.web.RequestHandler):
 
         data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING,
                                          order='followed.updated_time', desc=True)
+
         followed = map(lambda b: b['bangumi_name'], data)
+        followed.extend(list(map(lambda b: b['bangumi_name'], self.patch_list)))
+
         data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING if not is_old else STATUS_END,
                                          order='followed.updated_time', desc=True)
+        data.extend(self.patch_list)
+        data.sort(key=lambda _: _['status'])
+        data.reverse()
+
         calendar = Bangumi.get_all_bangumi()
+
+        for i in self.patch_list:
+            calendar[i['updated_time'].lower()].append(i)
 
         def shift(seq, n):
             n %= len(seq)

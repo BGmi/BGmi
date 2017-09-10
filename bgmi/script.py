@@ -1,66 +1,95 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 
+import re
 import os
 import imp
 import glob
 import time
+import traceback
 
-from bgmi.models import Bangumi, Followed, STATUS_UPDATED, STATUS_UPDATING
-from bgmi.utils.utils import print_success, print_warning, print_info
-from bgmi.config import SCRIPT_PATH, DOWNLOAD_DELEGATE
-from bgmi.download import DOWNLOAD_DELEGATE_DICT, download_prepare
+from bgmi.models import STATUS_UPDATED, STATUS_FOLLOWED
+from bgmi.utils import print_success, print_warning, print_info
+from bgmi.config import SCRIPT_PATH
+from bgmi.download import download_prepare
+from bgmi.models import Script
+
+
+FETCH_EPISODE_ZH = re.compile("第?\s?(\d{1,3})\s?[話话集]")
+FETCH_EPISODE_WITH_BRACKETS = re.compile('[【\[](\d+)\s?(?:END)?[】\]]')
+FETCH_EPISODE_ONLY_NUM = re.compile('^([\d]{2,})$')
+FETCH_EPISODE_RANGE = re.compile('[\d]{2,}\s?-\s?([\d]{2,})')
+FETCH_EPISODE_OVA_OAD = re.compile('([\d]{2,})\s?\((?:OVA|OAD)\)]')
+FETCH_EPISODE_WITH_VERSION = re.compile('[【\[](\d+)\s? *v\d(?:END)?[】\]]')
+FETCH_EPISODE = (
+    FETCH_EPISODE_ZH, FETCH_EPISODE_WITH_BRACKETS, FETCH_EPISODE_ONLY_NUM,
+    FETCH_EPISODE_RANGE,
+    FETCH_EPISODE_OVA_OAD, FETCH_EPISODE_WITH_VERSION)
+
+
+def parse_episode(episode_title):
+    """
+    parse episode from title
+
+    :param episode_title: episode title
+    :type episode_title: str
+    :return: episode of this title
+    :rtype: int
+    """
+
+    _ = FETCH_EPISODE_ZH.findall(episode_title)
+    if _ and _[0].isdigit():
+        return int(_[0])
+
+    _ = FETCH_EPISODE_WITH_BRACKETS.findall(episode_title)
+    if _ and _[0].isdigit():
+        return int(_[0])
+
+    _ = FETCH_EPISODE_WITH_VERSION.findall(episode_title)
+    if _ and _[0].isdigit():
+        return int(_[0])
+
+    for split_token in ['【', '[', ' ']:
+        for i in episode_title.split(split_token):
+            for regexp in FETCH_EPISODE:
+                match = regexp.findall(i)
+                if match and match[0].isdigit():
+                    return int(match[0])
+    return 0
 
 
 class ScriptRunner(object):
+    _defined = None
     scripts = []
     download_queue = []
 
-    def __init__(self):
-        script_files = glob.glob('{}{}*.py'.format(SCRIPT_PATH, os.path.sep))
-        for i in script_files:
-            try:
-                s = imp.load_source('script', os.path.join(SCRIPT_PATH, i))
-                script_class = getattr(s, 'Script')()
-                self.scripts.append(script_class)
-                print_success('Load script {} successfully.'.format(i))
-            except Exception as e:
-                print_warning('Load script {} failed, ignored'.format(i))
-                if os.getenv('DEBUG'):
-                    print(e)
+    def __new__(cls, *args, **kwargs):
+        if cls._defined is None:
 
-        self.scripts = filter(self._check_followed, self.scripts)
-        self.scripts = filter(self._check_delegate, self.scripts)
-        self.scripts = filter(self._check_bangumi, self.scripts)
+            script_files = glob.glob('{}{}*.py'.format(SCRIPT_PATH, os.path.sep))
+            for i in script_files:
+                try:
+                    s = imp.load_source('script', os.path.join(SCRIPT_PATH, i))
+                    script_class = getattr(s, 'Script')()
+                    cls.scripts.append(script_class)
+                    print_success('Load script {} successfully.'.format(i))
+                except:
+                    print_warning('Load script {} failed, ignored'.format(i))
+                    traceback.print_exc()
+                    # self.scripts = filter(self._check_followed, self.scripts)
+                    # self.scripts = filter(self._check_bangumi, self.scripts)
 
-    @staticmethod
-    def _check_bangumi(script):
-        bangumi_obj = Bangumi(name=script.bangumi_name)
-        bangumi_obj.select_obj()
-        if script.ignore_if_finished and not bangumi_obj.status == STATUS_UPDATING:
-            print_warning('Bangumi finished, ignore script: {}'.format(script.bangumi_name, script))
-            return False
-        return True
+            cls._defined = super(ScriptRunner, cls).__new__(cls, *args, **kwargs)
 
-    @staticmethod
-    def _check_followed(script):
-        followed_obj = Followed(bangumi_name=script.bangumi_name)
-        followed_obj.select_obj()
-        if not followed_obj:
-            print_warning('Invalid bangumi of script: {}, ignored.'.format(script.bangumi_name, script))
-            return False
-        return True
+        return cls._defined
 
-    @staticmethod
-    def _check_delegate(script):
-        if script.download_delegate is None:
-            script.download_delegate = DOWNLOAD_DELEGATE
+    def get_model(self, name):
+        for script in self.scripts:
+            if script.Model.bangumi_name == name:
+                return script.Model().obj
 
-        elif script.download_delegate not in DOWNLOAD_DELEGATE_DICT.keys():
-            print_warning('Invalid download delegate of script: {}, ignored.'.format(script))
-            return False
-
-        return True
+    def get_models_dict(self):
+        return [dict(script.Model()) for script in self.scripts if script.bangumi_name is not None]
 
     @staticmethod
     def make_dict(script):
@@ -71,19 +100,12 @@ class ScriptRunner(object):
             'download': v
         } for k, v in script.get_download_url().items()]
 
-    def run(self, bangumi_list=None, return_=True, download=False):
-        bangumi_list = list(map(lambda b: b['bangumi_name'], bangumi_list))
+    def run(self, return_=True, download=False):
         for script in self.scripts:
             print_info('fetching {} ...'.format(script.bangumi_name))
-
-            if isinstance(bangumi_list, (list, tuple)):
-                if script.bangumi_name not in bangumi_list:
-                    break
-
-            followed_obj = Followed(bangumi_name=script.bangumi_name)
-            followed_obj.select_obj()
-
             download_item = self.make_dict(script)
+
+            script_obj = script.Model().obj
 
             if not download_item:
                 print_info('Got nothing, quit script {}.'.format(script))
@@ -91,16 +113,16 @@ class ScriptRunner(object):
 
             max_episode = max(download_item, key=lambda d: d['episode'])
             episode = max_episode['episode']
-            episode_range = range(followed_obj.episode + 1, episode + 1)
+            episode_range = range(script_obj.episode + 1, episode + 1)
 
-            if episode <= followed_obj.episode:
+            if episode <= script_obj.episode:
                 break
 
             print_success('{} updated, episode: {}'.format(script.bangumi_name, episode))
-            followed_obj.episode = episode
-            followed_obj.status = STATUS_UPDATED
-            followed_obj.updated_time = int(time.time())
-            followed_obj.save()
+            script_obj.episode = episode
+            script_obj.status = STATUS_UPDATED
+            script_obj.updated_time = int(time.time())
+            script_obj.save()
 
             download_queue = []
             for i in episode_range:
@@ -120,8 +142,47 @@ class ScriptRunner(object):
 
 
 class ScriptBase(object):
-    bangumi_name = None
-    download_delegate = None
+
+    class Model(object):
+        obj = None
+        bangumi_name = None
+        cover = None
+        updated_time = None
+
+        def __init__(self):
+            if self.bangumi_name is not None:
+                s = Script(bangumi_name=self.bangumi_name, episode=0, status=STATUS_FOLLOWED)
+                s.select_obj()
+                if not s:
+                    s.save()
+                self.obj = s
+
+        def __iter__(self):
+            for i in ('bangumi_name', 'cover', 'updated_time'):
+                yield (i, getattr(self, i))
+
+            # patch for cal
+            yield ('update_time', self.updated_time)
+            yield ('name', self.bangumi_name)
+            yield ('status', self.obj['status'])
+            yield ('subtitle_group', '')
+            yield ('episode', self.obj['episode'])
+
+    @property
+    def name(self):
+        return self.Model.bangumi_name
+
+    @property
+    def bangumi_name(self):
+        return self.Model.bangumi_name
+
+    @property
+    def cover(self):
+        return self.Model.cover
+
+    @property
+    def updated_time(self):
+        return self.Model.updated_time
 
     def __unicode__(self):
         return self.__str__()
@@ -132,7 +193,6 @@ class ScriptBase(object):
     def get_download_url(self):
         """Get the download url, and return a dict of episode and the url.
         Download url also can be magnet link.
-
         For example:
         ```
             {
@@ -141,9 +201,7 @@ class ScriptBase(object):
                 3: 'http://example.com/Bangumi/1/3.mp4'
             }
         ```
-
         The keys `1`, `2`, `3` is the episode, the value is the url of bangumi.
-
         :return: dict
         """
         return {}

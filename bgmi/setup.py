@@ -3,7 +3,7 @@ import os
 
 from bgmi.config import BGMI_SAVE_PATH, BGMI_PATH, DOWNLOAD_DELEGATE, BGMI_TMP_PATH, SCRIPT_PATH
 from bgmi.download import get_download_class
-from bgmi.utils.utils import print_success, print_warning, print_info, print_error
+from bgmi.utils import print_success, print_warning, print_info, print_error
 
 
 def install_crontab():

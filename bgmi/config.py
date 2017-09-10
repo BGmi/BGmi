@@ -11,21 +11,21 @@ except ImportError:
 
 
 # download delegate
-__wget__ = ('WGET_PATH', )
-__thunder__ = ('XUNLEI_LX_PATH', )
-__transmission__ = ('TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT', )
+__wget__ = ('WGET_PATH',)
+__thunder__ = ('XUNLEI_LX_PATH',)
+__transmission__ = ('TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT',)
 __aria2__ = ('ARIA2_RPC_URL', 'ARIA2_RPC_TOKEN',)
 
 __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 
 # fake __all__
 __all__ = ('BANGUMI_MOE_URL', 'BGMI_SAVE_PATH', 'DOWNLOAD_DELEGATE', 'MAX_PAGE',
-           'BGMI_TMP_PATH', 'DANMAKU_API_URL', 'COVER_URL', 'LANG', )
+           'DATA_SOURCE', 'SUPPORT_WEBSITE', 'BGMI_TMP_PATH', 'DANMAKU_API_URL', 'LANG',)
 
 # cannot be rewrite
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
-                'IS_PYTHON3', 'DETAIL_URL', 'FETCH_URL',
-                'SEARCH_URL', 'BANGUMI_TAG', 'SCRIPT_PATH', )
+                'SUPPORT_WEBSITE', 'IS_PYTHON3', 'SCRIPT_PATH',
+                'SCRIPT_DB_PATH',)
 
 # writeable
 __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
@@ -52,6 +52,8 @@ else:
 
 DB_PATH = os.path.join(BGMI_PATH, 'bangumi.db')
 CONFIG_FILE_PATH = os.path.join(BGMI_PATH, 'bgmi.cfg')
+
+SCRIPT_DB_PATH = os.path.join(BGMI_PATH, 'script.db')
 SCRIPT_PATH = os.path.join(BGMI_PATH, 'scripts')
 
 
@@ -160,7 +162,22 @@ def write_config(config=None, value=None):
 
 # --------- Writeable ---------- #
 # Setting bangumi.moe url
-BANGUMI_MOE_URL = 'http://bangumi_moe.ricterz.me'
+BANGUMI_MOE_URL = 'https://bangumi_moe.ricterz.me'
+
+# Setting bangumi.moe url
+DATA_SOURCE = 'bangumi_moe'
+SUPPORT_WEBSITE = [
+    {
+        'view': '萌番组 https://bangumi.moe/',
+        'id': "bangumi_moe",
+        'url': BANGUMI_MOE_URL
+    },
+    {
+        'view': '蜜柑计划 https://mikanani.me/',
+        'id': 'mikan_project',
+        'url': 'https://mikanani.me/'
+    },
+]
 
 # BGmi user path
 BGMI_SAVE_PATH = os.path.join(BGMI_PATH, 'bangumi')
@@ -212,9 +229,3 @@ read_config()
 IS_PYTHON3 = sys.version_info > (3, 0)
 
 # Detail URL
-__split = '/' if not BANGUMI_MOE_URL.endswith('/') else ''
-FETCH_URL = '{0}{1}api/bangumi/current'.format(BANGUMI_MOE_URL, __split)
-TEAM_URL = '{0}{1}api/team/working'.format(BANGUMI_MOE_URL, __split)
-NAME_URL = '{0}{1}api/tag/fetch'.format(BANGUMI_MOE_URL, __split)
-DETAIL_URL = '{0}{1}api/torrent/search'.format(BANGUMI_MOE_URL, __split)
-SEARCH_URL = '{0}{1}api/v2/torrent/search'.format(BANGUMI_MOE_URL, __split)

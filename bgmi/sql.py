@@ -41,6 +41,14 @@ CREATE_TABLE_FOLLOWED_FILTER = '''CREATE TABLE IF NOT EXISTS filter (
 
 
 CREATE_TABLE_SUBTITLE = '''CREATE TABLE IF NOT EXISTS subtitle (
-        id TEXT PRIMARY KEY UNIQUE NOT NULL,
-        name TEXT
+          id TEXT PRIMARY KEY UNIQUE NOT NULL,
+          name TEXT
+        )'''
+
+
+CREATE_TABLE_SCRIPT = '''CREATE TABLE IF NOT EXISTS scripts (
+          id INTEGER PRIMARY KEY  AUTOINCREMENT,
+          bangumi_name TEXT UNIQUE NOT NULL,
+          episode INTEGER DEFAULT 0,
+          status INTEGER DEFAULT 1
         )'''

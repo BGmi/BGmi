@@ -6,9 +6,8 @@ import json
 import requests
 import urllib
 
-from bgmi.script import ScriptBase
-from bgmi.fetch import parse_episode
-from bgmi.utils.utils import print_error
+from bgmi.script import ScriptBase, parse_episode
+from bgmi.utils import print_error
 from bgmi.config import IS_PYTHON3
 
 
@@ -19,9 +18,11 @@ else:
 
 
 class Script(ScriptBase):
-    bangumi_name = '猜谜王'
-    download_delegate = 'aria2-rpc'  # the attribute not working now :(
-    ignore_if_finished = True
+
+    class Model(ScriptBase.Model):
+        bangumi_name = '猜谜王(BGmi Script)'
+        cover = 'COVER URL'
+        updated_time = 'Tue'
 
     def get_download_url(self):
         # fetch and return dict
