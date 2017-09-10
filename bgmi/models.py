@@ -536,7 +536,7 @@ class Script(DB):
     db_path = bgmi.config.SCRIPT_DB_PATH
     table = 'scripts'
     primary_key = ('bangumi_name', )
-    fields = ('bangumi_name', 'episode', 'status', )
+    fields = ('bangumi_name', 'episode', 'status', 'updated_time',)
 
     def __str__(self):
         return 'Script Model <%s>' % self.bangumi_name

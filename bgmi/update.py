@@ -33,3 +33,6 @@ def update_database():
 
     if v < '1.0.25':
         exec_sql('ALTER TABLE filter ADD COLUMN regex')
+
+    if v < '1.4.1':
+        exec_sql('ALTER TABLE scripts ADD COLUMN update_time INTEGER', SCRIPT_DB_PATH)

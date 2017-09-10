@@ -147,7 +147,7 @@ class ScriptBase(object):
         obj = None
         bangumi_name = None
         cover = None
-        updated_time = None
+        update_time = None
 
         def __init__(self):
             if self.bangumi_name is not None:
@@ -158,11 +158,11 @@ class ScriptBase(object):
                 self.obj = s
 
         def __iter__(self):
-            for i in ('bangumi_name', 'cover', 'updated_time'):
+            for i in ('bangumi_name', 'cover', 'update_time'):
                 yield (i, getattr(self, i))
 
             # patch for cal
-            yield ('update_time', self.updated_time)
+            yield ('update_time', self.update_time)
             yield ('name', self.bangumi_name)
             yield ('status', self.obj['status'])
             yield ('subtitle_group', '')
@@ -182,7 +182,7 @@ class ScriptBase(object):
 
     @property
     def updated_time(self):
-        return self.Model.updated_time
+        return self.Model.update_time
 
     def __unicode__(self):
         return self.__str__()

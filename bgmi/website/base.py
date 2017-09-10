@@ -172,7 +172,7 @@ class BaseWebsite(object):
         patch_list = runner.get_models_dict()
 
         for i in patch_list:
-            weekly_list[i['updated_time'].lower()].append(i)
+            weekly_list[i['update_time'].lower()].append(i)
 
         spacial_append_chars = ['Ⅱ', 'Ⅲ', '♪', 'Δ', '×', '☆', 'é', '·', '♭']
         spacial_remove_chars = []

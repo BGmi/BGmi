@@ -237,7 +237,7 @@ Bangumi Script is located at :code:`BGMI_PATH/script`, inherited :code:`ScriptBa
         class Model(ScriptBase.Model):
             bangumi_name = '猜谜王(BGmi Script)' # 名称, 随意填写即可
             cover = 'COVER URL' # 封面的 URL
-            updated_time = 'Tue' # 每周几更新
+            update_time = 'Tue' # 每周几更新
 
         def get_download_url(self):
             """Get the download url, and return a dict of episode and the url.
@@ -291,7 +291,7 @@ Another example:
         class Model(ScriptBase.Model):
             bangumi_name = 'Rick and Morty Season 3'
             cover = 'http://img.itvfans.com/wp-content/uploads/31346.jpg'
-            updated_time = 'Mon'
+            update_time = 'Mon'
 
         def get_download_url(self):
             # fetch and return dict
