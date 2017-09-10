@@ -182,11 +182,14 @@ class MainHandler(BaseHandler):
 
         data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING,
                                          order='followed.updated_time', desc=True)
+        data.extend(self.patch_list)
+
         followed = map(lambda b: b['bangumi_name'], data)
+        followed.extend(list(map(lambda b: b['bangumi_name'], self.patch_list)))
+
         data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING if not is_old else STATUS_END,
                                          order='followed.updated_time', desc=True)
 
-        data.extend(self.patch_list)
 
         calendar = Bangumi.get_all_bangumi()
 
