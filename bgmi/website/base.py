@@ -140,8 +140,6 @@ class BaseWebsite(object):
         else:
             if followed:
                 weekly_list_followed = Bangumi.get_all_bangumi(status=STATUS_FOLLOWED)
-                from pprint import pprint
-                pprint(dict(weekly_list_followed))
                 weekly_list_updated = Bangumi.get_all_bangumi(status=STATUS_UPDATED)
                 weekly_list = defaultdict(list)
                 for k, v in chain(weekly_list_followed.items(), weekly_list_updated.items()):
