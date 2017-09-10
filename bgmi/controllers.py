@@ -231,8 +231,13 @@ def mark(ret):
     followed_obj = Followed(bangumi_name=name)
     followed_obj.select_obj()
 
+    runner = ScriptRunner()
+
     if not followed_obj:
-        print_error('Subscribe <%s> does not exist.' % name)
+        followed_obj = runner.get_model(name)
+
+    if not followed_obj:
+        print_error('Subscribe or Script <%s> does not exist.' % name)
 
     if episode is not None:
         followed_obj.episode = episode

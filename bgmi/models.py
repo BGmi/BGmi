@@ -537,3 +537,6 @@ class Script(DB):
     table = 'scripts'
     primary_key = ('bangumi_name', )
     fields = ('bangumi_name', 'episode', 'status', )
+
+    def __str__(self):
+        return 'Script Model <%s>' % self.bangumi_name

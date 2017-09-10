@@ -45,7 +45,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         if self.patch_list is None:
             runner = ScriptRunner()
-            self.patch_list = runner.get_models()
+            self.patch_list = runner.get_models_dict()
 
         super(BaseHandler, self).__init__(*args, **kwargs)
 

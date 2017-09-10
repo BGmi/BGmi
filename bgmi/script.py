@@ -83,7 +83,12 @@ class ScriptRunner(object):
 
         return cls._defined
 
-    def get_models(self):
+    def get_model(self, name):
+        for script in self.scripts:
+            if script.Model.bangumi_name == name:
+                return script.Model().obj
+
+    def get_models_dict(self):
         return [dict(script.Model()) for script in self.scripts if script.bangumi_name is not None]
 
     @staticmethod

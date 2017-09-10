@@ -169,7 +169,7 @@ class BaseWebsite(object):
             weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
 
         runner = ScriptRunner()
-        patch_list = runner.get_models()
+        patch_list = runner.get_models_dict()
 
         for i in patch_list:
             weekly_list[i['updated_time'].lower()].append(i)
