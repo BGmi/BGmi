@@ -200,9 +200,13 @@ class BaseWebsite(object):
         if init or force_update:
             # download cover to local
             print_info('updating cover')
-            for daily_bangumi in tqdm.tqdm(result.values()):
+            bangumi_to_be_download_cover = []
+            for daily_bangumi in result.values():
                 for bangumi in daily_bangumi:
+                    bangumi_to_be_download_cover.append(bangumi.copy())
+            for bangumi in tqdm.tqdm(bangumi_to_be_download_cover):
                     self.download_cover(bangumi['cover'])
+
                     pass
         return r
 
@@ -215,7 +219,10 @@ class BaseWebsite(object):
         if glob.glob(file_path):
             pass
         else:
-            r = requests.get('{}/{}'.format(self.cover_url, cover_url))
+            url = '{}/{}'.format(self.cover_url, cover_url)
+            if os.environ.get('DEV', False):
+                url = url.replace('https://', 'http://localhost:8092/https/')
+            r = requests.get(url)
             with open(file_path, 'wb+') as f:
                 f.write(r.content)
 
