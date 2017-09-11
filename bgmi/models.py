@@ -1,11 +1,14 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
+
 import os
-import sys
 import sqlite3
+import sys
 from collections import defaultdict
+
 import bgmi.config
 from bgmi.config import IS_PYTHON3
+from bgmi.sql import (CLEAR_TABLE_)
 
 if IS_PYTHON3:
     _unicode = str
@@ -76,6 +79,19 @@ class DB(object):
 
     def __getitem__(self, item):
         return getattr(self, item)
+
+    @staticmethod
+    def recreate_source_relatively_table():
+        db = DB.connect_db()
+        table_to_drop = ['bangumi', 'followed', 'subtitle', 'filter', 'download']
+        for table in table_to_drop:
+            sql = CLEAR_TABLE_.format(table)
+            db.execute(sql)
+
+        cur = db.cursor()
+        cur.close()
+        DB.close_db(db)
+        return True
 
     @staticmethod
     def _make_sql(method, table, fields=None, data=None, condition=None, operation='AND',

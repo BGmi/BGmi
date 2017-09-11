@@ -1,16 +1,18 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
+
 import time
 
-from bgmi.constants import *
+from bgmi.config import SUPPORT_WEBSITE
 from bgmi.config import write_config
-from bgmi.fetch import website
-from bgmi.models import Bangumi, Followed, Download, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, \
-    STATUS_NORMAL, STATUS_NOT_DOWNLOAD
-from bgmi.utils import print_warning, print_info, print_success, print_error
+from bgmi.constants import *
 from bgmi.download import download_prepare
 from bgmi.download import get_download_class
+from bgmi.fetch import website
+from bgmi.models import (Bangumi, Followed, Download, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED,
+                         STATUS_NORMAL, STATUS_NOT_DOWNLOAD, DB)
 from bgmi.script import ScriptRunner
+from bgmi.utils import print_warning, print_info, print_success, print_error
 
 
 def add(ret):
@@ -300,6 +302,25 @@ def search_(ret):
         download_prepare(data)
 
 
+def source(ret):
+    if ret.source in list(map(lambda x: x['id'], SUPPORT_WEBSITE)):
+        print_success('you select {}'.format(ret.source))
+        DB.recreate_source_relatively_table()
+        write_config('DATA_SOURCE', ret.source)
+        print_success('data source switch succeeds')
+        from bgmi.fetch import DATA_SOURCE_MAP
+
+        DATA_SOURCE_MAP.get(ret.source)().bangumi_calendar(force_update=True)
+    else:
+        print_error(
+            'please check input.nata source should be {} or {}'.format(*list(map(lambda x: x['id'], SUPPORT_WEBSITE))))
+
+
+def search_without_filter(keyword):
+    data = website.raw_search(keyword, count=3)
+    return data
+
+
 def config(ret):
     write_config(ret.name, ret.value)
 
@@ -317,6 +338,7 @@ CONTROLLERS_DICT = {
     ACTION_MARK: mark,
     ACTION_LIST: list_,
     ACTION_SEARCH: search_,
+    ACTION_SOURCE: source,
 }
 
 
