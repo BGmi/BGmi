@@ -1,22 +1,23 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
-import os
-import sys
-import locale
+
+import argparse
 import codecs
+import locale
+import os
+import platform
 import signal
 import sqlite3
-import platform
-import argparse
+import sys
 
 import bgmi.config
-from bgmi.config import BGMI_PATH, DB_PATH, SCRIPT_DB_PATH, SUPPORT_WEBSITE
-from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER, \
-                      CREATE_TABLE_SUBTITLE, CREATE_TABLE_SCRIPT
-from bgmi.utils import print_warning, print_error, print_version, check_update
-from bgmi.controllers import controllers
-from bgmi.update import update_database
+from bgmi.config import BGMI_PATH, DB_PATH, SCRIPT_DB_PATH
 from bgmi.constants import *
+from bgmi.controllers import controllers
+from bgmi.sql import (CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER,
+                      CREATE_TABLE_SUBTITLE, CREATE_TABLE_SCRIPT)
+from bgmi.update import update_database
+from bgmi.utils import print_warning, print_error, print_version, check_update
 
 # Wrap sys.stdout into a StreamWriter to allow writing unicode.
 if bgmi.config.IS_PYTHON3:
@@ -123,6 +124,10 @@ def main():
     sub_parser_search.add_argument('--download', action='store_true',
                                    help='Download search result.')
 
+    sub_parser_search = sub_parser.add_parser(ACTION_SOURCE, help='select date source bangumi_moe or mikan_project')
+    sub_parser_search.add_argument('source', help='bangumi_moe or mikan_project', type=unicode_)
+
+
     sub_parser.add_parser('install', help='Install BGmi download delegate.')
     sub_parser.add_parser('upgrade', help='Check update.')
 
@@ -179,3 +184,4 @@ def setup():
 
 if __name__ == '__main__':
     setup()
+

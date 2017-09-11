@@ -52,3 +52,5 @@ CREATE_TABLE_SCRIPT = '''CREATE TABLE IF NOT EXISTS scripts (
           episode INTEGER DEFAULT 0,
           status INTEGER DEFAULT 1
         )'''
+
+CLEAR_TABLE_ = 'DELETE  FROM {}'

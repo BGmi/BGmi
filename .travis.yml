@@ -36,24 +36,20 @@ script:
     - bgmi fetch $BANGUMI_2
     - bgmi search "为美好的世界献上祝福！" --regex-filter '.*动漫国字幕组.*为美好的世界献上祝福！].*720P.*'
     - echo 'test mikan'
-    - export BANGUMI_1=捏造陷阱
-    - export BANGUMI_2=咲良田重置
-    - export BANGUMI_3=人马小姐不迷茫
-    - rm ~/.bgmi -r
-    - bgmi -h
-    - bgmi config DATA_SOURCE mikan_project
+    - export BANGUMI_5=名侦探柯南
+    - export BANGUMI_6=海贼王
+    - bgmi source mikan_project
     - bgmi cal
-    - bgmi config DOWNLOAD_DELEGATE 'rr!'
-    - bgmi add $BANGUMI_1 $BANGUMI_2 $BANGUMI_3
+    - bgmi config
+    - bgmi add $BANGUMI_5 $BANGUMI_6
     - bgmi update
-    - bgmi delete --name $BANGUMI_3
+    - bgmi delete --name $BANGUMI_6
     - bgmi delete --clear-all --batch
-    - bgmi add $BANGUMI_2 --episode 1
+    - bgmi add $BANGUMI_5 --episode 1
     - bgmi list
-    - bgmi config ARIA2_RPC_TOKEN 'token:233'
     - bgmi download --list
-    - bgmi mark $BANGUMI_2 1
-    - bgmi update $BANGUMI_2
-    - bgmi filter $BANGUMI_2 --subtitle "" --exclude "MKV" --regex "720p|720P"
-    - bgmi fetch $BANGUMI_2
-    - bgmi search "末日时在做什么" --regex-filter '.*极影.*'
+    - bgmi mark $BANGUMI_5 1
+    - bgmi update $BANGUMI_5
+    - bgmi filter $BANGUMI_5 --subtitle "猪猪字幕组" --exclude "MKV" --regex "720p|720P"
+    - bgmi fetch $BANGUMI_5
+    - bgmi search "妖怪手表" --regex-filter '.*Dymy字幕组.*'

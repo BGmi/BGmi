@@ -84,6 +84,29 @@ Or just:
 Usage of bgmi
 =============
 
+Supported data source:
+
+**change data source will lose all bangumi you have followed!!**
+
+bangumi you have downloaded will still store on the disk, but won't show in website
+
++ `bangumi_moe(default) <https://bangumi.moe>`_
++ `mikan_project <https://mikanani.me>`_
+
+change to mikan by doing this
+
+.. code-block:: bash
+
+    bgmi source mikan_project
+    bgmi cal
+
+or change back:
+
+.. code-block:: bash
+
+    bgmi source bangumi_moe
+    bgmi cal
+
 Show bangumi calendar:
 
 .. code-block:: bash
@@ -178,10 +201,6 @@ BGmi configure:
 + :code:`BGMI_TMP_PATH`: just a temporary path
 + :code:`DANMAKU_API_URL`: url of danmaku api
 + :code:`LANG`: language
-
-Additional config
-
-+ :code:`DATA_SOURCE`: data source now support :code:`bangumi_moe`(default) and :code:`mikan_project`
 
 Aria2-rpc configure:
 
