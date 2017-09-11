@@ -239,7 +239,8 @@ Bangumi Script is located at :code:`BGMI_PATH/script`, inherited :code:`ScriptBa
     import requests
     import urllib
 
-    from bgmi.script import ScriptBase, parse_episode
+    from bgmi.utils import parse_episode
+    from bgmi.script import ScriptBase
     from bgmi.utils import print_error
     from bgmi.config import IS_PYTHON3
 
@@ -300,7 +301,8 @@ Another example:
     import requests
     from bs4 import BeautifulSoup as bs
 
-    from bgmi.script import ScriptBase, parse_episode
+    from bgmi.utils import parse_episode
+    from bgmi.script import ScriptBase
     from bgmi.utils import print_error
     from bgmi.config import IS_PYTHON3
 
