@@ -50,7 +50,8 @@ CREATE_TABLE_SCRIPT = '''CREATE TABLE IF NOT EXISTS scripts (
           id INTEGER PRIMARY KEY  AUTOINCREMENT,
           bangumi_name TEXT UNIQUE NOT NULL,
           episode INTEGER DEFAULT 0,
-          status INTEGER DEFAULT 1
+          status INTEGER DEFAULT 1,
+          updated_time INTEGER DEFAULT 0
         )'''
 
 CLEAR_TABLE_ = 'DELETE  FROM {}'
