@@ -23,7 +23,7 @@ else:
 
 
 class BaseWebsite(object):
-    parse_episode = parse_episode
+    parse_episode = staticmethod(parse_episode)
     def search(self, keyword='', count=1, filter_=None):
         if not filter_:
             filter_ = '(.*)'
