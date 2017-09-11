@@ -20,6 +20,7 @@ script:
     - export BANGUMI_3=异世界食堂
     - python -m unittest discover
     - bgmi -h
+    - curl https://static.ricterz.me/test_script.py > $HOME/.bgmi/scripts/test_script.py
     - bgmi cal
     - bgmi config DOWNLOAD_DELEGATE 'rr!'
     - bgmi add $BANGUMI_1 $BANGUMI_2 $BANGUMI_3
