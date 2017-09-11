@@ -24,7 +24,6 @@ SEARCH_URL = '{0}{1}api/v2/torrent/search'.format(BANGUMI_MOE_URL, __split)
 
 
 def get_response(url, method='GET', **kwargs):
-    kwargs['proxies'] = {'http': "http://localhost:1080"}
     if os.environ.get('DEBUG'):
         print_info('Request URL: {0}'.format(url))
     try:
