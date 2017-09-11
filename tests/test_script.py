@@ -1,5 +1,6 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
+import json
 import requests
 from bgmi.script import ScriptBase
 
@@ -14,7 +15,12 @@ class Script(ScriptBase):
     def get_download_url(self):
         # fetch and return dict
         resp = requests.get('https://static.ricterz.me/bgmi_test.json').json()
-        return resp
+
+        ret = {}
+        for k, v in resp.items():
+            ret[int(k)] = v
+
+        return ret
 
 if __name__ == '__main__':
     s = Script()
