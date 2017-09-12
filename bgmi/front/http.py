@@ -19,8 +19,8 @@ from bgmi import __version__
 from bgmi.config import BGMI_SAVE_PATH, DB_PATH, DANMAKU_API_URL
 from bgmi.front.api import ApiHandle
 from bgmi.models import Download, Bangumi, Followed, STATUS_NORMAL, STATUS_UPDATING, STATUS_END
-from bgmi.fetch import website
 from bgmi.script import ScriptRunner
+from bgmi.utils import normalize_path
 
 COVER_URL = '/bangumi/cover'  # website.cover_url
 
@@ -109,15 +109,17 @@ class BangumiPlayerHandler(BaseHandler):
             self.finish()
         else:
             self.render('templates/dplayer.html', bangumi=episode_list, bangumi_name=bangumi_name,
-                        bangumi_cover='{}{}'.format(COVER_URL, bangumi_obj['cover']), DANMAKU_URL=DANMAKU_API_URL)
+                        bangumi_cover='{}/{}'.format(COVER_URL, normalize_path(bangumi_obj['cover'])),
+                        DANMAKU_URL=DANMAKU_API_URL)
 
 
 class ImageCSSHandler(BaseHandler):
     def get(self):
         data = Followed.get_all_followed(status=None, bangumi_status=None)
-        for _ in data:
-            _['cover'] = '{}/{}'.format(COVER_URL, _['cover'])
         data.extend(self.patch_list)
+        for _ in data:
+            _['cover'] = '{}/{}'.format(COVER_URL, normalize_path(_['cover']))
+            print(_['cover'])
 
         self.set_header('Content-Type', 'text/css; charset=utf-8')
         self.render('templates/image.css', data=data)

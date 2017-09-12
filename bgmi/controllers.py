@@ -138,7 +138,7 @@ def delete(ret):
             if followed.select():
                 followed.delete()
                 print_warning('Bangumi {} has been deleted'.format(name))
-                result[ret.name] = {'status': 'warning', 'message': 'Bangumi {} has been deleted'.format(name)}
+                result[name] = {'status': 'warning', 'message': 'Bangumi {} has been deleted'.format(name)}
             else:
                 print_error('Bangumi %s does not exist' % name, exit_=False)
     else:

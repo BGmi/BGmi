@@ -8,22 +8,27 @@ BGmi is a cli tool for subscribed bangumi.
 ====
 TODO
 ====
-Empty as my wallet.
++ web page to admin bgmi
 
 ==========
 Update Log
 ==========
++ web api support
++ store bangumi cover image locally
++ bangumi script support
++ action source to select bangumi date source
 + Search / Download bangumi filter by regex
 + Download specified episode
 + Transmission-rpc support
 + Remove aria2 download method
-+ Followed Bangumis Calendar for iOS / Android
++ Followed Bangumi's Calendar for iOS / Android
 + Bugs fixed
 
 =======
 Feature
 =======
 + Bangumi Script: Write your bangumi parser own!
++ Bangumi data source: `bangumi_moe(default) <https://bangumi.moe>`_ or `mikan_project <https://mikanani.me>`_
 + Subscribe/unsubscribe bangumi
 + Bangumi calendar
 + Bangumi episode information

@@ -1,13 +1,16 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
+
+import functools
 import os
+import platform
 import re
+import struct
 import sys
 import time
-import platform
-import struct
-import functools
+
 import requests
+
 from bgmi import __version__
 from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, SUPPORT_WEBSITE
 
@@ -246,3 +249,19 @@ def parse_episode(episode_title):
                 if match and match[0].isdigit():
                     return int(match[0])
     return 0
+
+
+def normalize_path(path):
+    """
+    normalize link to path
+
+    :param path: path or url to normalize
+    :type path: str
+    :return: normalized path
+    :rtype: str
+    """
+    path = path.replace('http://', 'http/').replace('https://', 'https/')
+    if path.startswith('/'):
+        return path[1:]
+    else:
+        return path

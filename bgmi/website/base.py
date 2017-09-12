@@ -14,11 +14,11 @@ import requests
 import tqdm
 
 import bgmi.config
-from bgmi.config import MAX_PAGE
+from bgmi.config import MAX_PAGE, BGMI_SAVE_PATH
 from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED
 from bgmi.script import ScriptRunner
 from bgmi.utils import (parse_episode, print_warning, print_info,
-                        test_connection, get_terminal_col, GREEN, YELLOW, COLOR_END)
+                        test_connection, get_terminal_col, GREEN, YELLOW, COLOR_END, print_error, normalize_path)
 
 if bgmi.config.IS_PYTHON3:
     _unicode = str
@@ -27,6 +27,7 @@ else:
 
 
 class BaseWebsite(object):
+    cover_url = ''
     parse_episode = staticmethod(parse_episode)
     def search(self, keyword='', count=1, filter_=None):
         if not filter_:
@@ -200,36 +201,58 @@ class BaseWebsite(object):
 
                 r[day][index]['subtitle_group'] = subtitle_group
 
-        if init or force_update:
-            # download cover to local
-            print_info('updating cover')
-            bangumi_to_be_download_cover = []
-            for daily_bangumi in result.values():
-                for bangumi in daily_bangumi:
-                    bangumi_to_be_download_cover.append(bangumi.copy())
-            if os.environ.get('TRAVIS_CI'):
-                bangumi_to_be_download_cover = bangumi_to_be_download_cover[0:2]
-            for bangumi in tqdm.tqdm(bangumi_to_be_download_cover):
-                    self.download_cover(bangumi['cover'])
+        # download cover to local
+        cover_to_be_download = []
+        for daily_bangumi in result.values():
+            for bangumi in daily_bangumi:
+                _, file_path, _ = self.convert_cover_to_path(bangumi['cover'])
+                if not glob.glob(file_path):
+                    cover_to_be_download.append(bangumi['cover'])
 
-                    pass
+        if os.environ.get('TRAVIS_CI'):
+            cover_to_be_download = []
+
+        if cover_to_be_download:
+            print_info('updating cover')
+            for cover in tqdm.tqdm(cover_to_be_download):
+                self.download_cover(cover)
         return r
 
-    def download_cover(self, cover_url):
-        file_path = os.path.join(bgmi.config.BGMI_PATH, 'bangumi/cover')
-        file_path = os.path.join(file_path, cover_url[1:])
-        dir_name = os.path.dirname(file_path)
-        if not glob.glob(dir_name):
-            os.makedirs(dir_name)
-        if glob.glob(file_path):
-            pass
+    def convert_cover_to_path(self, cover_url):
+        """
+        convert bangumi cover to file path
+
+        :param cover_url: bangumi cover path
+        :type cover_url:str
+        :rtype: str,str,str
+        :return:file_path, dir_path, url
+        """
+        if cover_url.startswith('https://') or cover_url.startswith('http://'):
+            url = cover_url
         else:
             url = '{}/{}'.format(self.cover_url, cover_url)
-            if os.environ.get('DEV', False):
-                url = url.replace('https://', 'http://localhost:8092/https/')
-            r = requests.get(url)
-            with open(file_path, 'wb+') as f:
-                f.write(r.content)
+        cover_url = normalize_path(cover_url)
+        file_path = os.path.join(BGMI_SAVE_PATH, 'cover')
+        file_path = os.path.join(file_path, cover_url)
+        dir_path = os.path.dirname(file_path)
+        return dir_path, file_path, url
+
+    def download_cover(self, cover_url):
+        """
+        :type cover_url:str
+        :param cover_url:
+        :return: None
+        """
+        dir_path, file_path, url = self.convert_cover_to_path(cover_url)
+
+        if not glob.glob(dir_path):
+            os.makedirs(dir_path)
+        if os.environ.get('DEV', False):
+            url = url.replace('https://', 'http://localhost:8092/https/')
+            url = url.replace('http://', 'http://localhost:8092/http/')
+        r = requests.get(url)
+        with open(file_path, 'wb+') as f:
+            f.write(r.content)
 
     def get_maximum_episode(self, bangumi, subtitle=True, ignore_old_row=True, max_page=MAX_PAGE):
         followed_filter_obj = Filter(bangumi_name=bangumi.name)
@@ -250,8 +273,6 @@ class BaseWebsite(object):
 
         if data:
             bangumi = max(data, key=lambda _i: _i['episode'])
-            # pprint(bangumi)
-            # pprint(data)
             return bangumi, data
         else:
             return {'episode': 0}, []
