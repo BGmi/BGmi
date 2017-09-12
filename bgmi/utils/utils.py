@@ -251,17 +251,20 @@ def parse_episode(episode_title):
     return 0
 
 
-def normalize_path(path):
+def normalize_path(url):
     """
     normalize link to path
 
-    :param path: path or url to normalize
-    :type path: str
+    :param url: path or url to normalize
+    :type url: str
     :return: normalized path
     :rtype: str
     """
-    path = path.replace('http://', 'http/').replace('https://', 'https/')
-    if path.startswith('/'):
-        return path[1:]
+    url = url.replace('http://', 'http/').replace('https://', 'https/')
+    illegal_char = [':', '*', '?', '"', '<', '>', '|', "'", '.']
+    for char in illegal_char:
+        url = url.replace(char, '')
+    if url.startswith('/'):
+        return url[1:]
     else:
-        return path
+        return url

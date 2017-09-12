@@ -9,11 +9,12 @@ BGmi is a cli tool for subscribed bangumi.
 TODO
 ====
 + web page to admin bgmi
++ http api: search
 
 ==========
 Update Log
 ==========
-+ web api support
++ http api
 + store bangumi cover image locally
 + bangumi script support
 + action source to select bangumi date source
