@@ -29,6 +29,17 @@ def get_download_class(download_obj=None, save_path='', overwrite=True, instance
 
 
 def download_prepare(data):
+    """
+    list[dict]
+    dict:{
+    name;str, keyword you use when search
+    title:str, title of episode
+    episode:int, episode of bangumi
+    download:str, link to download
+    }
+    :param data:
+    :return:
+    """
     queue = save_to_bangumi_download_queue(data)
     for download in queue:
         save_path = os.path.join(os.path.join(BGMI_SAVE_PATH, download.name), str(download.episode))
@@ -50,6 +61,17 @@ def download_prepare(data):
 
 
 def save_to_bangumi_download_queue(data):
+    """
+    list[dict]
+    dict:{
+    name;str, keyword you use when search
+    title:str, title of episode
+    episode:int, episode of bangumi
+    download:str, link to download
+    }
+    :param data:
+    :return:
+    """
     queue = []
     for i in data:
         download = Download(status=STATUS_NOT_DOWNLOAD, name=i['name'], title=i['title'],

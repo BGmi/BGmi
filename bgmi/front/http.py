@@ -1,25 +1,28 @@
 # encoding: utf-8
 from __future__ import print_function, unicode_literals
-import os
-import json
+
 import datetime
 import hashlib
+import json
+import os
+from collections import OrderedDict, defaultdict
+
+import tornado.httpserver
 import tornado.ioloop
 import tornado.options
-import tornado.httpserver
-import tornado.web
 import tornado.template
+import tornado.web
+from icalendar import Calendar, Event
 from tornado.options import options, define
-from icalendar import Calendar, Event, vText
 
-from collections import OrderedDict, defaultdict
 from bgmi import __version__
 from bgmi.config import BGMI_SAVE_PATH, DB_PATH, DANMAKU_API_URL
+from bgmi.front.api import ApiHandle
 from bgmi.models import Download, Bangumi, Followed, STATUS_NORMAL, STATUS_UPDATING, STATUS_END
 from bgmi.fetch import website
 from bgmi.script import ScriptRunner
 
-COVER_URL = website.cover_url
+COVER_URL = '/bangumi/cover'  # website.cover_url
 
 WEEK = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 define('port', default=8888, help='listen on the port', type=int)
@@ -106,7 +109,7 @@ class BangumiPlayerHandler(BaseHandler):
             self.finish()
         else:
             self.render('templates/dplayer.html', bangumi=episode_list, bangumi_name=bangumi_name,
-                        bangumi_cover='{}/{}'.format(COVER_URL, bangumi_obj['cover']), DANMAKU_URL=DANMAKU_API_URL)
+                        bangumi_cover='{}{}'.format(COVER_URL, bangumi_obj['cover']), DANMAKU_URL=DANMAKU_API_URL)
 
 
 class ImageCSSHandler(BaseHandler):
@@ -215,6 +218,15 @@ class MainHandler(BaseHandler):
                         followed=list(followed), version=__version__)
 
 
+class CoverHandle(tornado.web.RequestHandler):
+    def get(self, url, *args, **kwargs):
+        pass
+
+
+class AdminHandle(tornado.web.RequestHandler):
+    pass
+
+
 def make_app():
     settings = {
         'static_path': os.path.join(os.path.dirname(__file__), 'static'),
@@ -228,6 +240,8 @@ def make_app():
         (r'^/bangumi/(.*)', BangumiHandler),
         (r'^/rss$', RssHandler),
         (r'^/calendar.ics$', CalendarHandler),
+        (r'^/api/?(?P<action>.*)', ApiHandle),
+        (r'/admin/', AdminHandle)
     ], **settings)
 
 

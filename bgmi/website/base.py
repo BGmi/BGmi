@@ -2,6 +2,7 @@
 from __future__ import print_function, unicode_literals
 
 import datetime
+import glob
 import os
 import re
 import string
@@ -31,8 +32,7 @@ class BaseWebsite(object):
         if not filter_:
             filter_ = '(.*)'
         match_title = re.compile(filter_)
-
-        result = self.search_by_keyword(keyword, count)
+        result = self.raw_search(keyword, count)
         # filter
         filtered_result = []
         for episode in result:
@@ -52,6 +52,9 @@ class BaseWebsite(object):
             for i in ret:
                 print(i['title'], i['download'])
         return ret
+
+    def raw_search(self, keyword='', count=1, ):
+        return self.search_by_keyword(keyword, count)
 
     @staticmethod
     def save_data(data):
@@ -125,10 +128,13 @@ class BaseWebsite(object):
             split = '-' * num + '   '
             print(split * row)
 
+        result = []
         if today:
             weekday_order = (Bangumi.week[datetime.datetime.today().weekday()],)
+            result = shift(Bangumi.week, datetime.datetime.today().weekday())
         else:
             weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
+            result = weekly_list.copy()
 
         runner = ScriptRunner()
         patch_list = runner.get_models_dict()
