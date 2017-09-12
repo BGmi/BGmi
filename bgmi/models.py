@@ -529,7 +529,6 @@ class Subtitle(DB):
         cur = db.cursor()
         sql = DB._make_sql('select', fields='name', table=Subtitle.table,
                            condition=['id'] * len(l), operation='OR')
-        print(sql)
         cur.execute(sql, l)
         data = cur.fetchall()
         DB.close_db(db)
@@ -543,7 +542,6 @@ class Subtitle(DB):
         cur = db.cursor()
         sql = DB._make_sql('select', fields='id', table=Subtitle.table,
                            condition=['name'] * len(l), operation='OR')
-        print(sql)
         cur.execute(sql, l)
         data = cur.fetchall()
         DB.close_db(db)

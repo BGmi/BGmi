@@ -91,8 +91,8 @@ def print_warning(message, indicator=True):
 @colorize
 def print_error(message, exit_=True, indicator=True):
     print(message)
-    # if exit_:
-        # exit(1)
+    if exit_:
+        exit(1)
 
 
 def print_version():

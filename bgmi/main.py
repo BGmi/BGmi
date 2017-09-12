@@ -127,7 +127,6 @@ def main():
     sub_parser_search = sub_parser.add_parser(ACTION_SOURCE, help='select date source bangumi_moe or mikan_project')
     sub_parser_search.add_argument('source', help='bangumi_moe or mikan_project', type=unicode_)
 
-
     sub_parser.add_parser('install', help='Install BGmi download delegate.')
     sub_parser.add_parser('upgrade', help='Check update.')
 
@@ -184,4 +183,3 @@ def setup():
 
 if __name__ == '__main__':
     setup()
-

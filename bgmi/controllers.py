@@ -34,7 +34,6 @@ def add(ret):
             if not followed_obj or followed_obj.status == STATUS_NORMAL:
                 if not followed_obj:
                     bangumi_data, _ = website.get_maximum_episode(bangumi_obj, subtitle=False, max_page=1)
-                    print(ret.episode)
                     followed_obj.episode = bangumi_data['episode'] if ret.episode is None else getattr(ret,
                                                                                                        'episode', None)
                     followed_obj.save()
