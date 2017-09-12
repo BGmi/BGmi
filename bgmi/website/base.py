@@ -128,13 +128,10 @@ class BaseWebsite(object):
             split = '-' * num + '   '
             print(split * row)
 
-        result = []
         if today:
             weekday_order = (Bangumi.week[datetime.datetime.today().weekday()],)
-            result = shift(Bangumi.week, datetime.datetime.today().weekday())
         else:
             weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
-            result = weekly_list.copy()
 
         runner = ScriptRunner()
         patch_list = runner.get_models_dict()
@@ -210,6 +207,8 @@ class BaseWebsite(object):
             for daily_bangumi in result.values():
                 for bangumi in daily_bangumi:
                     bangumi_to_be_download_cover.append(bangumi.copy())
+            if os.environ.get('TRAVIS_CI'):
+                bangumi_to_be_download_cover = bangumi_to_be_download_cover[0:2]
             for bangumi in tqdm.tqdm(bangumi_to_be_download_cover):
                     self.download_cover(bangumi['cover'])
 
