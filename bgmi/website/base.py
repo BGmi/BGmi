@@ -9,6 +9,9 @@ import time
 from collections import defaultdict
 from itertools import chain
 
+import requests
+import tqdm
+
 import bgmi.config
 from bgmi.config import MAX_PAGE
 from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED
@@ -104,9 +107,10 @@ class BaseWebsite(object):
                     weekly_list[k].extend(v)
             else:
                 weekly_list = Bangumi.get_all_bangumi()
-
+        init = False
         if not weekly_list:
             if not followed:
+                init = True
                 print_warning('warning: no bangumi schedule, fetching ...')
                 weekly_list = self.fetch(save=save)
             else:
@@ -128,7 +132,7 @@ class BaseWebsite(object):
 
         runner = ScriptRunner()
         patch_list = runner.get_models_dict()
-
+        result = weekly_list.copy()
         for i in patch_list:
             weekly_list[i['update_time'].lower()].append(i)
 
@@ -178,7 +182,42 @@ class BaseWebsite(object):
 
                 if not followed:
                     print()
-                    # print_line()
+        # for web api
+        r = result.copy()
+        for day, value in result.items():
+            for index, bangumi in enumerate(value):
+                if isinstance(bangumi['subtitle_group'], list):
+                    subtitle_group = list(map(lambda x: {'name': x['name'], 'id': x['id']},
+                                              Subtitle.get_subtitle_by_id(
+                                                  bangumi['subtitle_group'])))
+                else:
+                    subtitle_group = list(map(lambda x: {'name': x['name'], 'id': x['id']},
+                                              Subtitle.get_subtitle_by_id(
+                                                  bangumi['subtitle_group'].split(', ' ''))))
+
+                r[day][index]['subtitle_group'] = subtitle_group
+
+        if init or force_update:
+            # download cover to local
+            print_info('updating cover')
+            for daily_bangumi in tqdm.tqdm(result.values()):
+                for bangumi in daily_bangumi:
+                    self.download_cover(bangumi['cover'])
+                    pass
+        return r
+
+    def download_cover(self, cover_url):
+        file_path = os.path.join(bgmi.config.BGMI_PATH, 'bangumi/cover')
+        file_path = os.path.join(file_path, cover_url[1:])
+        dir_name = os.path.dirname(file_path)
+        if not glob.glob(dir_name):
+            os.makedirs(dir_name)
+        if glob.glob(file_path):
+            pass
+        else:
+            r = requests.get('{}/{}'.format(self.cover_url, cover_url))
+            with open(file_path, 'wb+') as f:
+                f.write(r.content)
 
     def get_maximum_episode(self, bangumi, subtitle=True, ignore_old_row=True, max_page=MAX_PAGE):
         followed_filter_obj = Filter(bangumi_name=bangumi.name)
@@ -262,3 +301,19 @@ class BaseWebsite(object):
 
     def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
         return []
+
+
+def get_response(url, method='GET', **kwargs):
+    # kwargs['proxies'] = {'http': "http://localhost:1080"}
+    if os.environ.get('DEV'):
+        url = url.replace('https://', 'http://localhost:8092/https/')
+    if os.environ.get('DEBUG'):
+        print_info('Request URL: {0}'.format(url))
+    try:
+        if os.environ.get('DEBUG'):
+            print(getattr(requests, method.lower())(url, **kwargs).text)
+        return getattr(requests, method.lower(), )(url, **kwargs).json()
+    except requests.ConnectionError:
+        print_error('error: failed to establish a new connection')
+    except ValueError:
+        print_error('error: server returned data maybe not be json, please contact ricterzheng@gmail.com')

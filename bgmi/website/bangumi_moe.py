@@ -4,6 +4,7 @@ from __future__ import print_function, unicode_literals
 import datetime
 import os
 import time
+
 import requests
 
 from bgmi.config import (LANG, MAX_PAGE, COVER_URL, BANGUMI_MOE_URL)
