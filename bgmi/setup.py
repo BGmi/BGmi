@@ -39,6 +39,8 @@ def install_web_admin():
     for file in os.listdir(os.path.join(BGMI_ADMIN_PATH, 'dist')):
         move(os.path.join(BGMI_ADMIN_PATH, 'dist', file), os.path.join(BGMI_ADMIN_PATH, file))
     os.removedirs(os.path.join(BGMI_ADMIN_PATH, 'dist'))
+    print_success('web admin page installed successfully')
+
 
 def install_crontab():
     print_info('Installing crontab job')

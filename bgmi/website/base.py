@@ -19,7 +19,7 @@ from bgmi.config import MAX_PAGE, BGMI_SAVE_PATH
 from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, Followed
 from bgmi.script import ScriptRunner
 from bgmi.utils import (parse_episode, print_warning, print_info,
-                        test_connection, get_terminal_col, GREEN, YELLOW, COLOR_END, print_error, normalize_path)
+                        test_connection, get_terminal_col, GREEN, YELLOW, COLOR_END, normalize_path)
 
 if bgmi.config.IS_PYTHON3:
     _unicode = str
@@ -338,19 +338,3 @@ class BaseWebsite(object):
 
     def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
         return []
-
-
-def get_response(url, method='GET', **kwargs):
-    # kwargs['proxies'] = {'http': "http://localhost:1080"}
-    if os.environ.get('DEV'):
-        url = url.replace('https://', 'http://localhost:8092/https/')
-    if os.environ.get('DEBUG'):
-        print_info('Request URL: {0}'.format(url))
-    try:
-        if os.environ.get('DEBUG'):
-            print(getattr(requests, method.lower())(url, **kwargs).text)
-        return getattr(requests, method.lower(), )(url, **kwargs).json()
-    except requests.ConnectionError:
-        print_error('error: failed to establish a new connection')
-    except ValueError:
-        print_error('error: server returned data maybe not be json, please contact ricterzheng@gmail.com')

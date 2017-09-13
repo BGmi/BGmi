@@ -8,7 +8,7 @@ import bs4
 import requests
 from bs4 import BeautifulSoup
 
-from bgmi.config import LANG, MAX_PAGE
+from bgmi.config import MAX_PAGE
 from bgmi.website.base import BaseWebsite
 
 # from bgmi.utils import (print_warning, print_info, print_error)
@@ -21,12 +21,17 @@ else:
     server_root = 'https://mikanani.me/'
 
 
-
-
-
-def process_name(data):
-    lang = 'zh_cn' if LANG not in ('zh_cn', 'zh_tw', 'ja', 'en') else LANG
-    return {i['_id']: i['locale'][lang] for i in data}
+def get_weekly_bangumi():
+    r = requests.get(server_root)
+    soup = BeautifulSoup(r.text, 'lxml')
+    sunday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "0"})
+    monday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "1"})
+    tuesday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "2"})
+    wednesday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "3"})
+    thursday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "4"})
+    friday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "5"})
+    saturday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "6"})
+    return [sunday, monday, tuesday, wednesday, thursday, friday, saturday]
 
 
 def parser_day_bangumi(soup):
@@ -89,20 +94,6 @@ def parser_subtitle_of_bangumi(bangumi_id):
             'episode': [] if not episode_list else episode_list
         })
     return subtitle_list
-
-
-def get_weekly_bangumi():
-    r = requests.get(server_root)
-    soup = BeautifulSoup(r.text, 'lxml')
-    sunday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "0"})
-    monday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "1"})
-    tuesday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "2"})
-    wednesday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "3"})
-    thursday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "4"})
-    friday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "5"})
-    saturday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "6"})
-    return [sunday, monday, tuesday, wednesday, thursday, friday, saturday]
-
 
 
 class Mikanani(BaseWebsite):
