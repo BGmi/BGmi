@@ -5,6 +5,9 @@ from tornado.web import RequestHandler
 from bgmi.controllers import *
 
 
+def jsonify(obj):
+    return json.dumps(obj, ensure_ascii=False, indent=2)
+
 class dict2obj(object):
     def __init__(self, d):
         for a, b in d.items():
@@ -32,6 +35,7 @@ class ApiHandle(RequestHandler):
         # self.write({'support action': ACTIONS})
 
     def post(self, action, *args, **kwargs):
+        # time.sleep(1)
         try:
             data = json.loads(self.request.body.decode('utf-8'))
         except json.JSONEncoder:
@@ -41,21 +45,25 @@ class ApiHandle(RequestHandler):
         if action == ACTION_DELETE:
             data['action'] = action
             ret = dict2obj(data)
-            self.write(controllers(ret))
+            self.write(jsonify(controllers(ret)))
             return
         elif action == ACTION_ADD:
             data['action'] = action
             ret = dict2obj(data)
-            self.write(controllers(ret))
+            self.write(jsonify(controllers(ret)))
             return
+        # todo
         elif action == ACTION_SEARCH:
             self.finish({'status': 'success', 'data': search_without_filter(data['keyword'])})
             pass
+        # todo
         elif action == ACTION_CONFIG:
             pass
+        # todo
         elif action == 'download':
             r = download_prepare(data['data'])
             self.write(r)
+        # todo
         elif action == ACTION_FETCH:
             data['action'] = action
             ret = dict2obj(data)

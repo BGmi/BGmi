@@ -16,7 +16,7 @@ from icalendar import Calendar, Event
 from tornado.options import options, define
 
 from bgmi import __version__
-from bgmi.config import BGMI_SAVE_PATH, DB_PATH, DANMAKU_API_URL
+from bgmi.config import BGMI_SAVE_PATH, BGMI_ADMIN_PATH, DB_PATH, DANMAKU_API_URL
 from bgmi.front.api import ApiHandle
 from bgmi.models import Download, Bangumi, Followed, STATUS_NORMAL, STATUS_UPDATING, STATUS_END
 from bgmi.script import ScriptRunner
@@ -55,19 +55,48 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class BangumiHandler(BaseHandler):
     def get(self, _):
-        self.set_header('Content-Type', 'text/html')
-        self.write('<h1>BGmi HTTP Service</h1>')
-        self.write('<pre>Please modify your web server configure file\n'
-                   'to server this path to \'%s\'.\n'
-                   'e.g.\n\n'
-                   '...\n'
-                   'autoindex on;\n'
-                   'location /bangumi {\n'
-                   '    alias %s;\n'
-                   '}\n'
-                   '...\n</pre>' % (BGMI_SAVE_PATH, BGMI_SAVE_PATH)
-                   )
-        self.finish()
+        if os.environ.get('DEV', False):
+            with open(os.path.join(BGMI_SAVE_PATH, _), 'rb') as f:
+                self.write(f.read())
+                self.finish()
+        else:
+            self.set_header('Content-Type', 'text/html')
+            self.write('<h1>BGmi HTTP Service</h1>')
+            self.write('<pre>Please modify your web server configure file\n'
+                       'to server this path to \'%s\'.\n'
+                       'e.g.\n\n'
+                       '...\n'
+                       'autoindex on;\n'
+                       'location /bangumi {\n'
+                       '    alias %s;\n'
+                       '}\n'
+                       '...\n</pre>' % (BGMI_SAVE_PATH, BGMI_SAVE_PATH)
+                       )
+            self.finish()
+
+
+class AdminHandle(tornado.web.RequestHandler):
+    def get(self, _):
+        if os.environ.get('DEV', False):
+            with open(os.path.join(BGMI_SAVE_PATH, _), 'rb') as f:
+                self.write(f.read())
+                self.finish()
+        else:
+            self.set_header('Content-Type', 'text/html')
+            self.write('<h1>BGmi HTTP Service</h1>')
+            self.write('<pre>Please modify your web server configure file\n'
+                       'to server this path to \'%s\'.\n'
+                       'e.g.\n\n'
+                       '...\n'
+                       'autoindex on;\n'
+                       'location /admin{\n'
+                       '    alias %s;\n'
+                       '}\n'
+                       '...\n</pre>' % (BGMI_ADMIN_PATH, BGMI_ADMIN_PATH)
+                       )
+            self.finish()
+
+
 
 
 class BangumiPlayerHandler(BaseHandler):
@@ -220,15 +249,6 @@ class MainHandler(BaseHandler):
                         followed=list(followed), version=__version__)
 
 
-class CoverHandle(tornado.web.RequestHandler):
-    def get(self, url, *args, **kwargs):
-        pass
-
-
-class AdminHandle(tornado.web.RequestHandler):
-    pass
-
-
 def make_app():
     settings = {
         'static_path': os.path.join(os.path.dirname(__file__), 'static'),
@@ -243,7 +263,7 @@ def make_app():
         (r'^/rss$', RssHandler),
         (r'^/calendar.ics$', CalendarHandler),
         (r'^/api/?(?P<action>.*)', ApiHandle),
-        (r'/admin/', AdminHandle)
+        (r'/admin/(.*)', AdminHandle)
     ], **settings)
 
 

@@ -8,6 +8,7 @@ import re
 import string
 import time
 from collections import defaultdict
+from copy import deepcopy
 from itertools import chain
 
 import requests
@@ -15,7 +16,7 @@ import tqdm
 
 import bgmi.config
 from bgmi.config import MAX_PAGE, BGMI_SAVE_PATH
-from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED
+from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, Followed
 from bgmi.script import ScriptRunner
 from bgmi.utils import (parse_episode, print_warning, print_info,
                         test_connection, get_terminal_col, GREEN, YELLOW, COLOR_END, print_error, normalize_path)
@@ -111,10 +112,8 @@ class BaseWebsite(object):
                     weekly_list[k].extend(v)
             else:
                 weekly_list = Bangumi.get_all_bangumi()
-        init = False
         if not weekly_list:
             if not followed:
-                init = True
                 print_warning('warning: no bangumi schedule, fetching ...')
                 weekly_list = self.fetch(save=save)
             else:
@@ -136,7 +135,7 @@ class BaseWebsite(object):
 
         runner = ScriptRunner()
         patch_list = runner.get_models_dict()
-        result = weekly_list.copy()
+        result = deepcopy(weekly_list)
         for i in patch_list:
             weekly_list[i['update_time'].lower()].append(i)
 
@@ -205,7 +204,11 @@ class BaseWebsite(object):
         cover_to_be_download = []
         for daily_bangumi in result.values():
             for bangumi in daily_bangumi:
+                followed_obj = Followed(bangumi_name=bangumi['name'])
+                if followed_obj:
+                    bangumi['status'] = followed_obj.status
                 _, file_path, _ = self.convert_cover_to_path(bangumi['cover'])
+                bangumi['cover'] = normalize_path(bangumi['cover'])
                 if not glob.glob(file_path):
                     cover_to_be_download.append(bangumi['cover'])
 
@@ -216,6 +219,7 @@ class BaseWebsite(object):
             print_info('updating cover')
             for cover in tqdm.tqdm(cover_to_be_download):
                 self.download_cover(cover)
+
         return r
 
     def convert_cover_to_path(self, cover_url):

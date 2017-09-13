@@ -11,15 +11,16 @@ import sqlite3
 import sys
 
 import bgmi.config
-from bgmi.config import BGMI_PATH, DB_PATH, SCRIPT_DB_PATH
+from bgmi.config import BGMI_PATH, DB_PATH, SCRIPT_DB_PATH, BGMI_ADMIN_PATH
 from bgmi.constants import *
 from bgmi.controllers import controllers
+# Wrap sys.stdout into a StreamWriter to allow writing unicode.
+from bgmi.setup import install_web_admin
 from bgmi.sql import (CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER,
                       CREATE_TABLE_SUBTITLE, CREATE_TABLE_SCRIPT)
 from bgmi.update import update_database
 from bgmi.utils import print_warning, print_error, print_version, check_update
 
-# Wrap sys.stdout into a StreamWriter to allow writing unicode.
 if bgmi.config.IS_PYTHON3:
     unicode = str
     if platform.system() != 'Windows':
@@ -177,6 +178,8 @@ def setup():
             install_crontab()
 
     # if not os.path.exists(DB_PATH):
+    if not os.path.exists(os.path.join(BGMI_ADMIN_PATH, 'index.html')):
+        install_web_admin()
     init_db()
     main()
 
