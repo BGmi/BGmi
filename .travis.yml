@@ -28,8 +28,10 @@ script:
     - bgmi delete --name $BANGUMI_3
     - bgmi delete --clear-all --batch
     - bgmi add $BANGUMI_2 --episode 1
+# # give server some time to start
     - bgmi_http &
-    - python tests/test_api.py
+    - sleep 3
+    - python webapi_test.py
     - bgmi list
     - bgmi config ARIA2_RPC_TOKEN 'token:233'
     - bgmi download --list

@@ -85,7 +85,7 @@ class BaseWebsite(object):
         return bangumi_result
 
     def bangumi_calendar(self, force_update=False, today=False, followed=False, save=True):
-        env_columns = get_terminal_col()
+        env_columns = 42 if os.environ.get('TRAVIS_CI', False) else get_terminal_col()
 
         col = 42
 
