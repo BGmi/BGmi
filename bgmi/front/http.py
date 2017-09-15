@@ -188,9 +188,10 @@ class MainHandler(BaseHandler):
 
         data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING if not is_old else STATUS_END,
                                          order='followed.updated_time', desc=True)
+
         data.extend(self.patch_list)
-        data.sort(key=lambda _: _['status'])
-        data.reverse()
+        data.sort(key=lambda _: _['updated_time'])
+        # data.reverse()
 
         calendar = Bangumi.get_all_bangumi()
 

@@ -118,9 +118,9 @@ class ScriptBase(object):
                 yield (i, getattr(self, i))
 
             # patch for cal
-            yield ('update_time', self.update_time)
             yield ('name', self.bangumi_name)
             yield ('status', self.obj['status'])
+            yield ('updated_time', self.obj['updated_time'])
             yield ('subtitle_group', '')
             yield ('episode', self.obj['episode'])
 
