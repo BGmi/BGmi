@@ -136,10 +136,10 @@ class BaseWebsite(object):
 
         runner = ScriptRunner()
         patch_list = runner.get_models_dict()
-        result = deepcopy(weekly_list)
         for i in patch_list:
             weekly_list[i['update_time'].lower()].append(i)
 
+        result = deepcopy(weekly_list)
         spacial_append_chars = ['Ⅱ', 'Ⅲ', '♪', 'Δ', '×', '☆', 'é', '·', '♭']
         spacial_remove_chars = []
 
