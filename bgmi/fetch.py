@@ -11,10 +11,8 @@ DATA_SOURCE_MAP = {
 }
 
 
-def wrap(*args,**kwargs):
+def wrap(*args, **kwargs):
     print_error('date source "{}" in config is wrong, please edit it manually'.format(DATA_SOURCE))
-
-    pass
 
 
 website = DATA_SOURCE_MAP.get(DATA_SOURCE, wrap)()

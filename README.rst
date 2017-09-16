@@ -8,22 +8,30 @@ BGmi is a cli tool for subscribed bangumi.
 ====
 TODO
 ====
-Empty as my wallet.
++ finish web page to admin bgmi
++ http api: search
++ http api: list config
 
 ==========
 Update Log
 ==========
++ web page admin to add and delete bangumi
++ http api
++ store bangumi cover image locally
++ bangumi script support
++ action source to select bangumi date source
 + Search / Download bangumi filter by regex
 + Download specified episode
 + Transmission-rpc support
 + Remove aria2 download method
-+ Followed Bangumis Calendar for iOS / Android
-+ Bugs fixed
++ Followed Bangumi's Calendar for iOS / Android
 
 =======
 Feature
 =======
++ Web page to admin bangumi(add or delete)
 + Bangumi Script: Write your bangumi parser own!
++ Bangumi data source: `bangumi_moe(default) <https://bangumi.moe>`_ or `mikan_project <https://mikanani.me>`_
 + Subscribe/unsubscribe bangumi
 + Bangumi calendar
 + Bangumi episode information
@@ -375,7 +383,13 @@ Configure tornado with nginx:
         server_name bangumi.example.com;
 
         location /bangumi {
+            # alias to BGMI_SAVE_PATH
             alias /var/www/html/bangumi;
+        }
+
+        location /admin {
+            # alias to BGMI_ADMIN_PATH
+            alias /var/www/html/admin;
         }
 
         location / {

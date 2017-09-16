@@ -1,25 +1,28 @@
 # encoding: utf-8
 from __future__ import print_function, unicode_literals
-import os
-import json
+
 import datetime
 import hashlib
+import json
+import os
+from collections import OrderedDict, defaultdict
+
+import tornado.httpserver
 import tornado.ioloop
 import tornado.options
-import tornado.httpserver
-import tornado.web
 import tornado.template
+import tornado.web
+from icalendar import Calendar, Event
 from tornado.options import options, define
-from icalendar import Calendar, Event, vText
 
-from collections import OrderedDict, defaultdict
 from bgmi import __version__
-from bgmi.config import BGMI_SAVE_PATH, DB_PATH, DANMAKU_API_URL
+from bgmi.config import BGMI_SAVE_PATH, BGMI_ADMIN_PATH, DB_PATH, DANMAKU_API_URL
+from bgmi.front.api import ApiHandle
 from bgmi.models import Download, Bangumi, Followed, STATUS_NORMAL, STATUS_UPDATING, STATUS_END
-from bgmi.fetch import website
 from bgmi.script import ScriptRunner
+from bgmi.utils import normalize_path
 
-COVER_URL = website.cover_url
+COVER_URL = '/bangumi/cover'  # website.cover_url
 
 WEEK = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 define('port', default=8888, help='listen on the port', type=int)
@@ -52,19 +55,48 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class BangumiHandler(BaseHandler):
     def get(self, _):
-        self.set_header('Content-Type', 'text/html')
-        self.write('<h1>BGmi HTTP Service</h1>')
-        self.write('<pre>Please modify your web server configure file\n'
-                   'to server this path to \'%s\'.\n'
-                   'e.g.\n\n'
-                   '...\n'
-                   'autoindex on;\n'
-                   'location /bangumi {\n'
-                   '    alias %s;\n'
-                   '}\n'
-                   '...\n</pre>' % (BGMI_SAVE_PATH, BGMI_SAVE_PATH)
-                   )
-        self.finish()
+        if os.environ.get('DEV', False):
+            with open(os.path.join(BGMI_SAVE_PATH, _), 'rb') as f:
+                self.write(f.read())
+                self.finish()
+        else:
+            self.set_header('Content-Type', 'text/html')
+            self.write('<h1>BGmi HTTP Service</h1>')
+            self.write('<pre>Please modify your web server configure file\n'
+                       'to server this path to \'%s\'.\n'
+                       'e.g.\n\n'
+                       '...\n'
+                       'autoindex on;\n'
+                       'location /bangumi {\n'
+                       '    alias %s;\n'
+                       '}\n'
+                       '...\n</pre>' % (BGMI_SAVE_PATH, BGMI_SAVE_PATH)
+                       )
+            self.finish()
+
+
+class AdminHandle(tornado.web.RequestHandler):
+    def get(self, _):
+        if os.environ.get('DEV', False):
+            with open(os.path.join(BGMI_SAVE_PATH, _), 'rb') as f:
+                self.write(f.read())
+                self.finish()
+        else:
+            self.set_header('Content-Type', 'text/html')
+            self.write('<h1>BGmi HTTP Service</h1>')
+            self.write('<pre>Please modify your web server configure file\n'
+                       'to server this path to \'%s\'.\n'
+                       'e.g.\n\n'
+                       '...\n'
+                       'autoindex on;\n'
+                       'location /admin{\n'
+                       '    alias %s;\n'
+                       '}\n'
+                       '...\n</pre>' % (BGMI_ADMIN_PATH, BGMI_ADMIN_PATH)
+                       )
+            self.finish()
+
+
 
 
 class BangumiPlayerHandler(BaseHandler):
@@ -106,15 +138,17 @@ class BangumiPlayerHandler(BaseHandler):
             self.finish()
         else:
             self.render('templates/dplayer.html', bangumi=episode_list, bangumi_name=bangumi_name,
-                        bangumi_cover='{}/{}'.format(COVER_URL, bangumi_obj['cover']), DANMAKU_URL=DANMAKU_API_URL)
+                        bangumi_cover='{}/{}'.format(COVER_URL, normalize_path(bangumi_obj['cover'])),
+                        DANMAKU_URL=DANMAKU_API_URL)
 
 
 class ImageCSSHandler(BaseHandler):
     def get(self):
         data = Followed.get_all_followed(status=None, bangumi_status=None)
-        for _ in data:
-            _['cover'] = '{}/{}'.format(COVER_URL, _['cover'])
         data.extend(self.patch_list)
+        for _ in data:
+            _['cover'] = '{}/{}'.format(COVER_URL, normalize_path(_['cover']))
+            print(_['cover'])
 
         self.set_header('Content-Type', 'text/css; charset=utf-8')
         self.render('templates/image.css', data=data)
@@ -229,6 +263,8 @@ def make_app():
         (r'^/bangumi/(.*)', BangumiHandler),
         (r'^/rss$', RssHandler),
         (r'^/calendar.ics$', CalendarHandler),
+        (r'^/api/?(?P<action>.*)', ApiHandle),
+        (r'/admin/(.*)', AdminHandle)
     ], **settings)
 
 

@@ -1,8 +1,9 @@
 # coding=utf-8
 from __future__ import unicode_literals
+
 import os
-import sys
 import platform
+import sys
 
 try:
     import ConfigParser as configparser
@@ -20,12 +21,12 @@ __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 
 # fake __all__
 __all__ = ('BANGUMI_MOE_URL', 'BGMI_SAVE_PATH', 'DOWNLOAD_DELEGATE', 'MAX_PAGE',
-           'DATA_SOURCE', 'SUPPORT_WEBSITE', 'BGMI_TMP_PATH', 'DANMAKU_API_URL', 'LANG',)
+           'DATA_SOURCE', 'SUPPORT_WEBSITE', 'BGMI_TMP_PATH', 'DANMAKU_API_URL', 'LANG', 'BGMI_ADMIN_PATH',)
 
 # cannot be rewrite
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
                 'SUPPORT_WEBSITE', 'IS_PYTHON3', 'SCRIPT_PATH',
-                'SCRIPT_DB_PATH',)
+                'SCRIPT_DB_PATH', 'BGMI_ADMIN_PATH',)
 
 # writeable
 __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
@@ -182,6 +183,7 @@ SUPPORT_WEBSITE = [
 # BGmi user path
 BGMI_SAVE_PATH = os.path.join(BGMI_PATH, 'bangumi')
 
+BGMI_ADMIN_PATH = os.path.join(BGMI_PATH, 'admin')
 # Xunlei offline download
 XUNLEI_LX_PATH = os.path.join(BGMI_PATH, 'bgmi-lx')
 

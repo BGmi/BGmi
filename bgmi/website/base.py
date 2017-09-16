@@ -2,19 +2,24 @@
 from __future__ import print_function, unicode_literals
 
 import datetime
+import glob
 import os
 import re
 import string
 import time
 from collections import defaultdict
+from copy import deepcopy
 from itertools import chain
 
+import requests
+import tqdm
+
 import bgmi.config
-from bgmi.config import MAX_PAGE
-from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED
+from bgmi.config import MAX_PAGE, BGMI_SAVE_PATH
+from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, Followed
 from bgmi.script import ScriptRunner
 from bgmi.utils import (parse_episode, print_warning, print_info,
-                        test_connection, get_terminal_col, GREEN, YELLOW, COLOR_END)
+                        test_connection, get_terminal_col, GREEN, YELLOW, COLOR_END, normalize_path)
 
 if bgmi.config.IS_PYTHON3:
     _unicode = str
@@ -23,13 +28,13 @@ else:
 
 
 class BaseWebsite(object):
+    cover_url = ''
     parse_episode = staticmethod(parse_episode)
     def search(self, keyword='', count=1, filter_=None):
         if not filter_:
             filter_ = '(.*)'
         match_title = re.compile(filter_)
-
-        result = self.search_by_keyword(keyword, count)
+        result = self.raw_search(keyword, count)
         # filter
         filtered_result = []
         for episode in result:
@@ -49,6 +54,9 @@ class BaseWebsite(object):
             for i in ret:
                 print(i['title'], i['download'])
         return ret
+
+    def raw_search(self, keyword='', count=1, ):
+        return self.search_by_keyword(keyword, count)
 
     @staticmethod
     def save_data(data):
@@ -77,7 +85,7 @@ class BaseWebsite(object):
         return bangumi_result
 
     def bangumi_calendar(self, force_update=False, today=False, followed=False, save=True):
-        env_columns = get_terminal_col()
+        env_columns = 42 if os.environ.get('TRAVIS_CI', False) else get_terminal_col()
 
         col = 42
 
@@ -104,7 +112,6 @@ class BaseWebsite(object):
                     weekly_list[k].extend(v)
             else:
                 weekly_list = Bangumi.get_all_bangumi()
-
         if not weekly_list:
             if not followed:
                 print_warning('warning: no bangumi schedule, fetching ...')
@@ -128,7 +135,7 @@ class BaseWebsite(object):
 
         runner = ScriptRunner()
         patch_list = runner.get_models_dict()
-
+        result = deepcopy(weekly_list)
         for i in patch_list:
             weekly_list[i['update_time'].lower()].append(i)
 
@@ -178,7 +185,78 @@ class BaseWebsite(object):
 
                 if not followed:
                     print()
-                    # print_line()
+        # for web api
+        r = result.copy()
+        for day, value in result.items():
+            for index, bangumi in enumerate(value):
+                if isinstance(bangumi['subtitle_group'], list):
+                    subtitle_group = list(map(lambda x: {'name': x['name'], 'id': x['id']},
+                                              Subtitle.get_subtitle_by_id(
+                                                  bangumi['subtitle_group'])))
+                else:
+                    subtitle_group = list(map(lambda x: {'name': x['name'], 'id': x['id']},
+                                              Subtitle.get_subtitle_by_id(
+                                                  bangumi['subtitle_group'].split(', ' ''))))
+
+                r[day][index]['subtitle_group'] = subtitle_group
+
+        # download cover to local
+        cover_to_be_download = []
+        for daily_bangumi in result.values():
+            for bangumi in daily_bangumi:
+                followed_obj = Followed(bangumi_name=bangumi['name'])
+                if followed_obj:
+                    bangumi['status'] = followed_obj.status
+                _, file_path, _ = self.convert_cover_to_path(bangumi['cover'])
+                bangumi['cover'] = normalize_path(bangumi['cover'])
+                if not glob.glob(file_path):
+                    cover_to_be_download.append(bangumi['cover'])
+
+        if os.environ.get('TRAVIS_CI'):
+            cover_to_be_download = []
+
+        if cover_to_be_download:
+            print_info('updating cover')
+            for cover in tqdm.tqdm(cover_to_be_download):
+                self.download_cover(cover)
+
+        return r
+
+    def convert_cover_to_path(self, cover_url):
+        """
+        convert bangumi cover to file path
+
+        :param cover_url: bangumi cover path
+        :type cover_url:str
+        :rtype: str,str,str
+        :return:file_path, dir_path, url
+        """
+        if cover_url.startswith('https://') or cover_url.startswith('http://'):
+            url = cover_url
+        else:
+            url = '{}/{}'.format(self.cover_url, cover_url)
+        cover_url = normalize_path(cover_url)
+        file_path = os.path.join(BGMI_SAVE_PATH, 'cover')
+        file_path = os.path.join(file_path, cover_url)
+        dir_path = os.path.dirname(file_path)
+        return dir_path, file_path, url
+
+    def download_cover(self, cover_url):
+        """
+        :type cover_url:str
+        :param cover_url:
+        :return: None
+        """
+        dir_path, file_path, url = self.convert_cover_to_path(cover_url)
+
+        if not glob.glob(dir_path):
+            os.makedirs(dir_path)
+        if os.environ.get('DEV', False):
+            url = url.replace('https://', 'http://localhost:8092/https/')
+            url = url.replace('http://', 'http://localhost:8092/http/')
+        r = requests.get(url)
+        with open(file_path, 'wb+') as f:
+            f.write(r.content)
 
     def get_maximum_episode(self, bangumi, subtitle=True, ignore_old_row=True, max_page=MAX_PAGE):
         followed_filter_obj = Filter(bangumi_name=bangumi.name)
@@ -199,8 +277,6 @@ class BaseWebsite(object):
 
         if data:
             bangumi = max(data, key=lambda _i: _i['episode'])
-            # pprint(bangumi)
-            # pprint(data)
             return bangumi, data
         else:
             return {'episode': 0}, []

@@ -3,8 +3,7 @@ from __future__ import print_function, unicode_literals
 
 import time
 
-from bgmi.config import SUPPORT_WEBSITE
-from bgmi.config import write_config
+from bgmi.config import write_config, SUPPORT_WEBSITE
 from bgmi.constants import *
 from bgmi.download import download_prepare
 from bgmi.download import get_download_class
@@ -16,8 +15,12 @@ from bgmi.utils import print_warning, print_info, print_success, print_error
 
 
 def add(ret):
+    """
+    ret.name :list[str]
+    """
     # action add
     # add bangumi by a list of bangumi name
+    result = {}
     if not Bangumi.get_all_bangumi():
         print_warning('No bangumi data in database, fetching...')
         website.fetch(save=True, group_by_weekday=False)
@@ -31,17 +34,21 @@ def add(ret):
             if not followed_obj or followed_obj.status == STATUS_NORMAL:
                 if not followed_obj:
                     bangumi_data, _ = website.get_maximum_episode(bangumi_obj, subtitle=False, max_page=1)
-                    followed_obj.episode = bangumi_data['episode'] if ret.episode is None else ret.episode
+                    followed_obj.episode = bangumi_data['episode'] if ret.episode is None else getattr(ret,
+                                                                                                       'episode', None)
                     followed_obj.save()
                 else:
                     followed_obj.status = STATUS_FOLLOWED
                     followed_obj.save()
                 print_success('{0} has been followed'.format(bangumi_obj))
+                result[bangumi] = {'status': 'success'}
             else:
                 print_warning('{0} already followed'.format(bangumi_obj))
-
+                result[bangumi] = {'status': 'warning', 'message': '{0} already followed'.format(bangumi_obj)}
         else:
             print_error('{0} not found, please check the name'.format(bangumi))
+            result[bangumi] = {'status': 'error', 'message': '{0} not found, please check the name'.format(bangumi)}
+    return result
 
 
 def print_filter(followed_filter_obj):
@@ -109,11 +116,20 @@ def filter_(ret):
 
 
 def delete(ret):
+    """
+    ret.clear_all:ool
+    or
+    ret.name:str
+    :param ret:
+    :return:
+    """
     # action delete
     # just delete subscribed bangumi or clear all the subscribed bangumi
+    result = {}
     if ret.clear_all:
         if Followed.delete_followed(batch=ret.batch):
             print_success('all subscriptions have been deleted')
+            result['clear_all'] = {'status': "success"}
         else:
             print_error('user canceled')
     elif ret.name:
@@ -121,11 +137,14 @@ def delete(ret):
             followed = Followed(bangumi_name=name)
             if followed.select():
                 followed.delete()
-                print_warning('Bangumi %s has been deleted' % name)
+                print_warning('Bangumi {} has been deleted'.format(name))
+                result[name] = {'status': 'warning', 'message': 'Bangumi {} has been deleted'.format(name)}
             else:
                 print_error('Bangumi %s does not exist' % name, exit_=False)
     else:
         print_warning('Nothing has been done.')
+        result = {'status': 'error', 'message': 'Nothing has been done.'}
+    return result
 
 
 def update(ret):
@@ -208,7 +227,7 @@ def update(ret):
 
 
 def cal(ret):
-    website.bangumi_calendar(force_update=ret.force_update, today=ret.today, save=not ret.no_save)
+    return website.bangumi_calendar(force_update=ret.force_update, today=ret.today, save=not ret.no_save)
 
 
 def download_manager(ret):

@@ -547,6 +547,19 @@ class Subtitle(DB):
         DB.close_db(db)
         return data
 
+    @staticmethod
+    def get_subtitle_by_id(l=None):
+        l = list(l)
+        db = DB.connect_db()
+        db.row_factory = make_dicts
+        cur = db.cursor()
+        sql = DB._make_sql('select', fields=['name', 'id'], table=Subtitle.table,
+                           condition=['id'] * len(l), operation='OR')
+        cur.execute(sql, l)
+        data = cur.fetchall()
+        DB.close_db(db)
+        return data
+
 
 class Script(DB):
     db_path = bgmi.config.SCRIPT_DB_PATH
