@@ -242,7 +242,6 @@ class BaseWebsite(object):
         file_path = os.path.join(file_path, cover_url)
         dir_path = os.path.dirname(file_path)
 
-        print(file_path)
         return dir_path, file_path, url
 
     def download_cover(self, cover_url):
