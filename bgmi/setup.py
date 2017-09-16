@@ -35,7 +35,7 @@ def install_web_admin():
     print_info('Installing web admin')
 
     try:
-        r = requests.get('https://cdn.rawgit.com/Trim21/bgmi-admin/dist/dist.zip?raw=true')
+        r = requests.get('https://github.com/Trim21/bgmi-admin/blob/dist/dist.zip?raw=true')
     except requests.exceptions.ConnectionError:
         print_warning('failed to download web admin')
         return
