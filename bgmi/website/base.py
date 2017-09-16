@@ -30,6 +30,7 @@ else:
 class BaseWebsite(object):
     cover_url = ''
     parse_episode = staticmethod(parse_episode)
+
     def search(self, keyword='', count=1, filter_=None):
         if not filter_:
             filter_ = '(.*)'
@@ -235,10 +236,13 @@ class BaseWebsite(object):
             url = cover_url
         else:
             url = '{}/{}'.format(self.cover_url, cover_url)
+
         cover_url = normalize_path(cover_url)
         file_path = os.path.join(BGMI_SAVE_PATH, 'cover')
         file_path = os.path.join(file_path, cover_url)
         dir_path = os.path.dirname(file_path)
+
+        print(file_path)
         return dir_path, file_path, url
 
     def download_cover(self, cover_url):
@@ -254,6 +258,7 @@ class BaseWebsite(object):
         if os.environ.get('DEV', False):
             url = url.replace('https://', 'http://localhost:8092/https/')
             url = url.replace('http://', 'http://localhost:8092/http/')
+
         r = requests.get(url)
         with open(file_path, 'wb+') as f:
             f.write(r.content)

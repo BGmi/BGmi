@@ -15,11 +15,11 @@ TODO
 ==========
 Update Log
 ==========
-+ web page admin to add and delete bangumi
-+ http api
-+ store bangumi cover image locally
-+ bangumi script support
-+ action source to select bangumi date source
++ Web page admin to add and delete bangumi
++ HTTP Api
++ Store bangumi cover image locally
++ Bangumi script support
++ Action source to select bangumi date source
 + Search / Download bangumi filter by regex
 + Download specified episode
 + Transmission-rpc support

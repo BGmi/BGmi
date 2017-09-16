@@ -33,7 +33,13 @@ def unzip(zip_name, unzip_dir):
 
 def install_web_admin():
     print_info('Installing web admin')
-    r = requests.get('https://cdn.rawgit.com/Trim21/bgmi-admin/dist/dist.zip?raw=true')
+
+    try:
+        r = requests.get('https://cdn.rawgit.com/Trim21/bgmi-admin/dist/dist.zip?raw=true')
+    except requests.exceptions.ConnectionError:
+        print_warning('failed to download web admin')
+        return
+
     admin_zip = BytesIO(r.content)
     unzip(admin_zip, BGMI_ADMIN_PATH)
     for file in os.listdir(os.path.join(BGMI_ADMIN_PATH, 'dist')):
