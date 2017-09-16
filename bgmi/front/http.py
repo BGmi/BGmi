@@ -145,10 +145,11 @@ class BangumiPlayerHandler(BaseHandler):
 class ImageCSSHandler(BaseHandler):
     def get(self):
         data = Followed.get_all_followed(status=None, bangumi_status=None)
-        data.extend(self.patch_list)
 
         for _ in data:
             _['cover'] = '{}/{}'.format(COVER_URL, normalize_path(_['cover']))
+
+        data.extend(self.patch_list)
 
         self.set_header('Content-Type', 'text/css; charset=utf-8')
         self.render('templates/image.css', data=data)
