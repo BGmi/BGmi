@@ -261,7 +261,7 @@ def normalize_path(url):
     :rtype: str
     """
     url = url.replace('http://', 'http/').replace('https://', 'https/')
-    illegal_char = [':', '*', '?', '"', '<', '>', '|', "'", '..']
+    illegal_char = [':', '*', '?', '"', '<', '>', '|', "'"]
     for char in illegal_char:
         url = url.replace(char, '')
     if url.startswith('/'):
