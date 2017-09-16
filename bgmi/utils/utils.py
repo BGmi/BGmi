@@ -191,8 +191,8 @@ def check_update(mark=True):
             print_success('Your BGmi is the latest version.')
 
     admin_version = requests.get('https://unpkg.com/bgmi-admin/package.json', verify=False).json()['version']
-    with open(os.path.join(BGMI_ADMIN_PATH, 'package.json')) as f:
-        local_version = json.load(f)['version']
+    with open(os.path.join(BGMI_ADMIN_PATH, 'package.json'), 'r') as f:
+        local_version = json.loads(f.read())['version']
     if admin_version > local_version:
         get_web_admin(method='update')
     if not mark:
@@ -287,10 +287,10 @@ def get_web_admin(method=''):
         os.makedirs(BGMI_ADMIN_PATH)
     try:
         if os.environ.get('DEV', False):
-            version = requests.get('http://localhost:8092/https/unpkg.com/bgmi-admin/package.json').json()
+            version = requests.get('http://localhost:8092/https/unpkg.com/bgmi-admin/package.json').text
             r = requests.get('http://localhost:8092/https/unpkg.com/bgmi-admin/dist.tar.gz')
         else:
-            version = requests.get('https://unpkg.com/bgmi-admin/package.json').json()
+            version = requests.get('https://unpkg.com/bgmi-admin/package.json').text
             r = requests.get('https://unpkg.com/bgmi-admin/dist.tar.gz')
     except requests.exceptions.ConnectionError:
         print_warning('failed to download web admin')
@@ -306,6 +306,6 @@ def get_web_admin(method=''):
         move(os.path.join(BGMI_ADMIN_PATH, 'dist', file),
              os.path.join(BGMI_ADMIN_PATH, file))
     os.removedirs(os.path.join(BGMI_ADMIN_PATH, 'dist'))
-    with open(os.path.join(BGMI_ADMIN_PATH, 'package.json'), 'w+', encoding='utf-8') as f:
-        json.dump(version, f, ensure_ascii=False, indent='  ')
+    with open(os.path.join(BGMI_ADMIN_PATH, 'package.json'), 'w+') as f:
+        f.write(version)
     print_success('Web admin page {}ed successfully'.format(method))
