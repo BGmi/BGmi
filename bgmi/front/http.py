@@ -191,7 +191,7 @@ class MainHandler(BaseHandler):
 
         data.extend(self.patch_list)
         data.sort(key=lambda _: _['updated_time'])
-        # data.reverse()
+        data.reverse()
 
         calendar = Bangumi.get_all_bangumi()
 
