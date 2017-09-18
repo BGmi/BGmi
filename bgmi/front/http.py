@@ -220,7 +220,7 @@ class MainHandler(BaseHandler):
                                          order='followed.updated_time', desc=True)
 
         data.extend(self.patch_list)
-        data.sort(key=lambda _: _['updated_time'])
+        data.sort(key=lambda _: _['updated_time'] if _['updated_time'] else 7258093261)  # 2200年,应该不会有比这个大的吧...
         data.reverse()
 
         calendar = Bangumi.get_all_bangumi()
