@@ -19,6 +19,7 @@ import requests
 from bgmi import __version__
 from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, SUPPORT_WEBSITE, BGMI_ADMIN_PATH
 
+
 requests.packages.urllib3.disable_warnings()
 
 if platform.system() == 'Windows':

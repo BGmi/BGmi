@@ -2,71 +2,40 @@ import json
 
 from tornado.web import RequestHandler
 
-from bgmi.controllers import *
+from bgmi.constants import ACTION_ADD, ACTION_DELETE, ACTION_CAL, ACTION_SEARCH, ACTION_CONFIG, ACTION_DOWNLOAD
+from bgmi.controllers import add, delete, search, cal, config
+from bgmi.download import download_prepare
+
+api_map = {
+    ACTION_ADD: add,
+    ACTION_DELETE: delete,
+    ACTION_CAL: cal,
+    ACTION_SEARCH: search,
+    ACTION_CONFIG: config,
+    ACTION_DOWNLOAD: download_prepare
+}
 
 
 def jsonify(obj):
     return json.dumps(obj, ensure_ascii=False, indent=2)
 
-class dict2obj(object):
-    def __init__(self, d):
-        for a, b in d.items():
-            if isinstance(b, (list, tuple)):
-                setattr(self, a, [dict2obj(x) if isinstance(x, dict) else x for x in b])
-            else:
-                setattr(self, a, dict2obj(b) if isinstance(b, dict) else b)
-
-    def __getattr__(self, item):
-        return None
-
 
 class ApiHandle(RequestHandler):
     def get(self, action, *args, **kwargs):
-        if action == ACTION_CAL:
-            data = {'action': action, 'force_update': False}
-            r = controllers(dict2obj(data))
-            self.finish(r)
-        elif action == 'update':
-            data = {'action': ACTION_CAL, 'force_update': True}
-            r = controllers(dict2obj(data))
-            self.finish(r)
-
-        # self.set_header("Content-Type", "application/json")
-        # self.write({'support action': ACTIONS})
+        if action in api_map:
+            self.finish(jsonify(api_map.get(action)()))
 
     def post(self, action, *args, **kwargs):
-        # time.sleep(1)
+        # print(self.request.body.decode('utf-8'))
         try:
             data = json.loads(self.request.body.decode('utf-8'))
+            print(data)
+            if action in api_map:
+                self.finish(jsonify(api_map.get(action)(**data)))
         except json.JSONEncoder:
             self.write_error(502)
             return
-        print(type(data))
-        if action == ACTION_DELETE:
-            data['action'] = action
-            ret = dict2obj(data)
-            self.write(jsonify(controllers(ret)))
-            return
-        elif action == ACTION_ADD:
-            data['action'] = action
-            ret = dict2obj(data)
-            self.write(jsonify(controllers(ret)))
-            return
-        # todo
-        elif action == ACTION_SEARCH:
-            self.finish({'status': 'success', 'data': search_without_filter(data['keyword'])})
-            pass
-        # todo
-        elif action == ACTION_CONFIG:
-            pass
-        # todo
-        elif action == 'download':
-            r = download_prepare(data['data'])
-            self.write(r)
-        # todo
-        elif action == ACTION_FETCH:
-            data['action'] = action
-            ret = dict2obj(data)
-            controllers(ret)
+
+
     def options(self, *args, **kwargs):
         self.write('')

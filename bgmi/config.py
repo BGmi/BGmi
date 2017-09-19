@@ -10,7 +10,6 @@ try:
 except ImportError:
     import configparser
 
-
 # download delegate
 __wget__ = ('WGET_PATH',)
 __thunder__ = ('XUNLEI_LX_PATH',)
@@ -34,14 +33,12 @@ __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
 # the real __all__
 __all__ = __all__ + __download_delegate__ + __readonly__
 
-
 download_delegate_map = {
     'rr!': __wget__,
     'aria2-rpc': __aria2__,
     'xunlei': __thunder__,
     'transmission-rpc': __transmission__,
 }
-
 
 # --------- Immutable ---------- #
 if platform.system() == 'Windows':
@@ -218,7 +215,6 @@ TRANSMISSION_RPC_PORT = '9091'
 
 # tag of bangumi on bangumi.moe
 BANGUMI_TAG = '549ef207fe682f7549f1ea90'
-
 
 # ------------------------------ #
 # !!! Read config from file and write to globals() !!!
