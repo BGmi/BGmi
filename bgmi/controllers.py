@@ -1,20 +1,21 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 
-from bgmi.config import write_config, SUPPORT_WEBSITE
+from bgmi.config import write_config
+from bgmi.constants import SUPPORT_WEBSITE
 from bgmi.download import download_prepare
 from bgmi.fetch import website
 from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED
 from bgmi.models import Followed
 from bgmi.models import (STATUS_NORMAL, DB)
 from bgmi.script import ScriptRunner
-from bgmi.utils import (print_info)
+from bgmi.utils import (print_info, normalize_path)
 from bgmi.utils import print_success, print_error
 
 
 def add(name, episode=None):
     """
-    ret.name :list[str]
+    ret.name :str
     """
     # action add
     # add bangumi by a list of bangumi name
@@ -131,7 +132,6 @@ def delete(name='', clear_all=False, batch=False):
             result['status'] = 'error'
             result['message'] = 'Bangumi %s does not exist' % name
     else:
-
         result['status'] = 'warning'
         result['message'] = 'Nothing has been done.'
     return result
@@ -143,6 +143,7 @@ def cal(force_update=False, save=False):
     r = weekly_list
     for day, value in weekly_list.items():
         for index, bangumi in enumerate(value):
+            bangumi['cover'] = normalize_path(bangumi['cover'])
             if isinstance(bangumi['subtitle_group'], list):
                 subtitle_group = list(map(lambda x: {'name': x['name'], 'id': x['id']},
                                           Subtitle.get_subtitle_by_id(
@@ -153,7 +154,6 @@ def cal(force_update=False, save=False):
                                               bangumi['subtitle_group'].split(', ' ''))))
 
             r[day][index]['subtitle_group'] = subtitle_group
-
     return r
 
 
@@ -229,4 +229,11 @@ def source(source):
 
 
 def config(name, value):
-    write_config(name, value)
+    if name == 'DATA_SOURCE':
+        error_message = "you can't change data source in this way. please use bgmi source ${data source } in cli"
+        result = {'status': 'error',
+                  'message': error_message,
+                  'data': write_config()['data']}
+        print(error_message)
+        return result
+    return write_config(name, value)

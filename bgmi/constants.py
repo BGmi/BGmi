@@ -1,4 +1,6 @@
 # coding=utf-8
+from bgmi.config import BANGUMI_MOE_URL
+
 ACTION_ADD = 'add'
 ACTION_FETCH = 'fetch'
 ACTION_FILTER = 'filter'
@@ -44,3 +46,15 @@ DOWNLOAD_CHOICE = (DOWNLOAD_CHOICE_LIST_ALL, DOWNLOAD_CHOICE_LIST_DOWNLOADED,
 FOLLOWED_ACTION_LIST = 'list'
 FOLLOWED_ACTION_MARK = 'mark'
 FOLLOWED_CHOICE = (FOLLOWED_ACTION_LIST, FOLLOWED_ACTION_MARK)
+SUPPORT_WEBSITE = [
+    {
+        'view': '萌番组 https://bangumi.moe/',
+        'id': "bangumi_moe",
+        'url': BANGUMI_MOE_URL
+    },
+    {
+        'view': '蜜柑计划 https://mikanani.me/',
+        'id': 'mikan_project',
+        'url': 'https://mikanani.me/'
+    },
+]

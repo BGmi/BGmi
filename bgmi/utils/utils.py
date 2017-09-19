@@ -17,8 +17,8 @@ from shutil import rmtree, move
 import requests
 
 from bgmi import __version__
-from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, SUPPORT_WEBSITE, BGMI_ADMIN_PATH
-
+from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, BGMI_ADMIN_PATH
+from bgmi.constants import SUPPORT_WEBSITE
 
 requests.packages.urllib3.disable_warnings()
 
@@ -281,6 +281,7 @@ def normalize_path(url):
 
 
 def get_web_admin(method=''):
+    npm_version = '1.1.x'
     if method == 'install':
         print_info('Installing web admin')
     elif method == 'update':
@@ -289,11 +290,14 @@ def get_web_admin(method=''):
         os.makedirs(BGMI_ADMIN_PATH)
     try:
         if os.environ.get('DEV', False):
-            version = requests.get('http://localhost:8092/https/unpkg.com/bgmi-admin@1.0.x/package.json').text
-            r = requests.get('http://localhost:8092/https/unpkg.com/bgmi-admin@1.0.x/dist.tar.gz')
+            version = requests.get('http://localhost:8092/https/unpkg.com/bgmi-admin@{version}/package.json'.format(
+                version=npm_version)).text
+            r = requests.get(
+                'http://localhost:8092/https/unpkg.com/bgmi-admin@{version}/dist.tar.gz'.format(version=npm_version))
         else:
-            version = requests.get('https://unpkg.com/bgmi-admin@1.0.x/package.json').text
-            r = requests.get('https://unpkg.com/bgmi-admin@1.0.x/dist.tar.gz')
+            version = requests.get(
+                'https://unpkg.com/bgmi-admin@{version}/package.json'.format(version=npm_version)).text
+            r = requests.get('https://unpkg.com/bgmi-admin@{version}/dist.tar.gz'.format(version=npm_version))
     except requests.exceptions.ConnectionError:
         print_warning('failed to download web admin')
         return

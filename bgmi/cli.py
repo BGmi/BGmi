@@ -5,10 +5,11 @@ import re
 import string
 import time
 
+from bgmi.config import write_config
 from bgmi.constants import ACTION_ADD, ACTION_SOURCE, ACTION_DOWNLOAD, ACTION_CONFIG, ACTION_DELETE, ACTION_MARK, \
     ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST, DOWNLOAD_CHOICE_LIST_DICT
 from bgmi.controllers import filter_, source, \
-    config, mark, delete, add, search, print_filter
+    mark, delete, add, search, print_filter
 from bgmi.download import download_prepare, get_download_class
 from bgmi.fetch import website
 from bgmi.models import Followed, STATUS_FOLLOWED, Bangumi, STATUS_UPDATED, Download, STATUS_NOT_DOWNLOAD, Filter
@@ -21,7 +22,8 @@ def source_wrapper(ret):
 
 
 def config_wrapper(ret):
-    config(name=ret.name, value=ret.value)
+    result = write_config(ret.name, ret.value)
+    globals()["print_{}".format(result['status'])](result['message'])
 
 
 def search_wrapper(ret):

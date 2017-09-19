@@ -20,11 +20,11 @@ __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 
 # fake __all__
 __all__ = ('BANGUMI_MOE_URL', 'BGMI_SAVE_PATH', 'DOWNLOAD_DELEGATE', 'MAX_PAGE',
-           'DATA_SOURCE', 'SUPPORT_WEBSITE', 'BGMI_TMP_PATH', 'DANMAKU_API_URL', 'LANG', 'BGMI_ADMIN_PATH',)
+           'DATA_SOURCE', 'BGMI_TMP_PATH', 'DANMAKU_API_URL', 'LANG', 'BGMI_ADMIN_PATH')
 
 # cannot be rewrite
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
-                'SUPPORT_WEBSITE', 'IS_PYTHON3', 'SCRIPT_PATH',
+                'IS_PYTHON3', 'SCRIPT_PATH',
                 'SCRIPT_DB_PATH', 'BGMI_ADMIN_PATH',)
 
 # writeable
@@ -86,6 +86,10 @@ def print_config():
         print('{0}={1}'.format(i, c.get(DOWNLOAD_DELEGATE, i)))
 
 
+def print_config():
+    pass
+
+
 def write_default_config():
     c = configparser.ConfigParser()
     if not c.has_section('bgmi'):
@@ -117,45 +121,59 @@ def write_config(config=None, value=None):
 
     c = configparser.ConfigParser()
     c.read(CONFIG_FILE_PATH)
-
+    result = {}
     if config is not None and config not in __writeable__ and config not in __download_delegate__:
-        print('{0} does not exist or not writeable'.format(config))
-        exit(1)
-
+        result['status'] = 'error'
+        result['message'] = '{0} does not exist or not writeable'.format(config)
+        return result
     try:
-        if config is None and value is None:
+        if config is None:
+            result['status'] = 'success'
+            result['message'] = None
             print_config()
-        elif value is None:
+        elif value is None:  # config(config, None)
             if config in __download_delegate__:
-                print('{0}={1}'.format(config, c.get(DOWNLOAD_DELEGATE, config)))
+                result['message'] = '{0}={1}'.format(config, c.get(DOWNLOAD_DELEGATE, config))
             else:
-                print('{0}={1}'.format(config, c.get('bgmi', config)))
+                result['message'] = '{0}={1}'.format(config, c.get('bgmi', config))
         else:
             if config in __writeable__:
-                c.set('bgmi', config, value)
-                with open(CONFIG_FILE_PATH, 'w') as f:
-                    c.write(f)
-                read_config()
-
-            if config == 'DOWNLOAD_DELEGATE':
-                if not c.has_section(DOWNLOAD_DELEGATE):
-                    c.add_section(DOWNLOAD_DELEGATE)
-                    for i in download_delegate_map.get(DOWNLOAD_DELEGATE):
-                        v = globals().get(i, '')
-                        c.set(DOWNLOAD_DELEGATE, i, v)
-
+                if config == 'DOWNLOAD_DELEGATE' and value not in download_delegate_map:
+                    result['status'] = 'error'
+                    result['message'] = '{0} is not a support download_delegate'.format(config)
+                else:
+                    c.set('bgmi', config, value)
                     with open(CONFIG_FILE_PATH, 'w') as f:
                         c.write(f)
+                    read_config()
+
+                    if config == 'DOWNLOAD_DELEGATE':
+                        if not c.has_section(DOWNLOAD_DELEGATE):
+                            c.add_section(DOWNLOAD_DELEGATE)
+                            for i in download_delegate_map.get(DOWNLOAD_DELEGATE):
+                                v = globals().get(i, '')
+                                c.set(DOWNLOAD_DELEGATE, i, v)
+
+                            with open(CONFIG_FILE_PATH, 'w') as f:
+                                c.write(f)
+                    result['status'] = 'success'
+                    result['message'] = '{0} has been set to {1}'.format(config, value)
 
             if config in download_delegate_map.get(DOWNLOAD_DELEGATE):
                 c.set(DOWNLOAD_DELEGATE, config, value)
                 with open(CONFIG_FILE_PATH, 'w') as f:
                     c.write(f)
-
-            print_config()
+                result['status'] = 'success'
+                result['message'] = '{0} has been set to {1}'.format(config, value)
+                print_config()
+                result = {'status': 'success', 'message': "{} change to {} successfully".format(config, value)}
 
     except configparser.NoOptionError:
         write_default_config()
+        result = {'status': 'error', 'message': 'Error in config file, please try your action again'}
+    result['data'] = [{'writable': True, 'name': x, 'value': globals()[x]} for x in __writeable__] + \
+                     [{'writable': False, 'name': x, 'value': globals()[x]} for x in __readonly__]
+    return result
 
 
 # --------- Writeable ---------- #
@@ -164,18 +182,6 @@ BANGUMI_MOE_URL = 'https://bangumi_moe.ricterz.me'
 
 # Setting bangumi.moe url
 DATA_SOURCE = 'bangumi_moe'
-SUPPORT_WEBSITE = [
-    {
-        'view': '萌番组 https://bangumi.moe/',
-        'id': "bangumi_moe",
-        'url': BANGUMI_MOE_URL
-    },
-    {
-        'view': '蜜柑计划 https://mikanani.me/',
-        'id': 'mikan_project',
-        'url': 'https://mikanani.me/'
-    },
-]
 
 # BGmi user path
 BGMI_SAVE_PATH = os.path.join(BGMI_PATH, 'bangumi')

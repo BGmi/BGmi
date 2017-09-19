@@ -77,6 +77,7 @@ class BangumiHandler(BaseHandler):
 class AdminHandle(tornado.web.RequestHandler):
     def get(self, _):
         if os.environ.get('DEV', False):
+            print(os.path.join(BGMI_SAVE_PATH, _))
             with open(os.path.join(BGMI_SAVE_PATH, _), 'rb') as f:
                 self.write(f.read())
                 self.finish()
