@@ -13,6 +13,7 @@ import tarfile
 import time
 from io import BytesIO
 from shutil import rmtree, move
+
 import requests
 
 from bgmi import __version__
@@ -287,11 +288,11 @@ def get_web_admin(method=''):
         os.makedirs(BGMI_ADMIN_PATH)
     try:
         if os.environ.get('DEV', False):
-            version = requests.get('http://localhost:8092/https/unpkg.com/bgmi-admin/package.json').text
-            r = requests.get('http://localhost:8092/https/unpkg.com/bgmi-admin/dist.tar.gz')
+            version = requests.get('http://localhost:8092/https/unpkg.com/bgmi-admin@1.0.x/package.json').text
+            r = requests.get('http://localhost:8092/https/unpkg.com/bgmi-admin@1.0.x/dist.tar.gz')
         else:
-            version = requests.get('https://unpkg.com/bgmi-admin/package.json').text
-            r = requests.get('https://unpkg.com/bgmi-admin/dist.tar.gz')
+            version = requests.get('https://unpkg.com/bgmi-admin@1.0.x/package.json').text
+            r = requests.get('https://unpkg.com/bgmi-admin@1.0.x/dist.tar.gz')
     except requests.exceptions.ConnectionError:
         print_warning('failed to download web admin')
         return
