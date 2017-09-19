@@ -119,10 +119,8 @@ class BangumiPlayerHandler(BaseHandler):
             if not _ and files:
                 _ = root.replace(bangumi_path, '').split('/')
                 base_path = root.replace(BGMI_SAVE_PATH, '')
-                print(len(_), '|', _, '|', files)
                 if len(_) >= 2:
                     episode_path = root.replace(os.path.join(BGMI_SAVE_PATH, bangumi_name), '')
-
                     if episode_path.split('/')[1].isdigit():
                         episode = int(episode_path.split('/')[1])
                     else:
