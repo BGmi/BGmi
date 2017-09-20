@@ -117,12 +117,12 @@ class BangumiPlayerHandler(BaseHandler):
         bangumi_path = os.path.join(BGMI_SAVE_PATH, bangumi_name)
         for root, _, files in os.walk(bangumi_path):
             if not _ and files:
-                _ = root.replace(bangumi_path, '').split('/')
+                _ = root.replace(bangumi_path, '').split(os.path.sep)
                 base_path = root.replace(BGMI_SAVE_PATH, '')
                 if len(_) >= 2:
                     episode_path = root.replace(os.path.join(BGMI_SAVE_PATH, bangumi_name), '')
-                    if episode_path.split('/')[1].isdigit():
-                        episode = int(episode_path.split('/')[1])
+                    if episode_path.split(os.path.sep)[1].isdigit():
+                        episode = int(episode_path.split(os.path.sep)[1])
                     else:
                         continue
                 else:
@@ -130,7 +130,8 @@ class BangumiPlayerHandler(BaseHandler):
 
                 for bangumi in files:
                     if bangumi.lower().endswith('.mp4'):
-                        episode_list[episode] = {'path': os.path.join(base_path, bangumi)}
+                        episode_list[episode] = {'path': os.path.join(base_path, bangumi).replace(os.path.sep, '/')}
+                        print(os.path.join(base_path, bangumi))
                         break
 
         if not episode_list:
