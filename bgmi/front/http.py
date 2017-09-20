@@ -108,6 +108,7 @@ class BangumiPlayerHandler(BaseHandler):
             for i in self.patch_list:
                 if bangumi_name == i['bangumi_name']:
                     data = i
+                    bangumi_obj.cover = i['cover']
                     break
 
         if not data:
