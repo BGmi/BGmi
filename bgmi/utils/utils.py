@@ -182,6 +182,8 @@ def get_terminal_col():
             return 80
 
 
+npm_version = '1.1.x'
+
 def check_update(mark=True):
     def update():
         print_info('Checking update ...')
@@ -191,12 +193,13 @@ def check_update(mark=True):
                           '\nThen execute `bgmi upgrade` to migrate database'.format(GREEN, version, COLOR_END))
         else:
             print_success('Your BGmi is the latest version.')
+        admin_version = requests.get('https://unpkg.com/bgmi-admin@{}/package.json'.format(npm_version)).json()[
+            'version']
 
-    admin_version = requests.get('https://unpkg.com/bgmi-admin/package.json', verify=False).json()['version']
-    with open(os.path.join(BGMI_ADMIN_PATH, 'package.json'), 'r') as f:
-        local_version = json.loads(f.read())['version']
-    if admin_version > local_version:
-        get_web_admin(method='update')
+        with open(os.path.join(BGMI_ADMIN_PATH, 'package.json'), 'r') as f:
+            local_version = json.loads(f.read())['version']
+        if admin_version > local_version:
+            get_web_admin(method='update')
     if not mark:
         update()
         raise SystemExit
@@ -280,12 +283,9 @@ def normalize_path(url):
         return url
 
 
-def get_web_admin(method=''):
-    npm_version = '1.1.x'
-    if method == 'install':
-        print_info('Installing web admin')
-    elif method == 'update':
-        print_info('Updating web admin')
+def get_web_admin(method):
+    print_info('{} web admin'.format(method[0].upper() + method[1:]))
+    if method == 'update':
         rmtree(BGMI_ADMIN_PATH)
         os.makedirs(BGMI_ADMIN_PATH)
     try:
@@ -314,4 +314,4 @@ def get_web_admin(method=''):
     os.removedirs(os.path.join(BGMI_ADMIN_PATH, 'dist'))
     with open(os.path.join(BGMI_ADMIN_PATH, 'package.json'), 'w+') as f:
         f.write(version)
-    print_success('Web admin page {}ed successfully'.format(method))
+    print_success('Web admin page {} successfully'.format(method))

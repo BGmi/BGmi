@@ -77,17 +77,19 @@ def print_config():
         return
 
     c.read(CONFIG_FILE_PATH)
-    print('[bgmi]')
+    string = ''
+    string += '[bgmi]\n'
     for i in __writeable__:
-        print('{0}={1}'.format(i, c.get('bgmi', i)))
+        string += '{0}={1}\n'.format(i, c.get('bgmi', i))
 
-    print('\n[{0}]'.format(DOWNLOAD_DELEGATE))
+    string += '\n[{0}]\n'.format(DOWNLOAD_DELEGATE)
     for i in download_delegate_map.get(DOWNLOAD_DELEGATE):
-        print('{0}={1}'.format(i, c.get(DOWNLOAD_DELEGATE, i)))
+        string += '{0}={1}\n'.format(i, c.get(DOWNLOAD_DELEGATE, i))
+    return string
 
 
-def print_config():
-    pass
+# def print_config():
+# pass
 
 
 def write_default_config():
@@ -121,32 +123,35 @@ def write_config(config=None, value=None):
 
     c = configparser.ConfigParser()
     c.read(CONFIG_FILE_PATH)
-    result = {}
     if config is not None and config not in __writeable__ and config not in __download_delegate__:
-        result['status'] = 'error'
-        result['message'] = '{0} does not exist or not writeable'.format(config)
+        result = {'status': 'error',
+                  'message': '{0} does not exist or not writeable'.format(config)}
         return result
+
     try:
+        # result = {}
         if config is None:
-            result['status'] = 'success'
-            result['message'] = None
-            print_config()
+            result = {'status': 'info',
+                      'message': print_config()}
+
         elif value is None:  # config(config, None)
+            result = {'status': 'success'}
+
             if config in __download_delegate__:
                 result['message'] = '{0}={1}'.format(config, c.get(DOWNLOAD_DELEGATE, config))
             else:
                 result['message'] = '{0}={1}'.format(config, c.get('bgmi', config))
-        else:
+
+        else:  # config(config, Value)
             if config in __writeable__:
                 if config == 'DOWNLOAD_DELEGATE' and value not in download_delegate_map:
-                    result['status'] = 'error'
-                    result['message'] = '{0} is not a support download_delegate'.format(config)
+                    result = {'status': 'error',
+                              'message': '{0} is not a support download_delegate'.format(config)}
                 else:
                     c.set('bgmi', config, value)
                     with open(CONFIG_FILE_PATH, 'w') as f:
                         c.write(f)
                     read_config()
-
                     if config == 'DOWNLOAD_DELEGATE':
                         if not c.has_section(DOWNLOAD_DELEGATE):
                             c.add_section(DOWNLOAD_DELEGATE)
@@ -156,21 +161,24 @@ def write_config(config=None, value=None):
 
                             with open(CONFIG_FILE_PATH, 'w') as f:
                                 c.write(f)
-                    result['status'] = 'success'
-                    result['message'] = '{0} has been set to {1}'.format(config, value)
+                    result = {'status': 'success',
+                              'message': '{0} has been set to {1}'.format(config, value)}
 
-            if config in download_delegate_map.get(DOWNLOAD_DELEGATE):
+
+            elif config in download_delegate_map.get(DOWNLOAD_DELEGATE):
                 c.set(DOWNLOAD_DELEGATE, config, value)
                 with open(CONFIG_FILE_PATH, 'w') as f:
                     c.write(f)
-                result['status'] = 'success'
-                result['message'] = '{0} has been set to {1}'.format(config, value)
-                print_config()
-                result = {'status': 'success', 'message': "{} change to {} successfully".format(config, value)}
+                result = {'status': 'success',
+                          'message': '{0} has been set to {1}'.format(config, value)}
+            else:
+                result = {'status': 'error',
+                          'message': '{0} does not exist or not writeable'.format(config)}
 
     except configparser.NoOptionError:
         write_default_config()
         result = {'status': 'error', 'message': 'Error in config file, please try your action again'}
+
     result['data'] = [{'writable': True, 'name': x, 'value': globals()[x]} for x in __writeable__] + \
                      [{'writable': False, 'name': x, 'value': globals()[x]} for x in __readonly__]
     return result

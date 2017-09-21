@@ -1,4 +1,6 @@
 # coding=utf-8
+from __future__ import print_function, unicode_literals
+
 import datetime
 import os
 import re
@@ -50,7 +52,9 @@ def delete_wrapper(ret):
 
 
 def add_wrapper(ret):
-    return add(name=ret.name, episode=ret.episode)
+    for bangumi_name in ret.name:
+        result = add(name=bangumi_name, episode=ret.episode)
+        globals()["print_{}".format(result['status'])](result['message'])
 
 
 def cal_wrapper(ret):
@@ -88,9 +92,9 @@ def cal_wrapper(ret):
 
     for index, weekday in enumerate(weekday_order):
         if weekly_list[weekday.lower()]:
-            print('%s%s. %s' % (GREEN,
-                                weekday if not today else 'Bangumi Schedule for Today (%s)' % weekday, COLOR_END),
-                  end='')
+            print(
+                '%s%s. %s' % (GREEN, weekday if not today else 'Bangumi Schedule for Today (%s)' % weekday, COLOR_END),
+                end='')
             print()
             print_line()
             for i, bangumi in enumerate(weekly_list[weekday.lower()]):
@@ -117,7 +121,6 @@ def cal_wrapper(ret):
                 print(' ' + bangumi['name'], ' ' * space_count, end='')
                 if (i + 1) % row == 0 or i + 1 == len(weekly_list[weekday.lower()]):
                     print()
-
             print()
 
 
@@ -212,7 +215,6 @@ def update(ret):
 def list_(ret):
     weekday_order = Bangumi.week
     followed_bangumi = website.followed_bangumi()
-    print(followed_bangumi)
     if not followed_bangumi:
         print_warning('you have not subscribed any bangumi')
     else:

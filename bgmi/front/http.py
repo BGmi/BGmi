@@ -77,8 +77,9 @@ class BangumiHandler(BaseHandler):
 class AdminHandle(tornado.web.RequestHandler):
     def get(self, _):
         if os.environ.get('DEV', False):
-            print(os.path.join(BGMI_SAVE_PATH, _))
-            with open(os.path.join(BGMI_SAVE_PATH, _), 'rb') as f:
+            with open(os.path.join(BGMI_ADMIN_PATH, _), 'rb') as f:
+                if _.endswith('css'):
+                    self.add_header("content-type", "text/css; charset=UTF-8")
                 self.write(f.read())
                 self.finish()
         else:
