@@ -98,7 +98,7 @@
     {% autoescape None %}
     var bangumi_data = {{ json_encode(bangumi) }};
 
-    var swtichVideo = function(k) {
+    var switchVideo = function(k) {
         console.log('Load: /bangumi' + bangumi_data[k]['path']);
         dp.switchVideo({
             url: '/bangumi' + bangumi_data[k]['path'],
@@ -144,7 +144,7 @@
     var episode = document.getElementById('episode-container');
     episode.addEventListener('click', function (e) {
             var k = e.target.attributes['data-epi'].value;
-            swtichVideo(k);
+            switchVideo(k);
     });
 
 </script>

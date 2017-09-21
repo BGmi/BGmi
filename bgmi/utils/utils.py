@@ -184,6 +184,8 @@ def get_terminal_col():
 
 
 npm_version = '1.1.x'
+package_json_url = 'https://unpkg.com/bgmi-admin@{}/package.json'.format(npm_version)
+tar_url = 'https://unpkg.com/bgmi-admin@{version}/dist.tar.gz'.format(version=npm_version)
 
 
 def check_update(mark=True):
@@ -195,7 +197,7 @@ def check_update(mark=True):
                           '\nThen execute `bgmi upgrade` to migrate database'.format(GREEN, version, COLOR_END))
         else:
             print_success('Your BGmi is the latest version.')
-        admin_version = requests.get('https://unpkg.com/bgmi-admin@{}/package.json'.format(npm_version)).json()[
+        admin_version = requests.get(package_json_url).json()[
             'version']
 
         with open(os.path.join(BGMI_ADMIN_PATH, 'package.json'), 'r') as f:
@@ -203,6 +205,11 @@ def check_update(mark=True):
         if admin_version > local_version:
             get_web_admin(method='update')
 
+    admin_version = requests.get('https://unpkg.com/bgmi-admin@1.0.x/package.json').json()['version']
+    with open(os.path.join(BGMI_ADMIN_PATH, 'package.json'), 'r') as f:
+        local_version = json.loads(f.read())['version']
+    if admin_version > local_version:
+        get_web_admin(method='update')
     if not mark:
         update()
         raise SystemExit
@@ -298,9 +305,8 @@ def get_web_admin(method):
             r = requests.get(
                 'http://localhost:8092/https/unpkg.com/bgmi-admin@{version}/dist.tar.gz'.format(version=npm_version))
         else:
-            version = requests.get(
-                'https://unpkg.com/bgmi-admin@{version}/package.json'.format(version=npm_version)).text
-            r = requests.get('https://unpkg.com/bgmi-admin@{version}/dist.tar.gz'.format(version=npm_version))
+            version = requests.get(package_json_url).text
+            r = requests.get(tar_url)
     except requests.exceptions.ConnectionError:
         print_warning('failed to download web admin')
         return
