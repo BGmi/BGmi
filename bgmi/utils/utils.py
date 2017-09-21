@@ -15,12 +15,13 @@ from io import BytesIO
 from shutil import rmtree, move
 
 import requests
+import urllib3
 
 from bgmi import __version__
 from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, BGMI_ADMIN_PATH
 from bgmi.constants import SUPPORT_WEBSITE
 
-requests.packages.urllib3.disable_warnings()
+urllib3.disable_warnings()
 
 if platform.system() == 'Windows':
     GREEN = ''
@@ -184,6 +185,7 @@ def get_terminal_col():
 
 npm_version = '1.1.x'
 
+
 def check_update(mark=True):
     def update():
         print_info('Checking update ...')
@@ -200,6 +202,7 @@ def check_update(mark=True):
             local_version = json.loads(f.read())['version']
         if admin_version > local_version:
             get_web_admin(method='update')
+
     if not mark:
         update()
         raise SystemExit
@@ -314,4 +317,4 @@ def get_web_admin(method):
     os.removedirs(os.path.join(BGMI_ADMIN_PATH, 'dist'))
     with open(os.path.join(BGMI_ADMIN_PATH, 'package.json'), 'w+') as f:
         f.write(version)
-    print_success('Web admin page {} successfully'.format(method))
+    print_success('Web admin page {} successfully. version: {}'.format(method, json.loads(version)['version']))
