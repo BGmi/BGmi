@@ -177,7 +177,8 @@ def setup():
             install_crontab()
 
     # if not os.path.exists(DB_PATH):
-    if not os.path.exists(os.path.join(BGMI_ADMIN_PATH, 'index.html')):
+    if (not os.path.exists(os.path.join(BGMI_ADMIN_PATH, 'index.html'))) or \
+            (not os.path.exists(os.path.join(BGMI_ADMIN_PATH, 'package.json'))):
         get_web_admin(method='install')
     init_db()
     main()
