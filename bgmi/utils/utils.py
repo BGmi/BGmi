@@ -191,7 +191,7 @@ def check_update(mark=True):
         else:
             print_success('Your BGmi is the latest version.')
 
-    admin_version = requests.get('https://unpkg.com/bgmi-admin/package.json', verify=False).json()['version']
+    admin_version = requests.get('https://unpkg.com/bgmi-admin@1.0.x/package.json', verify=False).json()['version']
     with open(os.path.join(BGMI_ADMIN_PATH, 'package.json'), 'r') as f:
         local_version = json.loads(f.read())['version']
     if admin_version > local_version:
