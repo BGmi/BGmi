@@ -7,6 +7,7 @@ import json
 import os
 from collections import OrderedDict, defaultdict
 
+import tornado.escape
 import tornado.httpserver
 import tornado.ioloop
 import tornado.options
@@ -131,7 +132,10 @@ class BangumiPlayerHandler(BaseHandler):
 
                 for bangumi in files:
                     if bangumi.lower().endswith('.mp4'):
-                        episode_list[episode] = {'path': os.path.join(base_path, bangumi).replace(os.path.sep, '/')}
+                        mp4_path = os.path.join(base_path, bangumi).replace(os.path.sep, '/')
+                        mp4_path = os.path.join(os.path.dirname(mp4_path),
+                                                tornado.escape.url_escape(os.path.basename(mp4_path)))
+                        episode_list[episode] = {'path': mp4_path.replace(os.path.sep, '/')}
                         print(os.path.join(base_path, bangumi))
                         break
 
