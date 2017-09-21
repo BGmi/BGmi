@@ -9,12 +9,12 @@ BGmi is a cli tool for subscribed bangumi.
 TODO
 ====
 + finish web page to admin bgmi
-+ http api: search, filter, config
-+ http api: list config
++ http api: search, filter
 
 ==========
 Update Log
 ==========
++ Web page admin to config BGmi
 + Web page admin to add and delete bangumi
 + HTTP Api
 + Store bangumi cover image locally
