@@ -1,8 +1,10 @@
 # coding=utf-8
 from __future__ import unicode_literals
 
+import hashlib
 import os
 import platform
+import random
 import sys
 
 try:
@@ -19,13 +21,14 @@ __aria2__ = ('ARIA2_RPC_URL', 'ARIA2_RPC_TOKEN',)
 __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 
 # fake __all__
-__all__ = ('BANGUMI_MOE_URL', 'BGMI_SAVE_PATH', 'DOWNLOAD_DELEGATE', 'MAX_PAGE',
-           'DATA_SOURCE', 'BGMI_TMP_PATH', 'DANMAKU_API_URL', 'LANG', 'BGMI_ADMIN_PATH')
+__all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE', 'MAX_PAGE',
+           'DATA_SOURCE', 'TMP_PATH', 'DANMAKU_API_URL', 'LANG', 'ADMIN_PATH',
+           'ADMIN_TOKEN')
 
 # cannot be rewrite
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
                 'IS_PYTHON3', 'SCRIPT_PATH',
-                'SCRIPT_DB_PATH', 'BGMI_ADMIN_PATH',)
+                'SCRIPT_DB_PATH', 'ADMIN_PATH',)
 
 # writeable
 __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
@@ -88,18 +91,16 @@ def print_config():
     return string
 
 
-# def print_config():
-# pass
-
-
 def write_default_config():
     c = configparser.ConfigParser()
     if not c.has_section('bgmi'):
         c.add_section('bgmi')
 
-    for i in __writeable__:
-        v = globals().get(i, None)
-        c.set('bgmi', i, v)
+    for k in __writeable__:
+        v = globals().get(k, None)
+        if k == 'ADMIN_TOKEN' and v is None:
+            v = hashlib.md5(str(random.random())).hexdigest()
+        c.set('bgmi', k, v)
 
     if DOWNLOAD_DELEGATE not in download_delegate_map.keys():
         raise Exception(DOWNLOAD_DELEGATE)
@@ -107,9 +108,9 @@ def write_default_config():
     if not c.has_section(DOWNLOAD_DELEGATE):
         c.add_section(DOWNLOAD_DELEGATE)
 
-    for i in download_delegate_map.get(DOWNLOAD_DELEGATE):
-        v = globals().get(i, None)
-        c.set(DOWNLOAD_DELEGATE, i, v)
+    for k in download_delegate_map.get(DOWNLOAD_DELEGATE):
+        v = globals().get(k, None)
+        c.set(DOWNLOAD_DELEGATE, k, v)
 
     try:
         c.write(open(CONFIG_FILE_PATH, 'w'))
@@ -192,14 +193,17 @@ BANGUMI_MOE_URL = 'https://bangumi_moe.ricterz.me'
 DATA_SOURCE = 'bangumi_moe'
 
 # BGmi user path
-BGMI_SAVE_PATH = os.path.join(BGMI_PATH, 'bangumi')
+SAVE_PATH = os.path.join(BGMI_PATH, 'bangumi')
+ADMIN_PATH = os.path.join(BGMI_PATH, 'admin')
 
-BGMI_ADMIN_PATH = os.path.join(BGMI_PATH, 'admin')
+# admin token
+ADMIN_TOKEN = None
+
 # Xunlei offline download
 XUNLEI_LX_PATH = os.path.join(BGMI_PATH, 'bgmi-lx')
 
 # temp path
-BGMI_TMP_PATH = os.path.join(BGMI_PATH, 'tmp')
+TMP_PATH = os.path.join(BGMI_PATH, 'tmp')
 
 # Download delegate
 DOWNLOAD_DELEGATE = 'aria2-rpc'

@@ -1,11 +1,12 @@
 import json
 import os
 
-from tornado.web import RequestHandler
-
+from bgmi.config import ADMIN_TOKEN
 from bgmi.constants import ACTION_ADD, ACTION_DELETE, ACTION_CAL, ACTION_SEARCH, ACTION_CONFIG, ACTION_DOWNLOAD
 from bgmi.controllers import add, delete, search, cal, config
 from bgmi.download import download_prepare
+from bgmi.front.http import BaseHandler
+
 
 api_map_post = {
     ACTION_ADD: add,
@@ -25,7 +26,7 @@ def jsonify(obj):
     return json.dumps(obj, ensure_ascii=False)
 
 
-class ApiHandle(RequestHandler):
+class ApiHandle(BaseHandler):
     def get(self, action, *args, **kwargs):
         if action in api_map_get:
             self.add_header('content-type', 'application/json; charset=utf-8')

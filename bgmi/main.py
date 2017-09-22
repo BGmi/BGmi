@@ -11,7 +11,7 @@ import sqlite3
 import sys
 
 import bgmi.config
-from bgmi.config import BGMI_PATH, DB_PATH, SCRIPT_DB_PATH, BGMI_ADMIN_PATH
+from bgmi.config import BGMI_PATH, DB_PATH, SCRIPT_DB_PATH, ADMIN_PATH
 from bgmi.constants import *
 from bgmi.cli import controllers
 # Wrap sys.stdout into a StreamWriter to allow writing unicode.
@@ -178,10 +178,10 @@ def setup():
             # if not input('Do you want to install a crontab to auto-download bangumi?(Y/n): ') == 'n':
             install_crontab()
 
-    # if not os.path.exists(DB_PATH):
-    if (not os.path.exists(os.path.join(BGMI_ADMIN_PATH, 'index.html'))) or \
-            (not os.path.exists(os.path.join(BGMI_ADMIN_PATH, 'package.json'))):
+    if (not os.path.exists(os.path.join(ADMIN_PATH, 'index.html'))) or \
+            (not os.path.exists(os.path.join(ADMIN_PATH, 'package.json'))):
         get_web_admin(method='install')
+
     init_db()
     main()
 
