@@ -112,7 +112,8 @@ def write_default_config():
         c.set(DOWNLOAD_DELEGATE, i, v)
 
     try:
-        c.write(open(CONFIG_FILE_PATH, 'w'))
+        with open(CONFIG_FILE_PATH, 'w') as f:
+            c.write(f)
     except IOError:
         print('[-] Error writing to config file and ignored')
 

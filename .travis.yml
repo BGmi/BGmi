@@ -35,7 +35,7 @@ script:
     - bgmi update $BANGUMI_2
     - bgmi filter $BANGUMI_2 --subtitle "" --exclude "MKV" --regex "720p|720P"
     - bgmi fetch $BANGUMI_2
-    - bgmi search "为美好的世界献上祝福！" --regex-filter '.*动漫国字幕组.*为美好的世界献上祝福！].*720P.*'
+    - bgmi search "Gamers!" --regex-filter '.*字幕组.*].*720P.*'
     - echo 'test mikan'
     - export BANGUMI_1=名侦探柯南
     - export BANGUMI_2=海贼王

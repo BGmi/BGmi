@@ -1,11 +1,9 @@
-# coding=utf-8
-# from __future__ import print_function, unicode_literals
+# -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals
 
 import os
-import shutil
 import unittest
 
-from bgmi.config import BGMI_PATH
 from bgmi.controllers import *
 from bgmi.main import setup
 from bgmi.models import Bangumi
@@ -68,7 +66,7 @@ class ControllersTest(unittest.TestCase):
     def test_search(self):
         r = search(self.bangumi_name_1, dupe=False)
         for episode in r:
-            self.assertIn(self.bangumi_name_1, episode['title'])
+            self.assertNotEqual(episode['title'].find(self.bangumi_name_1), -1)
 
     def test_download(self):
         pass
@@ -78,11 +76,4 @@ class ControllersTest(unittest.TestCase):
 
     @staticmethod
     def setUpClass():
-        # if os.path.exists(BGMI_PATH):
-        #     shutil.rmtree(BGMI_PATH)
         setup()
-        # write_default_config()
-
-    @staticmethod
-    def tearDownClass():
-        shutil.rmtree(BGMI_PATH)
