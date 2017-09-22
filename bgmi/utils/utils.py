@@ -15,11 +15,13 @@ from io import BytesIO
 from shutil import rmtree, move
 
 import requests
+import urllib3
 
 from bgmi import __version__
-from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, SUPPORT_WEBSITE, BGMI_ADMIN_PATH
+from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, BGMI_ADMIN_PATH
+from bgmi.constants import SUPPORT_WEBSITE
 
-requests.packages.urllib3.disable_warnings()
+urllib3.disable_warnings()
 
 if platform.system() == 'Windows':
     GREEN = ''
@@ -181,6 +183,11 @@ def get_terminal_col():
             return 80
 
 
+npm_version = '1.1.x'
+package_json_url = 'https://unpkg.com/bgmi-admin@{}/package.json'.format(npm_version)
+tar_url = 'https://unpkg.com/bgmi-admin@{version}/dist.tar.gz'.format(version=npm_version)
+
+
 def check_update(mark=True):
     def update():
         print_info('Checking update ...')
@@ -190,8 +197,15 @@ def check_update(mark=True):
                           '\nThen execute `bgmi upgrade` to migrate database'.format(GREEN, version, COLOR_END))
         else:
             print_success('Your BGmi is the latest version.')
+        admin_version = requests.get(package_json_url).json()[
+            'version']
 
-    admin_version = requests.get('https://unpkg.com/bgmi-admin@1.0.x/package.json', verify=False).json()['version']
+        with open(os.path.join(BGMI_ADMIN_PATH, 'package.json'), 'r') as f:
+            local_version = json.loads(f.read())['version']
+        if admin_version > local_version:
+            get_web_admin(method='update')
+
+    admin_version = requests.get('https://unpkg.com/bgmi-admin@1.0.x/package.json').json()['version']
     with open(os.path.join(BGMI_ADMIN_PATH, 'package.json'), 'r') as f:
         local_version = json.loads(f.read())['version']
     if admin_version > local_version:
@@ -273,26 +287,27 @@ def normalize_path(url):
     illegal_char = [':', '*', '?', '"', '<', '>', '|', "'"]
     for char in illegal_char:
         url = url.replace(char, '')
+
     if url.startswith('/'):
         return url[1:]
     else:
         return url
 
 
-def get_web_admin(method=''):
-    if method == 'install':
-        print_info('Installing web admin')
-    elif method == 'update':
-        print_info('Updating web admin')
+def get_web_admin(method):
+    print_info('{} web admin'.format(method[0].upper() + method[1:]))
+    if method == 'update':
         rmtree(BGMI_ADMIN_PATH)
         os.makedirs(BGMI_ADMIN_PATH)
     try:
         if os.environ.get('DEV', False):
-            version = requests.get('http://localhost:8092/https/unpkg.com/bgmi-admin@1.0.x/package.json').text
-            r = requests.get('http://localhost:8092/https/unpkg.com/bgmi-admin@1.0.x/dist.tar.gz')
+            version = requests.get('http://localhost:8092/https/unpkg.com/bgmi-admin@{version}/package.json'.format(
+                version=npm_version)).text
+            r = requests.get(
+                'http://localhost:8092/https/unpkg.com/bgmi-admin@{version}/dist.tar.gz'.format(version=npm_version))
         else:
-            version = requests.get('https://unpkg.com/bgmi-admin@1.0.x/package.json').text
-            r = requests.get('https://unpkg.com/bgmi-admin@1.0.x/dist.tar.gz')
+            version = requests.get(package_json_url).text
+            r = requests.get(tar_url)
     except requests.exceptions.ConnectionError:
         print_warning('failed to download web admin')
         return
@@ -309,4 +324,4 @@ def get_web_admin(method=''):
     os.removedirs(os.path.join(BGMI_ADMIN_PATH, 'dist'))
     with open(os.path.join(BGMI_ADMIN_PATH, 'package.json'), 'w+') as f:
         f.write(version)
-    print_success('Web admin page {}ed successfully'.format(method))
+    print_success('Web admin page {} successfully. version: {}'.format(method, json.loads(version)['version']))

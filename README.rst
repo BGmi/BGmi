@@ -9,12 +9,12 @@ BGmi is a cli tool for subscribed bangumi.
 TODO
 ====
 + finish web page to admin bgmi
-+ http api: search
-+ http api: list config
++ http api: search, filter
 
 ==========
 Update Log
 ==========
++ Web page admin to config BGmi
 + Web page admin to add and delete bangumi
 + HTTP Api
 + Store bangumi cover image locally
@@ -421,7 +421,8 @@ DPlayer and Danmaku
 
 BGmi use `DPlayer <https://github.com/DIYgod/DPlayer>`_ to play bangumi.
 
-First, setup nginx to access bangumi files. Second, choose one danmaku backend at `DPlayer#related-projects <https://github.com/DIYgod/DPlayer#related-projects>`_.
+First, setup nginx to access bangumi files.
+Second, choose one danmaku backend at `DPlayer#related-projects <https://github.com/DIYgod/DPlayer#related-projects>`_.
 
 Use `bgmi config` to setup the url of danmaku api.
 

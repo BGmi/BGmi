@@ -31,12 +31,12 @@ def get_download_class(download_obj=None, save_path='', overwrite=True, instance
 def download_prepare(data):
     """
     list[dict]
-    dict:{
-    name;str, keyword you use when search
+    dict[
+    name:str, keyword you use when search
     title:str, title of episode
     episode:int, episode of bangumi
     download:str, link to download
-    }
+    ]
     :param data:
     :return:
     """

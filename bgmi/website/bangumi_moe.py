@@ -189,7 +189,7 @@ class BangumiMoe(BaseWebsite):
 
         return bangumi_result, subtitile_result
 
-    def search_by_keyword(self, keyword, count):
+    def search_by_keyword(self, keyword, count=None):
         """
         return a list of dict with at least 4 key: download, name, title, episode
         example:
@@ -211,6 +211,8 @@ class BangumiMoe(BaseWebsite):
         :return: list of episode search result
         :rtype: list[dict]
         """
+        if not count:
+            count = 3
 
         rows = []
         result = []

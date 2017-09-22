@@ -99,7 +99,7 @@ def parser_subtitle_of_bangumi(bangumi_id):
 class Mikanani(BaseWebsite):
     cover_url = server_root[:-1]
 
-    def search_by_keyword(self, keyword, count):
+    def search_by_keyword(self, keyword, count=None):
         """
         return a list of dict with at least 4 key: download, name, title, episode
         example:

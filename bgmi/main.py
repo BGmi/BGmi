@@ -13,7 +13,7 @@ import sys
 import bgmi.config
 from bgmi.config import BGMI_PATH, DB_PATH, SCRIPT_DB_PATH, BGMI_ADMIN_PATH
 from bgmi.constants import *
-from bgmi.controllers import controllers
+from bgmi.cli import controllers
 # Wrap sys.stdout into a StreamWriter to allow writing unicode.
 from bgmi.sql import (CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER,
                       CREATE_TABLE_SUBTITLE, CREATE_TABLE_SCRIPT)
@@ -31,7 +31,7 @@ else:
 
 
 # global Ctrl-C signal handler
-def signal_handler(signal, frame):
+def signal_handler(signal, frame):  # pragma: no cover
     print_error('User aborted, quit')
 
 
@@ -123,6 +123,8 @@ def main():
     sub_parser_search.add_argument('--regex-filter', type=unicode_, help='Regular expression filter of title.')
     sub_parser_search.add_argument('--download', action='store_true',
                                    help='Download search result.')
+    sub_parser_search.add_argument('--dupe', action='store_true',
+                                   help="Show add result without filter and don't remove duplicated episode")
 
     sub_parser_search = sub_parser.add_parser(ACTION_SOURCE, help='select date source bangumi_moe or mikan_project')
     sub_parser_search.add_argument('source', help='bangumi_moe or mikan_project', type=unicode_)
