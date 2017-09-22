@@ -33,14 +33,15 @@ def jsonify(obj):
 def auth(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
-
         if kwargs.get('action', None) in NO_AUTH_ACTION:
-            return
+            return f(*args, **kwargs)
 
         if args and isinstance(args[0], BaseHandler):
             token = args[0].request.headers.get('bgmi-token')
             if token == ADMIN_TOKEN:
-                return
+                return f(*args, **kwargs)
+
+            # maybe return a json
             raise tornado.web.HTTPError(401)
         raise tornado.web.HTTPError(400)
 

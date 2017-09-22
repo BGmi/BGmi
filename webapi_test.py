@@ -25,7 +25,8 @@ api_list = [
         'show_output': True
     }
 ]
-print(os.environ.get('BANGUMI_3'))
+
+
 if __name__ == '__main__':
     for api in api_list:
         r = getattr(requests, api['method'])('http://localhost:8888/api/{}'.format(api['action']),
