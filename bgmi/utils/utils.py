@@ -287,6 +287,7 @@ def normalize_path(url):
     illegal_char = [':', '*', '?', '"', '<', '>', '|', "'"]
     for char in illegal_char:
         url = url.replace(char, '')
+
     if url.startswith('/'):
         return url[1:]
     else:
