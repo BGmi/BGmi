@@ -5,7 +5,7 @@ import os
 import shutil
 import unittest
 
-from bgmi.config import BGMI_PATH, write_default_config
+from bgmi.config import BGMI_PATH
 from bgmi.controllers import *
 from bgmi.main import setup
 from bgmi.models import Bangumi
@@ -78,10 +78,10 @@ class ControllersTest(unittest.TestCase):
 
     @staticmethod
     def setUpClass():
-        if os.path.exists(BGMI_PATH):
-            shutil.rmtree(BGMI_PATH)
+        # if os.path.exists(BGMI_PATH):
+        #     shutil.rmtree(BGMI_PATH)
         setup()
-        write_default_config()
+        # write_default_config()
 
     @staticmethod
     def tearDownClass():
