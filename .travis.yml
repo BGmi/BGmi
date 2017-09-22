@@ -4,7 +4,6 @@ os:
 language: python
 python:
     - 2.7
-    - 3.3
     - 3.4
     - 3.6
 
@@ -22,6 +21,7 @@ script:
     - bgmi -h
     - curl https://static.ricterz.me/test_script.py > $HOME/.bgmi/scripts/test_script.py
     - bgmi cal
+    - bgmi config ARIA2_RPC_TOKEN 'token:233'
     - bgmi config DOWNLOAD_DELEGATE 'rr!'
     - bgmi add $BANGUMI_1 $BANGUMI_2 $BANGUMI_3
     - bgmi update
@@ -33,7 +33,6 @@ script:
     - sleep 3
     - python webapi_test.py
     - bgmi list
-    - bgmi config ARIA2_RPC_TOKEN 'token:233'
     - bgmi download --list
     - bgmi mark $BANGUMI_2 1
     - bgmi update $BANGUMI_2

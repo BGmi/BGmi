@@ -4,7 +4,6 @@ import json
 import requests
 from bgmi.script import ScriptBase
 
-
 class Script(ScriptBase):
 
     class Model(ScriptBase.Model):

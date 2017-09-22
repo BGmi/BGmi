@@ -1,27 +1,23 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 
-import datetime
 import glob
 import os
 import re
-import string
 import time
 from collections import defaultdict
-from copy import deepcopy
 from itertools import chain
 
 import requests
 import tqdm
 
-import bgmi.config
-from bgmi.config import MAX_PAGE, BGMI_SAVE_PATH
+from bgmi.config import MAX_PAGE, BGMI_SAVE_PATH, IS_PYTHON3
 from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, Followed
 from bgmi.script import ScriptRunner
 from bgmi.utils import (parse_episode, print_warning, print_info,
-                        test_connection, get_terminal_col, GREEN, YELLOW, COLOR_END, normalize_path)
+                        test_connection, normalize_path)
 
-if bgmi.config.IS_PYTHON3:
+if IS_PYTHON3:
     _unicode = str
 else:
     _unicode = unicode
@@ -64,7 +60,7 @@ class BaseWebsite(object):
         b = Bangumi(**data)
         b.save()
 
-    def fetch(self, save=False, group_by_weekday=True, status=False):
+    def fetch(self, save=False, group_by_weekday=True):
         bangumi_result, subtitle_group_result = self.fetch_bangumi_calendar_and_subtitle_group()
         if subtitle_group_result:
             for subtitle_group in subtitle_group_result:
@@ -85,17 +81,20 @@ class BaseWebsite(object):
             bangumi_result = result_group_by_weekday
         return bangumi_result
 
-    def bangumi_calendar(self, force_update=False, today=False, followed=False, save=True):
-        env_columns = 42 if os.environ.get('TRAVIS_CI', False) else get_terminal_col()
+    @staticmethod
+    def followed_bangumi():
+        weekly_list_followed = Bangumi.get_all_bangumi(status=STATUS_FOLLOWED)
+        weekly_list_updated = Bangumi.get_all_bangumi(status=STATUS_UPDATED)
+        weekly_list = defaultdict(list)
+        for k, v in chain(weekly_list_followed.items(), weekly_list_updated.items()):
+            weekly_list[k].extend(v)
+        for bangumi_list in weekly_list.values():
+            for bangumi in bangumi_list:
+                bangumi['subtitle_group'] = [{'name': x['name'], 'id': x['id']}
+                                             for x in Subtitle.get_subtitle(bangumi['subtitle_group'].split(', '))]
+        return weekly_list
 
-        col = 42
-
-        if env_columns < col:
-            print_warning('terminal window is too small.')
-            env_columns = col
-
-        row = int(env_columns / col if env_columns / col <= 3 else 3)
-
+    def bangumi_calendar(self, force_update=False, save=True, cover=False):
         if force_update and not test_connection():
             force_update = False
             print_warning('network is unreachable')
@@ -103,36 +102,12 @@ class BaseWebsite(object):
         if force_update:
             print_info('fetching bangumi info ...')
             Bangumi.delete_all()
-            weekly_list = self.fetch(save=save, status=True)
+            weekly_list = self.fetch(save=save)
         else:
-            if followed:
-                weekly_list_followed = Bangumi.get_all_bangumi(status=STATUS_FOLLOWED)
-                weekly_list_updated = Bangumi.get_all_bangumi(status=STATUS_UPDATED)
-                weekly_list = defaultdict(list)
-                for k, v in chain(weekly_list_followed.items(), weekly_list_updated.items()):
-                    weekly_list[k].extend(v)
-            else:
-                weekly_list = Bangumi.get_all_bangumi()
+            weekly_list = Bangumi.get_all_bangumi()
         if not weekly_list:
-            if not followed:
-                print_warning('warning: no bangumi schedule, fetching ...')
-                weekly_list = self.fetch(save=save)
-            else:
-                print_warning('you have not subscribed any bangumi')
-
-        def shift(seq, n):
-            n %= len(seq)
-            return seq[n:] + seq[:n]
-
-        def print_line():
-            num = col - 3
-            split = '-' * num + '   '
-            print(split * row)
-
-        if today:
-            weekday_order = (Bangumi.week[datetime.datetime.today().weekday()],)
-        else:
-            weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
+            print_warning('warning: no bangumi schedule, fetching ...')
+            weekly_list = self.fetch(save=save)
 
         runner = ScriptRunner()
         patch_list = runner.get_models_dict()
@@ -214,15 +189,25 @@ class BaseWebsite(object):
                 if not glob.glob(file_path):
                     cover_to_be_download.append(bangumi['cover'])
 
-        if os.environ.get('TRAVIS_CI'):
-            cover_to_be_download = []
 
-        if cover_to_be_download:
-            print_info('updating cover')
-            for cover in tqdm.tqdm(cover_to_be_download):
-                self.download_cover(cover)
+            for daily_bangumi in weekly_list.values():
+                for bangumi in daily_bangumi:
+                    followed_obj = Followed(bangumi_name=bangumi['name'])
+                    if followed_obj:
+                        bangumi['status'] = followed_obj.status
+                    _, file_path, _ = self.convert_cover_to_path(bangumi['cover'])
+                    bangumi['cover'] = normalize_path(bangumi['cover'])
+                    if not glob.glob(file_path):
+                        cover_to_be_download.append(bangumi['cover'])
 
-        return r
+            if os.environ.get('TRAVIS_CI'):
+                cover_to_be_download = []
+
+            if cover_to_be_download:
+                print_info('updating cover')
+                for cover in tqdm.tqdm(cover_to_be_download):
+                    self.download_cover(cover)
+        return weekly_list
 
     def convert_cover_to_path(self, cover_url):
         """
@@ -306,15 +291,6 @@ class BaseWebsite(object):
             if '合集' not in info['title']:
                 info['name'] = name
                 result.append(info)
-                # result.append({
-                #     'download': info['magnet'],
-                #     'name': name,
-                #     'subtitle_group': info['team_id'],
-                #     'title': info['title'],
-                #     'episode': self.parse_episode(info['title']),
-                #     'time': int(time.mktime(datetime.datetime.strptime(info['publish_time'].split('.')[0],
-                #                                                        "%Y-%m-%dT%H:%M:%S").timetuple()))
-                # })
 
         if include:
             include_list = list(map(lambda s: s.strip(), include.split(',')))
@@ -333,7 +309,6 @@ class BaseWebsite(object):
             except re.error:
                 pass
 
-        # pprint(result)
         return result
 
     def search_by_keyword(self, keyword, count):

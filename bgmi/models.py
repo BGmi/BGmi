@@ -16,7 +16,6 @@ else:
     input = raw_input
     _unicode = unicode
 
-
 # bangumi subscription and download status
 STATUS_UPDATING = 0
 STATUS_END = 1
@@ -126,7 +125,7 @@ class DB(object):
             sql = ''
 
             if isinstance(condition, _unicode):
-                condition = (condition, )
+                condition = (condition,)
 
             if isinstance(condition, (tuple, list, set)):
                 for f in condition:
@@ -142,7 +141,7 @@ class DB(object):
                         name = '`%s`' % f
                     sql += '%s%s=? %s ' % (name, operator, operation)
 
-                sql = sql[:-(len(operation)+1)]
+                sql = sql[:-(len(operation) + 1)]
             else:
                 sql += '1'
             return sql
@@ -283,7 +282,7 @@ class DB(object):
                             k.append(i)
                             v.append(self.__dict__.get(i))
             else:
-                k, v = '%s.id' % self.table, (self._id, )
+                k, v = '%s.id' % self.table, (self._id,)
         else:
             # hack for python3
             k, v = list(condition.keys()), list(condition.values())
@@ -320,7 +319,7 @@ class DB(object):
             for i in self.fields:
                 data.update({i: getattr(self, i)})
 
-        sql = self._make_sql('update', self.table, fields=list(data.keys()), condition=('id', ))
+        sql = self._make_sql('update', self.table, fields=list(data.keys()), condition=('id',))
         self._connect_db()
         params = list(data.values())
         params.append(self._id)
@@ -333,9 +332,9 @@ class DB(object):
             if not obj:
                 raise Exception('%s does not exist' % self.__repr__())
 
-        sql = self._make_sql('delete', self.table, condition=('id', ))
+        sql = self._make_sql('delete', self.table, condition=('id',))
         self._connect_db()
-        self.cursor.execute(sql, (self._id, ))
+        self.cursor.execute(sql, (self._id,))
         self._close_db()
 
     def save(self):
@@ -364,8 +363,8 @@ class DB(object):
 
 class Bangumi(DB):
     table = 'bangumi'
-    primary_key = ('name', )
-    fields = ('name', 'update_time', 'subtitle_group', 'keyword', 'status', 'cover', )
+    primary_key = ('name',)
+    fields = ('name', 'update_time', 'subtitle_group', 'keyword', 'status', 'cover',)
     week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
     def __init__(self, **kwargs):
@@ -390,7 +389,7 @@ class Bangumi(DB):
         db = Bangumi.connect_db()
         sql = Bangumi._make_sql('update', table=Bangumi.table, fields=('status'))
         cur = db.cursor()
-        cur.execute(sql, (STATUS_END, ))
+        cur.execute(sql, (STATUS_END,))
         Bangumi.close_db(db)
 
     @staticmethod
@@ -404,13 +403,13 @@ class Bangumi(DB):
                                                       'episode'], table=Bangumi.table,
                                     condition=('%s.status' % Bangumi.table),
                                     join='LEFT JOIN (%s) AS F ON bangumi.name=F.bangumi_name' % join_sql)
-            cur.execute(sql, (STATUS_UPDATING, ))
+            cur.execute(sql, (STATUS_UPDATING,))
         else:
             sql = Bangumi._make_sql('select', fields=['%s.*' % Bangumi.table, 'F.status AS status',
                                                       'episode'], table=Bangumi.table,
                                     join='LEFT JOIN (%s) AS F ON bangumi.name=F.bangumi_name' % join_sql,
                                     condition=('F.status', '%s.status' % Bangumi.table))
-            cur.execute(sql, (status, STATUS_UPDATING, ))
+            cur.execute(sql, (status, STATUS_UPDATING,))
         data = cur.fetchall()
         Bangumi.close_db(db)
 
@@ -426,7 +425,7 @@ class Bangumi(DB):
 
 class Followed(DB):
     table = 'followed'
-    primary_key = ('bangumi_name', )
+    primary_key = ('bangumi_name',)
     fields = ('bangumi_name', 'episode', 'status', 'updated_time',)
 
     @staticmethod
@@ -484,8 +483,8 @@ class Followed(DB):
 
 class Download(DB):
     table = 'download'
-    primary_key = ('name', 'episode', )
-    fields = ('name', 'title', 'episode', 'download', 'status', )
+    primary_key = ('name', 'episode',)
+    fields = ('name', 'title', 'episode', 'download', 'status',)
 
     @staticmethod
     def get_all_downloads(status=None):
@@ -499,7 +498,7 @@ class Download(DB):
             cur.execute(sql)
         else:
             sql = DB._make_sql('select', table=Download.table, condition=['status', ])
-            cur.execute(sql, (status, ))
+            cur.execute(sql, (status,))
 
         data = cur.fetchall()
         DB.close_db(db)
@@ -512,14 +511,14 @@ class Download(DB):
 
 class Filter(DB):
     table = 'filter'
-    primary_key = ('bangumi_name', )
-    fields = ('bangumi_name', 'subtitle', 'include', 'exclude', 'regex', )
+    primary_key = ('bangumi_name',)
+    fields = ('bangumi_name', 'subtitle', 'include', 'exclude', 'regex',)
 
 
 class Subtitle(DB):
     table = 'subtitle'
-    primary_key = ('id', )
-    fields = ('id', 'name', )
+    primary_key = ('id',)
+    fields = ('id', 'name',)
 
     @staticmethod
     def get_subtitle(l=None):
@@ -527,7 +526,7 @@ class Subtitle(DB):
         db = DB.connect_db()
         db.row_factory = make_dicts
         cur = db.cursor()
-        sql = DB._make_sql('select', fields='name', table=Subtitle.table,
+        sql = DB._make_sql('select', fields=['name', 'id'], table=Subtitle.table,
                            condition=['id'] * len(l), operation='OR')
         cur.execute(sql, l)
         data = cur.fetchall()
@@ -564,7 +563,7 @@ class Subtitle(DB):
 class Script(DB):
     db_path = bgmi.config.SCRIPT_DB_PATH
     table = 'scripts'
-    primary_key = ('bangumi_name', )
+    primary_key = ('bangumi_name',)
     fields = ('bangumi_name', 'episode', 'status', 'updated_time',)
 
     def __str__(self):

@@ -25,6 +25,7 @@ class ModelsTest(unittest.TestCase):
         self.db.commit()
 
     def tearDown(self):
+        self.conn.close()
         self.db.close()
         os.remove(DB_PATH)
 
