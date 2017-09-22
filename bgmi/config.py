@@ -99,7 +99,7 @@ def write_default_config():
     for k in __writeable__:
         v = globals().get(k, None)
         if k == 'ADMIN_TOKEN' and v is None:
-            if IS_PYTHON3:
+            if sys.version_info > (3, 0):
                 v = hashlib.md5(str(random.random()).encode('utf-8')).hexdigest()
             else:
                 v = hashlib.md5(str(random.random())).hexdigest()
