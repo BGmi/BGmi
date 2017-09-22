@@ -9,7 +9,7 @@ python:
 
 install:
     - python setup.py install
-
+    - pip install codecov
 env:
     - TRAVIS_CI=TRAVIS_CI
 
@@ -17,7 +17,8 @@ script:
     - export BANGUMI_1=捏造陷阱NTR
     - export BANGUMI_2=骑士魔法
     - export BANGUMI_3=异世界食堂
-    - python -m unittest discover
+    - coverage run -m unittest tests.test_models
+    - coverage run -m unittest tests.test_controllers
     - bgmi -h
     - curl https://static.ricterz.me/test_script.py > $HOME/.bgmi/scripts/test_script.py
     - bgmi cal
@@ -28,10 +29,6 @@ script:
     - bgmi delete --name $BANGUMI_3
     - bgmi delete --clear-all --batch
     - bgmi add $BANGUMI_2 --episode 1
-# # give server some time to start
-    - bgmi_http &
-    - sleep 3
-    - python webapi_test.py
     - bgmi list
     - bgmi download --list
     - bgmi mark $BANGUMI_2 1
@@ -40,20 +37,14 @@ script:
     - bgmi fetch $BANGUMI_2
     - bgmi search "为美好的世界献上祝福！" --regex-filter '.*动漫国字幕组.*为美好的世界献上祝福！].*720P.*'
     - echo 'test mikan'
-    - export BANGUMI_5=名侦探柯南
-    - export BANGUMI_6=海贼王
+    - export BANGUMI_1=名侦探柯南
+    - export BANGUMI_2=海贼王
     - bgmi source mikan_project
-    - bgmi cal
-    - bgmi config
-    - bgmi add $BANGUMI_5 $BANGUMI_6
-    - bgmi update
-    - bgmi delete --name $BANGUMI_6
-    - bgmi delete --clear-all --batch
-    - bgmi add $BANGUMI_5 --episode 1
-    - bgmi list
-    - bgmi download --list
-    - bgmi mark $BANGUMI_5 1
-    - bgmi update $BANGUMI_5
-    - bgmi filter $BANGUMI_5 --subtitle "猪猪字幕组" --exclude "MKV" --regex "720p|720P"
-    - bgmi fetch $BANGUMI_5
-    - bgmi search "妖怪手表" --regex-filter '.*Dymy字幕组.*'
+    - coverage run -m unittest tests.test_controllers
+
+    - bgmi_http &
+    - sleep 3
+    - python webapi_test.py
+
+after_success:
+  - codecov

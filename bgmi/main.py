@@ -11,9 +11,9 @@ import sqlite3
 import sys
 
 import bgmi.config
+from bgmi.cli import controllers
 from bgmi.config import BGMI_PATH, DB_PATH, SCRIPT_DB_PATH, BGMI_ADMIN_PATH
 from bgmi.constants import *
-from bgmi.cli import controllers
 # Wrap sys.stdout into a StreamWriter to allow writing unicode.
 from bgmi.sql import (CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER,
                       CREATE_TABLE_SUBTITLE, CREATE_TABLE_SCRIPT)
@@ -183,8 +183,8 @@ def setup():
             (not os.path.exists(os.path.join(BGMI_ADMIN_PATH, 'package.json'))):
         get_web_admin(method='install')
     init_db()
-    main()
 
 
 if __name__ == '__main__':
     setup()
+    main()

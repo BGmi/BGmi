@@ -1,11 +1,13 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
+
 import os
-import unittest
 import sqlite3
+import unittest
+
+import bgmi.config
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED, STATUS_NORMAL
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD
-import bgmi.config
 
 bgmi.config.DB_PATH = '/tmp/bangumi.db'
 DB_PATH = bgmi.config.DB_PATH
