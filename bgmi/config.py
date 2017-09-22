@@ -99,7 +99,10 @@ def write_default_config():
     for k in __writeable__:
         v = globals().get(k, None)
         if k == 'ADMIN_TOKEN' and v is None:
-            v = hashlib.md5(str(random.random())).hexdigest()
+            if IS_PYTHON3:
+                v = hashlib.md5(str(random.random())).encode('utf-8').hexdigest()
+            else:
+                v = hashlib.md5(str(random.random())).hexdigest()
         c.set('bgmi', k, v)
 
     if DOWNLOAD_DELEGATE not in download_delegate_map.keys():
@@ -164,7 +167,6 @@ def write_config(config=None, value=None):
                                 c.write(f)
                     result = {'status': 'success',
                               'message': '{0} has been set to {1}'.format(config, value)}
-
 
             elif config in download_delegate_map.get(DOWNLOAD_DELEGATE):
                 c.set(DOWNLOAD_DELEGATE, config, value)
