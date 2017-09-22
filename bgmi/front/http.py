@@ -18,9 +18,9 @@ from tornado.options import options, define
 
 from bgmi import __version__
 from bgmi.config import SAVE_PATH, ADMIN_PATH, DB_PATH, DANMAKU_API_URL
-from bgmi.front.api import ApiHandle
+from bgmi.front.base import BaseHandler
+from bgmi.front.api import ApiHandler
 from bgmi.models import Download, Bangumi, Followed, STATUS_NORMAL, STATUS_UPDATING, STATUS_END
-from bgmi.script import ScriptRunner
 from bgmi.utils import normalize_path
 
 COVER_URL = '/bangumi/cover'  # website.cover_url
@@ -37,20 +37,6 @@ def md5(_, string):
 def make_dicts(cursor, row):
     return dict((cursor.description[idx][0], value)
                 for idx, value in enumerate(row))
-
-
-class BaseHandler(tornado.web.RequestHandler):
-    patch_list = None
-
-    def data_received(self, chunk):
-        pass
-
-    def __init__(self, *args, **kwargs):
-        if self.patch_list is None:
-            runner = ScriptRunner()
-            self.patch_list = runner.get_models_dict()
-
-        super(BaseHandler, self).__init__(*args, **kwargs)
 
 
 class BangumiHandler(BaseHandler):
@@ -75,7 +61,7 @@ class BangumiHandler(BaseHandler):
             self.finish()
 
 
-class AdminHandle(tornado.web.RequestHandler):
+class AdminHandle(BaseHandler):
     def get(self, _):
         if os.environ.get('DEV', False):
             with open(os.path.join(ADMIN_PATH, _), 'rb') as f:
@@ -270,7 +256,7 @@ def make_app():
         (r'^/bangumi/(.*)', BangumiHandler),
         (r'^/rss$', RssHandler),
         (r'^/calendar.ics$', CalendarHandler),
-        (r'^/api/?(?P<action>.*)', ApiHandle),
+        (r'^/api/?(?P<action>.*)', ApiHandler),
         (r'/admin/(.*)', AdminHandle)
     ], **settings)
 
