@@ -186,6 +186,7 @@ class BaseWebsite(object):
 
                 if not followed:
                     print()
+
         # for web api
         r = result.copy()
         for day, value in result.items():
@@ -209,7 +210,7 @@ class BaseWebsite(object):
                 if followed_obj:
                     bangumi['status'] = followed_obj.status
                 _, file_path, _ = self.convert_cover_to_path(bangumi['cover'])
-                bangumi['cover'] = normalize_path(bangumi['cover'])
+
                 if not glob.glob(file_path):
                     cover_to_be_download.append(bangumi['cover'])
 
@@ -254,6 +255,7 @@ class BaseWebsite(object):
 
         if not glob.glob(dir_path):
             os.makedirs(dir_path)
+
         if os.environ.get('DEV', False):
             url = url.replace('https://', 'http://localhost:8092/https/')
             url = url.replace('http://', 'http://localhost:8092/http/')
