@@ -100,7 +100,7 @@ def write_default_config():
         v = globals().get(k, None)
         if k == 'ADMIN_TOKEN' and v is None:
             if IS_PYTHON3:
-                v = hashlib.md5(str(random.random())).encode('utf-8').hexdigest()
+                v = hashlib.md5(str(random.random()).encode('utf-8')).hexdigest()
             else:
                 v = hashlib.md5(str(random.random())).hexdigest()
         c.set('bgmi', k, v)
