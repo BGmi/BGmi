@@ -21,13 +21,14 @@ script:
     - bgmi -h
     - curl https://static.ricterz.me/test_script.py > $HOME/.bgmi/scripts/test_script.py
     - bgmi cal
-    - bgmi config ARIA2_RPC_TOKEN 'token:233'
-    - bgmi config DOWNLOAD_DELEGATE 'rr!'
+    - bgmi config
+    - bgmi config ADMIN_TOKEN 233
     - bgmi add $BANGUMI_1 $BANGUMI_2 $BANGUMI_3
     - bgmi update
     - bgmi delete --name $BANGUMI_3
     - bgmi delete --clear-all --batch
     - bgmi add $BANGUMI_2 --episode 1
+
 # # give server some time to start
     - bgmi_http &
     - sleep 3
