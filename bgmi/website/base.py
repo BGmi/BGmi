@@ -113,90 +113,16 @@ class BaseWebsite(object):
         patch_list = runner.get_models_dict()
         for i in patch_list:
             weekly_list[i['update_time'].lower()].append(i)
-
-        result = deepcopy(weekly_list)
-        spacial_append_chars = ['Ⅱ', 'Ⅲ', '♪', 'Δ', '×', '☆', 'é', '·', '♭']
-        spacial_remove_chars = []
-
-        for index, weekday in enumerate(weekday_order):
-            if weekly_list[weekday.lower()]:
-                print('%s%s. %s' % (GREEN,
-                                    weekday if not today else 'Bangumi Schedule for Today (%s)' % weekday, COLOR_END),
-                      end='')
-                if not followed:
-                    print()
-                    print_line()
-
-                for i, bangumi in enumerate(weekly_list[weekday.lower()]):
-                    if bangumi['status'] in (STATUS_UPDATED, STATUS_FOLLOWED) and 'episode' in bangumi:
-                        bangumi['name'] = '%s(%d)' % (bangumi['name'], bangumi['episode'])
-
-                    half = len(re.findall('[%s]' % string.printable, bangumi['name']))
-                    full = (len(bangumi['name']) - half)
-                    space_count = col - 2 - (full * 2 + half)
-
-                    for s in spacial_append_chars:
-                        if s in bangumi['name']:
-                            space_count += 1
-
-                    for s in spacial_remove_chars:
-                        if s in bangumi['name']:
-                            space_count -= 1
-
-                    if bangumi['status'] == STATUS_FOLLOWED:
-                        bangumi['name'] = '%s%s%s' % (YELLOW, bangumi['name'], COLOR_END)
-
-                    if bangumi['status'] == STATUS_UPDATED:
-                        bangumi['name'] = '%s%s%s' % (GREEN, bangumi['name'], COLOR_END)
-
-                    if followed:
-                        if i > 0:
-                            print(' ' * 5, end='')
-                        f = map(lambda x: x['name'], Subtitle.get_subtitle(bangumi['subtitle_group'].split(', ')))
-                        print(bangumi['name'], ', '.join(f))
-                    else:
-                        print(' ' + bangumi['name'], ' ' * space_count, end='')
-                        if (i + 1) % row == 0 or i + 1 == len(weekly_list[weekday.lower()]):
-                            print()
-
-                if not followed:
-                    print()
-
-        # for web api
-        r = result.copy()
-        for day, value in result.items():
-            for index, bangumi in enumerate(value):
-                if isinstance(bangumi['subtitle_group'], list):
-                    subtitle_group = list(map(lambda x: {'name': x['name'], 'id': x['id']},
-                                              Subtitle.get_subtitle_by_id(
-                                                  bangumi['subtitle_group'])))
-                else:
-                    subtitle_group = list(map(lambda x: {'name': x['name'], 'id': x['id']},
-                                              Subtitle.get_subtitle_by_id(
-                                                  bangumi['subtitle_group'].split(', ' ''))))
-
-                r[day][index]['subtitle_group'] = subtitle_group
-
-        # download cover to local
-        cover_to_be_download = []
-        for daily_bangumi in result.values():
-            for bangumi in daily_bangumi:
-                followed_obj = Followed(bangumi_name=bangumi['name'])
-                if followed_obj:
-                    bangumi['status'] = followed_obj.status
-                _, file_path, _ = self.convert_cover_to_path(bangumi['cover'])
-
-                if not glob.glob(file_path):
-                    cover_to_be_download.append(bangumi['cover'])
-
-
+        if cover:
+            # download cover to local
+            cover_to_be_download = []
             for daily_bangumi in weekly_list.values():
                 for bangumi in daily_bangumi:
                     followed_obj = Followed(bangumi_name=bangumi['name'])
                     if followed_obj:
                         bangumi['status'] = followed_obj.status
                     _, file_path, _ = self.convert_cover_to_path(bangumi['cover'])
-                    bangumi['cover'] = normalize_path(bangumi['cover'])
+
                     if not glob.glob(file_path):
                         cover_to_be_download.append(bangumi['cover'])
 
@@ -240,7 +166,6 @@ class BaseWebsite(object):
 
         if not glob.glob(dir_path):
             os.makedirs(dir_path)
-
         if os.environ.get('DEV', False):
             url = url.replace('https://', 'http://localhost:8092/https/')
             url = url.replace('http://', 'http://localhost:8092/http/')
