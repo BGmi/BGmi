@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals
 
-from bgmi.config import write_config, IS_PYTHON3
+from bgmi.config import write_config
 from bgmi.constants import SUPPORT_WEBSITE
 from bgmi.download import download_prepare
 from bgmi.fetch import website
@@ -11,11 +11,6 @@ from bgmi.models import (STATUS_NORMAL, DB)
 from bgmi.script import ScriptRunner
 from bgmi.utils import (print_info, normalize_path)
 from bgmi.utils import print_success, print_error
-
-if IS_PYTHON3:
-    _unicode = str
-else:
-    _unicode = unicode
 
 
 def add(name, episode=None):
@@ -200,10 +195,10 @@ def mark(name, episode):
         followed_obj.episode = episode
         followed_obj.save()
         result['status'] = 'success'
-        result['message'] = _unicode('{} has been mark as episode: {}').format(_unicode(name), _unicode(episode))
+        result['message'] = '{} has been mark as episode: {}'.format(name, episode)
     else:  # episode is None
         result['status'] = 'info'
-        result['message'] = _unicode('{}, episode: {}').format(_unicode(name), _unicode(followed_obj.episode))
+        result['message'] = '{}, episode: {}'.format(name, followed_obj.episode)
     return result
 
 
