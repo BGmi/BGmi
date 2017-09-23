@@ -20,6 +20,7 @@ import urllib3
 from bgmi import __version__
 from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, ADMIN_PATH
 from bgmi.constants import SUPPORT_WEBSITE
+from constants import NPM_VERSION
 
 urllib3.disable_warnings()
 
@@ -183,9 +184,8 @@ def get_terminal_col():
             return 80
 
 
-npm_version = '1.1.x'
-package_json_url = 'https://unpkg.com/bgmi-admin@{}/package.json'.format(npm_version)
-tar_url = 'https://unpkg.com/bgmi-admin@{version}/dist.tar.gz'.format(version=npm_version)
+package_json_url = 'https://unpkg.com/bgmi-admin@{}/package.json'.format(NPM_VERSION)
+tar_url = 'https://unpkg.com/bgmi-admin@{version}/dist.tar.gz'.format(version=NPM_VERSION)
 
 
 def check_update(mark=True):
@@ -302,9 +302,9 @@ def get_web_admin(method):
     try:
         if os.environ.get('DEV', False):
             version = requests.get('http://localhost:8092/https/unpkg.com/bgmi-admin@{version}/package.json'.format(
-                version=npm_version)).text
+                version=NPM_VERSION)).text
             r = requests.get(
-                'http://localhost:8092/https/unpkg.com/bgmi-admin@{version}/dist.tar.gz'.format(version=npm_version))
+                'http://localhost:8092/https/unpkg.com/bgmi-admin@{version}/dist.tar.gz'.format(version=NPM_VERSION))
         else:
             version = requests.get(package_json_url).text
             r = requests.get(tar_url)

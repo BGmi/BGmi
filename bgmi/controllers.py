@@ -236,4 +236,7 @@ def config(name, value):
                   'data': write_config()['data']}
         print(error_message)
         return result
-    return write_config(name, value)
+    r = write_config(name, value)
+    if name == 'ADMIN_TOKEN':
+        r['message'] = 'you need to restart your bgmi_http to make new token work'
+    return r
