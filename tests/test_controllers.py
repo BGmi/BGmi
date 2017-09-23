@@ -13,10 +13,9 @@ class ControllersTest(unittest.TestCase):
     def setUp(self):
         self.bangumi_name_1 = unicode_(os.environ.get('BANGUMI_1'))
         self.bangumi_name_2 = unicode_(os.environ.get('BANGUMI_2'))
-        Bangumi.recreate_source_relatively_table()
         pass
 
-    def test_add(self):
+    def test_b_add(self):
         r = add(self.bangumi_name_1, 0)
         self.assertEqual(r['status'], 'success')
         r = add(self.bangumi_name_1, 0)
@@ -24,7 +23,7 @@ class ControllersTest(unittest.TestCase):
         r = delete(self.bangumi_name_1)
         self.assertEqual(r['status'], 'warning')
 
-    def test_mark(self):
+    def test_c_mark(self):
         r = add(self.bangumi_name_1, 0)
         self.assertEqual(r['status'], 'success')
 
@@ -35,7 +34,7 @@ class ControllersTest(unittest.TestCase):
         r = mark(self.bangumi_name_2, 0)
         self.assertEqual(r['status'], 'error')
 
-    def test_delete(self):
+    def test_d_delete(self):
         r = add(self.bangumi_name_1, 0)
         self.assertEqual(r['status'], 'success')
         r = delete()
@@ -49,7 +48,7 @@ class ControllersTest(unittest.TestCase):
         r = delete(clear_all=True, batch=True)
         self.assertEqual(r['status'], 'warning')
 
-    def test_cal(self):
+    def test_a_cal(self):
         r = cal(force_update=True)
         self.assertIsInstance(r, dict)
         for day in Bangumi.week:
@@ -80,3 +79,4 @@ class ControllersTest(unittest.TestCase):
     @staticmethod
     def setUpClass():
         setup()
+        Bangumi.recreate_source_relatively_table()

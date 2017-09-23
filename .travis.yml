@@ -37,6 +37,11 @@ script:
     - bgmi filter $BANGUMI_2 --subtitle "" --exclude "MKV" --regex "720p|720P"
     - bgmi fetch $BANGUMI_2
     - bgmi search "Gamers!" --regex-filter '.*字幕组.*].*720P.*'
+
+    - bgmi_http &
+    - sleep 3
+    - python webapi_test.py
+
     - echo 'test mikan'
     - export BANGUMI_1=名侦探柯南
     - export BANGUMI_2=海贼王
@@ -44,9 +49,7 @@ script:
     - bgmi config
     - coverage run -a -m unittest tests.test_controllers
 
-    - bgmi_http &
-    - sleep 3
-    - python webapi_test.py
+
 
 after_success:
   - codecov
