@@ -19,8 +19,7 @@ import urllib3
 
 from bgmi import __version__
 from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, ADMIN_PATH
-from bgmi.constants import SUPPORT_WEBSITE
-from constants import NPM_VERSION
+from bgmi.constants import SUPPORT_WEBSITE, NPM_VERSION
 
 urllib3.disable_warnings()
 
