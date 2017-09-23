@@ -56,4 +56,3 @@ SUPPORT_WEBSITE = [
         'url': 'https://mikanani.me/'
     },
 ]
-NPM_VERSION = '1.2.x'
