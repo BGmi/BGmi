@@ -48,6 +48,7 @@ def unicode_(s):
 
 # main function
 def main():
+    setup()
     c = argparse.ArgumentParser()
 
     c.add_argument('--version', help='Show the version of BGmi.', action='version', version=print_version())
@@ -133,7 +134,6 @@ def main():
     sub_parser.add_parser('upgrade', help='Check update.')
 
     ret = c.parse_args()
-
     if ret.action == 'install':
         import bgmi.setup
 
