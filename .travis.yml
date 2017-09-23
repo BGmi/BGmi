@@ -29,6 +29,7 @@ script:
     - bgmi delete --name $BANGUMI_3
     - bgmi delete --clear-all --batch
     - bgmi add $BANGUMI_2 --episode 1
+    - bgmi fetch $BANGUMI_2
     - bgmi list
     - bgmi download --list
     - bgmi mark $BANGUMI_2 1
