@@ -41,6 +41,7 @@ script:
     - export BANGUMI_1=名侦探柯南
     - export BANGUMI_2=海贼王
     - bgmi source mikan_project
+    - bgmi config
     - coverage run -a -m unittest tests.test_controllers
 
     - bgmi_http &
