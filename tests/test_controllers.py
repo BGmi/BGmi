@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals
 
+import os
 import unittest
 
 from bgmi.controllers import *
-from bgmi.main import setup
+from bgmi.main import setup, unicode_
 from bgmi.models import Bangumi
 
 
 class ControllersTest(unittest.TestCase):
     def setUp(self):
-        self.bangumi_name_1 = '时间支配者'
-        self.bangumi_name_2 = '哆啦A梦'
+        self.bangumi_name_1 = unicode_(os.environ.get('BANGUMI_1'))
+        self.bangumi_name_2 = unicode_(os.environ.get('BANGUMI_2'))
         Bangumi.recreate_source_relatively_table()
         pass
 
