@@ -35,8 +35,8 @@ class ControllersTest(unittest.TestCase):
         self.assertEqual(r['status'], 'error')
 
     def test_d_delete(self):
-        r = add(self.bangumi_name_1, 0)
-        self.assertEqual(r['status'], 'success')
+        # r = add(self.bangumi_name_1, 0)
+        # self.assertEqual(r['status'], 'success')
         r = delete()
         self.assertEqual(r['status'], 'warning')
         r = delete(self.bangumi_name_1)
@@ -67,8 +67,6 @@ class ControllersTest(unittest.TestCase):
 
     def test_search(self):
         r = search(self.bangumi_name_1, dupe=False)
-        # for episode in r:
-        #     self.assertNotEqual(episode['title'].find(self.bangumi_name_1), -1)
 
     def test_download(self):
         pass
