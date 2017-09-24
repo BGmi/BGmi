@@ -4,6 +4,7 @@ from __future__ import print_function, unicode_literals
 import json
 import re
 import urllib
+import datetime
 
 import requests
 
@@ -23,6 +24,7 @@ class Script(ScriptBase):
         bangumi_name = '猜谜王(BGmi Script)'
         cover = 'COVER URL'
         update_time = 'Tue'
+        due_date = datetime.datetime(2017, 9, 30)
 
     def get_download_url(self):
         # fetch and return dict
