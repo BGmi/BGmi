@@ -1,13 +1,19 @@
+import functools
 import json
 import os
-import functools
-import tornado.web
 
 from bgmi.config import ADMIN_TOKEN
 from bgmi.constants import ACTION_ADD, ACTION_DELETE, ACTION_CAL, ACTION_SEARCH, ACTION_CONFIG, ACTION_DOWNLOAD
 from bgmi.controllers import add, delete, search, cal, config
 from bgmi.download import download_prepare
 from bgmi.front.base import BaseHandler
+
+ACTION_AUTH = 'auth'
+
+
+def auth(auth=''):
+    a = (auth == ADMIN_TOKEN)
+    return {'status': 'success' if a else 'error'}
 
 
 API_MAP_POST = {
@@ -16,6 +22,7 @@ API_MAP_POST = {
     ACTION_SEARCH: search,
     ACTION_CONFIG: config,
     ACTION_DOWNLOAD: download_prepare,
+    ACTION_AUTH: auth,
 }
 
 API_MAP_GET = {
@@ -23,7 +30,7 @@ API_MAP_GET = {
     ACTION_CONFIG: lambda: config(None, None)
 }
 
-NO_AUTH_ACTION = (ACTION_SEARCH, ACTION_CAL, )
+NO_AUTH_ACTION = (ACTION_SEARCH, ACTION_CAL, ACTION_AUTH)
 
 
 def jsonify(obj):
@@ -40,10 +47,11 @@ def auth(f):
             token = args[0].request.headers.get('bgmi-token')
             if token == ADMIN_TOKEN:
                 return f(*args, **kwargs)
-
-            # maybe return a json
-            raise tornado.web.HTTPError(401)
-        raise tornado.web.HTTPError(400)
+            else:
+                # yes,you are right
+                args[0].set_status(401)
+                args[0].write({'status': 'error', 'message': 'need auth'})
+        args[0].set_status(400)
 
     return wrapper
 
@@ -87,5 +95,5 @@ class ApiHandler(BaseHandler):
         self.add_header('Access-Control-Allow-Origin', 'http://localhost:8080')
         self.add_header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
         self.add_header("Access-Control-Allow-Headers",
-                        "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+                        "Content-Type, Access-Control-Allow-Headers, bgmi-token, Authorization, X-Requested-With")
         self.write('')

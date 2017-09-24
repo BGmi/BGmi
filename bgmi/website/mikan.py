@@ -44,7 +44,6 @@ def parser_day_bangumi(soup):
     """
     li = []
     for soup in soup.find_all('li'):
-
         url = soup.select_one('a')
         span = soup.find('span')
         if url:
@@ -238,6 +237,7 @@ class Mikanani(BaseWebsite):
         :return: list of bangumi, list of subtitile group
         :rtype: (list[dict], list[dict])
         """
+
         bangumi_result = []
         subtitle_result = []
         for index, day in enumerate(get_weekly_bangumi()):
@@ -245,13 +245,10 @@ class Mikanani(BaseWebsite):
                 obj['update_time'] = week[index]
                 bangumi_result.append(obj)
         for index, bangumi in enumerate(bangumi_result):
-            # time.sleep(0.1)
-            # print('fetching ', bangumi['name'])
             subtitle_list = parser_subtitle_of_bangumi(bangumi_id=bangumi['keyword'])
             bangumi_result[index]['subtitle_group'] = list(map(lambda x: x['id'], subtitle_list))
             bangumi_result[index]['name'] = bangumi['name']
             bangumi_result[index]['status'] = 0
             for subtitle in subtitle_list:
                 subtitle_result.append({'id': subtitle['id'], 'name': subtitle['name']})
-        # print('fetching end')
         return bangumi_result, subtitle_result
