@@ -3,6 +3,7 @@ from __future__ import print_function, unicode_literals
 
 import os
 import time
+from multiprocessing.pool import ThreadPool
 
 import bs4
 import requests
@@ -22,6 +23,9 @@ else:
 
 
 def get_weekly_bangumi():
+    """
+    requests
+    """
     r = requests.get(server_root)
     soup = BeautifulSoup(r.text, 'lxml')
     sunday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "0"})
@@ -57,6 +61,7 @@ def parser_day_bangumi(soup):
 
 
 def parser_subtitle_of_bangumi(bangumi_id):
+    """requests"""
     bangumi_id = int(bangumi_id)
     url = server_root + "Home/ExpandBangumi"
     data = {'bangumiId': bangumi_id, 'showSubscribed': False}
@@ -237,15 +242,22 @@ class Mikanani(BaseWebsite):
         :return: list of bangumi, list of subtitile group
         :rtype: (list[dict], list[dict])
         """
-
+        p = ThreadPool()
         bangumi_result = []
         subtitle_result = []
         for index, day in enumerate(get_weekly_bangumi()):
             for obj in parser_day_bangumi(day):
                 obj['update_time'] = week[index]
                 bangumi_result.append(obj)
-        for index, bangumi in enumerate(bangumi_result):
+
+        def thread(bangumi):
             subtitle_list = parser_subtitle_of_bangumi(bangumi_id=bangumi['keyword'])
+            return subtitle_list
+            pass
+
+        r = p.map(thread, bangumi_result)
+        for index, (bangumi, subtitle_list) in enumerate(zip(bangumi_result, r)):
+            # subtitle_list = parser_subtitle_of_bangumi(bangumi_id=bangumi['keyword'])
             bangumi_result[index]['subtitle_group'] = list(map(lambda x: x['id'], subtitle_list))
             bangumi_result[index]['name'] = bangumi['name']
             bangumi_result[index]['status'] = 0
