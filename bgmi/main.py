@@ -12,8 +12,8 @@ import sys
 
 import bgmi.config
 from bgmi.config import BGMI_PATH, DB_PATH, SCRIPT_DB_PATH, ADMIN_PATH
-from bgmi.constants import *
 from bgmi.cli import controllers
+from bgmi.constants import *
 # Wrap sys.stdout into a StreamWriter to allow writing unicode.
 from bgmi.sql import (CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER,
                       CREATE_TABLE_SUBTITLE, CREATE_TABLE_SCRIPT)
@@ -48,6 +48,7 @@ def unicode_(s):
 
 # main function
 def main():
+    setup()
     c = argparse.ArgumentParser()
 
     c.add_argument('--version', help='Show the version of BGmi.', action='version', version=print_version())
@@ -133,7 +134,6 @@ def main():
     sub_parser.add_parser('upgrade', help='Check update.')
 
     ret = c.parse_args()
-
     if ret.action == 'install':
         import bgmi.setup
 
@@ -183,8 +183,8 @@ def setup():
         get_web_admin(method='install')
 
     init_db()
-    main()
 
 
 if __name__ == '__main__':
     setup()
+    main()

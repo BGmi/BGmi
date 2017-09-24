@@ -1,4 +1,4 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals
 
 from bgmi.config import write_config
@@ -118,8 +118,8 @@ def delete(name='', clear_all=False, batch=False):
     result = {}
     if clear_all:
         if Followed.delete_followed(batch=batch):
-            print_success('all subscriptions have been deleted')
-            result['status'] = "success"
+            result['status'] = "warning"
+            result['message'] = 'all subscriptions have been deleted'
         else:
             print_error('user canceled')
     elif name:
@@ -195,10 +195,10 @@ def mark(name, episode):
         followed_obj.episode = episode
         followed_obj.save()
         result['status'] = 'success'
-        result['message'] = '{} has been mark as episode: {}'.format(followed_obj, followed_obj.episode)
-    else:
+        result['message'] = '{} has been mark as episode: {}'.format(name, episode)
+    else:  # episode is None
         result['status'] = 'info'
-        result['message'] = '{}, episode: {}'.format(followed_obj, followed_obj.episode)
+        result['message'] = '{}, episode: {}'.format(name, followed_obj.episode)
     return result
 
 
@@ -230,10 +230,9 @@ def source(source):
 
 def config(name, value):
     if name == 'DATA_SOURCE':
-        error_message = "you can't change data source in this way. please use bgmi source ${data source } in cli"
+        error_message = "you can't change data source in this way. please use bgmi source ${data source} in cli"
         result = {'status': 'error',
                   'message': error_message,
                   'data': write_config()['data']}
-        print(error_message)
         return result
     return write_config(name, value)

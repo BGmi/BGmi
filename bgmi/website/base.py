@@ -236,6 +236,16 @@ class BaseWebsite(object):
 
         return result
 
+    def remove_duplicated_bangumi(self, result):
+        ret = []
+        episodes = list({i['episode'] for i in result})
+        for i in result:
+            if i['episode'] in episodes:
+                ret.append(i)
+                del episodes[episodes.index(i['episode'])]
+
+        return ret
+
     def search_by_keyword(self, keyword, count):
         return []
 

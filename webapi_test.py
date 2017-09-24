@@ -12,7 +12,7 @@ api_list = [
         'action': 'add',
         'method': 'post',
         'params': json.dumps({
-            'name': os.environ.get('BANGUMI_3')
+            'name': os.environ.get('BANGUMI_2')
         }),
         'show_output': True
 
@@ -20,7 +20,7 @@ api_list = [
         'action': 'delete',
         'method': 'post',
         'params': json.dumps({
-            'name': os.environ.get('BANGUMI_3')
+            'name': os.environ.get('BANGUMI_2')
         }),
         'show_output': True
     }

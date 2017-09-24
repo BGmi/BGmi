@@ -34,7 +34,7 @@ setup(
     install_requires=requirements,
     entry_points={
         'console_scripts': [
-            'bgmi = bgmi.main:setup',
+            'bgmi = bgmi.main:main',
             'bgmi_http = bgmi.front.http:main'
         ]
     },
