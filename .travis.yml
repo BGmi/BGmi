@@ -25,6 +25,7 @@ script:
     - bgmi config
     - bgmi config ADMIN_TOKEN 233
     - bgmi config DOWNLOAD_DELEGATE 'rr!'
+    - bgmi config BANGUMI_MOE_URL https://bangumi.moe
     - bgmi add $BANGUMI_1 $BANGUMI_2 $BANGUMI_3
     - bgmi update
     - bgmi delete --name $BANGUMI_3
