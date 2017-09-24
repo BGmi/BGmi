@@ -3,7 +3,7 @@ from __future__ import print_function, unicode_literals
 
 import os
 
-from bgmi.config import BGMI_SAVE_PATH, DOWNLOAD_DELEGATE
+from bgmi.config import SAVE_PATH, DOWNLOAD_DELEGATE
 from bgmi.models import Download, STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD
 from bgmi.services import XunleiLixianDownload, Aria2DownloadRPC, RRDownload, TransmissionRPC
 from bgmi.utils import print_error
@@ -42,7 +42,7 @@ def download_prepare(data):
     """
     queue = save_to_bangumi_download_queue(data)
     for download in queue:
-        save_path = os.path.join(os.path.join(BGMI_SAVE_PATH, download.name), str(download.episode))
+        save_path = os.path.join(os.path.join(SAVE_PATH, download.name), str(download.episode))
         # mark as downloading
         download.status = STATUS_DOWNLOADING
         download.save()

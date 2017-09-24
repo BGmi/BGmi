@@ -11,7 +11,7 @@ from itertools import chain
 import requests
 import tqdm
 
-from bgmi.config import MAX_PAGE, BGMI_SAVE_PATH, IS_PYTHON3
+from bgmi.config import MAX_PAGE, SAVE_PATH, IS_PYTHON3
 from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, Followed
 from bgmi.script import ScriptRunner
 from bgmi.utils import (parse_episode, print_warning, print_info,
@@ -150,7 +150,7 @@ class BaseWebsite(object):
             url = '{}/{}'.format(self.cover_url, cover_url)
 
         cover_url = normalize_path(cover_url)
-        file_path = os.path.join(BGMI_SAVE_PATH, 'cover')
+        file_path = os.path.join(SAVE_PATH, 'cover')
         file_path = os.path.join(file_path, cover_url)
         dir_path = os.path.dirname(file_path)
 

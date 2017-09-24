@@ -17,10 +17,10 @@ from icalendar import Calendar, Event
 from tornado.options import options, define
 
 from bgmi import __version__
-from bgmi.config import BGMI_SAVE_PATH, BGMI_ADMIN_PATH, DB_PATH, DANMAKU_API_URL
-from bgmi.front.api import ApiHandle
+from bgmi.config import SAVE_PATH, ADMIN_PATH, DB_PATH, DANMAKU_API_URL
+from bgmi.front.base import BaseHandler
+from bgmi.front.api import ApiHandler
 from bgmi.models import Download, Bangumi, Followed, STATUS_NORMAL, STATUS_UPDATING, STATUS_END
-from bgmi.script import ScriptRunner
 from bgmi.utils import normalize_path
 
 COVER_URL = '/bangumi/cover'  # website.cover_url
@@ -39,24 +39,10 @@ def make_dicts(cursor, row):
                 for idx, value in enumerate(row))
 
 
-class BaseHandler(tornado.web.RequestHandler):
-    patch_list = None
-
-    def data_received(self, chunk):
-        pass
-
-    def __init__(self, *args, **kwargs):
-        if self.patch_list is None:
-            runner = ScriptRunner()
-            self.patch_list = runner.get_models_dict()
-
-        super(BaseHandler, self).__init__(*args, **kwargs)
-
-
 class BangumiHandler(BaseHandler):
     def get(self, _):
         if os.environ.get('DEV', False):
-            with open(os.path.join(BGMI_SAVE_PATH, _), 'rb') as f:
+            with open(os.path.join(SAVE_PATH, _), 'rb') as f:
                 self.write(f.read())
                 self.finish()
         else:
@@ -70,15 +56,15 @@ class BangumiHandler(BaseHandler):
                        'location /bangumi {\n'
                        '    alias %s;\n'
                        '}\n'
-                       '...\n</pre>' % (BGMI_SAVE_PATH, BGMI_SAVE_PATH)
+                       '...\n</pre>' % (SAVE_PATH, SAVE_PATH)
                        )
             self.finish()
 
 
-class AdminHandle(tornado.web.RequestHandler):
+class AdminHandle(BaseHandler):
     def get(self, _):
         if os.environ.get('DEV', False):
-            with open(os.path.join(BGMI_ADMIN_PATH, _), 'rb') as f:
+            with open(os.path.join(ADMIN_PATH, _), 'rb') as f:
                 if _.endswith('css'):
                     self.add_header("content-type", "text/css; charset=UTF-8")
                 self.write(f.read())
@@ -94,7 +80,7 @@ class AdminHandle(tornado.web.RequestHandler):
                        'location /admin{\n'
                        '    alias %s;\n'
                        '}\n'
-                       '...\n</pre>' % (BGMI_ADMIN_PATH, BGMI_ADMIN_PATH)
+                       '...\n</pre>' % (ADMIN_PATH, ADMIN_PATH)
                        )
             self.finish()
 
@@ -118,13 +104,13 @@ class BangumiPlayerHandler(BaseHandler):
             return self.write_error(404)
 
         episode_list = {}
-        bangumi_path = os.path.join(BGMI_SAVE_PATH, bangumi_name)
+        bangumi_path = os.path.join(SAVE_PATH, bangumi_name)
         for root, _, files in os.walk(bangumi_path):
             if not _ and files:
                 _ = root.replace(bangumi_path, '').split(os.path.sep)
-                base_path = root.replace(BGMI_SAVE_PATH, '')
+                base_path = root.replace(SAVE_PATH, '')
                 if len(_) >= 2:
-                    episode_path = root.replace(os.path.join(BGMI_SAVE_PATH, bangumi_name), '')
+                    episode_path = root.replace(os.path.join(SAVE_PATH, bangumi_name), '')
                     if episode_path.split(os.path.sep)[1].isdigit():
                         episode = int(episode_path.split(os.path.sep)[1])
                     else:
@@ -270,7 +256,7 @@ def make_app():
         (r'^/bangumi/(.*)', BangumiHandler),
         (r'^/rss$', RssHandler),
         (r'^/calendar.ics$', CalendarHandler),
-        (r'^/api/?(?P<action>.*)', ApiHandle),
+        (r'^/api/?(?P<action>.*)', ApiHandler),
         (r'/admin/(.*)', AdminHandle)
     ], **settings)
 
