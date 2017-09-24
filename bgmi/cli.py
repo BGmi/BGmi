@@ -25,7 +25,10 @@ def source_wrapper(ret):
 
 def config_wrapper(ret):
     result = write_config(ret.name, ret.value)
-    globals()["print_{}".format(result['status'])](result['message'])
+    if (not ret.name) and (not ret.value):
+        print(result['message'])
+    else:
+        globals()["print_{}".format(result['status'])](result['message'])
 
 
 def search_wrapper(ret):
@@ -61,7 +64,8 @@ def cal_wrapper(ret):
     force_update = ret.force_update
     today = ret.today
     save = not ret.no_save
-    weekly_list = website.bangumi_calendar(force_update=force_update, save=save, cover=True)
+    weekly_list = website.bangumi_calendar(
+        force_update=force_update, save=save, cover=True)
 
     def shift(seq, n):
         n %= len(seq)
@@ -70,9 +74,11 @@ def cal_wrapper(ret):
     if today:
         weekday_order = (Bangumi.week[datetime.datetime.today().weekday()],)
     else:
-        weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
+        weekday_order = shift(
+            Bangumi.week, datetime.datetime.today().weekday())
 
-    env_columns = 42 if os.environ.get('TRAVIS_CI', False) else get_terminal_col()
+    env_columns = 42 if os.environ.get(
+        'TRAVIS_CI', False) else get_terminal_col()
 
     col = 42
 
@@ -93,15 +99,18 @@ def cal_wrapper(ret):
     for index, weekday in enumerate(weekday_order):
         if weekly_list[weekday.lower()]:
             print(
-                '%s%s. %s' % (GREEN, weekday if not today else 'Bangumi Schedule for Today (%s)' % weekday, COLOR_END),
+                '%s%s. %s' % (
+                    GREEN, weekday if not today else 'Bangumi Schedule for Today (%s)' % weekday, COLOR_END),
                 end='')
             print()
             print_line()
             for i, bangumi in enumerate(weekly_list[weekday.lower()]):
                 if bangumi['status'] in (STATUS_UPDATED, STATUS_FOLLOWED) and 'episode' in bangumi:
-                    bangumi['name'] = '%s(%d)' % (bangumi['name'], bangumi['episode'])
+                    bangumi['name'] = '%s(%d)' % (
+                        bangumi['name'], bangumi['episode'])
 
-                half = len(re.findall('[%s]' % string.printable, bangumi['name']))
+                half = len(re.findall('[%s]' %
+                                      string.printable, bangumi['name']))
                 full = (len(bangumi['name']) - half)
                 space_count = col - 2 - (full * 2 + half)
 
@@ -114,10 +123,12 @@ def cal_wrapper(ret):
                         space_count -= 1
 
                 if bangumi['status'] == STATUS_FOLLOWED:
-                    bangumi['name'] = '%s%s%s' % (YELLOW, bangumi['name'], COLOR_END)
+                    bangumi['name'] = '%s%s%s' % (
+                        YELLOW, bangumi['name'], COLOR_END)
 
                 if bangumi['status'] == STATUS_UPDATED:
-                    bangumi['name'] = '%s%s%s' % (GREEN, bangumi['name'], COLOR_END)
+                    bangumi['name'] = '%s%s%s' % (
+                        GREEN, bangumi['name'], COLOR_END)
                 print(' ' + bangumi['name'], ' ' * space_count, end='')
                 if (i + 1) % row == 0 or i + 1 == len(weekly_list[weekday.lower()]):
                     print()
@@ -158,7 +169,8 @@ def update(ret):
         if not ret.name:
             print_warning('No specified bangumi, ignore `--download` option')
         if len(ret.name) > 1:
-            print_warning('Multiple specified bangumi, ignore `--download` option')
+            print_warning(
+                'Multiple specified bangumi, ignore `--download` option')
 
     if not ret.name:
         updated_bangumi_obj = Followed.get_all_followed()
@@ -186,14 +198,17 @@ def update(ret):
                         exit_=False)
             continue
 
-        episode, all_episode_data = website.get_maximum_episode(bangumi=bangumi_obj, ignore_old_row=ignore, max_page=1)
+        episode, all_episode_data = website.get_maximum_episode(
+            bangumi=bangumi_obj, ignore_old_row=ignore, max_page=1)
 
         if (episode.get('episode') > subscribe['episode']) or (len(ret.name) == 1 and ret.download):
             if len(ret.name) == 1 and ret.download:
                 episode_range = ret.download
             else:
-                episode_range = range(subscribe['episode'] + 1, episode.get('episode', 0) + 1)
-                print_success('%s updated, episode: %d' % (subscribe['bangumi_name'], episode['episode']))
+                episode_range = range(
+                    subscribe['episode'] + 1, episode.get('episode', 0) + 1)
+                print_success('%s updated, episode: %d' %
+                              (subscribe['bangumi_name'], episode['episode']))
                 followed_obj.episode = episode['episode']
                 followed_obj.status = STATUS_UPDATED
                 followed_obj.updated_time = int(time.time())
@@ -209,7 +224,8 @@ def update(ret):
         download_prepare(download_queue)
         download_prepare(script_download_queue)
         print_info('Re-downloading ...')
-        download_prepare(Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD))
+        download_prepare(Download.get_all_downloads(
+            status=STATUS_NOT_DOWNLOAD))
 
 
 def list_(ret):
@@ -223,7 +239,8 @@ def list_(ret):
                 print('%s%s. %s' % (GREEN, weekday, COLOR_END), end='')
                 for i, bangumi in enumerate(followed_bangumi[weekday.lower()]):
                     if bangumi['status'] in (STATUS_UPDATED, STATUS_FOLLOWED) and 'episode' in bangumi:
-                        bangumi['name'] = '%s(%d)' % (bangumi['name'], bangumi['episode'])
+                        bangumi['name'] = '%s(%d)' % (
+                            bangumi['name'], bangumi['episode'])
                     if i > 0:
                         print(' ' * 5, end='')
                     f = map(lambda x: x['name'], bangumi['subtitle_group'])
@@ -267,7 +284,8 @@ def download_manager(ret):
                                                                      download_obj.status))
         download_obj.status = status
         download_obj.save()
-        print_success('Download status has been marked as {0}'.format(DOWNLOAD_CHOICE_LIST_DICT.get(int(status))))
+        print_success('Download status has been marked as {0}'.format(
+            DOWNLOAD_CHOICE_LIST_DICT.get(int(status))))
     else:
         status = ret.status
         status = int(status) if status is not None else None
