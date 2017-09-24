@@ -263,5 +263,4 @@ class Mikanani(BaseWebsite):
             bangumi_result[index]['status'] = 0
             for subtitle in subtitle_list:
                 subtitle_result.append({'id': subtitle['id'], 'name': subtitle['name']})
-        # print('fetching end')
         return bangumi_result, subtitle_result

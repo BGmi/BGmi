@@ -17,8 +17,8 @@ from shutil import rmtree, move
 import requests
 import urllib3
 
-from bgmi import __version__
-from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, BGMI_ADMIN_PATH
+from bgmi import __version__, __admin_version__
+from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, ADMIN_PATH
 from bgmi.constants import SUPPORT_WEBSITE
 
 urllib3.disable_warnings()
@@ -183,9 +183,8 @@ def get_terminal_col():
             return 80
 
 
-npm_version = '1.1.x'
-package_json_url = 'https://unpkg.com/bgmi-admin@{}/package.json'.format(npm_version)
-tar_url = 'https://unpkg.com/bgmi-admin@{version}/dist.tar.gz'.format(version=npm_version)
+package_json_url = 'https://unpkg.com/bgmi-admin@{}/package.json'.format(__admin_version__)
+tar_url = 'https://unpkg.com/bgmi-admin@{version}/dist.tar.gz'.format(version=__admin_version__)
 
 
 def check_update(mark=True):
@@ -200,13 +199,13 @@ def check_update(mark=True):
         admin_version = requests.get(package_json_url).json()[
             'version']
 
-        with open(os.path.join(BGMI_ADMIN_PATH, 'package.json'), 'r') as f:
+        with open(os.path.join(ADMIN_PATH, 'package.json'), 'r') as f:
             local_version = json.loads(f.read())['version']
         if admin_version > local_version:
             get_web_admin(method='update')
 
     admin_version = requests.get('https://unpkg.com/bgmi-admin@1.0.x/package.json').json()['version']
-    with open(os.path.join(BGMI_ADMIN_PATH, 'package.json'), 'r') as f:
+    with open(os.path.join(ADMIN_PATH, 'package.json'), 'r') as f:
         local_version = json.loads(f.read())['version']
     if admin_version > local_version:
         get_web_admin(method='update')
@@ -297,14 +296,15 @@ def normalize_path(url):
 def get_web_admin(method):
     print_info('{} web admin'.format(method[0].upper() + method[1:]))
     if method == 'update':
-        rmtree(BGMI_ADMIN_PATH)
-        os.makedirs(BGMI_ADMIN_PATH)
+        rmtree(ADMIN_PATH)
+        os.makedirs(ADMIN_PATH)
     try:
         if os.environ.get('DEV', False):
             version = requests.get('http://localhost:8092/https/unpkg.com/bgmi-admin@{version}/package.json'.format(
-                version=npm_version)).text
+                version=__admin_version__)).text
             r = requests.get(
-                'http://localhost:8092/https/unpkg.com/bgmi-admin@{version}/dist.tar.gz'.format(version=npm_version))
+                'http://localhost:8092/https/unpkg.com/bgmi-admin@{version}/dist.tar.gz'.format(
+                    version=__admin_version__))
         else:
             version = requests.get(package_json_url).text
             r = requests.get(tar_url)
@@ -316,12 +316,12 @@ def get_web_admin(method):
         tar_file = BytesIO(f.read())
 
     with tarfile.open(fileobj=tar_file) as tar_file_obj:
-        tar_file_obj.extractall(path=BGMI_ADMIN_PATH)
+        tar_file_obj.extractall(path=ADMIN_PATH)
 
-    for file in os.listdir(os.path.join(BGMI_ADMIN_PATH, 'dist')):
-        move(os.path.join(BGMI_ADMIN_PATH, 'dist', file),
-             os.path.join(BGMI_ADMIN_PATH, file))
-    os.removedirs(os.path.join(BGMI_ADMIN_PATH, 'dist'))
-    with open(os.path.join(BGMI_ADMIN_PATH, 'package.json'), 'w+') as f:
+    for file in os.listdir(os.path.join(ADMIN_PATH, 'dist')):
+        move(os.path.join(ADMIN_PATH, 'dist', file),
+             os.path.join(ADMIN_PATH, file))
+    os.removedirs(os.path.join(ADMIN_PATH, 'dist'))
+    with open(os.path.join(ADMIN_PATH, 'package.json'), 'w+') as f:
         f.write(version)
     print_success('Web admin page {} successfully. version: {}'.format(method, json.loads(version)['version']))
