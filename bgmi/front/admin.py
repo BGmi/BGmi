@@ -2,18 +2,18 @@ import functools
 import json
 import os
 
-from bgmi.config import ADMIN_TOKEN
+from bgmi.config import ADMIN_TOKEN, ADMIN_PATH
 from bgmi.constants import ACTION_ADD, ACTION_DELETE, ACTION_CAL, ACTION_SEARCH, ACTION_CONFIG, ACTION_DOWNLOAD
 from bgmi.controllers import add, delete, search, cal, config
 from bgmi.download import download_prepare
 from bgmi.front.base import BaseHandler
 
+
 ACTION_AUTH = 'auth'
 
 
-def auth(auth=''):
-    a = (auth == ADMIN_TOKEN)
-    return {'status': 'success' if a else 'error'}
+def auth_(token=''):
+    return {'status': 'success' if token == ADMIN_TOKEN else 'error'}
 
 
 API_MAP_POST = {
@@ -22,7 +22,7 @@ API_MAP_POST = {
     ACTION_SEARCH: search,
     ACTION_CONFIG: config,
     ACTION_DOWNLOAD: download_prepare,
-    ACTION_AUTH: auth,
+    ACTION_AUTH: auth_,
 }
 
 API_MAP_GET = {
@@ -56,16 +56,19 @@ def auth(f):
     return wrapper
 
 
-class ApiHandler(BaseHandler):
+class AdminApiHandler(BaseHandler):
+    def _add_header(self):
+        self.add_header('Access-Control-Allow-Origin', 'http://localhost:8080')
+        self.add_header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
+        self.add_header("Access-Control-Allow-Headers",
+                        "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+
     @auth
     def get(self, action, *args, **kwargs):
         if action in API_MAP_GET:
             self.add_header('content-type', 'application/json; charset=utf-8')
             if os.environ.get('DEV', False):
-                self.add_header('Access-Control-Allow-Origin', 'http://localhost:8080')
-                self.add_header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-                self.add_header("Access-Control-Allow-Headers",
-                                "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+                self._add_header()
             self.finish(jsonify(API_MAP_GET.get(action)()))
 
     @auth
@@ -73,27 +76,46 @@ class ApiHandler(BaseHandler):
         try:
             data = json.loads(self.request.body.decode('utf-8'))
             self.add_header('content-type', 'application/json; charset=utf-8')
+
             if action in API_MAP_POST:
                 if os.environ.get('DEV', False):
-                    self.add_header('Access-Control-Allow-Origin', 'http://localhost:8080')
-                    self.add_header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-                    self.add_header("Access-Control-Allow-Headers",
-                                    "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+                    self._add_header()
+
                 data = API_MAP_POST.get(action)(**data)
                 if data['status'] == 'error':
                     self.set_status(502)
+
                 data = jsonify(data)
                 self.finish(data)
-                return
-            self.write_error(404)
-            return
+            else:
+                self.write_error(404)
+
         except json.JSONEncoder:
             self.write_error(502)
-            return
 
     def options(self, *args, **kwargs):
-        self.add_header('Access-Control-Allow-Origin', 'http://localhost:8080')
-        self.add_header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-        self.add_header("Access-Control-Allow-Headers",
-                        "Content-Type, Access-Control-Allow-Headers, bgmi-token, Authorization, X-Requested-With")
+        self._add_header()
         self.write('')
+
+
+class AdminHandler(BaseHandler):
+    def get(self, _):
+        if os.environ.get('DEV', False):
+            with open(os.path.join(ADMIN_PATH, _), 'rb') as f:
+                if _.endswith('css'):
+                    self.add_header("content-type", "text/css; charset=UTF-8")
+                self.write(f.read())
+                self.finish()
+        else:
+            self.set_header('Content-Type', 'text/html')
+            self.write('<h1>BGmi HTTP Service</h1>')
+            self.write('<pre>Please modify your web server configure file\n'
+                       'to server this path to \'%s\'.\n'
+                       'e.g.\n\n'
+                       '...\n'
+                       'location /admin {\n'
+                       '    alias %s;\n'
+                       '}\n'
+                       '...\n</pre>' % (ADMIN_PATH, ADMIN_PATH)
+                       )
+            self.finish()
