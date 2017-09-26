@@ -21,14 +21,13 @@ __aria2__ = ('ARIA2_RPC_URL', 'ARIA2_RPC_TOKEN',)
 __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 
 # fake __all__
-__all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE', 'MAX_PAGE',
-           'DATA_SOURCE', 'TMP_PATH', 'DANMAKU_API_URL', 'LANG', 'ADMIN_PATH',
-           'ADMIN_TOKEN')
+__all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE',
+           'MAX_PAGE', 'DATA_SOURCE', 'TMP_PATH', 'DANMAKU_API_URL',
+           'LANG', 'ADMIN_PATH', 'ADMIN_TOKEN')
 
 # cannot be rewrite
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
-                'IS_PYTHON3', 'SCRIPT_PATH',
-                'SCRIPT_DB_PATH', 'ADMIN_PATH',)
+                'SCRIPT_PATH', 'SCRIPT_DB_PATH', 'ADMIN_PATH',)
 
 # writeable
 __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
@@ -151,7 +150,7 @@ def write_config(config=None, value=None):
             if config in __writeable__:
                 if config == 'DOWNLOAD_DELEGATE' and value not in download_delegate_map:
                     result = {'status': 'error',
-                              'message': '{0} is not a support download_delegate'.format(config)}
+                              'message': '{0} is not a support download_delegate'.format(value)}
                 else:
                     c.set('bgmi', config, value)
                     with open(CONFIG_FILE_PATH, 'w') as f:
