@@ -61,7 +61,7 @@ class AdminApiHandler(BaseHandler):
         self.add_header('Access-Control-Allow-Origin', 'http://localhost:8080')
         self.add_header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
         self.add_header("Access-Control-Allow-Headers",
-                        "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+                        "Content-Type,bgmi-token, Access-Control-Allow-Headers, Authorization, X-Requested-With")
 
     @auth
     def get(self, action, *args, **kwargs):
