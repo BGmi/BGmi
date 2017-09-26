@@ -51,11 +51,6 @@ def auth(f):
 
 
 class AdminApiHandler(BaseHandler):
-    def _add_header(self):
-        self.add_header('Access-Control-Allow-Origin', 'http://localhost:8080')
-        self.add_header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-        self.add_header("Access-Control-Allow-Headers",
-                        "Content-Type,bgmi-token, Access-Control-Allow-Headers, Authorization, X-Requested-With")
 
     @auth
     def get(self, action, *args, **kwargs):
@@ -89,8 +84,5 @@ class AdminApiHandler(BaseHandler):
         except json.JSONEncoder:
             self.write_error(400)
 
-    def options(self, *args, **kwargs):
-        self._add_header()
-        self.finish('')
 
 

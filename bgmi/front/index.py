@@ -1,8 +1,8 @@
 # coding: utf-8
 from __future__ import print_function, unicode_literals
 
-import os
 import datetime
+import os
 from collections import OrderedDict
 
 import tornado.escape
@@ -41,6 +41,8 @@ def get_player(bangumi_name):
 
 class MainHandler(BaseHandler):
     def get(self, type_=''):
+        if os.environ.get('DEV', False):
+            self._add_header()
 
         if not os.path.exists(DB_PATH):
             self.write('BGmi db file not found.')
