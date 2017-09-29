@@ -7,10 +7,9 @@ from collections import OrderedDict
 
 import tornado.escape
 
-from bgmi.config import SAVE_PATH, DB_PATH, DANMAKU_API_URL
-from bgmi.front.base import BaseHandler, WEEK, COVER_URL, jsonify
+from bgmi.config import SAVE_PATH, DB_PATH
+from bgmi.front.base import BaseHandler, WEEK, jsonify
 from bgmi.models import Bangumi, Followed, STATUS_NORMAL, STATUS_UPDATING, STATUS_END
-from bgmi.utils import normalize_path
 
 
 def get_player(bangumi_name):
