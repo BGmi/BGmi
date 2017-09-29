@@ -9,7 +9,6 @@ from collections import OrderedDict
 
 import tornado.escape
 
-from bgmi import __version__
 from bgmi.config import SAVE_PATH, DB_PATH, DANMAKU_API_URL
 from bgmi.front.base import BaseHandler, WEEK, COVER_URL
 

@@ -13,7 +13,7 @@ ACTION_AUTH = 'auth'
 
 
 def auth_(token=''):
-    return {'status': 'success' if token == ADMIN_TOKEN else 'error'}
+    return {'status': 200 if token == ADMIN_TOKEN else 401}
 
 
 API_MAP_POST = {
@@ -39,15 +39,13 @@ def auth(f):
         if kwargs.get('action', None) in NO_AUTH_ACTION:
             return f(*args, **kwargs)
 
-        if args and isinstance(args[0], BaseHandler):
-            token = args[0].request.headers.get('bgmi-token')
-            if token == ADMIN_TOKEN:
-                return f(*args, **kwargs)
-            else:
-                # yes,you are right
-                args[0].set_status(401)
-                args[0].write({'status': 'error', 'message': 'need auth'})
-        args[0].set_status(400)
+        token = args[0].request.headers.get('bgmi-token')
+        if token == ADMIN_TOKEN:
+            return f(*args, **kwargs)
+        else:
+            # yes,you are right
+            args[0].set_status(401)
+            args[0].write(jsonify({'message': 'need auth'}, status=401))
 
     return wrapper
 
@@ -79,18 +77,20 @@ class AdminApiHandler(BaseHandler):
 
                 data = API_MAP_POST.get(action)(**data)
                 if data['status'] == 'error':
-                    self.set_status(502)
+                    self.set_status(400)
+                    self.finish(jsonify({'message': 'bad request'}, status=400))
 
                 data = jsonify(data)
                 self.finish(data)
             else:
                 self.write_error(404)
+                self.finish(jsonify({'message': 'bad request'}, status=400))
 
         except json.JSONEncoder:
-            self.write_error(502)
+            self.write_error(400)
 
     def options(self, *args, **kwargs):
         self._add_header()
-        self.write('')
+        self.finish('')
 
 

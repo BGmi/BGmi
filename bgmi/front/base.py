@@ -1,5 +1,7 @@
 import json
 import tornado.web
+
+from bgmi import __version__
 from bgmi.script import ScriptRunner
 
 
@@ -7,8 +9,8 @@ COVER_URL = '/bangumi/cover'
 WEEK = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
 
-def jsonify(obj):
-    return json.dumps(obj, ensure_ascii=False)
+def jsonify(obj, status=200):
+    return json.dumps({'version': __version__, 'status': status, 'data': obj}, ensure_ascii=False)
 
 
 class BaseHandler(tornado.web.RequestHandler):
