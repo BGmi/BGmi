@@ -2,6 +2,10 @@ import tornado.web
 from bgmi.script import ScriptRunner
 
 
+COVER_URL = '/bangumi/cover'
+WEEK = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
+
+
 class BaseHandler(tornado.web.RequestHandler):
     patch_list = None
 

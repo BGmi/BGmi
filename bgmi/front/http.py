@@ -12,8 +12,9 @@ import tornado.web
 from tornado.options import options, define
 
 from bgmi.front.admin import AdminApiHandler, AdminHandler
-from bgmi.front.index import (MainHandler, ImageCSSHandler, BangumiPlayerHandler, BangumiHandler, RssHandler,
-                              CalendarHandler)
+from bgmi.front.index import MainHandler, BangumiPlayerHandler
+from bgmi.front.resources import ImageCSSHandler, BangumiHandler, RssHandler, CalendarHandler
+
 
 define('port', default=8888, help='listen on the port', type=int)
 define('address', default='0.0.0.0', help='binding at given address', type=str)
@@ -31,13 +32,15 @@ def make_app():
     }
     return tornado.web.Application([
         (r'/', MainHandler),
-        (r'^/css/image.css$', ImageCSSHandler),
         (r'^/player/(.*)/$', BangumiPlayerHandler),
+
+        (r'^/css/image.css$', ImageCSSHandler),
         (r'^/bangumi/(.*)', BangumiHandler),
         (r'^/rss$', RssHandler),
         (r'^/calendar.ics$', CalendarHandler),
+        (r'/admin/(.*)', AdminHandler),
+
         (r'^/api/?(?P<action>.*)', AdminApiHandler),
-        (r'/admin/(.*)', AdminHandler)
     ], **settings)
 
 

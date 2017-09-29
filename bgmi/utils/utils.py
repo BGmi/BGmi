@@ -189,29 +189,33 @@ tar_url = 'https://unpkg.com/bgmi-admin@{version}/dist.tar.gz'.format(version=__
 
 def check_update(mark=True):
     def update():
-        print_info('Checking update ...')
-        version = requests.get('https://pypi.python.org/pypi/bgmi/json', verify=False).json()['info']['version']
-        if version > __version__:
-            print_warning('Please update bgmi to the latest version {}{}{}.'
-                          '\nThen execute `bgmi upgrade` to migrate database'.format(GREEN, version, COLOR_END))
-        else:
-            print_success('Your BGmi is the latest version.')
-        admin_version = requests.get(package_json_url).json()[
-            'version']
+        try:
+            print_info('Checking update ...')
+            version = requests.get('https://pypi.python.org/pypi/bgmi/json', verify=False).json()['info']['version']
+            if version > __version__:
+                print_warning('Please update bgmi to the latest version {}{}{}.'
+                              '\nThen execute `bgmi upgrade` to migrate database'.format(GREEN, version, COLOR_END))
+            else:
+                print_success('Your BGmi is the latest version.')
+            admin_version = requests.get(package_json_url).json()[
+                'version']
 
-        with open(os.path.join(ADMIN_PATH, 'package.json'), 'r') as f:
-            local_version = json.loads(f.read())['version']
-        if admin_version > local_version:
-            get_web_admin(method='update')
+            with open(os.path.join(ADMIN_PATH, 'package.json'), 'r') as f:
+                local_version = json.loads(f.read())['version']
+            if admin_version > local_version:
+                get_web_admin(method='update')
 
-    admin_version = requests.get('https://unpkg.com/bgmi-admin@1.0.x/package.json').json()['version']
-    with open(os.path.join(ADMIN_PATH, 'package.json'), 'r') as f:
-        local_version = json.loads(f.read())['version']
-    if admin_version > local_version:
-        get_web_admin(method='update')
-    if not mark:
-        update()
-        raise SystemExit
+            admin_version = requests.get('https://unpkg.com/bgmi-admin@1.0.x/package.json').json()['version']
+            with open(os.path.join(ADMIN_PATH, 'package.json'), 'r') as f:
+                local_version = json.loads(f.read())['version']
+            if admin_version > local_version:
+                get_web_admin(method='update')
+            if not mark:
+                update()
+                raise SystemExit
+        except Exception as e:
+            print_warning('Error occurs when checking update, {}'.format(str(e)))
+
 
     version_file = os.path.join(BGMI_PATH, 'version')
     if not os.path.exists(version_file):
