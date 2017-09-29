@@ -8,7 +8,7 @@ from collections import defaultdict
 
 from icalendar import Calendar, Event
 
-from bgmi.config import SAVE_PATH
+from bgmi.config import SAVE_PATH, ADMIN_PATH
 from bgmi.front.base import BaseHandler, COVER_URL
 
 from bgmi.models import Download, Bangumi, Followed
@@ -96,3 +96,26 @@ class CalendarHandler(BaseHandler):
 
         self.write(cal.to_ical())
         self.finish()
+
+
+class AdminHandler(BaseHandler):
+    def get(self, _):
+        if os.environ.get('DEV', False):
+            with open(os.path.join(ADMIN_PATH, _), 'rb') as f:
+                if _.endswith('css'):
+                    self.add_header("content-type", "text/css; charset=UTF-8")
+                self.write(f.read())
+                self.finish()
+        else:
+            self.set_header('Content-Type', 'text/html')
+            self.write('<h1>BGmi HTTP Service</h1>')
+            self.write('<pre>Please modify your web server configure file\n'
+                       'to server this path to \'%s\'.\n'
+                       'e.g.\n\n'
+                       '...\n'
+                       'location /admin {\n'
+                       '    alias %s;\n'
+                       '}\n'
+                       '...\n</pre>' % (ADMIN_PATH, ADMIN_PATH)
+                       )
+            self.finish()

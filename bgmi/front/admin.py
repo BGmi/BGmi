@@ -2,11 +2,11 @@ import functools
 import json
 import os
 
-from bgmi.config import ADMIN_TOKEN, ADMIN_PATH
+from bgmi.config import ADMIN_TOKEN
 from bgmi.constants import ACTION_ADD, ACTION_DELETE, ACTION_CAL, ACTION_SEARCH, ACTION_CONFIG, ACTION_DOWNLOAD
 from bgmi.controllers import add, delete, search, cal, config
 from bgmi.download import download_prepare
-from bgmi.front.base import BaseHandler
+from bgmi.front.base import BaseHandler, jsonify
 
 
 ACTION_AUTH = 'auth'
@@ -31,10 +31,6 @@ API_MAP_GET = {
 }
 
 NO_AUTH_ACTION = (ACTION_SEARCH, ACTION_CAL, ACTION_AUTH)
-
-
-def jsonify(obj):
-    return json.dumps(obj, ensure_ascii=False)
 
 
 def auth(f):
@@ -98,24 +94,3 @@ class AdminApiHandler(BaseHandler):
         self.write('')
 
 
-class AdminHandler(BaseHandler):
-    def get(self, _):
-        if os.environ.get('DEV', False):
-            with open(os.path.join(ADMIN_PATH, _), 'rb') as f:
-                if _.endswith('css'):
-                    self.add_header("content-type", "text/css; charset=UTF-8")
-                self.write(f.read())
-                self.finish()
-        else:
-            self.set_header('Content-Type', 'text/html')
-            self.write('<h1>BGmi HTTP Service</h1>')
-            self.write('<pre>Please modify your web server configure file\n'
-                       'to server this path to \'%s\'.\n'
-                       'e.g.\n\n'
-                       '...\n'
-                       'location /admin {\n'
-                       '    alias %s;\n'
-                       '}\n'
-                       '...\n</pre>' % (ADMIN_PATH, ADMIN_PATH)
-                       )
-            self.finish()

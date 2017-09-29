@@ -69,46 +69,46 @@ class BangumiPlayerHandler(BaseHandler):
 
 
 class MainHandler(BaseHandler):
-    def get(self):
-        is_json = self.get_argument('json', False)
-        is_old = self.get_argument('old', False)
+    def get(self, type_=''):
 
         if not os.path.exists(DB_PATH):
             self.write('BGmi db file not found.')
             self.finish()
             return
 
-        data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING,
-                                         order='followed.updated_time', desc=True)
+        if type_ == 'calendar':
+            calendar = Bangumi.get_all_bangumi()
 
-        followed = list(map(lambda b: b['bangumi_name'], data))
-        followed.extend(list(map(lambda b: b['bangumi_name'], self.patch_list)))
+            for i in self.patch_list:
+                calendar[i['update_time'].lower()].append(i)
 
-        data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING if not is_old else STATUS_END,
-                                         order='followed.updated_time', desc=True)
+            def shift(seq, n):
+                n %= len(seq)
+                return seq[n:] + seq[:n]
 
-        data.extend(self.patch_list)
-        data.sort(key=lambda _: _['updated_time'] if _['updated_time'] else 7258093261)  # 2200年,应该不会有比这个大的吧...
-        data.reverse()
+            weekday_order = shift(WEEK, datetime.datetime.today().weekday())
+            cal_ordered = OrderedDict()
 
-        calendar = Bangumi.get_all_bangumi()
+            for week in weekday_order:
+                cal_ordered[week] = calendar[week.lower()]
 
-        for i in self.patch_list:
-            calendar[i['update_time'].lower()].append(i)
-
-        def shift(seq, n):
-            n %= len(seq)
-            return seq[n:] + seq[:n]
-
-        weekday_order = shift(WEEK, datetime.datetime.today().weekday())
-        cal_ordered = OrderedDict()
-
-        for week in weekday_order:
-            cal_ordered[week] = calendar[week.lower()]
-
-        if is_json:
             self.write(json.dumps(cal_ordered))
-            self.finish()
+
         else:
-            self.render('templates/bangumi.html', data=data, cal=cal_ordered,
-                        followed=list(followed), version=__version__)
+            data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING,
+                                             order='followed.updated_time', desc=True)
+
+            followed = list(map(lambda b: b['bangumi_name'], data))
+            followed.extend(list(map(lambda b: b['bangumi_name'], self.patch_list)))
+
+            data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING if not type_ == 'old' else STATUS_END,
+                                             order='followed.updated_time', desc=True)
+
+            if type_ == 'index':
+                data.extend(self.patch_list)
+                data.sort(key=lambda _: _['updated_time'])
+
+            data.reverse()
+            self.write(json.dumps(data))
+
+        self.finish()
