@@ -15,7 +15,6 @@ from bgmi.models import Bangumi, Followed, STATUS_NORMAL, STATUS_UPDATING, STATU
 def get_player(bangumi_name):
     episode_list = {}
     bangumi_path = os.path.join(SAVE_PATH, bangumi_name)
-    print(bangumi_path)
     for root, _, files in os.walk(bangumi_path):
         if not _ and files:
             _ = root.replace(bangumi_path, '').split(os.path.sep)
