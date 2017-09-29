@@ -3,68 +3,42 @@ from __future__ import print_function, unicode_literals
 
 import os
 import datetime
-import json
-
 from collections import OrderedDict
 
 import tornado.escape
 
 from bgmi.config import SAVE_PATH, DB_PATH, DANMAKU_API_URL
-from bgmi.front.base import BaseHandler, WEEK, COVER_URL
-
+from bgmi.front.base import BaseHandler, WEEK, COVER_URL, jsonify
 from bgmi.models import Bangumi, Followed, STATUS_NORMAL, STATUS_UPDATING, STATUS_END
 from bgmi.utils import normalize_path
 
 
-class BangumiPlayerHandler(BaseHandler):
-    def get(self, bangumi_name):
-        data = Followed(bangumi_name=bangumi_name)
-        data.select_obj()
+def get_player(bangumi_name):
+    episode_list = {}
+    bangumi_path = os.path.join(SAVE_PATH, bangumi_name)
+    print(bangumi_path)
+    for root, _, files in os.walk(bangumi_path):
+        if not _ and files:
+            _ = root.replace(bangumi_path, '').split(os.path.sep)
+            base_path = root.replace(SAVE_PATH, '')
+            if len(_) >= 2:
+                episode_path = root.replace(os.path.join(SAVE_PATH, bangumi_name), '')
+                if episode_path.split(os.path.sep)[1].isdigit():
+                    episode = int(episode_path.split(os.path.sep)[1])
+                else:
+                    continue
+            else:
+                episode = -1
 
-        bangumi_obj = Bangumi(name=bangumi_name)
-        bangumi_obj.select_obj()
-
-        if not data:
-            for i in self.patch_list:
-                if bangumi_name == i['bangumi_name']:
-                    data = i
-                    bangumi_obj.cover = i['cover']
+            for bangumi in files:
+                if bangumi.lower().endswith('.mp4'):
+                    mp4_path = os.path.join(base_path, bangumi).replace(os.path.sep, '/')
+                    mp4_path = os.path.join(os.path.dirname(mp4_path),
+                                            tornado.escape.url_escape(os.path.basename(mp4_path)))
+                    episode_list[episode] = {'path': mp4_path.replace(os.path.sep, '/')}
                     break
 
-        if not data:
-            return self.write_error(404)
-
-        episode_list = {}
-        bangumi_path = os.path.join(SAVE_PATH, bangumi_name)
-        for root, _, files in os.walk(bangumi_path):
-            if not _ and files:
-                _ = root.replace(bangumi_path, '').split(os.path.sep)
-                base_path = root.replace(SAVE_PATH, '')
-                if len(_) >= 2:
-                    episode_path = root.replace(os.path.join(SAVE_PATH, bangumi_name), '')
-                    if episode_path.split(os.path.sep)[1].isdigit():
-                        episode = int(episode_path.split(os.path.sep)[1])
-                    else:
-                        continue
-                else:
-                    episode = -1
-
-                for bangumi in files:
-                    if bangumi.lower().endswith('.mp4'):
-                        mp4_path = os.path.join(base_path, bangumi).replace(os.path.sep, '/')
-                        mp4_path = os.path.join(os.path.dirname(mp4_path),
-                                                tornado.escape.url_escape(os.path.basename(mp4_path)))
-                        episode_list[episode] = {'path': mp4_path.replace(os.path.sep, '/')}
-                        print(os.path.join(base_path, bangumi))
-                        break
-
-        if not episode_list:
-            self.write('_(:3 There are nothing to play, please try again later.')
-            self.finish()
-        else:
-            self.render('templates/dplayer.html', bangumi=episode_list, bangumi_name=bangumi_name,
-                        bangumi_cover='{}/{}'.format(COVER_URL, normalize_path(bangumi_obj['cover'])),
-                        DANMAKU_URL=DANMAKU_API_URL)
+    return episode_list
 
 
 class MainHandler(BaseHandler):
@@ -91,7 +65,7 @@ class MainHandler(BaseHandler):
             for week in weekday_order:
                 cal_ordered[week] = calendar[week.lower()]
 
-            self.write(json.dumps(cal_ordered))
+            self.write(jsonify(cal_ordered))
 
         else:
             data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING,
@@ -108,6 +82,10 @@ class MainHandler(BaseHandler):
                 data.sort(key=lambda _: _['updated_time'])
 
             data.reverse()
-            self.write(json.dumps(data))
+
+            for item in data:
+                item['player'] = get_player(item['bangumi_name'])
+
+            self.write(jsonify(data))
 
         self.finish()

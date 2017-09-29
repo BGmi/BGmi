@@ -12,7 +12,7 @@ import tornado.web
 from tornado.options import options, define
 
 from bgmi.front.admin import AdminApiHandler
-from bgmi.front.index import MainHandler, BangumiPlayerHandler
+from bgmi.front.index import MainHandler
 from bgmi.front.resources import ImageCSSHandler, BangumiHandler, RssHandler, CalendarHandler, AdminHandler
 
 
@@ -31,14 +31,13 @@ def make_app():
         'debug': True,
     }
     return tornado.web.Application([
-        (r'/api/(old|index|calendar)', MainHandler),
-        (r'^/player/(.*)/$', BangumiPlayerHandler),
+        (r'^/api/(old|index|calendar)', MainHandler),
 
         (r'^/css/image.css$', ImageCSSHandler),
         (r'^/bangumi/(.*)', BangumiHandler),
         (r'^/rss$', RssHandler),
         (r'^/calendar.ics$', CalendarHandler),
-        (r'/admin/(.*)', AdminHandler),
+        (r'^/admin/(.*)', AdminHandler),
 
         (r'^/api/?(?P<action>.*)', AdminApiHandler),
     ], **settings)
