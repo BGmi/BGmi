@@ -8,7 +8,7 @@ from collections import defaultdict
 
 from icalendar import Calendar, Event
 
-from bgmi.config import SAVE_PATH, ADMIN_PATH
+from bgmi.config import SAVE_PATH, FRONT_STATIC_PATH
 from bgmi.front.base import BaseHandler, COVER_URL
 
 from bgmi.models import Download, Bangumi, Followed
@@ -101,7 +101,7 @@ class CalendarHandler(BaseHandler):
 class AdminHandler(BaseHandler):
     def get(self, _):
         if os.environ.get('DEV', False):
-            with open(os.path.join(ADMIN_PATH, _), 'rb') as f:
+            with open(os.path.join(FRONT_STATIC_PATH, _), 'rb') as f:
                 if _.endswith('css'):
                     self.add_header("content-type", "text/css; charset=UTF-8")
                 self.write(f.read())
@@ -116,6 +116,6 @@ class AdminHandler(BaseHandler):
                        'location /admin {\n'
                        '    alias %s;\n'
                        '}\n'
-                       '...\n</pre>' % (ADMIN_PATH, ADMIN_PATH)
+                       '...\n</pre>' % (FRONT_STATIC_PATH, FRONT_STATIC_PATH)
                        )
             self.finish()

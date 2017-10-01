@@ -23,11 +23,11 @@ __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 # fake __all__
 __all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE',
            'MAX_PAGE', 'DATA_SOURCE', 'TMP_PATH', 'DANMAKU_API_URL',
-           'LANG', 'ADMIN_PATH', 'ADMIN_TOKEN')
+           'LANG', 'FRONT_STATIC_PATH', 'ADMIN_TOKEN')
 
 # cannot be rewrite
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
-                'SCRIPT_PATH', 'SCRIPT_DB_PATH', 'ADMIN_PATH',)
+                'SCRIPT_PATH', 'SCRIPT_DB_PATH', 'FRONT_STATIC_PATH',)
 
 # writeable
 __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
@@ -196,7 +196,7 @@ DATA_SOURCE = 'bangumi_moe'
 
 # BGmi user path
 SAVE_PATH = os.path.join(BGMI_PATH, 'bangumi')
-ADMIN_PATH = os.path.join(BGMI_PATH, 'admin')
+FRONT_STATIC_PATH = os.path.join(BGMI_PATH, 'front_static')
 
 # admin token
 ADMIN_TOKEN = None
