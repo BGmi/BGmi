@@ -298,7 +298,7 @@ def normalize_path(url):
 
 
 def get_web_admin(method):
-    print_info('{} web admin'.format(method[0].upper() + method[1:]))
+    print_info('{}ing BGmi frontend'.format(method[0].upper() + method[1:]))
     if method == 'update':
         rmtree(FRONT_STATIC_PATH)
         os.makedirs(FRONT_STATIC_PATH)
