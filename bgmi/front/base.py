@@ -10,18 +10,20 @@ COVER_URL = '/bangumi/cover'
 WEEK = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
 
-def jsonify(obj, status=200):
-    return json.dumps({
-        'version': __version__,
-        'status': status,
-        'danmaku_api': DANMAKU_API_URL,
-        'cover_url': COVER_URL,
-        'data': obj
-    }, ensure_ascii=False)
-
-
 class BaseHandler(tornado.web.RequestHandler):
     patch_list = None
+
+    def jsonify(self, data=None, **kwargs):
+        j = {
+            'version': __version__,
+            'status': 'success',
+            'danmaku_api': DANMAKU_API_URL,
+            'cover_url': COVER_URL,
+            'data': data
+        }
+        j.update(kwargs)
+        self.add_header('content-type', 'application/json; charset=utf-8')
+        return json.dumps(j, ensure_ascii=False, indent=2)
 
     def data_received(self, chunk):
         pass

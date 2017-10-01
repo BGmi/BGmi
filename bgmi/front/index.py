@@ -8,7 +8,7 @@ from collections import OrderedDict
 import tornado.escape
 
 from bgmi.config import SAVE_PATH, DB_PATH
-from bgmi.front.base import BaseHandler, WEEK, jsonify
+from bgmi.front.base import BaseHandler, WEEK
 from bgmi.models import Bangumi, Followed, STATUS_NORMAL, STATUS_UPDATING, STATUS_END
 
 
@@ -65,7 +65,7 @@ class MainHandler(BaseHandler):
             for week in weekday_order:
                 cal_ordered[week] = calendar[week.lower()]
 
-            self.write(jsonify(cal_ordered))
+            self.write(self.jsonify(cal_ordered))
 
         else:
             data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING,
@@ -79,13 +79,14 @@ class MainHandler(BaseHandler):
 
             if type_ == 'index':
                 data.extend(self.patch_list)
-                data.sort(key=lambda _: _['updated_time'])
+                data.sort(key=lambda _: _['updated_time'] if _['updated_time'] else 1)
+                # 没有update_time的用1做为update_time
 
             data.reverse()
 
             for item in data:
                 item['player'] = get_player(item['bangumi_name'])
 
-            self.write(jsonify(data))
+            self.write(self.jsonify(data))
 
         self.finish()
