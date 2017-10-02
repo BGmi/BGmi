@@ -80,7 +80,6 @@ class MainHandler(BaseHandler):
             if type_ == 'index':
                 data.extend(self.patch_list)
                 data.sort(key=lambda _: _['updated_time'] if _['updated_time'] else 1)
-                # 没有update_time的用1做为update_time
 
             data.reverse()
 

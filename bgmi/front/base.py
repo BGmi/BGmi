@@ -5,6 +5,7 @@ import tornado.web
 from bgmi import __version__
 from bgmi.config import DANMAKU_API_URL
 from bgmi.script import ScriptRunner
+from bgmi.utils.utils import normalize_path
 
 COVER_URL = '/bangumi/cover'
 WEEK = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
@@ -42,5 +43,7 @@ class BaseHandler(tornado.web.RequestHandler):
         if self.patch_list is None:
             runner = ScriptRunner()
             self.patch_list = runner.get_models_dict()
+            for i in self.patch_list:
+                i['cover'] = normalize_path(i['cover'])
 
         super(BaseHandler, self).__init__(*args, **kwargs)
