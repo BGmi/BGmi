@@ -37,16 +37,6 @@ class BangumiHandler(BaseHandler):
             self.finish()
 
 
-class ImageCSSHandler(BaseHandler):
-    def get(self):
-        data = Followed.get_all_followed(status=None, bangumi_status=None)
-        data.extend(self.patch_list)
-        for _ in data:
-            _['cover'] = '{}/{}'.format(COVER_URL, normalize_path(_['cover']))
-
-        self.set_header('Content-Type', 'text/css; charset=utf-8')
-        self.render('templates/image.css', data=data)
-
 
 class RssHandler(BaseHandler):
     def get(self):
@@ -97,25 +87,3 @@ class CalendarHandler(BaseHandler):
         self.write(cal.to_ical())
         self.finish()
 
-
-class AdminHandler(BaseHandler):
-    def get(self, _):
-        if os.environ.get('DEV', False):
-            with open(os.path.join(FRONT_STATIC_PATH, _), 'rb') as f:
-                if _.endswith('css'):
-                    self.add_header("content-type", "text/css; charset=UTF-8")
-                self.write(f.read())
-                self.finish()
-        else:
-            self.set_header('Content-Type', 'text/html')
-            self.write('<h1>BGmi HTTP Service</h1>')
-            self.write('<pre>Please modify your web server configure file\n'
-                       'to server this path to \'%s\'.\n'
-                       'e.g.\n\n'
-                       '...\n'
-                       'location /admin {\n'
-                       '    alias %s;\n'
-                       '}\n'
-                       '...\n</pre>' % (FRONT_STATIC_PATH, FRONT_STATIC_PATH)
-                       )
-            self.finish()
