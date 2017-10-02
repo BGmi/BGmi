@@ -183,8 +183,8 @@ def get_terminal_col():
             return 80
 
 
-package_json_url = 'https://unpkg.com/bgmi-frontend@{}/package.json'.format(__admin_version__)
-tar_url = 'https://unpkg.com/bgmi-frontend@{version}/dist.tar.gz'.format(version=__admin_version__)
+# package_json_url = 'https://registry.npmjs.com/bgmi-frontend/{}'.format(__admin_version__)
+package_json_url = 'https://registry.npm.taobao.org/bgmi-frontend/{}'.format(__admin_version__)
 
 
 def check_update(mark=True):
@@ -197,13 +197,6 @@ def check_update(mark=True):
                               '\nThen execute `bgmi upgrade` to migrate database'.format(GREEN, version, COLOR_END))
             else:
                 print_success('Your BGmi is the latest version.')
-            admin_version = requests.get(package_json_url).json()[
-                'version']
-
-            with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'r') as f:
-                local_version = json.loads(f.read())['version']
-            if admin_version > local_version:
-                get_web_admin(method='update')
 
             admin_version = requests.get(package_json_url).json()['version']
             with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'r') as f:
@@ -298,18 +291,28 @@ def normalize_path(url):
 
 
 def get_web_admin(method):
+    # frontend_npm_url = 'https://registry.npmjs.com/bgmi-frontend/'
+    frontend_npm_url = 'https://registry.npm.taobao.org/bgmi-frontend/'
     print_info('{}ing BGmi frontend'.format(method[0].upper() + method[1:]))
     if method == 'update':
         rmtree(FRONT_STATIC_PATH)
         os.makedirs(FRONT_STATIC_PATH)
     try:
         if os.environ.get('DEV', False):
-            version = requests.get(package_json_url.replace('https://', 'http://localhost:8092/https/')).text
+            r = requests.get(frontend_npm_url.replace('https://', 'http://localhost:8092/https/')).text
+            r = json.loads(r)
+            version = requests.get(package_json_url.replace('https://', 'http://localhost:8092/https/')).json()
+            tar_url = r['versions'][version['version']]['dist']['tarball']
             r = requests.get(tar_url.replace('https://', 'http://localhost:8092/https/'))
         else:
-            version = requests.get(package_json_url).text
+            r = requests.get(frontend_npm_url).json()
+            version = requests.get(package_json_url).json()
+            tar_url = r['versions'][version['version']]['dist']['tarball']
             r = requests.get(tar_url)
     except requests.exceptions.ConnectionError:
+        print_warning('failed to download web admin')
+        return
+    except json.JSONDecodeError:
         print_warning('failed to download web admin')
         return
     admin_zip = BytesIO(r.content)
@@ -319,10 +322,9 @@ def get_web_admin(method):
     with tarfile.open(fileobj=tar_file) as tar_file_obj:
         tar_file_obj.extractall(path=FRONT_STATIC_PATH)
 
-    for file in os.listdir(os.path.join(FRONT_STATIC_PATH, 'dist')):
-        move(os.path.join(FRONT_STATIC_PATH, 'dist', file),
+    for file in os.listdir(os.path.join(FRONT_STATIC_PATH, 'package', 'dist')):
+        move(os.path.join(FRONT_STATIC_PATH, 'package', 'dist', file),
              os.path.join(FRONT_STATIC_PATH, file))
-    os.removedirs(os.path.join(FRONT_STATIC_PATH, 'dist'))
     with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'w+') as f:
-        f.write(version)
-    print_success('Web admin page {} successfully. version: {}'.format(method, json.loads(version)['version']))
+        f.write(json.dumps(version))
+    print_success('Web admin page {} successfully. version: {}'.format(method, version['version']))
