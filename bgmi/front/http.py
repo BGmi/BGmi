@@ -34,7 +34,7 @@ def make_app():
         (r'^/api/(old|index|calendar)', MainHandler),
 
         (r'^/bangumi/?(.*)', BangumiHandler),
-        (r'^/resource/rss$', RssHandler),
+        (r'^/resource/feed.xml$', RssHandler),
         (r'^/resource/calendar.ics$', CalendarHandler),
 
         (r'^/api/?(?P<action>.*)', AdminApiHandler),
