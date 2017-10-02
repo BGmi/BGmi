@@ -48,6 +48,9 @@ indicator_map = {
     'print_error': '[x] ',
 }
 
+FRONTEND_NPM_URL = 'https://registry.npm.taobao.org/bgmi-frontend/'
+PACKAGE_JSON_URL = 'https://registry.npm.taobao.org/bgmi-frontend/{}'.format(__admin_version__)
+
 
 def indicator(f):
     @functools.wraps(f)
@@ -183,10 +186,6 @@ def get_terminal_col():
             return 80
 
 
-# package_json_url = 'https://registry.npmjs.com/bgmi-frontend/{}'.format(__admin_version__)
-package_json_url = 'https://registry.npm.taobao.org/bgmi-frontend/{}'.format(__admin_version__)
-
-
 def check_update(mark=True):
     def update():
         try:
@@ -198,7 +197,7 @@ def check_update(mark=True):
             else:
                 print_success('Your BGmi is the latest version.')
 
-            admin_version = requests.get(package_json_url).json()['version']
+            admin_version = requests.get(PACKAGE_JSON_URL).json()['version']
             with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'r') as f:
                 local_version = json.loads(f.read())['version']
             if admin_version > local_version:
@@ -208,7 +207,6 @@ def check_update(mark=True):
                 raise SystemExit
         except Exception as e:
             print_warning('Error occurs when checking update, {}'.format(str(e)))
-
 
     version_file = os.path.join(BGMI_PATH, 'version')
     if not os.path.exists(version_file):
@@ -292,21 +290,20 @@ def normalize_path(url):
 
 def get_web_admin(method):
     # frontend_npm_url = 'https://registry.npmjs.com/bgmi-frontend/'
-    frontend_npm_url = 'https://registry.npm.taobao.org/bgmi-frontend/'
     print_info('{}ing BGmi frontend'.format(method[0].upper() + method[1:]))
-    if method == 'update':
-        rmtree(FRONT_STATIC_PATH)
-        os.makedirs(FRONT_STATIC_PATH)
+    rmtree(FRONT_STATIC_PATH)
+    os.makedirs(FRONT_STATIC_PATH)
+
     try:
         if os.environ.get('DEV', False):
-            r = requests.get(frontend_npm_url.replace('https://', 'http://localhost:8092/https/')).text
+            r = requests.get(FRONTEND_NPM_URL.replace('https://', 'http://localhost:8092/https/')).text
             r = json.loads(r)
-            version = requests.get(package_json_url.replace('https://', 'http://localhost:8092/https/')).json()
+            version = requests.get(PACKAGE_JSON_URL.replace('https://', 'http://localhost:8092/https/')).json()
             tar_url = r['versions'][version['version']]['dist']['tarball']
             r = requests.get(tar_url.replace('https://', 'http://localhost:8092/https/'))
         else:
-            r = requests.get(frontend_npm_url).json()
-            version = requests.get(package_json_url).json()
+            r = requests.get(FRONTEND_NPM_URL).json()
+            version = requests.get(PACKAGE_JSON_URL).json()
             tar_url = r['versions'][version['version']]['dist']['tarball']
             r = requests.get(tar_url)
     except requests.exceptions.ConnectionError:
