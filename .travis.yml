@@ -14,8 +14,8 @@ env:
     - TRAVIS_CI=TRAVIS_CI
 
 script:
-    - export BANGUMI_1=海贼王
-    - export BANGUMI_2="食戟之灵 餐之皿"
+    - export BANGUMI_1=食戟之灵\ 餐之皿
+    - export BANGUMI_2=海贼王
     - export BANGUMI_3=此花奇谭
     - coverage run -m unittest tests.test_models
     - coverage run -a -m unittest tests.test_controllers
