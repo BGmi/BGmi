@@ -30,10 +30,10 @@ def get_player(bangumi_name):
 
             for bangumi in files:
                 if bangumi.lower().endswith('.mp4'):
-                    mp4_path = os.path.join(base_path, bangumi).replace(os.path.sep, '/')
-                    mp4_path = os.path.join(os.path.dirname(mp4_path),
-                                            tornado.escape.url_escape(os.path.basename(mp4_path)))
-                    episode_list[episode] = {'path': mp4_path.replace(os.path.sep, '/')}
+                    mp4_path = os.path.join(base_path, bangumi)
+                    mp4_path = os.path.join(os.path.dirname(mp4_path), os.path.basename(mp4_path))
+                    mp4_path = mp4_path.replace(os.path.sep, '/')
+                    episode_list[episode] = {'path': mp4_path}
                     break
 
     return episode_list
