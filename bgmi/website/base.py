@@ -169,7 +169,6 @@ class BaseWebsite(object):
         if os.environ.get('DEV', False):
             url = url.replace('http://', 'http://localhost:8092/http/')
             url = url.replace('https://', 'http://localhost:8092/https/')
-        print(url)
         r = requests.get(url)
         
         with open(file_path, 'wb+') as f:

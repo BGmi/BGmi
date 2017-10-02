@@ -35,7 +35,7 @@ __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
 # the real __all__
 __all__ = __all__ + __download_delegate__ + __readonly__
 
-download_delegate_map = {
+DOWNLOAD_DELEGATE_MAP = {
     'rr!': __wget__,
     'aria2-rpc': __aria2__,
     'xunlei': __thunder__,
@@ -68,7 +68,7 @@ def read_config():
         if c.has_option('bgmi', i):
             globals().update({i: c.get('bgmi', i)})
 
-    for i in download_delegate_map.get(DOWNLOAD_DELEGATE):
+    for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
         if c.has_option(DOWNLOAD_DELEGATE, i):
             globals().update({i: c.get(DOWNLOAD_DELEGATE, i)})
 
@@ -85,7 +85,7 @@ def print_config():
         string += '{0}={1}\n'.format(i, c.get('bgmi', i))
 
     string += '\n[{0}]\n'.format(DOWNLOAD_DELEGATE)
-    for i in download_delegate_map.get(DOWNLOAD_DELEGATE):
+    for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
         string += '{0}={1}\n'.format(i, c.get(DOWNLOAD_DELEGATE, i))
     return string
 
@@ -104,13 +104,13 @@ def write_default_config():
                 v = hashlib.md5(str(random.random())).hexdigest()
         c.set('bgmi', k, v)
 
-    if DOWNLOAD_DELEGATE not in download_delegate_map.keys():
+    if DOWNLOAD_DELEGATE not in DOWNLOAD_DELEGATE_MAP.keys():
         raise Exception(DOWNLOAD_DELEGATE)
 
     if not c.has_section(DOWNLOAD_DELEGATE):
         c.add_section(DOWNLOAD_DELEGATE)
 
-    for k in download_delegate_map.get(DOWNLOAD_DELEGATE):
+    for k in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
         v = globals().get(k, None)
         c.set(DOWNLOAD_DELEGATE, k, v)
 
@@ -148,7 +148,7 @@ def write_config(config=None, value=None):
 
         else:  # config(config, Value)
             if config in __writeable__:
-                if config == 'DOWNLOAD_DELEGATE' and value not in download_delegate_map:
+                if config == 'DOWNLOAD_DELEGATE' and value not in DOWNLOAD_DELEGATE_MAP:
                     result = {'status': 'error',
                               'message': '{0} is not a support download_delegate'.format(value)}
                 else:
@@ -159,7 +159,7 @@ def write_config(config=None, value=None):
                     if config == 'DOWNLOAD_DELEGATE':
                         if not c.has_section(DOWNLOAD_DELEGATE):
                             c.add_section(DOWNLOAD_DELEGATE)
-                            for i in download_delegate_map.get(DOWNLOAD_DELEGATE):
+                            for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
                                 v = globals().get(i, '')
                                 c.set(DOWNLOAD_DELEGATE, i, v)
 
@@ -168,7 +168,7 @@ def write_config(config=None, value=None):
                     result = {'status': 'success',
                               'message': '{0} has been set to {1}'.format(config, value)}
 
-            elif config in download_delegate_map.get(DOWNLOAD_DELEGATE):
+            elif config in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
                 c.set(DOWNLOAD_DELEGATE, config, value)
                 with open(CONFIG_FILE_PATH, 'w') as f:
                     c.write(f)
@@ -189,7 +189,7 @@ def write_config(config=None, value=None):
 
 # --------- Writeable ---------- #
 # Setting bangumi.moe url
-BANGUMI_MOE_URL = 'https://bangumi_moe.ricterz.me'
+BANGUMI_MOE_URL = 'https://bangumi.moe'
 
 # Setting bangumi.moe url
 DATA_SOURCE = 'bangumi_moe'
@@ -214,7 +214,7 @@ DOWNLOAD_DELEGATE = 'aria2-rpc'
 DANMAKU_API_URL = ''
 
 # bangumi cover url
-COVER_URL = 'https://bangumi_moe.ricterz.me'
+COVER_URL = 'https://bangumi.moe'
 
 # language
 LANG = 'zh_cn'

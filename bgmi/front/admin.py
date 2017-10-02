@@ -71,13 +71,11 @@ class AdminApiHandler(BaseHandler):
                 data = API_MAP_POST.get(action)(**data)
                 if data['status'] == 'error':
                     self.set_status(400)
-                    # self.finish(self.jsonify(message='bad request', status='error'))
-                # else:
+
                 data = self.jsonify(**data)
                 self.finish(data)
             else:
                 self.write_error(404)
-                self.finish(self.jsonify(message='bad request', status='error'))
 
         except json.JSONEncoder:
             self.write_error(400)

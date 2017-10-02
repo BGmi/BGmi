@@ -14,9 +14,9 @@ env:
     - TRAVIS_CI=TRAVIS_CI
 
 script:
-    - export BANGUMI_1=捏造陷阱NTR
-    - export BANGUMI_2=骑士魔法
-    - export BANGUMI_3=异世界食堂
+    - export BANGUMI_1=海贼王
+    - export BANGUMI_2="食戟之灵 餐之皿"
+    - export BANGUMI_3=此花奇谭
     - coverage run -m unittest tests.test_models
     - coverage run -a -m unittest tests.test_controllers
     - bgmi -h

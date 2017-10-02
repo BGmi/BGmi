@@ -130,7 +130,7 @@ def main():
     sub_parser_search = sub_parser.add_parser(ACTION_SOURCE, help='select date source bangumi_moe or mikan_project')
     sub_parser_search.add_argument('source', help='bangumi_moe or mikan_project', type=unicode_)
 
-    sub_parser.add_parser('install', help='Install BGmi download delegate.')
+    sub_parser.add_parser('install', help='Install BGmi front / admin / download delegate')
     sub_parser.add_parser('upgrade', help='Check update.')
 
     ret = c.parse_args()
@@ -138,6 +138,8 @@ def main():
         import bgmi.setup
 
         bgmi.setup.install()
+        get_web_admin(method='install')
+
         raise SystemExit
     elif ret.action == 'upgrade':
         update_database()
@@ -178,9 +180,6 @@ def setup():
             # if not input('Do you want to install a crontab to auto-download bangumi?(Y/n): ') == 'n':
             install_crontab()
 
-    if (not os.path.exists(os.path.join(FRONT_STATIC_PATH, 'index.html'))) or \
-            (not os.path.exists(os.path.join(FRONT_STATIC_PATH, 'package.json'))):
-        get_web_admin(method='install')
 
     init_db()
 
