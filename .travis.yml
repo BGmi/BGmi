@@ -21,6 +21,7 @@ script:
     - coverage run -a -m unittest tests.test_controllers
     - bgmi -h
     - curl https://static.ricterz.me/test_script.py > $HOME/.bgmi/scripts/test_script.py
+    - coverage run -a -m bgmi.main install
     - bgmi cal
     - bgmi config
     - bgmi config ADMIN_TOKEN 233
@@ -34,8 +35,8 @@ script:
     - bgmi fetch $BANGUMI_2
 # # give server some time to start
     - bgmi_http &
-    - sleep 3
-    - python webapi_test.py
+    - sleep 2
+    - coverage run -a webapi_test.py
     - bgmi list
     - bgmi download --list
     - bgmi mark $BANGUMI_2 1
@@ -43,10 +44,6 @@ script:
     - bgmi filter $BANGUMI_2 --subtitle "" --exclude "MKV" --regex "720p|720P"
     - bgmi fetch $BANGUMI_2
     - bgmi search "Gamers!" --regex-filter '.*字幕组.*].*720P.*'
-
-    - bgmi_http &
-    - sleep 3
-    - python webapi_test.py
 
     - echo 'test mikan'
     - export BANGUMI_1=名侦探柯南

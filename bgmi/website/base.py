@@ -8,13 +8,12 @@ import time
 from collections import defaultdict
 from itertools import chain
 
-import requests
 import tqdm
 
 from bgmi.config import MAX_PAGE, SAVE_PATH, IS_PYTHON3
 from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, Followed
 from bgmi.script import ScriptRunner
-from bgmi.utils import (parse_episode, print_warning, print_info,
+from bgmi.utils import (network, parse_episode, print_warning, print_info,
                         test_connection, normalize_path)
 
 if IS_PYTHON3:
@@ -166,11 +165,8 @@ class BaseWebsite(object):
 
         if not glob.glob(dir_path):
             os.makedirs(dir_path)
-        if os.environ.get('DEV', False):
-            url = url.replace('http://', 'http://localhost:8092/http/')
-            url = url.replace('https://', 'http://localhost:8092/https/')
-        r = requests.get(url)
-        
+        r = network.get(url)
+
         with open(file_path, 'wb+') as f:
             f.write(r.content)
 
