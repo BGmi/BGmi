@@ -2,18 +2,19 @@ BGmi
 ====
 BGmi is a cli tool for subscribed bangumi.
 
-|travis|
 |pypi|
+|travis|
+|coverage|
 
 ====
 TODO
 ====
-+ finish web page to admin bgmi
 + http api: search, filter
 
 ==========
 Update Log
 ==========
++ Fully new frontend
 + Web page admin to config BGmi
 + Web page admin to add and delete bangumi
 + HTTP Api
@@ -23,13 +24,11 @@ Update Log
 + Search / Download bangumi filter by regex
 + Download specified episode
 + Transmission-rpc support
-+ Remove aria2 download method
-+ Followed Bangumi's Calendar for iOS / Android
 
 =======
 Feature
 =======
-+ Web page to admin bangumi(add or delete)
++ Web page to subscribe bangumi and config your bgmi
 + Bangumi Script: Write your bangumi parser own!
 + Bangumi data source: `bangumi_moe(default) <https://bangumi.moe>`_ or `mikan_project <https://mikanani.me>`_
 + Subscribe/unsubscribe bangumi
@@ -42,13 +41,13 @@ Feature
 + Download bangumi by specified keywords (included and excluded).
 + **BGmi have supported Windows now**
 
-.. image:: https://raw.githubusercontent.com/RicterZ/BGmi/master/images/bgmi.png
+.. image:: ./images/bgmi.png?raw=true
     :alt: BGmi
     :align: center
-.. image:: https://raw.githubusercontent.com/RicterZ/BGmi/master/images/bgmi_http.png
+.. image:: ./images/bgmi_http.png?raw=true
     :alt: BGmi HTTP Service
     :align: center
-.. image:: https://raw.githubusercontent.com/RicterZ/BGmi/master/images/bgmi_player.png
+.. image:: ./images/bgmi_player.png?raw=true
     :alt: BGmi HTTP Service
     :align: center
 
@@ -59,7 +58,7 @@ For **Mac OS X / Linux / Windows**:
 
 .. code-block:: bash
 
-    git clone https://github.com/RicterZ/BGmi
+    git clone https://github.com/BGmi/BGmi
     cd BGmi
     python setup.py install
 
@@ -69,17 +68,21 @@ Or use pip:
 
     pip install bgmi
 
+.. code-block:: bash
+
+    bgmi install # install BGmi-frontend
+
 
 Build Docker:
 
 .. code-block:: bash
 
-    git clone https://github.com/RicterZ/BGmi
+    git clone https://github.com/BGmi/BGmi
     cd BGmi
     docker build -t bgmi .
     docker run -p8899:80 -d -v ~/.bgmi:/root/.bgmi bgmi
 
-You can use bgmi command at client to add / remove bangumi, or get into the docker container to manage bangumi.
+You can use bgmi command at client to add / remove bangumi, get into the docker container to manage bangumi, or use your Web admin to subscribe Bangumi.
 
 Or just:
 
@@ -457,8 +460,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-.. |travis| image:: https://travis-ci.org/RicterZ/BGmi.svg?branch=master
-   :target: https://travis-ci.org/RicterZ/BGmi
 
 .. |pypi| image:: https://img.shields.io/pypi/v/bgmi.svg
    :target: https://pypi.python.org/pypi/bgmi
+
+.. |travis| image:: https://travis-ci.org/BGmi/BGmi.svg?branch=master
+   :target: https://travis-ci.org/BGmi/BGmi
+
+.. |coverage| image:: https://codecov.io/gh/BGmi/BGmi/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/BGmi/BGmi
