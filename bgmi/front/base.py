@@ -14,6 +14,12 @@ WEEK = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 class BaseHandler(tornado.web.RequestHandler):
     patch_list = None
 
+    def get_json(self):
+        try:
+            return json.loads(self.request.body.decode('utf-8'))
+        except (json.JSONDecoder, ValueError):
+            return {}
+
     def jsonify(self, data=None, **kwargs):
         j = {
             'version': __version__,

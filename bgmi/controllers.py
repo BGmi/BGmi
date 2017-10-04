@@ -8,7 +8,7 @@ from bgmi.constants import SUPPORT_WEBSITE
 from bgmi.download import download_prepare
 from bgmi.fetch import website
 from bgmi.models import Bangumi, Filter, Subtitle, Download, \
-    STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NOT_DOWNLOAD
+    STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NOT_DOWNLOAD, FOLLOWED_STATUS
 from bgmi.models import Followed
 from bgmi.models import (STATUS_NORMAL, DB)
 from bgmi.script import ScriptRunner
@@ -329,6 +329,29 @@ def update(name, download=None, not_ignore=False):
         download_prepare(Download.get_all_downloads(
             status=STATUS_NOT_DOWNLOAD))
 
+    return result
+
+
+def status_(name, status=STATUS_NORMAL):
+    result = {'status': 'success', 'message': ''}
+
+    if not status in FOLLOWED_STATUS or not status:
+        result['status'] = 'error'
+        result['message'] = 'Invalid status: {0}'.format(status)
+        return result
+
+    status = int(status)
+    followed_obj = Followed(bangumi_name=name)
+    followed_obj.select_obj()
+
+    if not followed_obj:
+        result['status'] = 'error'
+        result['message'] = 'Followed<{0}> does not exists'.format(name)
+        return result
+
+    followed_obj.status = status
+    followed_obj.save()
+    result['message'] = 'Followed<{0}> has been marked as status {1}'.format(name, status)
     return result
 
 

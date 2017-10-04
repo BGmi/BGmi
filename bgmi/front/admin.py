@@ -9,11 +9,13 @@ from tornado.web import asynchronous
 from bgmi.config import ADMIN_TOKEN
 from bgmi.constants import ACTION_ADD, ACTION_DELETE, ACTION_CAL, ACTION_SEARCH, ACTION_CONFIG, ACTION_DOWNLOAD, \
     ACTION_MARK
-from bgmi.controllers import add, delete, search, cal, config, update, mark
+from bgmi.controllers import add, delete, search, cal, config, update, mark, status_
 from bgmi.download import download_prepare
 from bgmi.front.base import BaseHandler
+from bgmi.utils import print_warning
 
 ACTION_AUTH = 'auth'
+ACTION_STATUS = 'status'
 
 
 def auth_(token=''):
@@ -28,6 +30,7 @@ API_MAP_POST = {
     ACTION_DOWNLOAD: download_prepare,
     ACTION_AUTH: auth_,
     ACTION_MARK: mark,
+    ACTION_STATUS: status_,
 }
 
 API_MAP_GET = {
@@ -61,44 +64,50 @@ class AdminApiHandler(BaseHandler):
         if action in API_MAP_GET:
             if os.environ.get('DEV', False):
                 self._add_header()
-            self.finish(self.jsonify(**API_MAP_GET.get(action)()))
+
+            try:
+                result = API_MAP_GET.get(action)()
+            except Exception:
+                self.set_status(400)
+                result = {'message': 'Bad Request', 'status': 'error'}
+            self.finish(self.jsonify(**result))
+        else:
+            self.set_status(404)
+            self.finish(self.jsonify(message='Not Found', status='error'))
 
     @auth
     def post(self, action, *args, **kwargs):
-        try:
-            data = json.loads(self.request.body.decode('utf-8'))
-            # self.add_header('content-type', 'application/json; charset=utf-8')
+        if action in API_MAP_POST:
+            data = self.get_json()
 
             if os.environ.get('DEV', False):
                 self._add_header()
 
-            result = API_MAP_POST.get(action)(**data)
-            if result['status'] == 'error':
+            try:
+                result = API_MAP_POST.get(action)(**data)
+                if result['status'] == 'error':
+                    self.set_status(400)
+            except Exception as e:
+                print_warning(str(e))
                 self.set_status(400)
+                result = {'message': 'Bad Request', 'status': 'error'}
 
             resp = self.jsonify(**result)
             self.finish(resp)
-
-        except (json.JSONEncoder, ValueError):
-            self.set_status(400)
-            self.write(self.jsonify(status='error', message='Bad Request'))
-            self.finish()
+        else:
+            self.set_status(404)
+            self.finish(self.jsonify(message='Not Found', status='error'))
 
 
 class UpdateHandler(BaseHandler):
     def get(self):
         self.write(self.jsonify(data='好耶'))
+        self.finish()
 
     @auth
     @asynchronous
     def post(self):
-        try:
-            data = json.loads(self.request.body.decode('utf-8'))
-        except (json.JSONDecoder, ValueError):
-            self.set_status(400)
-            self.write(self.jsonify(status='error', message='Bad Request'))
-            self.finish()
-            return
+        data = self.get_json()
 
         name = data.get('name', '')
         download = data.get('download', [])
