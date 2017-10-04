@@ -9,7 +9,7 @@ import requests
 
 from bgmi.config import (LANG, MAX_PAGE, COVER_URL, BANGUMI_MOE_URL)
 from bgmi.models import Bangumi
-from bgmi.utils import (print_info, bug_report, print_error)
+from bgmi.utils import (print_info, bug_report, print_error, print_warning)
 from bgmi.website.base import BaseWebsite
 
 # tag of bangumi on bangumi.moe
@@ -219,6 +219,9 @@ class BangumiMoe(BaseWebsite):
 
         for i in range(count):
             data = get_response(SEARCH_URL, 'POST', json={'query': keyword, 'p': i + 1})
+            if not 'torrents' in data:
+                print_warning('No torrents in response data, please re-run')
+                return []
             rows.extend(data['torrents'])
 
         for info in rows:
