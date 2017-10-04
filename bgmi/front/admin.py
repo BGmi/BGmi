@@ -1,3 +1,4 @@
+# coding: utf-8
 import functools
 import json
 import os
@@ -55,7 +56,6 @@ def auth(f):
 
 
 class AdminApiHandler(BaseHandler):
-
     @auth
     def get(self, action, *args, **kwargs):
         if action in API_MAP_GET:
@@ -69,21 +69,19 @@ class AdminApiHandler(BaseHandler):
             data = json.loads(self.request.body.decode('utf-8'))
             # self.add_header('content-type', 'application/json; charset=utf-8')
 
-            if action in API_MAP_POST:
-                if os.environ.get('DEV', False):
-                    self._add_header()
+            if os.environ.get('DEV', False):
+                self._add_header()
 
-                data = API_MAP_POST.get(action)(**data)
-                if data['status'] == 'error':
-                    self.set_status(400)
+            result = API_MAP_POST.get(action)(**data)
+            if result['status'] == 'error':
+                self.set_status(400)
 
-                data = self.jsonify(**data)
-                self.finish(data)
-            else:
-                self.write_error(404)
+            resp = self.jsonify(**result)
+            self.finish(resp)
 
-        except json.JSONEncoder:
-            self.write_error(400)
+        except (json.JSONEncoder, ValueError):
+            self.set_status(400)
+            self.write(self.jsonify(status='error', data='Bad Request'))
 
 
 def update_async(name, callback):
@@ -92,12 +90,28 @@ def update_async(name, callback):
 
 
 class UpdateHandler(BaseHandler):
+    def get(self):
+        self.write(self.jsonify(data='好耶'))
+
     @auth
     @asynchronous
-    def get(self):
-        name = self.get_argument('name', '')
+    def post(self):
+        try:
+            data = json.loads(self.request.body.decode('utf-8'))
+        except (json.JSONDecoder, ValueError):
+            self.set_status(400)
+            self.write(self.jsonify(status='error', data='Bad Request'))
+            self.finish()
+            return
+
+        name = data.get('name', '')
+        download = data.get('download', [])
+
+        if not download:
+            download = None
+
         pool = ThreadPool(processes=1)
-        pool.apply_async(update, (name, ), callback=self.resp)
+        pool.apply_async(update, (name, download, ), callback=self.resp)
 
     def resp(self, result):
         self.write(self.jsonify(**result))
