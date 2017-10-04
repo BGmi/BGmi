@@ -106,8 +106,8 @@ def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
         'bangumi_name': name,
         'subtitle_group': list(map(
             lambda s: s['name'],
-            Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', '))) if subtitle_list else []),
-        'followed': map(lambda s: s['name'], Subtitle.get_subtitle(followed_filter_obj.subtitle.split(', '))),
+            Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', ')))),
+        'followed': list(map(lambda s: s['name'], Subtitle.get_subtitle(followed_filter_obj.subtitle.split(', ')))),
         'include': followed_filter_obj.include,
         'exclude': followed_filter_obj.exclude,
         'regex': followed_filter_obj.regex,
