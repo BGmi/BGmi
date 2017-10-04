@@ -118,11 +118,11 @@ def cal_wrapper(ret):
 
                 for s in SPACIAL_APPEND_CHARS:
                     if s in bangumi['name']:
-                        space_count += 1
+                        space_count += bangumi['name'].count(s)
 
                 for s in SPACIAL_REMOVE_CHARS:
                     if s in bangumi['name']:
-                        space_count -= 1
+                        space_count -= bangumi['name'].count(s)
 
                 if bangumi['status'] == STATUS_FOLLOWED:
                     bangumi['name'] = '%s%s%s' % (
