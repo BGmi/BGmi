@@ -32,7 +32,6 @@ script:
     - bgmi delete --clear-all --batch
     - bgmi add $BANGUMI_2 --episode 1
     - bgmi fetch $BANGUMI_2
-# # give server some time to start
     - bgmi_http &
     - sleep 3
     - python webapi_test.py
@@ -44,18 +43,8 @@ script:
     - bgmi fetch $BANGUMI_2
     - bgmi search "Gamers!" --regex-filter '.*字幕组.*].*720P.*'
 
-    - bgmi_http &
-    - sleep 3
-    - python webapi_test.py
-
-    - echo 'test mikan'
-    - export BANGUMI_1=名侦探柯南
-    - export BANGUMI_2=海贼王
-    - bgmi source mikan_project
-    - bgmi config
+    # if the interface implements correctly, testing the mikan is not necessary
     - coverage run -a -m unittest tests.test_controllers
-
-
 
 after_success:
   - codecov
