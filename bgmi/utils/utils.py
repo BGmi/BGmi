@@ -23,7 +23,7 @@ from bgmi.constants import SUPPORT_WEBSITE
 
 urllib3.disable_warnings()
 
-if platform.system() == 'Windows':
+if platform.system() == 'Windows':  # pragma: no cover
     GREEN = ''
     YELLOW = ''
     RED = ''
@@ -126,31 +126,13 @@ def test_connection():
     return True
 
 
-def unicodeize(data):
-    import bgmi.config
-
-    if bgmi.config.IS_PYTHON3:
-        if isinstance(data, bytes):
-            return data.decode('utf-8')
-        else:
-            return data
-            # return bytes(str(data), 'latin-1').decode('utf-8')
-    try:
-        return unicode(data.decode('utf-8'))
-    except (UnicodeEncodeError, UnicodeDecodeError):
-        return unicode(data.decode('gbk'))
-    except (UnicodeEncodeError, UnicodeDecodeError):
-        return data
-
-
-def bug_report():
+def bug_report():  # pragma: no cover
     print_error('It seems that no bangumi found, if https://bangumi.moe can \n'
-                '    be opened normally, please report bug to ricterzheng@gmail.com\n'
-                '    or submit issue at: https://github.com/RicterZ/BGmi/issues',
+                '    be opened normally, please submit issue at: https://github.com/BGmi/BGmi/issues',
                 exit_=True)
 
 
-def get_terminal_col():
+def get_terminal_col():  # pragma: no cover
     # https://gist.github.com/jtriley/1108174
     if not platform.system() == 'Windows':
         import fcntl
@@ -190,14 +172,14 @@ def check_update(mark=True):
     def update():
         try:
             print_info('Checking update ...')
-            version = requests.get('https://pypi.python.org/pypi/bgmi/json', verify=False).json()['info']['version']
+            version = network.get('https://pypi.python.org/pypi/bgmi/json', verify=False).json()['info']['version']
             if version > __version__:
                 print_warning('Please update bgmi to the latest version {}{}{}.'
                               '\nThen execute `bgmi upgrade` to migrate database'.format(GREEN, version, COLOR_END))
             else:
                 print_success('Your BGmi is the latest version.')
 
-            admin_version = requests.get(PACKAGE_JSON_URL).json()['version']
+            admin_version = network.get(PACKAGE_JSON_URL).json()['version']
             with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'r') as f:
                 local_version = json.loads(f.read())['version']
             if admin_version > local_version:
@@ -288,6 +270,30 @@ def normalize_path(url):
         return url
 
 
+class network(object):
+    @staticmethod
+    def get(url, **kwargs):
+        if os.environ.get('DEBUG'):
+            print(url, kwargs)
+        if os.environ.get("DEV", False):  # pragma: no cover
+            if url.startswith('https://'):
+                url = url.replace('https://', 'http://localhost:8092/https/')
+            elif url.startswith('http://'):
+                url = url.replace('http://', 'http://localhost:8092/http/')
+        return requests.get(url, **kwargs)
+
+    @staticmethod
+    def post(url, **kwargs):
+        if os.environ.get('DEBUG'):
+            print(url, kwargs)
+        if os.environ.get("DEV", False):  # pragma: no cover
+            if url.startswith('https://'):
+                url = url.replace('https://', 'http://localhost:8092/https/')
+            elif url.startswith('http://'):
+                url = url.replace('http://', 'http://localhost:8092/http/')
+        return requests.post(url, **kwargs)
+
+
 def get_web_admin(method):
     # frontend_npm_url = 'https://registry.npmjs.com/bgmi-frontend/'
     print_info('{}ing BGmi frontend'.format(method[0].upper() + method[1:]))
@@ -295,17 +301,10 @@ def get_web_admin(method):
     os.makedirs(FRONT_STATIC_PATH)
 
     try:
-        if os.environ.get('DEV', False):
-            r = requests.get(FRONTEND_NPM_URL.replace('https://', 'http://localhost:8092/https/')).text
-            r = json.loads(r)
-            version = requests.get(PACKAGE_JSON_URL.replace('https://', 'http://localhost:8092/https/')).json()
-            tar_url = r['versions'][version['version']]['dist']['tarball']
-            r = requests.get(tar_url.replace('https://', 'http://localhost:8092/https/'))
-        else:
-            r = requests.get(FRONTEND_NPM_URL).json()
-            version = requests.get(PACKAGE_JSON_URL).json()
-            tar_url = r['versions'][version['version']]['dist']['tarball']
-            r = requests.get(tar_url)
+        r = network.get(FRONTEND_NPM_URL).json()
+        version = network.get(PACKAGE_JSON_URL).json()
+        tar_url = r['versions'][version['version']]['dist']['tarball']
+        r = network.get(tar_url)
     except requests.exceptions.ConnectionError:
         print_warning('failed to download web admin')
         return
