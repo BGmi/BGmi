@@ -8,7 +8,8 @@ import string
 
 from bgmi.config import write_config
 from bgmi.constants import ACTION_ADD, ACTION_SOURCE, ACTION_DOWNLOAD, ACTION_CONFIG, ACTION_DELETE, ACTION_MARK, \
-    ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST, DOWNLOAD_CHOICE_LIST_DICT
+    ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST, DOWNLOAD_CHOICE_LIST_DICT, \
+    SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS
 from bgmi.controllers import filter_, source, \
     mark, delete, add, search, update, fetch_, list_
 from bgmi.download import download_prepare, get_download_class
@@ -96,8 +97,6 @@ def cal_wrapper(ret):
         split = '-' * num + '   '
         print(split * row)
 
-    spacial_append_chars = ['Ⅱ', 'Ⅲ', '♪', 'Δ', '×', '☆', 'é', '·', '♭']
-    spacial_remove_chars = []
 
     for index, weekday in enumerate(weekday_order):
         if weekly_list[weekday.lower()]:
@@ -117,11 +116,11 @@ def cal_wrapper(ret):
                 full = (len(bangumi['name']) - half)
                 space_count = col - 2 - (full * 2 + half)
 
-                for s in spacial_append_chars:
+                for s in SPACIAL_APPEND_CHARS:
                     if s in bangumi['name']:
                         space_count += 1
 
-                for s in spacial_remove_chars:
+                for s in SPACIAL_REMOVE_CHARS:
                     if s in bangumi['name']:
                         space_count -= 1
 

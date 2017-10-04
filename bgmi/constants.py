@@ -60,3 +60,6 @@ STATUS_SUCCESS = 'success'
 STATUS_WARNING = 'warning'
 STATUS_ERROR = 'error'
 STATUS_INFO = 'info'
+
+SPACIAL_APPEND_CHARS = ['Ⅱ', 'Ⅲ', '♪', 'Δ', '×', '☆', 'É', '·', '♭', '∆']
+SPACIAL_REMOVE_CHARS = []
