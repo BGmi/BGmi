@@ -81,12 +81,8 @@ class AdminApiHandler(BaseHandler):
 
         except (json.JSONEncoder, ValueError):
             self.set_status(400)
-            self.write(self.jsonify(status='error', data='Bad Request'))
-
-
-def update_async(name, callback):
-    if not callable(callback):
-        raise ValueError
+            self.write(self.jsonify(status='error', message='Bad Request'))
+            self.finish()
 
 
 class UpdateHandler(BaseHandler):
@@ -100,7 +96,7 @@ class UpdateHandler(BaseHandler):
             data = json.loads(self.request.body.decode('utf-8'))
         except (json.JSONDecoder, ValueError):
             self.set_status(400)
-            self.write(self.jsonify(status='error', data='Bad Request'))
+            self.write(self.jsonify(status='error', message='Bad Request'))
             self.finish()
             return
 

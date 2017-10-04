@@ -24,10 +24,19 @@ api_list = [
         }),
         'show_output': True
     }, {
+        'action': 'mark',
+        'method': 'post',
+        'params': json.dumps({
+            'name': os.environ.get('BANGUMI_2'),
+            'episode': 1,
+        }),
+        'show_output': True,
+    }, {
         'action': 'update',
-        'method': 'get',
+        'method': 'post',
+        'params': '{}',
         'show_output': True
-    }
+    },
 ]
 
 

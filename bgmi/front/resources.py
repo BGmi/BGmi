@@ -91,7 +91,7 @@ class CalendarHandler(BaseHandler):
 class NotFoundHandler(BaseHandler):
     def get(self, *args, **kwargs):
         self.set_status(404)
-        self.write(self.jsonify(status='error', data='404 Not Found'))
+        self.write(self.jsonify(status='error', message='404 Not Found'))
         self.finish()
 
     def post(self, *args, **kwargs):
