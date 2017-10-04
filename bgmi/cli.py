@@ -147,6 +147,10 @@ def filter_wrapper(ret):
     return data
 
 
+def update_wrapper(ret):
+    update(name=ret.name, download=ret.download, not_ignore=ret.not_ignore)
+
+
 def download_manager(ret):
     if ret.id:
         download_id = ret.id
@@ -180,7 +184,7 @@ CONTROLLERS_DICT = {
     ACTION_SEARCH: search_wrapper,
     ACTION_FILTER: filter_wrapper,
     ACTION_CAL: cal_wrapper,
-    ACTION_UPDATE: update,
+    ACTION_UPDATE: update_wrapper,
     ACTION_FETCH: fetch_,
     ACTION_LIST: list_wrapper,
 }

@@ -11,7 +11,7 @@ import tornado.template
 import tornado.web
 from tornado.options import options, define
 
-from bgmi.front.admin import AdminApiHandler
+from bgmi.front.admin import AdminApiHandler, UpdateHandler
 from bgmi.front.index import MainHandler
 from bgmi.front.resources import BangumiHandler, RssHandler, CalendarHandler
 
@@ -37,6 +37,7 @@ def make_app():
         (r'^/resource/feed.xml$', RssHandler),
         (r'^/resource/calendar.ics$', CalendarHandler),
 
+        (r'^/api/update', UpdateHandler),
         (r'^/api/?(?P<action>.*)', AdminApiHandler),
     ], **settings)
 

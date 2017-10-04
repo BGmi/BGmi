@@ -243,8 +243,10 @@ def config(name, value):
     return r
 
 
-def update(ret):
-    ignore = not bool(ret.not_ignore)
+def update(name, download=None, not_ignore=False):
+    result = {'status': 'info', 'message': '', 'data': []}
+
+    ignore = not bool(not_ignore)
     print_info('marking bangumi status ...')
     now = int(time.time())
     for i in Followed.get_all_followed():
@@ -264,18 +266,18 @@ def update(ret):
     print_info('updating subscriptions ...')
     download_queue = []
 
-    if ret.download:
-        if not ret.name:
+    if download:
+        if not name:
             print_warning('No specified bangumi, ignore `--download` option')
-        if len(ret.name) > 1:
+        if len(name) > 1:
             print_warning(
                 'Multiple specified bangumi, ignore `--download` option')
 
-    if not ret.name:
+    if not name:
         updated_bangumi_obj = Followed.get_all_followed()
     else:
         updated_bangumi_obj = []
-        for i in ret.name:
+        for i in name:
             f = Followed(bangumi_name=i)
             f.select_obj()
             updated_bangumi_obj.append(f)
@@ -300,9 +302,9 @@ def update(ret):
         episode, all_episode_data = website.get_maximum_episode(
             bangumi=bangumi_obj, ignore_old_row=ignore, max_page=1)
 
-        if (episode.get('episode') > subscribe['episode']) or (len(ret.name) == 1 and ret.download):
-            if len(ret.name) == 1 and ret.download:
-                episode_range = ret.download
+        if (episode.get('episode') > subscribe['episode']) or (len(name) == 1 and download):
+            if len(name) == 1 and download:
+                episode_range = download
             else:
                 episode_range = range(
                     subscribe['episode'] + 1, episode.get('episode', 0) + 1)
@@ -312,6 +314,7 @@ def update(ret):
                 followed_obj.status = STATUS_UPDATED
                 followed_obj.updated_time = int(time.time())
                 followed_obj.save()
+                result['data'].append({'bangumi': subscribe['bangumi_name'], 'episode': episode['episode']})
 
             for i in episode_range:
                 for epi in all_episode_data:
@@ -319,12 +322,14 @@ def update(ret):
                         download_queue.append(epi)
                         break
 
-    if ret.download is not None:
+    if download is not None:
         download_prepare(download_queue)
         download_prepare(script_download_queue)
         print_info('Re-downloading ...')
         download_prepare(Download.get_all_downloads(
             status=STATUS_NOT_DOWNLOAD))
+
+    return result
 
 
 def list_():
