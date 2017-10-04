@@ -39,6 +39,14 @@ api_list = [
             'name': os.environ.get('BANGUMI_2'),
             'status': 1,
         }),
+    }, {
+        'action': 'filter',
+        'method': 'post',
+        'params': json.dumps({
+            'name': os.environ.get('BANGUMI_2'),
+            'regex': '.*',
+            'subtitle': '',
+        }),
     }
 ]
 
