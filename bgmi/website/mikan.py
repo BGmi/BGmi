@@ -6,27 +6,21 @@ import time
 from multiprocessing.pool import ThreadPool
 
 import bs4
-import requests
 from bs4 import BeautifulSoup
 
 from bgmi.config import MAX_PAGE
+from bgmi.utils import network
 from bgmi.website.base import BaseWebsite
 
-# from bgmi.utils import (print_warning, print_info, print_error)
-
-
 week = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-if os.environ.get('DEV', False):
-    server_root = 'http://localhost:8092/https/mikanani.me/'
-else:
-    server_root = 'https://mikanani.me/'
+server_root = 'https://mikanani.me/'
 
 
 def get_weekly_bangumi():
     """
-    requests
+    network
     """
-    r = requests.get(server_root)
+    r = network.get(server_root)
     soup = BeautifulSoup(r.text, 'lxml')
     sunday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "0"})
     monday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "1"})
@@ -61,14 +55,11 @@ def parser_day_bangumi(soup):
 
 
 def parser_subtitle_of_bangumi(bangumi_id):
-    """requests"""
+    """network"""
     bangumi_id = int(bangumi_id)
     url = server_root + "Home/ExpandBangumi"
     data = {'bangumiId': bangumi_id, 'showSubscribed': False}
-    if os.environ.get('DEBUG', False):
-        print(url, data)
-        # r = get_response(url, 'post', data=data)
-    r = requests.post(url, data=data, ).text
+    r = network.post(url, data=data, ).text
     soup = BeautifulSoup(r, 'lxml')
     g = soup.find('ul', class_='list-unstyled res-ul')
     subtitle_list = []
@@ -127,9 +118,7 @@ class Mikanani(BaseWebsite):
         """
 
         result = []
-        if os.environ.get('DEBUG', False):
-            print(server_root + "Home/Search", {'searchstr': keyword})
-        r = requests.get(server_root + "Home/Search", params={'searchstr': keyword}).text
+        r = network.get(server_root + "Home/Search", params={'searchstr': keyword}).text
         s = BeautifulSoup(r, 'lxml')
         td_list = s.find_all('tr', attrs={'class': 'js-search-results-row'})  # type:list[bs4.Tag]
         for tr in td_list:
@@ -174,7 +163,7 @@ class Mikanani(BaseWebsite):
         result = []
         if os.environ.get('DEBUG', False):
             print(server_root + 'Bangumi/{}'.format(bangumi_id))
-        r = requests.get(server_root + 'Home/Bangumi/{}'.format(bangumi_id)).text
+        r = network.get(server_root + 'Home/Bangumi/{}'.format(bangumi_id)).text
 
         soup = BeautifulSoup(r, 'lxml')
         # name = soup.find('p', class_='bangumi-title').text

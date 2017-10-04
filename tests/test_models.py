@@ -15,15 +15,11 @@ DB_PATH = bgmi.config.DB_PATH
 
 class ModelsTest(unittest.TestCase):
     def setUp(self):
-        if not os.path.exists(DB_PATH):
-            self.db = sqlite3.connect(DB_PATH)
-            self.conn = self.db.cursor()
-            self.conn.execute(CREATE_TABLE_BANGUMI)
-            self.conn.execute(CREATE_TABLE_FOLLOWED)
-            self.conn.execute(CREATE_TABLE_DOWNLOAD)
-        else:
-            self.db = sqlite3.connect(DB_PATH)
-            self.conn = self.db.cursor()
+        self.db = sqlite3.connect(DB_PATH)
+        self.conn = self.db.cursor()
+        self.conn.execute(CREATE_TABLE_BANGUMI)
+        self.conn.execute(CREATE_TABLE_FOLLOWED)
+        self.conn.execute(CREATE_TABLE_DOWNLOAD)
         self.db.commit()
 
     def tearDown(self):
@@ -75,15 +71,11 @@ class ModelsTest(unittest.TestCase):
 
 class FollowedTest(unittest.TestCase):
     def setUp(self):
-        if not os.path.exists(DB_PATH):
-            self.db = sqlite3.connect(DB_PATH)
-            self.conn = self.db.cursor()
-            self.conn.execute(CREATE_TABLE_BANGUMI)
-            self.conn.execute(CREATE_TABLE_FOLLOWED)
-            self.conn.execute(CREATE_TABLE_DOWNLOAD)
-        else:
-            self.db = sqlite3.connect(DB_PATH)
-            self.conn = self.db.cursor()
+        self.db = sqlite3.connect(DB_PATH)
+        self.conn = self.db.cursor()
+        self.conn.execute(CREATE_TABLE_BANGUMI)
+        self.conn.execute(CREATE_TABLE_FOLLOWED)
+        self.conn.execute(CREATE_TABLE_DOWNLOAD)
         self.db.commit()
 
     def tearDown(self):
