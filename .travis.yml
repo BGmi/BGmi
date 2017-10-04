@@ -33,7 +33,7 @@ script:
     - coverage run -a -m bgmi.main delete --clear-all --batch
     - coverage run -a -m bgmi.main add $BANGUMI_2 --episode 1
     - coverage run -a -m bgmi.main fetch $BANGUMI_2
-# # give server some time to start
+    # give server some time to start
     - bgmi_http &
     - sleep 2
     - coverage run -a webapi_test.py
@@ -51,8 +51,6 @@ script:
     - coverage run -a -m bgmi.main source mikan_project
     - coverage run -a -m bgmi.main config
     - coverage run -a -m unittest tests.test_controllers
-
-
 
 after_success:
   - codecov

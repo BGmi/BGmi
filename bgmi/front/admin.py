@@ -1,10 +1,13 @@
 import functools
 import json
 import os
+from multiprocessing.pool import ThreadPool
+
+from tornado.web import asynchronous
 
 from bgmi.config import ADMIN_TOKEN
 from bgmi.constants import ACTION_ADD, ACTION_DELETE, ACTION_CAL, ACTION_SEARCH, ACTION_CONFIG, ACTION_DOWNLOAD
-from bgmi.controllers import add, delete, search, cal, config
+from bgmi.controllers import add, delete, search, cal, config, update
 from bgmi.download import download_prepare
 from bgmi.front.base import BaseHandler
 
@@ -79,3 +82,21 @@ class AdminApiHandler(BaseHandler):
 
         except json.JSONEncoder:
             self.write_error(400)
+
+
+def update_async(name, callback):
+    if not callable(callback):
+        raise ValueError
+
+
+class UpdateHandler(BaseHandler):
+    @auth
+    @asynchronous
+    def get(self):
+        name = self.get_argument('name', '')
+        pool = ThreadPool(processes=1)
+        pool.apply_async(update, (name, ), callback=self.resp)
+
+    def resp(self, result):
+        self.write(self.jsonify(**result))
+        self.finish()
