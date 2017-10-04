@@ -23,7 +23,7 @@ class BaseHandler(tornado.web.RequestHandler):
             'data': data
         }
         j.update(kwargs)
-        self.add_header('content-type', 'application/json; charset=utf-8')
+        self.set_header('content-type', 'application/json; charset=utf-8')
         return json.dumps(j, ensure_ascii=False, indent=2)
 
     def data_received(self, chunk):
