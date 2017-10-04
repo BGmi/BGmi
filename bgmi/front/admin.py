@@ -3,7 +3,8 @@ import json
 import os
 
 from bgmi.config import ADMIN_TOKEN
-from bgmi.constants import ACTION_ADD, ACTION_DELETE, ACTION_CAL, ACTION_SEARCH, ACTION_CONFIG, ACTION_DOWNLOAD
+from bgmi.constants import ACTION_ADD, ACTION_DELETE, ACTION_CAL, ACTION_SEARCH, ACTION_CONFIG, ACTION_DOWNLOAD, \
+    ACTION_UPDATE
 from bgmi.controllers import add, delete, search, cal, config
 from bgmi.download import download_prepare
 from bgmi.front.base import BaseHandler
