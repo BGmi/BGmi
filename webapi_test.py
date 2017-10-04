@@ -14,7 +14,6 @@ api_list = [
         'params': json.dumps({
             'name': os.environ.get('BANGUMI_2')
         }),
-        'show_output': True
 
     }, {
         'action': 'delete',
@@ -22,7 +21,6 @@ api_list = [
         'params': json.dumps({
             'name': os.environ.get('BANGUMI_2')
         }),
-        'show_output': True
     }, {
         'action': 'mark',
         'method': 'post',
@@ -30,13 +28,18 @@ api_list = [
             'name': os.environ.get('BANGUMI_2'),
             'episode': 1,
         }),
-        'show_output': True,
     }, {
         'action': 'update',
         'method': 'post',
         'params': '{}',
-        'show_output': True
-    },
+    }, {
+        'action': 'status',
+        'method': 'post',
+        'params': json.dumps({
+            'name': os.environ.get('BANGUMI_2'),
+            'status': 1,
+        }),
+    }
 ]
 
 
@@ -47,7 +50,7 @@ if __name__ == '__main__':
                                              data=api.get('params', None),
                                              headers={'BGmi-Token': '233'}).json()
         print(api.get('params', None))
-        if api['show_output']:
+        if api.get('show_output', True):
             if r['status'] == 'error':
                 exit_code = 1
             print(r)
