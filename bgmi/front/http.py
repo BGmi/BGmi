@@ -11,13 +11,16 @@ import tornado.template
 import tornado.web
 from tornado.options import options, define
 
-from bgmi.front.admin import AdminApiHandler, UpdateHandler
+from bgmi.front.admin import AdminApiHandler, UpdateHandler, API_MAP_POST, API_MAP_GET
 from bgmi.front.index import MainHandler
-from bgmi.front.resources import BangumiHandler, RssHandler, CalendarHandler
+from bgmi.front.resources import BangumiHandler, RssHandler, CalendarHandler, NotFoundHandler
 
 
 define('port', default=8888, help='listen on the port', type=int)
 define('address', default='0.0.0.0', help='binding at given address', type=str)
+
+
+API_ACTIONS = '%s|%s' % ('|'.join(API_MAP_GET.keys()), '|'.join(API_MAP_POST.keys()))
 
 
 def md5(_, string):
@@ -38,7 +41,8 @@ def make_app():
         (r'^/resource/calendar.ics$', CalendarHandler),
 
         (r'^/api/update', UpdateHandler),
-        (r'^/api/?(?P<action>.*)', AdminApiHandler),
+        (r'^/api/?(?P<action>%s)' % API_ACTIONS, AdminApiHandler),
+        (r'^/(.*)', NotFoundHandler)
     ], **settings)
 
 

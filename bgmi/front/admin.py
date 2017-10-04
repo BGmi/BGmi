@@ -6,8 +6,9 @@ from multiprocessing.pool import ThreadPool
 from tornado.web import asynchronous
 
 from bgmi.config import ADMIN_TOKEN
-from bgmi.constants import ACTION_ADD, ACTION_DELETE, ACTION_CAL, ACTION_SEARCH, ACTION_CONFIG, ACTION_DOWNLOAD
-from bgmi.controllers import add, delete, search, cal, config, update
+from bgmi.constants import ACTION_ADD, ACTION_DELETE, ACTION_CAL, ACTION_SEARCH, ACTION_CONFIG, ACTION_DOWNLOAD, \
+    ACTION_MARK
+from bgmi.controllers import add, delete, search, cal, config, update, mark
 from bgmi.download import download_prepare
 from bgmi.front.base import BaseHandler
 
@@ -25,6 +26,7 @@ API_MAP_POST = {
     ACTION_CONFIG: config,
     ACTION_DOWNLOAD: download_prepare,
     ACTION_AUTH: auth_,
+    ACTION_MARK: mark,
 }
 
 API_MAP_GET = {
