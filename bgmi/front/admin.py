@@ -2,14 +2,15 @@
 import functools
 import json
 import os
+import traceback
 from multiprocessing.pool import ThreadPool
 
 from tornado.web import asynchronous
 
 from bgmi.config import ADMIN_TOKEN
 from bgmi.constants import ACTION_ADD, ACTION_DELETE, ACTION_CAL, ACTION_SEARCH, ACTION_CONFIG, ACTION_DOWNLOAD, \
-    ACTION_MARK
-from bgmi.controllers import add, delete, search, cal, config, update, mark, status_
+    ACTION_MARK, ACTION_FILTER
+from bgmi.controllers import add, delete, search, cal, config, update, mark, status_, filter_
 from bgmi.download import download_prepare
 from bgmi.front.base import BaseHandler
 from bgmi.utils import print_warning
@@ -31,6 +32,7 @@ API_MAP_POST = {
     ACTION_AUTH: auth_,
     ACTION_MARK: mark,
     ACTION_STATUS: status_,
+    ACTION_FILTER: filter_,
 }
 
 API_MAP_GET = {
@@ -68,6 +70,7 @@ class AdminApiHandler(BaseHandler):
             try:
                 result = API_MAP_GET.get(action)()
             except Exception:
+                traceback.print_exc()
                 self.set_status(400)
                 result = {'message': 'Bad Request', 'status': 'error'}
             self.finish(self.jsonify(**result))
@@ -87,8 +90,8 @@ class AdminApiHandler(BaseHandler):
                 result = API_MAP_POST.get(action)(**data)
                 if result['status'] == 'error':
                     self.set_status(400)
-            except Exception as e:
-                print_warning(str(e))
+            except Exception:
+                traceback.print_exc()
                 self.set_status(400)
                 result = {'message': 'Bad Request', 'status': 'error'}
 

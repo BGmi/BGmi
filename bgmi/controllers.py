@@ -56,16 +56,22 @@ def print_filter(followed_filter_obj):
 
 
 def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
+    result = {'status': 'success', 'message': ''}
     bangumi_obj = Bangumi(name=name)
     bangumi_obj.select_obj()
     if not bangumi_obj:
-        print_error('Bangumi {0} does not exist.'.format(bangumi_obj.name))
+        result['status'] = 'error'
+        result['message'] = 'Bangumi {0} does not exist.'.format(bangumi_obj.name)
+        return result
 
     followed_obj = Followed(bangumi_name=bangumi_obj.name)
     followed_obj.select_obj()
 
     if not followed_obj:
-        print_error('Bangumi {name} has not subscribed, try \'bgmi add "{name}"\'.'.format(name=bangumi_obj.name))
+        result['status'] = 'error'
+        result['message'] = 'Bangumi {name} has not subscribed, try \'bgmi add "{name}"\'.'\
+            .format(name=bangumi_obj.name)
+        return result
 
     followed_filter_obj = Filter(bangumi_name=name)
     followed_filter_obj.select_obj()
@@ -93,16 +99,20 @@ def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
 
     followed_filter_obj.save()
     subtitle_list = list(map(lambda s: s['name'], Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', '))))
-    print_info('Usable subtitle group: {0}'.format(', '.join(subtitle)) if subtitle_list else 'None')
+    print_info('Usable subtitle group: {0}'.format(', '.join(subtitle_list)) if subtitle_list else 'None')
 
     print_filter(followed_filter_obj)
-    return {'bangumi_name': name,
-            'subtitle_group': list(
-                map(lambda s: s['name'], Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', ')))),
-            'include': followed_filter_obj.include,
-            'exclude': followed_filter_obj.exclude,
-            'regex': followed_filter_obj.regex,
-            }
+    result['data'] = {
+        'bangumi_name': name,
+        'subtitle_group': list(map(
+            lambda s: s['name'],
+            Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', '))) if subtitle_list else []),
+        'followed': map(lambda s: s['name'], Subtitle.get_subtitle(followed_filter_obj.subtitle.split(', '))),
+        'include': followed_filter_obj.include,
+        'exclude': followed_filter_obj.exclude,
+        'regex': followed_filter_obj.regex,
+    }
+    return result
 
 
 def delete(name='', clear_all=False, batch=False):
@@ -244,7 +254,7 @@ def config(name, value):
 
 
 def update(name, download=None, not_ignore=False):
-    result = {'status': 'info', 'message': '', 'data': []}
+    result = {'status': 'info', 'message': '', 'data': {'updated': [], 'downloaded': []}}
 
     ignore = not bool(not_ignore)
     print_info('marking bangumi status ...')
@@ -314,7 +324,8 @@ def update(name, download=None, not_ignore=False):
                 followed_obj.status = STATUS_UPDATED
                 followed_obj.updated_time = int(time.time())
                 followed_obj.save()
-                result['data'].append({'bangumi': subscribe['bangumi_name'], 'episode': episode['episode']})
+                result['data']['updated'].append({'bangumi': subscribe['bangumi_name'],
+                                                  'episode': episode['episode']})
 
             for i in episode_range:
                 for epi in all_episode_data:
@@ -323,6 +334,7 @@ def update(name, download=None, not_ignore=False):
                         break
 
     if download is not None:
+        result['data']['downloaded'] = download_queue
         download_prepare(download_queue)
         download_prepare(script_download_queue)
         print_info('Re-downloading ...')

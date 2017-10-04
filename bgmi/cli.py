@@ -139,12 +139,15 @@ def cal_wrapper(ret):
 
 
 def filter_wrapper(ret):
-    data = filter_(name=ret.name,
-                   subtitle=ret.subtitle,
-                   include=ret.include,
-                   exclude=ret.exclude,
-                   regex=ret.regex)
-    return data
+    result = filter_(name=ret.name,
+                     subtitle=ret.subtitle,
+                     include=ret.include,
+                     exclude=ret.exclude,
+                     regex=ret.regex)
+    if 'data' not in result:
+        globals()["print_{}".format(result['status'])](result['message'])
+
+    return result['data']
 
 
 def update_wrapper(ret):
