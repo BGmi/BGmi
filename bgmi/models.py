@@ -16,16 +16,18 @@ else:
     input = raw_input
     _unicode = unicode
 
-# bangumi subscription and download status
+# bangumi status
 STATUS_UPDATING = 0
 STATUS_END = 1
 BANGUMI_STATUS = (STATUS_UPDATING, STATUS_END)
 
+# subscription status
 STATUS_NORMAL = 0
 STATUS_FOLLOWED = 1
 STATUS_UPDATED = 2
 FOLLOWED_STATUS = (STATUS_NORMAL, STATUS_FOLLOWED, STATUS_UPDATED)
 
+# download status
 STATUS_NOT_DOWNLOAD = 0
 STATUS_DOWNLOADING = 1
 STATUS_DOWNLOADED = 2

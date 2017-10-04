@@ -1,4 +1,5 @@
 # coding=utf-8
+from __future__ import print_function, unicode_literals
 from bgmi.config import BANGUMI_MOE_URL
 
 ACTION_ADD = 'add'
@@ -60,3 +61,6 @@ STATUS_SUCCESS = 'success'
 STATUS_WARNING = 'warning'
 STATUS_ERROR = 'error'
 STATUS_INFO = 'info'
+
+SPACIAL_APPEND_CHARS = ['Ⅱ', 'Ⅲ', '♪', 'Δ', '×', '☆', 'É', '·', '♭', '★']
+SPACIAL_REMOVE_CHARS = []

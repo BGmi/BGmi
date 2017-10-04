@@ -1,17 +1,22 @@
+# coding: utf-8
 import functools
 import json
 import os
+import traceback
 from multiprocessing.pool import ThreadPool
 
 from tornado.web import asynchronous
 
 from bgmi.config import ADMIN_TOKEN
-from bgmi.constants import ACTION_ADD, ACTION_DELETE, ACTION_CAL, ACTION_SEARCH, ACTION_CONFIG, ACTION_DOWNLOAD
-from bgmi.controllers import add, delete, search, cal, config, update
+from bgmi.constants import ACTION_ADD, ACTION_DELETE, ACTION_CAL, ACTION_SEARCH, ACTION_CONFIG, ACTION_DOWNLOAD, \
+    ACTION_MARK, ACTION_FILTER
+from bgmi.controllers import add, delete, search, cal, config, update, mark, status_, filter_
 from bgmi.download import download_prepare
 from bgmi.front.base import BaseHandler
+from bgmi.utils import print_warning
 
 ACTION_AUTH = 'auth'
+ACTION_STATUS = 'status'
 
 
 def auth_(token=''):
@@ -25,6 +30,9 @@ API_MAP_POST = {
     ACTION_CONFIG: config,
     ACTION_DOWNLOAD: download_prepare,
     ACTION_AUTH: auth_,
+    ACTION_MARK: mark,
+    ACTION_STATUS: status_,
+    ACTION_FILTER: filter_,
 }
 
 API_MAP_GET = {
@@ -53,49 +61,65 @@ def auth(f):
 
 
 class AdminApiHandler(BaseHandler):
-
     @auth
     def get(self, action, *args, **kwargs):
         if action in API_MAP_GET:
             if os.environ.get('DEV', False):
                 self._add_header()
-            self.finish(self.jsonify(**API_MAP_GET.get(action)()))
+
+            try:
+                result = API_MAP_GET.get(action)()
+            except Exception:
+                traceback.print_exc()
+                self.set_status(400)
+                result = {'message': 'Bad Request', 'status': 'error'}
+            self.finish(self.jsonify(**result))
+        else:
+            self.set_status(404)
+            self.finish(self.jsonify(message='Not Found', status='error'))
 
     @auth
     def post(self, action, *args, **kwargs):
-        try:
-            data = json.loads(self.request.body.decode('utf-8'))
-            # self.add_header('content-type', 'application/json; charset=utf-8')
+        if action in API_MAP_POST:
+            data = self.get_json()
 
-            if action in API_MAP_POST:
-                if os.environ.get('DEV', False):
-                    self._add_header()
+            if os.environ.get('DEV', False):
+                self._add_header()
 
-                data = API_MAP_POST.get(action)(**data)
-                if data['status'] == 'error':
+            try:
+                result = API_MAP_POST.get(action)(**data)
+                if result['status'] == 'error':
                     self.set_status(400)
+            except Exception:
+                traceback.print_exc()
+                self.set_status(400)
+                result = {'message': 'Bad Request', 'status': 'error'}
 
-                data = self.jsonify(**data)
-                self.finish(data)
-            else:
-                self.write_error(404)
-
-        except json.JSONEncoder:
-            self.write_error(400)
-
-
-def update_async(name, callback):
-    if not callable(callback):
-        raise ValueError
+            resp = self.jsonify(**result)
+            self.finish(resp)
+        else:
+            self.set_status(404)
+            self.finish(self.jsonify(message='Not Found', status='error'))
 
 
 class UpdateHandler(BaseHandler):
+    def get(self):
+        self.write(self.jsonify(data='好耶'))
+        self.finish()
+
     @auth
     @asynchronous
-    def get(self):
-        name = self.get_argument('name', '')
+    def post(self):
+        data = self.get_json()
+
+        name = data.get('name', '')
+        download = data.get('download', [])
+
+        if not download:
+            download = None
+
         pool = ThreadPool(processes=1)
-        pool.apply_async(update, (name, ), callback=self.resp)
+        pool.apply_async(update, (name, download, ), callback=self.resp)
 
     def resp(self, result):
         self.write(self.jsonify(**result))
