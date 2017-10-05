@@ -1,7 +1,7 @@
 coverage:
   precision: 2         # how many decimal places to display in the UI: 0 <= value <= 4
   round: down          # how coverage is rounded: down/up/nearest
-  range: 50...100      # custom range of coverage colors from red -> yellow -> green
+  range: 50...80      # custom range of coverage colors from red -> yellow -> green
 
   status:
     project:                   # measuring the overall project coverage
@@ -27,14 +27,6 @@ coverage:
         threshold: null          # allowed to drop X% and still result in a "success" commit status
         if_no_uploads: error     # will post commit status of "error" if no coverage reports we uploaded
                                  # options: success, error, failure
-        if_not_found: success
-        if_ci_failed: error
-
-    changes:                   # if there are any unexpected changes in coverage
-      default:
-        enabled: yes             # must be yes|true to enable this status
-        branches: null           # -> see "branch patterns" below
-        if_no_uploads: error
         if_not_found: success
         if_ci_failed: error
 
