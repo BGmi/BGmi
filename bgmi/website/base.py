@@ -8,6 +8,7 @@ import time
 from collections import defaultdict
 from itertools import chain
 
+import signal
 import tqdm
 
 from bgmi.config import MAX_PAGE, SAVE_PATH, IS_PYTHON3
@@ -112,6 +113,7 @@ class BaseWebsite(object):
         patch_list = runner.get_models_dict()
         for i in patch_list:
             weekly_list[i['update_time'].lower()].append(i)
+
         if cover:
             # download cover to local
             cover_to_be_download = []
@@ -125,13 +127,11 @@ class BaseWebsite(object):
                     if not glob.glob(file_path):
                         cover_to_be_download.append(bangumi['cover'])
 
-            if os.environ.get('TRAVIS_CI'):
-                cover_to_be_download = []
-
             if cover_to_be_download:
                 print_info('updating cover')
                 for cover in tqdm.tqdm(cover_to_be_download):
                     self.download_cover(cover)
+
         return weekly_list
 
     def convert_cover_to_path(self, cover_url):

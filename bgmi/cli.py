@@ -68,8 +68,10 @@ def cal_wrapper(ret):
     force_update = ret.force_update
     today = ret.today
     save = not ret.no_save
+    cover = ret.download_cover
+
     weekly_list = website.bangumi_calendar(
-        force_update=force_update, save=save, cover=True)
+        force_update=force_update, save=save, cover=cover)
 
     def shift(seq, n):
         n %= len(seq)
