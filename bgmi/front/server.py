@@ -1,8 +1,8 @@
 # encoding: utf-8
 from __future__ import print_function, unicode_literals
 
-import os
 import hashlib
+import os
 
 import tornado.httpserver
 import tornado.ioloop
@@ -14,7 +14,6 @@ from tornado.options import options, define
 from bgmi.front.admin import AdminApiHandler, UpdateHandler, API_MAP_POST, API_MAP_GET
 from bgmi.front.index import MainHandler
 from bgmi.front.resources import BangumiHandler, RssHandler, CalendarHandler, NotFoundHandler
-
 
 define('port', default=8888, help='listen on the port', type=int)
 define('address', default='0.0.0.0', help='binding at given address', type=str)
@@ -35,11 +34,9 @@ def make_app():
     }
     return tornado.web.Application([
         (r'^/api/(old|index|calendar)', MainHandler),
-
         (r'^/bangumi/?(.*)', BangumiHandler),
         (r'^/resource/feed.xml$', RssHandler),
         (r'^/resource/calendar.ics$', CalendarHandler),
-
         (r'^/api/update', UpdateHandler),
         (r'^/api/?(?P<action>%s)' % API_ACTIONS, AdminApiHandler),
         (r'^/(.*)', NotFoundHandler)

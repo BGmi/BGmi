@@ -5,8 +5,6 @@ import datetime
 import os
 from collections import OrderedDict
 
-import tornado.escape
-
 from bgmi.config import SAVE_PATH, DB_PATH
 from bgmi.front.base import BaseHandler, WEEK
 from bgmi.models import Bangumi, Followed, STATUS_NORMAL, STATUS_UPDATING, STATUS_END

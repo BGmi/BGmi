@@ -8,7 +8,6 @@ import time
 from collections import defaultdict
 from itertools import chain
 
-import signal
 import tqdm
 
 from bgmi.config import MAX_PAGE, SAVE_PATH, IS_PYTHON3
@@ -26,34 +25,6 @@ else:
 class BaseWebsite(object):
     cover_url = ''
     parse_episode = staticmethod(parse_episode)
-
-    def search(self, keyword='', count=1, filter_=None):
-        if not filter_:
-            filter_ = '(.*)'
-        match_title = re.compile(filter_)
-        result = self.raw_search(keyword, count)
-        # filter
-        filtered_result = []
-        for episode in result:
-            if match_title.match(episode['title']):
-                filtered_result.append(episode)
-        result = filtered_result[:]
-
-        # remove duplicated episode in result
-        ret = []
-        episodes = list({i['episode'] for i in result})
-        for i in result:
-            if i['episode'] in episodes:
-                ret.append(i)
-                del episodes[episodes.index(i['episode'])]
-
-        if os.environ.get('DEBUG', None):
-            for i in ret:
-                print(i['title'], i['download'])
-        return ret
-
-    def raw_search(self, keyword='', count=1, ):
-        return self.search_by_keyword(keyword, count)
 
     @staticmethod
     def save_data(data):
@@ -232,7 +203,8 @@ class BaseWebsite(object):
 
         return result
 
-    def remove_duplicated_bangumi(self, result):
+    @staticmethod
+    def remove_duplicated_bangumi(result):
         ret = []
         episodes = list({i['episode'] for i in result})
         for i in result:

@@ -1,18 +1,15 @@
 # coding: utf-8
 from __future__ import print_function, unicode_literals
 
-import os
 import datetime
-
+import os
 from collections import defaultdict
 
 from icalendar import Calendar, Event
 
-from bgmi.config import SAVE_PATH, FRONT_STATIC_PATH
-from bgmi.front.base import BaseHandler, COVER_URL
-
+from bgmi.config import SAVE_PATH
+from bgmi.front.base import BaseHandler
 from bgmi.models import Download, Bangumi, Followed
-from bgmi.utils import normalize_path
 
 
 class BangumiHandler(BaseHandler):

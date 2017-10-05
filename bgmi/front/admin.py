@@ -1,6 +1,5 @@
 # coding: utf-8
 import functools
-import json
 import os
 import traceback
 from multiprocessing.pool import ThreadPool
@@ -8,12 +7,11 @@ from multiprocessing.pool import ThreadPool
 from tornado.web import asynchronous
 
 from bgmi.config import ADMIN_TOKEN
-from bgmi.constants import ACTION_ADD, ACTION_DELETE, ACTION_CAL, ACTION_SEARCH, ACTION_CONFIG, ACTION_DOWNLOAD, \
-    ACTION_MARK, ACTION_FILTER
+from bgmi.constants import (ACTION_ADD, ACTION_DELETE, ACTION_CAL, ACTION_SEARCH, ACTION_CONFIG, ACTION_DOWNLOAD,
+                            ACTION_MARK, ACTION_FILTER)
 from bgmi.controllers import add, delete, search, cal, config, update, mark, status_, filter_
 from bgmi.download import download_prepare
 from bgmi.front.base import BaseHandler
-from bgmi.utils import print_warning
 
 ACTION_AUTH = 'auth'
 ACTION_STATUS = 'status'
@@ -119,7 +117,7 @@ class UpdateHandler(BaseHandler):
             download = None
 
         pool = ThreadPool(processes=1)
-        pool.apply_async(update, (name, download, ), callback=self.resp)
+        pool.apply_async(update, (name, download,), callback=self.resp)
 
     def resp(self, result):
         self.write(self.jsonify(**result))

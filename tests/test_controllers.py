@@ -15,6 +15,13 @@ class ControllersTest(unittest.TestCase):
         self.bangumi_name_2 = unicode_(os.environ.get('BANGUMI_2'))
         pass
 
+    def test_a_cal(self):
+        r = cal(force_update=True)
+        self.assertIsInstance(r, dict)
+        for day in Bangumi.week:
+            self.assertIn(day.lower(), r.keys())
+            self.assertIsInstance(r[day], list)
+
     def test_b_add(self):
         r = add(self.bangumi_name_1, 0)
         self.assertEqual(r['status'], 'success')
@@ -35,8 +42,6 @@ class ControllersTest(unittest.TestCase):
         self.assertEqual(r['status'], 'error')
 
     def test_d_delete(self):
-        # r = add(self.bangumi_name_1, 0)
-        # self.assertEqual(r['status'], 'success')
         r = delete()
         self.assertEqual(r['status'], 'warning')
         r = delete(self.bangumi_name_1)
@@ -48,12 +53,8 @@ class ControllersTest(unittest.TestCase):
         r = delete(clear_all=True, batch=True)
         self.assertEqual(r['status'], 'warning')
 
-    def test_a_cal(self):
-        r = cal(force_update=True)
-        self.assertIsInstance(r, dict)
-        for day in Bangumi.week:
-            self.assertIn(day.lower(), r.keys())
-            self.assertIsInstance(r[day], list)
+    def test_e_search(self):
+        r = search(self.bangumi_name_1, dupe=False)
 
     def test_config(self):
         r = config(None, None)
@@ -64,9 +65,6 @@ class ControllersTest(unittest.TestCase):
         self.assertEqual(r['status'], 'error')
         r = config('WRONG_CONFIG_NAME', '233')
         self.assertEqual(r['status'], 'error')
-
-    def test_search(self):
-        r = search(self.bangumi_name_1, dupe=False)
 
     def test_download(self):
         pass
