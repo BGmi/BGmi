@@ -9,7 +9,7 @@ BGmi is a cli tool for subscribed bangumi.
 ====
 TODO
 ====
-+ http api: search, filter
+Empty as my wallet.
 
 ==========
 Update Log
@@ -28,7 +28,7 @@ Update Log
 =======
 Feature
 =======
-+ Web page to subscribe bangumi and config your bgmi
++ Web page to subscribe bangumi
 + Bangumi Script: Write your bangumi parser own!
 + Bangumi data source: `bangumi_moe(default) <https://bangumi.moe>`_ or `mikan_project <https://mikanani.me>`_
 + Subscribe/unsubscribe bangumi
@@ -82,7 +82,7 @@ Build Docker:
     docker build -t bgmi .
     docker run -p8899:80 -d -v ~/.bgmi:/root/.bgmi bgmi
 
-You can use bgmi command at client to add / remove bangumi, get into the docker container to manage bangumi, or use your Web admin to subscribe Bangumi.
+You can use bgmi command at client to add / remove bangumi, get into the docker container to manage bangumi.
 
 Or just:
 
@@ -99,7 +99,7 @@ Supported data source:
 
 **change data source will lose all bangumi you have followed!!**
 
-bangumi you have downloaded will still store on the disk, but won't show in website
+bangumi you have downloaded will still store on the disk, but won't show on website
 
 + `bangumi_moe(default) <https://bangumi.moe>`_
 + `mikan_project <https://mikanani.me>`_
