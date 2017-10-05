@@ -95,6 +95,7 @@ def main():
     sub_parser_cal.add_argument('--today', action='store_true', help='Show bangumi calendar for today.')
     sub_parser_cal.add_argument('--force-update', action='store_true',
                                 help='Get the newest bangumi calendar from bangumi.moe.')
+    sub_parser_cal.add_argument('--download-cover', action='store_true', help='Download the cover to local')
     sub_parser_cal.add_argument('--no-save', action='store_true',
                                 help='Do not save the bangumi data when force update.')
 
