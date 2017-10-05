@@ -103,7 +103,7 @@ def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
 
     print_filter(followed_filter_obj)
     result['data'] = {
-        'bangumi_name': name,
+        'name': name,
         'subtitle_group': list(map(
             lambda s: s['name'],
             Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', ')))),
