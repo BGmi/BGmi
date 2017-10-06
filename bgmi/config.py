@@ -20,7 +20,7 @@ __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 
 # fake __all__
 __all__ = ('BANGUMI_MOE_URL', 'BGMI_SAVE_PATH', 'DOWNLOAD_DELEGATE', 'MAX_PAGE',
-           'DATA_SOURCE', 'SUPPORT_WEBSITE', 'BGMI_TMP_PATH', 'DANMAKU_API_URL', 'LANG',)
+           'DATA_SOURCE', 'SUPPORT_WEBSITE', 'BGMI_TMP_PATH', 'DANMAKU_API_URL', 'LANG', 'SHARE_DMHY_URL',)
 
 # cannot be rewrite
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
@@ -164,6 +164,9 @@ def write_config(config=None, value=None):
 # Setting bangumi.moe url
 BANGUMI_MOE_URL = 'https://bangumi_moe.ricterz.me'
 
+# Setting share.dmhy.org url
+SHARE_DMHY_URL = 'https://share-dmhy.two.moe'
+
 # Setting bangumi.moe url
 DATA_SOURCE = 'bangumi_moe'
 SUPPORT_WEBSITE = [
@@ -176,6 +179,11 @@ SUPPORT_WEBSITE = [
         'view': '蜜柑计划 https://mikanani.me/',
         'id': 'mikan_project',
         'url': 'https://mikanani.me/'
+    },
+    {
+        'view': '动漫花园 http://share.dhmy.org/',
+        'id': 'dmhy',
+        'url': SHARE_DMHY_URL
     },
 ]
 
