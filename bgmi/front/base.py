@@ -35,16 +35,6 @@ class BaseHandler(tornado.web.RequestHandler):
     def data_received(self, chunk):
         pass
 
-    def _add_header(self):
-        self.add_header('Access-Control-Allow-Origin', 'http://localhost:8080')
-        self.add_header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-        self.add_header("Access-Control-Allow-Headers",
-                        "Content-Type,bgmi-token,bgmi-token, Access-Control-Allow-Headers, Authorization, X-Requested-With")
-
-    def options(self, *args, **kwargs):
-        self._add_header()
-        self.finish('')
-
     def __init__(self, *args, **kwargs):
         if self.patch_list is None:
             runner = ScriptRunner()

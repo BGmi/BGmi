@@ -1,6 +1,5 @@
 # coding: utf-8
 import functools
-import os
 import traceback
 from multiprocessing.pool import ThreadPool
 
@@ -62,9 +61,6 @@ class AdminApiHandler(BaseHandler):
     @auth
     def get(self, action, *args, **kwargs):
         if action in API_MAP_GET:
-            if os.environ.get('DEV', False):
-                self._add_header()
-
             try:
                 result = API_MAP_GET.get(action)()
             except Exception:
@@ -80,9 +76,6 @@ class AdminApiHandler(BaseHandler):
     def post(self, action, *args, **kwargs):
         if action in API_MAP_POST:
             data = self.get_json()
-
-            if os.environ.get('DEV', False):
-                self._add_header()
 
             try:
                 result = API_MAP_POST.get(action)(**data)
