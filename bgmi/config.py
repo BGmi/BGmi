@@ -192,7 +192,7 @@ def write_config(config=None, value=None):
 BANGUMI_MOE_URL = 'https://bangumi.moe'
 
 # Setting share.dmhy.org url
-SHARE_DMHY_URL = 'http://share.dmhy.org'
+SHARE_DMHY_URL = 'https://share-dmhy.two.moe'
 
 # Setting bangumi.moe url
 DATA_SOURCE = 'bangumi_moe'
