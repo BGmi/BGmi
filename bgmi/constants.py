@@ -1,6 +1,6 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
-from bgmi.config import BANGUMI_MOE_URL
+from bgmi.config import BANGUMI_MOE_URL, SHARE_DMHY_URL
 
 ACTION_ADD = 'add'
 ACTION_FETCH = 'fetch'
@@ -55,6 +55,11 @@ SUPPORT_WEBSITE = [
         'view': '蜜柑计划 https://mikanani.me/',
         'id': 'mikan_project',
         'url': 'https://mikanani.me/'
+    },
+    {
+        'view': '动漫花园 http://share.dmhy.org/',
+        'id': 'dmhy',
+        'url': SHARE_DMHY_URL
     },
 ]
 STATUS_SUCCESS = 'success'
