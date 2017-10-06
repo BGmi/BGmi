@@ -10,6 +10,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from bgmi.config import (MAX_PAGE, SHARE_DMHY_URL, IS_PYTHON3)
+from bgmi.utils import print_error
 from bgmi.website.base import BaseWebsite
 
 if IS_PYTHON3:
@@ -18,6 +19,16 @@ else:
     unquote = urllib.unquote
 
 base_url = SHARE_DMHY_URL
+
+def fetch_url(url, **kwargs):
+    ret = None
+    try:
+        ret = requests.get(url, **kwargs).text
+    except requests.ConnectionError:
+        print_error('Create connection to {site}... failed'.format(site=SHARE_DMHY_URL), exit_=False)
+        print_error('Check internet connection or try to set a DMHY mirror site via: bgmi config SHARE_DMHY_URL <site url>')
+
+    return ret
 
 def parse_bangumi_with_week_days(content, update_time, array_name):
     r = re.compile(array_name + '\.push\(\[\'(.*?)\',\'(.*?)\',\'(.*?)\',\'(.*?)\',\'(.*?)\'\]\)')
@@ -115,7 +126,7 @@ class DmhySource(BaseWebsite):
             if os.environ.get('DEBUG', False):
                 print(search_url, params)
 
-            r = requests.get(search_url, params=params).text
+            r = fetch_url(search_url, params=params)
             bs = BeautifulSoup(r, 'lxml')
 
             table = bs.find('table', {'id': 'topic_list'})
@@ -199,7 +210,7 @@ class DmhySource(BaseWebsite):
 
         url = base_url + '/cms/page/name/programme.html'
 
-        r = requests.get(url).text
+        r = fetch_url(url)
 
         for update_time, array_name in week_days_mapping:
             (b_list, s_list) = parse_bangumi_with_week_days(r, update_time, array_name)
@@ -248,7 +259,7 @@ class DmhySource(BaseWebsite):
             if os.environ.get('DEBUG', False):
                 print(search_url, params)
 
-            r = requests.get(search_url, params=params).text
+            r = fetch_url(search_url, params=params)
             bs = BeautifulSoup(r, 'lxml')
 
             table = bs.find('table', {'id': 'topic_list'})
