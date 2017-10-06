@@ -92,7 +92,7 @@ bangumi you have downloaded will still store on the disk, but won't show in webs
 
 + `bangumi_moe(default) <https://bangumi.moe>`_
 + `mikan_project <https://mikanani.me>`_
-+ `mikan_project <http://share.dmhy.org>`_
++ `dmhy <http://share.dmhy.org>`_
 
 change to mikan by doing this
 
