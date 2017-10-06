@@ -1,8 +1,6 @@
 # encoding: utf-8
 from __future__ import print_function, unicode_literals
 
-import hashlib
-
 import tornado.httpserver
 import tornado.ioloop
 import tornado.options
@@ -19,10 +17,6 @@ define('address', default='0.0.0.0', help='binding at given address', type=str)
 
 
 API_ACTIONS = '%s|%s' % ('|'.join(API_MAP_GET.keys()), '|'.join(API_MAP_POST.keys()))
-
-
-def md5(_, string):
-    return hashlib.md5(string.encode('utf-8')).hexdigest()
 
 
 def make_app(**kwargs):
