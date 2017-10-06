@@ -23,7 +23,7 @@ __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 # fake __all__
 __all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE',
            'MAX_PAGE', 'DATA_SOURCE', 'TMP_PATH', 'DANMAKU_API_URL',
-           'LANG', 'FRONT_STATIC_PATH', 'ADMIN_TOKEN')
+           'LANG', 'FRONT_STATIC_PATH', 'ADMIN_TOKEN', 'SHARE_DMHY_URL')
 
 # cannot be rewrite
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
@@ -190,6 +190,9 @@ def write_config(config=None, value=None):
 # --------- Writeable ---------- #
 # Setting bangumi.moe url
 BANGUMI_MOE_URL = 'https://bangumi.moe'
+
+# Setting share.dmhy.org url
+SHARE_DMHY_URL = 'http://share.dmhy.org'
 
 # Setting bangumi.moe url
 DATA_SOURCE = 'bangumi_moe'
