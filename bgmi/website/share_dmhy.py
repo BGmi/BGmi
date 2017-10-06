@@ -95,7 +95,7 @@ def unique_subtitle_list(raw_list):
 class DmhySource(BaseWebsite):
     cover_url = SHARE_DMHY_URL
 
-    def search_by_keyword(self, keyword, count):
+    def search_by_keyword(self, keyword, count=None):
         """
         return a list of dict with at least 4 key: download, name, title, episode
         example:
@@ -117,6 +117,9 @@ class DmhySource(BaseWebsite):
         :return: list of episode search result
         :rtype: list[dict]
         """
+        if count == None:
+            count = 3
+
         result = []
         search_url = base_url + '/topics/list/'
         for i in range(count):
