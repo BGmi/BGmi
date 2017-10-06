@@ -52,5 +52,14 @@ script:
     - coverage run -a -m bgmi.main config
     - coverage run -a -m unittest tests.test_controllers
 
+    - echo 'test dmhy'
+    - export BANGUMI_1=名偵探柯南
+    - export BANGUMI_2=海賊王
+    - export BANGUMI_3=銀魂
+    - coverage run -a -m bgmi.main source dmhy
+    - coverage run -a -m bgmi.main config
+    - coverage run -a -m bgmi.main cal
+    - coverage run -a -m unittest tests.test_controllers
+
 after_success:
   - codecov
