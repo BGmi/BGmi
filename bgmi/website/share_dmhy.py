@@ -19,7 +19,6 @@ else:
 
 base_url = SHARE_DMHY_URL
 
-
 def parse_bangumi_with_week_days(content, update_time, array_name):
     r = re.compile(array_name + '\.push\(\[\'(.*?)\',\'(.*?)\',\'(.*?)\',\'(.*?)\',\'(.*?)\'\]\)')
     ret = r.findall(content)
@@ -82,7 +81,9 @@ def unique_subtitle_list(raw_list):
     return ret
 
 
-class DhmySource(BaseWebsite):
+class DmhySource(BaseWebsite):
+    cover_url = SHARE_DMHY_URL
+
     def search_by_keyword(self, keyword, count):
         """
         return a list of dict with at least 4 key: download, name, title, episode
