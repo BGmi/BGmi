@@ -2,7 +2,6 @@
 from __future__ import print_function, unicode_literals
 
 import hashlib
-import os
 
 import tornado.httpserver
 import tornado.ioloop
@@ -26,12 +25,11 @@ def md5(_, string):
     return hashlib.md5(string.encode('utf-8')).hexdigest()
 
 
-def make_app():
+def make_app(**kwargs):
     settings = {
-        'static_path': os.path.join(os.path.dirname(__file__), 'static'),
-        'ui_methods': [{'md5': md5}],
         'debug': True,
     }
+    settings.update(kwargs)
     return tornado.web.Application([
         (r'^/api/(old|index|calendar)', MainHandler),
         (r'^/bangumi/?(.*)', BangumiHandler),
