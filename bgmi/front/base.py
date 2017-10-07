@@ -14,6 +14,26 @@ WEEK = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 class BaseHandler(tornado.web.RequestHandler):
     patch_list = None
 
+    def _method_not_allowed(self):
+        self.set_status(405)
+        self.write(self.jsonify(status='error', message='405 Method Not Allowed'))
+        self.finish()
+
+    def get(self, *args, **kwargs):
+        self._method_not_allowed()
+
+    def post(self, *args, **kwargs):
+        self._method_not_allowed()
+
+    def put(self, *args, **kwargs):
+        self._method_not_allowed()
+
+    def patch(self, *args, **kwargs):
+        self._method_not_allowed()
+
+    def delete(self, *args, **kwargs):
+        self._method_not_allowed()
+
     def get_json(self):
         try:
             return json.loads(self.request.body.decode('utf-8'))

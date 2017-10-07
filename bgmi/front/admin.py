@@ -86,10 +86,6 @@ class AdminApiHandler(BaseHandler):
 
 
 class UpdateHandler(BaseHandler):
-    def get(self):
-        self.write(self.jsonify(data='好耶'))
-        self.finish()
-
     @auth
     @asynchronous
     def post(self):

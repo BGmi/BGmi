@@ -205,6 +205,10 @@ class ApiTestCase(AsyncHTTPTestCase):
         r = self.fetch('/resource/calendar.ics')
         self.assertEqual(r.code, 200)
 
+    def test_no_auth(self):
+        r = self.fetch('/api/add', method='POST', body=json.dumps({'name': self.bangumi_1}))
+        self.assertEqual(r.code, 401)
+
     @staticmethod
     def parse_response(response):
         r = json.loads(response.body.decode('utf-8'))
