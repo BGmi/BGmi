@@ -53,6 +53,17 @@ class ApiTestCase(AsyncHTTPTestCase):
         self.app = make_app(debug=False)
         return self.app
 
+    def test_a_auth(self):
+        r = self.fetch('/api/auth', method='POST', body=json.dumps({'token': '233'}))
+        self.assertEqual(r.code, 200)
+        res = self.parse_response(r)
+        self.assertEqual(res['status'], 'success')
+
+        r = self.fetch('/api/auth', method='POST', body=json.dumps({'token': '3'}))
+        self.assertEqual(r.code, 400)
+        res = self.parse_response(r)
+        self.assertEqual(res['status'], 'error')
+
     def test_a_index(self):
         response = self.fetch('/', method='GET')
         self.assertEqual(response.code, 404)
@@ -186,7 +197,16 @@ class ApiTestCase(AsyncHTTPTestCase):
         for item in res['data']['followed']:
             self.assertIn(item, subtitle_group)
 
-    def parse_response(self, response):
+    def test_resource_ics(self):
+        r = self.fetch('/resource/feed.xml')
+        self.assertEqual(r.code, 200)
+
+    def test_resource_feed(self):
+        r = self.fetch('/resource/calendar.ics')
+        self.assertEqual(r.code, 200)
+
+    @staticmethod
+    def parse_response(response):
         r = json.loads(response.body.decode('utf-8'))
         return r
 
