@@ -11,9 +11,10 @@ import sqlite3
 import sys
 
 import bgmi.config
-from bgmi.config import BGMI_PATH, DB_PATH, SCRIPT_DB_PATH, FRONT_STATIC_PATH
 from bgmi.cli import controllers
+from bgmi.config import BGMI_PATH, DB_PATH, SCRIPT_DB_PATH
 from bgmi.constants import *
+from bgmi.setup import create_dir, install_crontab
 # Wrap sys.stdout into a StreamWriter to allow writing unicode.
 from bgmi.sql import (CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER,
                       CREATE_TABLE_SUBTITLE, CREATE_TABLE_SCRIPT)
@@ -143,6 +144,7 @@ def main():
 
         raise SystemExit
     elif ret.action == 'upgrade':
+        create_dir()
         update_database()
         check_update(mark=False)
     else:
@@ -174,13 +176,9 @@ def init_db():
 def setup():
     if not os.path.exists(BGMI_PATH):
         print_warning('BGMI_PATH %s does not exist, installing' % BGMI_PATH)
-        from bgmi.setup import create_dir, install_crontab
 
         create_dir()
-        if not platform.system() == 'Windows':
-            # if not input('Do you want to install a crontab to auto-download bangumi?(Y/n): ') == 'n':
-            install_crontab()
-
+        install_crontab()
 
     init_db()
 

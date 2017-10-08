@@ -247,3 +247,5 @@ read_config()
 IS_PYTHON3 = sys.version_info > (3, 0)
 
 # Detail URL
+# platform
+IS_WINDOWS = platform.system() == 'Windows'
