@@ -78,8 +78,28 @@ def parse_bangumi_with_week_days(content, update_time, array_name):
         bangumi_list.append(bangumi)
 
     return bangumi_list, subtitle_list
-    pass
 
+def parse_subtitle_list(content):
+    subtitle_list = []
+
+    bs = BeautifulSoup(content, 'lxml')
+    li_list = bs.find_all('li', {'class': 'team-item'})
+
+    for li in li_list:
+        subtitle_group_name = li.span.a.get('title')
+        subtitle_group_id_raw = re.findall('team_id\/(.+)$',li.span.a.get('href'))
+        
+        if (len(subtitle_group_id_raw) == 0) or subtitle_group_name == '':
+            continue
+
+        subtitle_group_id = subtitle_group_id_raw[0]
+        # append to subtitle_list
+        subtitle_list.append({
+            'id': subtitle_group_id,
+            'name': subtitle_group_name
+        })
+
+    return subtitle_list
 
 def unique_subtitle_list(raw_list):
     ret = []
@@ -220,6 +240,15 @@ class DmhySource(BaseWebsite):
             bangumi_list.extend(b_list)
             subtitle_list.extend(s_list)
             pass
+
+        # fetch subtitle
+        url = 'https://share.dmhy.org/team/navigate/'
+
+        r = fetch_url(url)
+
+        subtitle_list.extend(parse_subtitle_list(r))
+
+        # unique
         subtitle_list = unique_subtitle_list(subtitle_list)
 
         if os.environ.get('DEBUG', False):
