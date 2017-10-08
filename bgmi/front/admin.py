@@ -1,6 +1,5 @@
 # coding: utf-8
 import functools
-import os
 import traceback
 from multiprocessing.pool import ThreadPool
 
@@ -61,50 +60,32 @@ def auth(f):
 class AdminApiHandler(BaseHandler):
     @auth
     def get(self, action, *args, **kwargs):
-        if action in API_MAP_GET:
-            if os.environ.get('DEV', False):
-                self._add_header()
-
-            try:
-                result = API_MAP_GET.get(action)()
-            except Exception:
-                traceback.print_exc()
-                self.set_status(400)
-                result = {'message': 'Bad Request', 'status': 'error'}
-            self.finish(self.jsonify(**result))
-        else:
-            self.set_status(404)
-            self.finish(self.jsonify(message='Not Found', status='error'))
+        try:
+            result = API_MAP_GET.get(action)()
+        except Exception:
+            traceback.print_exc()
+            self.set_status(400)
+            result = {'message': 'Bad Request', 'status': 'error'}
+        self.finish(self.jsonify(**result))
 
     @auth
     def post(self, action, *args, **kwargs):
-        if action in API_MAP_POST:
-            data = self.get_json()
+        data = self.get_json()
 
-            if os.environ.get('DEV', False):
-                self._add_header()
-
-            try:
-                result = API_MAP_POST.get(action)(**data)
-                if result['status'] == 'error':
-                    self.set_status(400)
-            except Exception:
-                traceback.print_exc()
+        try:
+            result = API_MAP_POST.get(action)(**data)
+            if result['status'] == 'error':
                 self.set_status(400)
-                result = {'message': 'Bad Request', 'status': 'error'}
+        except Exception:
+            traceback.print_exc()
+            self.set_status(400)
+            result = {'message': 'Bad Request', 'status': 'error'}
 
-            resp = self.jsonify(**result)
-            self.finish(resp)
-        else:
-            self.set_status(404)
-            self.finish(self.jsonify(message='Not Found', status='error'))
+        resp = self.jsonify(**result)
+        self.finish(resp)
 
 
 class UpdateHandler(BaseHandler):
-    def get(self):
-        self.write(self.jsonify(data='好耶'))
-        self.finish()
-
     @auth
     @asynchronous
     def post(self):

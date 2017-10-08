@@ -34,7 +34,6 @@ class BangumiHandler(BaseHandler):
             self.finish()
 
 
-
 class RssHandler(BaseHandler):
     def get(self):
         data = Download.get_all_downloads()

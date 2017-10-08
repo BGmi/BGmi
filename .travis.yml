@@ -2,6 +2,9 @@ os:
     - linux
 
 language: python
+
+cache: pip
+
 python:
     - 2.7
     - 3.4
@@ -10,6 +13,7 @@ python:
 install:
     - python setup.py install
     - pip install codecov
+
 env:
     - TRAVIS_CI=TRAVIS_CI
 
@@ -34,9 +38,7 @@ script:
     - coverage run -a -m bgmi.main add $BANGUMI_2 --episode 1
     - coverage run -a -m bgmi.main fetch $BANGUMI_2
     # give server some time to start
-    - bgmi_http &
-    - sleep 2
-    - coverage run -a webapi_test.py
+    - coverage run -a -m unittest tests.test_http_api
     - coverage run -a -m bgmi.main list
     - coverage run -a -m bgmi.main download --list
     - coverage run -a -m bgmi.main mark $BANGUMI_2 1

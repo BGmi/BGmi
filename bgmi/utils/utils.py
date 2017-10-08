@@ -2,6 +2,7 @@
 from __future__ import print_function, unicode_literals
 
 import functools
+import glob
 import gzip
 import json
 import os
@@ -180,10 +181,13 @@ def check_update(mark=True):
                 print_success('Your BGmi is the latest version.')
 
             admin_version = network.get(PACKAGE_JSON_URL).json()['version']
-            with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'r') as f:
-                local_version = json.loads(f.read())['version']
-            if admin_version > local_version:
-                get_web_admin(method='update')
+            if glob.glob(os.path.join(FRONT_STATIC_PATH, 'package.json')):
+                with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'r') as f:
+                    local_version = json.loads(f.read())['version']
+                if admin_version > local_version:
+                    get_web_admin(method='update')
+            else:
+                print_info("Use 'bgmi install' to install BGmi frontend / download delegate")
             if not mark:
                 update()
                 raise SystemExit
