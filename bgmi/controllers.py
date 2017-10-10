@@ -1,78 +1,79 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals
 
 import time
 
-from bgmi.config import SUPPORT_WEBSITE
 from bgmi.config import write_config
-from bgmi.constants import *
+from bgmi.constants import SUPPORT_WEBSITE
 from bgmi.download import download_prepare
-from bgmi.download import get_download_class
 from bgmi.fetch import website
-from bgmi.models import (Bangumi, Followed, Download, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED,
-                         STATUS_NORMAL, STATUS_NOT_DOWNLOAD, DB)
+from bgmi.models import (Bangumi, Filter, Subtitle, Download,
+                         STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NOT_DOWNLOAD, FOLLOWED_STATUS)
+from bgmi.models import Followed
+from bgmi.models import (STATUS_NORMAL, DB)
 from bgmi.script import ScriptRunner
-from bgmi.utils import print_warning, print_info, print_success, print_error
+from bgmi.utils import print_info, normalize_path, print_warning, print_success, print_error, GREEN, COLOR_END
 
 
-def add(ret):
+def add(name, episode=None):
+    """
+    ret.name :str
+    """
     # action add
     # add bangumi by a list of bangumi name
+    # result = {}
     if not Bangumi.get_all_bangumi():
-        print_warning('No bangumi data in database, fetching...')
         website.fetch(save=True, group_by_weekday=False)
 
-    for bangumi in ret.name:
-        bangumi_obj = Bangumi(name=bangumi)
-        data = bangumi_obj.select(one=True, fields=['id', 'name', 'keyword'])
-        if data:
-            followed_obj = Followed(bangumi_name=data['name'], status=STATUS_FOLLOWED)
-            followed_obj.select_obj()
-            if not followed_obj or followed_obj.status == STATUS_NORMAL:
-                if not followed_obj:
-                    bangumi_data, _ = website.get_maximum_episode(bangumi_obj, subtitle=False, max_page=1)
-                    followed_obj.episode = bangumi_data['episode'] if ret.episode is None else ret.episode
-                    followed_obj.save()
-                else:
-                    followed_obj.status = STATUS_FOLLOWED
-                    followed_obj.save()
-                print_success('{0} has been followed'.format(bangumi_obj))
+    bangumi_obj = Bangumi(name=name)
+    data = bangumi_obj.select(one=True, fields=['id', 'name', 'keyword'])
+    if data:
+        followed_obj = Followed(bangumi_name=data['name'], status=STATUS_FOLLOWED)
+        followed_obj.select_obj()
+        if not followed_obj or followed_obj.status == STATUS_NORMAL:
+            if not followed_obj:
+                bangumi_data, _ = website.get_maximum_episode(bangumi_obj, subtitle=False, max_page=1)
+                followed_obj.episode = bangumi_data['episode'] if episode is None else episode
+                followed_obj.save()
             else:
-                print_warning('{0} already followed'.format(bangumi_obj))
-
+                followed_obj.status = STATUS_FOLLOWED
+                followed_obj.save()
+            result = {'status': 'success', 'message': '{0} has been followed'.format(bangumi_obj)}
         else:
-            print_error('{0} not found, please check the name'.format(bangumi))
+            result = {'status': 'warning', 'message': '{0} already followed'.format(bangumi_obj)}
+    else:
+        result = {'status': 'error',
+                  'message': '{0} not found, please check the name'.format(name)}
+    return result
 
 
 def print_filter(followed_filter_obj):
-    print_info('Followed subtitle group: {0}'.format(', '.join(map(lambda s: s['name'],
-                                                                   Subtitle.get_subtitle(
-                                                                       followed_filter_obj.subtitle.split(', '))))
-                                                     if followed_filter_obj.subtitle else 'None'))
+    print_info('Followed subtitle group: {0}'.format(', '.join(map(lambda s: s['name'], Subtitle.get_subtitle(
+        followed_filter_obj.subtitle.split(', ')))) if followed_filter_obj.subtitle else 'None'))
     print_info('Include keywords: {0}'.format(followed_filter_obj.include))
     print_info('Exclude keywords: {0}'.format(followed_filter_obj.exclude))
     print_info('Regular expression: {0}'.format(followed_filter_obj.regex))
 
 
-def filter_(ret):
-    bangumi_obj = Bangumi(name=ret.name)
+def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
+    result = {'status': 'success', 'message': ''}
+    bangumi_obj = Bangumi(name=name)
     bangumi_obj.select_obj()
     if not bangumi_obj:
-        print_error('Bangumi {0} does not exist.'.format(bangumi_obj.name))
+        result['status'] = 'error'
+        result['message'] = 'Bangumi {0} does not exist.'.format(bangumi_obj.name)
+        return result
 
     followed_obj = Followed(bangumi_name=bangumi_obj.name)
     followed_obj.select_obj()
 
     if not followed_obj:
-        print_error('Bangumi {0} has not subscribed, try \'bgmi add "{1}"\'.'.format(bangumi_obj.name,
-                                                                                     bangumi_obj.name))
+        result['status'] = 'error'
+        result['message'] = 'Bangumi {name} has not subscribed, try \'bgmi add "{name}"\'.' \
+            .format(name=bangumi_obj.name)
+        return result
 
-    subtitle = ret.subtitle
-    include = ret.include
-    exclude = ret.exclude
-    regex = ret.regex
-
-    followed_filter_obj = Filter(bangumi_name=ret.name)
+    followed_filter_obj = Filter(bangumi_name=name)
     followed_filter_obj.select_obj()
 
     if not followed_filter_obj:
@@ -80,13 +81,10 @@ def filter_(ret):
 
     if subtitle is not None:
         subtitle = map(lambda s: s.strip(), subtitle.split(','))
-
         subtitle = map(lambda s: s['id'], Subtitle.get_subtitle_by_name(subtitle))
-
-        subtitle_list = [s.split('.')[0] for s in bangumi_obj.subtitle_group.split(', ')
-                         if '.' in s]
+        subtitle_list = [s.split('.')[0] for s in bangumi_obj.subtitle_group.split(', ') if '.' in s]
         subtitle_list.extend(bangumi_obj.subtitle_group.split(', '))
-        subtitle = filter(lambda s: True if s in subtitle_list else False, subtitle)
+        subtitle = filter(lambda s: s in subtitle_list, subtitle)
         subtitle = ', '.join(subtitle)
         followed_filter_obj.subtitle = subtitle
 
@@ -100,36 +98,166 @@ def filter_(ret):
         followed_filter_obj.regex = regex
 
     followed_filter_obj.save()
-    print_info('Usable subtitle group: {0}'.format(', '.join(map(lambda s: s['name'],
-                                                                 Subtitle.get_subtitle(
-                                                                     bangumi_obj.subtitle_group.split(', ')))))
-               if bangumi_obj.subtitle_group else 'None')
+    subtitle_list = list(map(lambda s: s['name'], Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', '))))
+    print_info('Usable subtitle group: {0}'.format(', '.join(subtitle_list)) if subtitle_list else 'None')
 
     print_filter(followed_filter_obj)
+    result['data'] = {
+        'name': name,
+        'subtitle_group': list(map(
+            lambda s: s['name'],
+            Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', ')))),
+        'followed': list(map(lambda s: s['name'], Subtitle.get_subtitle(followed_filter_obj.subtitle.split(', ')))
+                         if followed_filter_obj.subtitle else []),
+        'include': followed_filter_obj.include,
+        'exclude': followed_filter_obj.exclude,
+        'regex': followed_filter_obj.regex,
+    }
+    return result
 
 
-def delete(ret):
+def delete(name='', clear_all=False, batch=False):
+    """
+    :param name:
+    :type name: unicode
+    :param clear_all:
+    :type clear_all: bool
+    :param batch:
+    :type batch: bool
+    :return:
+    """
     # action delete
     # just delete subscribed bangumi or clear all the subscribed bangumi
-    if ret.clear_all:
-        if Followed.delete_followed(batch=ret.batch):
-            print_success('all subscriptions have been deleted')
+    result = {}
+    if clear_all:
+        if Followed.delete_followed(batch=batch):
+            result['status'] = "warning"
+            result['message'] = 'all subscriptions have been deleted'
         else:
             print_error('user canceled')
-    elif ret.name:
-        for name in ret.name:
-            followed = Followed(bangumi_name=name)
-            if followed.select():
-                followed.delete()
-                print_warning('Bangumi %s has been deleted' % name)
-            else:
-                print_error('Bangumi %s does not exist' % name, exit_=False)
+    elif name:
+        followed = Followed(bangumi_name=name)
+        if followed.select():
+            followed.delete()
+            result['status'] = 'warning'
+            result['message'] = 'Bangumi {} has been deleted'.format(name)
+        else:
+            result['status'] = 'error'
+            result['message'] = 'Bangumi %s does not exist' % name
     else:
-        print_warning('Nothing has been done.')
+        result['status'] = 'warning'
+        result['message'] = 'Nothing has been done.'
+    return result
 
 
-def update(ret):
-    ignore = not bool(ret.not_ignore)
+def cal(force_update=False, save=False):
+    weekly_list = website.bangumi_calendar(force_update=force_update, save=save)
+    # for web api
+    r = weekly_list
+    for day, value in weekly_list.items():
+        for index, bangumi in enumerate(value):
+            bangumi['cover'] = normalize_path(bangumi['cover'])
+            if isinstance(bangumi['subtitle_group'], list):
+                subtitle_group = list(map(lambda x: {'name': x['name'], 'id': x['id']},
+                                          Subtitle.get_subtitle_by_id(
+                                              bangumi['subtitle_group'])))
+            else:
+                subtitle_group = list(map(lambda x: {'name': x['name'], 'id': x['id']},
+                                          Subtitle.get_subtitle_by_id(
+                                              bangumi['subtitle_group'].split(', ' ''))))
+
+            r[day][index]['subtitle_group'] = subtitle_group
+    return r
+
+
+def download(name, title, episode, download_url):
+    my_dict = {
+        'name': name,
+        'title': title,
+        'episode': episode,
+        'download': download_url,
+    }
+    download_prepare(my_dict)
+
+
+def mark(name, episode):
+    """
+
+    :param name: name of the bangumi you want to mark
+    :type name: str
+    :param episode: bangumi episode you want to mark
+    :type episode: int
+    :return: result
+    :rtype: dict[status: str,message: str]
+    """
+    result = {}
+    followed_obj = Followed(bangumi_name=name)
+    followed_obj.select_obj()
+
+    runner = ScriptRunner()
+
+    if not followed_obj:
+        followed_obj = runner.get_model(name)
+
+    if not followed_obj:
+        result['status'] = 'error'
+        result['message'] = 'Subscribe or Script <{}> does not exist.'.format(name)
+        return result
+
+    if episode is not None:
+        followed_obj.episode = episode
+        followed_obj.save()
+        result['status'] = 'success'
+        result['message'] = '{} has been mark as episode: {}'.format(name, episode)
+    else:  # episode is None
+        result['status'] = 'info'
+        result['message'] = '{}, episode: {}'.format(name, followed_obj.episode)
+    return result
+
+
+def search(keyword, count=3, dupe=True):
+    data = website.search_by_keyword(keyword, count=count)
+    if not dupe:
+        data = website.remove_duplicated_bangumi(data)
+
+    return data
+
+
+def source(data_source):
+    result = {}
+    if data_source in list(map(lambda x: x['id'], SUPPORT_WEBSITE)):
+        DB.recreate_source_relatively_table()
+        write_config('DATA_SOURCE', data_source)
+        print_success('data source switch succeeds')
+        from bgmi.fetch import DATA_SOURCE_MAP
+        data = DATA_SOURCE_MAP.get(data_source)().bangumi_calendar(force_update=True)
+        result['status'] = 'success'
+        result['message'] = 'you have successfully change your data source to {}'.format(data_source)
+        result['data'] = data
+    else:
+        result['status'] = 'error'
+        result['message'] = 'please check input.nata source should be {} or {}'.format(
+            *[x['id'] for x in SUPPORT_WEBSITE])
+    return result
+
+
+def config(name, value):
+    if name == 'DATA_SOURCE':
+        error_message = "you can't change data source in this way. please use bgmi source ${data source} in cli"
+        result = {'status': 'error',
+                  'message': error_message,
+                  'data': write_config()['data']}
+        return result
+    r = write_config(name, value)
+    if name == 'ADMIN_TOKEN':
+        r['message'] = 'you need to restart your bgmi_http to make new token work'
+    return r
+
+
+def update(name, download=None, not_ignore=False):
+    result = {'status': 'info', 'message': '', 'data': {'updated': [], 'downloaded': []}}
+
+    ignore = not bool(not_ignore)
     print_info('marking bangumi status ...')
     now = int(time.time())
     for i in Followed.get_all_followed():
@@ -149,17 +277,18 @@ def update(ret):
     print_info('updating subscriptions ...')
     download_queue = []
 
-    if ret.download:
-        if not ret.name:
+    if download:
+        if not name:
             print_warning('No specified bangumi, ignore `--download` option')
-        if len(ret.name) > 1:
-            print_warning('Multiple specified bangumi, ignore `--download` option')
+        if len(name) > 1:
+            print_warning(
+                'Multiple specified bangumi, ignore `--download` option')
 
-    if not ret.name:
+    if not name:
         updated_bangumi_obj = Followed.get_all_followed()
     else:
         updated_bangumi_obj = []
-        for i in ret.name:
+        for i in name:
             f = Followed(bangumi_name=i)
             f.select_obj()
             updated_bangumi_obj.append(f)
@@ -181,18 +310,23 @@ def update(ret):
                         exit_=False)
             continue
 
-        episode, all_episode_data = website.get_maximum_episode(bangumi=bangumi_obj, ignore_old_row=ignore, max_page=1)
+        episode, all_episode_data = website.get_maximum_episode(
+            bangumi=bangumi_obj, ignore_old_row=ignore, max_page=1)
 
-        if (episode.get('episode') > subscribe['episode']) or (len(ret.name) == 1 and ret.download):
-            if len(ret.name) == 1 and ret.download:
-                episode_range = ret.download
+        if (episode.get('episode') > subscribe['episode']) or (len(name) == 1 and download):
+            if len(name) == 1 and download:
+                episode_range = download
             else:
-                episode_range = range(subscribe['episode'] + 1, episode.get('episode', 0) + 1)
-                print_success('%s updated, episode: %d' % (subscribe['bangumi_name'], episode['episode']))
+                episode_range = range(
+                    subscribe['episode'] + 1, episode.get('episode', 0) + 1)
+                print_success('%s updated, episode: %d' %
+                              (subscribe['bangumi_name'], episode['episode']))
                 followed_obj.episode = episode['episode']
                 followed_obj.status = STATUS_UPDATED
                 followed_obj.updated_time = int(time.time())
                 followed_obj.save()
+                result['data']['updated'].append({'bangumi': subscribe['bangumi_name'],
+                                                  'episode': episode['episode']})
 
             for i in episode_range:
                 for epi in all_episode_data:
@@ -200,70 +334,62 @@ def update(ret):
                         download_queue.append(epi)
                         break
 
-    if ret.download is not None:
+    if download is not None:
+        result['data']['downloaded'] = download_queue
         download_prepare(download_queue)
         download_prepare(script_download_queue)
         print_info('Re-downloading ...')
-        download_prepare(Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD))
+        download_prepare(Download.get_all_downloads(
+            status=STATUS_NOT_DOWNLOAD))
+
+    return result
 
 
-def cal(ret):
-    website.bangumi_calendar(force_update=ret.force_update, today=ret.today, save=not ret.no_save)
+def status_(name, status=STATUS_NORMAL):
+    result = {'status': 'success', 'message': ''}
 
+    if not status in FOLLOWED_STATUS or not status:
+        result['status'] = 'error'
+        result['message'] = 'Invalid status: {0}'.format(status)
+        return result
 
-def download_manager(ret):
-    if ret.id:
-        download_id = ret.id
-        status = ret.status
-        if download_id is None or status is None:
-            print_error('No id or status specified.')
-        download_obj = Download(_id=download_id)
-        download_obj.select_obj()
-        if not download_obj:
-            print_error('Download object does not exist.')
-        print_info('Download Object <{0} - {1}>, Status: {2}'.format(download_obj.name, download_obj.episode,
-                                                                     download_obj.status))
-        download_obj.status = status
-        download_obj.save()
-        print_success('Download status has been marked as {0}'.format(DOWNLOAD_CHOICE_LIST_DICT.get(int(status))))
-    else:
-        status = ret.status
-        status = int(status) if status is not None else None
-        delegate = get_download_class(instance=False)
-        delegate.download_status(status=status)
-
-
-def mark(ret):
-    name = ret.name
-    episode = ret.episode
+    status = int(status)
     followed_obj = Followed(bangumi_name=name)
     followed_obj.select_obj()
 
-    runner = ScriptRunner()
-
     if not followed_obj:
-        followed_obj = runner.get_model(name)
+        result['status'] = 'error'
+        result['message'] = 'Followed<{0}> does not exists'.format(name)
+        return result
 
-    if not followed_obj:
-        print_error('Subscribe or Script <%s> does not exist.' % name)
+    followed_obj.status = status
+    followed_obj.save()
+    result['message'] = 'Followed<{0}> has been marked as status {1}'.format(name, status)
+    return result
 
-    if episode is not None:
-        followed_obj.episode = episode
-        followed_obj.save()
-        print_success('%s has been mark as episode: %s' % (followed_obj, followed_obj.episode))
+
+def list_():
+    result = {}
+    weekday_order = Bangumi.week
+    followed_bangumi = website.followed_bangumi()
+    if not followed_bangumi:
+        result['status'] = 'warning'
+        result['message'] = 'you have not subscribed any bangumi'
     else:
-        print_info('%s, episode: %s' % (followed_obj, followed_obj.episode))
-
-
-def followed(ret):
-    if ret.list:
-        website.bangumi_calendar(followed=True, save=False)
-    else:
-        mark(ret)
-
-
-def list_(ret):
-    website.bangumi_calendar(followed=True, save=False)
+        result['status'] = 'info'
+        result['message'] = ''
+        for index, weekday in enumerate(weekday_order):
+            if followed_bangumi[weekday.lower()]:
+                result['message'] += '%s%s. %s' % (GREEN, weekday, COLOR_END)
+                for i, bangumi in enumerate(followed_bangumi[weekday.lower()]):
+                    if bangumi['status'] in (STATUS_UPDATED, STATUS_FOLLOWED) and 'episode' in bangumi:
+                        bangumi['name'] = '%s(%d)' % (
+                            bangumi['name'], bangumi['episode'])
+                    if i > 0:
+                        result['message'] += ' ' * 5
+                    f = map(lambda x: x['name'], bangumi['subtitle_group'])
+                    result['message'] += '%s: %s\n' % (bangumi['name'], ', '.join(f) if f else '<None>')
+    return result
 
 
 def fetch_(ret):
@@ -285,66 +411,5 @@ def fetch_(ret):
             print_warning('Nothing.')
         for i in data:
             print_success(i['title'])
-
     else:
         print_error('Bangumi {0} not exist'.format(ret.name))
-
-
-def search_(ret):
-    if not ret.count:
-        ret.count = 3
-
-    data = website.search(ret.keyword, count=ret.count, filter_=ret.regex_filter)
-
-    for i in data:
-        print_success(i['title'])
-    if ret.download:
-        download_prepare(data)
-
-
-def source(ret):
-    if ret.source in list(map(lambda x: x['id'], SUPPORT_WEBSITE)):
-        print_success('you select {}'.format(ret.source))
-        DB.recreate_source_relatively_table()
-        write_config('DATA_SOURCE', ret.source)
-        print_success('data source switch succeeds')
-        from bgmi.fetch import DATA_SOURCE_MAP
-
-        DATA_SOURCE_MAP.get(ret.source)().bangumi_calendar(force_update=True)
-    else:
-        print_error(
-            'please check input.nata source should be {} or {}'.format(*list(map(lambda x: x['id'], SUPPORT_WEBSITE))))
-
-
-def search_without_filter(keyword):
-    data = website.raw_search(keyword, count=3)
-    return data
-
-
-def config(ret):
-    write_config(ret.name, ret.value)
-
-
-CONTROLLERS_DICT = {
-    ACTION_ADD: add,
-    ACTION_FILTER: filter_,
-    ACTION_CAL: cal,
-    ACTION_DELETE: delete,
-    ACTION_DOWNLOAD: download_manager,
-    ACTION_UPDATE: update,
-    ACTION_FETCH: fetch_,
-    ACTION_CONFIG: config,
-    ACTION_FOLLOWED: followed,
-    ACTION_MARK: mark,
-    ACTION_LIST: list_,
-    ACTION_SEARCH: search_,
-    ACTION_SOURCE: source,
-}
-
-
-def controllers(ret):
-    func = CONTROLLERS_DICT.get(ret.action, None)
-    if func is None or not callable(func):
-        return
-    else:
-        return func(ret)

@@ -1,0 +1,34 @@
+coverage:
+  precision: 2         # how many decimal places to display in the UI: 0 <= value <= 4
+  round: down          # how coverage is rounded: down/up/nearest
+  range: 50...80      # custom range of coverage colors from red -> yellow -> green
+
+  status:
+    project:                   # measuring the overall project coverage
+      default:                 # context, you can create multiple ones with custom titles
+        enabled: yes           # must be yes|true to enable this status
+        target: 80%           # specify the target coverage for each commit status
+                               #   option: "auto" (must increase from parent commit or pull request base)
+                               #   option: "X%" a static target percentage to hit
+        branches:              # -> see "branch patterns" below
+        threshold: 1%        # allowed to drop X% and still result in a "success" commit status
+        if_no_uploads: error   # will post commit status of "error" if no coverage reports we uploaded
+                               # options: success, error, failure
+        if_not_found: success  # if parent is not found report status as success, error, or failure
+        if_ci_failed: error    # if ci fails report status as success, error, or failure
+
+    patch:                     # pull requests only: this commit status will measure the
+                               # entire pull requests Coverage Diff. Checking if the lines
+                               # adjusted are covered at least X%.
+      default:
+        enabled: yes             # must be yes|true to enable this status
+        target: 60%              # specify the target "X%" coverage to hit
+        branches: null           # -> see "branch patterns" below
+        threshold: null          # allowed to drop X% and still result in a "success" commit status
+        if_no_uploads: error     # will post commit status of "error" if no coverage reports we uploaded
+                                 # options: success, error, failure
+        if_not_found: success
+        if_ci_failed: error
+
+# comment: false  # to disable comments
+comment: false

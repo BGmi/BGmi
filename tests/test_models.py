@@ -1,11 +1,13 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
+
 import os
-import unittest
 import sqlite3
+import unittest
+
+import bgmi.config
 from bgmi.models import Bangumi, Followed, STATUS_FOLLOWED, STATUS_NORMAL
 from bgmi.sql import CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD
-import bgmi.config
 
 bgmi.config.DB_PATH = '/tmp/bangumi.db'
 DB_PATH = bgmi.config.DB_PATH
@@ -13,18 +15,15 @@ DB_PATH = bgmi.config.DB_PATH
 
 class ModelsTest(unittest.TestCase):
     def setUp(self):
-        if not os.path.exists(DB_PATH):
-            self.db = sqlite3.connect(DB_PATH)
-            self.conn = self.db.cursor()
-            self.conn.execute(CREATE_TABLE_BANGUMI)
-            self.conn.execute(CREATE_TABLE_FOLLOWED)
-            self.conn.execute(CREATE_TABLE_DOWNLOAD)
-        else:
-            self.db = sqlite3.connect(DB_PATH)
-            self.conn = self.db.cursor()
+        self.db = sqlite3.connect(DB_PATH)
+        self.conn = self.db.cursor()
+        self.conn.execute(CREATE_TABLE_BANGUMI)
+        self.conn.execute(CREATE_TABLE_FOLLOWED)
+        self.conn.execute(CREATE_TABLE_DOWNLOAD)
         self.db.commit()
 
     def tearDown(self):
+        self.conn.close()
         self.db.close()
         os.remove(DB_PATH)
 
@@ -72,15 +71,11 @@ class ModelsTest(unittest.TestCase):
 
 class FollowedTest(unittest.TestCase):
     def setUp(self):
-        if not os.path.exists(DB_PATH):
-            self.db = sqlite3.connect(DB_PATH)
-            self.conn = self.db.cursor()
-            self.conn.execute(CREATE_TABLE_BANGUMI)
-            self.conn.execute(CREATE_TABLE_FOLLOWED)
-            self.conn.execute(CREATE_TABLE_DOWNLOAD)
-        else:
-            self.db = sqlite3.connect(DB_PATH)
-            self.conn = self.db.cursor()
+        self.db = sqlite3.connect(DB_PATH)
+        self.conn = self.db.cursor()
+        self.conn.execute(CREATE_TABLE_BANGUMI)
+        self.conn.execute(CREATE_TABLE_FOLLOWED)
+        self.conn.execute(CREATE_TABLE_DOWNLOAD)
         self.db.commit()
 
     def tearDown(self):

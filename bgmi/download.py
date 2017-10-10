@@ -1,9 +1,10 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 
+import glob
 import os
 
-from bgmi.config import BGMI_SAVE_PATH, DOWNLOAD_DELEGATE
+from bgmi.config import SAVE_PATH, DOWNLOAD_DELEGATE
 from bgmi.models import Download, STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD
 from bgmi.services import XunleiLixianDownload, Aria2DownloadRPC, RRDownload, TransmissionRPC
 from bgmi.utils import print_error
@@ -29,9 +30,22 @@ def get_download_class(download_obj=None, save_path='', overwrite=True, instance
 
 
 def download_prepare(data):
+    """
+    list[dict]
+    dict[
+    name:str, keyword you use when search
+    title:str, title of episode
+    episode:int, episode of bangumi
+    download:str, link to download
+    ]
+    :param data:
+    :return:
+    """
     queue = save_to_bangumi_download_queue(data)
     for download in queue:
-        save_path = os.path.join(os.path.join(BGMI_SAVE_PATH, download.name), str(download.episode))
+        save_path = os.path.join(os.path.join(SAVE_PATH, download.name), str(download.episode))
+        if not glob.glob(save_path):
+            os.makedirs(save_path)
         # mark as downloading
         download.status = STATUS_DOWNLOADING
         download.save()
@@ -50,6 +64,17 @@ def download_prepare(data):
 
 
 def save_to_bangumi_download_queue(data):
+    """
+    list[dict]
+    dict:{
+    name;str, keyword you use when search
+    title:str, title of episode
+    episode:int, episode of bangumi
+    download:str, link to download
+    }
+    :param data:
+    :return:
+    """
     queue = []
     for i in data:
         download = Download(status=STATUS_NOT_DOWNLOAD, name=i['name'], title=i['title'],

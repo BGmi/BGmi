@@ -1,61 +1,37 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 
-import datetime
+import glob
 import os
 import re
-import string
 import time
 from collections import defaultdict
 from itertools import chain
 
-import bgmi.config
-from bgmi.config import MAX_PAGE
-from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED
-from bgmi.script import ScriptRunner
-from bgmi.utils import (parse_episode, print_warning, print_info,
-                        test_connection, get_terminal_col, GREEN, YELLOW, COLOR_END)
+import tqdm
 
-if bgmi.config.IS_PYTHON3:
+from bgmi.config import MAX_PAGE, SAVE_PATH, IS_PYTHON3
+from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, Followed
+from bgmi.script import ScriptRunner
+from bgmi.utils import (network, parse_episode, print_warning, print_info,
+                        test_connection, normalize_path)
+
+if IS_PYTHON3:
     _unicode = str
 else:
     _unicode = unicode
 
 
 class BaseWebsite(object):
+    cover_url = ''
     parse_episode = staticmethod(parse_episode)
-    def search(self, keyword='', count=1, filter_=None):
-        if not filter_:
-            filter_ = '(.*)'
-        match_title = re.compile(filter_)
-
-        result = self.search_by_keyword(keyword, count)
-        # filter
-        filtered_result = []
-        for episode in result:
-            if match_title.match(episode['title']):
-                filtered_result.append(episode)
-        result = filtered_result[:]
-
-        # remove duplicated episode in result
-        ret = []
-        episodes = list({i['episode'] for i in result})
-        for i in result:
-            if i['episode'] in episodes:
-                ret.append(i)
-                del episodes[episodes.index(i['episode'])]
-
-        if os.environ.get('DEBUG', None):
-            for i in ret:
-                print(i['title'], i['download'])
-        return ret
 
     @staticmethod
     def save_data(data):
         b = Bangumi(**data)
         b.save()
 
-    def fetch(self, save=False, group_by_weekday=True, status=False):
+    def fetch(self, save=False, group_by_weekday=True):
         bangumi_result, subtitle_group_result = self.fetch_bangumi_calendar_and_subtitle_group()
         if subtitle_group_result:
             for subtitle_group in subtitle_group_result:
@@ -76,17 +52,20 @@ class BaseWebsite(object):
             bangumi_result = result_group_by_weekday
         return bangumi_result
 
-    def bangumi_calendar(self, force_update=False, today=False, followed=False, save=True):
-        env_columns = get_terminal_col()
+    @staticmethod
+    def followed_bangumi():
+        weekly_list_followed = Bangumi.get_all_bangumi(status=STATUS_FOLLOWED)
+        weekly_list_updated = Bangumi.get_all_bangumi(status=STATUS_UPDATED)
+        weekly_list = defaultdict(list)
+        for k, v in chain(weekly_list_followed.items(), weekly_list_updated.items()):
+            weekly_list[k].extend(v)
+        for bangumi_list in weekly_list.values():
+            for bangumi in bangumi_list:
+                bangumi['subtitle_group'] = [{'name': x['name'], 'id': x['id']}
+                                             for x in Subtitle.get_subtitle(bangumi['subtitle_group'].split(', '))]
+        return weekly_list
 
-        col = 42
-
-        if env_columns < col:
-            print_warning('terminal window is too small.')
-            env_columns = col
-
-        row = int(env_columns / col if env_columns / col <= 3 else 3)
-
+    def bangumi_calendar(self, force_update=False, save=True, cover=False):
         if force_update and not test_connection():
             force_update = False
             print_warning('network is unreachable')
@@ -94,91 +73,73 @@ class BaseWebsite(object):
         if force_update:
             print_info('fetching bangumi info ...')
             Bangumi.delete_all()
-            weekly_list = self.fetch(save=save, status=True)
+            weekly_list = self.fetch(save=save)
         else:
-            if followed:
-                weekly_list_followed = Bangumi.get_all_bangumi(status=STATUS_FOLLOWED)
-                weekly_list_updated = Bangumi.get_all_bangumi(status=STATUS_UPDATED)
-                weekly_list = defaultdict(list)
-                for k, v in chain(weekly_list_followed.items(), weekly_list_updated.items()):
-                    weekly_list[k].extend(v)
-            else:
-                weekly_list = Bangumi.get_all_bangumi()
-
+            weekly_list = Bangumi.get_all_bangumi()
         if not weekly_list:
-            if not followed:
-                print_warning('warning: no bangumi schedule, fetching ...')
-                weekly_list = self.fetch(save=save)
-            else:
-                print_warning('you have not subscribed any bangumi')
-
-        def shift(seq, n):
-            n %= len(seq)
-            return seq[n:] + seq[:n]
-
-        def print_line():
-            num = col - 3
-            split = '-' * num + '   '
-            print(split * row)
-
-        if today:
-            weekday_order = (Bangumi.week[datetime.datetime.today().weekday()],)
-        else:
-            weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
+            print_warning('warning: no bangumi schedule, fetching ...')
+            weekly_list = self.fetch(save=save)
 
         runner = ScriptRunner()
         patch_list = runner.get_models_dict()
-
         for i in patch_list:
             weekly_list[i['update_time'].lower()].append(i)
 
-        spacial_append_chars = ['Ⅱ', 'Ⅲ', '♪', 'Δ', '×', '☆', 'é', '·', '♭']
-        spacial_remove_chars = []
+        if cover:
+            # download cover to local
+            cover_to_be_download = []
+            for daily_bangumi in weekly_list.values():
+                for bangumi in daily_bangumi:
+                    followed_obj = Followed(bangumi_name=bangumi['name'])
+                    if followed_obj:
+                        bangumi['status'] = followed_obj.status
+                    _, file_path, _ = self.convert_cover_to_path(bangumi['cover'])
 
-        for index, weekday in enumerate(weekday_order):
-            if weekly_list[weekday.lower()]:
-                print('%s%s. %s' % (GREEN,
-                                    weekday if not today else 'Bangumi Schedule for Today (%s)' % weekday, COLOR_END),
-                      end='')
-                if not followed:
-                    print()
-                    print_line()
+                    if not glob.glob(file_path):
+                        cover_to_be_download.append(bangumi['cover'])
 
-                for i, bangumi in enumerate(weekly_list[weekday.lower()]):
-                    if bangumi['status'] in (STATUS_UPDATED, STATUS_FOLLOWED) and 'episode' in bangumi:
-                        bangumi['name'] = '%s(%d)' % (bangumi['name'], bangumi['episode'])
+            if cover_to_be_download:
+                print_info('updating cover')
+                for cover in tqdm.tqdm(cover_to_be_download):
+                    self.download_cover(cover)
 
-                    half = len(re.findall('[%s]' % string.printable, bangumi['name']))
-                    full = (len(bangumi['name']) - half)
-                    space_count = col - 2 - (full * 2 + half)
+        return weekly_list
 
-                    for s in spacial_append_chars:
-                        if s in bangumi['name']:
-                            space_count += 1
+    def convert_cover_to_path(self, cover_url):
+        """
+        convert bangumi cover to file path
 
-                    for s in spacial_remove_chars:
-                        if s in bangumi['name']:
-                            space_count -= 1
+        :param cover_url: bangumi cover path
+        :type cover_url:str
+        :rtype: str,str,str
+        :return:file_path, dir_path, url
+        """
+        if cover_url.startswith('https://') or cover_url.startswith('http://'):
+            url = cover_url
+        else:
+            url = '{}/{}'.format(self.cover_url, cover_url)
 
-                    if bangumi['status'] == STATUS_FOLLOWED:
-                        bangumi['name'] = '%s%s%s' % (YELLOW, bangumi['name'], COLOR_END)
+        cover_url = normalize_path(cover_url)
+        file_path = os.path.join(SAVE_PATH, 'cover')
+        file_path = os.path.join(file_path, cover_url)
+        dir_path = os.path.dirname(file_path)
 
-                    if bangumi['status'] == STATUS_UPDATED:
-                        bangumi['name'] = '%s%s%s' % (GREEN, bangumi['name'], COLOR_END)
+        return dir_path, file_path, url
 
-                    if followed:
-                        if i > 0:
-                            print(' ' * 5, end='')
-                        f = map(lambda x: x['name'], Subtitle.get_subtitle(bangumi['subtitle_group'].split(', ')))
-                        print(bangumi['name'], ', '.join(f))
-                    else:
-                        print(' ' + bangumi['name'], ' ' * space_count, end='')
-                        if (i + 1) % row == 0 or i + 1 == len(weekly_list[weekday.lower()]):
-                            print()
+    def download_cover(self, cover_url):
+        """
+        :type cover_url:str
+        :param cover_url:
+        :return: None
+        """
+        dir_path, file_path, url = self.convert_cover_to_path(cover_url)
 
-                if not followed:
-                    print()
-                    # print_line()
+        if not glob.glob(dir_path):
+            os.makedirs(dir_path)
+        r = network.get(url)
+
+        with open(file_path, 'wb+') as f:
+            f.write(r.content)
 
     def get_maximum_episode(self, bangumi, subtitle=True, ignore_old_row=True, max_page=MAX_PAGE):
         followed_filter_obj = Filter(bangumi_name=bangumi.name)
@@ -199,8 +160,6 @@ class BaseWebsite(object):
 
         if data:
             bangumi = max(data, key=lambda _i: _i['episode'])
-            # pprint(bangumi)
-            # pprint(data)
             return bangumi, data
         else:
             return {'episode': 0}, []
@@ -224,15 +183,6 @@ class BaseWebsite(object):
             if '合集' not in info['title']:
                 info['name'] = name
                 result.append(info)
-                # result.append({
-                #     'download': info['magnet'],
-                #     'name': name,
-                #     'subtitle_group': info['team_id'],
-                #     'title': info['title'],
-                #     'episode': self.parse_episode(info['title']),
-                #     'time': int(time.mktime(datetime.datetime.strptime(info['publish_time'].split('.')[0],
-                #                                                        "%Y-%m-%dT%H:%M:%S").timetuple()))
-                # })
 
         if include:
             include_list = list(map(lambda s: s.strip(), include.split(',')))
@@ -251,14 +201,106 @@ class BaseWebsite(object):
             except re.error:
                 pass
 
-        # pprint(result)
         return result
 
+    @staticmethod
+    def remove_duplicated_bangumi(result):
+        ret = []
+        episodes = list({i['episode'] for i in result})
+        for i in result:
+            if i['episode'] in episodes:
+                ret.append(i)
+                del episodes[episodes.index(i['episode'])]
+
+        return ret
+
     def search_by_keyword(self, keyword, count):
-        return []
+        """
+        return a list of dict with at least 4 key: download, name, title, episode
+        example:
+        ```
+            [
+                {
+                    'name':"路人女主的养成方法",
+                    'download': 'magnet:?xt=urn:btih:what ever',
+                    'title': "[澄空学园] 路人女主的养成方法 第12话 MP4 720p  完",
+                    'episode': 12
+                },
+            ]
+
+        :param keyword: search key word
+        :type keyword: str
+        :param count: how many page to fetch from website
+        :type count: int
+
+        :return: list of episode search result
+        :rtype: list[dict]
+        """
+        raise NotImplementedError
 
     def fetch_bangumi_calendar_and_subtitle_group(self):
-        return [], []
+        """
+        return a list of all bangumi and a list of all subtitle group
+
+        list of bangumi dict:
+        update time should be one of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+        example:
+        ```
+            [
+                {
+                    "status": 0,
+                    "subtitle_group": [
+                        "123",
+                        "456"
+                    ],
+                    "name": "名侦探柯南",
+                    "keyword": "1234", #bangumi id
+                    "update_time": "Sat",
+                    "cover": "data/images/cover1.jpg"
+                },
+            ]
+        ```
+
+        list of subtitle group dict:
+        example:
+        ```
+            [
+                {
+                    'id': '233',
+                    'name': 'bgmi字幕组'
+                }
+            ]
+        ```
+
+
+        :return: list of bangumi, list of subtitile group
+        :rtype: (list[dict], list[dict])
+        """
+        raise NotImplementedError
 
     def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
-        return []
+        """
+        get all episode by bangumi id
+        example
+        ```
+            [
+                {
+                    "download": "magnet:?xt=urn:btih:e43b3b6b53dd9fd6af1199e112d3c7ff15cab82c",
+                    "name": "来自深渊",
+                    "subtitle_group": "58a9c1c9f5dc363606ab42ec",
+                    "title": "【喵萌奶茶屋】★七月新番★[来自深渊/Made in Abyss][07][GB][720P]",
+                    "episode": 0,
+                    "time": 1503301292
+                },
+            ]
+        ```
+
+        :param bangumi_id: bangumi_id
+        :param subtitle_list: list of subtitle group
+        :type subtitle_list: list
+        :param max_page: how many page you want to crawl if there is no subtitle list
+        :type max_page: int
+        :return: list of bangumi
+        :rtype: list[dict]
+        """
+        raise NotImplementedError

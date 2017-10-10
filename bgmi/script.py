@@ -5,6 +5,7 @@ import glob
 import imp
 import os
 import time
+import datetime
 import traceback
 
 from bgmi.config import SCRIPT_PATH
@@ -27,17 +28,38 @@ class ScriptRunner(object):
                 try:
                     s = imp.load_source('script', os.path.join(SCRIPT_PATH, i))
                     script_class = getattr(s, 'Script')()
-                    cls.scripts.append(script_class)
-                    print_success('Load script {} successfully.'.format(i))
+
+                    if cls.check(script_class):
+                        cls.scripts.append(script_class)
+                        print_success('Load script {} successfully.'.format(i))
+
                 except:
                     print_warning('Load script {} failed, ignored'.format(i))
-                    traceback.print_exc()
+                    if os.getenv('DEBUG_SCRIPT'):
+                        traceback.print_exc()
                     # self.scripts = filter(self._check_followed, self.scripts)
                     # self.scripts = filter(self._check_bangumi, self.scripts)
 
             cls._defined = super(ScriptRunner, cls).__new__(cls, *args, **kwargs)
 
         return cls._defined
+
+    @classmethod
+    def check(cls, script):
+        condition = [
+            'script.Model().due_date > datetime.datetime.now()',
+        ]
+
+        for i in condition:
+            try:
+                if not eval(i):
+                    return False
+            except:
+                # ignore if error
+                if os.getenv('DEBUG_SCRIPT'):
+                    traceback.print_exc()
+
+        return True
 
     def get_model(self, name):
         for script in self.scripts:
@@ -104,6 +126,7 @@ class ScriptBase(object):
         bangumi_name = None
         cover = None
         update_time = None
+        due_date = None
 
         def __init__(self):
             if self.bangumi_name is not None:
@@ -118,9 +141,9 @@ class ScriptBase(object):
                 yield (i, getattr(self, i))
 
             # patch for cal
-            yield ('update_time', self.update_time)
             yield ('name', self.bangumi_name)
             yield ('status', self.obj['status'])
+            yield ('updated_time', self.obj['updated_time'])
             yield ('subtitle_group', '')
             yield ('episode', self.obj['episode'])
 

@@ -25,5 +25,6 @@ if [ $? -eq 0 ]; then
     echo "[-] crontab already exist";
 else
     (crontab -l;printf "0 */2 * * * $BGMI_PATH update $DOWNLOAD\n")|crontab -
+    (crontab -l;printf "0 */10 * * * $BGMI_PATH cal --force-update --download-cover\n")|crontab -
     echo "[+] crontab added"
 fi

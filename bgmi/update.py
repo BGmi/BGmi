@@ -16,7 +16,7 @@ def exec_sql(sql, db=DB_PATH):
         conn.execute(sql)
         conn.commit()
         conn.close()
-    except sqlite3.OperationalError:
+    except sqlite3.OperationalError:  # pragma: no cover
         print_error('Execute SQL statement failed', exit_=False)
 
 

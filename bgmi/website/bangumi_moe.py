@@ -4,12 +4,12 @@ from __future__ import print_function, unicode_literals
 import datetime
 import os
 import time
+
 import requests
 
 from bgmi.config import (LANG, MAX_PAGE, COVER_URL, BANGUMI_MOE_URL)
-from bgmi.utils import (print_info, print_error, bug_report)
 from bgmi.models import Bangumi
-
+from bgmi.utils import (print_info, bug_report, print_error, print_warning)
 from bgmi.website.base import BaseWebsite
 
 # tag of bangumi on bangumi.moe
@@ -24,6 +24,9 @@ SEARCH_URL = '{0}{1}api/v2/torrent/search'.format(BANGUMI_MOE_URL, __split)
 
 
 def get_response(url, method='GET', **kwargs):
+    # kwargs['proxies'] = {'http': "http://localhost:1080"}
+    if os.environ.get('DEV'):
+        url = url.replace('https://', 'http://localhost:8092/https/')
     if os.environ.get('DEBUG'):
         print_info('Request URL: {0}'.format(url))
     try:
@@ -67,7 +70,7 @@ def parser_bangumi(data):
     for bangumi_item in data:
         subtitle_of_bangumi = process_subtitle(subtitle.get(bangumi_item['tag_id'], []))
         item = {'status': 0,
-                'subtitle_group': subtitle_of_bangumi.keys(),
+                'subtitle_group': list(subtitle_of_bangumi.keys()),
                 'name': name[bangumi_item['tag_id']],
                 'keyword': bangumi_item['tag_id'],
                 'update_time': Bangumi.week[bangumi_item['showOn'] - 1],
@@ -89,31 +92,6 @@ class BangumiMoe(BaseWebsite):
     cover_url = COVER_URL
 
     def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
-        """
-        get all episode by bangumi id
-        example
-        ```
-            [
-                {
-                    "download": "magnet:?xt=urn:btih:e43b3b6b53dd9fd6af1199e112d3c7ff15cab82c",
-                    "name": "来自深渊",
-                    "subtitle_group": "58a9c1c9f5dc363606ab42ec",
-                    "title": "【喵萌奶茶屋】★七月新番★[来自深渊/Made in Abyss][07][GB][720P]",
-                    "episode": 0,
-                    "time": 1503301292
-                },
-            ]
-        ```
-
-        :param bangumi_id: bangumi_id
-        :param subtitle_list: list of subtitle group
-        :type subtitle_list: list
-        :param max_page: how many page you want to crawl if there is no subtitle list
-        :type max_page: int
-        :return: list of bangumi
-        :rtype: list[dict]
-        """
-
         response_data = []
         if subtitle_list:
             for subtitle_id in subtitle_list:
@@ -141,79 +119,24 @@ class BangumiMoe(BaseWebsite):
         return response_data
 
     def fetch_bangumi_calendar_and_subtitle_group(self):
-        """
-        return a list of all bangumi and a list of all subtitle group
-
-        list of bangumi dict:
-        update time should be one of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-        example:
-        ```
-            [
-                {
-                    "status": 0,
-                    "subtitle_group": [
-                        "123",
-                        "456"
-                    ],
-                    "name": "名侦探柯南",
-                    "keyword": "1234", #bangumi id
-                    "update_time": "Sat",
-                    "cover": "data/images/cover1.jpg"
-                },
-            ]
-        ```
-
-        list of subtitle group dict:
-        example:
-        ```
-            [
-                {
-                    'id': '233',
-                    'name': 'bgmi字幕组'
-                }
-            ]
-        ```
-
-
-        :return: list of bangumi, list of subtitile group
-        :rtype: (list[dict], list[dict])
-        """
         response = get_response(FETCH_URL)
         if not response:
             return []
-
         bangumi_result, subtitile_result = parser_bangumi(response)
-
         return bangumi_result, subtitile_result
 
-    def search_by_keyword(self, keyword, count):
-        """
-        return a list of dict with at least 4 key: download, name, title, episode
-        example:
-        ```
-            [
-                {
-                    'name':"路人女主的养成方法",
-                    'download': 'magnet:?xt=urn:btih:what ever',
-                    'title': "[澄空学园] 路人女主的养成方法 第12话 MP4 720p  完",
-                    'episode': 12
-                },
-            ]
-
-        :param keyword: search key word
-        :type keyword: str
-        :param count: how many page to fetch from website
-        :type count: int
-
-        :return: list of episode search result
-        :rtype: list[dict]
-        """
+    def search_by_keyword(self, keyword, count=None):
+        if not count:
+            count = 3
 
         rows = []
         result = []
 
         for i in range(count):
             data = get_response(SEARCH_URL, 'POST', json={'query': keyword, 'p': i + 1})
+            if not 'torrents' in data:
+                print_warning('No torrents in response data, please re-run')
+                return []
             rows.extend(data['torrents'])
 
         for info in rows:

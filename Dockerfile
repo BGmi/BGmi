@@ -7,13 +7,18 @@ ADD ./ /opt/bgmi
 WORKDIR /opt/bgmi
 
 RUN apt-get update \
-    && apt-get -y install aria2 nginx supervisor cron curl \
-    && curl https://bootstrap.pypa.io/get-pip.py | python \
+    && apt-get -y install aria2 nginx supervisor cron wget unzip \
+    && wget -O- https://bootstrap.pypa.io/get-pip.py | python \
     && pip install -r requirements.txt \
     && python setup.py install \
     && cp others/aria2c.conf /root \
     && cp others/bgmi.conf /etc/nginx/sites-enabled/default \
-    && cp others/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+    && cp others/supervisord.conf /etc/supervisor/conf.d/supervisord.conf \
+    && wget https://github.com/binux/yaaw/archive/master.zip \
+    && unzip master.zip \
+    && mv yaaw-master /yaaw \
+    && rm master.zip \
+    && ln -s /bgmi /root/.bgmi
 
 
 CMD /usr/sbin/nginx; /usr/bin/supervisord

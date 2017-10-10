@@ -11,15 +11,16 @@ import sqlite3
 import sys
 
 import bgmi.config
+from bgmi.cli import controllers
 from bgmi.config import BGMI_PATH, DB_PATH, SCRIPT_DB_PATH
 from bgmi.constants import *
-from bgmi.controllers import controllers
+from bgmi.setup import create_dir, install_crontab
+# Wrap sys.stdout into a StreamWriter to allow writing unicode.
 from bgmi.sql import (CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER,
                       CREATE_TABLE_SUBTITLE, CREATE_TABLE_SCRIPT)
 from bgmi.update import update_database
-from bgmi.utils import print_warning, print_error, print_version, check_update
+from bgmi.utils import print_warning, print_error, print_version, check_update, get_web_admin
 
-# Wrap sys.stdout into a StreamWriter to allow writing unicode.
 if bgmi.config.IS_PYTHON3:
     unicode = str
     if platform.system() != 'Windows':
@@ -31,7 +32,7 @@ else:
 
 
 # global Ctrl-C signal handler
-def signal_handler(signal, frame):
+def signal_handler(signal, frame):  # pragma: no cover
     print_error('User aborted, quit')
 
 
@@ -48,6 +49,7 @@ def unicode_(s):
 
 # main function
 def main():
+    setup()
     c = argparse.ArgumentParser()
 
     c.add_argument('--version', help='Show the version of BGmi.', action='version', version=print_version())
@@ -94,6 +96,7 @@ def main():
     sub_parser_cal.add_argument('--today', action='store_true', help='Show bangumi calendar for today.')
     sub_parser_cal.add_argument('--force-update', action='store_true',
                                 help='Get the newest bangumi calendar from bangumi.moe.')
+    sub_parser_cal.add_argument('--download-cover', action='store_true', help='Download the cover to local')
     sub_parser_cal.add_argument('--no-save', action='store_true',
                                 help='Do not save the bangumi data when force update.')
 
@@ -123,22 +126,25 @@ def main():
     sub_parser_search.add_argument('--regex-filter', type=unicode_, help='Regular expression filter of title.')
     sub_parser_search.add_argument('--download', action='store_true',
                                    help='Download search result.')
+    sub_parser_search.add_argument('--dupe', action='store_true',
+                                   help="Show add result without filter and don't remove duplicated episode")
 
     sub_parser_search = sub_parser.add_parser(ACTION_SOURCE, help='select date source bangumi_moe or mikan_project')
     sub_parser_search.add_argument('source', help='bangumi_moe or mikan_project', type=unicode_)
 
-
-    sub_parser.add_parser('install', help='Install BGmi download delegate.')
+    sub_parser.add_parser('install', help='Install BGmi front / admin / download delegate')
     sub_parser.add_parser('upgrade', help='Check update.')
 
     ret = c.parse_args()
-
     if ret.action == 'install':
         import bgmi.setup
 
         bgmi.setup.install()
+        get_web_admin(method='install')
+
         raise SystemExit
     elif ret.action == 'upgrade':
+        create_dir()
         update_database()
         check_update(mark=False)
     else:
@@ -170,18 +176,13 @@ def init_db():
 def setup():
     if not os.path.exists(BGMI_PATH):
         print_warning('BGMI_PATH %s does not exist, installing' % BGMI_PATH)
-        from bgmi.setup import create_dir, install_crontab
 
         create_dir()
-        if not platform.system() == 'Windows':
-            # if not input('Do you want to install a crontab to auto-download bangumi?(Y/n): ') == 'n':
-            install_crontab()
+        install_crontab()
 
-    # if not os.path.exists(DB_PATH):
     init_db()
-    main()
 
 
 if __name__ == '__main__':
     setup()
-
+    main()

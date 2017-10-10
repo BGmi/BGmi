@@ -6,7 +6,7 @@ import subprocess
 from tempfile import NamedTemporaryFile
 
 import bgmi.config
-from bgmi.config import XUNLEI_LX_PATH, BGMI_PATH, BGMI_TMP_PATH, ARIA2_RPC_URL, ARIA2_RPC_TOKEN, \
+from bgmi.config import XUNLEI_LX_PATH, BGMI_PATH, TMP_PATH, ARIA2_RPC_URL, ARIA2_RPC_TOKEN, \
     WGET_PATH, TRANSMISSION_RPC_PORT, TRANSMISSION_RPC_URL
 
 from bgmi.utils import print_warning, print_info, print_error, print_success
@@ -229,10 +229,10 @@ class XunleiLixianDownload(DownloadService):
 
         command = [XUNLEI_LX_PATH, 'download', '--torrent', overwrite,
                    '--output-dir={0}'.format(self.save_path), self.torrent,
-                   '--verification-code-path={0}'.format(os.path.join(BGMI_TMP_PATH, 'vcode.jpg'))]
+                   '--verification-code-path={0}'.format(os.path.join(TMP_PATH, 'vcode.jpg'))]
 
         print_info('Run command {0}'.format(' '.join(command)))
-        print_warning('Verification code path: {0}'.format(os.path.join(BGMI_TMP_PATH, 'vcode.jpg')))
+        print_warning('Verification code path: {0}'.format(os.path.join(TMP_PATH, 'vcode.jpg')))
         self.call(command)
 
     @staticmethod

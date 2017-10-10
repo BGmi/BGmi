@@ -1,6 +1,0 @@
-{% for bangumi in data %}
-#img_{{ md5(bangumi['bangumi_name']) }} {
-  /* {{ bangumi['bangumi_name'] }} */
-  background: url('{{ bangumi['cover'] }}') center / cover;
-}
-{% end %}
