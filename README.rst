@@ -9,45 +9,37 @@ BGmi is a cli tool for subscribed bangumi.
 ====
 TODO
 ====
-Empty as my wallet.
+Nothing here
 
 ==========
 Update Log
 ==========
 + Fully new frontend
-+ Web page admin to config BGmi
-+ Web page admin to add and delete bangumi
-+ HTTP Api
-+ Store bangumi cover image locally
-+ Bangumi script support
-+ Action source to select bangumi date source
-+ Search / Download bangumi filter by regex
-+ Download specified episode
-+ Transmission-rpc support
 
 =======
 Feature
 =======
-+ Web page to subscribe bangumi
++ Multi data sources supported
++ Use aria2, transmission to download bangumi
++ Web interface to manage bangumi with HTTP API
++ Play bangumi online with danmaku
++ RSS feed for uTorrent, ICS caldendar for mobile devices
 + Bangumi Script: Write your bangumi parser own!
 + Bangumi data source: `bangumi_moe(default) <https://bangumi.moe>`_ or `mikan_project <https://mikanani.me>`_
-+ Subscribe/unsubscribe bangumi
-+ Bangumi calendar
-+ Bangumi episode information
-+ Download bangumi by subtitle group
-+ Web page to view all subscribed bangumi
-+ RSS feed for uTorrent
-+ Play bangumi online with danmaku
-+ Download bangumi by specified keywords (included and excluded).
-+ **BGmi have supported Windows now**
++ Bangumi calendar / episode information
++ Keyword, subtitle group, regular expression filter for download bangumi
++ Windows, Linux and Router system supported, BGmi everywhere
 
-.. image:: ./images/bgmi.png?raw=true
+.. image:: ./images/bgmi_cli.png?raw=true
     :alt: BGmi
     :align: center
 .. image:: ./images/bgmi_http.png?raw=true
     :alt: BGmi HTTP Service
     :align: center
 .. image:: ./images/bgmi_player.png?raw=true
+    :alt: BGmi HTTP Service
+    :align: center
+.. image:: ./images/bgmi_admin.png?raw=true
     :alt: BGmi HTTP Service
     :align: center
 
@@ -80,7 +72,7 @@ Build Docker:
     git clone https://github.com/BGmi/BGmi
     cd BGmi
     docker build -t bgmi .
-    docker run -p8899:80 -d -v ~/.bgmi:/root/.bgmi bgmi
+    docker run -p8888:80 -d -v ~/.bgmi:~/.bgmi bgmi
 
 You can use bgmi command at client to add / remove bangumi, get into the docker container to manage bangumi.
 
@@ -89,7 +81,18 @@ Or just:
 .. code-block:: bash
 
     docker pull ricterz/bgmi
+    docker run -p8888:80 -d -v ~/.bgmi:~/.bgmi ricterz/bgmi
 
+Configure BGmi docker:
+
+.. code-block:: bash
+
+    # bgmi config ARIA2_RPC_TOKEN token:TOKEN_OF_ARIA2_RPC
+    # docker exec -it <CONTAINER ID> ln -s ~/.bgmi/ /bgmi
+    # docker exec -it <CONTAINER ID> bash -c 'echo token:TOKEN_OF_ARIA2_RPC > /root/aria2c.conf'
+    # docker exec -it <CONTAINER ID> supervisorctl
+    supervisor> restart bgmi:aria2c
+    supervisor> quit
 
 =============
 Usage of bgmi
@@ -440,7 +443,7 @@ License
 =======
 The MIT License (MIT)
 
-Copyright (c) 2017 Ricter Zheng
+Copyright (c) 2017 BGmi Developer Team (https://github.com/BGmi)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
