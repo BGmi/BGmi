@@ -20,13 +20,12 @@ Update Log
 =======
 Feature
 =======
-+ Multi data sources supported
-+ Use aria2, transmission to download bangumi
++ Multi data sources supported: `bangumi_moe <https://bangumi.moe>`_, `mikan_project <https://mikanani.me>`_ or `share_dmhy <https://share.dmhy.org/>`_
++ Use aria2, transmission or xunlei-lixian to download bangumi
 + Web interface to manage bangumi with HTTP API
 + Play bangumi online with danmaku
 + RSS feed for uTorrent, ICS caldendar for mobile devices
 + Bangumi Script: Write your bangumi parser own!
-+ Bangumi data source: `bangumi_moe(default) <https://bangumi.moe>`_, `mikan_project <https://mikanani.me>`_ or `share_dmhy <https://share.dmhy.org/>`_
 + Bangumi calendar / episode information
 + Keyword, subtitle group, regular expression filter for download bangumi
 + Windows, Linux and Router system supported, BGmi everywhere
