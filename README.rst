@@ -5,6 +5,7 @@ BGmi is a cli tool for subscribed bangumi.
 |pypi|
 |travis|
 |coverage|
+|license|
 
 ====
 TODO
@@ -467,8 +468,11 @@ SOFTWARE.
 .. |pypi| image:: https://img.shields.io/pypi/v/bgmi.svg
    :target: https://pypi.python.org/pypi/bgmi
 
-.. |travis| image:: https://travis-ci.org/BGmi/BGmi.svg?branch=master
+.. |travis| image:: https://travis-ci.org/BGmi/BGmi.svg?branch=dev
    :target: https://travis-ci.org/BGmi/BGmi
 
-.. |coverage| image:: https://codecov.io/gh/BGmi/BGmi/branch/master/graph/badge.svg
-  :target: https://codecov.io/gh/BGmi/BGmi
+.. |coverage| image:: https://codecov.io/gh/BGmi/BGmi/branch/dev/graph/badge.svg
+   :target: https://codecov.io/gh/BGmi/BGmi
+
+.. |license| image:: https://img.shields.io/badge/License-MIT-blue.svg
+   :target: https://github.com/BGmi/BGmi/blob/master/LICENSE
