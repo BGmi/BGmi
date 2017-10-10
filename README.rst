@@ -20,7 +20,7 @@ Update Log
 =======
 Feature
 =======
-+ Multi data sources supported: `bangumi_moe <https://bangumi.moe>`_, `mikan_project <https://mikanani.me>`_ or `share_dmhy <https://share.dmhy.org/>`_
++ Multi data sources supported: `bangumi_moe <https://bangumi.moe>`_, `mikan_project <https://mikanani.me>`_ or `dmhy <https://share.dmhy.org/>`_
 + Use aria2, transmission or xunlei-lixian to download bangumi
 + Web interface to manage bangumi with HTTP API
 + Play bangumi online with danmaku
@@ -110,7 +110,7 @@ bangumi you have downloaded will still store on the disk, but won't show on webs
 
 + `bangumi_moe(default) <https://bangumi.moe>`_
 + `mikan_project <https://mikanani.me>`_
-+ `share_dmhy <https://share.dmhy.org/>`_
++ `dmhy <https://share.dmhy.org/>`_
 
 Setup custom BGMI_PATH:
 
