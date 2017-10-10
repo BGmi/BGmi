@@ -26,7 +26,7 @@ Feature
 + Play bangumi online with danmaku
 + RSS feed for uTorrent, ICS caldendar for mobile devices
 + Bangumi Script: Write your bangumi parser own!
-+ Bangumi data source: `bangumi_moe(default) <https://bangumi.moe>`_ or `mikan_project <https://mikanani.me>`_
++ Bangumi data source: `bangumi_moe(default) <https://bangumi.moe>`_, `mikan_project <https://mikanani.me>`_ or `share_dmhy <https://share.dmhy.org/>`_
 + Bangumi calendar / episode information
 + Keyword, subtitle group, regular expression filter for download bangumi
 + Windows, Linux and Router system supported, BGmi everywhere
@@ -111,6 +111,7 @@ bangumi you have downloaded will still store on the disk, but won't show on webs
 
 + `bangumi_moe(default) <https://bangumi.moe>`_
 + `mikan_project <https://mikanani.me>`_
++ `share_dmhy <https://share.dmhy.org/>`_
 
 change to mikan by doing this
 
