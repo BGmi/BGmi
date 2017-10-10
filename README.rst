@@ -293,7 +293,7 @@ Of cause you can use `yaaw <https://github.com/binux/yaaw/>`_ to manage download
     }
     ...
 
-Example file: `bgmi.conf <./bgmi.conf>`_
+Example file: `bgmi.conf <https://github.com/BGmi/BGmi/blob/dev/bgmi.conf>`_
 
 ===================
 DPlayer and Danmaku
