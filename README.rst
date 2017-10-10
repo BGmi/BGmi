@@ -112,18 +112,22 @@ bangumi you have downloaded will still store on the disk, but won't show on webs
 + `mikan_project <https://mikanani.me>`_
 + `share_dmhy <https://share.dmhy.org/>`_
 
-change to mikan by doing this
+Setup custom BGMI_PATH:
+
+.. code-block:: bash
+    BGMI_PATH=/bgmi bgmi -h
+
+Or add this code to your .bashrc file:
+
+.. code-block:: bash
+
+    alias bgmi='BGMI_PATH=/tmp bgmi'
+
+Change to mikan_project data source:
 
 .. code-block:: bash
 
     bgmi source mikan_project
-    bgmi cal
-
-or change back:
-
-.. code-block:: bash
-
-    bgmi source bangumi_moe
     bgmi cal
 
 Show bangumi calendar:
