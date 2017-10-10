@@ -582,10 +582,10 @@ SOFTWARE.
 .. |pypi| image:: https://img.shields.io/pypi/v/bgmi.svg
    :target: https://pypi.python.org/pypi/bgmi
 
-.. |travis| image:: https://travis-ci.org/BGmi/BGmi.svg?branch=dev
+.. |travis| image:: https://travis-ci.org/BGmi/BGmi.svg?branch=master
    :target: https://travis-ci.org/BGmi/BGmi
 
-.. |coverage| image:: https://codecov.io/gh/BGmi/BGmi/branch/dev/graph/badge.svg
+.. |coverage| image:: https://codecov.io/gh/BGmi/BGmi/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/BGmi/BGmi
 
 .. |license| image:: https://img.shields.io/badge/License-MIT-blue.svg
