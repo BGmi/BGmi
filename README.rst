@@ -326,7 +326,7 @@ BGmi will load the script and call the method you write before the native functi
 Bangumi Script Runner will catch the data you returned, update the database, and download the bangumi.
 You only just write the parser and return the data.
 
-Bangumi Script is located at :code:`BGMI_PATH/script`, inherited :code:`ScriptBase` class. There is a example:
+Bangumi Script is located at :code:`BGMI_PATH/script`, inherited :code:`ScriptBase` class. There is an example:
 
 .. code-block:: python
 
