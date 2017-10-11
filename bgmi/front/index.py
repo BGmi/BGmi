@@ -12,25 +12,24 @@ def get_player(bangumi_name):
     episode_list = {}
     bangumi_path = os.path.join(SAVE_PATH, bangumi_name)
     for root, _, files in os.walk(bangumi_path):
-        if not _ and files:
-            _ = root.replace(bangumi_path, '').split(os.path.sep)
-            base_path = root.replace(SAVE_PATH, '')
-            if len(_) >= 2:
-                episode_path = root.replace(os.path.join(SAVE_PATH, bangumi_name), '')
-                if episode_path.split(os.path.sep)[1].isdigit():
-                    episode = int(episode_path.split(os.path.sep)[1])
-                else:
-                    continue
+        _ = root.replace(bangumi_path, '').split(os.path.sep)
+        base_path = root.replace(SAVE_PATH, '')
+        if len(_) >= 2:
+            episode_path = root.replace(os.path.join(SAVE_PATH, bangumi_name), '')
+            if episode_path.split(os.path.sep)[1].isdigit():
+                episode = int(episode_path.split(os.path.sep)[1])
             else:
-                episode = -1
+                continue
+        else:
+            episode = -1
 
-            for bangumi in files:
-                if bangumi.lower().endswith('.mp4'):
-                    mp4_path = os.path.join(base_path, bangumi)
-                    mp4_path = os.path.join(os.path.dirname(mp4_path), os.path.basename(mp4_path))
-                    mp4_path = mp4_path.replace(os.path.sep, '/')
-                    episode_list[episode] = {'path': mp4_path}
-                    break
+        for bangumi in files:
+            if bangumi.lower().endswith('.mp4'):
+                mp4_path = os.path.join(base_path, bangumi)
+                mp4_path = os.path.join(os.path.dirname(mp4_path), os.path.basename(mp4_path))
+                mp4_path = mp4_path.replace(os.path.sep, '/')
+                episode_list[episode] = {'path': mp4_path}
+                break
 
     return episode_list
 
