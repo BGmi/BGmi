@@ -76,7 +76,7 @@ Build Docker:
     git clone https://github.com/BGmi/BGmi
     cd BGmi
     docker build -t bgmi .
-    docker run -p8888:80 -d -v ~/.bgmi:~/.bgmi bgmi
+    docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi bgmi
 
 You can use bgmi command at client to add / remove bangumi, get into the docker container to manage bangumi.
 
