@@ -24,4 +24,4 @@ RUN apt-get update \
 CMD /usr/sbin/nginx; /usr/bin/supervisord
 
 EXPOSE 80
-
+EXPOSE 6800
