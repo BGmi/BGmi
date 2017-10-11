@@ -76,7 +76,7 @@ Build Docker:
     git clone https://github.com/BGmi/BGmi
     cd BGmi
     docker build -t bgmi .
-    docker run -p8888:80 -d -v ~/.bgmi:~/.bgmi bgmi
+    docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi bgmi
 
 You can use bgmi command at client to add / remove bangumi, get into the docker container to manage bangumi.
 
@@ -85,7 +85,7 @@ Or just:
 .. code-block:: bash
 
     docker pull ricterz/bgmi
-    docker run -p8888:80 -d -v ~/.bgmi:~/.bgmi ricterz/bgmi
+    docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi ricterz/bgmi
 
 Configure BGmi docker:
 
@@ -93,7 +93,7 @@ Configure BGmi docker:
 
     # bgmi config ARIA2_RPC_TOKEN token:TOKEN_OF_ARIA2_RPC
     # docker exec -it <CONTAINER ID> ln -s ~/.bgmi/ /bgmi
-    # docker exec -it <CONTAINER ID> bash -c 'echo token:TOKEN_OF_ARIA2_RPC > /root/aria2c.conf'
+    # docker exec -it <CONTAINER ID> bash -c 'echo rpc-secret=token:TOKEN_OF_ARIA2_RPC >> /root/aria2c.conf'
     # docker exec -it <CONTAINER ID> supervisorctl
     supervisor> restart bgmi:aria2c
     supervisor> quit
