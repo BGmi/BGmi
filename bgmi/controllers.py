@@ -99,7 +99,7 @@ def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
 
     followed_filter_obj.save()
     subtitle_list = list(map(lambda s: s['name'], Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', '))))
-    print_info('Usable subtitle group: {0}'.format(', '.join(subtitle_list)) if subtitle_list else 'None')
+    print_info('Usable subtitle group: {0}'.format(', '.join(subtitle_list) if subtitle_list else 'None'))
 
     print_filter(followed_filter_obj)
     result['data'] = {

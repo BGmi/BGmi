@@ -20,7 +20,7 @@ Update Log
 =======
 Feature
 =======
-+ Multi data sources supported: `bangumi_moe <https://bangumi.moe>`_, `mikan_project <https://mikanani.me>`_ or `share_dmhy <https://share.dmhy.org/>`_
++ Multi data sources supported: `bangumi_moe <https://bangumi.moe>`_, `mikan_project <https://mikanani.me>`_ or `dmhy <https://share.dmhy.org/>`_
 + Use aria2, transmission or xunlei-lixian to download bangumi
 + Web interface to manage bangumi with HTTP API
 + Play bangumi online with danmaku
@@ -76,7 +76,7 @@ Build Docker:
     git clone https://github.com/BGmi/BGmi
     cd BGmi
     docker build -t bgmi .
-    docker run -p8888:80 -d -v ~/.bgmi:~/.bgmi bgmi
+    docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi bgmi
 
 You can use bgmi command at client to add / remove bangumi, get into the docker container to manage bangumi.
 
@@ -85,7 +85,7 @@ Or just:
 .. code-block:: bash
 
     docker pull ricterz/bgmi
-    docker run -p8888:80 -d -v ~/.bgmi:~/.bgmi ricterz/bgmi
+    docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi ricterz/bgmi
 
 Configure BGmi docker:
 
@@ -93,7 +93,7 @@ Configure BGmi docker:
 
     # bgmi config ARIA2_RPC_TOKEN token:TOKEN_OF_ARIA2_RPC
     # docker exec -it <CONTAINER ID> ln -s ~/.bgmi/ /bgmi
-    # docker exec -it <CONTAINER ID> bash -c 'echo token:TOKEN_OF_ARIA2_RPC > /root/aria2c.conf'
+    # docker exec -it <CONTAINER ID> bash -c 'echo rpc-secret=token:TOKEN_OF_ARIA2_RPC >> /root/aria2c.conf'
     # docker exec -it <CONTAINER ID> supervisorctl
     supervisor> restart bgmi:aria2c
     supervisor> quit
@@ -110,7 +110,7 @@ bangumi you have downloaded will still store on the disk, but won't show on webs
 
 + `bangumi_moe(default) <https://bangumi.moe>`_
 + `mikan_project <https://mikanani.me>`_
-+ `share_dmhy <https://share.dmhy.org/>`_
++ `dmhy <https://share.dmhy.org/>`_
 
 Setup custom BGMI_PATH:
 
@@ -326,7 +326,7 @@ BGmi will load the script and call the method you write before the native functi
 Bangumi Script Runner will catch the data you returned, update the database, and download the bangumi.
 You only just write the parser and return the data.
 
-Bangumi Script is located at :code:`BGMI_PATH/script`, inherited :code:`ScriptBase` class. There is a example:
+Bangumi Script is located at :code:`BGMI_PATH/script`, inherited :code:`ScriptBase` class. There is an example:
 
 .. code-block:: python
 
