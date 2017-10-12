@@ -176,10 +176,9 @@ def init_db():
 def setup():
     if not os.path.exists(BGMI_PATH):
         print_warning('BGMI_PATH %s does not exist, installing' % BGMI_PATH)
-
-        create_dir()
         install_crontab()
 
+    create_dir()
     init_db()
 
 
