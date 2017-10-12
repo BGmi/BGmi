@@ -7,7 +7,7 @@ import time
 
 import requests
 
-from bgmi.config import (LANG, MAX_PAGE, COVER_URL, BANGUMI_MOE_URL)
+from bgmi.config import (LANG, MAX_PAGE, BANGUMI_MOE_URL)
 from bgmi.models import Bangumi
 from bgmi.utils import (print_info, bug_report, print_error, print_warning)
 from bgmi.website.base import BaseWebsite
@@ -21,6 +21,7 @@ TEAM_URL = '{0}{1}api/team/working'.format(BANGUMI_MOE_URL, __split)
 NAME_URL = '{0}{1}api/tag/fetch'.format(BANGUMI_MOE_URL, __split)
 DETAIL_URL = '{0}{1}api/torrent/search'.format(BANGUMI_MOE_URL, __split)
 SEARCH_URL = '{0}{1}api/v2/torrent/search'.format(BANGUMI_MOE_URL, __split)
+COVER_URL = 'https://bangumi.moe/'
 
 
 def get_response(url, method='GET', **kwargs):
@@ -30,9 +31,10 @@ def get_response(url, method='GET', **kwargs):
     if os.environ.get('DEBUG'):
         print_info('Request URL: {0}'.format(url))
     try:
+        r = requests.request(method.lower(), url, **kwargs)
         if os.environ.get('DEBUG'):
-            print(getattr(requests, method.lower())(url, **kwargs).text)
-        return getattr(requests, method.lower(), )(url, **kwargs).json()
+            print(r.text)
+        return r.json()
     except requests.ConnectionError:
         print_error('error: failed to establish a new connection')
     except ValueError:

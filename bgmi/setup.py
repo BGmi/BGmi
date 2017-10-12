@@ -12,11 +12,12 @@ def install_crontab():
     if IS_WINDOWS:
         copy(os.path.join(os.path.dirname(__file__), 'cron.vbs'), BGMI_PATH)
         print_info('cron.vbs is located as {}'.format(os.path.join(BGMI_PATH, 'cron.vbs')))
-        print_warning('if you want to enable bgmi autoupdate, see https://github.com/BGmi/BGmi/blob/master/README.windows.md for next step')
+        print_warning('if you want to enable bgmi autoupdate, \
+        see https://github.com/BGmi/BGmi/blob/master/README.windows.md for next step')
     else:
         print_info('Installing crontab job')
         path = os.path.join(os.path.dirname(__file__), 'crontab.sh')
-        os.system('bash \'%s\'' % path)
+        os.system("bash '%s'" % path)
 
 
 def create_dir():

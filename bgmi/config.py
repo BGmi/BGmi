@@ -221,9 +221,6 @@ DOWNLOAD_DELEGATE = 'aria2-rpc'
 # danmaku api url, https://github.com/DIYgod/DPlayer#related-projects
 DANMAKU_API_URL = ''
 
-# bangumi cover url
-COVER_URL = 'https://bangumi.moe'
-
 # language
 LANG = 'zh_cn'
 

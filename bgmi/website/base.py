@@ -7,13 +7,14 @@ import re
 import time
 from collections import defaultdict
 from itertools import chain
+from multiprocessing.pool import ThreadPool
 
-import tqdm
+import requests
 
 from bgmi.config import MAX_PAGE, SAVE_PATH, IS_PYTHON3
-from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, Followed
+from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED
 from bgmi.script import ScriptRunner
-from bgmi.utils import (network, parse_episode, print_warning, print_info,
+from bgmi.utils import (parse_episode, print_warning, print_info,
                         test_connection, normalize_path)
 
 if IS_PYTHON3:
@@ -79,7 +80,9 @@ class BaseWebsite(object):
         if not weekly_list:
             print_warning('warning: no bangumi schedule, fetching ...')
             weekly_list = self.fetch(save=save)
-
+        for key, value in weekly_list.items():
+            for bangumi in value:
+                bangumi['cover'] = self.cover_url + bangumi['cover']
         runner = ScriptRunner()
         patch_list = runner.get_models_dict()
         for i in patch_list:
@@ -90,56 +93,52 @@ class BaseWebsite(object):
             cover_to_be_download = []
             for daily_bangumi in weekly_list.values():
                 for bangumi in daily_bangumi:
-                    followed_obj = Followed(bangumi_name=bangumi['name'])
-                    if followed_obj:
-                        bangumi['status'] = followed_obj.status
-                    _, file_path, _ = self.convert_cover_to_path(bangumi['cover'])
+                    _, file_path = self.convert_cover_to_path(bangumi['cover'])
 
                     if not glob.glob(file_path):
                         cover_to_be_download.append(bangumi['cover'])
 
             if cover_to_be_download:
                 print_info('updating cover')
-                for cover in tqdm.tqdm(cover_to_be_download):
-                    self.download_cover(cover)
+                self.download_cover(cover_to_be_download)
 
         return weekly_list
 
-    def convert_cover_to_path(self, cover_url):
+    def download_cover(self, cover_url_list):
+        """
+
+        :param cover_url_list:
+        :type cover_url_list: list
+        :return:
+        """
+
+        p = ThreadPool(4)
+        content_list = p.map(requests.get, cover_url_list)
+        for index, r in enumerate(content_list):
+            dir_path, file_path = self.convert_cover_to_path(cover_url_list[index])
+            if not glob.glob(dir_path):
+                os.makedirs(dir_path)
+            with open(file_path, 'wb') as f:
+                f.write(r.content)
+        p.close()
+
+    @staticmethod
+    def convert_cover_to_path(cover_url):
         """
         convert bangumi cover to file path
 
         :param cover_url: bangumi cover path
         :type cover_url:str
-        :rtype: str,str,str
-        :return:file_path, dir_path, url
+        :rtype: str,str
+        :return:file_path, dir_path
         """
-        if cover_url.startswith('https://') or cover_url.startswith('http://'):
-            url = cover_url
-        else:
-            url = '{}/{}'.format(self.cover_url, cover_url)
 
         cover_url = normalize_path(cover_url)
         file_path = os.path.join(SAVE_PATH, 'cover')
         file_path = os.path.join(file_path, cover_url)
         dir_path = os.path.dirname(file_path)
 
-        return dir_path, file_path, url
-
-    def download_cover(self, cover_url):
-        """
-        :type cover_url:str
-        :param cover_url:
-        :return: None
-        """
-        dir_path, file_path, url = self.convert_cover_to_path(cover_url)
-
-        if not glob.glob(dir_path):
-            os.makedirs(dir_path)
-        r = network.get(url)
-
-        with open(file_path, 'wb+') as f:
-            f.write(r.content)
+        return dir_path, file_path
 
     def get_maximum_episode(self, bangumi, subtitle=True, ignore_old_row=True, max_page=MAX_PAGE):
         followed_filter_obj = Filter(bangumi_name=bangumi.name)

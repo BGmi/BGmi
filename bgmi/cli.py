@@ -20,7 +20,9 @@ from bgmi.utils import print_success, print_info, print_warning, print_error, GR
 
 
 def source_wrapper(ret):
-    return source(data_source=ret.source)
+    result = source(data_source=ret.source)
+    globals()["print_{}".format(result['status'])](result['message'])
+    return result
 
 
 def config_wrapper(ret):
@@ -58,6 +60,7 @@ def add_wrapper(ret):
     for bangumi_name in ret.name:
         result = add(name=bangumi_name, episode=ret.episode)
         globals()["print_{}".format(result['status'])](result['message'])
+
 
 def list_wrapper(*args):
     result = list_()
@@ -98,7 +101,6 @@ def cal_wrapper(ret):
         num = col - 3
         split = '-' * num + '   '
         print(split * row)
-
 
     for index, weekday in enumerate(weekday_order):
         if weekly_list[weekday.lower()]:
