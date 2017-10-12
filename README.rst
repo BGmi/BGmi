@@ -24,7 +24,7 @@ Feature
 + Use aria2, transmission or xunlei-lixian to download bangumi
 + Web interface to manage bangumi with HTTP API
 + Play bangumi online with danmaku
-+ RSS feed for uTorrent, ICS caldendar for mobile devices
++ RSS feed for uTorrent, ICS calendar for mobile devices
 + Bangumi Script: Write your bangumi parser own!
 + Bangumi calendar / episode information
 + Keyword, subtitle group, regular expression filter for download bangumi
@@ -152,7 +152,7 @@ Unsubscribe bangumi:
     bgmi delete --name "Re:CREATORS"
 
 
-Update bangumi database which locates at ~/.bgmi/bangumi.db defaultly:
+Update bangumi database which locates at ~/.bgmi/bangumi.db acquiescently:
 
 .. code-block:: bash
 
@@ -227,8 +227,8 @@ BGmi configure:
 
 Aria2-rpc configure:
 
-+ :code:`ARIA2_RPC_URL`: aria2c deamon RPC url
-+ :code:`ARIA2_RPC_TOKEN`: aria2c deamon RPC token("token:" for no token)
++ :code:`ARIA2_RPC_URL`: aria2c daemon RPC url
++ :code:`ARIA2_RPC_TOKEN`: aria2c daemon RPC token("token:" for no token)
 
 Xunlei configure:
 
@@ -243,6 +243,12 @@ Transmission-rpc configure:
 ==================
 Usage of bgmi_http
 ==================
+
+Download all bangumi cover:
+
+.. code-block:: bash
+
+    bgmi cal --download-cover
 
 Start BGmi HTTP Service bind on :code:`0.0.0.0:8888`:
 
