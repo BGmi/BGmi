@@ -7,8 +7,8 @@ from bgmi.config import write_config
 from bgmi.constants import SUPPORT_WEBSITE
 from bgmi.download import download_prepare
 from bgmi.fetch import website
-from bgmi.models import Bangumi, Filter, Subtitle, Download, \
-    STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NOT_DOWNLOAD, FOLLOWED_STATUS
+from bgmi.models import (Bangumi, Filter, Subtitle, Download,
+                         STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NOT_DOWNLOAD, FOLLOWED_STATUS)
 from bgmi.models import Followed
 from bgmi.models import (STATUS_NORMAL, DB)
 from bgmi.script import ScriptRunner
@@ -69,7 +69,7 @@ def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
 
     if not followed_obj:
         result['status'] = 'error'
-        result['message'] = 'Bangumi {name} has not subscribed, try \'bgmi add "{name}"\'.'\
+        result['message'] = 'Bangumi {name} has not subscribed, try \'bgmi add "{name}"\'.' \
             .format(name=bangumi_obj.name)
         return result
 
@@ -84,7 +84,7 @@ def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
         subtitle = map(lambda s: s['id'], Subtitle.get_subtitle_by_name(subtitle))
         subtitle_list = [s.split('.')[0] for s in bangumi_obj.subtitle_group.split(', ') if '.' in s]
         subtitle_list.extend(bangumi_obj.subtitle_group.split(', '))
-        subtitle = filter(lambda s: True if s in subtitle_list else False, subtitle)
+        subtitle = filter(lambda s: s in subtitle_list, subtitle)
         subtitle = ', '.join(subtitle)
         followed_filter_obj.subtitle = subtitle
 
@@ -99,7 +99,7 @@ def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
 
     followed_filter_obj.save()
     subtitle_list = list(map(lambda s: s['name'], Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', '))))
-    print_info('Usable subtitle group: {0}'.format(', '.join(subtitle_list)) if subtitle_list else 'None')
+    print_info('Usable subtitle group: {0}'.format(', '.join(subtitle_list) if subtitle_list else 'None'))
 
     print_filter(followed_filter_obj)
     result['data'] = {
@@ -413,4 +413,3 @@ def fetch_(ret):
             print_success(i['title'])
     else:
         print_error('Bangumi {0} not exist'.format(ret.name))
-

@@ -42,13 +42,17 @@ DOWNLOAD_DELEGATE_MAP = {
     'transmission-rpc': __transmission__,
 }
 
-# --------- Immutable ---------- #
-if platform.system() == 'Windows':
-    BGMI_PATH = os.path.join(os.environ.get('USERPROFILE', None), '.bgmi')
-    if not BGMI_PATH:
-        raise SystemExit
+
+if not os.environ.get('BGMI_PATH'):
+    if platform.system() == 'Windows':
+        BGMI_PATH = os.path.join(os.environ.get('USERPROFILE', None), '.bgmi')
+        if not BGMI_PATH:
+            raise SystemExit
+    else:
+        BGMI_PATH = os.path.join(os.environ.get('HOME', '/tmp'), '.bgmi')
 else:
-    BGMI_PATH = os.path.join(os.environ.get('HOME', '/tmp'), '.bgmi')
+    BGMI_PATH = os.environ.get('BGMI_PATH')
+
 
 DB_PATH = os.path.join(BGMI_PATH, 'bangumi.db')
 CONFIG_FILE_PATH = os.path.join(BGMI_PATH, 'bgmi.cfg')
@@ -250,3 +254,5 @@ read_config()
 IS_PYTHON3 = sys.version_info > (3, 0)
 
 # Detail URL
+# platform
+IS_WINDOWS = platform.system() == 'Windows'

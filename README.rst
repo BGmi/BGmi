@@ -5,49 +5,41 @@ BGmi is a cli tool for subscribed bangumi.
 |pypi|
 |travis|
 |coverage|
+|license|
 
 ====
 TODO
 ====
-Empty as my wallet.
+Nothing here
 
 ==========
 Update Log
 ==========
 + Fully new frontend
-+ Web page admin to config BGmi
-+ Web page admin to add and delete bangumi
-+ HTTP Api
-+ Store bangumi cover image locally
-+ Bangumi script support
-+ Action source to select bangumi date source
-+ Search / Download bangumi filter by regex
-+ Download specified episode
-+ Transmission-rpc support
 
 =======
 Feature
 =======
-+ Web page to subscribe bangumi
-+ Bangumi Script: Write your bangumi parser own!
-+ Bangumi data source: `bangumi_moe(default) <https://bangumi.moe>`_ or `mikan_project <https://mikanani.me>`_
-+ Subscribe/unsubscribe bangumi
-+ Bangumi calendar
-+ Bangumi episode information
-+ Download bangumi by subtitle group
-+ Web page to view all subscribed bangumi
-+ RSS feed for uTorrent
++ Multi data sources supported: `bangumi_moe <https://bangumi.moe>`_, `mikan_project <https://mikanani.me>`_ or `dmhy <https://share.dmhy.org/>`_
++ Use aria2, transmission or xunlei-lixian to download bangumi
++ Web interface to manage bangumi with HTTP API
 + Play bangumi online with danmaku
-+ Download bangumi by specified keywords (included and excluded).
-+ **BGmi have supported Windows now**
++ RSS feed for uTorrent, ICS caldendar for mobile devices
++ Bangumi Script: Write your bangumi parser own!
++ Bangumi calendar / episode information
++ Keyword, subtitle group, regular expression filter for download bangumi
++ Windows, Linux and Router system supported, BGmi everywhere
 
-.. image:: ./images/bgmi.png?raw=true
+.. image:: ./images/bgmi_cli.png?raw=true
     :alt: BGmi
     :align: center
 .. image:: ./images/bgmi_http.png?raw=true
     :alt: BGmi HTTP Service
     :align: center
 .. image:: ./images/bgmi_player.png?raw=true
+    :alt: BGmi HTTP Service
+    :align: center
+.. image:: ./images/bgmi_admin.png?raw=true
     :alt: BGmi HTTP Service
     :align: center
 
@@ -68,11 +60,15 @@ Or use pip:
 
     pip install bgmi
 
+Install BGmi web interface:
+
 .. code-block:: bash
 
-    bgmi install # install BGmi-frontend
+    bgmi install
 
-
+======
+Docker
+======
 Build Docker:
 
 .. code-block:: bash
@@ -80,7 +76,7 @@ Build Docker:
     git clone https://github.com/BGmi/BGmi
     cd BGmi
     docker build -t bgmi .
-    docker run -p8899:80 -d -v ~/.bgmi:/root/.bgmi bgmi
+    docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi bgmi
 
 You can use bgmi command at client to add / remove bangumi, get into the docker container to manage bangumi.
 
@@ -89,7 +85,18 @@ Or just:
 .. code-block:: bash
 
     docker pull ricterz/bgmi
+    docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi ricterz/bgmi
 
+Configure BGmi docker:
+
+.. code-block:: bash
+
+    # bgmi config ARIA2_RPC_TOKEN token:TOKEN_OF_ARIA2_RPC
+    # docker exec -it <CONTAINER ID> ln -s ~/.bgmi/ /bgmi
+    # docker exec -it <CONTAINER ID> bash -c 'echo rpc-secret=token:TOKEN_OF_ARIA2_RPC >> /root/aria2c.conf'
+    # docker exec -it <CONTAINER ID> supervisorctl
+    supervisor> restart bgmi:aria2c
+    supervisor> quit
 
 =============
 Usage of bgmi
@@ -103,20 +110,24 @@ bangumi you have downloaded will still store on the disk, but won't show on webs
 
 + `bangumi_moe(default) <https://bangumi.moe>`_
 + `mikan_project <https://mikanani.me>`_
-+ `dmhy <http://share.dmhy.org>`_
++ `dmhy <https://share.dmhy.org/>`_
 
-change to mikan by doing this
+Setup custom BGMI_PATH:
+
+.. code-block:: bash
+    BGMI_PATH=/bgmi bgmi -h
+
+Or add this code to your .bashrc file:
+
+.. code-block:: bash
+
+    alias bgmi='BGMI_PATH=/tmp bgmi'
+
+Change to mikan_project data source:
 
 .. code-block:: bash
 
     bgmi source mikan_project
-    bgmi cal
-
-or change back:
-
-.. code-block:: bash
-
-    bgmi source bangumi_moe
     bgmi cal
 
 Show bangumi calendar:
@@ -229,6 +240,82 @@ Transmission-rpc configure:
 + :code:`TRANSMISSION_RPC_PORT`: transmission rpc port
 
 
+==================
+Usage of bgmi_http
+==================
+
+Start BGmi HTTP Service bind on :code:`0.0.0.0:8888`:
+
+.. code-block:: bash
+
+    bgmi_http --port=8888 --address=0.0.0.0
+
+Configure tornado with nginx:
+
+.. code-block:: bash
+
+    server {
+        listen 80;
+        server_name bgmi;
+
+        root /path/to/bgmi;
+        autoindex on;
+        charset utf-8;
+
+        location /bangumi {
+            # ~/.bgmi/bangumi
+            alias /path/to/bangumi;
+        }
+
+        location /api {
+            proxy_pass http://127.0.0.1:8888;
+        }
+
+        location /resource {
+            proxy_pass http://127.0.0.1:8888;
+        }
+
+        location / {
+            # ~/.bgmi/front_static/;
+            alias /path/to/front_static/;
+        }
+
+    }
+
+Of cause you can use `yaaw <https://github.com/binux/yaaw/>`_ to manage download items if you use aria2c to download bangumi.
+
+.. code-block:: bash
+
+    ...
+    location /yaaw {
+        alias /path/to/yaaw;
+    }
+
+    location /jsonrpc {
+        # aria2c rpc
+        proxy_pass http://127.0.0.1:6800;
+    }
+    ...
+
+Example file: `bgmi.conf <https://github.com/BGmi/BGmi/blob/dev/bgmi.conf>`_
+
+===================
+DPlayer and Danmaku
+===================
+
+BGmi use `DPlayer <https://github.com/DIYgod/DPlayer>`_ to play bangumi.
+
+First, setup nginx to access bangumi files.
+Second, choose one danmaku backend at `DPlayer#related-projects <https://github.com/DIYgod/DPlayer#related-projects>`_.
+
+Use `bgmi config` to setup the url of danmaku api.
+
+.. code-block:: bash
+
+    bgmi config DANMAKU_API_URL http://127.0.0.1:1207/
+
+... and enjoy :D
+
 ==============
 Bangumi Script
 ==============
@@ -239,7 +326,7 @@ BGmi will load the script and call the method you write before the native functi
 Bangumi Script Runner will catch the data you returned, update the database, and download the bangumi.
 You only just write the parser and return the data.
 
-Bangumi Script is located at :code:`BGMI_PATH/script`, inherited :code:`ScriptBase` class. There is a example:
+Bangumi Script is located at :code:`BGMI_PATH/script`, inherited :code:`ScriptBase` class. There is an example:
 
 .. code-block:: python
 
@@ -365,83 +452,113 @@ The returned dict as follows.
 
 The keys `1`, `2`, `3` is the episode, the value is the url of bangumi.
 
-==================
-Usage of bgmi_http
-==================
+================
+BGmi Data Source
+================
+You can easily add your own BGmi data source by extending BGmi website base class and implement all the method.
 
-Start BGmi HTTP Service bind on :code:`0.0.0.0:8888`:
+.. code-block:: python
 
-.. code-block:: bash
+    class DataSource(bgmi.website.base.BaseWebsite)
 
-    bgmi_http --port=8888 --address=0.0.0.0
+        def search_by_keyword(self, keyword, count):
+            """
+            return a list of dict with at least 4 key: download, name, title, episode
+            example:
+            ```
+                [
+                    {
+                        'name':"路人女主的养成方法",
+                        'download': 'magnet:?xt=urn:btih:what ever',
+                        'title': "[澄空学园] 路人女主的养成方法 第12话 MP4 720p  完",
+                        'episode': 12
+                    },
+                ]
 
-Configure tornado with nginx:
+            :param keyword: search key word
+            :type keyword: str
+            :param count: how many page to fetch from website
+            :type count: int
 
-.. code-block:: bash
+            :return: list of episode search result
+            :rtype: list[dict]
+            """
+            raise NotImplementedError
 
-    server {
-        listen 80;
-        root /var/www/html/bangumi;
-        autoindex on;
-        charset utf8;
-        server_name bangumi.example.com;
+        def fetch_bangumi_calendar_and_subtitle_group(self):
+            """
+            return a list of all bangumi and a list of all subtitle group
 
-        location /bangumi {
-            # alias to BGMI_SAVE_PATH
-            alias /var/www/html/bangumi;
-        }
+            list of bangumi dict:
+            update time should be one of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+            example:
+            ```
+                [
+                    {
+                        "status": 0,
+                        "subtitle_group": [
+                            "123",
+                            "456"
+                        ],
+                        "name": "名侦探柯南",
+                        "keyword": "1234", #bangumi id
+                        "update_time": "Sat",
+                        "cover": "data/images/cover1.jpg"
+                    },
+                ]
+            ```
 
-        location /admin {
-            # alias to BGMI_ADMIN_PATH
-            alias /var/www/html/admin;
-        }
+            list of subtitle group dict:
+            example:
+            ```
+                [
+                    {
+                        'id': '233',
+                        'name': 'bgmi字幕组'
+                    }
+                ]
+            ```
 
-        location / {
-            # reverse proxy to tornado listened port.
-            proxy_pass http://127.0.0.1:8888;
-        }
-    }
 
-Of cause you can use `yaaw <https://github.com/binux/yaaw/>`_ to manage download items if you use aria2c to download bangumi.
+            :return: list of bangumi, list of subtitile group
+            :rtype: (list[dict], list[dict])
+            """
+            raise NotImplementedError
 
-.. code-block:: bash
+        def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
+            """
+            get all episode by bangumi id
+            example
+            ```
+                [
+                    {
+                        "download": "magnet:?xt=urn:btih:e43b3b6b53dd9fd6af1199e112d3c7ff15cab82c",
+                        "name": "来自深渊",
+                        "subtitle_group": "58a9c1c9f5dc363606ab42ec",
+                        "title": "【喵萌奶茶屋】★七月新番★[来自深渊/Made in Abyss][07][GB][720P]",
+                        "episode": 0,
+                        "time": 1503301292
+                    },
+                ]
+            ```
 
-    ...
-    location /bgmi_admin {
-        auth_basic "BGmi admin (yaaw)";
-        auth_basic_user_file /etc/nginx/htpasswd;
-        alias /var/www/html/yaaw;
-    }
+            :param bangumi_id: bangumi_id
+            :param subtitle_list: list of subtitle group
+            :type subtitle_list: list
+            :param max_page: how many page you want to crawl if there is no subtitle list
+            :type max_page: int
+            :return: list of bangumi
+            :rtype: list[dict]
+            """
+            raise NotImplementedError
 
-    location /jsonrpc {
-        # aria2c listened port
-        proxy_pass http://127.0.0.1:6800;
-    }
-    ...
-
-===================
-DPlayer and Danmaku
-===================
-
-BGmi use `DPlayer <https://github.com/DIYgod/DPlayer>`_ to play bangumi.
-
-First, setup nginx to access bangumi files.
-Second, choose one danmaku backend at `DPlayer#related-projects <https://github.com/DIYgod/DPlayer#related-projects>`_.
-
-Use `bgmi config` to setup the url of danmaku api.
-
-.. code-block:: bash
-
-    bgmi config DANMAKU_API_URL http://127.0.0.1:1207/
-
-... and enjoy :D
 
 =======
 License
 =======
 The MIT License (MIT)
 
-Copyright (c) 2017 Ricter Zheng
+Copyright (c) 2017 BGmi Developer Team (https://github.com/BGmi)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -469,4 +586,7 @@ SOFTWARE.
    :target: https://travis-ci.org/BGmi/BGmi
 
 .. |coverage| image:: https://codecov.io/gh/BGmi/BGmi/branch/master/graph/badge.svg
-  :target: https://codecov.io/gh/BGmi/BGmi
+   :target: https://codecov.io/gh/BGmi/BGmi
+
+.. |license| image:: https://img.shields.io/badge/License-MIT-blue.svg
+   :target: https://github.com/BGmi/BGmi/blob/master/LICENSE

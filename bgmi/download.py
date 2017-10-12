@@ -1,6 +1,7 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 
+import glob
 import os
 
 from bgmi.config import SAVE_PATH, DOWNLOAD_DELEGATE
@@ -43,6 +44,8 @@ def download_prepare(data):
     queue = save_to_bangumi_download_queue(data)
     for download in queue:
         save_path = os.path.join(os.path.join(SAVE_PATH, download.name), str(download.episode))
+        if not glob.glob(save_path):
+            os.makedirs(save_path)
         # mark as downloading
         download.status = STATUS_DOWNLOADING
         download.save()
