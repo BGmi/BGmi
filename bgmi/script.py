@@ -128,7 +128,8 @@ class ScriptBase(object):
 
         def __init__(self):
             if self.bangumi_name is not None:
-                s, _ = Scripts.get_or_create(bangumi_name=self.bangumi_name, episode=0, status=STATUS_FOLLOWED)
+                s, _ = Scripts.get_or_create(bangumi_name=self.bangumi_name,
+                                             defaults={'episode': 0, 'status': STATUS_FOLLOWED})
                 self.obj = s
 
         def __iter__(self):
