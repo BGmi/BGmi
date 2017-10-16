@@ -27,32 +27,28 @@ def add(name, episode=None):
 
     bangumi_obj = Bangumi(name=name)
     data = bangumi_obj.select(one=True, fields=['id', 'name', 'keyword'])
-    if data:
-        followed_obj = Followed(bangumi_name=data['name'], status=STATUS_FOLLOWED)
-        followed_obj.select_obj()
-        if not followed_obj or followed_obj.status == STATUS_NORMAL:
-            if not followed_obj:
-                bangumi_data, _ = website.get_maximum_episode(bangumi_obj, subtitle=False, max_page=1)
-                followed_obj.episode = bangumi_data['episode'] if episode is None else episode
-                followed_obj.save()
-            else:
-                followed_obj.status = STATUS_FOLLOWED
-                followed_obj.save()
-            result = {'status': 'success', 'message': '{0} has been followed'.format(bangumi_obj)}
+
+    # no bangumi found
+    if not data:
+        return {'status': 'error',
+                'message': '{0} not found, please check the name'.format(name)}
+
+    followed_obj = Followed(bangumi_name=data['name'], status=STATUS_FOLLOWED)
+    followed_obj.select_obj()
+    Filter.get_or_create(bangumi_name=name)
+    if not followed_obj or followed_obj.status == STATUS_NORMAL:
+        if not followed_obj:
+            bangumi_data, _ = website.get_maximum_episode(bangumi_obj, subtitle=False, max_page=1)
+            followed_obj.episode = bangumi_data['episode'] if episode is None else episode
+            followed_obj.save()
         else:
-            result = {'status': 'warning', 'message': '{0} already followed'.format(bangumi_obj)}
+            followed_obj.status = STATUS_FOLLOWED
+            followed_obj.save()
+        result = {'status': 'success', 'message': '{0} has been followed'.format(bangumi_obj)}
     else:
-        result = {'status': 'error',
-                  'message': '{0} not found, please check the name'.format(name)}
+        result = {'status': 'warning', 'message': '{0} already followed'.format(bangumi_obj)}
+
     return result
-
-
-def print_filter(followed_filter_obj):
-    print_info('Followed subtitle group: {0}'.format(', '.join(map(lambda s: s['name'], Subtitle.get_subtitle(
-        followed_filter_obj.subtitle.split(', ')))) if followed_filter_obj.subtitle else 'None'))
-    print_info('Include keywords: {0}'.format(followed_filter_obj.include))
-    print_info('Exclude keywords: {0}'.format(followed_filter_obj.exclude))
-    print_info('Regular expression: {0}'.format(followed_filter_obj.regex))
 
 
 def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
@@ -73,15 +69,14 @@ def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
             .format(name=bangumi_obj.name)
         return result
 
-    followed_filter_obj = Filter(bangumi_name=name)
-    followed_filter_obj.select_obj()
+    followed_filter_obj = Filter.get(bangumi_name=name)
 
     if not followed_filter_obj:
         followed_filter_obj.save()
 
     if subtitle is not None:
-        subtitle = map(lambda s: s.strip(), subtitle.split(','))
-        subtitle = map(lambda s: s['id'], Subtitle.get_subtitle_by_name(subtitle))
+        subtitle = [s.strip() for s in subtitle.split(',')]
+        subtitle = [s['id'] for s in Subtitle.get_subtitle_by_name(subtitle)]
         subtitle_list = [s.split('.')[0] for s in bangumi_obj.subtitle_group.split(', ') if '.' in s]
         subtitle_list.extend(bangumi_obj.subtitle_group.split(', '))
         subtitle = filter(lambda s: s in subtitle_list, subtitle)
@@ -98,16 +93,13 @@ def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
         followed_filter_obj.regex = regex
 
     followed_filter_obj.save()
-    subtitle_list = list(map(lambda s: s['name'], Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', '))))
-    print_info('Usable subtitle group: {0}'.format(', '.join(subtitle_list) if subtitle_list else 'None'))
+    subtitle_list = list(map(lambda s: s['name'],
+                             Subtitle.get_subtitle_by_id(bangumi_obj.subtitle_group.split(', '))))
 
-    print_filter(followed_filter_obj)
     result['data'] = {
         'name': name,
-        'subtitle_group': list(map(
-            lambda s: s['name'],
-            Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', ')))),
-        'followed': list(map(lambda s: s['name'], Subtitle.get_subtitle(followed_filter_obj.subtitle.split(', ')))
+        'subtitle_group': subtitle_list,
+        'followed': list(map(lambda s: s['name'], Subtitle.get_subtitle_by_id(followed_filter_obj.subtitle.split(', ')))
                          if followed_filter_obj.subtitle else []),
         'include': followed_filter_obj.include,
         'exclude': followed_filter_obj.exclude,
@@ -268,7 +260,7 @@ def update(name, download=None, not_ignore=False):
 
     for script in ScriptRunner().scripts:
         obj = script.Model().obj
-        if obj['updated_time'] and int(obj['updated_time'] + 86400) < now:
+        if obj.updated_time and int(obj.updated_time + 86400) < now:
             obj.status = STATUS_FOLLOWED
             obj.save()
 
@@ -392,24 +384,3 @@ def list_():
     return result
 
 
-def fetch_(ret):
-    bangumi_obj = Bangumi(name=ret.name)
-    bangumi_obj.select_obj()
-
-    followed_obj = Followed(bangumi_name=bangumi_obj.name)
-    followed_obj.select_obj()
-
-    followed_filter_obj = Filter(bangumi_name=ret.name)
-    followed_filter_obj.select_obj()
-    print_filter(followed_filter_obj)
-
-    if bangumi_obj:
-        print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
-        _, data = website.get_maximum_episode(bangumi_obj,
-                                              ignore_old_row=False if ret.not_ignore else True)
-        if not data:
-            print_warning('Nothing.')
-        for i in data:
-            print_success(i['title'])
-    else:
-        print_error('Bangumi {0} not exist'.format(ret.name))

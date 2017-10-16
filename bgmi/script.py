@@ -10,7 +10,7 @@ import traceback
 from bgmi.config import SCRIPT_PATH
 from bgmi.download import download_prepare
 from bgmi.models import STATUS_UPDATED, STATUS_FOLLOWED
-from bgmi.models import Script
+from bgmi.models import Scripts
 from bgmi.utils import print_success, print_warning, print_info
 
 
@@ -36,8 +36,8 @@ class ScriptRunner(object):
                     print_warning('Load script {} failed, ignored'.format(i))
                     if os.getenv('DEBUG_SCRIPT'):
                         traceback.print_exc()
-                    # self.scripts = filter(self._check_followed, self.scripts)
-                    # self.scripts = filter(self._check_bangumi, self.scripts)
+                        # self.scripts = filter(self._check_followed, self.scripts)
+                        # self.scripts = filter(self._check_bangumi, self.scripts)
 
             cls._defined = super(ScriptRunner, cls).__new__(cls, *args, **kwargs)
 
@@ -119,7 +119,6 @@ class ScriptRunner(object):
 
 
 class ScriptBase(object):
-
     class Model(object):
         obj = None
         bangumi_name = None
@@ -129,10 +128,8 @@ class ScriptBase(object):
 
         def __init__(self):
             if self.bangumi_name is not None:
-                s = Script(bangumi_name=self.bangumi_name, episode=0, status=STATUS_FOLLOWED)
-                s.select_obj()
-                if not s:
-                    s.save()
+                s, _ = Scripts.get_or_create(bangumi_name=self.bangumi_name,
+                                             defaults={'episode': 0, 'status': STATUS_FOLLOWED})
                 self.obj = s
 
         def __iter__(self):
@@ -141,10 +138,10 @@ class ScriptBase(object):
 
             # patch for cal
             yield ('name', self.bangumi_name)
-            yield ('status', self.obj['status'])
-            yield ('updated_time', self.obj['updated_time'])
+            yield ('status', self.obj.status)
+            yield ('updated_time', self.obj.updated_time)
             yield ('subtitle_group', '')
-            yield ('episode', self.obj['episode'])
+            yield ('episode', self.obj.episode)
 
     @property
     def name(self):

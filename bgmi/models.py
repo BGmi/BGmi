@@ -6,6 +6,9 @@ import sqlite3
 import sys
 from collections import defaultdict
 
+import peewee
+from peewee import *
+
 import bgmi.config
 from bgmi.config import IS_PYTHON3
 from bgmi.sql import (CLEAR_TABLE_)
@@ -32,6 +35,8 @@ STATUS_NOT_DOWNLOAD = 0
 STATUS_DOWNLOADING = 1
 STATUS_DOWNLOADED = 2
 DOWNLOAD_STATUS = (STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, STATUS_DOWNLOADED)
+
+db = peewee.SqliteDatabase(bgmi.config.DB_PATH)
 
 
 def make_dicts(cursor, row):
@@ -275,7 +280,8 @@ class DB(object):
         if condition is None:
             if self._id is None:
                 if self.primary_key:
-                    k, v = self.primary_key, [self.__dict__.get(i, '') for i in self.primary_key]
+                    k = self.primary_key
+                    v = [self.__dict__.get(i, '') for i in self.primary_key]
                 else:
                     k = []
                     v = []
@@ -284,7 +290,8 @@ class DB(object):
                             k.append(i)
                             v.append(self.__dict__.get(i))
             else:
-                k, v = '%s.id' % self.table, (self._id,)
+                k = '%s.id' % self.table
+                v = (self._id,)
         else:
             # hack for python3
             k, v = list(condition.keys()), list(condition.values())
@@ -292,11 +299,16 @@ class DB(object):
         self._connect_db()
         sql = Bangumi._make_sql('select', fields=fields, table=self.table, condition=k, join=join)
         self.cursor.execute(sql, v)
-        ret = self.cursor.fetchall() if not one else self.cursor.fetchone()
+
+        ret = self.cursor.fetchone() if one else self.cursor.fetchall()
+
         self._close_db()
 
-        if self._id is None and ret and one and 'id' in ret:
-            self._id = ret['id']
+        if self._id is None:
+            if ret:
+                if one:
+                    if 'id' in ret:
+                        self._id = ret['id']
 
         if not isinstance(ret, (list, type(None))):
             for i in self.fields:
@@ -380,12 +392,6 @@ class Bangumi(DB):
         self._unicodeize()
         self.select(one=True)
 
-    def __repr__(self):
-        return 'Bangumi<%s>' % self.name
-
-    def __str__(self):
-        return 'Bangumi<%s>' % self.name
-
     @staticmethod
     def delete_all():
         db = Bangumi.connect_db()
@@ -423,6 +429,12 @@ class Bangumi(DB):
             weekly_list = data
 
         return weekly_list
+
+    def __repr__(self):
+        return 'Bangumi<%s>' % self.name
+
+    def __str__(self):
+        return 'Bangumi<%s>' % self.name
 
 
 class Followed(DB):
@@ -511,62 +523,79 @@ class Download(DB):
         self.save()
 
 
-class Filter(DB):
-    table = 'filter'
-    primary_key = ('bangumi_name',)
-    fields = ('bangumi_name', 'subtitle', 'include', 'exclude', 'regex',)
+script_db = peewee.SqliteDatabase(bgmi.config.SCRIPT_DB_PATH)
 
 
-class Subtitle(DB):
-    table = 'subtitle'
-    primary_key = ('id',)
-    fields = ('id', 'name',)
+class NeoDB(Model):
+    class Meta:
+        database = db
 
-    @staticmethod
-    def get_subtitle(l=None):
-        l = list(l)
-        db = DB.connect_db()
-        db.row_factory = make_dicts
-        cur = db.cursor()
-        sql = DB._make_sql('select', fields=['name', 'id'], table=Subtitle.table,
-                           condition=['id'] * len(l), operation='OR')
-        cur.execute(sql, l)
-        data = cur.fetchall()
-        DB.close_db(db)
+
+class NeoFollowed(NeoDB):
+    id = IntegerField(primary_key=True)
+    bangumi_name = TextField(null=False)
+    episode = IntegerField(default=0)
+    status = IntegerField(default=0)
+    updated_time = IntegerField(default=0)
+
+
+class Scripts(peewee.Model):
+    id = IntegerField(primary_key=True)
+    bangumi_name = TextField(null=False, unique=True)
+    episode = IntegerField(default=0)
+    status = IntegerField(default=0)
+    updated_time = IntegerField(default=0)
+
+    class Meta:
+        database = script_db
+
+
+class NeoDownload(NeoDB):
+    id = IntegerField(primary_key=True)
+    name = TextField(null=False)
+    title = TextField(null=False)
+    episode = IntegerField(default=0)
+    download = TextField()
+    status = IntegerField(default=0)
+    # add_time
+    # end_time
+
+
+class Filter(NeoDB):
+    id = IntegerField(primary_key=True)
+    bangumi_name = TextField(unique=True)
+    subtitle = TextField()
+    include = TextField()
+    exclude = TextField()
+    regex = TextField()
+
+
+class Subtitle(NeoDB):
+    id = TextField(primary_key=True, unique=True)
+    name = TextField()
+
+    @classmethod
+    def get_subtitle_by_id(cls, l=None):
+        data = list(cls.select().where(cls.id.in_(l)))
+        for index, subtitle in enumerate(data):
+            data[index] = subtitle.__dict__['_data']
         return data
 
-    @staticmethod
-    def get_subtitle_by_name(l=None):
-        l = list(l)
-        db = DB.connect_db()
-        db.row_factory = make_dicts
-        cur = db.cursor()
-        sql = DB._make_sql('select', fields='id', table=Subtitle.table,
-                           condition=['name'] * len(l), operation='OR')
-        cur.execute(sql, l)
-        data = cur.fetchall()
-        DB.close_db(db)
-        return data
-
-    @staticmethod
-    def get_subtitle_by_id(l=None):
-        l = list(l)
-        db = DB.connect_db()
-        db.row_factory = make_dicts
-        cur = db.cursor()
-        sql = DB._make_sql('select', fields=['name', 'id'], table=Subtitle.table,
-                           condition=['id'] * len(l), operation='OR')
-        cur.execute(sql, l)
-        data = cur.fetchall()
-        DB.close_db(db)
+    @classmethod
+    def get_subtitle_by_name(cls, l=None):
+        data = list(cls.select().where(cls.name.in_(l)))
+        for index, subtitle in enumerate(data):
+            data[index] = subtitle.__dict__['_data']
         return data
 
 
-class Script(DB):
-    db_path = bgmi.config.SCRIPT_DB_PATH
-    table = 'scripts'
-    primary_key = ('bangumi_name',)
-    fields = ('bangumi_name', 'episode', 'status', 'updated_time',)
+def init_db():
+    """
+    初始化数据库
+    :return:
+    """
 
-    def __str__(self):
-        return 'Script Model <%s>' % self.bangumi_name
+    db.create_tables([NeoFollowed, Bangumi, NeoDownload, Filter, Subtitle])
+    script_db.connect()
+    script_db.create_tables([NeoScripts, ])
+    script_db.close()

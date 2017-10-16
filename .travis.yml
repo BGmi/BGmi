@@ -37,7 +37,6 @@ script:
     - coverage run -a -m bgmi.main delete --clear-all --batch
     - coverage run -a -m bgmi.main add $BANGUMI_2 --episode 1
     - coverage run -a -m bgmi.main fetch $BANGUMI_2
-    # give server some time to start
     - coverage run -a -m unittest tests.test_http_api
     - coverage run -a -m bgmi.main list
     - coverage run -a -m bgmi.main download --list

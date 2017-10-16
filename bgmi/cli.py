@@ -12,12 +12,14 @@ from bgmi.constants import (ACTION_ADD, ACTION_SOURCE, ACTION_DOWNLOAD, ACTION_C
                             DOWNLOAD_CHOICE_LIST_DICT,
                             SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS)
 from bgmi.controllers import (filter_, source,
-                              mark, delete, add, search, update, fetch_, list_)
+                              mark, delete, add, search, update, list_)
 from bgmi.download import download_prepare, get_download_class
 from bgmi.fetch import website
-from bgmi.models import STATUS_FOLLOWED, Bangumi, STATUS_UPDATED, Download
-from bgmi.utils import (print_success, print_info, print_warning, print_error, GREEN, COLOR_END, get_terminal_col,
+from bgmi.models import Bangumi, Followed, Filter, Subtitle
+from bgmi.models import STATUS_FOLLOWED, STATUS_UPDATED, Download
+from bgmi.utils import (GREEN, COLOR_END, get_terminal_col,
                         YELLOW)
+from bgmi.utils import print_info, print_warning, print_success, print_error
 
 
 def source_wrapper(ret):
@@ -150,7 +152,10 @@ def filter_wrapper(ret):
                      regex=ret.regex)
     if 'data' not in result:
         globals()["print_{}".format(result['status'])](result['message'])
-
+    else:
+        print_info('Usable subtitle group: {0}'.format(', '.join(result['data']['subtitle_group'])))
+        followed_filter_obj = Filter.get(bangumi_name=ret.name)
+        print_filter(followed_filter_obj)
     return result['data']
 
 
@@ -181,6 +186,29 @@ def download_manager(ret):
         delegate.download_status(status=status)
 
 
+def fetch_(ret):
+    bangumi_obj = Bangumi(name=ret.name)
+    bangumi_obj.select_obj()
+
+    followed_obj = Followed(bangumi_name=bangumi_obj.name)
+    followed_obj.select_obj()
+
+    followed_filter_obj = Filter.get(bangumi_name=ret.name)
+    # followed_filter_obj.select_obj()
+    print_filter(followed_filter_obj)
+
+    if bangumi_obj:
+        print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
+        _, data = website.get_maximum_episode(bangumi_obj,
+                                              ignore_old_row=False if ret.not_ignore else True)
+        if not data:
+            print_warning('Nothing.')
+        for i in data:
+            print_success(i['title'])
+    else:
+        print_error('Bangumi {0} not exist'.format(ret.name))
+
+
 CONTROLLERS_DICT = {
     ACTION_ADD: add_wrapper,
     ACTION_SOURCE: source_wrapper,
@@ -203,3 +231,11 @@ def controllers(ret):
         return
     else:
         return func(ret)
+
+
+def print_filter(followed_filter_obj):
+    print_info('Followed subtitle group: {0}'.format(', '.join(map(lambda s: s['name'], Subtitle.get_subtitle_by_id(
+        followed_filter_obj.subtitle.split(', ')))) if followed_filter_obj.subtitle else 'None'))
+    print_info('Include keywords: {0}'.format(followed_filter_obj.include))
+    print_info('Exclude keywords: {0}'.format(followed_filter_obj.exclude))
+    print_info('Regular expression: {0}'.format(followed_filter_obj.regex))
