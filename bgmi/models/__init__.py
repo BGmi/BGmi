@@ -575,14 +575,14 @@ class Download(DB):
 #         return data
 
 
-class Script(DB):
-    db_path = bgmi.config.SCRIPT_DB_PATH
-    table = 'scripts'
-    primary_key = ('bangumi_name',)
-    fields = ('bangumi_name', 'episode', 'status', 'updated_time',)
-
-    def __str__(self):
-        return 'Script Model <%s>' % self.bangumi_name
+# class Script(DB):
+#     db_path = bgmi.config.SCRIPT_DB_PATH
+#     table = 'scripts'
+#     primary_key = ('bangumi_name',)
+#     fields = ('bangumi_name', 'episode', 'status', 'updated_time',)
+#
+#     def __str__(self):
+#         return 'Script Model <%s>' % self.bangumi_name
 
 
 script_db = peewee.SqliteDatabase(bgmi.config.SCRIPT_DB_PATH)
@@ -601,10 +601,12 @@ class NeoFollowed(NeoDB):
     updated_time = IntegerField(default=0)
 
 
-class NeoScripts(peewee.Model):
-    name = TextField()
-    birthday = TextField()
-    is_relative = BooleanField()
+class Scripts(peewee.Model):
+    id = IntegerField(primary_key=True)
+    bangumi_name = TextField(null=False, unique=True)
+    episode = IntegerField(default=0)
+    status = IntegerField(default=0)
+    updated_time = IntegerField(default=0)
 
     class Meta:
         database = script_db
@@ -635,7 +637,7 @@ class Subtitle(NeoDB):
     name = TextField()
 
     @classmethod
-    def get_subtitle(cls, l=None):
+    def get_subtitle_by_id(cls, l=None):
         l = list(l)
         db = DB.connect_db()
         db.row_factory = make_dicts
@@ -654,19 +656,6 @@ class Subtitle(NeoDB):
         data = list(cls.select().where(cls.name.in_(l)))
         for index, subtitle in enumerate(data):
             data[index] = subtitle.__dict__['_data']
-        return data
-
-    @staticmethod
-    def get_subtitle_by_id(l=None):
-        l = list(l)
-        db = DB.connect_db()
-        db.row_factory = make_dicts
-        cur = db.cursor()
-        sql = DB._make_sql('select', fields=['name', 'id'], table=Subtitle.table,
-                           condition=['id'] * len(l), operation='OR')
-        cur.execute(sql, l)
-        data = cur.fetchall()
-        DB.close_db(db)
         return data
 
 

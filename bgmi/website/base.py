@@ -64,7 +64,7 @@ class BaseWebsite(object):
         for bangumi_list in weekly_list.values():
             for bangumi in bangumi_list:
                 bangumi['subtitle_group'] = [{'name': x['name'], 'id': x['id']}
-                                             for x in Subtitle.get_subtitle(bangumi['subtitle_group'].split(', '))]
+                                             for x in Subtitle.get_subtitle_by_id(bangumi['subtitle_group'].split(', '))]
         return weekly_list
 
     def bangumi_calendar(self, force_update=False, save=True, cover=False):

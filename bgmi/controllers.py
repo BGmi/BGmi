@@ -30,8 +30,7 @@ def add(name, episode=None):
     if data:
         followed_obj = Followed(bangumi_name=data['name'], status=STATUS_FOLLOWED)
         followed_obj.select_obj()
-        f, if_this_object_created = Filter.get_or_create(bangumi_name=name)  # obj , if_this_object_created
-        f.save()
+        f, if_this_object_created = Filter.get_or_create(bangumi_name=name)
         if not followed_obj or followed_obj.status == STATUS_NORMAL:
             if not followed_obj:
                 bangumi_data, _ = website.get_maximum_episode(bangumi_obj, subtitle=False, max_page=1)
@@ -50,7 +49,7 @@ def add(name, episode=None):
 
 
 def print_filter(followed_filter_obj):
-    print_info('Followed subtitle group: {0}'.format(', '.join(map(lambda s: s['name'], Subtitle.get_subtitle(
+    print_info('Followed subtitle group: {0}'.format(', '.join(map(lambda s: s['name'], Subtitle.get_subtitle_by_id(
         followed_filter_obj.subtitle.split(', ')))) if followed_filter_obj.subtitle else 'None'))
     print_info('Include keywords: {0}'.format(followed_filter_obj.include))
     print_info('Exclude keywords: {0}'.format(followed_filter_obj.exclude))
@@ -100,7 +99,7 @@ def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
 
     followed_filter_obj.save()
     subtitle_list = list(map(lambda s: s['name'],
-                             Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', '))))
+                             Subtitle.get_subtitle_by_id(bangumi_obj.subtitle_group.split(', '))))
     print_info('Usable subtitle group: {0}'.format(', '.join(subtitle_list) if subtitle_list else 'None'))
 
     print_filter(followed_filter_obj)
@@ -108,8 +107,8 @@ def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
         'name': name,
         'subtitle_group': list(map(
             lambda s: s['name'],
-            Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', ')))),
-        'followed': list(map(lambda s: s['name'], Subtitle.get_subtitle(followed_filter_obj.subtitle.split(', ')))
+            Subtitle.get_subtitle_by_id(bangumi_obj.subtitle_group.split(', ')))),
+        'followed': list(map(lambda s: s['name'], Subtitle.get_subtitle_by_id(followed_filter_obj.subtitle.split(', ')))
                          if followed_filter_obj.subtitle else []),
         'include': followed_filter_obj.include,
         'exclude': followed_filter_obj.exclude,
