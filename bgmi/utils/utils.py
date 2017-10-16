@@ -145,11 +145,11 @@ Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END
 
 def test_connection():
     # try:
-    if 1:
-        for website in SUPPORT_WEBSITE:
-            if DATA_SOURCE == website['id']:
-                print(website['url'])
-                requests.request('head', website['url'], timeout=10)
+    # if 1:
+    #     for website in SUPPORT_WEBSITE:
+    #         if DATA_SOURCE == website['id']:
+    #             print(website['url'])
+    #             requests.request('head', website['url'], timeout=10)
     # except:
     #     return False
 
@@ -202,7 +202,7 @@ def check_update(mark=True):
     def update():
         try:
             print_info('Checking update ...')
-            version = requtsts.get('https://pypi.python.org/pypi/bgmi/json', verify=False).json()['info']['version']
+            version = requests.get('https://pypi.python.org/pypi/bgmi/json', verify=False).json()['info']['version']
             if version > __version__:
                 print_warning('Please update bgmi to the latest version {}{}{}.'
                               '\nThen execute `bgmi upgrade` to migrate database'.format(GREEN, version, COLOR_END))

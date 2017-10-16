@@ -30,6 +30,8 @@ def add(name, episode=None):
     if data:
         followed_obj = Followed(bangumi_name=data['name'], status=STATUS_FOLLOWED)
         followed_obj.select_obj()
+        f, if_this_object_created = Filter.get_or_create(bangumi_name=name)  # obj , if_this_object_created
+        f.save()
         if not followed_obj or followed_obj.status == STATUS_NORMAL:
             if not followed_obj:
                 bangumi_data, _ = website.get_maximum_episode(bangumi_obj, subtitle=False, max_page=1)
@@ -73,8 +75,7 @@ def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
             .format(name=bangumi_obj.name)
         return result
 
-    followed_filter_obj = Filter(bangumi_name=name)
-    followed_filter_obj.select_obj()
+    followed_filter_obj = Filter.get(bangumi_name=name)
 
     if not followed_filter_obj:
         followed_filter_obj.save()
@@ -98,7 +99,8 @@ def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
         followed_filter_obj.regex = regex
 
     followed_filter_obj.save()
-    subtitle_list = list(map(lambda s: s['name'], Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', '))))
+    subtitle_list = list(map(lambda s: s['name'],
+                             Subtitle.get_subtitle(bangumi_obj.subtitle_group.split(', '))))
     print_info('Usable subtitle group: {0}'.format(', '.join(subtitle_list) if subtitle_list else 'None'))
 
     print_filter(followed_filter_obj)
@@ -393,8 +395,8 @@ def list_():
 
 
 def fetch_(ret):
-    bangumi_obj = Bangumi(name=ret.name)
-    bangumi_obj.select_obj()
+    bangumi_obj = Bangumi.get(name=ret.name)
+    # bangumi_obj.select_obj()
 
     followed_obj = Followed(bangumi_name=bangumi_obj.name)
     followed_obj.select_obj()

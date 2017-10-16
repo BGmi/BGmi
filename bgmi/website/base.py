@@ -36,8 +36,9 @@ class BaseWebsite(object):
         bangumi_result, subtitle_group_result = self.fetch_bangumi_calendar_and_subtitle_group()
         if subtitle_group_result:
             for subtitle_group in subtitle_group_result:
-                s = Subtitle(id=_unicode(subtitle_group['id']), name=_unicode(subtitle_group['name']))
-                if not s.select():
+                s, if_created = Subtitle.get_or_create(id=_unicode(subtitle_group['id']),
+                                                       name=_unicode(subtitle_group['name']))
+                if if_created:
                     s.save()
         if not bangumi_result:
             print('no result return None')
@@ -141,13 +142,28 @@ class BaseWebsite(object):
         return dir_path, file_path
 
     def get_maximum_episode(self, bangumi, subtitle=True, ignore_old_row=True, max_page=MAX_PAGE):
-        followed_filter_obj = Filter(bangumi_name=bangumi.name)
-        followed_filter_obj.select_obj()
 
-        subtitle_group = followed_filter_obj.subtitle if followed_filter_obj and subtitle else None
-        include = followed_filter_obj.include if followed_filter_obj and subtitle else None
-        exclude = followed_filter_obj.exclude if followed_filter_obj and subtitle else None
-        regex = followed_filter_obj.regex if followed_filter_obj and subtitle else None
+        followed_filter_obj = Filter.get(bangumi_name=bangumi.name)
+
+        if followed_filter_obj and subtitle:
+            subtitle_group = followed_filter_obj.subtitle
+        else:
+            subtitle_group = None
+
+        if followed_filter_obj and subtitle:
+            include = followed_filter_obj.include
+        else:
+            include = None
+
+        if followed_filter_obj and subtitle:
+            exclude = followed_filter_obj.exclude
+        else:
+            exclude = None
+
+        if followed_filter_obj and subtitle:
+            regex = followed_filter_obj.regex
+        else:
+            regex = None
 
         data = [i for i in self.fetch_episode(_id=bangumi.keyword, name=bangumi.name,
                                               subtitle_group=subtitle_group,
