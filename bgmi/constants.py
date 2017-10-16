@@ -1,5 +1,6 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
+
 from bgmi.config import BANGUMI_MOE_URL, SHARE_DMHY_URL
 
 ACTION_ADD = 'add'
