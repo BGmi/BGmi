@@ -7,16 +7,17 @@ import re
 import string
 
 from bgmi.config import write_config
-from bgmi.constants import ACTION_ADD, ACTION_SOURCE, ACTION_DOWNLOAD, ACTION_CONFIG, ACTION_DELETE, ACTION_MARK, \
-    ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST, DOWNLOAD_CHOICE_LIST_DICT, \
-    SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS
-from bgmi.controllers import filter_, source, \
-    mark, delete, add, search, update, fetch_, list_
+from bgmi.constants import (ACTION_ADD, ACTION_SOURCE, ACTION_DOWNLOAD, ACTION_CONFIG, ACTION_DELETE, ACTION_MARK,
+                            ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST,
+                            DOWNLOAD_CHOICE_LIST_DICT,
+                            SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS)
+from bgmi.controllers import (filter_, source,
+                              mark, delete, add, search, update, fetch_, list_)
 from bgmi.download import download_prepare, get_download_class
 from bgmi.fetch import website
 from bgmi.models import STATUS_FOLLOWED, Bangumi, STATUS_UPDATED, Download
-from bgmi.utils import print_success, print_info, print_warning, print_error, GREEN, COLOR_END, get_terminal_col, \
-    YELLOW
+from bgmi.utils import (print_success, print_info, print_warning, print_error, GREEN, COLOR_END, get_terminal_col,
+                        YELLOW)
 
 
 def source_wrapper(ret):
