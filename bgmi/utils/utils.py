@@ -144,15 +144,12 @@ Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END
 
 
 def test_connection():
-    # try:
-    # if 1:
-    #     for website in SUPPORT_WEBSITE:
-    #         if DATA_SOURCE == website['id']:
-    #             print(website['url'])
-    #             requests.request('head', website['url'], timeout=10)
-    # except:
-    #     return False
-
+    try:
+        for website in SUPPORT_WEBSITE:
+            if DATA_SOURCE == website['id']:
+                requests.request('head', website['url'], timeout=10)
+    except:
+        return False
     return True
 
 
