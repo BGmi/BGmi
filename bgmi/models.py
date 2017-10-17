@@ -38,7 +38,7 @@ DOWNLOAD_STATUS = (STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, STATUS_DOWNLOADED)
 
 db = peewee.SqliteDatabase(bgmi.config.DB_PATH)
 
-
+compiler = db.compiler()
 def make_dicts(cursor, row):
     return dict((cursor.description[idx][0], value)
                 for idx, value in enumerate(row))
@@ -375,6 +375,10 @@ class DB(object):
         DB.close_db(db)
 
 
+class NeoDB(Model):
+    class Meta:
+        database = db
+
 class Bangumi(DB):
     table = 'bangumi'
     primary_key = ('name',)
@@ -437,6 +441,23 @@ class Bangumi(DB):
         return 'Bangumi<%s>' % self.name
 
 
+class NeoBangumi(NeoDB):
+    id = IntegerField(primary_key=True)
+    name = TextField(unique=True, null=False)
+    subtitle_group = TextField(null=False)
+    keyword = TextField()
+    update_time = FixedCharField(5, null=False)
+    cover = TextField()
+    status = IntegerField(default=0)
+
+    week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
+
+    class Meta:
+        database = db
+        db_table = 'bangumi'
+
+
+
 class Followed(DB):
     table = 'followed'
     primary_key = ('bangumi_name',)
@@ -495,27 +516,29 @@ class Followed(DB):
         return 'Followed Bangumi<%s>' % self.bangumi_name
 
 
-class Download(DB):
-    table = 'download'
-    primary_key = ('name', 'episode',)
-    fields = ('name', 'title', 'episode', 'download', 'status',)
+class Download(NeoDB):
+    id = IntegerField(primary_key=True)
+    name = TextField(null=False)
+    title = TextField(null=False)
+    episode = IntegerField(default=0)
+    download = TextField()
+    status = IntegerField(default=0)
 
-    @staticmethod
-    def get_all_downloads(status=None):
-        db = DB.connect_db()
-        db.row_factory = make_dicts
-        cur = db.cursor()
+    # add_time
+    # end_time
+    class Meta:
+        database = db
+        db_table = 'download'
 
+    @classmethod
+    def get_all_downloads(cls, status=None):
         if status is None:
-            sql = DB._make_sql('select', table=Download.table)
-            sql += ' order by status'
-            cur.execute(sql)
+            data = list(cls.select().order_by(cls.status))
         else:
-            sql = DB._make_sql('select', table=Download.table, condition=['status', ])
-            cur.execute(sql, (status,))
+            data = list(cls.select().where(cls.status == status).order_by(cls.status))
 
-        data = cur.fetchall()
-        DB.close_db(db)
+        for index, x in enumerate(data):
+            data[index] = x.__dict__['_data']
         return data
 
     def delete(self, condition=None):
@@ -526,9 +549,6 @@ class Download(DB):
 script_db = peewee.SqliteDatabase(bgmi.config.SCRIPT_DB_PATH)
 
 
-class NeoDB(Model):
-    class Meta:
-        database = db
 
 
 class NeoFollowed(NeoDB):
@@ -538,6 +558,74 @@ class NeoFollowed(NeoDB):
     status = IntegerField(default=0)
     updated_time = IntegerField(default=0)
 
+    class Meta:
+        database = db
+        db_table = 'followed'
+
+    @staticmethod
+    def delete_followed(condition=None, batch=True):
+        db = DB.connect_db()
+        db.row_factory = make_dicts
+        cur = db.cursor()
+        if not isinstance(condition, (type(None), dict)):
+            raise Exception('condition expected dict')
+        if condition is None:
+            k, v = [], []
+        else:
+            k, v = list(condition.keys()), list(condition.values())
+        sql = DB._make_sql('delete', table=Followed.table, condition=k)
+
+        if not batch and sql.endswith('WHERE 1'):
+            if not input('[+] are you sure want to CLEAR ALL THE BANGUMI? (y/N): ') == 'y':
+                return False
+
+        cur.execute(sql, v)
+        DB.close_db(db)
+        return True
+
+    def delete(self, condition=None):
+        self.status = STATUS_NORMAL
+        self.save()
+
+    @classmethod
+    def get_all_followed(cls, status=STATUS_NORMAL, bangumi_status=STATUS_UPDATING, order=None, desc=None):
+        db = DB.connect_db()
+        db.row_factory = make_dicts
+        cur = db.cursor()
+        if status is None:
+            if bangumi_status is None:
+                d = cls.select(cls, cls.bangumi_name).join(NeoBangumi.name).order_by(cls.updated_time.desc())
+                sql = DB._make_sql('select', fields=['followed.*', 'bangumi.cover', 'bangumi.update_time'],
+                                   table=Followed.table,
+                                   join='LEFT JOIN bangumi on bangumi.name=followed.bangumi_name',
+                                   order=order, desc=desc)
+                cur.execute(sql)
+            else:
+                d = cls.select(cls, cls.bangumi_name).join(NeoBangumi.name).where(cls.status != status,
+                                                                                  NeoBangumi.status ==
+                                                                                  bangumi_status).order_by(
+                    cls.updated_time.desc())
+
+                sql = DB._make_sql('select', fields=['followed.*', 'bangumi.cover', 'bangumi.update_time'],
+                                   table=Followed.table,
+                                   join='LEFT JOIN bangumi on bangumi.name=followed.bangumi_name',
+                                   condition=['!followed.status', 'bangumi.status'], order=order, desc=desc)
+                cur.execute(sql, (status, bangumi_status))
+        else:
+            sql = DB._make_sql('select', fields=['followed.*', 'bangumi.cover', 'bangumi.update_time'],
+                               table=Followed.table,
+                               join='LEFT JOIN bangumi on bangumi.name=followed.bangumi_name',
+                               condition=['!followed.status', 'bangumi.status'], order=order, desc=desc)
+            cur.execute(sql, (status, bangumi_status))
+        data = cur.fetchall()
+        DB.close_db(db)
+        return data
+
+    def __str__(self):
+        return 'Followed Bangumi<%s>' % self.bangumi_name
+
+    def __repr__(self):
+        return 'Followed Bangumi<%s>' % self.bangumi_name
 
 class Scripts(peewee.Model):
     id = IntegerField(primary_key=True)
@@ -548,17 +636,6 @@ class Scripts(peewee.Model):
 
     class Meta:
         database = script_db
-
-
-class NeoDownload(NeoDB):
-    id = IntegerField(primary_key=True)
-    name = TextField(null=False)
-    title = TextField(null=False)
-    episode = IntegerField(default=0)
-    download = TextField()
-    status = IntegerField(default=0)
-    # add_time
-    # end_time
 
 
 class Filter(NeoDB):
@@ -595,7 +672,7 @@ def init_db():
     :return:
     """
 
-    db.create_tables([NeoFollowed, Bangumi, NeoDownload, Filter, Subtitle])
+    db.create_tables([NeoFollowed, Bangumi, Download, Filter, Subtitle])
     script_db.connect()
-    script_db.create_tables([NeoScripts, ])
+    script_db.create_tables([Scripts, ])
     script_db.close()
