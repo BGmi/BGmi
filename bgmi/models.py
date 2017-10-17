@@ -452,6 +452,11 @@ class NeoBangumi(NeoDB):
 
     week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
+    @classmethod
+    def delete_all(cls):
+        cls.update(status=STATUS_END).execute()
+
+
     class Meta:
         database = db
         db_table = 'bangumi'
@@ -477,6 +482,36 @@ class Followed(NeoDB):
 
         q.execute()
         return True
+
+    @classmethod
+    def get_all_bangumi(cls, status=None, order=True):
+        db = Bangumi.connect_db()
+        db.row_factory = make_dicts
+        cur = db.cursor()
+        join_sql = Bangumi._make_sql('select', table='followed')
+        if status is None:
+            sql = Bangumi._make_sql('select', fields=['%s.*' % Bangumi.table, 'F.status AS status',
+                                                      'episode'], table=Bangumi.table,
+                                    condition=('%s.status' % Bangumi.table),
+                                    join='LEFT JOIN (%s) AS F ON bangumi.name=F.bangumi_name' % join_sql)
+            cur.execute(sql, (STATUS_UPDATING,))
+        else:
+            sql = Bangumi._make_sql('select', fields=['%s.*' % Bangumi.table, 'F.status AS status',
+                                                      'episode'], table=Bangumi.table,
+                                    join='LEFT JOIN (%s) AS F ON bangumi.name=F.bangumi_name' % join_sql,
+                                    condition=('F.status', '%s.status' % Bangumi.table))
+            cur.execute(sql, (status, STATUS_UPDATING,))
+        data = cur.fetchall()
+        Bangumi.close_db(db)
+
+        if order:
+            weekly_list = defaultdict(list)
+            for bangumi_item in data:
+                weekly_list[bangumi_item['update_time'].lower()].append(dict(bangumi_item))
+        else:
+            weekly_list = data
+
+        return weekly_list
 
     # def delete(self, condition=None):
     #     self.status = STATUS_NORMAL
