@@ -32,7 +32,7 @@ class ControllersTest(unittest.TestCase):
 
     def test_c_mark(self):
         r = add(self.bangumi_name_1, 0)
-        self.assertEqual(r['status'], 'success')
+        self.assertEqual(r['status'], 'warning')
 
         r = mark(self.bangumi_name_1, 1)
         self.assertEqual(r['status'], 'success')

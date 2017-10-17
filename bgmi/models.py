@@ -409,7 +409,7 @@ class Bangumi(DB):
         db = Bangumi.connect_db()
         db.row_factory = make_dicts
         cur = db.cursor()
-        join_sql = Bangumi._make_sql('select', table=Followed.table)
+        join_sql = Bangumi._make_sql('select', table='followed')
         if status is None:
             sql = Bangumi._make_sql('select', fields=['%s.*' % Bangumi.table, 'F.status AS status',
                                                       'episode'], table=Bangumi.table,
@@ -457,57 +457,52 @@ class NeoBangumi(NeoDB):
         db_table = 'bangumi'
 
 
+class Followed(NeoDB):
+    bangumi_name = TextField(unique=True)
+    episode = IntegerField(null=True)
+    status = IntegerField(null=True)
+    updated_time = IntegerField(null=True)
 
-class Followed(DB):
-    table = 'followed'
-    primary_key = ('bangumi_name',)
-    fields = ('bangumi_name', 'episode', 'status', 'updated_time',)
 
-    @staticmethod
-    def delete_followed(condition=None, batch=True):
-        db = DB.connect_db()
-        db.row_factory = make_dicts
-        cur = db.cursor()
-        if not isinstance(condition, (type(None), dict)):
-            raise Exception('condition expected dict')
-        if condition is None:
-            k, v = [], []
-        else:
-            k, v = list(condition.keys()), list(condition.values())
-        sql = DB._make_sql('delete', table=Followed.table, condition=k)
+    class Meta:
+        database = db
+        db_table = 'followed'
 
-        if not batch and sql.endswith('WHERE 1'):
+    @classmethod
+    def delete_followed(cls, batch=True):
+        q = cls.delete()
+        if not batch:
             if not input('[+] are you sure want to CLEAR ALL THE BANGUMI? (y/N): ') == 'y':
                 return False
 
-        cur.execute(sql, v)
-        DB.close_db(db)
+        q.execute()
         return True
 
-    def delete(self, condition=None):
-        self.status = STATUS_NORMAL
-        self.save()
+    # def delete(self, condition=None):
+    #     self.status = STATUS_NORMAL
+    #     self.save()
 
-    @staticmethod
-    def get_all_followed(status=STATUS_NORMAL, bangumi_status=STATUS_UPDATING, order=None, desc=None):
-        db = DB.connect_db()
-        db.row_factory = make_dicts
-        cur = db.cursor()
+    @classmethod
+    def get_all_followed(cls, status=STATUS_NORMAL, bangumi_status=STATUS_UPDATING, order=None, desc=None):
+        join_cond = (NeoBangumi.name == cls.bangumi_name)
         if status is None and bangumi_status is None:
-            sql = DB._make_sql('select', fields=['followed.*', 'bangumi.cover', 'bangumi.update_time'],
-                               table=Followed.table,
-                               join='LEFT JOIN bangumi on bangumi.name=followed.bangumi_name', order=order,
-                               desc=desc)
-            cur.execute(sql)
+            d = cls.select(cls, NeoBangumi.name, NeoBangumi.update_time) \
+                .join(NeoBangumi.name, JOIN_LEFT_OUTER, on=join_cond) \
+                .naive()
+            # print(d.sql())
         else:
-            sql = DB._make_sql('select', fields=['followed.*', 'bangumi.cover', 'bangumi.update_time'],
-                               table=Followed.table,
-                               join='LEFT JOIN bangumi on bangumi.name=followed.bangumi_name',
-                               condition=['!followed.status', 'bangumi.status'], order=order, desc=desc)
-            cur.execute(sql, (status, bangumi_status))
-        data = cur.fetchall()
-        DB.close_db(db)
-        return data
+            d = cls.select(cls, NeoBangumi.name, NeoBangumi.update_time) \
+                .join(NeoBangumi, JOIN_LEFT_OUTER, on=join_cond) \
+                .where(cls.status != status or NeoBangumi.status == bangumi_status) \
+                .naive()
+
+        r = []
+        for x in d:
+            dic = dict(**x.__dict__['_data'])
+            dic['update_time'] = x.update_time
+            r.append(dic)
+        # print([x['update_time'] for x in r])
+        return r
 
     def __str__(self):
         return 'Followed Bangumi<%s>' % self.bangumi_name
@@ -517,7 +512,6 @@ class Followed(DB):
 
 
 class Download(NeoDB):
-    id = IntegerField(primary_key=True)
     name = TextField(null=False)
     title = TextField(null=False)
     episode = IntegerField(default=0)
@@ -549,86 +543,7 @@ class Download(NeoDB):
 script_db = peewee.SqliteDatabase(bgmi.config.SCRIPT_DB_PATH)
 
 
-
-
-class NeoFollowed(NeoDB):
-    id = IntegerField(primary_key=True)
-    bangumi_name = TextField(null=False)
-    episode = IntegerField(default=0)
-    status = IntegerField(default=0)
-    updated_time = IntegerField(default=0)
-
-    class Meta:
-        database = db
-        db_table = 'followed'
-
-    @staticmethod
-    def delete_followed(condition=None, batch=True):
-        db = DB.connect_db()
-        db.row_factory = make_dicts
-        cur = db.cursor()
-        if not isinstance(condition, (type(None), dict)):
-            raise Exception('condition expected dict')
-        if condition is None:
-            k, v = [], []
-        else:
-            k, v = list(condition.keys()), list(condition.values())
-        sql = DB._make_sql('delete', table=Followed.table, condition=k)
-
-        if not batch and sql.endswith('WHERE 1'):
-            if not input('[+] are you sure want to CLEAR ALL THE BANGUMI? (y/N): ') == 'y':
-                return False
-
-        cur.execute(sql, v)
-        DB.close_db(db)
-        return True
-
-    def delete(self, condition=None):
-        self.status = STATUS_NORMAL
-        self.save()
-
-    @classmethod
-    def get_all_followed(cls, status=STATUS_NORMAL, bangumi_status=STATUS_UPDATING, order=None, desc=None):
-        db = DB.connect_db()
-        db.row_factory = make_dicts
-        cur = db.cursor()
-        if status is None:
-            if bangumi_status is None:
-                d = cls.select(cls, cls.bangumi_name).join(NeoBangumi.name).order_by(cls.updated_time.desc())
-                sql = DB._make_sql('select', fields=['followed.*', 'bangumi.cover', 'bangumi.update_time'],
-                                   table=Followed.table,
-                                   join='LEFT JOIN bangumi on bangumi.name=followed.bangumi_name',
-                                   order=order, desc=desc)
-                cur.execute(sql)
-            else:
-                d = cls.select(cls, cls.bangumi_name).join(NeoBangumi.name).where(cls.status != status,
-                                                                                  NeoBangumi.status ==
-                                                                                  bangumi_status).order_by(
-                    cls.updated_time.desc())
-
-                sql = DB._make_sql('select', fields=['followed.*', 'bangumi.cover', 'bangumi.update_time'],
-                                   table=Followed.table,
-                                   join='LEFT JOIN bangumi on bangumi.name=followed.bangumi_name',
-                                   condition=['!followed.status', 'bangumi.status'], order=order, desc=desc)
-                cur.execute(sql, (status, bangumi_status))
-        else:
-            sql = DB._make_sql('select', fields=['followed.*', 'bangumi.cover', 'bangumi.update_time'],
-                               table=Followed.table,
-                               join='LEFT JOIN bangumi on bangumi.name=followed.bangumi_name',
-                               condition=['!followed.status', 'bangumi.status'], order=order, desc=desc)
-            cur.execute(sql, (status, bangumi_status))
-        data = cur.fetchall()
-        DB.close_db(db)
-        return data
-
-    def __str__(self):
-        return 'Followed Bangumi<%s>' % self.bangumi_name
-
-    def __repr__(self):
-        return 'Followed Bangumi<%s>' % self.bangumi_name
-
 class Scripts(peewee.Model):
-    id = IntegerField(primary_key=True)
     bangumi_name = TextField(null=False, unique=True)
     episode = IntegerField(default=0)
     status = IntegerField(default=0)
@@ -639,7 +554,6 @@ class Scripts(peewee.Model):
 
 
 class Filter(NeoDB):
-    id = IntegerField(primary_key=True)
     bangumi_name = TextField(unique=True)
     subtitle = TextField()
     include = TextField()
@@ -652,15 +566,15 @@ class Subtitle(NeoDB):
     name = TextField()
 
     @classmethod
-    def get_subtitle_by_id(cls, l=None):
-        data = list(cls.select().where(cls.id.in_(l)))
+    def get_subtitle_by_id(cls, id_list=None):
+        data = list(cls.select().where(cls.id.in_(id_list)))
         for index, subtitle in enumerate(data):
             data[index] = subtitle.__dict__['_data']
         return data
 
     @classmethod
-    def get_subtitle_by_name(cls, l=None):
-        data = list(cls.select().where(cls.name.in_(l)))
+    def get_subtitle_by_name(cls, name_list=None):
+        data = list(cls.select().where(cls.name.in_(name_list)))
         for index, subtitle in enumerate(data):
             data[index] = subtitle.__dict__['_data']
         return data
@@ -672,7 +586,16 @@ def init_db():
     :return:
     """
 
-    db.create_tables([NeoFollowed, Bangumi, Download, Filter, Subtitle])
+    db.create_tables([Followed, Bangumi, Download, Filter, Subtitle])
     script_db.connect()
     script_db.create_tables([Scripts, ])
     script_db.close()
+
+
+if __name__ == '__main__':
+    d = Followed.get_all_followed(status=STATUS_NORMAL,
+                                  bangumi_status=STATUS_UPDATING,
+                                  )
+    # print(d)
+    for x in d:
+        print(x.__dict__)

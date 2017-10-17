@@ -15,7 +15,7 @@ from bgmi.controllers import (filter_, source,
                               mark, delete, add, search, update, list_)
 from bgmi.download import download_prepare, get_download_class
 from bgmi.fetch import website
-from bgmi.models import Bangumi, Followed, Filter, Subtitle
+from bgmi.models import Bangumi, Filter, Subtitle, Followed
 from bgmi.models import STATUS_FOLLOWED, STATUS_UPDATED
 from bgmi.utils import (GREEN, COLOR_END, get_terminal_col,
                         YELLOW)
@@ -190,8 +190,8 @@ def fetch_(ret):
     bangumi_obj = Bangumi(name=ret.name)
     bangumi_obj.select_obj()
 
-    followed_obj = Followed(bangumi_name=bangumi_obj.name)
-    followed_obj.select_obj()
+    followed_obj = Followed.get(bangumi_name=bangumi_obj.name)
+    # followed_obj.select_obj()
 
     followed_filter_obj = Filter.get(bangumi_name=ret.name)
     # followed_filter_obj.select_obj()
