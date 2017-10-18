@@ -186,26 +186,29 @@ def download_manager(ret):
 
 
 def fetch_(ret):
-    bangumi_obj, _ = Bangumi.get_or_create(name=ret.name)
-    bangumi_obj.select_obj()
+    try:
+        bangumi_obj = Bangumi.get(name=ret.name)
+    except Bangumi.DoesNotExist:
+        print_error('Bangumi {0} not exist'.format(ret.name))
+        return
 
-    followed_obj = Followed.get(bangumi_name=bangumi_obj.name)
-    # followed_obj.select_obj()
+    try:
+        Followed.get(bangumi_name=bangumi_obj.name)
+    except Bangumi.DoesNotExist:
+        print_error('Bangumi {0} is not followed'.format(ret.name))
+        return
 
     followed_filter_obj = Filter.get(bangumi_name=ret.name)
-    # followed_filter_obj.select_obj()
     print_filter(followed_filter_obj)
 
-    if bangumi_obj:
-        print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
-        _, data = website.get_maximum_episode(bangumi_obj,
-                                              ignore_old_row=False if ret.not_ignore else True)
-        if not data:
-            print_warning('Nothing.')
-        for i in data:
-            print_success(i['title'])
-    else:
-        print_error('Bangumi {0} not exist'.format(ret.name))
+    print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
+    _, data = website.get_maximum_episode(bangumi_obj, ignore_old_row=False if ret.not_ignore else True)
+
+    if not data:
+        print_warning('Nothing.')
+    for i in data:
+        print_success(i['title'])
+
 
 
 CONTROLLERS_DICT = {

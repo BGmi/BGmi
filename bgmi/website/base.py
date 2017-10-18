@@ -29,9 +29,7 @@ class BaseWebsite(object):
 
     @staticmethod
     def save_data(data):
-        print(data)
         b, _ = Bangumi.get_or_create(name=data['name'], defaults=data)
-        # b.save()
 
     def fetch(self, save=False, group_by_weekday=True):
         bangumi_result, subtitle_group_result = self.fetch_bangumi_calendar_and_subtitle_group()

@@ -6,7 +6,6 @@ import unittest
 
 from bgmi.controllers import *
 from bgmi.main import setup, unicode_
-from bgmi.models import DB
 
 
 class ControllersTest(unittest.TestCase):
