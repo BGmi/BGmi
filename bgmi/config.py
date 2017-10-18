@@ -26,7 +26,7 @@ __all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE',
            'LANG', 'FRONT_STATIC_PATH', 'ADMIN_TOKEN', 'SHARE_DMHY_URL')
 
 # cannot be rewrite
-__readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
+__readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH', 'TOOLS_PATH',
                 'SCRIPT_PATH', 'SCRIPT_DB_PATH', 'FRONT_STATIC_PATH',)
 
 # writeable
@@ -59,6 +59,7 @@ CONFIG_FILE_PATH = os.path.join(BGMI_PATH, 'bgmi.cfg')
 
 SCRIPT_DB_PATH = os.path.join(BGMI_PATH, 'script.db')
 SCRIPT_PATH = os.path.join(BGMI_PATH, 'scripts')
+TOOLS_PATH = os.path.join(BGMI_PATH, 'tools')
 
 
 def read_config():
@@ -219,9 +220,6 @@ DOWNLOAD_DELEGATE = 'aria2-rpc'
 
 # danmaku api url, https://github.com/DIYgod/DPlayer#related-projects
 DANMAKU_API_URL = ''
-
-# bangumi cover url
-COVER_URL = 'https://bangumi.moe'
 
 # language
 LANG = 'zh_cn'

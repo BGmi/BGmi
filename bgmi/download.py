@@ -5,7 +5,7 @@ import glob
 import os
 
 from bgmi.config import SAVE_PATH, DOWNLOAD_DELEGATE
-from bgmi.models import Download, STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD
+from bgmi.models import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download
 from bgmi.services import XunleiLixianDownload, Aria2DownloadRPC, RRDownload, TransmissionRPC
 from bgmi.utils import print_error
 
@@ -43,6 +43,7 @@ def download_prepare(data):
     """
     queue = save_to_bangumi_download_queue(data)
     for download in queue:
+        # print(download)
         save_path = os.path.join(os.path.join(SAVE_PATH, download.name), str(download.episode))
         if not glob.glob(save_path):
             os.makedirs(save_path)
@@ -56,7 +57,7 @@ def download_prepare(data):
             download_class.check_download(download.name)
 
             # mark as downloaded
-            download.delete()
+            download.downloaded()
         except Exception as e:
             print_error('Error: {0}'.format(e), exit_=False)
             download.status = STATUS_NOT_DOWNLOAD
@@ -77,9 +78,10 @@ def save_to_bangumi_download_queue(data):
     """
     queue = []
     for i in data:
-        download = Download(status=STATUS_NOT_DOWNLOAD, name=i['name'], title=i['title'],
-                            episode=i['episode'], download=i['download'])
-        download.save()
+        download, _ = Download.get_or_create(title=i['title'], download=i['download'],
+                                             name=i['name'], episode=i['episode'],
+                                             status=STATUS_NOT_DOWNLOAD)
+
         queue.append(download)
 
     return queue

@@ -6,12 +6,10 @@ import subprocess
 from tempfile import NamedTemporaryFile
 
 import bgmi.config
-from bgmi.config import XUNLEI_LX_PATH, BGMI_PATH, TMP_PATH, ARIA2_RPC_URL, ARIA2_RPC_TOKEN, \
-    WGET_PATH, TRANSMISSION_RPC_PORT, TRANSMISSION_RPC_URL
-
+from bgmi.config import (XUNLEI_LX_PATH, BGMI_PATH, TMP_PATH, ARIA2_RPC_URL, ARIA2_RPC_TOKEN,
+                         WGET_PATH, TRANSMISSION_RPC_PORT, TRANSMISSION_RPC_URL)
+from bgmi.models import STATUS_DOWNLOADED, STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, Download
 from bgmi.utils import print_warning, print_info, print_error, print_success
-from bgmi.models import Download, STATUS_DOWNLOADED, STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING
-
 
 if bgmi.config.IS_PYTHON3:
     from xmlrpc.client import ServerProxy, _Method

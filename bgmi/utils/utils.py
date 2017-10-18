@@ -24,6 +24,33 @@ from bgmi.constants import SUPPORT_WEBSITE
 
 urllib3.disable_warnings()
 
+# monkey patch for dev
+if os.environ.get('DEV', False):  # pragma: no cover
+    def replace_url(url):
+        if url.startswith('https://'):
+            url = url.replace('https://', 'http://localhost:8092/https/')
+        elif url.startswith('http://'):
+            url = url.replace('http://', 'http://localhost:8092/http/')
+        return url
+
+
+    from requests import request
+
+
+    def get(url, params=None, **kwargs):
+        url = replace_url(url)
+        kwargs.setdefault('allow_redirects', True)
+        return request('get', url, params=params, **kwargs)
+
+
+    def post(url, data=None, json=None, **kwargs):
+        url = replace_url(url)
+        return request('post', url, data=data, json=json, **kwargs)
+
+
+    requests.get = get
+    requests.post = post
+
 if platform.system() == 'Windows':  # pragma: no cover
     GREEN = ''
     YELLOW = ''
@@ -120,10 +147,9 @@ def test_connection():
     try:
         for website in SUPPORT_WEBSITE:
             if DATA_SOURCE == website['id']:
-                requests.head(website['url'], timeout=10)
+                requests.request('head', website['url'], timeout=10)
     except:
         return False
-
     return True
 
 
@@ -173,14 +199,14 @@ def check_update(mark=True):
     def update():
         try:
             print_info('Checking update ...')
-            version = network.get('https://pypi.python.org/pypi/bgmi/json', verify=False).json()['info']['version']
+            version = requests.get('https://pypi.python.org/pypi/bgmi/json', verify=False).json()['info']['version']
             if version > __version__:
                 print_warning('Please update bgmi to the latest version {}{}{}.'
                               '\nThen execute `bgmi upgrade` to migrate database'.format(GREEN, version, COLOR_END))
             else:
                 print_success('Your BGmi is the latest version.')
 
-            admin_version = network.get(PACKAGE_JSON_URL).json()['version']
+            admin_version = requests.get(PACKAGE_JSON_URL).json()['version']
             if glob.glob(os.path.join(FRONT_STATIC_PATH, 'package.json')):
                 with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'r') as f:
                     local_version = json.loads(f.read())['version']
@@ -274,30 +300,6 @@ def normalize_path(url):
         return url
 
 
-class network(object):
-    @staticmethod
-    def get(url, **kwargs):
-        if os.environ.get('DEBUG'):
-            print(url, kwargs)
-        if os.environ.get("DEV", False):  # pragma: no cover
-            if url.startswith('https://'):
-                url = url.replace('https://', 'http://localhost:8092/https/')
-            elif url.startswith('http://'):
-                url = url.replace('http://', 'http://localhost:8092/http/')
-        return requests.get(url, **kwargs)
-
-    @staticmethod
-    def post(url, **kwargs):
-        if os.environ.get('DEBUG'):
-            print(url, kwargs)
-        if os.environ.get("DEV", False):  # pragma: no cover
-            if url.startswith('https://'):
-                url = url.replace('https://', 'http://localhost:8092/https/')
-            elif url.startswith('http://'):
-                url = url.replace('http://', 'http://localhost:8092/http/')
-        return requests.post(url, **kwargs)
-
-
 def get_web_admin(method):
     # frontend_npm_url = 'https://registry.npmjs.com/bgmi-frontend/'
     print_info('{}ing BGmi frontend'.format(method[0].upper() + method[1:]))
@@ -305,10 +307,10 @@ def get_web_admin(method):
     os.makedirs(FRONT_STATIC_PATH)
 
     try:
-        r = network.get(FRONTEND_NPM_URL).json()
-        version = network.get(PACKAGE_JSON_URL).json()
+        r = requests.get(FRONTEND_NPM_URL).json()
+        version = requests.get(PACKAGE_JSON_URL).json()
         tar_url = r['versions'][version['version']]['dist']['tarball']
-        r = network.get(tar_url)
+        r = requests.get(tar_url)
     except requests.exceptions.ConnectionError:
         print_warning('failed to download web admin')
         return

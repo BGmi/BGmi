@@ -6,7 +6,6 @@ import unittest
 
 from bgmi.controllers import *
 from bgmi.main import setup, unicode_
-from bgmi.models import Bangumi
 
 
 class ControllersTest(unittest.TestCase):
@@ -32,7 +31,7 @@ class ControllersTest(unittest.TestCase):
 
     def test_c_mark(self):
         r = add(self.bangumi_name_1, 0)
-        self.assertEqual(r['status'], 'success')
+        self.assertEqual(r['status'], 'warning')
 
         r = mark(self.bangumi_name_1, 1)
         self.assertEqual(r['status'], 'success')
@@ -75,4 +74,4 @@ class ControllersTest(unittest.TestCase):
     @staticmethod
     def setUpClass():
         setup()
-        Bangumi.recreate_source_relatively_table()
+        recreate_source_relatively_table()

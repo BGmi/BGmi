@@ -5,7 +5,7 @@ import os
 
 from bgmi.config import SAVE_PATH, DB_PATH
 from bgmi.front.base import BaseHandler
-from bgmi.models import Followed, STATUS_NORMAL, STATUS_UPDATING, STATUS_END
+from bgmi.models import STATUS_NORMAL, STATUS_UPDATING, STATUS_END, Followed
 
 
 def get_player(bangumi_name):
@@ -60,5 +60,4 @@ class MainHandler(BaseHandler):
             item['player'] = get_player(item['bangumi_name'])
 
         self.write(self.jsonify(data))
-
         self.finish()

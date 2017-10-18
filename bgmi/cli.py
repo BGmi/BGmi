@@ -7,20 +7,25 @@ import re
 import string
 
 from bgmi.config import write_config
-from bgmi.constants import ACTION_ADD, ACTION_SOURCE, ACTION_DOWNLOAD, ACTION_CONFIG, ACTION_DELETE, ACTION_MARK, \
-    ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST, DOWNLOAD_CHOICE_LIST_DICT, \
-    SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS
-from bgmi.controllers import filter_, source, \
-    mark, delete, add, search, update, fetch_, list_
+from bgmi.constants import (ACTION_ADD, ACTION_SOURCE, ACTION_DOWNLOAD, ACTION_CONFIG, ACTION_DELETE, ACTION_MARK,
+                            ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST,
+                            DOWNLOAD_CHOICE_LIST_DICT,
+                            SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS)
+from bgmi.controllers import (filter_, source,
+                              mark, delete, add, search, update, list_)
 from bgmi.download import download_prepare, get_download_class
 from bgmi.fetch import website
-from bgmi.models import STATUS_FOLLOWED, Bangumi, STATUS_UPDATED, Download
-from bgmi.utils import print_success, print_info, print_warning, print_error, GREEN, COLOR_END, get_terminal_col, \
-    YELLOW
+from bgmi.models import Filter, Subtitle, Followed, Bangumi
+from bgmi.models import STATUS_FOLLOWED, STATUS_UPDATED
+from bgmi.utils import (GREEN, COLOR_END, get_terminal_col,
+                        YELLOW)
+from bgmi.utils import print_info, print_warning, print_success, print_error
 
 
 def source_wrapper(ret):
-    return source(data_source=ret.source)
+    result = source(data_source=ret.source)
+    globals()["print_{}".format(result['status'])](result['message'])
+    return result
 
 
 def config_wrapper(ret):
@@ -59,6 +64,7 @@ def add_wrapper(ret):
         result = add(name=bangumi_name, episode=ret.episode)
         globals()["print_{}".format(result['status'])](result['message'])
 
+
 def list_wrapper(*args):
     result = list_()
     print(result['message'])
@@ -80,8 +86,7 @@ def cal_wrapper(ret):
     if today:
         weekday_order = (Bangumi.week[datetime.datetime.today().weekday()],)
     else:
-        weekday_order = shift(
-            Bangumi.week, datetime.datetime.today().weekday())
+        weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
 
     env_columns = 42 if os.environ.get(
         'TRAVIS_CI', False) else get_terminal_col()
@@ -98,7 +103,6 @@ def cal_wrapper(ret):
         num = col - 3
         split = '-' * num + '   '
         print(split * row)
-
 
     for index, weekday in enumerate(weekday_order):
         if weekly_list[weekday.lower()]:
@@ -147,7 +151,10 @@ def filter_wrapper(ret):
                      regex=ret.regex)
     if 'data' not in result:
         globals()["print_{}".format(result['status'])](result['message'])
-
+    else:
+        print_info('Usable subtitle group: {0}'.format(', '.join(result['data']['subtitle_group'])))
+        followed_filter_obj = Filter.get(bangumi_name=ret.name)
+        print_filter(followed_filter_obj)
     return result['data']
 
 
@@ -157,18 +164,18 @@ def update_wrapper(ret):
 
 def download_manager(ret):
     if ret.id:
+        # 没有入口..
         download_id = ret.id
         status = ret.status
         if download_id is None or status is None:
             print_error('No id or status specified.')
-        download_obj = Download(_id=download_id)
-        download_obj.select_obj()
-        if not download_obj:
-            print_error('Download object does not exist.')
-        print_info('Download Object <{0} - {1}>, Status: {2}'.format(download_obj.name, download_obj.episode,
-                                                                     download_obj.status))
-        download_obj.status = status
-        download_obj.save()
+        # download_obj = NeoDownload.get(_id=download_id)
+        # if not download_obj:
+        #     print_error('Download object does not exist.')
+        # print_info('Download Object <{0} - {1}>, Status: {2}'.format(download_obj.name, download_obj.episode,
+        #                                                              download_obj.status))
+        # download_obj.status = status
+        # download_obj.save()
         print_success('Download status has been marked as {0}'.format(
             DOWNLOAD_CHOICE_LIST_DICT.get(int(status))))
     else:
@@ -176,6 +183,32 @@ def download_manager(ret):
         status = int(status) if status is not None else None
         delegate = get_download_class(instance=False)
         delegate.download_status(status=status)
+
+
+def fetch_(ret):
+    try:
+        bangumi_obj = Bangumi.get(name=ret.name)
+    except Bangumi.DoesNotExist:
+        print_error('Bangumi {0} not exist'.format(ret.name))
+        return
+
+    try:
+        Followed.get(bangumi_name=bangumi_obj.name)
+    except Bangumi.DoesNotExist:
+        print_error('Bangumi {0} is not followed'.format(ret.name))
+        return
+
+    followed_filter_obj = Filter.get(bangumi_name=ret.name)
+    print_filter(followed_filter_obj)
+
+    print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
+    _, data = website.get_maximum_episode(bangumi_obj, ignore_old_row=False if ret.not_ignore else True)
+
+    if not data:
+        print_warning('Nothing.')
+    for i in data:
+        print_success(i['title'])
+
 
 
 CONTROLLERS_DICT = {
@@ -200,3 +233,11 @@ def controllers(ret):
         return
     else:
         return func(ret)
+
+
+def print_filter(followed_filter_obj):
+    print_info('Followed subtitle group: {0}'.format(', '.join(map(lambda s: s['name'], Subtitle.get_subtitle_by_id(
+        followed_filter_obj.subtitle.split(', ')))) if followed_filter_obj.subtitle else 'None'))
+    print_info('Include keywords: {0}'.format(followed_filter_obj.include))
+    print_info('Exclude keywords: {0}'.format(followed_filter_obj.exclude))
+    print_info('Regular expression: {0}'.format(followed_filter_obj.regex))

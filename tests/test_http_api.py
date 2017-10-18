@@ -64,9 +64,9 @@ class ApiTestCase(AsyncHTTPTestCase):
         res = self.parse_response(r)
         self.assertEqual(res['status'], 'error')
 
-    def test_a_index(self):
-        response = self.fetch('/', method='GET')
-        self.assertEqual(response.code, 404)
+    # def test_a_index(self):
+    #     response = self.fetch('/', method='GET')
+    #     self.assertEqual(response.code, 404)
 
     def test_a_cal(self):
         r = self.fetch('/api/cal', method='GET')
@@ -171,7 +171,6 @@ class ApiTestCase(AsyncHTTPTestCase):
             'exclude': exclude,
             'subtitle': subtitle,
         }), headers=self.headers)
-
         r = self.fetch('/api/filter', method='POST', body=json.dumps({
             'name': self.bangumi_1,
         }), headers=self.headers)

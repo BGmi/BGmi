@@ -1,11 +1,12 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
+
 from bgmi.config import BANGUMI_MOE_URL, SHARE_DMHY_URL
 
 ACTION_ADD = 'add'
 ACTION_FETCH = 'fetch'
 ACTION_FILTER = 'filter'
-ACTION_DELETE = 'delete'
+ACTION_DELETE = 'downloaded'
 ACTION_UPDATE = 'update'
 ACTION_CAL = 'cal'
 ACTION_CONFIG = 'config'
