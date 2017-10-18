@@ -9,7 +9,7 @@ from icalendar import Calendar, Event
 
 from bgmi.config import SAVE_PATH
 from bgmi.front.base import BaseHandler
-from bgmi.models import Download, Bangumi, Followed
+from bgmi.models import Download, Bangumi, Followed, Bangumi
 
 
 class BangumiHandler(BaseHandler):

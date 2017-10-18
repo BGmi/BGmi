@@ -15,8 +15,8 @@ from bgmi.controllers import (filter_, source,
                               mark, delete, add, search, update, list_)
 from bgmi.download import download_prepare, get_download_class
 from bgmi.fetch import website
-from bgmi.models import Bangumi, Followed, Filter, Subtitle
-from bgmi.models import STATUS_FOLLOWED, STATUS_UPDATED, Download
+from bgmi.models import Filter, Subtitle, Followed, Bangumi
+from bgmi.models import STATUS_FOLLOWED, STATUS_UPDATED
 from bgmi.utils import (GREEN, COLOR_END, get_terminal_col,
                         YELLOW)
 from bgmi.utils import print_info, print_warning, print_success, print_error
@@ -86,8 +86,7 @@ def cal_wrapper(ret):
     if today:
         weekday_order = (Bangumi.week[datetime.datetime.today().weekday()],)
     else:
-        weekday_order = shift(
-            Bangumi.week, datetime.datetime.today().weekday())
+        weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
 
     env_columns = 42 if os.environ.get(
         'TRAVIS_CI', False) else get_terminal_col()
@@ -165,18 +164,18 @@ def update_wrapper(ret):
 
 def download_manager(ret):
     if ret.id:
+        # 没有入口..
         download_id = ret.id
         status = ret.status
         if download_id is None or status is None:
             print_error('No id or status specified.')
-        download_obj = Download(_id=download_id)
-        download_obj.select_obj()
-        if not download_obj:
-            print_error('Download object does not exist.')
-        print_info('Download Object <{0} - {1}>, Status: {2}'.format(download_obj.name, download_obj.episode,
-                                                                     download_obj.status))
-        download_obj.status = status
-        download_obj.save()
+        # download_obj = NeoDownload.get(_id=download_id)
+        # if not download_obj:
+        #     print_error('Download object does not exist.')
+        # print_info('Download Object <{0} - {1}>, Status: {2}'.format(download_obj.name, download_obj.episode,
+        #                                                              download_obj.status))
+        # download_obj.status = status
+        # download_obj.save()
         print_success('Download status has been marked as {0}'.format(
             DOWNLOAD_CHOICE_LIST_DICT.get(int(status))))
     else:
@@ -187,26 +186,29 @@ def download_manager(ret):
 
 
 def fetch_(ret):
-    bangumi_obj = Bangumi(name=ret.name)
-    bangumi_obj.select_obj()
+    try:
+        bangumi_obj = Bangumi.get(name=ret.name)
+    except Bangumi.DoesNotExist:
+        print_error('Bangumi {0} not exist'.format(ret.name))
+        return
 
-    followed_obj = Followed(bangumi_name=bangumi_obj.name)
-    followed_obj.select_obj()
+    try:
+        Followed.get(bangumi_name=bangumi_obj.name)
+    except Bangumi.DoesNotExist:
+        print_error('Bangumi {0} is not followed'.format(ret.name))
+        return
 
     followed_filter_obj = Filter.get(bangumi_name=ret.name)
-    # followed_filter_obj.select_obj()
     print_filter(followed_filter_obj)
 
-    if bangumi_obj:
-        print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
-        _, data = website.get_maximum_episode(bangumi_obj,
-                                              ignore_old_row=False if ret.not_ignore else True)
-        if not data:
-            print_warning('Nothing.')
-        for i in data:
-            print_success(i['title'])
-    else:
-        print_error('Bangumi {0} not exist'.format(ret.name))
+    print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
+    _, data = website.get_maximum_episode(bangumi_obj, ignore_old_row=False if ret.not_ignore else True)
+
+    if not data:
+        print_warning('Nothing.')
+    for i in data:
+        print_success(i['title'])
+
 
 
 CONTROLLERS_DICT = {

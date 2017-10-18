@@ -12,7 +12,7 @@ from multiprocessing.pool import ThreadPool
 import requests
 
 from bgmi.config import MAX_PAGE, SAVE_PATH, IS_PYTHON3
-from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED
+from bgmi.models import Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi
 from bgmi.script import ScriptRunner
 from bgmi.utils import (parse_episode, print_warning, print_info,
                         test_connection, normalize_path)
@@ -29,8 +29,7 @@ class BaseWebsite(object):
 
     @staticmethod
     def save_data(data):
-        b = Bangumi(**data)
-        b.save()
+        b, _ = Bangumi.get_or_create(name=data['name'], defaults=data)
 
     def fetch(self, save=False, group_by_weekday=True):
         bangumi_result, subtitle_group_result = self.fetch_bangumi_calendar_and_subtitle_group()
