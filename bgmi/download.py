@@ -57,7 +57,7 @@ def download_prepare(data):
             download_class.check_download(download.name)
 
             # mark as downloaded
-            download.delete()
+            download.downloaded()
         except Exception as e:
             print_error('Error: {0}'.format(e), exit_=False)
             download.status = STATUS_NOT_DOWNLOAD

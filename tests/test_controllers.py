@@ -6,7 +6,7 @@ import unittest
 
 from bgmi.controllers import *
 from bgmi.main import setup, unicode_
-from bgmi.models import Bangumi
+from bgmi.models import DB
 
 
 class ControllersTest(unittest.TestCase):
@@ -75,4 +75,4 @@ class ControllersTest(unittest.TestCase):
     @staticmethod
     def setUpClass():
         setup()
-        Bangumi.recreate_source_relatively_table()
+        recreate_source_relatively_table()

@@ -33,8 +33,8 @@ script:
     - coverage run -a -m bgmi.main config BANGUMI_MOE_URL https://bangumi.moe
     - coverage run -a -m bgmi.main add $BANGUMI_1 $BANGUMI_2 $BANGUMI_3
     - coverage run -a -m bgmi.main update
-    - coverage run -a -m bgmi.main delete --name $BANGUMI_3
-    - coverage run -a -m bgmi.main delete --clear-all --batch
+    - coverage run -a -m bgmi.main downloaded --name $BANGUMI_3
+    - coverage run -a -m bgmi.main downloaded --clear-all --batch
     - coverage run -a -m bgmi.main add $BANGUMI_2 --episode 1
     - coverage run -a -m bgmi.main fetch $BANGUMI_2
     - coverage run -a -m unittest tests.test_http_api

@@ -15,7 +15,7 @@ from bgmi.controllers import (filter_, source,
                               mark, delete, add, search, update, list_)
 from bgmi.download import download_prepare, get_download_class
 from bgmi.fetch import website
-from bgmi.models import Bangumi, Filter, Subtitle, Followed
+from bgmi.models import Filter, Subtitle, Followed, Bangumi
 from bgmi.models import STATUS_FOLLOWED, STATUS_UPDATED
 from bgmi.utils import (GREEN, COLOR_END, get_terminal_col,
                         YELLOW)
@@ -86,8 +86,7 @@ def cal_wrapper(ret):
     if today:
         weekday_order = (Bangumi.week[datetime.datetime.today().weekday()],)
     else:
-        weekday_order = shift(
-            Bangumi.week, datetime.datetime.today().weekday())
+        weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
 
     env_columns = 42 if os.environ.get(
         'TRAVIS_CI', False) else get_terminal_col()
@@ -187,7 +186,7 @@ def download_manager(ret):
 
 
 def fetch_(ret):
-    bangumi_obj = Bangumi(name=ret.name)
+    bangumi_obj, _ = Bangumi.get_or_create(name=ret.name)
     bangumi_obj.select_obj()
 
     followed_obj = Followed.get(bangumi_name=bangumi_obj.name)

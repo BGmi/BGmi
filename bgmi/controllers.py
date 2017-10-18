@@ -7,9 +7,9 @@ from bgmi.config import write_config
 from bgmi.constants import SUPPORT_WEBSITE
 from bgmi.download import download_prepare
 from bgmi.fetch import website
-from bgmi.models import (Bangumi, Filter, Subtitle, Download,
-                         STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NOT_DOWNLOAD, FOLLOWED_STATUS, Followed)
-from bgmi.models import (STATUS_NORMAL, DB)
+from bgmi.models import (Filter, Subtitle, Download, recreate_source_relatively_table,
+                         STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NOT_DOWNLOAD, FOLLOWED_STATUS, Followed, Bangumi)
+from bgmi.models import (STATUS_NORMAL)
 from bgmi.script import ScriptRunner
 from bgmi.utils import print_info, normalize_path, print_warning, print_success, print_error, GREEN, COLOR_END
 
@@ -24,15 +24,13 @@ def add(name, episode=None):
     if not Bangumi.get_all_bangumi():
         website.fetch(save=True, group_by_weekday=False)
 
-    bangumi_obj = Bangumi(name=name)
-    data = bangumi_obj.select(one=True, fields=['id', 'name', 'keyword'])
-
-    # no bangumi found
-    if not data:
+    try:
+        bangumi_obj = Bangumi.get(name=name)
+    except Bangumi.DoesNotExist:
         return {'status': 'error',
                 'message': '{0} not found, please check the name'.format(name)}
 
-    followed_obj, this_obj_created = Followed.get_or_create(bangumi_name=data['name'],
+    followed_obj, this_obj_created = Followed.get_or_create(bangumi_name=bangumi_obj.name,
                                                             defaults={'status': STATUS_FOLLOWED})
     if not this_obj_created:
         followed_obj.status = STATUS_FOLLOWED
@@ -52,20 +50,16 @@ def add(name, episode=None):
 
 def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
     result = {'status': 'success', 'message': ''}
-    bangumi_obj = Bangumi(name=name)
-    bangumi_obj.select_obj()
-    if not bangumi_obj:
+    try:
+        bangumi_obj = Bangumi.get(name=name)
+    except Bangumi.DoesNotExist:
         result['status'] = 'error'
-        result['message'] = 'Bangumi {0} does not exist.'.format(bangumi_obj.name)
+        result['message'] = 'Bangumi {0} does not exist.'.format(name)
         return result
 
-    # followed_obj = Followed(bangumi_name=bangumi_obj.name)
-    # followed_obj.select_obj()
-    Followed.get_or_create
-    cls = Followed
     try:
-        followed_obj = Followed.get(bangumi_name=bangumi_obj.name)
-    except cls.DoesNotExist as exc:
+        Followed.get(bangumi_name=bangumi_obj.name)
+    except Followed.DoesNotExist as exc:
         result['status'] = 'error'
         result['message'] = 'Bangumi {name} has not subscribed, try \'bgmi add "{name}"\'.' \
             .format(name=bangumi_obj.name)
@@ -120,8 +114,8 @@ def delete(name='', clear_all=False, batch=False):
     :type batch: bool
     :return:
     """
-    # action delete
-    # just delete subscribed bangumi or clear all the subscribed bangumi
+    # action downloaded
+    # just downloaded subscribed bangumi or clear all the subscribed bangumi
     result = {}
     if clear_all:
         if Followed.delete_followed(batch=batch):
@@ -219,7 +213,7 @@ def search(keyword, count=3, dupe=True):
 def source(data_source):
     result = {}
     if data_source in list(map(lambda x: x['id'], SUPPORT_WEBSITE)):
-        DB.recreate_source_relatively_table()
+        recreate_source_relatively_table()
         write_config('DATA_SOURCE', data_source)
         print_success('data source switch succeeds')
         from bgmi.fetch import DATA_SOURCE_MAP
@@ -290,9 +284,9 @@ def update(name, download=None, not_ignore=False):
 
     for subscribe in updated_bangumi_obj:
         print_info('fetching %s ...' % subscribe['bangumi_name'])
-        bangumi_obj = Bangumi(name=subscribe['bangumi_name'])
-        bangumi_obj.select_obj()
-        if not bangumi_obj:
+        try:
+            bangumi_obj = Bangumi.get(name=subscribe['bangumi_name'])
+        except Bangumi.DoesNotExist:
             print_error('Bangumi<{0}> does not exists.'.format(subscribe['bangumi_name']),
                         exit_=False)
             continue
