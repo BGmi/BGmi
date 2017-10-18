@@ -27,7 +27,7 @@ Feature
 + RSS feed for uTorrent, ICS caldendar for mobile devices
 + Bangumi Script: Write your bangumi parser own!
 + Bangumi calendar / episode information
-+ Keyword, subtitle group, regular expression filter for download bangumi
++ Keyword, subtitle group, regular expression filters for download bangumi
 + Windows, Linux and Router system supported, BGmi everywhere
 
 .. image:: ./images/bgmi_cli.png?raw=true
@@ -115,6 +115,7 @@ bangumi you have downloaded will still store on the disk, but won't show on webs
 Setup custom BGMI_PATH:
 
 .. code-block:: bash
+
     BGMI_PATH=/bgmi bgmi -h
 
 Or add this code to your .bashrc file:
@@ -181,7 +182,7 @@ Search bangumi and download:
 
     bgmi search '为美好的世界献上祝福！' --regex-filter '.*动漫国字幕组.*为美好的世界献上祝福！].*720P.*'
     # download
-    bgmi search '为美好的世界献上祝福！' --regex-filter '.*合集.* --download
+    bgmi search '为美好的世界献上祝福！' --regex-filter '.*合集.*' --download
 
 
 Modify bangumi episode:
