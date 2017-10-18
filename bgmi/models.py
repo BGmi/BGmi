@@ -126,12 +126,12 @@ class Followed(NeoDB):
     def get_all_followed(cls, status=STATUS_NORMAL, bangumi_status=STATUS_UPDATING, order=None, desc=None):
         join_cond = (Bangumi.name == cls.bangumi_name)
         if status is None and bangumi_status is None:
-            d = cls.select(cls, Bangumi.name, Bangumi.update_time) \
+            d = cls.select(cls, Bangumi.name, Bangumi.update_time, Bangumi.cover) \
                 .join(Bangumi.name, JOIN_LEFT_OUTER, on=join_cond) \
                 .naive()
             # print(d.sql())
         else:
-            d = cls.select(cls, Bangumi.name, Bangumi.update_time) \
+            d = cls.select(cls, Bangumi.name, Bangumi.update_time, Bangumi.cover) \
                 .join(Bangumi, JOIN_LEFT_OUTER, on=join_cond) \
                 .where(cls.status != status or Bangumi.status == bangumi_status) \
                 .naive()
@@ -140,6 +140,7 @@ class Followed(NeoDB):
         for x in d:
             dic = dict(**x.__dict__['_data'])
             dic['update_time'] = x.update_time
+            dic['cover'] = x.cover
             r.append(dic)
         return r
 
