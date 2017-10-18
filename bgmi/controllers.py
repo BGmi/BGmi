@@ -114,8 +114,8 @@ def delete(name='', clear_all=False, batch=False):
     :type batch: bool
     :return:
     """
-    # action downloaded
-    # just downloaded subscribed bangumi or clear all the subscribed bangumi
+    # action delete
+    # just delete subscribed bangumi or clear all the subscribed bangumi
     result = {}
     if clear_all:
         if Followed.delete_followed(batch=batch):

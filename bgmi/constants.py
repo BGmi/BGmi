@@ -6,7 +6,7 @@ from bgmi.config import BANGUMI_MOE_URL, SHARE_DMHY_URL
 ACTION_ADD = 'add'
 ACTION_FETCH = 'fetch'
 ACTION_FILTER = 'filter'
-ACTION_DELETE = 'downloaded'
+ACTION_DELETE = 'delete'
 ACTION_UPDATE = 'update'
 ACTION_CAL = 'cal'
 ACTION_CONFIG = 'config'

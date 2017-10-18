@@ -106,7 +106,7 @@ Supported data source:
 
 **change data source will lose all bangumi you have followed!!**
 
-bangumi you have downloaded will still store on the disk, but won't show on website
+bangumi you have delete will still store on the disk, but won't show on website
 
 + `bangumi_moe(default) <https://bangumi.moe>`_
 + `mikan_project <https://mikanani.me>`_
@@ -150,7 +150,7 @@ Unsubscribe bangumi:
 
 .. code-block:: bash
 
-    bgmi downloaded --name "Re:CREATORS"
+    bgmi delete --name "Re:CREATORS"
 
 
 Update bangumi database which locates at ~/.bgmi/bangumi.db acquiescently:
