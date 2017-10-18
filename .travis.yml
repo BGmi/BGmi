@@ -21,7 +21,7 @@ script:
     - export BANGUMI_1=调教咖啡厅
     - export BANGUMI_2=海贼王
     - export BANGUMI_3=此花奇谭
-    - coverage run -m unittest tests.test_models
+#    - coverage run -m unittest tests.test_models
     - coverage run -a -m unittest tests.test_controllers
     - bgmi -h
     - curl https://static.ricterz.me/test_script.py > $HOME/.bgmi/scripts/test_script.py

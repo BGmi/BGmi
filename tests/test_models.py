@@ -59,13 +59,6 @@ class ModelsTest(unittest.TestCase):
         self.assertEqual(b1.select(one=True), None)
 
     def test_delete_bangumi(self):
-        # Deprecated test
-
-        # b1 = Bangumi(name='test_delete_all', update_time='Sun')
-        # b2 = Bangumi(name='test_delete_all2', update_time='Sun')
-        # Bangumi.delete_bangumi()
-        # self.assertEqual(b1.select(one=True), None)
-        # self.assertEqual(b2.select(one=True), None)
         pass
 
 
