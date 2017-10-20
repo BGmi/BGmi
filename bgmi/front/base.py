@@ -51,7 +51,7 @@ class BaseHandler(tornado.web.RequestHandler):
             'version': __version__,
             'status': 'success',
             'danmaku_api': DANMAKU_API_URL,
-            'cover_url': COVER_URL,
+            # 'cover_url': COVER_URL,
             'data': data
         }
         j.update(kwargs)

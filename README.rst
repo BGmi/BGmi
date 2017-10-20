@@ -467,6 +467,7 @@ You can easily add your own BGmi data source by extending BGmi website base clas
 .. code-block:: python
 
     class DataSource(bgmi.website.base.BaseWebsite)
+        cover_url=''
 
         def search_by_keyword(self, keyword, count):
             """
@@ -514,6 +515,8 @@ You can easily add your own BGmi data source by extending BGmi website base clas
                     },
                 ]
             ```
+            when downloading cover images, BGmi will try to get `self.cover_url + bangumi['cover']`
+
 
             list of subtitle group dict:
             example:

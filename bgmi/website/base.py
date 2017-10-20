@@ -27,9 +27,13 @@ class BaseWebsite(object):
     cover_url = ''
     parse_episode = staticmethod(parse_episode)
 
-    @staticmethod
-    def save_data(data):
-        b, _ = Bangumi.get_or_create(name=data['name'], defaults=data)
+    # @staticmethod
+    def save_data(self, data):
+        b, obj_created = Bangumi.get_or_create(name=data['name'], defaults=data)
+        if not obj_created:
+            if not (b.cover.startswith('http://') or b.cover.startswith('https://')):
+                b.cover = self.cover_url + data['cover']
+                b.save()
 
     def fetch(self, save=False, group_by_weekday=True):
         bangumi_result, subtitle_group_result = self.fetch_bangumi_calendar_and_subtitle_group()
@@ -42,6 +46,9 @@ class BaseWebsite(object):
         if not bangumi_result:
             print('no result return None')
             return []
+
+        for bangumi in bangumi_result:
+            bangumi['cover'] = self.cover_url + bangumi['cover']
 
         if save:
             for bangumi in bangumi_result:
@@ -62,8 +69,9 @@ class BaseWebsite(object):
             weekly_list[k].extend(v)
         for bangumi_list in weekly_list.values():
             for bangumi in bangumi_list:
-                bangumi['subtitle_group'] = [{'name': x['name'], 'id': x['id']}
-                                             for x in Subtitle.get_subtitle_by_id(bangumi['subtitle_group'].split(', '))]
+                bangumi['subtitle_group'] = [{'name': x['name'],
+                                              'id': x['id']} for x in
+                                             Subtitle.get_subtitle_by_id(bangumi['subtitle_group'].split(', '))]
         return weekly_list
 
     def bangumi_calendar(self, force_update=False, save=True, cover=False):
@@ -80,9 +88,7 @@ class BaseWebsite(object):
         if not weekly_list:
             print_warning('warning: no bangumi schedule, fetching ...')
             weekly_list = self.fetch(save=save)
-        for key, value in weekly_list.items():
-            for bangumi in value:
-                bangumi['cover'] = self.cover_url + bangumi['cover']
+
         runner = ScriptRunner()
         patch_list = runner.get_models_dict()
         for i in patch_list:
