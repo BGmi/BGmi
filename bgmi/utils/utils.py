@@ -199,10 +199,12 @@ def check_update(mark=True):
     def update():
         try:
             print_info('Checking update ...')
-            version = requests.get('https://pypi.python.org/pypi/bgmi/json', verify=False).json()['info']['version']
+            version = requests.get('https://pypi.python.org/pypi/bgmi/json',
+                                   verify=False).json()['info']['version']
             if version > __version__:
                 print_warning('Please update bgmi to the latest version {}{}{}.'
-                              '\nThen execute `bgmi upgrade` to migrate database'.format(GREEN, version, COLOR_END))
+                              '\nThen execute `bgmi upgrade` to migrate database'
+                              .format(GREEN, version, COLOR_END))
             else:
                 print_success('Your BGmi is the latest version.')
 
@@ -210,7 +212,7 @@ def check_update(mark=True):
             if glob.glob(os.path.join(FRONT_STATIC_PATH, 'package.json')):
                 with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'r') as f:
                     local_version = json.loads(f.read())['version']
-                if admin_version > local_version:
+                if [int(x) for x in admin_version.split('.')] > [int(x) for x in local_version.split('.')]:
                     get_web_admin(method='update')
             else:
                 print_info("Use 'bgmi install' to install BGmi frontend / download delegate")

@@ -5,6 +5,7 @@ from collections import defaultdict
 
 import peewee
 from peewee import *
+from playhouse.shortcuts import model_to_dict
 
 import bgmi.config
 from bgmi.config import IS_PYTHON3
@@ -34,13 +35,6 @@ DOWNLOAD_STATUS = (STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, STATUS_DOWNLOADED)
 
 db = peewee.SqliteDatabase(bgmi.config.DB_PATH)
 
-compiler = db.compiler()
-def make_dicts(cursor, row):
-    return dict((cursor.description[idx][0], value)
-                for idx, value in enumerate(row))
-
-
-
 
 class NeoDB(Model):
     class Meta:
@@ -48,10 +42,6 @@ class NeoDB(Model):
 
 
 class Bangumi(NeoDB):
-    class Meta:
-        database = db
-        db_table = 'bangumi'
-
     id = IntegerField(primary_key=True)
     name = TextField(unique=True, null=False)
     subtitle_group = TextField(null=False)
@@ -71,14 +61,12 @@ class Bangumi(NeoDB):
         self.update_time = update_time
         self.subtitle_group = ', '.join(kwargs.get('subtitle_group', []))
 
-
     @classmethod
     def delete_all(cls):
         cls.update(status=STATUS_END).execute()
 
     @classmethod
     def get_all_bangumi(cls, status=None, order=True):
-        from playhouse.shortcuts import model_to_dict
 
         if status is None:
             data = cls.select(cls) \
@@ -107,7 +95,6 @@ class Followed(NeoDB):
     status = IntegerField(null=True)
     updated_time = IntegerField(null=True)
 
-
     class Meta:
         database = db
         db_table = 'followed'
@@ -128,12 +115,13 @@ class Followed(NeoDB):
         if status is None and bangumi_status is None:
             d = cls.select(cls, Bangumi.name, Bangumi.update_time, Bangumi.cover) \
                 .join(Bangumi.name, JOIN_LEFT_OUTER, on=join_cond) \
+                .order_by(cls.updated_time.desc()) \
                 .naive()
-            # print(d.sql())
         else:
             d = cls.select(cls, Bangumi.name, Bangumi.update_time, Bangumi.cover) \
                 .join(Bangumi, JOIN_LEFT_OUTER, on=join_cond) \
                 .where(cls.status != status or Bangumi.status == bangumi_status) \
+                .order_by(cls.updated_time.desc()) \
                 .naive()
 
         r = []
@@ -144,12 +132,6 @@ class Followed(NeoDB):
             r.append(dic)
         return r
 
-    def __str__(self):
-        return 'Followed Bangumi<%s>' % self.bangumi_name
-
-    def __repr__(self):
-        return 'Followed Bangumi<%s>' % self.bangumi_name
-
 
 class Download(NeoDB):
     name = TextField(null=False)
@@ -157,12 +139,6 @@ class Download(NeoDB):
     episode = IntegerField(default=0)
     download = TextField()
     status = IntegerField(default=0)
-
-    # add_time
-    # end_time
-    class Meta:
-        database = db
-        db_table = 'download'
 
     @classmethod
     def get_all_downloads(cls, status=None):
@@ -175,22 +151,9 @@ class Download(NeoDB):
             data[index] = x.__dict__['_data']
         return data
 
-    def downloaded(self, condition=None):
+    def downloaded(self):
         self.status = STATUS_DOWNLOADED
         self.save()
-
-
-script_db = peewee.SqliteDatabase(bgmi.config.SCRIPT_DB_PATH)
-
-
-class Scripts(peewee.Model):
-    bangumi_name = TextField(null=False, unique=True)
-    episode = IntegerField(default=0)
-    status = IntegerField(default=0)
-    updated_time = IntegerField(default=0)
-
-    class Meta:
-        database = script_db
 
 
 class Filter(NeoDB):
@@ -220,25 +183,21 @@ class Subtitle(NeoDB):
         return data
 
 
+script_db = peewee.SqliteDatabase(bgmi.config.SCRIPT_DB_PATH)
+
+
+class Scripts(peewee.Model):
+    bangumi_name = TextField(null=False, unique=True)
+    episode = IntegerField(default=0)
+    status = IntegerField(default=0)
+    updated_time = IntegerField(default=0)
+
+    class Meta:
+        database = script_db
+
+
 def recreate_source_relatively_table():
     table_to_drop = [Bangumi, Followed, Subtitle, Filter, Download]
     for table in table_to_drop:
-        q = table.delete().execute()
+        table.delete().execute()
     return True
-
-
-def init_db():
-    """
-    初始化数据库
-    :return:
-    """
-
-    db.create_tables([Followed, Bangumi, Download, Filter, Subtitle])
-    script_db.connect()
-    script_db.create_tables([Scripts, ])
-    script_db.close()
-
-
-if __name__ == '__main__':
-    x = recreate_source_relatively_table()
-    print(x)

@@ -33,10 +33,11 @@ def add(name, episode=None):
     followed_obj, this_obj_created = Followed.get_or_create(bangumi_name=bangumi_obj.name,
                                                             defaults={'status': STATUS_FOLLOWED})
     if not this_obj_created:
-        followed_obj.status = STATUS_FOLLOWED
-        followed_obj.save()
         if followed_obj.status == 1:
             return {'status': 'warning', 'message': '{0} already followed'.format(bangumi_obj)}
+        else:
+            followed_obj.status = STATUS_FOLLOWED
+            followed_obj.save()
 
     Filter.get_or_create(bangumi_name=name)
 
@@ -376,5 +377,3 @@ def list_():
                     f = map(lambda x: x['name'], bangumi['subtitle_group'])
                     result['message'] += '%s: %s\n' % (bangumi['name'], ', '.join(f) if f else '<None>')
     return result
-
-

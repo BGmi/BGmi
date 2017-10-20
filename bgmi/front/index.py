@@ -4,8 +4,9 @@ from __future__ import print_function, unicode_literals
 import os
 
 from bgmi.config import SAVE_PATH, DB_PATH
-from bgmi.front.base import BaseHandler
+from bgmi.front.base import BaseHandler, COVER_URL
 from bgmi.models import STATUS_NORMAL, STATUS_UPDATING, STATUS_END, Followed
+from bgmi.utils import normalize_path
 
 
 def get_player(bangumi_name):
@@ -53,6 +54,9 @@ class MainHandler(BaseHandler):
         if type_ == 'index':
             data.extend(self.patch_list)
             data.sort(key=lambda _: _['updated_time'] if _['updated_time'] else 1)
+
+        for bangumi in data:
+            bangumi['cover'] = '{}/{}'.format(COVER_URL, normalize_path(bangumi['cover']))
 
         data.reverse()
 
