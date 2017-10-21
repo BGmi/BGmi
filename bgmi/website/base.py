@@ -149,7 +149,10 @@ class BaseWebsite(object):
 
     def get_maximum_episode(self, bangumi, subtitle=True, ignore_old_row=True, max_page=MAX_PAGE):
 
-        followed_filter_obj = Filter.get(bangumi_name=bangumi.name)
+        try:
+            followed_filter_obj = Filter.get(bangumi_name=bangumi.name)
+        except Filter.DoesNotExist:
+            followed_filter_obj = Filter.create(bangumi_name=bangumi.name)
 
         if followed_filter_obj and subtitle:
             subtitle_group = followed_filter_obj.subtitle
