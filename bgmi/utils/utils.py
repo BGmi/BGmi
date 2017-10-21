@@ -76,8 +76,9 @@ indicator_map = {
     'print_error': '[x] ',
 }
 
-FRONTEND_NPM_URL = 'https://registry.npm.taobao.org/bgmi-frontend/'
-PACKAGE_JSON_URL = 'https://registry.npm.taobao.org/bgmi-frontend/{}'.format(__admin_version__)
+NPM_REGISTER_DOMAIN = 'registry.npmjs.com' if os.environ.get('TRAVIS_CI', False) else 'registry.npm.taobao.org'
+FRONTEND_NPM_URL = 'https://{}/bgmi-frontend/'.format(NPM_REGISTER_DOMAIN)
+PACKAGE_JSON_URL = 'https://{}/bgmi-frontend/{}'.format(NPM_REGISTER_DOMAIN, __admin_version__)
 
 
 def indicator(f):
@@ -208,7 +209,8 @@ def check_update(mark=True):
             else:
                 print_success('Your BGmi is the latest version.')
 
-            admin_version = requests.get(PACKAGE_JSON_URL).json()['version']
+            package_json = requests.get(PACKAGE_JSON_URL).json()
+            admin_version = package_json['version']
             if glob.glob(os.path.join(FRONT_STATIC_PATH, 'package.json')):
                 with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'r') as f:
                     local_version = json.loads(f.read())['version']
@@ -305,12 +307,14 @@ def normalize_path(url):
 def get_web_admin(method):
     # frontend_npm_url = 'https://registry.npmjs.com/bgmi-frontend/'
     print_info('{}ing BGmi frontend'.format(method[0].upper() + method[1:]))
-    rmtree(FRONT_STATIC_PATH)
-    os.makedirs(FRONT_STATIC_PATH)
 
     try:
         r = requests.get(FRONTEND_NPM_URL).json()
         version = requests.get(PACKAGE_JSON_URL).json()
+        if 'error' in version and version['reason'] == "document not found":  # pragma: no cover
+            print_error("Cnpm has not synchronized the latest version of BGmi-frontend from npm, "
+                        "please try it later")
+            return
         tar_url = r['versions'][version['version']]['dist']['tarball']
         r = requests.get(tar_url)
     except requests.exceptions.ConnectionError:
@@ -322,6 +326,9 @@ def get_web_admin(method):
     admin_zip = BytesIO(r.content)
     with gzip.GzipFile(fileobj=admin_zip) as f:
         tar_file = BytesIO(f.read())
+
+    rmtree(FRONT_STATIC_PATH)
+    os.makedirs(FRONT_STATIC_PATH)
 
     with tarfile.open(fileobj=tar_file) as tar_file_obj:
         tar_file_obj.extractall(path=FRONT_STATIC_PATH)
