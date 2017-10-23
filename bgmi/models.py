@@ -69,13 +69,13 @@ class Bangumi(NeoDB):
     def get_all_bangumi(cls, status=None, order=True):
 
         if status is None:
-            data = cls.select(cls) \
+            data = cls.select(cls, Followed.status) \
                 .join(Followed, JOIN_LEFT_OUTER, on=(cls.name == Followed.bangumi_name)) \
                 .where(cls.status == STATUS_UPDATING).naive()
         else:
-            data = cls.select(cls) \
+            data = cls.select(cls, Followed.status) \
                 .join(Followed, JOIN_LEFT_OUTER, on=(cls.name == Followed.bangumi_name)) \
-                .where(cls.status == STATUS_UPDATING and Followed.status == status)
+                .where(cls.status == STATUS_UPDATING and Followed.status == status).naive()
 
         data = [model_to_dict(x) for x in data]
 

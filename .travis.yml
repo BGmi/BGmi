@@ -21,10 +21,11 @@ script:
     - export BANGUMI_1=调教咖啡厅
     - export BANGUMI_2=海贼王
     - export BANGUMI_3=此花奇谭
+    - coverage run -a -m bgmi.main install
+#    - coverage run -a -m bgmi.main
     - bgmi -h
     - coverage run -a -m unittest tests.test_controllers
     - curl https://static.ricterz.me/test_script.py > $HOME/.bgmi/scripts/test_script.py
-    - coverage run -a -m bgmi.main install
     - coverage run -a -m bgmi.main cal
     - coverage run -a -m bgmi.main config
     - coverage run -a -m bgmi.main config ADMIN_TOKEN 233
