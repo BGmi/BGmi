@@ -66,6 +66,16 @@ Install BGmi web interface:
 
     bgmi install
 
+============
+Upgrade
+============
+.. code-block:: bash
+
+    pip install bgmi -U
+    bgmi upgrade
+
+Make sure to run :code:`bgmi upgrade` after you upgrade your bgmi
+
 ======
 Docker
 ======
@@ -104,10 +114,6 @@ Usage of bgmi
 
 Supported data source:
 
-**change data source will lose all bangumi you have followed!!**
-
-bangumi you have delete will still store on the disk, but won't show on website
-
 + `bangumi_moe(default) <https://bangumi.moe>`_
 + `mikan_project <https://mikanani.me>`_
 + `dmhy <https://share.dmhy.org/>`_
@@ -125,6 +131,13 @@ Or add this code to your .bashrc file:
     alias bgmi='BGMI_PATH=/tmp bgmi'
 
 Change to mikan_project data source:
+
+**All bangumi in database will be deleted when changing data source!!**
+
+(Including followed bangumi, but scripts won't be affected)
+
+video files will still store on the disk, but won't be shown on website.
+
 
 .. code-block:: bash
 
