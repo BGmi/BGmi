@@ -2,7 +2,7 @@ import json
 
 import tornado.web
 
-from bgmi import __version__
+from bgmi import __version__, __admin_version__
 from bgmi.config import DANMAKU_API_URL
 from bgmi.script import ScriptRunner
 from bgmi.utils.utils import normalize_path
@@ -23,7 +23,8 @@ class BaseHandler(tornado.web.RequestHandler):
         self.add_header('Access-Control-Allow-Origin', 'http://localhost:8080')
         self.add_header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
         self.add_header("Access-Control-Allow-Headers",
-                        "Content-Type,bgmi-token,bgmi-token, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+                        "Content-Type,bgmi-token,bgmi-token, "
+                        "Access-Control-Allow-Headers, Authorization, X-Requested-With")
 
     def get(self, *args, **kwargs):
         self._method_not_allowed()
@@ -49,6 +50,7 @@ class BaseHandler(tornado.web.RequestHandler):
     def jsonify(self, data=None, **kwargs):
         j = {
             'version': __version__,
+            'frontend_version': __admin_version__,
             'status': 'success',
             'danmaku_api': DANMAKU_API_URL,
             # 'cover_url': COVER_URL,

@@ -32,8 +32,8 @@ class BaseWebsite(object):
         b, obj_created = Bangumi.get_or_create(name=data['name'], defaults=data)
         if not obj_created:
             b.status = STATUS_UPDATING
-            if not b.cover.startswith(self.cover_url):
-                b.cover = self.cover_url + data['cover']
+            # if not b.cover.startswith(self.cover_url):
+            #     b.cover = self.cover_url + data['cover']
             b.save()
 
     def fetch(self, save=False, group_by_weekday=True):
