@@ -25,11 +25,11 @@ def get_player(bangumi_name):
             episode = -1
 
         for bangumi in files:
-            if bangumi.lower().endswith('.mp4'):
-                mp4_path = os.path.join(base_path, bangumi)
-                mp4_path = os.path.join(os.path.dirname(mp4_path), os.path.basename(mp4_path))
-                mp4_path = mp4_path.replace(os.path.sep, '/')
-                episode_list[episode] = {'path': mp4_path}
+            if any([bangumi.lower().endswith(x) for x in ['.mp4', '.mkv']]):
+                video_file_path = os.path.join(base_path, bangumi)
+                video_file_path = os.path.join(os.path.dirname(video_file_path), os.path.basename(video_file_path))
+                video_file_path = video_file_path.replace(os.path.sep, '/')
+                episode_list[episode] = {'path': video_file_path}
                 break
 
     return episode_list
