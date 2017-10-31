@@ -163,6 +163,10 @@ class ScriptBase(object):
         }
 
     @property
+    def source(self):
+        return self.Model.source
+
+    @property
     def name(self):
         return self.Model.bangumi_name
 
