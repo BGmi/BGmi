@@ -11,6 +11,7 @@ from bgmi.config import SCRIPT_PATH, MAX_PAGE
 from bgmi.download import download_prepare
 from bgmi.models import STATUS_UPDATED, STATUS_FOLLOWED
 from bgmi.models import Scripts
+from bgmi.fetch import DATA_SOURCE_MAP
 from bgmi.utils import print_success, print_warning, print_info
 
 
@@ -197,7 +198,19 @@ class ScriptBase(object):
         The keys `1`, `2`, `3` is the episode, the value is the url of bangumi.
         :return: dict
         """
-        return {}
+        if self.source is not None:
+            source = DATA_SOURCE_MAP.get(self.source, None)()
+            if source is None:
+                raise Exception('Script data source is invalid, usable sources: {}'\
+                                .format(', '.join(DATA_SOURCE_MAP.keys())))
+            ret = {}
+            data = source.fetch_episode_of_bangumi(**self._data)
+            for i in data:
+                if int(i['episode']) not in data:
+                    ret[int(i['episode'])] = i['download']
+            return ret
+        else:
+            return {}
 
 
 if __name__ == '__main__':
