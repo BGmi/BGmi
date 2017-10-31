@@ -141,6 +141,11 @@ def delete(name='', clear_all=False, batch=False):
 
 def cal(force_update=False, save=False):
     weekly_list = website.bangumi_calendar(force_update=force_update, save=save)
+    runner = ScriptRunner()
+    patch_list = runner.get_models_dict()
+    for i in patch_list:
+        weekly_list[i['update_time'].lower()].append(i)
+
     # for web api
     r = weekly_list
     for day, value in weekly_list.items():

@@ -20,6 +20,7 @@ from bgmi.models import STATUS_FOLLOWED, STATUS_UPDATED
 from bgmi.utils import (GREEN, COLOR_END, get_terminal_col,
                         YELLOW)
 from bgmi.utils import print_info, print_warning, print_success, print_error
+from bgmi.script import ScriptRunner
 
 
 def source_wrapper(ret):
@@ -78,6 +79,11 @@ def cal_wrapper(ret):
 
     weekly_list = website.bangumi_calendar(
         force_update=force_update, save=save, cover=cover)
+
+    runner = ScriptRunner()
+    patch_list = runner.get_models_dict()
+    for i in patch_list:
+        weekly_list[i['update_time'].lower()].append(i)
 
     def shift(seq, n):
         n %= len(seq)

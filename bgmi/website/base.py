@@ -90,11 +90,6 @@ class BaseWebsite(object):
             print_warning('warning: no bangumi schedule, fetching ...')
             weekly_list = self.fetch(save=save)
 
-        runner = ScriptRunner()
-        patch_list = runner.get_models_dict()
-        for i in patch_list:
-            weekly_list[i['update_time'].lower()].append(i)
-
         if cover:
             # download cover to local
             cover_to_be_download = []
