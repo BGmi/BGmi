@@ -154,6 +154,14 @@ class ScriptBase(object):
             yield ('episode', self.obj.episode)
 
     @property
+    def _data(self):
+        return {
+            'bangumi_id': self.Model._bangumi_id,
+            'subtitle_list': self.Model._subtitle_list,
+            'max_page': int(self.Model._max_page),
+        }
+
+    @property
     def name(self):
         return self.Model.bangumi_name
 
