@@ -7,7 +7,7 @@ import os
 import time
 import traceback
 
-from bgmi.config import SCRIPT_PATH
+from bgmi.config import SCRIPT_PATH, MAX_PAGE
 from bgmi.download import download_prepare
 from bgmi.models import STATUS_UPDATED, STATUS_FOLLOWED
 from bgmi.models import Scripts
@@ -121,10 +121,20 @@ class ScriptRunner(object):
 class ScriptBase(object):
     class Model(object):
         obj = None
+
+        # data
         bangumi_name = None
         cover = None
         update_time = None
         due_date = None
+
+        # source
+        source = None
+
+        # fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
+        _bangumi_id = None
+        _subtitle_list = []
+        _max_page = MAX_PAGE
 
         def __init__(self):
             if self.bangumi_name is not None:
