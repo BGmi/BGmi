@@ -3,7 +3,7 @@ from __future__ import print_function, unicode_literals
 
 import os
 
-from bgmi.config import SAVE_PATH, DB_PATH
+from bgmi.config import SAVE_PATH
 from bgmi.front.base import BaseHandler, COVER_URL
 from bgmi.models import STATUS_NORMAL, STATUS_UPDATING, STATUS_END, Followed
 from bgmi.utils import normalize_path
@@ -37,10 +37,6 @@ def get_player(bangumi_name):
 
 class MainHandler(BaseHandler):
     def get(self, type_=''):
-        if not os.path.exists(DB_PATH):
-            self.write('BGmi db file not found.')
-            self.finish()
-            return
 
         data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING,
                                          order='followed.updated_time', desc=True)

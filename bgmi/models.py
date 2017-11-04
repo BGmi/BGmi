@@ -112,19 +112,13 @@ class Followed(NeoDB):
         return True
 
     @classmethod
-    def get_all_followed(cls, status=STATUS_NORMAL, bangumi_status=STATUS_UPDATING, order=None, desc=None):
+    def get_all_followed(cls, status=STATUS_NORMAL, bangumi_status=STATUS_UPDATING):
         join_cond = (Bangumi.name == cls.bangumi_name)
-        if status is None and bangumi_status is None:
-            d = cls.select(cls, Bangumi.name, Bangumi.update_time, Bangumi.cover) \
-                .join(Bangumi.name, JOIN_LEFT_OUTER, on=join_cond) \
-                .order_by(cls.updated_time.desc()) \
-                .naive()
-        else:
-            d = cls.select(cls, Bangumi.name, Bangumi.update_time, Bangumi.cover) \
-                .join(Bangumi, JOIN_LEFT_OUTER, on=join_cond) \
-                .where(cls.status != status and Bangumi.status == bangumi_status) \
-                .order_by(cls.updated_time.desc()) \
-                .naive()
+        d = cls.select(cls, Bangumi.name, Bangumi.update_time, Bangumi.cover) \
+            .join(Bangumi, JOIN_LEFT_OUTER, on=join_cond) \
+            .where(cls.status != status and Bangumi.status == bangumi_status) \
+            .order_by(cls.updated_time.desc()) \
+            .naive()
 
         r = []
         for x in d:
@@ -203,9 +197,3 @@ def recreate_source_relatively_table():
     for table in table_to_drop:
         table.delete().execute()
     return True
-
-
-if __name__ == '__main__':
-    from pprint import pprint
-
-    pprint([x for x in Followed.get_all_followed()])
