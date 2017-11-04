@@ -259,4 +259,4 @@ IS_PYTHON3 = sys.version_info > (3, 0)
 IS_WINDOWS = platform.system() == 'Windows'
 
 # Global blocked keyword
-GLOBAL_FILTER = ['Leopard-Raws', ]
+GLOBAL_FILTER = ['Leopard-Raws', 'hevc', 'x265']
