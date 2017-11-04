@@ -239,8 +239,8 @@ class BaseWebsite(object):
                 return data
 
         if not ENABLE_GLOBAL_FILTER == '0':
-            data = list(filter(lambda s: True if all(map(lambda t: t.lower() not in s['title'].lower(),
-                                                         GLOBAL_FILTER)) else False, data))
+            data = list(filter(lambda s: True if all(map(lambda t: t.strip().lower() not in s['title'].lower(),
+                                                         GLOBAL_FILTER.split(','))) else False, data))
 
         return data
 

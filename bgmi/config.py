@@ -28,8 +28,7 @@ __all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE',
 
 # cannot be rewrite
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH', 'TOOLS_PATH',
-                'SCRIPT_PATH', 'SCRIPT_DB_PATH', 'FRONT_STATIC_PATH',
-                'GLOBAL_FILTER')
+                'SCRIPT_PATH', 'SCRIPT_DB_PATH', 'FRONT_STATIC_PATH',)
 
 # writeable
 __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
@@ -107,6 +106,7 @@ def write_default_config():
                 v = hashlib.md5(str(random.random()).encode('utf-8')).hexdigest()
             else:
                 v = hashlib.md5(str(random.random())).hexdigest()
+
         c.set('bgmi', k, v)
 
     if DOWNLOAD_DELEGATE not in DOWNLOAD_DELEGATE_MAP.keys():
@@ -259,4 +259,4 @@ IS_PYTHON3 = sys.version_info > (3, 0)
 IS_WINDOWS = platform.system() == 'Windows'
 
 # Global blocked keyword
-GLOBAL_FILTER = ['Leopard-Raws', 'hevc', 'x265']
+GLOBAL_FILTER = 'Leopard-Raws, hevc, x265'
