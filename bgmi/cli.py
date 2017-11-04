@@ -17,10 +17,10 @@ from bgmi.download import download_prepare, get_download_class
 from bgmi.fetch import website
 from bgmi.models import Filter, Subtitle, Followed, Bangumi
 from bgmi.models import STATUS_FOLLOWED, STATUS_UPDATED
+from bgmi.script import ScriptRunner
 from bgmi.utils import (GREEN, COLOR_END, get_terminal_col,
                         YELLOW)
 from bgmi.utils import print_info, print_warning, print_success, print_error
-from bgmi.script import ScriptRunner
 
 
 def source_wrapper(ret):
@@ -214,7 +214,6 @@ def fetch_(ret):
         print_warning('Nothing.')
     for i in data:
         print_success(i['title'])
-
 
 
 CONTROLLERS_DICT = {
