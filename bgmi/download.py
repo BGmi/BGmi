@@ -59,6 +59,11 @@ def download_prepare(data):
             # mark as downloaded
             download.downloaded()
         except Exception as e:
+            if os.getenv('DEBUG'):
+                import traceback
+                traceback.print_exc()
+                raise e
+
             print_error('Error: {0}'.format(e), exit_=False)
             download.status = STATUS_NOT_DOWNLOAD
             download.save()
