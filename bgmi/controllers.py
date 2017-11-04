@@ -210,6 +210,11 @@ def mark(name, episode):
 
 
 def search(keyword, count=MAX_PAGE, regex=None, dupe=True):
+    try:
+        count = int(count)
+    except ValueError:
+        count = 3
+
     data = website.search_by_keyword(keyword, count=count)
     if not dupe:
         data = website.remove_duplicated_bangumi(data)
