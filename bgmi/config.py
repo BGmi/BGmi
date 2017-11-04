@@ -23,11 +23,13 @@ __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 # fake __all__
 __all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE',
            'MAX_PAGE', 'DATA_SOURCE', 'TMP_PATH', 'DANMAKU_API_URL',
-           'LANG', 'FRONT_STATIC_PATH', 'ADMIN_TOKEN', 'SHARE_DMHY_URL')
+           'LANG', 'FRONT_STATIC_PATH', 'ADMIN_TOKEN', 'SHARE_DMHY_URL'
+           'GLOBAL_FILTER', 'ENABLE_GLOBAL_FILTER')
 
 # cannot be rewrite
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH', 'TOOLS_PATH',
-                'SCRIPT_PATH', 'SCRIPT_DB_PATH', 'FRONT_STATIC_PATH',)
+                'SCRIPT_PATH', 'SCRIPT_DB_PATH', 'FRONT_STATIC_PATH',
+                'ENABLE_GLOBAL_FILTER')
 
 # writeable
 __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
@@ -239,6 +241,9 @@ TRANSMISSION_RPC_PORT = '9091'
 # tag of bangumi on bangumi.moe
 BANGUMI_TAG = '549ef207fe682f7549f1ea90'
 
+# enable global filter
+ENABLE_GLOBAL_FILTER = '0'
+
 # ------------------------------ #
 # !!! Read config from file and write to globals() !!!
 read_config()
@@ -252,3 +257,6 @@ IS_PYTHON3 = sys.version_info > (3, 0)
 # Detail URL
 # platform
 IS_WINDOWS = platform.system() == 'Windows'
+
+# Global blocked keyword
+GLOBAL_FILTER = ['Leopard-Raws', ]

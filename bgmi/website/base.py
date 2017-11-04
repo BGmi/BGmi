@@ -11,7 +11,7 @@ from multiprocessing.pool import ThreadPool
 
 import requests
 
-from bgmi.config import MAX_PAGE, SAVE_PATH, IS_PYTHON3
+from bgmi.config import MAX_PAGE, SAVE_PATH, IS_PYTHON3, GLOBAL_FILTER, ENABLE_GLOBAL_FILTER
 from bgmi.models import Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, STATUS_UPDATING
 from bgmi.utils import (parse_episode, print_warning, print_info,
                         test_connection, normalize_path)
@@ -218,6 +218,10 @@ class BaseWebsite(object):
                 result = list(filter(lambda s: True if match.findall(s['title']) else False, result))
             except re.error:
                 pass
+
+        if not ENABLE_GLOBAL_FILTER == '0':
+            result = list(filter(lambda s: True if all(map(lambda t: t not in s['title'],
+                                                           GLOBAL_FILTER)) else False, result))
 
         return result
 
