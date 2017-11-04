@@ -49,7 +49,7 @@ class CalendarHandler(BaseHandler):
         cal.add('prodid', '-//BGmi Followed Bangumi Calendar//bangumi.ricterz.me//')
         cal.add('version', '2.0')
 
-        data = Followed.get_all_followed(order='followed.updated_time', desc=True)
+        data = Followed.get_all_followed()
         data.extend(self.patch_list)
 
         if type_ == 0:
