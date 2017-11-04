@@ -216,8 +216,11 @@ class BaseWebsite(object):
             try:
                 match = re.compile(regex)
                 result = list(filter(lambda s: True if match.findall(s['title']) else False, result))
-            except re.error:
-                pass
+            except re.error as e:
+                if os.getenv('DEBUG'):
+                    import traceback
+                    traceback.print_exc()
+                    raise(e)
 
         if not ENABLE_GLOBAL_FILTER == '0':
             result = list(filter(lambda s: True if all(map(lambda t: t not in s['title'],

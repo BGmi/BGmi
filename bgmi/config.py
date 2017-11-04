@@ -23,7 +23,7 @@ __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 # fake __all__
 __all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE',
            'MAX_PAGE', 'DATA_SOURCE', 'TMP_PATH', 'DANMAKU_API_URL',
-           'LANG', 'FRONT_STATIC_PATH', 'ADMIN_TOKEN', 'SHARE_DMHY_URL'
+           'LANG', 'FRONT_STATIC_PATH', 'ADMIN_TOKEN', 'SHARE_DMHY_URL',
            'GLOBAL_FILTER', 'ENABLE_GLOBAL_FILTER')
 
 # cannot be rewrite
