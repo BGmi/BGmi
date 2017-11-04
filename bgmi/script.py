@@ -5,13 +5,13 @@ import glob
 import imp
 import os
 import time
-import datetime
 import traceback
 
-from bgmi.config import SCRIPT_PATH
+from bgmi.config import SCRIPT_PATH, MAX_PAGE
 from bgmi.download import download_prepare
 from bgmi.models import STATUS_UPDATED, STATUS_FOLLOWED
-from bgmi.models import Script
+from bgmi.models import Scripts
+from bgmi.fetch import DATA_SOURCE_MAP
 from bgmi.utils import print_success, print_warning, print_info
 
 
@@ -37,8 +37,8 @@ class ScriptRunner(object):
                     print_warning('Load script {} failed, ignored'.format(i))
                     if os.getenv('DEBUG_SCRIPT'):
                         traceback.print_exc()
-                    # self.scripts = filter(self._check_followed, self.scripts)
-                    # self.scripts = filter(self._check_bangumi, self.scripts)
+                        # self.scripts = filter(self._check_followed, self.scripts)
+                        # self.scripts = filter(self._check_bangumi, self.scripts)
 
             cls._defined = super(ScriptRunner, cls).__new__(cls, *args, **kwargs)
 
@@ -120,20 +120,27 @@ class ScriptRunner(object):
 
 
 class ScriptBase(object):
-
     class Model(object):
         obj = None
+
+        # data
         bangumi_name = None
         cover = None
         update_time = None
         due_date = None
 
+        # source
+        source = None
+
+        # fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
+        _bangumi_id = None
+        _subtitle_list = []
+        _max_page = MAX_PAGE
+
         def __init__(self):
             if self.bangumi_name is not None:
-                s = Script(bangumi_name=self.bangumi_name, episode=0, status=STATUS_FOLLOWED)
-                s.select_obj()
-                if not s:
-                    s.save()
+                s, _ = Scripts.get_or_create(bangumi_name=self.bangumi_name,
+                                             defaults={'episode': 0, 'status': STATUS_FOLLOWED})
                 self.obj = s
 
         def __iter__(self):
@@ -142,10 +149,22 @@ class ScriptBase(object):
 
             # patch for cal
             yield ('name', self.bangumi_name)
-            yield ('status', self.obj['status'])
-            yield ('updated_time', self.obj['updated_time'])
+            yield ('status', self.obj.status)
+            yield ('updated_time', self.obj.updated_time)
             yield ('subtitle_group', '')
-            yield ('episode', self.obj['episode'])
+            yield ('episode', self.obj.episode)
+
+    @property
+    def _data(self):
+        return {
+            'bangumi_id': self.Model._bangumi_id,
+            'subtitle_list': self.Model._subtitle_list,
+            'max_page': int(self.Model._max_page),
+        }
+
+    @property
+    def source(self):
+        return self.Model.source
 
     @property
     def name(self):
@@ -183,7 +202,19 @@ class ScriptBase(object):
         The keys `1`, `2`, `3` is the episode, the value is the url of bangumi.
         :return: dict
         """
-        return {}
+        if self.source is not None:
+            source = DATA_SOURCE_MAP.get(self.source, None)()
+            if source is None:
+                raise Exception('Script data source is invalid, usable sources: {}'\
+                                .format(', '.join(DATA_SOURCE_MAP.keys())))
+            ret = {}
+            data = source.fetch_episode_of_bangumi(**self._data)
+            for i in data:
+                if int(i['episode']) not in data:
+                    ret[int(i['episode'])] = i['download']
+            return ret
+        else:
+            return {}
 
 
 if __name__ == '__main__':

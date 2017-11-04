@@ -7,13 +7,13 @@ import re
 import time
 from collections import defaultdict
 from itertools import chain
+from multiprocessing.pool import ThreadPool
 
-import tqdm
+import requests
 
-from bgmi.config import MAX_PAGE, SAVE_PATH, IS_PYTHON3
-from bgmi.models import Bangumi, Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, Followed
-from bgmi.script import ScriptRunner
-from bgmi.utils import (network, parse_episode, print_warning, print_info,
+from bgmi.config import MAX_PAGE, SAVE_PATH, IS_PYTHON3, GLOBAL_FILTER, ENABLE_GLOBAL_FILTER
+from bgmi.models import Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, STATUS_UPDATING
+from bgmi.utils import (parse_episode, print_warning, print_info,
                         test_connection, normalize_path)
 
 if IS_PYTHON3:
@@ -26,21 +26,29 @@ class BaseWebsite(object):
     cover_url = ''
     parse_episode = staticmethod(parse_episode)
 
-    @staticmethod
-    def save_data(data):
-        b = Bangumi(**data)
-        b.save()
+    # @staticmethod
+    def save_data(self, data):
+        b, obj_created = Bangumi.get_or_create(name=data['name'], defaults=data)
+        if not obj_created:
+            b.status = STATUS_UPDATING
+            # if not b.cover.startswith(self.cover_url):
+            #     b.cover = self.cover_url + data['cover']
+            b.save()
 
     def fetch(self, save=False, group_by_weekday=True):
         bangumi_result, subtitle_group_result = self.fetch_bangumi_calendar_and_subtitle_group()
         if subtitle_group_result:
             for subtitle_group in subtitle_group_result:
-                s = Subtitle(id=_unicode(subtitle_group['id']), name=_unicode(subtitle_group['name']))
-                if not s.select():
+                s, if_created = Subtitle.get_or_create(id=_unicode(subtitle_group['id']),
+                                                       name=_unicode(subtitle_group['name']))
+                if if_created:
                     s.save()
         if not bangumi_result:
             print('no result return None')
             return []
+
+        for bangumi in bangumi_result:
+            bangumi['cover'] = self.cover_url + bangumi['cover']
 
         if save:
             for bangumi in bangumi_result:
@@ -61,8 +69,9 @@ class BaseWebsite(object):
             weekly_list[k].extend(v)
         for bangumi_list in weekly_list.values():
             for bangumi in bangumi_list:
-                bangumi['subtitle_group'] = [{'name': x['name'], 'id': x['id']}
-                                             for x in Subtitle.get_subtitle(bangumi['subtitle_group'].split(', '))]
+                bangumi['subtitle_group'] = [{'name': x['name'],
+                                              'id': x['id']} for x in
+                                             Subtitle.get_subtitle_by_id(bangumi['subtitle_group'].split(', '))]
         return weekly_list
 
     def bangumi_calendar(self, force_update=False, save=True, cover=False):
@@ -80,75 +89,84 @@ class BaseWebsite(object):
             print_warning('warning: no bangumi schedule, fetching ...')
             weekly_list = self.fetch(save=save)
 
-        runner = ScriptRunner()
-        patch_list = runner.get_models_dict()
-        for i in patch_list:
-            weekly_list[i['update_time'].lower()].append(i)
-
         if cover:
             # download cover to local
             cover_to_be_download = []
             for daily_bangumi in weekly_list.values():
                 for bangumi in daily_bangumi:
-                    followed_obj = Followed(bangumi_name=bangumi['name'])
-                    if followed_obj:
-                        bangumi['status'] = followed_obj.status
-                    _, file_path, _ = self.convert_cover_to_path(bangumi['cover'])
+                    _, file_path = self.convert_cover_to_path(bangumi['cover'])
 
                     if not glob.glob(file_path):
                         cover_to_be_download.append(bangumi['cover'])
 
             if cover_to_be_download:
                 print_info('updating cover')
-                for cover in tqdm.tqdm(cover_to_be_download):
-                    self.download_cover(cover)
+                self.download_cover(cover_to_be_download)
 
         return weekly_list
 
-    def convert_cover_to_path(self, cover_url):
+    def download_cover(self, cover_url_list):
+        """
+
+        :param cover_url_list:
+        :type cover_url_list: list
+        :return:
+        """
+
+        p = ThreadPool(4)
+        content_list = p.map(requests.get, cover_url_list)
+        for index, r in enumerate(content_list):
+            dir_path, file_path = self.convert_cover_to_path(cover_url_list[index])
+            if not glob.glob(dir_path):
+                os.makedirs(dir_path)
+            with open(file_path, 'wb') as f:
+                f.write(r.content)
+        p.close()
+
+    @staticmethod
+    def convert_cover_to_path(cover_url):
         """
         convert bangumi cover to file path
 
         :param cover_url: bangumi cover path
         :type cover_url:str
-        :rtype: str,str,str
-        :return:file_path, dir_path, url
+        :rtype: str,str
+        :return:file_path, dir_path
         """
-        if cover_url.startswith('https://') or cover_url.startswith('http://'):
-            url = cover_url
-        else:
-            url = '{}/{}'.format(self.cover_url, cover_url)
 
         cover_url = normalize_path(cover_url)
         file_path = os.path.join(SAVE_PATH, 'cover')
         file_path = os.path.join(file_path, cover_url)
         dir_path = os.path.dirname(file_path)
 
-        return dir_path, file_path, url
-
-    def download_cover(self, cover_url):
-        """
-        :type cover_url:str
-        :param cover_url:
-        :return: None
-        """
-        dir_path, file_path, url = self.convert_cover_to_path(cover_url)
-
-        if not glob.glob(dir_path):
-            os.makedirs(dir_path)
-        r = network.get(url)
-
-        with open(file_path, 'wb+') as f:
-            f.write(r.content)
+        return dir_path, file_path
 
     def get_maximum_episode(self, bangumi, subtitle=True, ignore_old_row=True, max_page=MAX_PAGE):
-        followed_filter_obj = Filter(bangumi_name=bangumi.name)
-        followed_filter_obj.select_obj()
 
-        subtitle_group = followed_filter_obj.subtitle if followed_filter_obj and subtitle else None
-        include = followed_filter_obj.include if followed_filter_obj and subtitle else None
-        exclude = followed_filter_obj.exclude if followed_filter_obj and subtitle else None
-        regex = followed_filter_obj.regex if followed_filter_obj and subtitle else None
+        try:
+            followed_filter_obj = Filter.get(bangumi_name=bangumi.name)
+        except Filter.DoesNotExist:
+            followed_filter_obj = Filter.create(bangumi_name=bangumi.name)
+
+        if followed_filter_obj and subtitle:
+            subtitle_group = followed_filter_obj.subtitle
+        else:
+            subtitle_group = None
+
+        if followed_filter_obj and subtitle:
+            include = followed_filter_obj.include
+        else:
+            include = None
+
+        if followed_filter_obj and subtitle:
+            exclude = followed_filter_obj.exclude
+        else:
+            exclude = None
+
+        if followed_filter_obj and subtitle:
+            regex = followed_filter_obj.regex
+        else:
+            regex = None
 
         data = [i for i in self.fetch_episode(_id=bangumi.keyword, name=bangumi.name,
                                               subtitle_group=subtitle_group,
@@ -194,13 +212,7 @@ class BaseWebsite(object):
             result = list(filter(lambda s: True if all(map(lambda t: t not in s['title'],
                                                            exclude_list)) else False, result))
 
-        if regex:
-            try:
-                match = re.compile(regex)
-                result = list(filter(lambda s: True if match.findall(s['title']) else False, result))
-            except re.error:
-                pass
-
+        self.filter_keyword(data=result, regex=regex)
         return result
 
     @staticmethod
@@ -213,6 +225,24 @@ class BaseWebsite(object):
                 del episodes[episodes.index(i['episode'])]
 
         return ret
+
+    def filter_keyword(self, data, regex=None):
+        if regex:
+            try:
+                match = re.compile(regex)
+                data = list(filter(lambda s: True if match.findall(s['title']) else False, data))
+            except re.error as e:
+                if os.getenv('DEBUG'):
+                    import traceback
+                    traceback.print_exc()
+                    raise e
+                return data
+
+        if not ENABLE_GLOBAL_FILTER == '0':
+            data = list(filter(lambda s: True if all(map(lambda t: t.strip().lower() not in s['title'].lower(),
+                                                         GLOBAL_FILTER.split(','))) else False, data))
+
+        return data
 
     def search_by_keyword(self, keyword, count):
         """

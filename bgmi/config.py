@@ -23,7 +23,8 @@ __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 # fake __all__
 __all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE',
            'MAX_PAGE', 'DATA_SOURCE', 'TMP_PATH', 'DANMAKU_API_URL',
-           'LANG', 'FRONT_STATIC_PATH', 'ADMIN_TOKEN', 'SHARE_DMHY_URL')
+           'LANG', 'FRONT_STATIC_PATH', 'ADMIN_TOKEN', 'SHARE_DMHY_URL',
+           'GLOBAL_FILTER', 'ENABLE_GLOBAL_FILTER')
 
 # cannot be rewrite
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH', 'TOOLS_PATH',
@@ -42,7 +43,6 @@ DOWNLOAD_DELEGATE_MAP = {
     'transmission-rpc': __transmission__,
 }
 
-
 if not os.environ.get('BGMI_PATH'):
     if platform.system() == 'Windows':
         BGMI_PATH = os.path.join(os.environ.get('USERPROFILE', None), '.bgmi')
@@ -52,7 +52,6 @@ if not os.environ.get('BGMI_PATH'):
         BGMI_PATH = os.path.join(os.environ.get('HOME', '/tmp'), '.bgmi')
 else:
     BGMI_PATH = os.environ.get('BGMI_PATH')
-
 
 DB_PATH = os.path.join(BGMI_PATH, 'bangumi.db')
 CONFIG_FILE_PATH = os.path.join(BGMI_PATH, 'bgmi.cfg')
@@ -73,7 +72,7 @@ def read_config():
         if c.has_option('bgmi', i):
             globals().update({i: c.get('bgmi', i)})
 
-    for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
+    for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
         if c.has_option(DOWNLOAD_DELEGATE, i):
             globals().update({i: c.get(DOWNLOAD_DELEGATE, i)})
 
@@ -90,7 +89,7 @@ def print_config():
         string += '{0}={1}\n'.format(i, c.get('bgmi', i))
 
     string += '\n[{0}]\n'.format(DOWNLOAD_DELEGATE)
-    for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
+    for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
         string += '{0}={1}\n'.format(i, c.get(DOWNLOAD_DELEGATE, i))
     return string
 
@@ -115,7 +114,7 @@ def write_default_config():
     if not c.has_section(DOWNLOAD_DELEGATE):
         c.add_section(DOWNLOAD_DELEGATE)
 
-    for k in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
+    for k in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
         v = globals().get(k, None)
         c.set(DOWNLOAD_DELEGATE, k, v)
 
@@ -164,7 +163,7 @@ def write_config(config=None, value=None):
                     if config == 'DOWNLOAD_DELEGATE':
                         if not c.has_section(DOWNLOAD_DELEGATE):
                             c.add_section(DOWNLOAD_DELEGATE)
-                            for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
+                            for i in DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]:
                                 v = globals().get(i, '')
                                 c.set(DOWNLOAD_DELEGATE, i, v)
 
@@ -185,7 +184,7 @@ def write_config(config=None, value=None):
 
     except configparser.NoOptionError:
         write_default_config()
-        result = {'status': 'error', 'message': 'Error in config file, write default config'}
+        result = {'status': 'error', 'message': 'Error in config file, adding missing options'}
 
     result['data'] = [{'writable': True, 'name': x, 'value': globals()[x]} for x in __writeable__] + \
                      [{'writable': False, 'name': x, 'value': globals()[x]} for x in __readonly__]
@@ -221,9 +220,6 @@ DOWNLOAD_DELEGATE = 'aria2-rpc'
 # danmaku api url, https://github.com/DIYgod/DPlayer#related-projects
 DANMAKU_API_URL = ''
 
-# bangumi cover url
-COVER_URL = 'https://bangumi.moe'
-
 # language
 LANG = 'zh_cn'
 
@@ -243,6 +239,12 @@ TRANSMISSION_RPC_PORT = '9091'
 
 # tag of bangumi on bangumi.moe
 BANGUMI_TAG = '549ef207fe682f7549f1ea90'
+
+# Global blocked keyword
+GLOBAL_FILTER = 'Leopard-Raws, hevc, x265'
+
+# enable global filter
+ENABLE_GLOBAL_FILTER = '1'
 
 # ------------------------------ #
 # !!! Read config from file and write to globals() !!!
