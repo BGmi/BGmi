@@ -106,7 +106,6 @@ def write_default_config():
                 v = hashlib.md5(str(random.random()).encode('utf-8')).hexdigest()
             else:
                 v = hashlib.md5(str(random.random())).hexdigest()
-
         c.set('bgmi', k, v)
 
     if DOWNLOAD_DELEGATE not in DOWNLOAD_DELEGATE_MAP.keys():
@@ -241,6 +240,9 @@ TRANSMISSION_RPC_PORT = '9091'
 # tag of bangumi on bangumi.moe
 BANGUMI_TAG = '549ef207fe682f7549f1ea90'
 
+# Global blocked keyword
+GLOBAL_FILTER = 'Leopard-Raws, hevc, x265'
+
 # enable global filter
 ENABLE_GLOBAL_FILTER = '1'
 
@@ -257,6 +259,3 @@ IS_PYTHON3 = sys.version_info > (3, 0)
 # Detail URL
 # platform
 IS_WINDOWS = platform.system() == 'Windows'
-
-# Global blocked keyword
-GLOBAL_FILTER = 'Leopard-Raws, hevc, x265'
