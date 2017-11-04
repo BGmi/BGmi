@@ -212,7 +212,7 @@ def mark(name, episode):
 def search(keyword, count=MAX_PAGE, regex=None, dupe=True):
     try:
         count = int(count)
-    except ValueError:
+    except (TypeError, ValueError):
         count = 3
 
     data = website.search_by_keyword(keyword, count=count)
