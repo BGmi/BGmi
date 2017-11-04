@@ -174,12 +174,15 @@ def init_db():
 
 
 def setup():
+    need_to_init = False
     if not os.path.exists(BGMI_PATH):
+        need_to_init = True
         print_warning('BGMI_PATH %s does not exist, installing' % BGMI_PATH)
-        install_crontab()
 
     create_dir()
     init_db()
+    if need_to_init:
+        install_crontab()
 
 
 if __name__ == '__main__':
