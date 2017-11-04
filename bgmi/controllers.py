@@ -3,7 +3,7 @@ from __future__ import print_function, unicode_literals
 
 import time
 
-from bgmi.config import write_config
+from bgmi.config import write_config, MAX_PAGE
 from bgmi.constants import SUPPORT_WEBSITE
 from bgmi.download import download_prepare
 from bgmi.fetch import website
@@ -209,10 +209,12 @@ def mark(name, episode):
     return result
 
 
-def search(keyword, count=3, dupe=True):
+def search(keyword, count=MAX_PAGE, regex=None, dupe=True):
     data = website.search_by_keyword(keyword, count=count)
     if not dupe:
         data = website.remove_duplicated_bangumi(data)
+    else:
+        data = website.filter_keyword(data, regex=regex)
 
     return data
 

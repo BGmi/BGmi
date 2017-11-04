@@ -212,20 +212,7 @@ class BaseWebsite(object):
             result = list(filter(lambda s: True if all(map(lambda t: t not in s['title'],
                                                            exclude_list)) else False, result))
 
-        if regex:
-            try:
-                match = re.compile(regex)
-                result = list(filter(lambda s: True if match.findall(s['title']) else False, result))
-            except re.error as e:
-                if os.getenv('DEBUG'):
-                    import traceback
-                    traceback.print_exc()
-                    raise(e)
-
-        if not ENABLE_GLOBAL_FILTER == '0':
-            result = list(filter(lambda s: True if all(map(lambda t: t not in s['title'],
-                                                           GLOBAL_FILTER)) else False, result))
-
+        self.filter_keyword(data=result, regex=regex)
         return result
 
     @staticmethod
@@ -238,6 +225,24 @@ class BaseWebsite(object):
                 del episodes[episodes.index(i['episode'])]
 
         return ret
+
+    def filter_keyword(self, data, regex=None):
+        if regex:
+            try:
+                match = re.compile(regex)
+                data = list(filter(lambda s: True if match.findall(s['title']) else False, data))
+            except re.error as e:
+                if os.getenv('DEBUG'):
+                    import traceback
+                    traceback.print_exc()
+                    raise e
+                return data
+
+        if not ENABLE_GLOBAL_FILTER == '0':
+            data = list(filter(lambda s: True if all(map(lambda t: t not in s['title'],
+                                                         GLOBAL_FILTER)) else False, data))
+
+        return data
 
     def search_by_keyword(self, keyword, count):
         """
