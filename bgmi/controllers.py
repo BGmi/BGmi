@@ -22,7 +22,7 @@ def add(name, episode=None):
     # action add
     # add bangumi by a list of bangumi name
     # result = {}
-    if not Bangumi.get_all_bangumi():
+    if not Bangumi.get_updating_bangumi():
         website.fetch(save=True, group_by_weekday=False)
 
     try:

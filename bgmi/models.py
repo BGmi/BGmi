@@ -68,7 +68,7 @@ class Bangumi(NeoDB):
         cls.update(status=STATUS_END).execute()
 
     @classmethod
-    def get_all_bangumi(cls, status=None, order=True):
+    def get_updating_bangumi(cls, status=None, order=True):
 
         if status is None:
             data = cls.select(cls, Followed.status) \
@@ -77,9 +77,13 @@ class Bangumi(NeoDB):
         else:
             data = cls.select(cls, Followed.status) \
                 .join(Followed, JOIN_LEFT_OUTER, on=(cls.name == Followed.bangumi_name)) \
-                .where(cls.status == STATUS_UPDATING and Followed.status == status).naive()
-
-        data = [model_to_dict(x) for x in data]
+                .where((cls.status == STATUS_UPDATING) & (Followed.status == status)).naive()
+        r = []
+        for x in data:
+            d = model_to_dict(x)
+            d['status'] = x.status
+            r.append(d)
+        data = r
 
         if order:
             weekly_list = defaultdict(list)
@@ -197,3 +201,10 @@ def recreate_source_relatively_table():
     for table in table_to_drop:
         table.delete().execute()
     return True
+
+
+if __name__ == '__main__':
+    from pprint import pprint
+
+    d = Bangumi.get_updating_bangumi(status=STATUS_FOLLOWED)
+    pprint(d)
