@@ -34,7 +34,7 @@ def add(name, episode=None):
     followed_obj, this_obj_created = Followed.get_or_create(bangumi_name=bangumi_obj.name,
                                                             defaults={'status': STATUS_FOLLOWED})
     if not this_obj_created:
-        if followed_obj.status == 1:
+        if followed_obj.status == STATUS_FOLLOWED:
             return {'status': 'warning', 'message': '{0} already followed'.format(bangumi_obj)}
         else:
             followed_obj.status = STATUS_FOLLOWED
@@ -128,7 +128,8 @@ def delete(name='', clear_all=False, batch=False):
     elif name:
         try:
             followed = Followed.get(bangumi_name=name)
-            followed.delete()
+            followed.status = STATUS_NORMAL
+            followed.save()
             result['status'] = 'warning'
             result['message'] = 'Bangumi {} has been deleted'.format(name)
         except Followed.DoesNotExist:
