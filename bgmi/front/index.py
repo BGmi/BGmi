@@ -37,7 +37,7 @@ def get_player(bangumi_name):
 
 class MainHandler(BaseHandler):
     def get(self, type_=''):
-        data = Followed.get_all_followed(STATUS_FOLLOWED, STATUS_UPDATING if not type_ == 'old' else STATUS_END)
+        data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING if not type_ == 'old' else STATUS_END)
 
         if type_ == 'index':
             data.extend(self.patch_list)
