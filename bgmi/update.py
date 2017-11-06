@@ -40,7 +40,7 @@ def update_database():
     if v < '2.0.2':
         from bgmi.fetch import website
         from bgmi.models import Bangumi
-        week_list = Bangumi.get_all_bangumi()
+        week_list = Bangumi.get_updating_bangumi()
         for kay, value in week_list.items():
             for bangumi in value:
                 b = Bangumi.get(name=bangumi['name'])

@@ -68,7 +68,7 @@ class Bangumi(NeoDB):
         cls.update(status=STATUS_END).execute()
 
     @classmethod
-    def get_all_bangumi(cls, status=None, order=True):
+    def get_updating_bangumi(cls, status=None, order=True):
 
         if status is None:
             data = cls.select(cls, Followed.status) \
@@ -77,9 +77,13 @@ class Bangumi(NeoDB):
         else:
             data = cls.select(cls, Followed.status) \
                 .join(Followed, JOIN_LEFT_OUTER, on=(cls.name == Followed.bangumi_name)) \
-                .where(cls.status == STATUS_UPDATING and Followed.status == status).naive()
-
-        data = [model_to_dict(x) for x in data]
+                .where((cls.status == STATUS_UPDATING) & (Followed.status == status)).naive()
+        r = []
+        for x in data:
+            d = model_to_dict(x)
+            d['status'] = x.status
+            r.append(d)
+        data = r
 
         if order:
             weekly_list = defaultdict(list)
@@ -112,19 +116,13 @@ class Followed(NeoDB):
         return True
 
     @classmethod
-    def get_all_followed(cls, status=STATUS_NORMAL, bangumi_status=STATUS_UPDATING, order=None, desc=None):
+    def get_all_followed(cls, status=STATUS_NORMAL, bangumi_status=STATUS_UPDATING):
         join_cond = (Bangumi.name == cls.bangumi_name)
-        if status is None and bangumi_status is None:
-            d = cls.select(cls, Bangumi.name, Bangumi.update_time, Bangumi.cover) \
-                .join(Bangumi.name, JOIN_LEFT_OUTER, on=join_cond) \
-                .order_by(cls.updated_time.desc()) \
-                .naive()
-        else:
-            d = cls.select(cls, Bangumi.name, Bangumi.update_time, Bangumi.cover) \
-                .join(Bangumi, JOIN_LEFT_OUTER, on=join_cond) \
-                .where(cls.status != status and Bangumi.status == bangumi_status) \
-                .order_by(cls.updated_time.desc()) \
-                .naive()
+        d = cls.select(cls, Bangumi.name, Bangumi.update_time, Bangumi.cover) \
+            .join(Bangumi, JOIN_LEFT_OUTER, on=join_cond) \
+            .where(cls.status != status and Bangumi.status == bangumi_status) \
+            .order_by(cls.updated_time.desc()) \
+            .naive()
 
         r = []
         for x in d:
@@ -208,4 +206,5 @@ def recreate_source_relatively_table():
 if __name__ == '__main__':
     from pprint import pprint
 
-    pprint([x for x in Followed.get_all_followed()])
+    d = Bangumi.get_updating_bangumi(status=STATUS_FOLLOWED)
+    pprint(d)

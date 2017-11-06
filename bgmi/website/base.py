@@ -62,8 +62,8 @@ class BaseWebsite(object):
 
     @staticmethod
     def followed_bangumi():
-        weekly_list_followed = Bangumi.get_all_bangumi(status=STATUS_FOLLOWED)
-        weekly_list_updated = Bangumi.get_all_bangumi(status=STATUS_UPDATED)
+        weekly_list_followed = Bangumi.get_updating_bangumi(status=STATUS_FOLLOWED)
+        weekly_list_updated = Bangumi.get_updating_bangumi(status=STATUS_UPDATED)
         weekly_list = defaultdict(list)
         for k, v in chain(weekly_list_followed.items(), weekly_list_updated.items()):
             weekly_list[k].extend(v)
@@ -84,7 +84,7 @@ class BaseWebsite(object):
             Bangumi.delete_all()
             weekly_list = self.fetch(save=save)
         else:
-            weekly_list = Bangumi.get_all_bangumi()
+            weekly_list = Bangumi.get_updating_bangumi()
         if not weekly_list:
             print_warning('warning: no bangumi schedule, fetching ...')
             weekly_list = self.fetch(save=save)

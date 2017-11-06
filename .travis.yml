@@ -44,7 +44,7 @@ script:
     - coverage run -a -m bgmi.main update $BANGUMI_2
     - coverage run -a -m bgmi.main filter $BANGUMI_2 --subtitle "" --exclude "MKV" --regex "720p|720P"
     - coverage run -a -m bgmi.main fetch $BANGUMI_2
-    - coverage run -a -m bgmi.main search "Gamers!" --regex-filter '.*字幕组.*].*720P.*'
+    - coverage run -a -m bgmi.main search "海贼王" --regex-filter '.*720P.*'
 
     - echo 'test mikan'
     - export BANGUMI_1=名侦探柯南
