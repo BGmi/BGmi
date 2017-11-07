@@ -17,10 +17,12 @@ from shutil import rmtree, move
 
 import requests
 import urllib3
+from multiprocessing.pool import ThreadPool
 
 from bgmi import __version__, __admin_version__
-from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, FRONT_STATIC_PATH
+from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, FRONT_STATIC_PATH, SAVE_PATH
 from bgmi.constants import SUPPORT_WEBSITE
+
 
 urllib3.disable_warnings()
 
@@ -343,3 +345,45 @@ def get_web_admin(method):
     with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'w+') as f:
         f.write(json.dumps(version))
     print_success('Web admin page {} successfully. version: {}'.format(method, version['version']))
+
+
+def convert_cover_to_path(cover_url):
+    """
+    convert bangumi cover to file path
+
+    :param cover_url: bangumi cover path
+    :type cover_url:str
+    :rtype: str,str
+    :return:file_path, dir_path
+    """
+
+    cover_url = normalize_path(cover_url)
+    file_path = os.path.join(SAVE_PATH, 'cover')
+    file_path = os.path.join(file_path, cover_url)
+    dir_path = os.path.dirname(file_path)
+
+    return dir_path, file_path
+
+
+def download_file(url):
+    print_info('Download: {}'.format(url))
+    return requests.get(url)
+
+
+def download_cover(cover_url_list):
+    """
+
+    :param cover_url_list:
+    :type cover_url_list: list
+    :return:
+    """
+
+    p = ThreadPool(4)
+    content_list = p.map(download_file, cover_url_list)
+    for index, r in enumerate(content_list):
+        dir_path, file_path = convert_cover_to_path(cover_url_list[index])
+        if not glob.glob(dir_path):
+            os.makedirs(dir_path)
+        with open(file_path, 'wb') as f:
+            f.write(r.content)
+    p.close()

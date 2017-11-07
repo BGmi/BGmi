@@ -119,6 +119,9 @@ class ScriptRunner(object):
 
         return self.download_queue
 
+    def get_download_cover(self):
+        return [script['cover'] for script in self.get_models_dict()]
+
 
 class ScriptBase(object):
     class Model(object):

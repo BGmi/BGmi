@@ -75,12 +75,16 @@ def cal_wrapper(ret):
     force_update = ret.force_update
     today = ret.today
     save = not ret.no_save
-    cover = ret.download_cover
+
+    runner = ScriptRunner()
+    if ret.download_cover:
+        cover = runner.get_download_cover()
+    else:
+        cover = None
 
     weekly_list = website.bangumi_calendar(
         force_update=force_update, save=save, cover=cover)
 
-    runner = ScriptRunner()
     patch_list = runner.get_models_dict()
     for i in patch_list:
         weekly_list[i['update_time'].lower()].append(i)
