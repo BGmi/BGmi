@@ -77,16 +77,16 @@ class BaseWebsite(object):
     def bangumi_calendar(self, force_update=False, save=True, cover=False):
         if force_update and not test_connection():
             force_update = False
-            print_warning('network is unreachable')
+            print_warning('Network is unreachable')
 
         if force_update:
-            print_info('fetching bangumi info ...')
+            print_info('Fetching bangumi info ...')
             Bangumi.delete_all()
             weekly_list = self.fetch(save=save)
         else:
             weekly_list = Bangumi.get_updating_bangumi()
         if not weekly_list:
-            print_warning('warning: no bangumi schedule, fetching ...')
+            print_warning('Warning: no bangumi schedule, fetching ...')
             weekly_list = self.fetch(save=save)
 
         if cover:
@@ -100,7 +100,7 @@ class BaseWebsite(object):
                         cover_to_be_download.append(bangumi['cover'])
 
             if cover_to_be_download:
-                print_info('updating cover')
+                print_info('Updating cover ...')
                 self.download_cover(cover_to_be_download)
 
         return weekly_list
