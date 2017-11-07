@@ -195,9 +195,7 @@ def mark(name, episode):
         if not followed_obj:
             result['status'] = 'error'
             result['message'] = 'Subscribe or Script <{}> does not exist.'.format(name)
-        return result
-
-    # followed_obj.select_obj()
+            return result
 
     if episode is not None:
         followed_obj.episode = episode
