@@ -259,3 +259,15 @@ IS_PYTHON3 = sys.version_info > (3, 0)
 # Detail URL
 # platform
 IS_WINDOWS = platform.system() == 'Windows'
+
+# - Unify python2 and python3 - #
+import codecs
+
+if IS_PYTHON3:
+    unicode = str
+    if platform.system() != 'Windows':
+        file_ = sys.stdout.buffer
+        sys.stdout = codecs.getwriter(locale.getpreferredencoding())(file_)
+else:
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+    input = raw_input

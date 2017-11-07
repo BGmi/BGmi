@@ -11,7 +11,7 @@ import unittest
 from tornado.testing import AsyncHTTPTestCase
 
 from bgmi.front.server import make_app
-from bgmi.main import unicode_
+from bgmi.constants import unicode_
 
 logging.basicConfig(level=logging.DEBUG)
 

@@ -5,7 +5,8 @@ import os
 import unittest
 
 from bgmi.controllers import *
-from bgmi.main import setup, unicode_
+from bgmi.main import setup
+from bgmi.constants import unicode_
 
 
 class ControllersTest(unittest.TestCase):
