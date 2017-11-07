@@ -120,7 +120,7 @@ class Followed(NeoDB):
         join_cond = (Bangumi.name == cls.bangumi_name)
         d = cls.select(cls, Bangumi.name, Bangumi.update_time, Bangumi.cover) \
             .join(Bangumi, JOIN_LEFT_OUTER, on=join_cond) \
-            .where(cls.status != status and Bangumi.status == bangumi_status) \
+            .where((cls.status != status) & (Bangumi.status == bangumi_status)) \
             .order_by(cls.updated_time.desc()) \
             .naive()
 
