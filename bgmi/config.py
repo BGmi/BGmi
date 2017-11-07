@@ -262,6 +262,7 @@ IS_WINDOWS = platform.system() == 'Windows'
 
 # - Unify python2 and python3 - #
 import codecs
+import locale
 
 if IS_PYTHON3:
     unicode = str
