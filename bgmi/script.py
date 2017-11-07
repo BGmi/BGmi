@@ -95,7 +95,7 @@ class ScriptRunner(object):
             episode_range = range(script_obj.episode + 1, episode + 1)
 
             if episode <= script_obj.episode:
-                break
+                continue
 
             print_success('{} updated, episode: {}'.format(script.bangumi_name, episode))
             script_obj.episode = episode
@@ -182,12 +182,6 @@ class ScriptBase(object):
     @property
     def updated_time(self):
         return self.Model.update_time
-
-    def __unicode__(self):
-        return self.__str__()
-
-    def __str__(self):
-        return '<Script of \'{}\'>'.format(self.bangumi_name)
 
     def get_download_url(self):
         """Get the download url, and return a dict of episode and the url.
