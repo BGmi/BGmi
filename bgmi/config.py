@@ -264,6 +264,8 @@ IS_WINDOWS = platform.system() == 'Windows'
 import codecs
 import locale
 
+# Wrap sys.stdout into a StreamWriter to allow writing unicode.
+
 if IS_PYTHON3:
     unicode = str
     if platform.system() != 'Windows':
@@ -272,3 +274,11 @@ if IS_PYTHON3:
 else:
     sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
     input = raw_input
+
+
+def unicode_(s):
+    if not IS_PYTHON3:
+        unicode_string = s.decode(sys.getfilesystemencoding())
+        return unicode_string
+    else:
+        return unicode(s)
