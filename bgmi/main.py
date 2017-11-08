@@ -38,12 +38,12 @@ def main():
         for sub_action in action.get('arguments', []):
             tmp_sub_parser.add_argument(sub_action['dest'], **sub_action['kwargs'])
 
-    # sub_parser_del = sub_parser.add_parser(ACTION_DELETE, help='Unsubscribe bangumi.')
+    sub_parser_del = sub_parser.add_parser("complete", help='gen completion')
     # sub_parser_del_mutex = sub_parser_del.add_mutually_exclusive_group(required=True)
     # sub_parser_del_mutex.add_argument('--name', metavar='name', nargs='+', type=unicode_,
     #                                   help='Bangumi name to unsubscribe.')
     # sub_parser_del_mutex.add_argument('--clear-all', action='store_true', help='Clear all the subscriptions.')
-    # sub_parser_del.add_argument('--batch', action='store_true', help='No confirmation.')
+    sub_parser_del.add_argument('command', nargs='+', )
 
     ret = c.parse_args()
     if ret.action == 'install':

@@ -216,6 +216,22 @@ def fetch_(ret):
         print_success(i['title'])
 
 
+def complete(ret):
+    from bgmi.constants import actions_and_arguments
+    pre = ret.command[-1]
+    cur = ret.command[-2]
+    # import requests
+    # requests.get('http://localhost:8000/' + '/'.join(ret.command))
+    match = []
+    if pre == 'bgmi':
+        for action in actions_and_arguments:
+            if action['action'].startswith(cur):
+                match.append(action['action'])
+        print('\n'.join(match),end='\n')
+    else:
+        pass
+
+
 CONTROLLERS_DICT = {
     ACTION_ADD: add_wrapper,
     ACTION_SOURCE: source_wrapper,
@@ -229,6 +245,7 @@ CONTROLLERS_DICT = {
     ACTION_UPDATE: update_wrapper,
     ACTION_FETCH: fetch_,
     ACTION_LIST: list_wrapper,
+    'complete': complete,
 }
 
 
