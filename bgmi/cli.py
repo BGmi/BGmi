@@ -9,7 +9,7 @@ import string
 from bgmi.config import write_config
 from bgmi.constants import (ACTION_ADD, ACTION_SOURCE, ACTION_DOWNLOAD, ACTION_CONFIG, ACTION_DELETE, ACTION_MARK,
                             ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST,
-                            DOWNLOAD_CHOICE_LIST_DICT,
+                            DOWNLOAD_CHOICE_LIST_DICT, ACTION_COMPLETE,
                             SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS)
 from bgmi.controllers import (filter_, source,
                               mark, delete, add, search, update, list_)
@@ -227,7 +227,7 @@ def complete(ret):
         for action in actions_and_arguments:
             if action['action'].startswith(cur):
                 match.append(action['action'])
-        print('\n'.join(match),end='\n')
+        print('\n'.join(match), end='\n')
     else:
         pass
 
@@ -245,7 +245,7 @@ CONTROLLERS_DICT = {
     ACTION_UPDATE: update_wrapper,
     ACTION_FETCH: fetch_,
     ACTION_LIST: list_wrapper,
-    'complete': complete,
+    ACTION_COMPLETE: complete,
 }
 
 

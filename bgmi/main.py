@@ -8,7 +8,7 @@ import sqlite3
 
 from bgmi.cli import controllers
 from bgmi.config import BGMI_PATH, DB_PATH, SCRIPT_DB_PATH
-from bgmi.constants import actions_and_arguments
+from bgmi.constants import actions_and_arguments, ACTION_COMPLETE
 from bgmi.setup import create_dir, install_crontab
 from bgmi.sql import (CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER,
                       CREATE_TABLE_SUBTITLE, CREATE_TABLE_SCRIPT)
@@ -38,11 +38,8 @@ def main():
         for sub_action in action.get('arguments', []):
             tmp_sub_parser.add_argument(sub_action['dest'], **sub_action['kwargs'])
 
-    sub_parser_del = sub_parser.add_parser("complete", help='gen completion')
-    # sub_parser_del_mutex = sub_parser_del.add_mutually_exclusive_group(required=True)
-    # sub_parser_del_mutex.add_argument('--name', metavar='name', nargs='+', type=unicode_,
-    #                                   help='Bangumi name to unsubscribe.')
-    # sub_parser_del_mutex.add_argument('--clear-all', action='store_true', help='Clear all the subscriptions.')
+    sub_parser_del = sub_parser.add_parser(ACTION_COMPLETE,
+                                           help='gen completion, `complete -C "bgmi {}" bgmi`'.format(ACTION_COMPLETE))
     sub_parser_del.add_argument('command', nargs='+', )
 
     ret = c.parse_args()
