@@ -289,6 +289,10 @@ Configure tornado with nginx:
 
         location /api {
             proxy_pass http://127.0.0.1:8888;
+            # Requests to api/update may take more than 60s
+            proxy_connect_timeout 500s;
+            proxy_read_timeout 500s;
+            proxy_send_timeout 500s;
         }
 
         location /resource {
