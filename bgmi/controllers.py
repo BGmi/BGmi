@@ -2,6 +2,7 @@
 from __future__ import print_function, unicode_literals
 
 import time
+from collections import defaultdict
 
 from bgmi.config import write_config, MAX_PAGE
 from bgmi.constants import SUPPORT_WEBSITE
@@ -195,9 +196,7 @@ def mark(name, episode):
         if not followed_obj:
             result['status'] = 'error'
             result['message'] = 'Subscribe or Script <{}> does not exist.'.format(name)
-        return result
-
-    # followed_obj.select_obj()
+            return result
 
     if episode is not None:
         followed_obj.episode = episode
@@ -376,21 +375,30 @@ def list_():
     result = {}
     weekday_order = Bangumi.week
     followed_bangumi = website.followed_bangumi()
-    if not followed_bangumi:
+
+    script_bangumi = ScriptRunner().get_models_dict()
+
+    if not followed_bangumi and not script_bangumi:
         result['status'] = 'warning'
         result['message'] = 'you have not subscribed any bangumi'
-    else:
-        result['status'] = 'info'
-        result['message'] = ''
-        for index, weekday in enumerate(weekday_order):
-            if followed_bangumi[weekday.lower()]:
-                result['message'] += '%s%s. %s' % (GREEN, weekday, COLOR_END)
-                for i, bangumi in enumerate(followed_bangumi[weekday.lower()]):
-                    if bangumi['status'] in (STATUS_UPDATED, STATUS_FOLLOWED) and 'episode' in bangumi:
-                        bangumi['name'] = '%s(%d)' % (
-                            bangumi['name'], bangumi['episode'])
-                    if i > 0:
-                        result['message'] += ' ' * 5
-                    f = map(lambda x: x['name'], bangumi['subtitle_group'])
-                    result['message'] += '%s: %s\n' % (bangumi['name'], ', '.join(f) if f else '<None>')
+        return result
+
+    for i in script_bangumi:
+        i['subtitle_group'] = [{'name': '<BGmi Script>'}]
+        followed_bangumi[i['update_time'].lower()].append(i)
+
+    result['status'] = 'info'
+    result['message'] = ''
+    for index, weekday in enumerate(weekday_order):
+        if followed_bangumi[weekday.lower()]:
+            result['message'] += '%s%s. %s' % (GREEN, weekday, COLOR_END)
+            for i, bangumi in enumerate(followed_bangumi[weekday.lower()]):
+                if bangumi['status'] in (STATUS_UPDATED, STATUS_FOLLOWED) and 'episode' in bangumi:
+                    bangumi['name'] = '%s(%d)' % (
+                        bangumi['name'], bangumi['episode'])
+                if i > 0:
+                    result['message'] += ' ' * 5
+                f = map(lambda x: x['name'], bangumi['subtitle_group'])
+                result['message'] += '%s: %s\n' % (bangumi['name'], ', '.join(f) if f else '<None>')
+
     return result

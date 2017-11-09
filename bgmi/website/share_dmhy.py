@@ -20,6 +20,7 @@ else:
 
 base_url = SHARE_DMHY_URL
 
+
 def fetch_url(url, **kwargs):
     ret = None
     try:
@@ -29,6 +30,7 @@ def fetch_url(url, **kwargs):
         print_error('Check internet connection or try to set a DMHY mirror site via: bgmi config SHARE_DMHY_URL <site url>')
 
     return ret
+
 
 def parse_bangumi_with_week_days(content, update_time, array_name):
     r = re.compile(array_name + '\.push\(\[\'(.*?)\',\'(.*?)\',\'(.*?)\',\'(.*?)\',\'(.*?)\'\]\)')
@@ -78,6 +80,7 @@ def parse_bangumi_with_week_days(content, update_time, array_name):
         bangumi_list.append(bangumi)
 
     return bangumi_list, subtitle_list
+
 
 def parse_subtitle_list(content):
     subtitle_list = []
