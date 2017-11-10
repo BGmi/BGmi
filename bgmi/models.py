@@ -71,17 +71,18 @@ class Bangumi(NeoDB):
     def get_updating_bangumi(cls, status=None, order=True):
 
         if status is None:
-            data = cls.select(cls, Followed.status) \
+            data = cls.select(cls, Followed.status, Followed.episode) \
                 .join(Followed, JOIN_LEFT_OUTER, on=(cls.name == Followed.bangumi_name)) \
                 .where(cls.status == STATUS_UPDATING).naive()
         else:
-            data = cls.select(cls, Followed.status) \
+            data = cls.select(cls, Followed.status, Followed.episode) \
                 .join(Followed, JOIN_LEFT_OUTER, on=(cls.name == Followed.bangumi_name)) \
                 .where((cls.status == STATUS_UPDATING) & (Followed.status == status)).naive()
         r = []
         for x in data:
             d = model_to_dict(x)
             d['status'] = x.status
+            d['episode'] = x.episode
             r.append(d)
         data = r
 
