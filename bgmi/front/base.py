@@ -1,6 +1,7 @@
 #!coding: utf-8
-import os
 import json
+import os
+
 import tornado.web
 
 from bgmi import __version__, __admin_version__
@@ -22,11 +23,7 @@ class BaseHandler(tornado.web.RequestHandler):
         self.finish()
 
     def options(self, *args, **kwargs):
-        self.add_header('Access-Control-Allow-Origin', 'http://localhost:8080')
-        self.add_header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-        self.add_header("Access-Control-Allow-Headers",
-                        "Content-Type,bgmi-token,bgmi-token, "
-                        "Access-Control-Allow-Headers, Authorization, X-Requested-With")
+        pass
 
     def get(self, *args, **kwargs):
         self._method_not_allowed()
