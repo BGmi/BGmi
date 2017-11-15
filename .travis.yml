@@ -45,6 +45,7 @@ script:
     - coverage run -a -m bgmi.main filter $BANGUMI_2 --subtitle "" --exclude "MKV" --regex "720p|720P"
     - coverage run -a -m bgmi.main fetch $BANGUMI_2
     - coverage run -a -m bgmi.main search "海贼王" --regex-filter '.*720P.*'
+    - eval "$(coverage run -a -m bgmi.main complete)"
 
     - echo 'test mikan'
     - export BANGUMI_1=名侦探柯南
@@ -55,7 +56,6 @@ script:
     - echo 'test dmhy'
     - export BANGUMI_1=名偵探柯南
     - export BANGUMI_2=海賊王
-    - export BANGUMI_3=銀魂
     - coverage run -a -m bgmi.main source dmhy
     - coverage run -a -m unittest tests.test_controllers
 
