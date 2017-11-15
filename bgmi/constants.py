@@ -12,15 +12,15 @@ ACTION_UPDATE = 'update'
 ACTION_CAL = 'cal'
 ACTION_CONFIG = 'config'
 ACTION_DOWNLOAD = 'download'
-ACTION_FOLLOWED = 'followed'
 ACTION_LIST = 'list'
 ACTION_MARK = 'mark'
 ACTION_SEARCH = 'search'
 ACTION_SOURCE = 'source'
 ACTION_COMPLETE = 'complete'  # bash completion
 ACTIONS = (ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL,
-           ACTION_CONFIG, ACTION_FILTER, ACTION_FETCH, ACTION_DOWNLOAD, ACTION_FOLLOWED,
+           ACTION_CONFIG, ACTION_FILTER, ACTION_FETCH, ACTION_DOWNLOAD,
            ACTION_LIST, ACTION_MARK, ACTION_SEARCH, ACTION_SOURCE, ACTION_COMPLETE)
+ACTION_FOLLOWED = 'followed'  # place holder?
 
 FILTER_CHOICE_TODAY = 'today'
 FILTER_CHOICE_ALL = 'all'
@@ -158,7 +158,7 @@ actions_and_arguments = [
             {'dest': 'name',
              'kwargs': dict(nargs='?', type=unicode_, help='Config name',
                             choices=bgmi.config.__writeable__ +
-                                    bgmi.config.DOWNLOAD_DELEGATE_MAP[bgmi.config.DOWNLOAD_DELEGATE]), },
+                            bgmi.config.DOWNLOAD_DELEGATE_MAP[bgmi.config.DOWNLOAD_DELEGATE]), },
 
             {'dest': 'value',
              'kwargs': dict(nargs='?', type=unicode_, help='Config value')},

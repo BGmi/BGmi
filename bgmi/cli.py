@@ -220,20 +220,39 @@ def fetch_(ret):
         print_success(i['title'])
 
 
+from bgmi.constants import *
+from bgmi.models import Bangumi, STATUS_FOLLOWED, STATUS_NORMAL, Followed
+
+
 def complete(ret):
-    from bgmi.constants import actions_and_arguments
     pre = ret.command[-1]
     cur = ret.command[-2]
     # import requests
     # requests.get('http://localhost:8000/' + '/'.join(ret.command))
     match = []
     if pre == 'bgmi':
-        for action in actions_and_arguments:
-            if action['action'].startswith(cur):
-                match.append(action['action'])
-        print('\n'.join(match), end='\n')
+        for action in ACTIONS:
+            if action.startswith(cur):
+                if action is not ACTION_COMPLETE:
+                    print(action)
     else:
-        pass
+        if pre == 'filter':
+            followed_bangumi_names = [x['bangumi_name'].replace(' ', '\\ ') for x in Followed.get_all_followed()]
+            for bangumi in followed_bangumi_names:
+                if bangumi.startswith(cur):
+                    print(bangumi)
+        elif pre == 'delete':
+            followed_bangumi_names = [x['bangumi_name'].replace(' ', '\\ ') for x in Followed.get_all_followed()]
+            for bangumi in followed_bangumi_names:
+                if bangumi.startswith(cur):
+                    print(bangumi)
+        elif pre == 'add':
+            unfollowed_bangumi_names = [x['name'].replace(' ', '\\ ')
+                                        for x in Bangumi.get_updating_bangumi(order=False)]
+            for bangumi in unfollowed_bangumi_names:
+                if bangumi.startswith(cur):
+                    print(bangumi)
+            pass
 
 
 CONTROLLERS_DICT = {
