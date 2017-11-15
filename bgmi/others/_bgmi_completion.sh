@@ -16,12 +16,26 @@ _bgmi() {
         action=${COMP_WORDS[1]}
 
         case "$action" in 
-            add|filter|mark|update|fetch )
-            COMPREPLY=( $( compgen -W "$bangumi" -- $cur ) )
+            # add|filter|mark|update|fetch )
+            # COMPREPLY=( $( compgen -W "$bangumi" -- $cur ) )
+            # return 0
+            # ;;
+
+            update )
+            local opts
+            opts="{{' '.join(actions_and_opts['update'])}}"
+            COMPREPLY=( $( compgen -W "$opts" -- $cur ) )
             return 0
             ;;
-            config )
 
+            filter )
+            local opts
+            opts="{{' '.join(actions_and_opts['filter'])}}"
+            COMPREPLY=( $( compgen -W "$opts" -- $cur ) )
+            return 0
+            ;;
+
+            config )
             COMPREPLY=( $( compgen -W "$config" -- $cur ) )
             return 0
             ;;
@@ -63,7 +77,7 @@ _bgmi() {
     # filter              Set bangumi fetch filter.
     # update              Update bangumi calendar and subscribed bangumi
     # mark                Mark bangumi episode.
-    # fetch               Fetch bangumi.
+    # fetch               'Fetch bangumi.
 
 }
 complete -F _bgmi bgmi
