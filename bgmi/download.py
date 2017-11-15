@@ -59,7 +59,7 @@ def download_prepare(data):
             # mark as downloaded
             download.downloaded()
         except Exception as e:
-            if os.getenv('DEBUG'):
+            if os.getenv('DEBUG'):  # pragma: no cover
                 import traceback
                 traceback.print_exc()
                 raise e

@@ -90,7 +90,7 @@ def parse_subtitle_list(content):
 
     for li in li_list:
         subtitle_group_name = li.span.a.get('title')
-        subtitle_group_id_raw = re.findall('team_id\/(.+)$',li.span.a.get('href'))
+        subtitle_group_id_raw = re.findall('team_id\/(.+)$', li.span.a.get('href'))
 
         if (len(subtitle_group_id_raw) == 0) or subtitle_group_name == '':
             continue
@@ -103,6 +103,7 @@ def parse_subtitle_list(content):
         })
 
     return subtitle_list
+
 
 def unique_subtitle_list(raw_list):
     ret = []
@@ -149,7 +150,7 @@ class DmhySource(BaseWebsite):
 
             params = {'keyword': keyword, 'page': i + 1}
 
-            if os.environ.get('DEBUG', False):
+            if os.environ.get('DEBUG', False):  # pragma: no cover
                 print(search_url, params)
 
             r = fetch_url(search_url, params=params)
@@ -254,7 +255,7 @@ class DmhySource(BaseWebsite):
         # unique
         subtitle_list = unique_subtitle_list(subtitle_list)
 
-        if os.environ.get('DEBUG', False):
+        if os.environ.get('DEBUG', False):  # pragma: no cover
             print(subtitle_list)
 
         return (bangumi_list, subtitle_list)
@@ -291,7 +292,7 @@ class DmhySource(BaseWebsite):
 
             params = {'keyword': keyword, 'page': i + 1}
 
-            if os.environ.get('DEBUG', False):
+            if os.environ.get('DEBUG', False):  # pragma: no cover
                 print(search_url, params)
 
             r = fetch_url(search_url, params=params)
@@ -333,7 +334,7 @@ class DmhySource(BaseWebsite):
                     if subtitle_group not in subtitle_list:
                         continue
 
-                if os.environ.get('DEBUG', False):
+                if os.environ.get('DEBUG', False):  # pragma: no cover
                     print(name, title, subtitle_group, download, episode, time)
 
                 result.append({

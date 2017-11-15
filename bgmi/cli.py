@@ -97,8 +97,7 @@ def cal_wrapper(ret):
     else:
         weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
 
-    env_columns = 42 if os.environ.get(
-        'TRAVIS_CI', False) else get_terminal_col()
+    env_columns = 42 if os.environ.get('TRAVIS_CI', False) else get_terminal_col()
 
     col = 42
 
@@ -246,7 +245,7 @@ def complete(ret):
                     bangumi=updating_bangumi_names, config=__all__,
                     actions_and_opts=actions_and_opts,
                     source=[x['id'] for x in SUPPORT_WEBSITE])  # type: byte
-    if os.environ.get('DEBUG', False):
+    if os.environ.get('DEBUG', False):  # pragma: no cover
         with open('./bgmi_complete_debug.sh', 'wb+') as f:
             f.write(nf)
     nf = nf.decode()
