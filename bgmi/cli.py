@@ -227,8 +227,6 @@ from bgmi.models import Bangumi, STATUS_FOLLOWED, STATUS_NORMAL, Followed
 def complete(ret):
     pre = ret.command[-1]
     cur = ret.command[-2]
-    # import requests
-    # requests.get('http://localhost:8000/' + '/'.join(ret.command))
     match = []
     if pre == 'bgmi':
         for action in ACTIONS:
@@ -237,17 +235,19 @@ def complete(ret):
                     print(action)
     else:
         if pre == 'filter':
-            followed_bangumi_names = [x['bangumi_name'].replace(' ', '\\ ') for x in Followed.get_all_followed()]
+            followed_bangumi_names = [x['bangumi_name'].replace(
+                ' ', '\\ ').replace('!', '\!') for x in Followed.get_all_followed()]
             for bangumi in followed_bangumi_names:
                 if bangumi.startswith(cur):
                     print(bangumi)
         elif pre == 'delete':
-            followed_bangumi_names = [x['bangumi_name'].replace(' ', '\\ ') for x in Followed.get_all_followed()]
+            followed_bangumi_names = [x['bangumi_name'].replace(
+                ' ', '\\ ').replace('!', '\!') for x in Followed.get_all_followed()]
             for bangumi in followed_bangumi_names:
                 if bangumi.startswith(cur):
                     print(bangumi)
         elif pre == 'add':
-            unfollowed_bangumi_names = [x['name'].replace(' ', '\\ ')
+            unfollowed_bangumi_names = [x['name'].replace(' ', '\\ ').replace('!', '\!')
                                         for x in Bangumi.get_updating_bangumi(order=False)]
             for bangumi in unfollowed_bangumi_names:
                 if bangumi.startswith(cur):
