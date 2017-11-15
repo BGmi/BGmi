@@ -6,12 +6,11 @@ import os
 import re
 import string
 
-from bgmi.config import write_config
 from bgmi.constants import (ACTION_ADD, ACTION_SOURCE, ACTION_DOWNLOAD, ACTION_CONFIG, ACTION_DELETE, ACTION_MARK,
                             ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST,
                             DOWNLOAD_CHOICE_LIST_DICT, ACTION_COMPLETE,
                             SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS)
-from bgmi.controllers import (filter_, source,
+from bgmi.controllers import (filter_, source, config,
                               mark, delete, add, search, update, list_)
 from bgmi.download import download_prepare, get_download_class
 from bgmi.fetch import website
@@ -30,7 +29,7 @@ def source_wrapper(ret):
 
 
 def config_wrapper(ret):
-    result = write_config(ret.name, ret.value)
+    result = config(ret.name, ret.value)
     if (not ret.name) and (not ret.value):
         print(result['message'])
     else:
@@ -225,34 +224,33 @@ from bgmi.models import Bangumi, STATUS_FOLLOWED, STATUS_NORMAL, Followed
 
 
 def complete(ret):
-    pre = ret.command[-1]
-    cur = ret.command[-2]
-    match = []
-    if pre == 'bgmi':
-        for action in ACTIONS:
-            if action.startswith(cur):
-                if action is not ACTION_COMPLETE:
-                    print(action)
-    else:
-        if pre == 'filter':
-            followed_bangumi_names = [x['bangumi_name'].replace(
-                ' ', '\\ ').replace('!', '\!') for x in Followed.get_all_followed()]
-            for bangumi in followed_bangumi_names:
-                if bangumi.startswith(cur):
-                    print(bangumi)
-        elif pre == 'delete':
-            followed_bangumi_names = [x['bangumi_name'].replace(
-                ' ', '\\ ').replace('!', '\!') for x in Followed.get_all_followed()]
-            for bangumi in followed_bangumi_names:
-                if bangumi.startswith(cur):
-                    print(bangumi)
-        elif pre == 'add':
-            unfollowed_bangumi_names = [x['name'].replace(' ', '\\ ').replace('!', '\!')
-                                        for x in Bangumi.get_updating_bangumi(order=False)]
-            for bangumi in unfollowed_bangumi_names:
-                if bangumi.startswith(cur):
-                    print(bangumi)
-            pass
+    # coding=utf-8
+    """eval "$(bgmi complete)" to complete bgmi in bash"""
+    from tornado.template import Template
+    from tornado import template
+    from bgmi.controllers import cal
+    from bgmi.models import Bangumi, STATUS_FOLLOWED, STATUS_NORMAL, Followed
+    from bgmi.config import __all__
+
+    with open(os.path.join(os.path.dirname(__file__), 'others/_bgmi_completion.sh'), 'r') as f:
+        t = template.Template(f.read(), autoescape=None)
+
+    updating_bangumi_names = [x['name'] for x in Bangumi.get_updating_bangumi(order=False)]
+
+    actions_and_opts = {}
+    for action in actions_and_arguments:
+        actions_and_opts[action['action']] = [x['dest']
+                                              for x in action.get('arguments', []) if x['dest'].startswith('-')]
+
+    nf = t.generate(actions=ACTIONS,
+                    bangumi=updating_bangumi_names, config=__all__,
+                    actions_and_opts=actions_and_opts,
+                    source=[x['id'] for x in SUPPORT_WEBSITE])  # type: byte
+    if os.environ.get('DEBUG', False):
+        with open('./bgmi_complete_debug.sh', 'wb+') as f:
+            f.write(nf)
+    nf = nf.decode()
+    print(nf)
 
 
 CONTROLLERS_DICT = {

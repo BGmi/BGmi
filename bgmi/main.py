@@ -39,7 +39,7 @@ def main():
             tmp_sub_parser.add_argument(sub_action['dest'], **sub_action['kwargs'])
 
     sub_parser_del = sub_parser.add_parser(ACTION_COMPLETE, help='gen completion, `complete -C "bgmi complete" bgmi`')
-    sub_parser_del.add_argument('command', nargs='+', )
+    # sub_parser_del.add_argument('command', nargs='+', )
 
     ret = c.parse_args()
     if ret.action == 'install':
