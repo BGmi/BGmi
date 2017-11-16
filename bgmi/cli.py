@@ -231,9 +231,6 @@ def complete(ret):
     from bgmi.models import Bangumi, STATUS_FOLLOWED, STATUS_NORMAL, Followed
     from bgmi.config import __all__
 
-    with open(os.path.join(os.path.dirname(__file__), 'others/_bgmi_completion.sh'), 'r') as f:
-        t = template.Template(f.read(), autoescape=None)
-
     updating_bangumi_names = [x['name'] for x in Bangumi.get_updating_bangumi(order=False)]
 
     actions_and_opts = {}
@@ -241,15 +238,33 @@ def complete(ret):
         actions_and_opts[action['action']] = [x['dest']
                                               for x in action.get('arguments', []) if x['dest'].startswith('-')]
 
-    nf = t.generate(actions=ACTIONS,
-                    bangumi=updating_bangumi_names, config=__all__,
-                    actions_and_opts=actions_and_opts,
-                    source=[x['id'] for x in SUPPORT_WEBSITE])  # type: byte
-    if os.environ.get('DEBUG', False):  # pragma: no cover
-        with open('./bgmi_complete_debug.sh', 'wb+') as f:
-            f.write(nf)
-    nf = nf.decode()
-    print(nf)
+    if os.getenv('SHELL').endswith('bash'):  # bash
+        with open(os.path.join(os.path.dirname(__file__), 'others', '_bgmi_completion_bash.sh'), 'r') as f:
+            t = template.Template(f.read(), autoescape='')
+
+        nf = t.generate(actions=ACTIONS,
+                        bangumi=updating_bangumi_names, config=__all__,
+                        actions_and_opts=actions_and_opts,
+                        source=[x['id'] for x in SUPPORT_WEBSITE])  # type: bytes
+        if os.environ.get('DEBUG', False):  # pragma: no cover
+            with open('./bgmi_complete_bash_debug.sh', 'wb+') as f:
+                f.write(nf)
+        nf = nf.decode()
+        print(nf)
+    elif os.getenv('SHELL').endswith('zsh'):  # zsh
+
+        with open(os.path.join(os.path.dirname(__file__), 'others', '_bgmi_completion_zsh.zsh'), 'r') as f:
+            t = template.Template(f.read(), autoescape='')
+
+        nf = t.generate(actions=ACTIONS,
+                        bangumi=updating_bangumi_names, config=__all__,
+                        actions_and_opts=actions_and_opts,
+                        source=[x['id'] for x in SUPPORT_WEBSITE])  # type: bytes
+        if os.environ.get('DEBUG', False):  # pragma: no cover
+            with open('./bgmi_complete_zsh_debug.sh', 'wb+') as f:
+                f.write(nf)
+        nf = nf.decode()
+        print(nf)
 
 
 CONTROLLERS_DICT = {
