@@ -244,7 +244,7 @@ def source(data_source):
 
 def config(name, value):
     if name == 'DATA_SOURCE':
-        error_message = "you can't change data source in this way. please use bgmi source ${data source} in cli"
+        error_message = "you can't change data source in this way. please use `bgmi source ${data source}` in cli"
         result = {'status': 'error',
                   'message': error_message,
                   'data': write_config()['data']}

@@ -43,7 +43,7 @@ DOWNLOAD_DELEGATE_MAP = {
     'transmission-rpc': __transmission__,
 }
 
-if not os.environ.get('BGMI_PATH'):
+if not os.environ.get('BGMI_PATH'):  # pragma: no cover
     if platform.system() == 'Windows':
         BGMI_PATH = os.path.join(os.environ.get('USERPROFILE', None), '.bgmi')
         if not BGMI_PATH:

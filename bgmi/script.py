@@ -36,7 +36,7 @@ class ScriptRunner(object):
 
                 except:
                     print_warning('Load script {} failed, ignored'.format(i))
-                    if os.getenv('DEBUG_SCRIPT'):
+                    if os.getenv('DEBUG_SCRIPT'):  # pragma: no cover
                         traceback.print_exc()
                         # self.scripts = filter(self._check_followed, self.scripts)
                         # self.scripts = filter(self._check_bangumi, self.scripts)
@@ -57,7 +57,7 @@ class ScriptRunner(object):
                     return False
             except:
                 # ignore if error
-                if os.getenv('DEBUG_SCRIPT'):
+                if os.getenv('DEBUG_SCRIPT'):  # pragma: no cover
                     traceback.print_exc()
 
         return True
@@ -203,7 +203,7 @@ class ScriptBase(object):
         if self.source is not None:
             source = DATA_SOURCE_MAP.get(self.source, None)()
             if source is None:
-                raise Exception('Script data source is invalid, usable sources: {}'\
+                raise Exception('Script data source is invalid, usable sources: {}'
                                 .format(', '.join(DATA_SOURCE_MAP.keys())))
             ret = {}
             data = source.fetch_episode_of_bangumi(**self._data)

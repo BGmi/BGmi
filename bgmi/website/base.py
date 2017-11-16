@@ -193,7 +193,7 @@ class BaseWebsite(object):
                 match = re.compile(regex)
                 data = list(filter(lambda s: True if match.findall(s['title']) else False, data))
             except re.error as e:
-                if os.getenv('DEBUG'):
+                if os.getenv('DEBUG'):  # pragma: no cover
                     import traceback
                     traceback.print_exc()
                     raise e

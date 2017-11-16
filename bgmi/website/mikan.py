@@ -161,7 +161,7 @@ class Mikanani(BaseWebsite):
         """
 
         result = []
-        if os.environ.get('DEBUG', False):
+        if os.environ.get('DEBUG', False):  # pragma: no cover
             print(server_root + 'Bangumi/{}'.format(bangumi_id))
         r = requests.get(server_root + 'Home/Bangumi/{}'.format(bangumi_id)).text
 

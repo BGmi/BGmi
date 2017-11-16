@@ -14,7 +14,7 @@ from bgmi.models import Download, Bangumi, Followed, Bangumi
 
 class BangumiHandler(BaseHandler):
     def get(self, _):
-        if os.environ.get('DEV', False):
+        if os.environ.get('DEV', False):  # pragma: no cover
             with open(os.path.join(SAVE_PATH, _), 'rb') as f:
                 self.write(f.read())
                 self.finish()
