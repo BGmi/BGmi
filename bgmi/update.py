@@ -37,12 +37,3 @@ def update_database():
     if v < '1.4.1':
         exec_sql('ALTER TABLE scripts ADD COLUMN update_time INTEGER', SCRIPT_DB_PATH)
 
-    if v < '2.0.2':
-        from bgmi.fetch import website
-        from bgmi.models import Bangumi
-        week_list = Bangumi.get_updating_bangumi()
-        for kay, value in week_list.items():
-            for bangumi in value:
-                b = Bangumi.get(name=bangumi['name'])
-                b.cover = website.cover_url + bangumi['cover']
-                b.save()
