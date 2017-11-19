@@ -30,7 +30,7 @@ def create_dir():
     try:
         for path in path_to_create:
             if not os.path.exists(path):
-                os.mkdir(path)
+                os.makedirs(path)
                 print_success('%s created successfully' % path)
     except OSError as e:
         print_error('Error: {0}'.format(str(e)))

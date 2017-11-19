@@ -251,20 +251,22 @@ def complete(ret):
         nf = nf.decode()
         print(nf)
     elif 'zsh' in os.getenv('SHELL').lower():  # zsh
-        import sys
-        print('zsh is not supported now', file=sys.stderr)
-        # with open(os.path.join(os.path.dirname(__file__), 'others', '_bgmi_completion_zsh.zsh'), 'r') as f:
-        #     t = template.Template(f.read(), autoescape='')
-        #
-        # nf = t.generate(actions=ACTIONS,
-        #                 bangumi=updating_bangumi_names, config=__all__,
-        #                 actions_and_opts=actions_and_opts,
-        #                 source=[x['id'] for x in SUPPORT_WEBSITE])  # type: bytes
-        # if os.environ.get('DEBUG', False):  # pragma: no cover
-        #     with open('./bgmi_complete_zsh_debug.sh', 'wb+') as f:
-        #         f.write(nf)
-        # nf = nf.decode()
-        # print(nf)
+        if not os.getenv('DEV', False):
+            import sys
+            print('zsh is not supported now', file=sys.stderr)
+        else:
+            with open(os.path.join(os.path.dirname(__file__), 'others', '_bgmi_completion_zsh.zsh'), 'r') as f:
+                t = template.Template(f.read(), autoescape='')
+
+            nf = t.generate(actions=ACTIONS,
+                            bangumi=updating_bangumi_names, config=__all__,
+                            actions_and_opts=actions_and_opts,
+                            source=[x['id'] for x in SUPPORT_WEBSITE])  # type: bytes
+            if os.environ.get('DEBUG', False):  # pragma: no cover
+                with open('./bgmi_complete_zsh_debug.sh', 'wb+') as f:
+                    f.write(nf)
+            nf = nf.decode()
+            print(nf)
 
 
 CONTROLLERS_DICT = {
