@@ -237,8 +237,7 @@ def complete(ret):
     for action in actions_and_arguments:
         actions_and_opts[action['action']] = [x['dest']
                                               for x in action.get('arguments', []) if x['dest'].startswith('-')]
-
-    if os.getenv('SHELL').endswith('bash'):  # bash
+    if 'bash' in os.getenv('SHELL').lower():  # bash
         with open(os.path.join(os.path.dirname(__file__), 'others', '_bgmi_completion_bash.sh'), 'r') as f:
             t = template.Template(f.read(), autoescape='')
 
@@ -251,7 +250,7 @@ def complete(ret):
                 f.write(nf)
         nf = nf.decode()
         print(nf)
-    elif os.getenv('SHELL').endswith('zsh'):  # zsh
+    elif 'zsh' in os.getenv('SHELL').lower():  # zsh
 
         with open(os.path.join(os.path.dirname(__file__), 'others', '_bgmi_completion_zsh.zsh'), 'r') as f:
             t = template.Template(f.read(), autoescape='')
