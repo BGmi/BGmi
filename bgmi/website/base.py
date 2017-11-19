@@ -28,6 +28,8 @@ class BaseWebsite(object):
         b, obj_created = Bangumi.get_or_create(name=data['name'], defaults=data)
         if not obj_created:
             b.status = STATUS_UPDATING
+            b.subtitle_group = Bangumi(**data).subtitle_group
+
             # if not b.cover.startswith(self.cover_url):
             #     b.cover = self.cover_url + data['cover']
             b.save()
