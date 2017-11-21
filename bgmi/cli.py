@@ -224,6 +224,8 @@ def complete(ret):
     """eval "$(bgmi complete)" to complete bgmi in bash"""
     updating_bangumi_names = [x['name'] for x in Bangumi.get_updating_bangumi(order=False)]
 
+    all_config = [x for x in bgmi.config.__all__ if not x == 'DATA_SOURCE']
+
     actions_and_opts = {}
     helper = {}
     for action in actions_and_arguments:
@@ -246,7 +248,7 @@ def complete(ret):
         shell_template = template.Template(template_file.read(), autoescape='')
 
     template_with_content = shell_template.generate(actions=ACTIONS,
-                                                    bangumi=updating_bangumi_names, config=bgmi.config.__all__,
+                                                    bangumi=updating_bangumi_names, config=all_config,
                                                     actions_and_opts=actions_and_opts,
                                                     source=[x['id'] for x in SUPPORT_WEBSITE],
                                                     helper=helper)  # type: bytes

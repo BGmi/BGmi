@@ -76,6 +76,8 @@ SPACIAL_REMOVE_CHARS = []
 UNSUPPORTED_VIDEO_CODING = ['hevc', ]
 COMMON_EXCLUDE_KEYWORD = UNSUPPORTED_VIDEO_CODING
 
+
+# There should be no `'` in any help message
 actions_and_arguments = [
     {
         'action': ACTION_ADD,
@@ -203,7 +205,7 @@ actions_and_arguments = [
     },
     {
         'action': ACTION_SEARCH,
-        'help':'Search torrents from data source by keyword',
+        'help': 'Search torrents from data source by keyword',
         'arguments': [
             {'dest': 'keyword',
              'kwargs': dict(help='Search keyword', type=unicode_), },
@@ -215,7 +217,7 @@ actions_and_arguments = [
              'kwargs': dict(action='store_true', help='Download search result.'), },
             {'dest': '--dupe',
              'kwargs': dict(action='store_true',
-                            help="Show add result without filter and don't remove duplicated episode"), },
+                            help="Show duplicated episode"), },
         ],
     },
     {
