@@ -222,17 +222,14 @@ def fetch_(ret):
 def complete(ret):
     # coding=utf-8
     """eval "$(bgmi complete)" to complete bgmi in bash"""
-    if not os.getenv('DEV', False):  # pragma: no cover
-        import sys
-        print('zsh is not supported now', file=sys.stderr)
-        return
-
     updating_bangumi_names = [x['name'] for x in Bangumi.get_updating_bangumi(order=False)]
 
     actions_and_opts = {}
+    helper = {}
     for action in actions_and_arguments:
         actions_and_opts[action['action']] = [x for x in action.get('arguments', [])
                                               if x['dest'].startswith('-')]
+        helper[action['action']] = action.get('help', '')
 
     if 'bash' in os.getenv('SHELL').lower():  # bash
         template_file_path = os.path.join(os.path.dirname(__file__), 'others', '_bgmi_completion_bash.sh')
@@ -251,14 +248,19 @@ def complete(ret):
     template_with_content = shell_template.generate(actions=ACTIONS,
                                                     bangumi=updating_bangumi_names, config=bgmi.config.__all__,
                                                     actions_and_opts=actions_and_opts,
-                                                    source=[x['id'] for x in SUPPORT_WEBSITE])  # type: bytes
+                                                    source=[x['id'] for x in SUPPORT_WEBSITE],
+                                                    helper=helper)  # type: bytes
 
     if os.environ.get('DEBUG', False):  # pragma: no cover
         with open('./_bgmi', 'wb+') as template_file:
             template_file.write(template_with_content)
-
-    template_with_content = template_with_content.decode()
-    print(template_with_content)
+    import sys
+    template_with_content = template_with_content.decode()  # type:str
+    # print(template_with_content.rstrip())
+    # sys.stdout.write(template_with_content)
+    print(template_with_content.replace('\r', '\n'), file=sys.stdout, flush=True)
+    # sys.stdout.write(template_with_content)
+    # print(template_with_content.replace('\r', ''))
 
 
 CONTROLLERS_DICT = {

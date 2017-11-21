@@ -203,6 +203,7 @@ actions_and_arguments = [
     },
     {
         'action': ACTION_SEARCH,
+        'help':'Search torrents from data source by keyword',
         'arguments': [
             {'dest': 'keyword',
              'kwargs': dict(help='Search keyword', type=unicode_), },
@@ -219,7 +220,7 @@ actions_and_arguments = [
     },
     {
         'action': ACTION_SOURCE,
-        'help': 'select date source bangumi_moe or mikan_project',
+        'help': 'Select date source bangumi_moe or mikan_project',
         'arguments': [
             {'dest': 'source',
              'kwargs': dict(help='bangumi_moe or mikan_project', type=unicode_,

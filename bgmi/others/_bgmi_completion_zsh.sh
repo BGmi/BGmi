@@ -9,60 +9,59 @@ _bgmi(){
 
 
     _alternative \
-{% for action, opts in actions_and_opts.items() %}        '{{action}}:{{action}} options:(({% for opt in opts %}{{opt['dest']}}\:"{{opt.get('help',opt['dest'])}}" {% end %}))' \
+{% for action, opts in actions_and_opts.items() %}        '{{action}}:{{action}} options:(({{action}}\:"{{helper[action]}}" ))' \
 {% end %}
 
+{#
+    # case "$state" in
+    #     reader )
+    #         _multi_parts ' ' $READ_FORMAT && return 0
+    #     ;;
+    #     writer )
+    #         _multi_parts ' ' $WRITE_FORMAT && return 0
+    #     ;;
+    #     bangumi )
+    #         _multi_parts ' ' $BANGUMI_LIST && return 0
 
-    case "$state" in
-        reader )
-            _multi_parts ' ' $READ_FORMAT && return 0
-        ;;
-        writer )
-            _multi_parts ' ' $WRITE_FORMAT && return 0
-        ;;
-        bangumi )
-            _multi_parts ' ' $BANGUMI_LIST && return 0
+    #         ;;
+    #         update )
+    #         _multi_parts ' ' $update && return 0
 
-            ;;
-            update )
-            _multi_parts ' ' $update && return 0
+    #         ;;
+    #         filter )
+    #         _multi_parts ' ' $filter && return 0
 
-            ;;
-            filter )
-            _multi_parts ' ' $filter && return 0
+    #         ;;
+    #         config )
+    #         COMPREPLY=( $( compgen -W "$config" -- $cur ) )
+    #         return 0
 
-            ;;
-            config )
-            COMPREPLY=( $( compgen -W "$config" -- $cur ) )
-            return 0
-
-            ;;
-            cal )
-            local opts
-            opts="{{' '.join([x['dest'] for x in actions_and_opts['cal']])}}"
-            _multi_parts ' ' $opts && return 0
+    #         ;;
+    #         cal )
+    #         local opts
+    #         opts="{{' '.join([x['dest'] for x in actions_and_opts['cal']])}}"
+    #         _multi_parts ' ' $opts && return 0
 
 
-            ;;
-            source )
-            local opts
-            opts="{{' '.join([x['dest'] for x in actions_and_opts['source']])}}"
-            _multi_parts ' ' $opts && return 0
+    #         ;;
+    #         source )
+    #         local opts
+    #         opts="{{' '.join([x['dest'] for x in actions_and_opts['source']])}}"
+    #         _multi_parts ' ' $opts && return 0
 
-            ;;
-            search )
-            local opts
-            opts="{{' '.join([x['dest'] for x in actions_and_opts['search']])}}"
-            _multi_parts ' ' $opts && return 0
+    #         ;;
+    #         search )
+    #         local opts
+    #         opts="{{' '.join([x['dest'] for x in actions_and_opts['search']])}}"
+    #         _multi_parts ' ' $opts && return 0
 
-            ;;
-            download )
-            local opts
-            opts="{{' '.join([x['dest'] for x in actions_and_opts['download']])}}"
-            _multi_parts ' ' $opts && return 0
+    #         ;;
+    #         download )
+    #         local opts
+    #         opts="{{' '.join([x['dest'] for x in actions_and_opts['download']])}}"
+    #         _multi_parts ' ' $opts && return 0
 
-    esac
-    
+    # esac
     
     # if [[ ${words[(i)-f]} -le ${{'{#words}'}} ]] || [[ ${words[(i)-r]} -le ${{'{#words}'}} ]]
     # then
@@ -80,6 +79,11 @@ _bgmi(){
     #     '--template[Use FILE as a custom template for the generated document]' \
     #     '--toc[Include an automatically generated table of contents]'
     # fi
+#}
 }
 
 compdef _bgmi bgmi
+
+#usage: eval "$(bgmi complete)"
+#if you are using windows, cygwin or babun, try `eval "$(bgmi complete|dos2unix)"`
+#I can't find a way to disable auto convert in print from \n to \r\n when runing python on windows
