@@ -66,12 +66,6 @@ class ControllersTest(unittest.TestCase):
         r = config('WRONG_CONFIG_NAME', '233')
         self.assertEqual(r['status'], 'error')
 
-    def test_download(self):
-        pass
-
-    def source(self):
-        pass
-
     @staticmethod
     def setUpClass():
         setup()
