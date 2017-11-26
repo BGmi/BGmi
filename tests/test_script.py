@@ -4,8 +4,8 @@ import json
 import requests
 from bgmi.script import ScriptBase
 
-class Script(ScriptBase):
 
+class Script(ScriptBase):
     class Model(ScriptBase.Model):
         bangumi_name = 'TEST_BANGUMI'
         cover = ''
@@ -21,6 +21,7 @@ class Script(ScriptBase):
 
         return ret
 
-if __name__ == '__main__':
+
+if __name__ == '__main__':  # pragma: no cover
     s = Script()
     s.get_download_url()

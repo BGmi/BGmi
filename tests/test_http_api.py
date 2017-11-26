@@ -229,6 +229,14 @@ class ApiTestCase(AsyncHTTPTestCase):
         self.assertIn('2', bangumi_dict['player'].keys())
         self.assertEqual(bangumi_dict['player']['2']['path'], '/{}/2/2.mkv'.format(self.bangumi_1))
 
+    def test_f_update(self):
+        r = self.fetch('/api/update', method='POST', headers=self.headers,
+                       body=json.dumps({
+                           "name": self.bangumi_1
+                       }))
+        res = self.parse_response(r)
+        self.assertEqual(res['status'], 'info')
+
     def test_resource_ics(self):
         r = self.fetch('/resource/feed.xml')
         self.assertEqual(r.code, 200)
@@ -245,7 +253,3 @@ class ApiTestCase(AsyncHTTPTestCase):
     def parse_response(response):
         r = json.loads(response.body.decode('utf-8'))
         return r
-
-
-if __name__ == '__main__':
-    unittest.main()
