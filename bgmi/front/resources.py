@@ -6,6 +6,7 @@ import os
 from collections import defaultdict
 
 from icalendar import Calendar, Event
+from tornado.web import HTTPError
 
 from bgmi.config import SAVE_PATH
 from bgmi.front.base import BaseHandler
@@ -86,12 +87,4 @@ class CalendarHandler(BaseHandler):
 
 class NotFoundHandler(BaseHandler):
     def get(self, *args, **kwargs):
-        self.set_status(404)
-        self.write(self.jsonify(status='error', message='404 Not Found'))
-        self.finish()
-
-    def post(self, *args, **kwargs):
-        self.get()
-
-    def head(self, *args, **kwargs):
-        self.get()
+        raise HTTPError(404)

@@ -12,6 +12,7 @@ from tornado.options import options, define
 
 from bgmi.config import SAVE_PATH, FRONT_STATIC_PATH, IS_WINDOWS
 from bgmi.front.admin import AdminApiHandler, UpdateHandler, API_MAP_POST, API_MAP_GET
+from bgmi.front.base import BaseHandler
 from bgmi.front.index import MainHandler
 from bgmi.front.resources import RssHandler, CalendarHandler, NotFoundHandler, BangumiHandler
 
@@ -42,14 +43,17 @@ def make_app(**kwargs):
         (r'^/resource/feed.xml$', RssHandler),
         (r'^/resource/calendar.ics$', CalendarHandler),
         (r'^/api/update', UpdateHandler),
-        (r'^/api/?(?P<action>%s)' % API_ACTIONS, AdminApiHandler),
-        (r'^/resource/feed.xml$', RssHandler),
+        (r'^/api/(?P<action>%s)' % API_ACTIONS, AdminApiHandler),
         (r'^/(.*)', NotFoundHandler)
     ]
-    if IS_WINDOWS:
-        handlers[1] = (r'^/bangumi/(.*)', tornado.web.StaticFileHandler, {'path': SAVE_PATH})
-        handlers[7] = (r'^/(.*)', tornado.web.StaticFileHandler,
-                       {'path': FRONT_STATIC_PATH, "default_filename": "index.html"})
+
+    # if IS_WINDOWS:
+    #     handlers[1] = (r'^/bangumi/(.*)', tornado.web.StaticFileHandler,
+    #                    {'path': SAVE_PATH})
+    #     handlers[6] = (r'^/(.*)', tornado.web.StaticFileHandler,
+    #                    {'path': FRONT_STATIC_PATH,
+    #                     "default_filename": "index.html"})
+
     return tornado.web.Application(handlers, **settings)
 
 

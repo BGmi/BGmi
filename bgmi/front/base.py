@@ -17,29 +17,6 @@ class BaseHandler(tornado.web.RequestHandler):
     patch_list = None
     latest_version = None
 
-    def _method_not_allowed(self):
-        self.set_status(405)
-        self.write(self.jsonify(status='error', message='405 Method Not Allowed'))
-        self.finish()
-
-    def options(self, *args, **kwargs):
-        pass
-
-    def get(self, *args, **kwargs):
-        self._method_not_allowed()
-
-    def post(self, *args, **kwargs):
-        self._method_not_allowed()
-
-    def put(self, *args, **kwargs):
-        self._method_not_allowed()
-
-    def patch(self, *args, **kwargs):
-        self._method_not_allowed()
-
-    def delete(self, *args, **kwargs):
-        self._method_not_allowed()
-
     def get_json(self):
         try:
             return json.loads(self.request.body.decode('utf-8'))
@@ -76,3 +53,28 @@ class BaseHandler(tornado.web.RequestHandler):
                 i['cover'] = normalize_path(i['cover'])
 
         super(BaseHandler, self).__init__(*args, **kwargs)
+
+    def write_error(self, status_code, **kwargs):
+        """Override to implement custom error pages.
+
+        ``write_error`` may call `write`, `render`, `set_header`, etc
+        to produce output as usual.
+
+        If this error was caused by an uncaught exception (including
+        HTTPError), an ``exc_info`` triple will be available as
+        ``kwargs["exc_info"]``.  Note that this exception may not be
+        the "current" exception for purposes of methods like
+        ``sys.exc_info()`` or ``traceback.format_exc``.
+        """
+        status_code = int(status_code)
+        code_and_message_map = {
+            400: 'Bad Request',
+            401: 'Unauthorized Request',
+            # 403: self._reason,
+            404: '404 Not Found',
+            405: '405 Method Not Allowed',
+        }
+
+        self.set_status(status_code)
+        self.finish(self.jsonify(status='error',
+                                 message=code_and_message_map.get(status_code, self._reason)))

@@ -12,6 +12,8 @@ from tornado.testing import AsyncHTTPTestCase
 
 from bgmi.front.server import make_app
 from bgmi.constants import unicode_
+from bgmi.utils import print_error
+from bgmi.config import SAVE_PATH
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -53,6 +55,18 @@ class ApiTestCase(AsyncHTTPTestCase):
         self.app = make_app(debug=False)
         return self.app
 
+    def test_404(self):
+        r = self.fetch('/api/url_does_not_exist')
+        self.assertEqual(r.code, 404)
+        res = self.parse_response(r)
+        self.assertEqual(res['status'], 'error')
+
+    # def test_405(self):
+    #     r = self.fetch('/url_does_not_exist')
+    #     self.assertEqual(r.code, 405)
+    #     res = self.parse_response(r)
+    #     self.assertEqual(res['status'], 'error')
+
     def test_a_auth(self):
         r = self.fetch('/api/auth', method='POST', body=json.dumps({'token': '233'}))
         self.assertEqual(r.code, 200)
@@ -63,10 +77,6 @@ class ApiTestCase(AsyncHTTPTestCase):
         self.assertEqual(r.code, 400)
         res = self.parse_response(r)
         self.assertEqual(res['status'], 'error')
-
-    # def test_a_index(self):
-    #     response = self.fetch('/', method='GET')
-    #     self.assertEqual(response.code, 404)
 
     def test_a_cal(self):
         r = self.fetch('/api/cal', method='GET')
@@ -195,6 +205,30 @@ class ApiTestCase(AsyncHTTPTestCase):
             self.assertIn(item, res['data']['followed'])
         for item in res['data']['followed']:
             self.assertIn(item, subtitle_group)
+
+    def test_e_index(self):
+        save_dir = os.path.join(SAVE_PATH)
+        episode1_dir = os.path.join(save_dir, self.bangumi_1, '1', 'episode1')
+        if not os.path.exists(episode1_dir):
+            os.makedirs(episode1_dir)
+        open(os.path.join(episode1_dir, '1.mp4'), 'a').close()
+
+        episode2_dir = os.path.join(save_dir, self.bangumi_1, '2')
+        if not os.path.exists(episode2_dir):
+            os.makedirs(episode2_dir)
+        open(os.path.join(episode2_dir, '2.mkv'), 'a').close()
+
+        # os.makedirs(os.path.join(save_dir, self.bangumi_1, '1'))
+        # os.makedirs(os.path.join(save_dir,self.bangumi_1,'1'))
+        # os.makedirs(os.path.join(save_dir,self.bangumi_1,'1'))
+        response = self.fetch('/api/index', method='GET')
+        self.assertEqual(response.code, 200)
+        r = self.parse_response(response)
+        episode_list = [x for x in r['data'] if x["bangumi_name"] == self.bangumi_1]
+        bangumi_dict = next(iter(episode_list or []), {})
+
+        self.assertIn('1', bangumi_dict['player'].keys())
+        self.assertIn('2', bangumi_dict['player'].keys())
 
     def test_resource_ics(self):
         r = self.fetch('/resource/feed.xml')
