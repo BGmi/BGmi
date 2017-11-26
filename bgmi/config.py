@@ -128,22 +128,24 @@ def write_default_config():
 def write_config(config=None, value=None):
     if not os.path.exists(CONFIG_FILE_PATH):
         write_default_config()
+        return {'status': 'error',
+                'message': 'Config file does not exists, writing default config file',
+                'data': []}
 
     c = configparser.ConfigParser()
     c.read(CONFIG_FILE_PATH)
-    if config is not None and config not in __writeable__ and config not in __download_delegate__:
+    if config is not None and config not in __all_writable_now__:
         result = {'status': 'error',
                   'message': '{0} does not exist or not writeable'.format(config)}
-        return result
+        # return result
 
     try:
-        # result = {}
         if config is None:
             result = {'status': 'info',
                       'message': print_config()}
 
         elif value is None:  # config(config, None)
-            result = {'status': 'success'}
+            result = {'status': 'info'}
 
             if config in __download_delegate__:
                 result['message'] = '{0}={1}'.format(config, c.get(DOWNLOAD_DELEGATE, config))
@@ -250,7 +252,8 @@ ENABLE_GLOBAL_FILTER = '1'
 # !!! Read config from file and write to globals() !!!
 read_config()
 # ------------------------------ #
-
+# will be used in other other models
+__all_writable_now__ = __writeable__ + DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]
 
 # --------- Read-Only ---------- #
 # Python version

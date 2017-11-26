@@ -76,7 +76,6 @@ SPACIAL_REMOVE_CHARS = []
 UNSUPPORTED_VIDEO_CODING = ['hevc', ]
 COMMON_EXCLUDE_KEYWORD = UNSUPPORTED_VIDEO_CODING
 
-
 # There should be no `'` in any help message
 actions_and_arguments = [
     {
@@ -159,8 +158,7 @@ actions_and_arguments = [
         'arguments': [
             {'dest': 'name',
              'kwargs': dict(nargs='?', type=unicode_, help='Config name',
-                            choices=bgmi.config.__writeable__ +
-                            bgmi.config.DOWNLOAD_DELEGATE_MAP[bgmi.config.DOWNLOAD_DELEGATE]), },
+                            choices=bgmi.config.__all_writable_now__), },
 
             {'dest': 'value',
              'kwargs': dict(nargs='?', type=unicode_, help='Config value')},

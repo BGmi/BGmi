@@ -133,7 +133,7 @@ class BaseWebsite(object):
 
         data = [i for i in self.fetch_episode(_id=bangumi.keyword, name=bangumi.name,
                                               subtitle_group=subtitle_group,
-                                              include=include, exclude=exclude, regex=regex, max=max_page)
+                                              include=include, exclude=exclude, regex=regex, max_page=max_page)
                 if i['episode'] is not None]
 
         if ignore_old_row:
@@ -145,14 +145,16 @@ class BaseWebsite(object):
         else:
             return {'episode': 0}, []
 
-    def fetch_episode(self, _id, name='', **kwargs):
+    def fetch_episode(self, _id, name='',
+                      subtitle_group=None,
+                      include=None,
+                      exclude=None,
+                      regex=None,
+                      max_page=int(MAX_PAGE),
+                      **kwargs):
         result = []
 
-        subtitle_group = kwargs.get('subtitle_group', None)
-        include = kwargs.get('include', None)
-        exclude = kwargs.get('exclude', None)
-        regex = kwargs.get('regex', None)
-        max_page = int(kwargs.get('max', int(MAX_PAGE)))
+        max_page = int(max_page)
 
         if subtitle_group and subtitle_group.split(', '):
             condition = subtitle_group.split(', ')
