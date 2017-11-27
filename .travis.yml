@@ -25,6 +25,7 @@ script:
 #    - coverage run -a -m bgmi.main
     - bgmi -h
     - coverage run -a -m unittest tests.test_controllers
+    - coverage run -a -m unittest tests.test_config
     - curl https://static.ricterz.me/test_script.py > $HOME/.bgmi/scripts/test_script.py
     - coverage run -a -m bgmi.main cal
     - coverage run -a -m bgmi.main config

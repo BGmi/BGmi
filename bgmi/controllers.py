@@ -242,7 +242,7 @@ def source(data_source):
     return result
 
 
-def config(name, value):
+def config(name=None, value=None):
     if name == 'DATA_SOURCE':
         error_message = "you can't change data source in this way. please use `bgmi source ${data source}` in cli"
         result = {'status': 'error',

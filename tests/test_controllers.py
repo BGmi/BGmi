@@ -56,16 +56,6 @@ class ControllersTest(unittest.TestCase):
     def test_e_search(self):
         r = search(self.bangumi_name_1, dupe=False)
 
-    def test_config(self):
-        r = config(None, None)
-        self.assertEqual(r['status'], 'info')
-        r = config('DANMAKU_API_URL', '233')
-        self.assertEqual(r['status'], 'success')
-        r = config('DATA_SOURCE', '233')
-        self.assertEqual(r['status'], 'error')
-        r = config('WRONG_CONFIG_NAME', '233')
-        self.assertEqual(r['status'], 'error')
-
     @staticmethod
     def setUpClass():
         setup()
