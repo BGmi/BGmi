@@ -29,7 +29,7 @@ class BaseWebsite(object):
         if not obj_created:
             b.status = STATUS_UPDATING
             b.subtitle_group = Bangumi(**data).subtitle_group
-
+            b.cover = data['cover']
             # if not b.cover.startswith(self.cover_url):
             #     b.cover = self.cover_url + data['cover']
             b.save()
@@ -96,7 +96,7 @@ class BaseWebsite(object):
                     _, file_path = convert_cover_to_path(bangumi['cover'])
 
                     if not glob.glob(file_path):
-                        cover_to_be_download.append(self.cover_url + bangumi['cover'])
+                        cover_to_be_download.append(bangumi['cover'])
 
             if cover_to_be_download:
                 print_info('Updating cover ...')

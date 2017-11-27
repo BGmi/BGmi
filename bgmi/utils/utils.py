@@ -141,7 +141,7 @@ def print_error(message, exit_=True, indicator=True):
 def print_version():
     return '''BGmi %sver. %s%s built by %sRicterZ%s with ❤️
 
-Github: https://github.com/RicterZ/BGmi
+Github: https://github.com/BGmi/BGmi
 Email: ricterzheng@gmail.com
 Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END)
 

@@ -6,19 +6,20 @@ import os
 import re
 import string
 
+from tornado import template
+
+import bgmi.config
 from bgmi.constants import (ACTION_ADD, ACTION_SOURCE, ACTION_DOWNLOAD, ACTION_CONFIG, ACTION_DELETE, ACTION_MARK,
                             ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST,
                             DOWNLOAD_CHOICE_LIST_DICT, ACTION_COMPLETE,
-                            SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS)
+                            SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, ACTIONS, actions_and_arguments)
 from bgmi.controllers import (filter_, source, config,
                               mark, delete, add, search, update, list_)
 from bgmi.download import download_prepare, get_download_class
 from bgmi.fetch import website
-from bgmi.models import Filter, Subtitle, Followed, Bangumi
-from bgmi.models import STATUS_FOLLOWED, STATUS_UPDATED
+from bgmi.models import Bangumi, STATUS_FOLLOWED, Followed, Filter, Subtitle, STATUS_UPDATED
 from bgmi.script import ScriptRunner
-from bgmi.utils import (GREEN, COLOR_END, get_terminal_col,
-                        YELLOW)
+from bgmi.utils import (GREEN, COLOR_END, get_terminal_col, YELLOW)
 from bgmi.utils import print_info, print_warning, print_success, print_error
 
 
@@ -218,52 +219,50 @@ def fetch_(ret):
         print_success(i['title'])
 
 
-from bgmi.constants import *
-from bgmi.models import Bangumi, STATUS_FOLLOWED, STATUS_NORMAL, Followed
-
-
 def complete(ret):
     # coding=utf-8
     """eval "$(bgmi complete)" to complete bgmi in bash"""
-    from tornado.template import Template
-    from tornado import template
-    from bgmi.controllers import cal
-    from bgmi.models import Bangumi, STATUS_FOLLOWED, STATUS_NORMAL, Followed
-    from bgmi.config import __all__
-
     updating_bangumi_names = [x['name'] for x in Bangumi.get_updating_bangumi(order=False)]
 
+    all_config = [x for x in bgmi.config.__all__ if not x == 'DATA_SOURCE']
+
     actions_and_opts = {}
+    helper = {}
     for action in actions_and_arguments:
-        actions_and_opts[action['action']] = [x['dest']
-                                              for x in action.get('arguments', []) if x['dest'].startswith('-')]
+        actions_and_opts[action['action']] = [x for x in action.get('arguments', [])
+                                              if x['dest'].startswith('-')]
+        helper[action['action']] = action.get('help', '')
+
     if 'bash' in os.getenv('SHELL').lower():  # bash
-        with open(os.path.join(os.path.dirname(__file__), 'others', '_bgmi_completion_bash.sh'), 'r') as f:
-            t = template.Template(f.read(), autoescape='')
+        template_file_path = os.path.join(os.path.dirname(__file__), 'others', '_bgmi_completion_bash.sh')
 
-        nf = t.generate(actions=ACTIONS,
-                        bangumi=updating_bangumi_names, config=__all__,
-                        actions_and_opts=actions_and_opts,
-                        source=[x['id'] for x in SUPPORT_WEBSITE])  # type: bytes
-        if os.environ.get('DEBUG', False):  # pragma: no cover
-            with open('./bgmi_complete_bash_debug.sh', 'wb+') as f:
-                f.write(nf)
-        nf = nf.decode()
-        print(nf)
     elif 'zsh' in os.getenv('SHELL').lower():  # zsh
+        template_file_path = os.path.join(os.path.dirname(__file__), 'others', '_bgmi_completion_zsh.sh')
 
-        with open(os.path.join(os.path.dirname(__file__), 'others', '_bgmi_completion_zsh.zsh'), 'r') as f:
-            t = template.Template(f.read(), autoescape='')
+    else:
+        import sys
+        print('unsupported shell {}'.format(os.getenv('SHELL').lower()), file=sys.stderr)
+        return
 
-        nf = t.generate(actions=ACTIONS,
-                        bangumi=updating_bangumi_names, config=__all__,
-                        actions_and_opts=actions_and_opts,
-                        source=[x['id'] for x in SUPPORT_WEBSITE])  # type: bytes
-        if os.environ.get('DEBUG', False):  # pragma: no cover
-            with open('./bgmi_complete_zsh_debug.sh', 'wb+') as f:
-                f.write(nf)
-        nf = nf.decode()
-        print(nf)
+    with open(template_file_path, 'r') as template_file:
+        shell_template = template.Template(template_file.read(), autoescape='')
+
+    template_with_content = shell_template.generate(actions=ACTIONS,
+                                                    bangumi=updating_bangumi_names, config=all_config,
+                                                    actions_and_opts=actions_and_opts,
+                                                    source=[x['id'] for x in SUPPORT_WEBSITE],
+                                                    helper=helper)  # type: bytes
+
+    if os.environ.get('DEBUG', False):  # pragma: no cover
+        with open('./_bgmi', 'wb+') as template_file:
+            template_file.write(template_with_content)
+    import sys
+    template_with_content = template_with_content.decode()  # type:str
+    # print(template_with_content.rstrip())
+    # sys.stdout.write(template_with_content)
+    print(template_with_content.replace('\r', '\n'), file=sys.stdout, flush=True)
+    # sys.stdout.write(template_with_content)
+    # print(template_with_content.replace('\r', ''))
 
 
 CONTROLLERS_DICT = {
