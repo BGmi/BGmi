@@ -47,12 +47,12 @@ def make_app(**kwargs):
         (r'^/(.*)', NotFoundHandler)
     ]
 
-    # if IS_WINDOWS:
-    #     handlers[1] = (r'^/bangumi/(.*)', tornado.web.StaticFileHandler,
-    #                    {'path': SAVE_PATH})
-    #     handlers[6] = (r'^/(.*)', tornado.web.StaticFileHandler,
-    #                    {'path': FRONT_STATIC_PATH,
-    #                     "default_filename": "index.html"})
+    if IS_WINDOWS:
+        handlers[1] = (r'^/bangumi/(.*)', tornado.web.StaticFileHandler,
+                       {'path': SAVE_PATH})
+        handlers[6] = (r'^/(.*)', tornado.web.StaticFileHandler,
+                       {'path': FRONT_STATIC_PATH,
+                        "default_filename": "index.html"})
 
     return tornado.web.Application(handlers, **settings)
 
