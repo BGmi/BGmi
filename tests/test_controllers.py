@@ -16,7 +16,7 @@ class ControllersTest(unittest.TestCase):
         pass
 
     def test_a_cal(self):
-        r = cal(force_update=True)
+        r = cal()
         self.assertIsInstance(r, dict)
         for day in Bangumi.week:
             self.assertIn(day.lower(), r.keys())
