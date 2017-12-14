@@ -111,6 +111,11 @@ Configure BGmi docker:
 =============
 Usage of bgmi
 =============
+Cli completion(bash and zsh)
+
+.. code-block:: bash
+
+    eval "$(bgmi complete)"
 
 Supported data source:
 
@@ -257,12 +262,17 @@ Transmission-rpc configure:
 ==================
 Usage of bgmi_http
 ==================
-
 Download all bangumi cover:
 
 .. code-block:: bash
 
     bgmi cal --download-cover
+
+Download frontend static files(you may have done it before):
+
+.. code-block:: bash
+
+    bgmi install
 
 Start BGmi HTTP Service bind on :code:`0.0.0.0:8888`:
 
@@ -270,6 +280,14 @@ Start BGmi HTTP Service bind on :code:`0.0.0.0:8888`:
 
     bgmi_http --port=8888 --address=0.0.0.0
 
+Use bgmi_http on Windows
+-----------------
+Just start your bgmi_http and open `http://localhost:8888/ <http://localhost:8888/>`_ in your browser.
+
+Consider most people won't use Nginx on Windows, bgmi_http use tornado.web.StaticFileHandler to serve static files(frontend, bangumi covers, bangumi files) without Nginx.
+
+Use bgmi_http on Linux
+-----------------
 Configure tornado with nginx:
 
 .. code-block:: bash
