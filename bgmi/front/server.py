@@ -12,9 +12,8 @@ from tornado.options import options, define
 
 from bgmi.config import SAVE_PATH, FRONT_STATIC_PATH, IS_WINDOWS
 from bgmi.front.admin import AdminApiHandler, UpdateHandler, API_MAP_POST, API_MAP_GET
-from bgmi.front.base import BaseHandler
-from bgmi.front.index import MainHandler
-from bgmi.front.resources import RssHandler, CalendarHandler, NotFoundHandler, BangumiHandler
+from bgmi.front.index import BangumiListHandler, IndexHandler
+from bgmi.front.resources import RssHandler, CalendarHandler, BangumiHandler
 
 define('port', default=8888, help='listen on the port', type=int)
 define('address', default='0.0.0.0', help='binding at given address', type=str)
@@ -38,13 +37,13 @@ def make_app(**kwargs):
     }
     settings.update(kwargs)
     handlers = [
-        (r'^/api/(old|index)', MainHandler),
+        (r'^/api/(old|index)', BangumiListHandler),
         (r'^/bangumi/?(.*)', BangumiHandler),
         (r'^/resource/feed.xml$', RssHandler),
         (r'^/resource/calendar.ics$', CalendarHandler),
         (r'^/api/update', UpdateHandler),
         (r'^/api/(?P<action>%s)' % API_ACTIONS, AdminApiHandler),
-        (r'^/(.*)', NotFoundHandler)
+        (r'^/(.*)$', IndexHandler),
     ]
 
     if IS_WINDOWS:

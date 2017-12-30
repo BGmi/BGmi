@@ -186,7 +186,7 @@ def write_config(config=None, value=None):
 
     except configparser.NoOptionError:
         write_default_config()
-        result = {'status': 'error', 'message': 'Error in config file, adding missing options'}
+        result = {'status': 'error', 'message': 'Error in config file, try rerun `bgmi config`'}
 
     result['data'] = [{'writable': True, 'name': x, 'value': globals()[x]} for x in __writeable__] + \
                      [{'writable': False, 'name': x, 'value': globals()[x]} for x in __readonly__]

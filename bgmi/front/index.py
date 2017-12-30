@@ -2,10 +2,11 @@
 from __future__ import print_function, unicode_literals
 
 import os
+import tornado.web
 
-from bgmi.config import SAVE_PATH
+from bgmi.config import SAVE_PATH, FRONT_STATIC_PATH
 from bgmi.front.base import BaseHandler, COVER_URL
-from bgmi.models import STATUS_NORMAL, STATUS_UPDATING, STATUS_END, Followed, STATUS_FOLLOWED
+from bgmi.models import STATUS_NORMAL, STATUS_UPDATING, STATUS_END, Followed
 from bgmi.utils import normalize_path
 
 
@@ -35,7 +36,35 @@ def get_player(bangumi_name):
     return episode_list
 
 
-class MainHandler(BaseHandler):
+class IndexHandler(BaseHandler):
+    def get(self, path):
+        if not os.path.exists(FRONT_STATIC_PATH):
+            msg = '''<h1>Thanks for your using BGmi</h1>
+            <p>It seems you have not install BGmi Frontend, please run <code>bgmi install</code> to install.</p>
+            '''
+            self.write(msg)
+            self.finish()
+        else:
+            if not path:
+                path = 'index.html'
+
+            p = os.path.abspath(os.path.join(FRONT_STATIC_PATH, path))
+
+            if not os.path.isfile(p) or not p.startswith(FRONT_STATIC_PATH):
+                return self.write_error(404)
+
+            ext = os.path.splitext(p)[1].lower()
+            if ext == '.js':
+                self.set_header('content-type', 'application/javascript')
+            elif ext == '.css':
+                self.set_header('content-type', 'text/css')
+
+            with open(p, 'rb') as f:
+                self.write(f.read())
+                self.finish()
+
+
+class BangumiListHandler(BaseHandler):
     def get(self, type_=''):
         data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING if not type_ == 'old' else STATUS_END)
 
