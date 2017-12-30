@@ -32,7 +32,7 @@ class ScriptRunner(object):
 
                     if cls.check(script_class):
                         cls.scripts.append(script_class)
-                        print_success('Load script {} successfully.'.format(i))
+                        print_info('Load script {} successfully.'.format(i))
 
                 except:
                     print_warning('Load script {} failed, ignored'.format(i))
@@ -88,7 +88,7 @@ class ScriptRunner(object):
 
             if not download_item:
                 print_info('Got nothing, quit script {}.'.format(script))
-                break
+                continue
 
             max_episode = max(download_item, key=lambda d: d['episode'])
             episode = max_episode['episode']
