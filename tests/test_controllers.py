@@ -5,8 +5,8 @@ import os
 import unittest
 
 from bgmi.controllers import *
-from bgmi.main import setup, unicode_
-from bgmi.models import Bangumi
+from bgmi.main import setup
+from bgmi.constants import unicode_
 
 
 class ControllersTest(unittest.TestCase):
@@ -16,7 +16,7 @@ class ControllersTest(unittest.TestCase):
         pass
 
     def test_a_cal(self):
-        r = cal(force_update=True)
+        r = cal()
         self.assertIsInstance(r, dict)
         for day in Bangumi.week:
             self.assertIn(day.lower(), r.keys())
@@ -56,23 +56,7 @@ class ControllersTest(unittest.TestCase):
     def test_e_search(self):
         r = search(self.bangumi_name_1, dupe=False)
 
-    def test_config(self):
-        r = config(None, None)
-        self.assertEqual(r['status'], 'info')
-        r = config('DANMAKU_API_URL', '233')
-        self.assertEqual(r['status'], 'success')
-        r = config('DATA_SOURCE', '233')
-        self.assertEqual(r['status'], 'error')
-        r = config('WRONG_CONFIG_NAME', '233')
-        self.assertEqual(r['status'], 'error')
-
-    def test_download(self):
-        pass
-
-    def source(self):
-        pass
-
     @staticmethod
     def setUpClass():
         setup()
-        Bangumi.recreate_source_relatively_table()
+        recreate_source_relatively_table()

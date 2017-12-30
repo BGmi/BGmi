@@ -23,10 +23,11 @@ __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 # fake __all__
 __all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE',
            'MAX_PAGE', 'DATA_SOURCE', 'TMP_PATH', 'DANMAKU_API_URL',
-           'LANG', 'FRONT_STATIC_PATH', 'ADMIN_TOKEN', 'SHARE_DMHY_URL')
+           'LANG', 'FRONT_STATIC_PATH', 'ADMIN_TOKEN', 'SHARE_DMHY_URL',
+           'GLOBAL_FILTER', 'ENABLE_GLOBAL_FILTER')
 
 # cannot be rewrite
-__readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH',
+__readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH', 'TOOLS_PATH',
                 'SCRIPT_PATH', 'SCRIPT_DB_PATH', 'FRONT_STATIC_PATH',)
 
 # writeable
@@ -42,8 +43,7 @@ DOWNLOAD_DELEGATE_MAP = {
     'transmission-rpc': __transmission__,
 }
 
-
-if not os.environ.get('BGMI_PATH'):
+if not os.environ.get('BGMI_PATH'):  # pragma: no cover
     if platform.system() == 'Windows':
         BGMI_PATH = os.path.join(os.environ.get('USERPROFILE', None), '.bgmi')
         if not BGMI_PATH:
@@ -53,12 +53,12 @@ if not os.environ.get('BGMI_PATH'):
 else:
     BGMI_PATH = os.environ.get('BGMI_PATH')
 
-
 DB_PATH = os.path.join(BGMI_PATH, 'bangumi.db')
 CONFIG_FILE_PATH = os.path.join(BGMI_PATH, 'bgmi.cfg')
 
 SCRIPT_DB_PATH = os.path.join(BGMI_PATH, 'script.db')
 SCRIPT_PATH = os.path.join(BGMI_PATH, 'scripts')
+TOOLS_PATH = os.path.join(BGMI_PATH, 'tools')
 
 
 def read_config():
@@ -72,7 +72,7 @@ def read_config():
         if c.has_option('bgmi', i):
             globals().update({i: c.get('bgmi', i)})
 
-    for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
+    for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
         if c.has_option(DOWNLOAD_DELEGATE, i):
             globals().update({i: c.get(DOWNLOAD_DELEGATE, i)})
 
@@ -89,7 +89,7 @@ def print_config():
         string += '{0}={1}\n'.format(i, c.get('bgmi', i))
 
     string += '\n[{0}]\n'.format(DOWNLOAD_DELEGATE)
-    for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
+    for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
         string += '{0}={1}\n'.format(i, c.get(DOWNLOAD_DELEGATE, i))
     return string
 
@@ -114,7 +114,7 @@ def write_default_config():
     if not c.has_section(DOWNLOAD_DELEGATE):
         c.add_section(DOWNLOAD_DELEGATE)
 
-    for k in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
+    for k in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
         v = globals().get(k, None)
         c.set(DOWNLOAD_DELEGATE, k, v)
 
@@ -128,22 +128,24 @@ def write_default_config():
 def write_config(config=None, value=None):
     if not os.path.exists(CONFIG_FILE_PATH):
         write_default_config()
+        return {'status': 'error',
+                'message': 'Config file does not exists, writing default config file',
+                'data': []}
 
     c = configparser.ConfigParser()
     c.read(CONFIG_FILE_PATH)
-    if config is not None and config not in __writeable__ and config not in __download_delegate__:
+    if config is not None and config not in __all_writable_now__:
         result = {'status': 'error',
                   'message': '{0} does not exist or not writeable'.format(config)}
-        return result
+        # return result
 
     try:
-        # result = {}
         if config is None:
             result = {'status': 'info',
                       'message': print_config()}
 
         elif value is None:  # config(config, None)
-            result = {'status': 'success'}
+            result = {'status': 'info'}
 
             if config in __download_delegate__:
                 result['message'] = '{0}={1}'.format(config, c.get(DOWNLOAD_DELEGATE, config))
@@ -163,7 +165,7 @@ def write_config(config=None, value=None):
                     if config == 'DOWNLOAD_DELEGATE':
                         if not c.has_section(DOWNLOAD_DELEGATE):
                             c.add_section(DOWNLOAD_DELEGATE)
-                            for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
+                            for i in DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]:
                                 v = globals().get(i, '')
                                 c.set(DOWNLOAD_DELEGATE, i, v)
 
@@ -184,7 +186,7 @@ def write_config(config=None, value=None):
 
     except configparser.NoOptionError:
         write_default_config()
-        result = {'status': 'error', 'message': 'Error in config file, write default config'}
+        result = {'status': 'error', 'message': 'Error in config file, try rerun `bgmi config`'}
 
     result['data'] = [{'writable': True, 'name': x, 'value': globals()[x]} for x in __writeable__] + \
                      [{'writable': False, 'name': x, 'value': globals()[x]} for x in __readonly__]
@@ -220,9 +222,6 @@ DOWNLOAD_DELEGATE = 'aria2-rpc'
 # danmaku api url, https://github.com/DIYgod/DPlayer#related-projects
 DANMAKU_API_URL = ''
 
-# bangumi cover url
-COVER_URL = 'https://bangumi.moe'
-
 # language
 LANG = 'zh_cn'
 
@@ -243,11 +242,18 @@ TRANSMISSION_RPC_PORT = '9091'
 # tag of bangumi on bangumi.moe
 BANGUMI_TAG = '549ef207fe682f7549f1ea90'
 
+# Global blocked keyword
+GLOBAL_FILTER = 'Leopard-Raws, hevc, x265'
+
+# enable global filter
+ENABLE_GLOBAL_FILTER = '1'
+
 # ------------------------------ #
 # !!! Read config from file and write to globals() !!!
 read_config()
 # ------------------------------ #
-
+# will be used in other other models
+__all_writable_now__ = __writeable__ + DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]
 
 # --------- Read-Only ---------- #
 # Python version
@@ -256,3 +262,26 @@ IS_PYTHON3 = sys.version_info > (3, 0)
 # Detail URL
 # platform
 IS_WINDOWS = platform.system() == 'Windows'
+
+# - Unify python2 and python3 - #
+import codecs
+import locale
+
+# Wrap sys.stdout into a StreamWriter to allow writing unicode.
+
+if IS_PYTHON3:
+    unicode = str
+    if platform.system() != 'Windows':
+        file_ = sys.stdout.buffer
+        sys.stdout = codecs.getwriter(locale.getpreferredencoding())(file_)
+else:
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+    input = raw_input
+
+
+def unicode_(s):
+    if not IS_PYTHON3:
+        unicode_string = s.decode(sys.getfilesystemencoding())
+        return unicode_string
+    else:
+        return unicode(s)

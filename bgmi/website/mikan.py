@@ -6,10 +6,10 @@ import time
 from multiprocessing.pool import ThreadPool
 
 import bs4
+import requests
 from bs4 import BeautifulSoup
 
 from bgmi.config import MAX_PAGE
-from bgmi.utils import network
 from bgmi.website.base import BaseWebsite
 
 week = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -20,7 +20,7 @@ def get_weekly_bangumi():
     """
     network
     """
-    r = network.get(server_root)
+    r = requests.get(server_root)
     soup = BeautifulSoup(r.text, 'lxml')
     sunday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "0"})
     monday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "1"})
@@ -59,7 +59,7 @@ def parser_subtitle_of_bangumi(bangumi_id):
     bangumi_id = int(bangumi_id)
     url = server_root + "Home/ExpandBangumi"
     data = {'bangumiId': bangumi_id, 'showSubscribed': False}
-    r = network.post(url, data=data, ).text
+    r = requests.post(url, data=data, ).text
     soup = BeautifulSoup(r, 'lxml')
     g = soup.find('ul', class_='list-unstyled res-ul')
     subtitle_list = []
@@ -118,7 +118,7 @@ class Mikanani(BaseWebsite):
         """
 
         result = []
-        r = network.get(server_root + "Home/Search", params={'searchstr': keyword}).text
+        r = requests.get(server_root + "Home/Search", params={'searchstr': keyword}).text
         s = BeautifulSoup(r, 'lxml')
         td_list = s.find_all('tr', attrs={'class': 'js-search-results-row'})  # type:list[bs4.Tag]
         for tr in td_list:
@@ -161,9 +161,9 @@ class Mikanani(BaseWebsite):
         """
 
         result = []
-        if os.environ.get('DEBUG', False):
+        if os.environ.get('DEBUG', False):  # pragma: no cover
             print(server_root + 'Bangumi/{}'.format(bangumi_id))
-        r = network.get(server_root + 'Home/Bangumi/{}'.format(bangumi_id)).text
+        r = requests.get(server_root + 'Home/Bangumi/{}'.format(bangumi_id)).text
 
         soup = BeautifulSoup(r, 'lxml')
         # name = soup.find('p', class_='bangumi-title').text
@@ -231,7 +231,6 @@ class Mikanani(BaseWebsite):
         :return: list of bangumi, list of subtitile group
         :rtype: (list[dict], list[dict])
         """
-        p = ThreadPool()
         bangumi_result = []
         subtitle_result = []
         for index, day in enumerate(get_weekly_bangumi()):
@@ -242,11 +241,12 @@ class Mikanani(BaseWebsite):
         def thread(bangumi):
             subtitle_list = parser_subtitle_of_bangumi(bangumi_id=bangumi['keyword'])
             return subtitle_list
-            pass
 
+        p = ThreadPool(4)
         r = p.map(thread, bangumi_result)
+        p.close()
+
         for index, (bangumi, subtitle_list) in enumerate(zip(bangumi_result, r)):
-            # subtitle_list = parser_subtitle_of_bangumi(bangumi_id=bangumi['keyword'])
             bangumi_result[index]['subtitle_group'] = list(map(lambda x: x['id'], subtitle_list))
             bangumi_result[index]['name'] = bangumi['name']
             bangumi_result[index]['status'] = 0

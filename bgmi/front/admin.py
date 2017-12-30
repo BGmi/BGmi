@@ -3,7 +3,7 @@ import functools
 import traceback
 from multiprocessing.pool import ThreadPool
 
-from tornado.web import asynchronous
+from tornado.web import asynchronous, HTTPError
 
 from bgmi.config import ADMIN_TOKEN
 from bgmi.constants import (ACTION_ADD, ACTION_DELETE, ACTION_CAL, ACTION_SEARCH, ACTION_CONFIG, ACTION_DOWNLOAD,
@@ -50,9 +50,8 @@ def auth(f):
         if token == ADMIN_TOKEN:
             return f(*args, **kwargs)
         else:
-            # yes,you are right
-            args[0].set_status(401)
-            args[0].write(args[0].jsonify(message='need auth', status='error'))
+            # HTTPError will be except in `BaseHandler.write_error`
+            raise HTTPError(401)
 
     return wrapper
 
@@ -64,8 +63,7 @@ class AdminApiHandler(BaseHandler):
             result = API_MAP_GET.get(action)()
         except Exception:
             traceback.print_exc()
-            self.set_status(400)
-            result = {'message': 'Bad Request', 'status': 'error'}
+            raise HTTPError(400)
         self.finish(self.jsonify(**result))
 
     @auth
@@ -75,11 +73,12 @@ class AdminApiHandler(BaseHandler):
         try:
             result = API_MAP_POST.get(action)(**data)
             if result['status'] == 'error':
-                self.set_status(400)
+                raise HTTPError(400)
+        except HTTPError:
+            raise HTTPError(400)
         except Exception:
             traceback.print_exc()
-            self.set_status(400)
-            result = {'message': 'Bad Request', 'status': 'error'}
+            raise HTTPError(500)
 
         resp = self.jsonify(**result)
         self.finish(resp)

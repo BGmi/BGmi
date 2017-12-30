@@ -21,11 +21,12 @@ script:
     - export BANGUMI_1=调教咖啡厅
     - export BANGUMI_2=海贼王
     - export BANGUMI_3=此花奇谭
-    - coverage run -m unittest tests.test_models
-    - coverage run -a -m unittest tests.test_controllers
-    - bgmi -h
-    - curl https://static.ricterz.me/test_script.py > $HOME/.bgmi/scripts/test_script.py
     - coverage run -a -m bgmi.main install
+#    - coverage run -a -m bgmi.main
+    - bgmi -h
+    - coverage run -a -m unittest tests.test_controllers
+    - coverage run -a -m unittest tests.test_config
+    - cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
     - coverage run -a -m bgmi.main cal
     - coverage run -a -m bgmi.main config
     - coverage run -a -m bgmi.main config ADMIN_TOKEN 233
@@ -37,7 +38,6 @@ script:
     - coverage run -a -m bgmi.main delete --clear-all --batch
     - coverage run -a -m bgmi.main add $BANGUMI_2 --episode 1
     - coverage run -a -m bgmi.main fetch $BANGUMI_2
-    # give server some time to start
     - coverage run -a -m unittest tests.test_http_api
     - coverage run -a -m bgmi.main list
     - coverage run -a -m bgmi.main download --list
@@ -45,22 +45,19 @@ script:
     - coverage run -a -m bgmi.main update $BANGUMI_2
     - coverage run -a -m bgmi.main filter $BANGUMI_2 --subtitle "" --exclude "MKV" --regex "720p|720P"
     - coverage run -a -m bgmi.main fetch $BANGUMI_2
-    - coverage run -a -m bgmi.main search "Gamers!" --regex-filter '.*字幕组.*].*720P.*'
+    - coverage run -a -m bgmi.main search "海贼王" --regex-filter '.*720P.*'
+    - eval "$(coverage run -a -m bgmi.main complete)"
 
     - echo 'test mikan'
     - export BANGUMI_1=名侦探柯南
     - export BANGUMI_2=海贼王
     - coverage run -a -m bgmi.main source mikan_project
-    - coverage run -a -m bgmi.main config
     - coverage run -a -m unittest tests.test_controllers
 
     - echo 'test dmhy'
     - export BANGUMI_1=名偵探柯南
     - export BANGUMI_2=海賊王
-    - export BANGUMI_3=銀魂
     - coverage run -a -m bgmi.main source dmhy
-    - coverage run -a -m bgmi.main config
-    - coverage run -a -m bgmi.main cal
     - coverage run -a -m unittest tests.test_controllers
 
 after_success:
