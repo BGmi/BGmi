@@ -1,9 +1,11 @@
+#!coding: utf-8
 import json
+import os
 
 import tornado.web
 
-from bgmi import __version__
-from bgmi.config import DANMAKU_API_URL
+from bgmi import __version__, __admin_version__
+from bgmi.config import DANMAKU_API_URL, BGMI_PATH
 from bgmi.script import ScriptRunner
 from bgmi.utils.utils import normalize_path
 
@@ -13,32 +15,7 @@ WEEK = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
 class BaseHandler(tornado.web.RequestHandler):
     patch_list = None
-
-    def _method_not_allowed(self):
-        self.set_status(405)
-        self.write(self.jsonify(status='error', message='405 Method Not Allowed'))
-        self.finish()
-
-    def options(self, *args, **kwargs):
-        self.add_header('Access-Control-Allow-Origin', 'http://localhost:8080')
-        self.add_header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-        self.add_header("Access-Control-Allow-Headers",
-                        "Content-Type,bgmi-token,bgmi-token, Access-Control-Allow-Headers, Authorization, X-Requested-With")
-
-    def get(self, *args, **kwargs):
-        self._method_not_allowed()
-
-    def post(self, *args, **kwargs):
-        self._method_not_allowed()
-
-    def put(self, *args, **kwargs):
-        self._method_not_allowed()
-
-    def patch(self, *args, **kwargs):
-        self._method_not_allowed()
-
-    def delete(self, *args, **kwargs):
-        self._method_not_allowed()
+    latest_version = None
 
     def get_json(self):
         try:
@@ -49,9 +26,11 @@ class BaseHandler(tornado.web.RequestHandler):
     def jsonify(self, data=None, **kwargs):
         j = {
             'version': __version__,
+            'latest_version': self.latest_version,
+            'frontend_version': __admin_version__,
             'status': 'success',
             'danmaku_api': DANMAKU_API_URL,
-            'cover_url': COVER_URL,
+            # 'cover_url': COVER_URL,
             'data': data
         }
         j.update(kwargs)
@@ -62,6 +41,11 @@ class BaseHandler(tornado.web.RequestHandler):
         pass
 
     def __init__(self, *args, **kwargs):
+        if self.latest_version is None:
+            if os.path.exists(os.path.join(BGMI_PATH, 'latest')):
+                with open(os.path.join(BGMI_PATH, 'latest')) as f:
+                    self.latest_version = f.read().strip()
+
         if self.patch_list is None:
             runner = ScriptRunner()
             self.patch_list = runner.get_models_dict()
@@ -69,3 +53,28 @@ class BaseHandler(tornado.web.RequestHandler):
                 i['cover'] = normalize_path(i['cover'])
 
         super(BaseHandler, self).__init__(*args, **kwargs)
+
+    def write_error(self, status_code, **kwargs):
+        """Override to implement custom error pages.
+
+        ``write_error`` may call `write`, `render`, `set_header`, etc
+        to produce output as usual.
+
+        If this error was caused by an uncaught exception (including
+        HTTPError), an ``exc_info`` triple will be available as
+        ``kwargs["exc_info"]``.  Note that this exception may not be
+        the "current" exception for purposes of methods like
+        ``sys.exc_info()`` or ``traceback.format_exc``.
+        """
+        status_code = int(status_code)
+        code_and_message_map = {
+            400: 'Bad Request',
+            401: 'Unauthorized Request',
+            # 403: self._reason,
+            404: '404 Not Found',
+            405: '405 Method Not Allowed',
+        }
+
+        self.set_status(status_code)
+        self.finish(self.jsonify(status='error',
+                                 message=code_and_message_map.get(status_code, self._reason)))

@@ -6,25 +6,31 @@ import os
 import re
 import string
 
-from bgmi.config import write_config
-from bgmi.constants import ACTION_ADD, ACTION_SOURCE, ACTION_DOWNLOAD, ACTION_CONFIG, ACTION_DELETE, ACTION_MARK, \
-    ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST, DOWNLOAD_CHOICE_LIST_DICT, \
-    SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS
-from bgmi.controllers import filter_, source, \
-    mark, delete, add, search, update, fetch_, list_
+from tornado import template
+
+import bgmi.config
+from bgmi.constants import (ACTION_ADD, ACTION_SOURCE, ACTION_DOWNLOAD, ACTION_CONFIG, ACTION_DELETE, ACTION_MARK,
+                            ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST,
+                            DOWNLOAD_CHOICE_LIST_DICT, ACTION_COMPLETE,
+                            SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, ACTIONS, actions_and_arguments)
+from bgmi.controllers import (filter_, source, config,
+                              mark, delete, add, search, update, list_)
 from bgmi.download import download_prepare, get_download_class
 from bgmi.fetch import website
-from bgmi.models import STATUS_FOLLOWED, Bangumi, STATUS_UPDATED, Download
-from bgmi.utils import print_success, print_info, print_warning, print_error, GREEN, COLOR_END, get_terminal_col, \
-    YELLOW
+from bgmi.models import Bangumi, STATUS_FOLLOWED, Followed, Filter, Subtitle, STATUS_UPDATED
+from bgmi.script import ScriptRunner
+from bgmi.utils import (GREEN, COLOR_END, get_terminal_col, YELLOW)
+from bgmi.utils import print_info, print_warning, print_success, print_error
 
 
 def source_wrapper(ret):
-    return source(data_source=ret.source)
+    result = source(data_source=ret.source)
+    globals()["print_{}".format(result['status'])](result['message'])
+    return result
 
 
 def config_wrapper(ret):
-    result = write_config(ret.name, ret.value)
+    result = config(ret.name, ret.value)
     if (not ret.name) and (not ret.value):
         print(result['message'])
     else:
@@ -32,7 +38,7 @@ def config_wrapper(ret):
 
 
 def search_wrapper(ret):
-    data = search(keyword=ret.keyword, count=ret.count)
+    data = search(keyword=ret.keyword, count=ret.count, regex=ret.regex_filter)
 
     for i in data:
         print_success(i['title'])
@@ -59,6 +65,7 @@ def add_wrapper(ret):
         result = add(name=bangumi_name, episode=ret.episode)
         globals()["print_{}".format(result['status'])](result['message'])
 
+
 def list_wrapper(*args):
     result = list_()
     print(result['message'])
@@ -68,10 +75,19 @@ def cal_wrapper(ret):
     force_update = ret.force_update
     today = ret.today
     save = not ret.no_save
-    cover = ret.download_cover
+
+    runner = ScriptRunner()
+    if ret.download_cover:
+        cover = runner.get_download_cover()
+    else:
+        cover = None
 
     weekly_list = website.bangumi_calendar(
         force_update=force_update, save=save, cover=cover)
+
+    patch_list = runner.get_models_dict()
+    for i in patch_list:
+        weekly_list[i['update_time'].lower()].append(i)
 
     def shift(seq, n):
         n %= len(seq)
@@ -80,11 +96,9 @@ def cal_wrapper(ret):
     if today:
         weekday_order = (Bangumi.week[datetime.datetime.today().weekday()],)
     else:
-        weekday_order = shift(
-            Bangumi.week, datetime.datetime.today().weekday())
+        weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
 
-    env_columns = 42 if os.environ.get(
-        'TRAVIS_CI', False) else get_terminal_col()
+    env_columns = 42 if os.environ.get('TRAVIS_CI', False) else get_terminal_col()
 
     col = 42
 
@@ -98,7 +112,6 @@ def cal_wrapper(ret):
         num = col - 3
         split = '-' * num + '   '
         print(split * row)
-
 
     for index, weekday in enumerate(weekday_order):
         if weekly_list[weekday.lower()]:
@@ -147,7 +160,10 @@ def filter_wrapper(ret):
                      regex=ret.regex)
     if 'data' not in result:
         globals()["print_{}".format(result['status'])](result['message'])
-
+    else:
+        print_info('Usable subtitle group: {0}'.format(', '.join(result['data']['subtitle_group'])))
+        followed_filter_obj = Filter.get(bangumi_name=ret.name)
+        print_filter(followed_filter_obj)
     return result['data']
 
 
@@ -157,18 +173,18 @@ def update_wrapper(ret):
 
 def download_manager(ret):
     if ret.id:
+        # 没有入口..
         download_id = ret.id
         status = ret.status
         if download_id is None or status is None:
             print_error('No id or status specified.')
-        download_obj = Download(_id=download_id)
-        download_obj.select_obj()
-        if not download_obj:
-            print_error('Download object does not exist.')
-        print_info('Download Object <{0} - {1}>, Status: {2}'.format(download_obj.name, download_obj.episode,
-                                                                     download_obj.status))
-        download_obj.status = status
-        download_obj.save()
+        # download_obj = NeoDownload.get(_id=download_id)
+        # if not download_obj:
+        #     print_error('Download object does not exist.')
+        # print_info('Download Object <{0} - {1}>, Status: {2}'.format(download_obj.name, download_obj.episode,
+        #                                                              download_obj.status))
+        # download_obj.status = status
+        # download_obj.save()
         print_success('Download status has been marked as {0}'.format(
             DOWNLOAD_CHOICE_LIST_DICT.get(int(status))))
     else:
@@ -176,6 +192,77 @@ def download_manager(ret):
         status = int(status) if status is not None else None
         delegate = get_download_class(instance=False)
         delegate.download_status(status=status)
+
+
+def fetch_(ret):
+    try:
+        bangumi_obj = Bangumi.get(name=ret.name)
+    except Bangumi.DoesNotExist:
+        print_error('Bangumi {0} not exist'.format(ret.name))
+        return
+
+    try:
+        Followed.get(bangumi_name=bangumi_obj.name)
+    except Bangumi.DoesNotExist:
+        print_error('Bangumi {0} is not followed'.format(ret.name))
+        return
+
+    followed_filter_obj = Filter.get(bangumi_name=ret.name)
+    print_filter(followed_filter_obj)
+
+    print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
+    _, data = website.get_maximum_episode(bangumi_obj, ignore_old_row=False if ret.not_ignore else True)
+
+    if not data:
+        print_warning('Nothing.')
+    for i in data:
+        print_success(i['title'])
+
+
+def complete(ret):
+    # coding=utf-8
+    """eval "$(bgmi complete)" to complete bgmi in bash"""
+    updating_bangumi_names = [x['name'] for x in Bangumi.get_updating_bangumi(order=False)]
+
+    all_config = [x for x in bgmi.config.__all__ if not x == 'DATA_SOURCE']
+
+    actions_and_opts = {}
+    helper = {}
+    for action in actions_and_arguments:
+        actions_and_opts[action['action']] = [x for x in action.get('arguments', [])
+                                              if x['dest'].startswith('-')]
+        helper[action['action']] = action.get('help', '')
+
+    if 'bash' in os.getenv('SHELL').lower():  # bash
+        template_file_path = os.path.join(os.path.dirname(__file__), 'others', '_bgmi_completion_bash.sh')
+
+    elif 'zsh' in os.getenv('SHELL').lower():  # zsh
+        template_file_path = os.path.join(os.path.dirname(__file__), 'others', '_bgmi_completion_zsh.sh')
+
+    else:
+        import sys
+        print('unsupported shell {}'.format(os.getenv('SHELL').lower()), file=sys.stderr)
+        return
+
+    with open(template_file_path, 'r') as template_file:
+        shell_template = template.Template(template_file.read(), autoescape='')
+
+    template_with_content = shell_template.generate(actions=ACTIONS,
+                                                    bangumi=updating_bangumi_names, config=all_config,
+                                                    actions_and_opts=actions_and_opts,
+                                                    source=[x['id'] for x in SUPPORT_WEBSITE],
+                                                    helper=helper)  # type: bytes
+
+    if os.environ.get('DEBUG', False):  # pragma: no cover
+        with open('./_bgmi', 'wb+') as template_file:
+            template_file.write(template_with_content)
+    import sys
+    template_with_content = template_with_content.decode()  # type:str
+    # print(template_with_content.rstrip())
+    # sys.stdout.write(template_with_content)
+    print(template_with_content.replace('\r', '\n'), file=sys.stdout, flush=True)
+    # sys.stdout.write(template_with_content)
+    # print(template_with_content.replace('\r', ''))
 
 
 CONTROLLERS_DICT = {
@@ -191,6 +278,7 @@ CONTROLLERS_DICT = {
     ACTION_UPDATE: update_wrapper,
     ACTION_FETCH: fetch_,
     ACTION_LIST: list_wrapper,
+    ACTION_COMPLETE: complete,
 }
 
 
@@ -200,3 +288,11 @@ def controllers(ret):
         return
     else:
         return func(ret)
+
+
+def print_filter(followed_filter_obj):
+    print_info('Followed subtitle group: {0}'.format(', '.join(map(lambda s: s['name'], Subtitle.get_subtitle_by_id(
+        followed_filter_obj.subtitle.split(', ')))) if followed_filter_obj.subtitle else 'None'))
+    print_info('Include keywords: {0}'.format(followed_filter_obj.include))
+    print_info('Exclude keywords: {0}'.format(followed_filter_obj.exclude))
+    print_info('Regular expression: {0}'.format(followed_filter_obj.regex))

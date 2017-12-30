@@ -27,7 +27,7 @@ Feature
 + RSS feed for uTorrent, ICS calendar for mobile devices
 + Bangumi Script: Write your bangumi parser own!
 + Bangumi calendar / episode information
-+ Keyword, subtitle group, regular expression filter for download bangumi
++ Keyword, subtitle group, regular expression filters for download bangumi
 + Windows, Linux and Router system supported, BGmi everywhere
 
 .. image:: ./images/bgmi_cli.png?raw=true
@@ -66,6 +66,16 @@ Install BGmi web interface:
 
     bgmi install
 
+============
+Upgrade
+============
+.. code-block:: bash
+
+    pip install bgmi -U
+    bgmi upgrade
+
+Make sure to run :code:`bgmi upgrade` after you upgrade your bgmi
+
 ======
 Docker
 ======
@@ -101,12 +111,13 @@ Configure BGmi docker:
 =============
 Usage of bgmi
 =============
+Cli completion(bash and zsh)
+
+.. code-block:: bash
+
+    eval "$(bgmi complete)"
 
 Supported data source:
-
-**change data source will lose all bangumi you have followed!!**
-
-bangumi you have downloaded will still store on the disk, but won't show on website
 
 + `bangumi_moe(default) <https://bangumi.moe>`_
 + `mikan_project <https://mikanani.me>`_
@@ -115,6 +126,7 @@ bangumi you have downloaded will still store on the disk, but won't show on webs
 Setup custom BGMI_PATH:
 
 .. code-block:: bash
+
     BGMI_PATH=/bgmi bgmi -h
 
 Or add this code to your .bashrc file:
@@ -124,6 +136,13 @@ Or add this code to your .bashrc file:
     alias bgmi='BGMI_PATH=/tmp bgmi'
 
 Change to mikan_project data source:
+
+**All bangumi in database will be deleted when changing data source!!**
+
+(Including followed bangumi, but scripts won't be affected)
+
+video files will still store on the disk, but won't be shown on website.
+
 
 .. code-block:: bash
 
@@ -181,7 +200,7 @@ Search bangumi and download:
 
     bgmi search '为美好的世界献上祝福！' --regex-filter '.*动漫国字幕组.*为美好的世界献上祝福！].*720P.*'
     # download
-    bgmi search '为美好的世界献上祝福！' --regex-filter '.*合集.* --download
+    bgmi search '为美好的世界献上祝福！' --regex-filter '.*合集.*' --download
 
 
 Modify bangumi episode:
@@ -243,12 +262,17 @@ Transmission-rpc configure:
 ==================
 Usage of bgmi_http
 ==================
-
 Download all bangumi cover:
 
 .. code-block:: bash
 
     bgmi cal --download-cover
+
+Download frontend static files(you may have done it before):
+
+.. code-block:: bash
+
+    bgmi install
 
 Start BGmi HTTP Service bind on :code:`0.0.0.0:8888`:
 
@@ -256,6 +280,14 @@ Start BGmi HTTP Service bind on :code:`0.0.0.0:8888`:
 
     bgmi_http --port=8888 --address=0.0.0.0
 
+Use bgmi_http on Windows
+-----------------
+Just start your bgmi_http and open `http://localhost:8888/ <http://localhost:8888/>`_ in your browser.
+
+Consider most people won't use Nginx on Windows, bgmi_http use tornado.web.StaticFileHandler to serve static files(frontend, bangumi covers, bangumi files) without Nginx.
+
+Use bgmi_http on Linux
+-----------------
 Configure tornado with nginx:
 
 .. code-block:: bash
@@ -275,6 +307,10 @@ Configure tornado with nginx:
 
         location /api {
             proxy_pass http://127.0.0.1:8888;
+            # Requests to api/update may take more than 60s
+            proxy_connect_timeout 500s;
+            proxy_read_timeout 500s;
+            proxy_send_timeout 500s;
         }
 
         location /resource {
@@ -466,6 +502,7 @@ You can easily add your own BGmi data source by extending BGmi website base clas
 .. code-block:: python
 
     class DataSource(bgmi.website.base.BaseWebsite)
+        cover_url=''
 
         def search_by_keyword(self, keyword, count):
             """
@@ -513,6 +550,8 @@ You can easily add your own BGmi data source by extending BGmi website base clas
                     },
                 ]
             ```
+            when downloading cover images, BGmi will try to get `self.cover_url + bangumi['cover']`
+
 
             list of subtitle group dict:
             example:

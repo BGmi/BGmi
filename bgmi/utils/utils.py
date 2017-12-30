@@ -17,12 +17,41 @@ from shutil import rmtree, move
 
 import requests
 import urllib3
+from multiprocessing.pool import ThreadPool
 
 from bgmi import __version__, __admin_version__
-from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, FRONT_STATIC_PATH
+from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, FRONT_STATIC_PATH, SAVE_PATH
 from bgmi.constants import SUPPORT_WEBSITE
 
+
 urllib3.disable_warnings()
+
+# monkey patch for dev
+if os.environ.get('DEV', False):  # pragma: no cover
+    def replace_url(url):
+        if url.startswith('https://'):
+            url = url.replace('https://', 'http://localhost:8092/https/')
+        elif url.startswith('http://'):
+            url = url.replace('http://', 'http://localhost:8092/http/')
+        return url
+
+
+    from requests import request
+
+
+    def get(url, params=None, **kwargs):
+        url = replace_url(url)
+        kwargs.setdefault('allow_redirects', True)
+        return request('get', url, params=params, **kwargs)
+
+
+    def post(url, data=None, json=None, **kwargs):
+        url = replace_url(url)
+        return request('post', url, data=data, json=json, **kwargs)
+
+
+    requests.get = get
+    requests.post = post
 
 if platform.system() == 'Windows':  # pragma: no cover
     GREEN = ''
@@ -49,8 +78,9 @@ indicator_map = {
     'print_error': '[x] ',
 }
 
-FRONTEND_NPM_URL = 'https://registry.npm.taobao.org/bgmi-frontend/'
-PACKAGE_JSON_URL = 'https://registry.npm.taobao.org/bgmi-frontend/{}'.format(__admin_version__)
+NPM_REGISTER_DOMAIN = 'registry.npmjs.com' if os.environ.get('TRAVIS_CI', False) else 'registry.npm.taobao.org'
+FRONTEND_NPM_URL = 'https://{}/bgmi-frontend/'.format(NPM_REGISTER_DOMAIN)
+PACKAGE_JSON_URL = 'https://{}/bgmi-frontend/{}'.format(NPM_REGISTER_DOMAIN, __admin_version__)
 
 
 def indicator(f):
@@ -111,7 +141,7 @@ def print_error(message, exit_=True, indicator=True):
 def print_version():
     return '''BGmi %sver. %s%s built by %sRicterZ%s with ❤️
 
-Github: https://github.com/RicterZ/BGmi
+Github: https://github.com/BGmi/BGmi
 Email: ricterzheng@gmail.com
 Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END)
 
@@ -120,10 +150,9 @@ def test_connection():
     try:
         for website in SUPPORT_WEBSITE:
             if DATA_SOURCE == website['id']:
-                requests.head(website['url'], timeout=10)
+                requests.request('head', website['url'], timeout=10)
     except:
         return False
-
     return True
 
 
@@ -173,18 +202,25 @@ def check_update(mark=True):
     def update():
         try:
             print_info('Checking update ...')
-            version = network.get('https://pypi.python.org/pypi/bgmi/json', verify=False).json()['info']['version']
+            version = requests.get('https://pypi.python.org/pypi/bgmi/json',
+                                   verify=False).json()['info']['version']
+
+            with open(os.path.join(BGMI_PATH, 'latest'), 'w') as f:
+                f.write(version)
+
             if version > __version__:
                 print_warning('Please update bgmi to the latest version {}{}{}.'
-                              '\nThen execute `bgmi upgrade` to migrate database'.format(GREEN, version, COLOR_END))
+                              '\nThen execute `bgmi upgrade` to migrate database'
+                              .format(GREEN, version, COLOR_END))
             else:
                 print_success('Your BGmi is the latest version.')
 
-            admin_version = network.get(PACKAGE_JSON_URL).json()['version']
+            package_json = requests.get(PACKAGE_JSON_URL).json()
+            admin_version = package_json['version']
             if glob.glob(os.path.join(FRONT_STATIC_PATH, 'package.json')):
                 with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'r') as f:
                     local_version = json.loads(f.read())['version']
-                if admin_version > local_version:
+                if [int(x) for x in admin_version.split('.')] > [int(x) for x in local_version.split('.')]:
                     get_web_admin(method='update')
             else:
                 print_info("Use 'bgmi install' to install BGmi frontend / download delegate")
@@ -274,41 +310,19 @@ def normalize_path(url):
         return url
 
 
-class network(object):
-    @staticmethod
-    def get(url, **kwargs):
-        if os.environ.get('DEBUG'):
-            print(url, kwargs)
-        if os.environ.get("DEV", False):  # pragma: no cover
-            if url.startswith('https://'):
-                url = url.replace('https://', 'http://localhost:8092/https/')
-            elif url.startswith('http://'):
-                url = url.replace('http://', 'http://localhost:8092/http/')
-        return requests.get(url, **kwargs)
-
-    @staticmethod
-    def post(url, **kwargs):
-        if os.environ.get('DEBUG'):
-            print(url, kwargs)
-        if os.environ.get("DEV", False):  # pragma: no cover
-            if url.startswith('https://'):
-                url = url.replace('https://', 'http://localhost:8092/https/')
-            elif url.startswith('http://'):
-                url = url.replace('http://', 'http://localhost:8092/http/')
-        return requests.post(url, **kwargs)
-
-
 def get_web_admin(method):
     # frontend_npm_url = 'https://registry.npmjs.com/bgmi-frontend/'
     print_info('{}ing BGmi frontend'.format(method[0].upper() + method[1:]))
-    rmtree(FRONT_STATIC_PATH)
-    os.makedirs(FRONT_STATIC_PATH)
 
     try:
-        r = network.get(FRONTEND_NPM_URL).json()
-        version = network.get(PACKAGE_JSON_URL).json()
+        r = requests.get(FRONTEND_NPM_URL).json()
+        version = requests.get(PACKAGE_JSON_URL).json()
+        if 'error' in version and version['reason'] == "document not found":  # pragma: no cover
+            print_error("Cnpm has not synchronized the latest version of BGmi-frontend from npm, "
+                        "please try it later")
+            return
         tar_url = r['versions'][version['version']]['dist']['tarball']
-        r = network.get(tar_url)
+        r = requests.get(tar_url)
     except requests.exceptions.ConnectionError:
         print_warning('failed to download web admin')
         return
@@ -319,6 +333,9 @@ def get_web_admin(method):
     with gzip.GzipFile(fileobj=admin_zip) as f:
         tar_file = BytesIO(f.read())
 
+    rmtree(FRONT_STATIC_PATH)
+    os.makedirs(FRONT_STATIC_PATH)
+
     with tarfile.open(fileobj=tar_file) as tar_file_obj:
         tar_file_obj.extractall(path=FRONT_STATIC_PATH)
 
@@ -328,3 +345,45 @@ def get_web_admin(method):
     with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'w+') as f:
         f.write(json.dumps(version))
     print_success('Web admin page {} successfully. version: {}'.format(method, version['version']))
+
+
+def convert_cover_to_path(cover_url):
+    """
+    convert bangumi cover to file path
+
+    :param cover_url: bangumi cover path
+    :type cover_url:str
+    :rtype: str,str
+    :return:file_path, dir_path
+    """
+
+    cover_url = normalize_path(cover_url)
+    file_path = os.path.join(SAVE_PATH, 'cover')
+    file_path = os.path.join(file_path, cover_url)
+    dir_path = os.path.dirname(file_path)
+
+    return dir_path, file_path
+
+
+def download_file(url):
+    print_info('Download: {}'.format(url))
+    return requests.get(url)
+
+
+def download_cover(cover_url_list):
+    """
+
+    :param cover_url_list:
+    :type cover_url_list: list
+    :return:
+    """
+
+    p = ThreadPool(4)
+    content_list = p.map(download_file, cover_url_list)
+    for index, r in enumerate(content_list):
+        dir_path, file_path = convert_cover_to_path(cover_url_list[index])
+        if not glob.glob(dir_path):
+            os.makedirs(dir_path)
+        with open(file_path, 'wb') as f:
+            f.write(r.content)
+    p.close()
