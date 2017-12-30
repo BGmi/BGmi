@@ -2,7 +2,6 @@
 from __future__ import print_function, unicode_literals
 
 import os
-import tornado.web
 
 from bgmi.config import SAVE_PATH, FRONT_STATIC_PATH
 from bgmi.front.base import BaseHandler, COVER_URL
