@@ -60,7 +60,7 @@ Or use pip:
 
     pip install bgmi
 
-Install BGmi web interface:
+Init BGmi database and install BGmi web interface:
 
 .. code-block:: bash
 
@@ -111,17 +111,11 @@ Configure BGmi docker:
 =============
 Usage of bgmi
 =============
-Cli completion(bash and zsh)
+Cli completion(bash and zsh. Shell was detected from your env $SHELL)
 
 .. code-block:: bash
 
     eval "$(bgmi complete)"
-
-Supported data source:
-
-+ `bangumi_moe(default) <https://bangumi.moe>`_
-+ `mikan_project <https://mikanani.me>`_
-+ `dmhy <https://share.dmhy.org/>`_
 
 Setup custom BGMI_PATH:
 
@@ -135,11 +129,15 @@ Or add this code to your .bashrc file:
 
     alias bgmi='BGMI_PATH=/tmp bgmi'
 
-Change to mikan_project data source:
+Supported data source:
 
-**All bangumi in database will be deleted when changing data source!!**
++ `bangumi_moe(default) <https://bangumi.moe>`_
++ `mikan_project <https://mikanani.me>`_
++ `dmhy <https://share.dmhy.org/>`_
 
-(Including followed bangumi, but scripts won't be affected)
+Change data source:
+
+**All bangumi in database will be deleted when changing data source!** but scripts won't be affected
 
 video files will still store on the disk, but won't be shown on website.
 
@@ -147,7 +145,6 @@ video files will still store on the disk, but won't be shown on website.
 .. code-block:: bash
 
     bgmi source mikan_project
-    bgmi cal
 
 Show bangumi calendar:
 
