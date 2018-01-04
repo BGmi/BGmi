@@ -18,8 +18,8 @@ class ControllersTest(unittest.TestCase):
     def test_a_cal(self):
         r = cal()
         self.assertIsInstance(r, dict)
-        for day in Bangumi.week:
-            self.assertIn(day.lower(), r.keys())
+        for day in r.keys():
+            self.assertIn(day.lower(), [x.lower() for x in Bangumi.week])
             self.assertIsInstance(r[day], list)
 
     def test_b_add(self):
