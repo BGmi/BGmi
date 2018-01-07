@@ -6,15 +6,16 @@ import os
 from collections import defaultdict
 
 from icalendar import Calendar, Event
+from tornado.web import HTTPError
 
 from bgmi.config import SAVE_PATH
 from bgmi.front.base import BaseHandler
-from bgmi.models import Download, Bangumi, Followed
+from bgmi.models import Download, Bangumi, Followed, Bangumi
 
 
 class BangumiHandler(BaseHandler):
     def get(self, _):
-        if os.environ.get('DEV', False):
+        if os.environ.get('DEV', False):  # pragma: no cover
             with open(os.path.join(SAVE_PATH, _), 'rb') as f:
                 self.write(f.read())
                 self.finish()
@@ -49,7 +50,7 @@ class CalendarHandler(BaseHandler):
         cal.add('prodid', '-//BGmi Followed Bangumi Calendar//bangumi.ricterz.me//')
         cal.add('version', '2.0')
 
-        data = Followed.get_all_followed(order='followed.updated_time', desc=True)
+        data = Followed.get_all_followed()
         data.extend(self.patch_list)
 
         if type_ == 0:
@@ -86,12 +87,4 @@ class CalendarHandler(BaseHandler):
 
 class NotFoundHandler(BaseHandler):
     def get(self, *args, **kwargs):
-        self.set_status(404)
-        self.write(self.jsonify(status='error', message='404 Not Found'))
-        self.finish()
-
-    def post(self, *args, **kwargs):
-        self.get()
-
-    def head(self, *args, **kwargs):
-        self.get()
+        raise HTTPError(404)

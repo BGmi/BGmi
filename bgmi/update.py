@@ -26,7 +26,7 @@ def update_database():
         with open(OLD, 'w') as f:
             f.write(__version__)
     else:
-        with open(OLD, 'r+b') as f:
+        with open(OLD, 'r+') as f:
             v = f.read()
             f.seek(0)
             f.write(__version__)
@@ -36,3 +36,4 @@ def update_database():
 
     if v < '1.4.1':
         exec_sql('ALTER TABLE scripts ADD COLUMN update_time INTEGER', SCRIPT_DB_PATH)
+
