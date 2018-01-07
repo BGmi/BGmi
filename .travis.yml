@@ -58,6 +58,9 @@ script:
     - export BANGUMI_1=名偵探柯南
     - export BANGUMI_2=海賊王
     - coverage run -a -m bgmi.main source dmhy
+    - coverage run -a -m bgmi.main cal
+    - coverage run -a -m bgmi.main add $BANGUMI_2
+    - coverage run -a -m bgmi.main fetch $BANGUMI_2
     - coverage run -a -m unittest tests.test_controllers
 
 after_success:
