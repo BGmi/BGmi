@@ -73,7 +73,7 @@ def parse_bangumi_with_week_days(content, update_time, array_name):
 
         bangumi['name'] = name
         bangumi['update_time'] = update_time
-        bangumi['keyword'] = unquote(keyword.encode('ascii'))
+        bangumi['keyword'] = keyword
         bangumi['cover'] = cover
 
         # append to bangumi_list
@@ -290,12 +290,14 @@ class DmhySource(BaseWebsite):
         search_url = base_url + '/topics/list/'
         for i in range(max_page):
 
-            params = {'keyword': keyword, 'page': i + 1}
+            # params = {'keyword': keyword, 'page': i + 1}
+
+            url = search_url+'?keyword='+keyword+'&page='+str(i + 1)
 
             if os.environ.get('DEBUG', False):  # pragma: no cover
-                print(search_url, params)
+                print(url)
 
-            r = fetch_url(search_url, params=params)
+            r = fetch_url(url)
             bs = BeautifulSoup(r, 'lxml')
 
             table = bs.find('table', {'id': 'topic_list'})
