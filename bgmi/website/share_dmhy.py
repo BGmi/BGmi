@@ -73,7 +73,7 @@ def parse_bangumi_with_week_days(content, update_time, array_name):
 
         bangumi['name'] = name
         bangumi['update_time'] = update_time
-        bangumi['keyword'] = unquote(keyword.encode('ascii'))
+        bangumi['keyword'] = unquote(keyword)
         bangumi['cover'] = cover
 
         # append to bangumi_list
