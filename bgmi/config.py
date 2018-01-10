@@ -243,7 +243,7 @@ TRANSMISSION_RPC_PORT = '9091'
 BANGUMI_TAG = '549ef207fe682f7549f1ea90'
 
 # Global blocked keyword
-GLOBAL_FILTER = 'Leopard-Raws, hevc, x265'
+GLOBAL_FILTER = 'Leopard-Raws, hevc, x265, c-a Raws'
 
 # enable global filter
 ENABLE_GLOBAL_FILTER = '1'
