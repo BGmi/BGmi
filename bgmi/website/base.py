@@ -177,7 +177,7 @@ class BaseWebsite(object):
             result = list(filter(lambda s: True if all(map(lambda t: t not in s['title'],
                                                            exclude_list)) else False, result))
 
-        self.filter_keyword(data=result, regex=regex)
+        result = self.filter_keyword(data=result, regex=regex)
         return result
 
     @staticmethod
@@ -204,8 +204,8 @@ class BaseWebsite(object):
                 return data
 
         if not ENABLE_GLOBAL_FILTER == '0':
-            data = list(filter(lambda s: True if all(map(lambda t: t.strip().lower() not in s['title'].lower(),
-                                                         GLOBAL_FILTER.split(','))) else False, data))
+            data = list(filter(lambda s: all(map(lambda t: t.strip().lower() not in s['title'].lower(),
+                                                 GLOBAL_FILTER.split(','))), data))
 
         return data
 
