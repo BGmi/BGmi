@@ -198,7 +198,7 @@ def write_config(config=None, value=None):
 BANGUMI_MOE_URL = 'https://bangumi.moe'
 
 # Setting share.dmhy.org url
-SHARE_DMHY_URL = 'https://share-dmhy.two.moe'
+SHARE_DMHY_URL = 'https://share.dmhy.org'
 
 # Setting bangumi.moe url
 DATA_SOURCE = 'bangumi_moe'
@@ -243,7 +243,7 @@ TRANSMISSION_RPC_PORT = '9091'
 BANGUMI_TAG = '549ef207fe682f7549f1ea90'
 
 # Global blocked keyword
-GLOBAL_FILTER = 'Leopard-Raws, hevc, x265'
+GLOBAL_FILTER = 'Leopard-Raws, hevc, x265, c-a Raws'
 
 # enable global filter
 ENABLE_GLOBAL_FILTER = '1'
