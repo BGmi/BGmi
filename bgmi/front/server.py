@@ -44,7 +44,7 @@ def make_app(**kwargs):
         (r'^/api/(?P<action>%s)' % API_ACTIONS, AdminApiHandler),
     ]
 
-    if TORNADO_SERVE_STATIC_FILES:
+    if TORNADO_SERVE_STATIC_FILES != '0':
         handlers.extend([
             (r'/bangumi/(.*)', tornado.web.StaticFileHandler, {'path': SAVE_PATH}),
             (r'^/(.*)$', tornado.web.StaticFileHandler, {'path': FRONT_STATIC_PATH,
@@ -56,7 +56,6 @@ def make_app(**kwargs):
             (r'^/(.*)$', IndexHandler)
         ])
 
-    print(handlers)
     return tornado.web.Application(handlers, **settings)
 
 

@@ -41,26 +41,14 @@ class IndexHandler(BaseHandler):
             msg = '''<h1>Thanks for your using BGmi</h1>
             <p>It seems you have not install BGmi Frontend, please run <code>bgmi install</code> to install.</p>
             '''
-            self.write(msg)
-            self.finish()
         else:
-            if not path:
-                path = 'index.html'
+            msg = '''<h1>Thanks for your using BGmi</h1>
+            <p>If use want to use Tornado to serve static files, please run 
+            <code>bgmi config TORNADO_SERVE_STATIC_FILES 1</code></p>'''
 
-            p = os.path.abspath(os.path.join(FRONT_STATIC_PATH, path))
+        self.write(msg)
+        self.finish()
 
-            if not os.path.isfile(p) or not p.startswith(FRONT_STATIC_PATH):
-                return self.write_error(404)
-
-            ext = os.path.splitext(p)[1].lower()
-            if ext == '.js':
-                self.set_header('content-type', 'application/javascript')
-            elif ext == '.css':
-                self.set_header('content-type', 'text/css')
-
-            with open(p, 'rb') as f:
-                self.write(f.read())
-                self.finish()
 
 
 class BangumiListHandler(BaseHandler):
