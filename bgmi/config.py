@@ -24,7 +24,7 @@ __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 __all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE',
            'MAX_PAGE', 'DATA_SOURCE', 'TMP_PATH', 'DANMAKU_API_URL',
            'LANG', 'FRONT_STATIC_PATH', 'ADMIN_TOKEN', 'SHARE_DMHY_URL',
-           'GLOBAL_FILTER', 'ENABLE_GLOBAL_FILTER')
+           'GLOBAL_FILTER', 'ENABLE_GLOBAL_FILTER', 'TORNADO_SERVE_STATIC_FILES', )
 
 # cannot be rewrite
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH', 'TOOLS_PATH',
@@ -262,6 +262,10 @@ IS_PYTHON3 = sys.version_info > (3, 0)
 # Detail URL
 # platform
 IS_WINDOWS = platform.system() == 'Windows'
+
+
+# use tornado serving video files
+TORNADO_SERVE_STATIC_FILES = '0'
 
 # - Unify python2 and python3 - #
 import codecs
