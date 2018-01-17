@@ -251,6 +251,9 @@ GLOBAL_FILTER = 'Leopard-Raws, hevc, x265, c-a Raws'
 # enable global filter
 ENABLE_GLOBAL_FILTER = '1'
 
+# use tornado serving video files
+TORNADO_SERVE_STATIC_FILES = '0'
+
 # ------------------------------ #
 # !!! Read config from file and write to globals() !!!
 read_config()
@@ -265,10 +268,6 @@ IS_PYTHON3 = sys.version_info > (3, 0)
 # Detail URL
 # platform
 IS_WINDOWS = platform.system() == 'Windows'
-
-
-# use tornado serving video files
-TORNADO_SERVE_STATIC_FILES = '0'
 
 # - Unify python2 and python3 - #
 import codecs
