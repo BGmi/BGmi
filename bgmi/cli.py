@@ -19,7 +19,7 @@ from bgmi.download import download_prepare, get_download_class
 from bgmi.fetch import website
 from bgmi.models import Bangumi, STATUS_FOLLOWED, Followed, Filter, Subtitle, STATUS_UPDATED
 from bgmi.script import ScriptRunner
-from bgmi.utils import (GREEN, COLOR_END, get_terminal_col, YELLOW)
+from bgmi.utils import (GREEN, COLOR_END, get_terminal_col, YELLOW, IS_PYTHON3)
 from bgmi.utils import print_info, print_warning, print_success, print_error
 
 
@@ -256,13 +256,9 @@ def complete(ret):
     if os.environ.get('DEBUG', False):  # pragma: no cover
         with open('./_bgmi', 'wb+') as template_file:
             template_file.write(template_with_content)
-    import sys
-    template_with_content = template_with_content.decode()  # type:str
-    # print(template_with_content.rstrip())
-    # sys.stdout.write(template_with_content)
-    print(template_with_content.replace('\r', '\n'), file=sys.stdout, flush=True)
-    # sys.stdout.write(template_with_content)
-    # print(template_with_content.replace('\r', ''))
+
+    template_with_content = template_with_content.decode('utf-8')
+    print(template_with_content)
 
 
 CONTROLLERS_DICT = {

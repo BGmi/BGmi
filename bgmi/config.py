@@ -24,7 +24,9 @@ __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 __all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE',
            'MAX_PAGE', 'DATA_SOURCE', 'TMP_PATH', 'DANMAKU_API_URL',
            'LANG', 'FRONT_STATIC_PATH', 'ADMIN_TOKEN', 'SHARE_DMHY_URL',
-           'GLOBAL_FILTER', 'ENABLE_GLOBAL_FILTER')
+           'GLOBAL_FILTER', 'ENABLE_GLOBAL_FILTER',
+           'TORNADO_SERVE_STATIC_FILES',
+           )
 
 # cannot be rewrite
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH', 'TOOLS_PATH',
@@ -100,12 +102,13 @@ def write_default_config():
         c.add_section('bgmi')
 
     for k in __writeable__:
-        v = globals().get(k, None)
+        v = globals().get(k, '0')
         if k == 'ADMIN_TOKEN' and v is None:
             if sys.version_info > (3, 0):
                 v = hashlib.md5(str(random.random()).encode('utf-8')).hexdigest()
             else:
                 v = hashlib.md5(str(random.random())).hexdigest()
+
         c.set('bgmi', k, v)
 
     if DOWNLOAD_DELEGATE not in DOWNLOAD_DELEGATE_MAP.keys():
@@ -247,6 +250,9 @@ GLOBAL_FILTER = 'Leopard-Raws, hevc, x265, c-a Raws'
 
 # enable global filter
 ENABLE_GLOBAL_FILTER = '1'
+
+# use tornado serving video files
+TORNADO_SERVE_STATIC_FILES = '0'
 
 # ------------------------------ #
 # !!! Read config from file and write to globals() !!!
