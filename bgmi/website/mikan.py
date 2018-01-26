@@ -308,8 +308,9 @@ class Mikanani(BaseWebsite):
             for obj in parser_day_bangumi(day):
                 bangumi_list.append(obj)
 
-        with ThreadPool() as p:
-            r = p.map(self.parse_bangumi_details_page, [x['keyword'] for x in bangumi_list])
+        p = ThreadPool()
+        r = p.map(self.parse_bangumi_details_page, [x['keyword'] for x in bangumi_list])
+        p.close()
 
         for i, bangumi in enumerate(bangumi_list):
             bangumi.update(r[i])
