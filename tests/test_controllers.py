@@ -21,6 +21,13 @@ class ControllersTest(unittest.TestCase):
         for day in r.keys():
             self.assertIn(day.lower(), [x.lower() for x in Bangumi.week])
             self.assertIsInstance(r[day], list)
+            for bangumi in r[day]:
+                self.assertIn("status", bangumi)
+                self.assertIn("subtitle_group", bangumi)
+                self.assertIn("name", bangumi)
+                self.assertIn("keyword", bangumi)
+                self.assertIn("update_time", bangumi)
+                self.assertIn("cover", bangumi)
 
     def test_b_add(self):
         r = add(self.bangumi_name_1, 0)
