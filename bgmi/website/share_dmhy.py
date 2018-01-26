@@ -27,7 +27,8 @@ def fetch_url(url, **kwargs):
         ret = requests.get(url, **kwargs).text
     except requests.ConnectionError:
         print_error('Create connection to {site}... failed'.format(site=SHARE_DMHY_URL), exit_=False)
-        print_error('Check internet connection or try to set a DMHY mirror site via: bgmi config SHARE_DMHY_URL <site url>')
+        print_error(
+            'Check internet connection or try to set a DMHY mirror site via: bgmi config SHARE_DMHY_URL <site url>')
 
     return ret
 
@@ -260,7 +261,7 @@ class DmhySource(BaseWebsite):
 
         return (bangumi_list, subtitle_list)
 
-    def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
+    def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=int(MAX_PAGE)):
         """
         get all episode by bangumi id
         example
@@ -291,7 +292,7 @@ class DmhySource(BaseWebsite):
 
             # params = {'keyword': keyword, 'page': i + 1}
 
-            url = search_url+'?keyword='+keyword+'&page='+str(i + 1)
+            url = search_url + '?keyword=' + keyword + '&page=' + str(i + 1)
 
             if os.environ.get('DEBUG', False):  # pragma: no cover
                 print(url)
