@@ -213,7 +213,6 @@ class Mikanani(BaseWebsite):
             [
                 {
                     "download": "magnet:?xt=urn:btih:e43b3b6b53dd9fd6af1199e112d3c7ff15cab82c",
-                    "name": "来自深渊",
                     "subtitle_group": "58a9c1c9f5dc363606ab42ec",
                     "title": "【喵萌奶茶屋】★七月新番★[来自深渊/Made in Abyss][07][GB][720P]",
                     "episode": 0,
@@ -304,32 +303,23 @@ class Mikanani(BaseWebsite):
         """
         bangumi_result = []
         subtitle_result = []
+        bangumi_list = list()
         for day in get_weekly_bangumi():
             for obj in parser_day_bangumi(day):
-                # print(obj['keyword'])
-                obj.update(self.parse_bangumi_details_page(obj['keyword']))
-                bangumi_result.append(obj)
-        # pprint(bangumi_result)
+                bangumi_list.append(obj)
+
+        p = ThreadPool()
+        r = p.map(self.parse_bangumi_details_page, [x['keyword'] for x in bangumi_list])
+        p.close()
+
+        for i, bangumi in enumerate(bangumi_list):
+            bangumi.update(r[i])
+            bangumi_result.append(bangumi)
 
         [subtitle_result.extend(x['subtitle_groups']) for x in bangumi_result]
 
         f = lambda x, y: x if y in x else x + [y]
         subtitle_result = reduce(f, [[], ] + subtitle_result)
         subtitle_result.sort(key=lambda x: int(x['id']))
-        # pprint(subtitle_result)
-        # def thread(bangumi):
-        #     subtitle_list = fetch_bangumi_info_and_parser_subtitle_of_bangumi(bangumi_id=bangumi['keyword'])
-        #     return subtitle_list
 
-        # p = ThreadPool(4)
-        # r = p.map(thread, bangumi_result)
-        # p.close()
-        # r = [thread(x) for x in bangumi_result]
-        # print(r)
-        # for index, (bangumi, subtitle_list) in enumerate(zip(bangumi_result, r)):
-        #     bangumi_result[index]['subtitle_group'] = [x['id'] for x in subtitle_list]
-        #     bangumi_result[index]['name'] = bangumi['name']
-        #     bangumi_result[index]['status'] = 0
-        #     for subtitle in subtitle_list:
-        #         subtitle_result.append({'id': subtitle['id'], 'name': subtitle['name']})
         return bangumi_result, subtitle_result

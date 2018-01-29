@@ -13,7 +13,7 @@ class Script(ScriptBase):
 
     def get_download_url(self):
         # fetch and return dict
-        resp = requests.get('https://static.ricterz.me/bgmi_test.json').json()
+        resp = requests.get('http://static.ricterz.me/bgmi_test.json').json()
 
         ret = {}
         for k, v in resp.items():

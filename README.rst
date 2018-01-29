@@ -575,7 +575,6 @@ You can easily add your own BGmi data source by extending BGmi website base clas
                 [
                     {
                         "download": "magnet:?xt=urn:btih:e43b3b6b53dd9fd6af1199e112d3c7ff15cab82c",
-                        "name": "来自深渊",
                         "subtitle_group": "58a9c1c9f5dc363606ab42ec",
                         "title": "【喵萌奶茶屋】★七月新番★[来自深渊/Made in Abyss][07][GB][720P]",
                         "episode": 0,
