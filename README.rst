@@ -25,7 +25,7 @@ Feature
 + Web interface to manage bangumi with HTTP API
 + Play bangumi online with danmaku
 + RSS feed for uTorrent, ICS calendar for mobile devices
-+ Bangumi Script: Write your bangumi parser own!
++ Bangumi Script: Write your own bangumi parser!
 + Bangumi calendar / episode information
 + Keyword, subtitle group, regular expression filters for download bangumi
 + Windows, Linux and Router system supported, BGmi everywhere
