@@ -243,7 +243,7 @@ BGmi configure:
 
 Aria2-rpc configure:
 
-+ :code:`ARIA2_RPC_URL`: aria2c daemon RPC url
++ :code:`ARIA2_RPC_URL`: aria2c daemon RPC url, not jsonrpc url.("http://localhost:6800/rpc" for localhost)
 + :code:`ARIA2_RPC_TOKEN`: aria2c daemon RPC token("token:" for no token)
 
 Xunlei configure:
