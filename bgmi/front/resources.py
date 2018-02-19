@@ -30,7 +30,9 @@ class BangumiHandler(BaseHandler):
                        'location /bangumi {\n'
                        '    alias %s;\n'
                        '}\n'
-                       '...\n</pre>' % (SAVE_PATH, SAVE_PATH)
+                       '...\n\n'
+                       'If use want to use Tornado to serve static files, please run\n'
+                       '<code>`bgmi config TORNADO_SERVE_STATIC_FILES 1`</code></pre>' % (SAVE_PATH, SAVE_PATH)
                        )
             self.finish()
 
