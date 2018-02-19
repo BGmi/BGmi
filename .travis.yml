@@ -52,16 +52,15 @@ script:
     - export BANGUMI_1=名侦探柯南
     - export BANGUMI_2=海贼王
     - coverage run -a -m bgmi.main source mikan_project
-    - coverage run -a -m unittest tests.test_controllers
+    - coverage run -a -m unittest tests.test_data_source
 
     - echo 'test dmhy'
     - export BANGUMI_1=名偵探柯南
     - export BANGUMI_2=海賊王
     - coverage run -a -m bgmi.main source dmhy
-    - coverage run -a -m bgmi.main cal
     - coverage run -a -m bgmi.main add $BANGUMI_2
     - coverage run -a -m bgmi.main fetch $BANGUMI_2
-    - coverage run -a -m unittest tests.test_controllers
+    - coverage run -a -m unittest tests.test_data_source
 
 after_success:
   - codecov

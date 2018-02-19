@@ -230,11 +230,8 @@ def source(data_source):
         recreate_source_relatively_table()
         write_config('DATA_SOURCE', data_source)
         print_success('data source switch succeeds')
-        from bgmi.fetch import DATA_SOURCE_MAP
-        data = DATA_SOURCE_MAP.get(data_source)().bangumi_calendar(force_update=True)
         result['status'] = 'success'
         result['message'] = 'you have successfully change your data source to {}'.format(data_source)
-        result['data'] = data
     else:
         result['status'] = 'error'
         result['message'] = 'please check input.nata source should be {} or {}'.format(
