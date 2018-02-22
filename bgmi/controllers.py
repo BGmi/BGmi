@@ -10,7 +10,7 @@ from bgmi.download import download_prepare
 from bgmi.fetch import website
 from bgmi.models import (Filter, Subtitle, Download, recreate_source_relatively_table,
                          STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NOT_DOWNLOAD, FOLLOWED_STATUS, Followed, Bangumi,
-                         DoesNotExist)
+                         DoesNotExist, model_to_dict)
 from bgmi.models import (STATUS_NORMAL)
 from bgmi.script import ScriptRunner
 from bgmi.utils import print_info, normalize_path, print_warning, print_success, print_error, GREEN, COLOR_END
@@ -288,7 +288,8 @@ def update(name, download=None, not_ignore=False):
         updated_bangumi_obj = []
         for i in name:
             try:
-                f = Followed.get(bangumi_name=i).__dict__['_data']
+                f = Followed.get(bangumi_name=i)
+                f = model_to_dict(f)
                 updated_bangumi_obj.append(f)
             except DoesNotExist:
                 pass
