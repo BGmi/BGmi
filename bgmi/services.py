@@ -31,8 +31,8 @@ class _PatchedMethod(_Method):
 
 
 class PatchedServerProxy(ServerProxy):
-    def __request(self, methodname, params):
-        return ServerProxy._ServerProxy__request(self, methodname, params)
+    def __request(self, method_name, params):
+        return ServerProxy._ServerProxy__request(self, method_name, params)
 
     def __getattr__(self, name):
         return _PatchedMethod(self.__request, name)

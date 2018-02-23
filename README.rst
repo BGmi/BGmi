@@ -285,7 +285,7 @@ Consider most people won't use Nginx on Windows, bgmi_http use tornado.web.Stati
 
 Use bgmi_http on Linux
 -----------------
-Configure tornado with nginx:
+Configure tornado with Nginx:
 
 .. code-block:: bash
 
