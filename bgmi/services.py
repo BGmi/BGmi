@@ -2,6 +2,7 @@
 from __future__ import unicode_literals, print_function
 
 import os
+import platform
 import subprocess
 from tempfile import NamedTemporaryFile
 
@@ -160,9 +161,9 @@ class Aria2DownloadRPC(DownloadService):
 
     @staticmethod
     def check_aria2c_version():
-        url = ARIA2_RPC_URL.split('/')
-        url[2] = ARIA2_RPC_TOKEN + '@' + url[2]
-        url = '/'.join(url)
+        url = ARIA2_RPC_URL.split('/')  # ['http:', '', 'localhost:6800', 'rpc']
+        url[2] = ARIA2_RPC_TOKEN + '@' + url[2]  # ['http:', '', 'token:233@localhost:6800', 'rpc']
+        url = '/'.join(url)  # http://token:233@localhost:6800/rpc
         s = ServerProxy(url)
         r = s.aria2.getVersion(ARIA2_RPC_TOKEN, )
         version = r['version']
@@ -196,7 +197,7 @@ class Aria2DownloadRPC(DownloadService):
                 None: ['tellStopped', 'tellWaiting', 'tellActive'],
             }
             for method in status_dict.get(status):
-                if method not in ('tellActive', ):
+                if method not in ('tellActive',):
                     params = (0, 1000)
                 else:
                     params = ()
@@ -256,8 +257,12 @@ class XunleiLixianDownload(DownloadService):
         print_info('Create link file ...')
 
         if not os.path.exists(XUNLEI_LX_PATH):
-            os.symlink(os.path.join(BGMI_PATH, 'tools/xunlei-lixian/{0}/lixian_cli.py'.format(dir_name)),
-                       XUNLEI_LX_PATH)
+            if platform.system() == 'Windows':
+                symlink = os.link
+            else:
+                symlink = os.symlink
+            symlink(os.path.join(BGMI_PATH, 'tools/xunlei-lixian/{0}/lixian_cli.py'.format(dir_name)),
+                    XUNLEI_LX_PATH)
         else:
             print_warning('{0} already exists'.format(XUNLEI_LX_PATH))
 

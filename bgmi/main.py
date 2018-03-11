@@ -4,14 +4,12 @@ from __future__ import print_function, unicode_literals
 import argparse
 import os
 import signal
-import sqlite3
 
 from bgmi.cli import controllers
-from bgmi.config import BGMI_PATH, DB_PATH, SCRIPT_DB_PATH
+from bgmi.config import BGMI_PATH
 from bgmi.constants import actions_and_arguments, ACTION_COMPLETE
 from bgmi.setup import create_dir, install_crontab
-from bgmi.sql import (CREATE_TABLE_BANGUMI, CREATE_TABLE_FOLLOWED, CREATE_TABLE_DOWNLOAD, CREATE_TABLE_FOLLOWED_FILTER,
-                      CREATE_TABLE_SUBTITLE, CREATE_TABLE_SCRIPT)
+from bgmi.sql import init_db
 from bgmi.update import update_database
 from bgmi.utils import print_warning, print_error, print_version, check_update, get_web_admin
 
@@ -38,7 +36,8 @@ def main():
         for sub_action in action.get('arguments', []):
             tmp_sub_parser.add_argument(sub_action['dest'], **sub_action['kwargs'])
 
-    sub_parser_del = sub_parser.add_parser(ACTION_COMPLETE, help='Gen completion, `eval "$(bgmi complete)"` or `eval "$(bgmi complete|dos2unix)"`')
+    sub_parser_del = sub_parser.add_parser(ACTION_COMPLETE, help='Gen completion, `eval "$(bgmi complete)"` '
+                                                                 'or `eval "$(bgmi complete|dos2unix)"`')
     # sub_parser_del.add_argument('command', nargs='+', )
 
     ret = c.parse_args()
@@ -56,27 +55,6 @@ def main():
     else:
         check_update()
         controllers(ret)
-
-
-def init_db():
-    try:
-        # bangumi.db
-        conn = sqlite3.connect(DB_PATH)
-        conn.execute(CREATE_TABLE_BANGUMI)
-        conn.execute(CREATE_TABLE_FOLLOWED)
-        conn.execute(CREATE_TABLE_DOWNLOAD)
-        conn.execute(CREATE_TABLE_FOLLOWED_FILTER)
-        conn.execute(CREATE_TABLE_SUBTITLE)
-        conn.commit()
-        conn.close()
-
-        # script.db
-        conn = sqlite3.connect(SCRIPT_DB_PATH)
-        conn.execute(CREATE_TABLE_SCRIPT)
-        conn.commit()
-        conn.close()
-    except sqlite3.OperationalError:
-        print_error('Open database file failed, path %s is not writable.' % BGMI_PATH)
 
 
 def setup():

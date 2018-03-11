@@ -6,7 +6,6 @@ import time
 from collections import defaultdict
 from functools import reduce
 from multiprocessing.pool import ThreadPool
-from pprint import pprint
 
 import bs4
 import requests
@@ -254,7 +253,7 @@ class Mikanani(BaseWebsite):
                 title = tr.find('a', class_='magnet-link-wrap').text
                 time_string = tr.find_all('td')[2].string
                 result.append({
-                    'download': tr.find('a', class_='magnet-link').attrs.get('data-clipboard-text', ''),
+                    'download': server_root[:-1] + tr.find_all('td')[-1].find('a', ).attrs.get('href', ''),
                     'subtitle_group': str(subtitle_id),
                     'title': title,
                     'episode': self.parse_episode(title),
