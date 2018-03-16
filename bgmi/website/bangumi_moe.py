@@ -122,7 +122,8 @@ class BangumiMoe(BaseWebsite):
                                                                    "%Y-%m-%dT%H:%M:%S").timetuple()))
             })
 
-            print(ret[index]['download'])
+            if os.environ.get('DEBUG'):
+                print(ret[index]['download'])
 
         return ret
 
