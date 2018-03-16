@@ -12,6 +12,7 @@ class XunleiLixianDownload(BaseDownloadService):
         super(XunleiLixianDownload, self).__init__(*args, **kwargs)
 
     def download(self):
+        print_warning('XunleiLixian is deprecated, please choose aria2-rpc or transmission-rpc.')
         overwrite = '--overwrite' if self.overwrite else ''
 
         command = [XUNLEI_LX_PATH, 'download', '--torrent', overwrite,

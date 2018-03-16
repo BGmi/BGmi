@@ -11,6 +11,7 @@ from bgmi.downloader.transmission_rpc import TransmissionRPC
 from bgmi.downloader.xunlei import XunleiLixianDownload
 from bgmi.utils import print_error
 
+
 DOWNLOAD_DELEGATE_DICT = {
     'xunlei': XunleiLixianDownload,
     'aria2-rpc': Aria2DownloadRPC,
