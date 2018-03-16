@@ -146,7 +146,11 @@ def cal_wrapper(ret):
                 if bangumi['status'] == STATUS_UPDATED:
                     bangumi['name'] = '%s%s%s' % (
                         GREEN, bangumi['name'], COLOR_END)
-                print(' ' + bangumi['name'], ' ' * space_count, end='')
+                try:
+                    print(' ' + bangumi['name'], ' ' * space_count, end='')
+                except UnicodeEncodeError:
+                    continue
+
                 if (i + 1) % row == 0 or i + 1 == len(weekly_list[weekday.lower()]):
                     print()
             print()

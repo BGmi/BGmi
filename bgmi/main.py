@@ -1,12 +1,13 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 
-import argparse
 import os
+import sys
 import signal
+import argparse
 
 from bgmi.lib.cli import controllers
-from bgmi.config import BGMI_PATH
+from bgmi.config import BGMI_PATH, IS_PYTHON3
 from bgmi.lib.constants import actions_and_arguments, ACTION_COMPLETE
 from bgmi.setup import create_dir, install_crontab
 from bgmi.sql import init_db
@@ -17,6 +18,11 @@ from bgmi.utils import print_warning, print_error, print_version, check_update, 
 # global Ctrl-C signal handler
 def signal_handler(signal, frame):  # pragma: no cover
     print_error('User aborted, quit')
+
+
+if not IS_PYTHON3 and sys.platform.startswith('win'):
+    reload(sys)
+    sys.setdefaultencoding('gbk')
 
 
 signal.signal(signal.SIGINT, signal_handler)

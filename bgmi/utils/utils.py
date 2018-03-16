@@ -6,7 +6,6 @@ import glob
 import gzip
 import json
 import os
-import platform
 import re
 import struct
 import sys
@@ -53,7 +52,7 @@ if os.environ.get('DEV', False):  # pragma: no cover
     requests.get = get
     requests.post = post
 
-if platform.system() == 'Windows':  # pragma: no cover
+if sys.platform.startswith('win'):  # pragma: no cover
     GREEN = ''
     YELLOW = ''
     RED = ''
@@ -164,7 +163,7 @@ def bug_report():  # pragma: no cover
 
 def get_terminal_col():  # pragma: no cover
     # https://gist.github.com/jtriley/1108174
-    if not platform.system() == 'Windows':
+    if not sys.platform.startswith('win'):
         import fcntl
         import termios
 
