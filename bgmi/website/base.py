@@ -9,7 +9,7 @@ from collections import defaultdict
 from itertools import chain
 
 from bgmi.config import MAX_PAGE, IS_PYTHON3, GLOBAL_FILTER, ENABLE_GLOBAL_FILTER
-from bgmi.models import Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, STATUS_UPDATING
+from bgmi.lib.models import Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, STATUS_UPDATING
 from bgmi.utils import (parse_episode, print_warning, print_info,
                         test_connection, download_cover, convert_cover_to_path)
 

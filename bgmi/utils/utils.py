@@ -21,7 +21,7 @@ from multiprocessing.pool import ThreadPool
 
 from bgmi import __version__, __admin_version__
 from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, FRONT_STATIC_PATH, SAVE_PATH
-from bgmi.constants import SUPPORT_WEBSITE
+from bgmi.lib.constants import SUPPORT_WEBSITE
 
 
 urllib3.disable_warnings()

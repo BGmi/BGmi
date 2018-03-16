@@ -2,17 +2,16 @@
 from __future__ import print_function, unicode_literals
 
 import time
-from collections import defaultdict
 
 from bgmi.config import write_config, MAX_PAGE
-from bgmi.constants import SUPPORT_WEBSITE
-from bgmi.download import download_prepare
-from bgmi.fetch import website
-from bgmi.models import (Filter, Subtitle, Download, recreate_source_relatively_table,
-                         STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NOT_DOWNLOAD, FOLLOWED_STATUS, Followed, Bangumi,
-                         DoesNotExist, model_to_dict)
-from bgmi.models import (STATUS_NORMAL)
-from bgmi.script import ScriptRunner
+from bgmi.lib.constants import SUPPORT_WEBSITE
+from bgmi.lib.download import download_prepare
+from bgmi.lib.fetch import website
+from bgmi.lib.models import (Filter, Subtitle, Download, recreate_source_relatively_table,
+                             STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NOT_DOWNLOAD, FOLLOWED_STATUS, Followed, Bangumi,
+                             DoesNotExist, model_to_dict)
+from bgmi.lib.models import (STATUS_NORMAL)
+from bgmi.lib.script import ScriptRunner
 from bgmi.utils import print_info, normalize_path, print_warning, print_success, print_error, GREEN, COLOR_END
 
 

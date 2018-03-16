@@ -6,13 +6,11 @@ import logging
 import os
 import random
 import string
-import unittest
 
 from tornado.testing import AsyncHTTPTestCase
 
 from bgmi.front.server import make_app
-from bgmi.constants import unicode_
-from bgmi.utils import print_error
+from bgmi.lib.constants import unicode_
 from bgmi.config import SAVE_PATH
 
 logging.basicConfig(level=logging.DEBUG)

@@ -4,7 +4,7 @@ from shutil import copy
 
 from bgmi.config import (IS_WINDOWS, BGMI_PATH, DOWNLOAD_DELEGATE,
                          SAVE_PATH, FRONT_STATIC_PATH, TMP_PATH, SCRIPT_PATH, TOOLS_PATH)
-from bgmi.download import get_download_class
+from bgmi.lib.download import get_download_class
 from bgmi.utils import print_success, print_warning, print_info, print_error
 
 

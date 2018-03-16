@@ -5,7 +5,7 @@ import os
 
 from bgmi.config import SAVE_PATH, FRONT_STATIC_PATH
 from bgmi.front.base import BaseHandler, COVER_URL
-from bgmi.models import STATUS_NORMAL, STATUS_UPDATING, STATUS_END, Followed
+from bgmi.lib.models import STATUS_NORMAL, STATUS_UPDATING, STATUS_END, Followed
 from bgmi.utils import normalize_path
 
 

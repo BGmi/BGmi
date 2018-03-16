@@ -1,8 +1,7 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
-import json
 import requests
-from bgmi.script import ScriptBase
+from bgmi.lib.script import ScriptBase
 
 
 class Script(ScriptBase):

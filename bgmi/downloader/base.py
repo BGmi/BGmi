@@ -4,7 +4,7 @@ from __future__ import unicode_literals, print_function
 import os
 import subprocess
 
-from bgmi.models import STATUS_DOWNLOADED, STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, Download
+from bgmi.lib.models import STATUS_DOWNLOADED, STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, Download
 from bgmi.utils import print_warning, print_info, print_success
 
 

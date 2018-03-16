@@ -5,12 +5,12 @@ import argparse
 import os
 import signal
 
-from bgmi.cli import controllers
+from bgmi.lib.cli import controllers
 from bgmi.config import BGMI_PATH
-from bgmi.constants import actions_and_arguments, ACTION_COMPLETE
+from bgmi.lib.constants import actions_and_arguments, ACTION_COMPLETE
 from bgmi.setup import create_dir, install_crontab
 from bgmi.sql import init_db
-from bgmi.update import update_database
+from bgmi.lib.update import update_database
 from bgmi.utils import print_warning, print_error, print_version, check_update, get_web_admin
 
 

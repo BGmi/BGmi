@@ -8,7 +8,7 @@ import time
 import requests
 
 from bgmi.config import (LANG, MAX_PAGE, BANGUMI_MOE_URL)
-from bgmi.models import Bangumi
+from bgmi.lib.models import Bangumi
 from bgmi.utils import (print_info, bug_report, print_error, print_warning)
 from bgmi.website.base import BaseWebsite
 

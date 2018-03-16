@@ -5,7 +5,7 @@ import glob
 import os
 
 from bgmi.config import SAVE_PATH, DOWNLOAD_DELEGATE
-from bgmi.models import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download
+from bgmi.lib.models import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download
 from bgmi.downloader.aria2_rpc import Aria2DownloadRPC
 from bgmi.downloader.transmission_rpc import TransmissionRPC
 from bgmi.downloader.xunlei import XunleiLixianDownload

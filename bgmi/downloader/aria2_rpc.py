@@ -2,7 +2,7 @@ import bgmi.config
 from bgmi.downloader.base import BaseDownloadService
 from bgmi.config import ARIA2_RPC_URL, ARIA2_RPC_TOKEN
 from bgmi.utils import print_info, print_warning, print_success, print_error
-from bgmi.models import STATUS_DOWNLOADED, STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING
+from bgmi.lib.models import STATUS_DOWNLOADED, STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING
 
 
 if bgmi.config.IS_PYTHON3:

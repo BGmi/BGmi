@@ -9,7 +9,7 @@ import datetime
 import requests
 
 from bgmi.config import IS_PYTHON3
-from bgmi.script import ScriptBase
+from bgmi.lib.script import ScriptBase
 from bgmi.utils import print_error, parse_episode
 
 if IS_PYTHON3:

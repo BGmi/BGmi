@@ -7,7 +7,7 @@ import tornado.web
 
 from bgmi import __version__, __admin_version__
 from bgmi.config import DANMAKU_API_URL, BGMI_PATH
-from bgmi.script import ScriptRunner
+from bgmi.lib.script import ScriptRunner
 from bgmi.utils.utils import normalize_path
 
 COVER_URL = '/bangumi/cover'
