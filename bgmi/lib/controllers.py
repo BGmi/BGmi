@@ -11,7 +11,7 @@ from bgmi.lib.models import (Filter, Subtitle, Download, recreate_source_relativ
                              STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NOT_DOWNLOAD, FOLLOWED_STATUS, Followed, Bangumi,
                              DoesNotExist, model_to_dict)
 from bgmi.lib.models import (STATUS_NORMAL)
-from bgmi.lib.script import ScriptRunner
+from bgmi.script import ScriptRunner
 from bgmi.utils import print_info, normalize_path, print_warning, print_success, print_error, GREEN, COLOR_END
 
 

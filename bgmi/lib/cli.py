@@ -18,7 +18,7 @@ from bgmi.lib.controllers import (filter_, source, config,
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
 from bgmi.lib.models import Bangumi, STATUS_FOLLOWED, Followed, Filter, Subtitle, STATUS_UPDATED
-from bgmi.lib.script import ScriptRunner
+from bgmi.script import ScriptRunner
 from bgmi.utils import (GREEN, COLOR_END, get_terminal_col, YELLOW)
 from bgmi.utils import print_info, print_warning, print_success, print_error
 
