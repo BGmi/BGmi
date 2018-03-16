@@ -346,7 +346,7 @@ def get_web_admin(method):
     print_success('Web admin page {} successfully. version: {}'.format(method, version['version']))
 
 
-def convert_cover_to_path(cover_url):
+def convert_cover_url_to_path(cover_url):
     """
     convert bangumi cover to file path
 
@@ -380,7 +380,7 @@ def download_cover(cover_url_list):
     p = ThreadPool(4)
     content_list = p.map(download_file, cover_url_list)
     for index, r in enumerate(content_list):
-        dir_path, file_path = convert_cover_to_path(cover_url_list[index])
+        dir_path, file_path = convert_cover_url_to_path(cover_url_list[index])
         if not glob.glob(dir_path):
             os.makedirs(dir_path)
         with open(file_path, 'wb') as f:
