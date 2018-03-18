@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 import bgmi.config
 from bgmi.downloader.base import BaseDownloadService
 from bgmi.config import ARIA2_RPC_URL, ARIA2_RPC_TOKEN
