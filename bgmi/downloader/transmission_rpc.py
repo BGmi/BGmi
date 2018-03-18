@@ -102,7 +102,7 @@ class TransmissionRPC(BaseDownloadService):
     def download_status(status=None):
         print_info('Print download status in database')
         BaseDownloadService.download_status(status=status)
-        print()
+        print('')
         print_info('Print download status in transmission-rpc')
         try:
             import transmissionrpc
