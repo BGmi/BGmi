@@ -12,7 +12,8 @@ import bgmi.config
 from bgmi.lib.constants import (ACTION_ADD, ACTION_SOURCE, ACTION_DOWNLOAD, ACTION_CONFIG, ACTION_DELETE, ACTION_MARK,
                                 ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST,
                                 DOWNLOAD_CHOICE_LIST_DICT, ACTION_COMPLETE,
-                                SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, ACTIONS, actions_and_arguments)
+                                SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, ACTIONS,
+                                actions_and_arguments)
 from bgmi.lib.controllers import (filter_, source, config,
                                   mark, delete, add, search, update, list_)
 from bgmi.lib.download import download_prepare, get_download_class
@@ -238,10 +239,10 @@ def complete(ret):
         helper[action['action']] = action.get('help', '')
 
     if 'bash' in os.getenv('SHELL').lower():  # bash
-        template_file_path = os.path.join(os.path.dirname(__file__), 'others', '_bgmi_completion_bash.sh')
+        template_file_path = os.path.join(os.path.dirname(__file__), '..', 'others', '_bgmi_completion_bash.sh')
 
     elif 'zsh' in os.getenv('SHELL').lower():  # zsh
-        template_file_path = os.path.join(os.path.dirname(__file__), 'others', '_bgmi_completion_zsh.sh')
+        template_file_path = os.path.join(os.path.dirname(__file__), '..', 'others', '_bgmi_completion_zsh.sh')
 
     else:
         import sys
