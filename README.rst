@@ -248,6 +248,8 @@ Aria2-rpc configure:
 
 Xunlei configure:
 
+XunleiLixian is deprecated, please choose aria2-rpc or transmission-rpc.
+
 + :code:`XUNLEI_LX_PATH`: path of xunlei-lixian binary
 
 Transmission-rpc configure:
@@ -285,7 +287,7 @@ Consider most people won't use Nginx on Windows, bgmi_http use tornado.web.Stati
 
 Use bgmi_http on Linux
 -----------------
-Configure tornado with nginx:
+Configure tornado with Nginx:
 
 .. code-block:: bash
 
@@ -337,6 +339,12 @@ Of cause you can use `yaaw <https://github.com/binux/yaaw/>`_ to manage download
     ...
 
 Example file: `bgmi.conf <https://github.com/BGmi/BGmi/blob/dev/bgmi.conf>`_
+
+macOS launchctl service controller
+-----------------
+see `issue #77 <https://github.com/BGmi/BGmi/pull/77>`_
+
+`me.ricterz.bgmi.plist <https://github.com/BGmi/BGmi/blob/master/bgmi/others/me.ricterz.bgmi.plist>`_
 
 ===================
 DPlayer and Danmaku

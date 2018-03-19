@@ -6,7 +6,6 @@ import glob
 import gzip
 import json
 import os
-import platform
 import re
 import struct
 import sys
@@ -21,7 +20,7 @@ from multiprocessing.pool import ThreadPool
 
 from bgmi import __version__, __admin_version__
 from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, FRONT_STATIC_PATH, SAVE_PATH
-from bgmi.constants import SUPPORT_WEBSITE
+from bgmi.lib.constants import SUPPORT_WEBSITE
 
 
 urllib3.disable_warnings()
@@ -53,7 +52,7 @@ if os.environ.get('DEV', False):  # pragma: no cover
     requests.get = get
     requests.post = post
 
-if platform.system() == 'Windows':  # pragma: no cover
+if sys.platform.startswith('win'):  # pragma: no cover
     GREEN = ''
     YELLOW = ''
     RED = ''
@@ -164,7 +163,7 @@ def bug_report():  # pragma: no cover
 
 def get_terminal_col():  # pragma: no cover
     # https://gist.github.com/jtriley/1108174
-    if not platform.system() == 'Windows':
+    if not sys.platform.startswith('win'):
         import fcntl
         import termios
 
@@ -347,7 +346,7 @@ def get_web_admin(method):
     print_success('Web admin page {} successfully. version: {}'.format(method, version['version']))
 
 
-def convert_cover_to_path(cover_url):
+def convert_cover_url_to_path(cover_url):
     """
     convert bangumi cover to file path
 
@@ -381,7 +380,7 @@ def download_cover(cover_url_list):
     p = ThreadPool(4)
     content_list = p.map(download_file, cover_url_list)
     for index, r in enumerate(content_list):
-        dir_path, file_path = convert_cover_to_path(cover_url_list[index])
+        dir_path, file_path = convert_cover_url_to_path(cover_url_list[index])
         if not glob.glob(dir_path):
             os.makedirs(dir_path)
         with open(file_path, 'wb') as f:

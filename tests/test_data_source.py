@@ -5,7 +5,7 @@ import os
 import unittest
 
 from bgmi.config import unicode_
-from bgmi.fetch import website
+from bgmi.lib.fetch import website
 
 
 class ControllersTest(unittest.TestCase):

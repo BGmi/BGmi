@@ -9,9 +9,9 @@ from collections import defaultdict
 from itertools import chain
 
 from bgmi.config import MAX_PAGE, IS_PYTHON3, GLOBAL_FILTER, ENABLE_GLOBAL_FILTER
-from bgmi.models import Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, STATUS_UPDATING
+from bgmi.lib.models import Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, STATUS_UPDATING
 from bgmi.utils import (parse_episode, print_warning, print_info,
-                        test_connection, download_cover, convert_cover_to_path)
+                        test_connection, download_cover, convert_cover_url_to_path)
 
 if IS_PYTHON3:
     _unicode = str
@@ -23,8 +23,13 @@ class BaseWebsite(object):
     cover_url = ''
     parse_episode = staticmethod(parse_episode)
 
-    # @staticmethod
-    def save_data(self, data):
+    @staticmethod
+    def save_data(data):
+        """
+        save bangumi dict to database
+
+        :type data: dict
+        """
         b, obj_created = Bangumi.get_or_create(name=data['name'], defaults=data)
         if not obj_created:
             b.status = STATUS_UPDATING
@@ -61,6 +66,11 @@ class BaseWebsite(object):
 
     @staticmethod
     def followed_bangumi():
+        """
+
+        :return: list of bangumi followed
+        :rtype: list[dict]
+        """
         weekly_list_followed = Bangumi.get_updating_bangumi(status=STATUS_FOLLOWED)
         weekly_list_updated = Bangumi.get_updating_bangumi(status=STATUS_UPDATED)
         weekly_list = defaultdict(list)
@@ -74,6 +84,17 @@ class BaseWebsite(object):
         return weekly_list
 
     def bangumi_calendar(self, force_update=False, save=True, cover=None):
+        """
+
+        :param force_update:
+        :type force_update: bool
+
+        :param save: set true to enable save bangumi data to database
+        :type save: bool
+
+        :param cover: list of cover url (of scripts) want to download
+        :type cover: list[str]
+        """
         if force_update and not test_connection():
             force_update = False
             print_warning('Network is unreachable')
@@ -93,7 +114,7 @@ class BaseWebsite(object):
             cover_to_be_download = cover
             for daily_bangumi in weekly_list.values():
                 for bangumi in daily_bangumi:
-                    _, file_path = convert_cover_to_path(bangumi['cover'])
+                    _, file_path = convert_cover_url_to_path(bangumi['cover'])
 
                     if not glob.glob(file_path):
                         cover_to_be_download.append(bangumi['cover'])
@@ -105,7 +126,17 @@ class BaseWebsite(object):
         return weekly_list
 
     def get_maximum_episode(self, bangumi, subtitle=True, ignore_old_row=True, max_page=MAX_PAGE):
+        """
 
+        :type max_page: str
+        :param max_page: 
+        :type bangumi: object
+        :type ignore_old_row: bool
+        :param ignore_old_row: 
+        :type bangumi: Bangumi
+        :param subtitle: 
+        :type subtitle: bool
+        """
         try:
             followed_filter_obj = Filter.get(bangumi_name=bangumi.name)
         except Filter.DoesNotExist:
@@ -133,7 +164,10 @@ class BaseWebsite(object):
 
         data = [i for i in self.fetch_episode(_id=bangumi.keyword, name=bangumi.name,
                                               subtitle_group=subtitle_group,
-                                              include=include, exclude=exclude, regex=regex, max_page=max_page)
+                                              include=include,
+                                              exclude=exclude,
+                                              regex=regex,
+                                              max_page=int(max_page))
                 if i['episode'] is not None]
 
         if ignore_old_row:
@@ -150,8 +184,17 @@ class BaseWebsite(object):
                       include=None,
                       exclude=None,
                       regex=None,
-                      max_page=int(MAX_PAGE),
-                      **kwargs):
+                      max_page=int(MAX_PAGE)):
+        """
+        :type _id: str
+        :param _id:
+        :type name: str
+        :type subtitle_group: str
+        :type include: str
+        :type exclude: str
+        :type regex: str
+        :type max_page: int
+        """
         result = []
 
         max_page = int(max_page)
@@ -182,6 +225,10 @@ class BaseWebsite(object):
 
     @staticmethod
     def remove_duplicated_bangumi(result):
+        """
+
+        :type result: list[dict]
+        """
         ret = []
         episodes = list({i['episode'] for i in result})
         for i in result:
@@ -191,11 +238,18 @@ class BaseWebsite(object):
 
         return ret
 
-    def filter_keyword(self, data, regex=None):
+    @staticmethod
+    def filter_keyword(data, regex=None):
+        """
+
+        :type regex: str
+        :param data: list of bangumi dict
+        :type data: list[dict]
+        """
         if regex:
             try:
                 match = re.compile(regex)
-                data = list(filter(lambda s: True if match.findall(s['title']) else False, data))
+                data = [s for s in data if match.findall(s['title'])]
             except re.error as e:
                 if os.getenv('DEBUG'):  # pragma: no cover
                     import traceback

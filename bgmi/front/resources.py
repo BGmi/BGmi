@@ -10,7 +10,7 @@ from tornado.web import HTTPError
 
 from bgmi.config import SAVE_PATH
 from bgmi.front.base import BaseHandler
-from bgmi.models import Download, Bangumi, Followed, Bangumi
+from bgmi.lib.models import Download, Followed, Bangumi
 
 
 class BangumiHandler(BaseHandler):
