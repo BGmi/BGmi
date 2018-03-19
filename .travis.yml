@@ -30,7 +30,7 @@ script:
     - coverage run -a -m bgmi.main cal
     - coverage run -a -m bgmi.main config
     - coverage run -a -m bgmi.main config ADMIN_TOKEN 233
-    - coverage run -a -m bgmi.main config DOWNLOAD_DELEGATE 'rr!'
+    - coverage run -a -m bgmi.main config DOWNLOAD_DELEGATE 'xunlei'
     - coverage run -a -m bgmi.main config BANGUMI_MOE_URL https://bangumi.moe
     - coverage run -a -m bgmi.main add $BANGUMI_1 $BANGUMI_2 $BANGUMI_3
     - coverage run -a -m bgmi.main update

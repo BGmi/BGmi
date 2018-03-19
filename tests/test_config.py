@@ -2,7 +2,7 @@
 from __future__ import print_function, unicode_literals
 
 import unittest
-from bgmi.controllers import config
+from bgmi.lib.controllers import config
 
 
 class ConfigTest(unittest.TestCase):

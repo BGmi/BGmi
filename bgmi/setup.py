@@ -4,7 +4,7 @@ from shutil import copy
 
 from bgmi.config import (IS_WINDOWS, BGMI_PATH, DOWNLOAD_DELEGATE,
                          SAVE_PATH, FRONT_STATIC_PATH, TMP_PATH, SCRIPT_PATH, TOOLS_PATH)
-from bgmi.download import get_download_class
+from bgmi.lib.download import get_download_class
 from bgmi.utils import print_success, print_warning, print_info, print_error
 
 
@@ -12,7 +12,7 @@ def install_crontab():
     print_info('Installing crontab job')
     if IS_WINDOWS:
         copy(os.path.join(os.path.dirname(__file__), 'others/cron.vbs'), BGMI_PATH)
-        os.system('powershell.exe schtasks /Create /SC HOURLY /TN "bgmi updater" /TR "{}"  /IT /F'.format(
+        os.system('schtasks /Create /SC HOURLY /TN "bgmi updater" /TR "{}"  /IT /F'.format(
             os.path.join(BGMI_PATH, 'cron.vbs')))
     else:
         path = os.path.join(os.path.dirname(__file__), 'others/crontab.sh')

@@ -4,7 +4,8 @@ from __future__ import print_function, unicode_literals
 from collections import defaultdict
 
 import peewee
-from peewee import *
+from peewee import IntegerField, FixedCharField, TextField
+
 from playhouse.shortcuts import model_to_dict
 
 import bgmi.config
@@ -22,10 +23,10 @@ STATUS_END = 1
 BANGUMI_STATUS = (STATUS_UPDATING, STATUS_END)
 
 # subscription status
-STATUS_NORMAL = 0
+STATUS_DELETED = 0
 STATUS_FOLLOWED = 1
 STATUS_UPDATED = 2
-FOLLOWED_STATUS = (STATUS_NORMAL, STATUS_FOLLOWED, STATUS_UPDATED)
+FOLLOWED_STATUS = (STATUS_DELETED, STATUS_FOLLOWED, STATUS_UPDATED)
 
 # download status
 STATUS_NOT_DOWNLOAD = 0
@@ -38,7 +39,7 @@ DoesNotExist = peewee.DoesNotExist
 db = peewee.SqliteDatabase(bgmi.config.DB_PATH)
 
 
-class NeoDB(Model):
+class NeoDB(peewee.Model):
     class Meta:
         database = db
 
@@ -59,7 +60,7 @@ class Bangumi(NeoDB):
 
         update_time = kwargs.get('update_time', '').title()
         if update_time and update_time not in self.week:
-            raise ValueError('unexcept update time %s' % update_time)
+            raise ValueError('unexpected update time %s' % update_time)
         self.update_time = update_time
         self.subtitle_group = ', '.join(kwargs.get('subtitle_group', []))
 
@@ -72,12 +73,12 @@ class Bangumi(NeoDB):
 
         if status is None:
             data = cls.select(cls, Followed.status, Followed.episode) \
-                .join(Followed, JOIN_LEFT_OUTER, on=(cls.name == Followed.bangumi_name)) \
-                .where(cls.status == STATUS_UPDATING).naive()
+                .join(Followed, peewee.JOIN['LEFT_OUTER'], on=(cls.name == Followed.bangumi_name)) \
+                .where(cls.status == STATUS_UPDATING).objects()
         else:
             data = cls.select(cls, Followed.status, Followed.episode) \
-                .join(Followed, JOIN_LEFT_OUTER, on=(cls.name == Followed.bangumi_name)) \
-                .where((cls.status == STATUS_UPDATING) & (Followed.status == status)).naive()
+                .join(Followed, peewee.JOIN['LEFT_OUTER'], on=(cls.name == Followed.bangumi_name)) \
+                .where((cls.status == STATUS_UPDATING) & (Followed.status == status)).objects()
         r = []
         for x in data:
             d = model_to_dict(x)
@@ -104,7 +105,7 @@ class Followed(NeoDB):
 
     class Meta:
         database = db
-        db_table = 'followed'
+        table_name = 'followed'
 
     @classmethod
     def delete_followed(cls, batch=True):
@@ -117,17 +118,17 @@ class Followed(NeoDB):
         return True
 
     @classmethod
-    def get_all_followed(cls, status=STATUS_NORMAL, bangumi_status=STATUS_UPDATING):
+    def get_all_followed(cls, status=STATUS_DELETED, bangumi_status=STATUS_UPDATING):
         join_cond = (Bangumi.name == cls.bangumi_name)
         d = cls.select(cls, Bangumi.name, Bangumi.update_time, Bangumi.cover) \
-            .join(Bangumi, JOIN_LEFT_OUTER, on=join_cond) \
+            .join(Bangumi, peewee.JOIN['LEFT_OUTER'], on=join_cond) \
             .where((cls.status != status) & (Bangumi.status == bangumi_status)) \
             .order_by(cls.updated_time.desc()) \
-            .naive()
+            .objects()
 
         r = []
         for x in d:
-            dic = dict(**x.__dict__['_data'])
+            dic = dict(**x.__dict__['__data__'])
             dic['update_time'] = x.update_time
             dic['cover'] = x.cover
             r.append(dic)
@@ -149,7 +150,7 @@ class Download(NeoDB):
             data = list(cls.select().where(cls.status == status).order_by(cls.status))
 
         for index, x in enumerate(data):
-            data[index] = x.__dict__['_data']
+            data[index] = model_to_dict(x)
         return data
 
     def downloaded(self):
@@ -173,14 +174,14 @@ class Subtitle(NeoDB):
     def get_subtitle_by_id(cls, id_list=None):
         data = list(cls.select().where(cls.id.in_(id_list)))
         for index, subtitle in enumerate(data):
-            data[index] = subtitle.__dict__['_data']
+            data[index] = model_to_dict(subtitle)
         return data
 
     @classmethod
     def get_subtitle_by_name(cls, name_list=None):
         data = list(cls.select().where(cls.name.in_(name_list)))
         for index, subtitle in enumerate(data):
-            data[index] = subtitle.__dict__['_data']
+            data[index] = model_to_dict(subtitle)
         return data
 
 
@@ -204,7 +205,7 @@ def recreate_source_relatively_table():
     return True
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma:no cover
     from pprint import pprint
 
     d = Bangumi.get_updating_bangumi(status=STATUS_FOLLOWED)

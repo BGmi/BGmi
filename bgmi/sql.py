@@ -1,4 +1,8 @@
 # coding=utf-8
+import sqlite3
+
+from bgmi.config import DB_PATH, SCRIPT_DB_PATH, BGMI_PATH
+from bgmi.utils import print_error
 
 CREATE_TABLE_BANGUMI = '''CREATE TABLE IF NOT EXISTS bangumi (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,3 +54,24 @@ CREATE_TABLE_SCRIPT = '''CREATE TABLE IF NOT EXISTS scripts (
         )'''
 
 CLEAR_TABLE_ = 'DELETE  FROM {}'
+
+
+def init_db():
+    try:
+        # bangumi.db
+        conn = sqlite3.connect(DB_PATH)
+        conn.execute(CREATE_TABLE_BANGUMI)
+        conn.execute(CREATE_TABLE_FOLLOWED)
+        conn.execute(CREATE_TABLE_DOWNLOAD)
+        conn.execute(CREATE_TABLE_FOLLOWED_FILTER)
+        conn.execute(CREATE_TABLE_SUBTITLE)
+        conn.commit()
+        conn.close()
+
+        # script.db
+        conn = sqlite3.connect(SCRIPT_DB_PATH)
+        conn.execute(CREATE_TABLE_SCRIPT)
+        conn.commit()
+        conn.close()
+    except sqlite3.OperationalError:
+        print_error('Open database file failed, path %s is not writable.' % BGMI_PATH)

@@ -5,7 +5,7 @@ import os
 
 from bgmi.config import SAVE_PATH, FRONT_STATIC_PATH
 from bgmi.front.base import BaseHandler, COVER_URL
-from bgmi.models import STATUS_NORMAL, STATUS_UPDATING, STATUS_END, Followed
+from bgmi.lib.models import STATUS_DELETED, STATUS_UPDATING, STATUS_END, Followed
 from bgmi.utils import normalize_path
 
 
@@ -44,7 +44,8 @@ class IndexHandler(BaseHandler):
         else:
             msg = '''<h1>Thanks for your using BGmi</h1>
             <p>If use want to use Tornado to serve static files, please run 
-            <code>bgmi config TORNADO_SERVE_STATIC_FILES 1</code></p>'''
+            <code>bgmi config TORNADO_SERVE_STATIC_FILES 1</code>, and do not forget install bgmi-frontend by
+            running <code>bgmi install</code></p>'''
 
         self.write(msg)
         self.finish()
@@ -52,7 +53,7 @@ class IndexHandler(BaseHandler):
 
 class BangumiListHandler(BaseHandler):
     def get(self, type_=''):
-        data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING if not type_ == 'old' else STATUS_END)
+        data = Followed.get_all_followed(STATUS_DELETED, STATUS_UPDATING if not type_ == 'old' else STATUS_END)
 
         if type_ == 'index':
             data.extend(self.patch_list)

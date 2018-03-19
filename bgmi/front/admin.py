@@ -6,10 +6,10 @@ from multiprocessing.pool import ThreadPool
 from tornado.web import asynchronous, HTTPError
 
 from bgmi.config import ADMIN_TOKEN
-from bgmi.constants import (ACTION_ADD, ACTION_DELETE, ACTION_CAL, ACTION_SEARCH, ACTION_CONFIG, ACTION_DOWNLOAD,
-                            ACTION_MARK, ACTION_FILTER)
-from bgmi.controllers import add, delete, search, cal, config, update, mark, status_, filter_
-from bgmi.download import download_prepare
+from bgmi.lib.constants import (ACTION_ADD, ACTION_DELETE, ACTION_CAL, ACTION_SEARCH, ACTION_CONFIG, ACTION_DOWNLOAD,
+                                ACTION_MARK, ACTION_FILTER)
+from bgmi.lib.controllers import add, delete, search, cal, config, update, mark, status_, filter_
+from bgmi.lib.download import download_prepare
 from bgmi.front.base import BaseHandler
 
 ACTION_AUTH = 'auth'

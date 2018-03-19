@@ -8,7 +8,7 @@ import time
 import requests
 
 from bgmi.config import (LANG, MAX_PAGE, BANGUMI_MOE_URL)
-from bgmi.models import Bangumi
+from bgmi.lib.models import Bangumi
 from bgmi.utils import (print_info, bug_report, print_error, print_warning)
 from bgmi.website.base import BaseWebsite
 
@@ -21,6 +21,7 @@ TEAM_URL = '{0}{1}api/team/working'.format(BANGUMI_MOE_URL, __split)
 NAME_URL = '{0}{1}api/tag/fetch'.format(BANGUMI_MOE_URL, __split)
 DETAIL_URL = '{0}{1}api/torrent/search'.format(BANGUMI_MOE_URL, __split)
 SEARCH_URL = '{0}{1}api/v2/torrent/search'.format(BANGUMI_MOE_URL, __split)
+TORRENT_URL = '{0}{1}download/torrent/'.format(BANGUMI_MOE_URL, __split)
 COVER_URL = 'https://bangumi.moe/'
 
 
@@ -95,6 +96,7 @@ class BangumiMoe(BaseWebsite):
 
     def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
         response_data = []
+        ret = []
         if subtitle_list:
             for subtitle_id in subtitle_list:
                 data = {'tag_id': [bangumi_id, subtitle_id, BANGUMI_TAG]}
@@ -108,17 +110,22 @@ class BangumiMoe(BaseWebsite):
                 response = get_response(DETAIL_URL, 'POST', json=data)
                 if response:
                     response_data.extend(response['torrents'])
+
         for index, bangumi in enumerate(response_data):
-            response_data[index] = {
-                'download': bangumi['magnet'],
+            ret.append({
+                # 'download': bangumi['magnet'],
+                'download': TORRENT_URL + bangumi['_id'] + '/download.torrent',
                 'subtitle_group': bangumi['team_id'],
                 'title': bangumi['title'],
                 'episode': self.parse_episode(bangumi['title']),
                 'time': int(time.mktime(datetime.datetime.strptime(bangumi['publish_time'].split('.')[0],
                                                                    "%Y-%m-%dT%H:%M:%S").timetuple()))
-            }
+            })
 
-        return response_data
+            if os.environ.get('DEBUG'):
+                print(ret[index]['download'])
+
+        return ret
 
     def fetch_bangumi_calendar_and_subtitle_group(self):
         response = get_response(FETCH_URL)
@@ -144,7 +151,7 @@ class BangumiMoe(BaseWebsite):
         for info in rows:
             if True:
                 result.append({
-                    'download': info['magnet'],
+                    'download': TORRENT_URL + info['_id'] + '/download.torrent',
                     'name': keyword,
                     'subtitle_group': info['team_id'],
                     'title': info['title'],
