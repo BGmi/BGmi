@@ -279,24 +279,23 @@ def history(ret):
             color = RED
         else:
             slogan = 'FINISHED'
-            color = YELLOW
+            color = GREEN
 
         if not i.updated_time:
             date = datetime.datetime.fromtimestamp(0)
         else:
             date = datetime.datetime.fromtimestamp(int(i.updated_time))
 
-        if date.year != year:
-            print('|\n=============== %s%s%s ===============' % (GREEN, str(date.year) if
-                                                                 date.year != 1970 else 'NONE', COLOR_END))
-            if date.year == 1970:
-                print('|')
-            year = date.year
+        if date.year != 1970:
+            if date.year != year:
+                print('%s%s%s' % (GREEN, str(date.year), COLOR_END))
+                year = date.year
 
-        if date.year == year and date.year != 1970 and date.month != month :
-            print('|\n| -- %s\n|' % m[date.month - 1])
-            month = date.month
-        print('|     [%s%s%s] %s' % (color, slogan, COLOR_END, i.bangumi_name))
+            if date.year == year and date.month != month :
+                print('  |\n  |--- %s%s%s\n  |      |' % (YELLOW, m[date.month - 1], COLOR_END))
+                month = date.month
+
+            print('  |      |--- [%s%s%s] %s' % (color, slogan, COLOR_END, i.bangumi_name))
 
 
 CONTROLLERS_DICT = {
