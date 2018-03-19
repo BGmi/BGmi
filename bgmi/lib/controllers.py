@@ -10,7 +10,7 @@ from bgmi.lib.fetch import website
 from bgmi.lib.models import (Filter, Subtitle, Download, recreate_source_relatively_table,
                              STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NOT_DOWNLOAD, FOLLOWED_STATUS, Followed, Bangumi,
                              DoesNotExist, model_to_dict)
-from bgmi.lib.models import (STATUS_NORMAL)
+from bgmi.lib.models import (STATUS_DELETED)
 from bgmi.script import ScriptRunner
 from bgmi.utils import print_info, normalize_path, print_warning, print_success, print_error, GREEN, COLOR_END
 
@@ -128,7 +128,7 @@ def delete(name='', clear_all=False, batch=False):
     elif name:
         try:
             followed = Followed.get(bangumi_name=name)
-            followed.status = STATUS_NORMAL
+            followed.status = STATUS_DELETED
             followed.save()
             result['status'] = 'warning'
             result['message'] = 'Bangumi {} has been deleted'.format(name)
@@ -346,7 +346,7 @@ def update(name, download=None, not_ignore=False):
     return result
 
 
-def status_(name, status=STATUS_NORMAL):
+def status_(name, status=STATUS_DELETED):
     result = {'status': 'success', 'message': ''}
 
     if not status in FOLLOWED_STATUS or not status:

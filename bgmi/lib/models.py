@@ -23,10 +23,10 @@ STATUS_END = 1
 BANGUMI_STATUS = (STATUS_UPDATING, STATUS_END)
 
 # subscription status
-STATUS_NORMAL = 0
+STATUS_DELETED = 0
 STATUS_FOLLOWED = 1
 STATUS_UPDATED = 2
-FOLLOWED_STATUS = (STATUS_NORMAL, STATUS_FOLLOWED, STATUS_UPDATED)
+FOLLOWED_STATUS = (STATUS_DELETED, STATUS_FOLLOWED, STATUS_UPDATED)
 
 # download status
 STATUS_NOT_DOWNLOAD = 0
@@ -118,7 +118,7 @@ class Followed(NeoDB):
         return True
 
     @classmethod
-    def get_all_followed(cls, status=STATUS_NORMAL, bangumi_status=STATUS_UPDATING):
+    def get_all_followed(cls, status=STATUS_DELETED, bangumi_status=STATUS_UPDATING):
         join_cond = (Bangumi.name == cls.bangumi_name)
         d = cls.select(cls, Bangumi.name, Bangumi.update_time, Bangumi.cover) \
             .join(Bangumi, peewee.JOIN['LEFT_OUTER'], on=join_cond) \

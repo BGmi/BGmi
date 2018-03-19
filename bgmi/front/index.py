@@ -5,7 +5,7 @@ import os
 
 from bgmi.config import SAVE_PATH, FRONT_STATIC_PATH
 from bgmi.front.base import BaseHandler, COVER_URL
-from bgmi.lib.models import STATUS_NORMAL, STATUS_UPDATING, STATUS_END, Followed
+from bgmi.lib.models import STATUS_DELETED, STATUS_UPDATING, STATUS_END, Followed
 from bgmi.utils import normalize_path
 
 
@@ -53,7 +53,7 @@ class IndexHandler(BaseHandler):
 
 class BangumiListHandler(BaseHandler):
     def get(self, type_=''):
-        data = Followed.get_all_followed(STATUS_NORMAL, STATUS_UPDATING if not type_ == 'old' else STATUS_END)
+        data = Followed.get_all_followed(STATUS_DELETED, STATUS_UPDATING if not type_ == 'old' else STATUS_END)
 
         if type_ == 'index':
             data.extend(self.patch_list)

@@ -42,8 +42,8 @@ def main():
         for sub_action in action.get('arguments', []):
             tmp_sub_parser.add_argument(sub_action['dest'], **sub_action['kwargs'])
 
-    sub_parser_del = sub_parser.add_parser(ACTION_COMPLETE, help='Gen completion, `eval "$(bgmi complete)"` '
-                                                                 'or `eval "$(bgmi complete|dos2unix)"`')
+    sub_parser.add_parser(ACTION_COMPLETE, help='Gen completion, `eval "$(bgmi complete)"` '
+                                                'or `eval "$(bgmi complete|dos2unix)"`')
     # sub_parser_del.add_argument('command', nargs='+', )
 
     ret = c.parse_args()

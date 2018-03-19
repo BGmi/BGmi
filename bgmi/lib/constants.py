@@ -21,6 +21,7 @@ ACTIONS = (ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL,
            ACTION_CONFIG, ACTION_FILTER, ACTION_FETCH, ACTION_DOWNLOAD,
            ACTION_LIST, ACTION_MARK, ACTION_SEARCH, ACTION_SOURCE, ACTION_COMPLETE)
 ACTION_FOLLOWED = 'followed'  # place holder?
+ACTION_HISTORY = 'history'
 
 FILTER_CHOICE_TODAY = 'today'
 FILTER_CHOICE_ALL = 'all'
@@ -234,6 +235,10 @@ actions_and_arguments = [
     {
         'action': 'upgrade',
         'help': 'Check update.'
+    },
+    {
+        'action': 'history',
+        'help': 'List your history of following bangumi'
     }
 
 ]
