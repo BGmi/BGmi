@@ -602,6 +602,20 @@ You can easily add your own BGmi data source by extending BGmi website base clas
             raise NotImplementedError
 
 
+===================
+Uninstall
+===================
+Scheduled task will not be delete automatically, you will have to remove them manually.
+
+*nix: 
+    remove them from your crontab
+
+windows:
+
+.. code-block:: bash
+
+     schtasks /Delete /TN 'bgmi updater'
+
 =======
 License
 =======
