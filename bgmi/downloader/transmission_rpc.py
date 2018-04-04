@@ -8,10 +8,10 @@ from bgmi.utils import print_info, print_warning
 
 
 if IS_PYTHON3:
-    import urllib
+    from urllib.request import build_opener
     from urllib.parse import urlparse
 else:
-    import urllib2 as urllib
+    from urllib2 import build_opener
     from urlparse import urlparse
 
 
@@ -28,7 +28,7 @@ try:
             if parsed_uri.scheme in ['ftp', 'ftps', 'http', 'https']:
                 # there has been some problem with T's built in torrent fetcher,
                 # use a python one instead
-                opener = urllib.build_opener()
+                opener = build_opener()
                 opener.addheaders = [('User-Agent', 'BGmi/Torrent-Downloader')]
                 torrent_file = opener.open(torrent)
 
