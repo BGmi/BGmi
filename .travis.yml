@@ -3,7 +3,9 @@ os:
 
 language: python
 
-cache: pip
+cache:
+    - pip
+    - $HOME/virtualenv/
 
 python:
     - 2.7
