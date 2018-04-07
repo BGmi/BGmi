@@ -6,6 +6,7 @@ import os
 import re
 import string
 
+import itertools
 from tornado import template
 
 import bgmi.config
@@ -269,17 +270,24 @@ def history(ret):
     m = ('January', 'February', 'March', 'April', 'May', 'June', 'July',
          'August', 'September', 'October', 'November', 'December')
     data = Followed.select(Followed).order_by(Followed.updated_time.asc())
+    bangumi_data = Bangumi.get_updating_bangumi()
     year = None
     month = None
+
+    updating_bangumi = list(map(lambda s: s['name'], itertools.chain(*bangumi_data.values())))
 
     print_info('Bangumi Timeline')
     for i in data:
         if i.status == STATUS_DELETED:
-            slogan = ' ABANDON'
+            slogan = 'ABANDON'
             color = RED
         else:
-            slogan = 'FINISHED'
-            color = GREEN
+            if i.bangumi_name in updating_bangumi:
+                slogan = 'FOLLOWING'
+                color = YELLOW
+            else:
+                slogan = 'FINISHED'
+                color = GREEN
 
         if not i.updated_time:
             date = datetime.datetime.fromtimestamp(0)
@@ -291,11 +299,11 @@ def history(ret):
                 print('%s%s%s' % (GREEN, str(date.year), COLOR_END))
                 year = date.year
 
-            if date.year == year and date.month != month :
+            if date.year == year and date.month != month:
                 print('  |\n  |--- %s%s%s\n  |      |' % (YELLOW, m[date.month - 1], COLOR_END))
                 month = date.month
 
-            print('  |      |--- [%s%s%s] %s' % (color, slogan, COLOR_END, i.bangumi_name))
+            print('  |      |--- [%s%-9s%s] (%-2s) %s' % (color, slogan, COLOR_END, i.episode, i.bangumi_name))
 
 
 CONTROLLERS_DICT = {

@@ -62,7 +62,8 @@ class Bangumi(NeoDB):
         if update_time and update_time not in self.week:
             raise ValueError('unexpected update time %s' % update_time)
         self.update_time = update_time
-        self.subtitle_group = ', '.join(kwargs.get('subtitle_group', []))
+        if isinstance(kwargs.get('subtitle_group'), list):
+            self.subtitle_group = ', '.join(kwargs.get('subtitle_group', []))
 
     @classmethod
     def delete_all(cls):
