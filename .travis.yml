@@ -19,7 +19,7 @@ env:
 
 script:
     - export BANGUMI_1=名侦探柯南
-    - export BANGUMI_2=粗点心战争2
+    - export BANGUMI_2=黑色五叶草
     - export BANGUMI_3=海贼王
     - coverage run -a -m bgmi.main install
 #    - coverage run -a -m bgmi.main
