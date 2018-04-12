@@ -3,9 +3,21 @@ os:
 
 language: python
 
+env:
+    - TRAVIS_CI=TRAVIS_CI
+    - DOWNLOADER='aria2-rpc'
+    - DOWNLOADER='tranmission-rpc'
+    # - DATA_SOURCE
+
+matrix:
+    exclude:
+        - env: TRAVIS_CI=TRAVIS_CI
+
+sudo: true
+
 cache:
     - pip
-    - $HOME/virtualenv/
+    - $HOME/virtualenv
 
 python:
     - 2.7
@@ -15,16 +27,13 @@ python:
 install:
     - python setup.py install
     - pip install codecov
-
-env:
-    - TRAVIS_CI=TRAVIS_CI
+#    - sudo apt update
 
 script:
     - export BANGUMI_1=名侦探柯南
     - export BANGUMI_2=黑色五叶草
     - export BANGUMI_3=海贼王
     - coverage run -a -m bgmi.main install
-#    - coverage run -a -m bgmi.main
     - bgmi -h
     - coverage run -a -m unittest tests.test_controllers
     - coverage run -a -m unittest tests.test_config
@@ -46,10 +55,14 @@ script:
     - coverage run -a -m bgmi.main update $BANGUMI_2
     - coverage run -a -m bgmi.main filter $BANGUMI_2 --subtitle "" --exclude "MKV" --regex "720p|720P"
     - coverage run -a -m bgmi.main fetch $BANGUMI_2
-    - coverage run -a -m bgmi.main search "海贼王" --regex-filter '.*720P.*'
     - coverage run -a -m unittest tests.test_http_api
+# test downloader
+    - chmod +x ./ci/install_and_start_downloader
+    - ./ci/install_and_start_downloader
+    - coverage run -a -m bgmi.main search "海贼王" --regex-filter '.*720P.*' --download
+    - sudo python ./ci/stop_downloader.py
     - eval "$(coverage run -a -m bgmi.main complete)"
-
+#
     - echo 'test mikan'
     - export BANGUMI_1=名侦探柯南
     - export BANGUMI_2=海贼王
