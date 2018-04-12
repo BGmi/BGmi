@@ -12,6 +12,7 @@ if os.environ.get('DOWNLOADER') == 'aria2-rpc':
     s = ServerProxy('http://localhost:6800/rpc')
     print(s.aria2.tellActive())
     s.aria2.shutdown()
+    os.system('sudo pkill aria2c')
 elif os.environ.get('DOWNLOADER') == 'tranmission-rpc':
     import transmissionrpc
     tc = transmissionrpc.Client('localhost', port=9091)
