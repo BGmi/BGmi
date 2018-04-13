@@ -25,6 +25,7 @@ setup(
     keywords='bangumi, bgmi, feed',
     description='BGmi is a cli tool for subscribed bangumi.',
     long_description=long_description(),
+    long_description_content_type='text/x-rst; charset=UTF-8',
     url='https://github.com/RicterZ/BGmi',
     download_url='https://github.com/RicterZ/BGmi/tarball/master',
     packages=find_packages(),
