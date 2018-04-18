@@ -74,7 +74,7 @@ Upgrade
     pip install bgmi -U
     bgmi upgrade
 
-Make sure to run :code:`bgmi upgrade` after you upgrade your bgmi
+Make sure to run :code:`bgmi upgrade` after you install your bgmi
 
 ======
 Docker
