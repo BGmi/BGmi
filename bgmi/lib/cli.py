@@ -208,7 +208,7 @@ def fetch_(ret):
 
     try:
         Followed.get(bangumi_name=bangumi_obj.name)
-    except Bangumi.DoesNotExist:
+    except Followed.DoesNotExist:
         print_error('Bangumi {0} is not followed'.format(ret.name))
         return
 
