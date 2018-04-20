@@ -10,6 +10,7 @@ from playhouse.shortcuts import model_to_dict
 
 import bgmi.config
 from bgmi.config import IS_PYTHON3
+import os
 
 if IS_PYTHON3:
     _unicode = str
@@ -38,6 +39,8 @@ DoesNotExist = peewee.DoesNotExist
 
 db = peewee.SqliteDatabase(bgmi.config.DB_PATH)
 
+if os.environ.get('DEV'):
+    print('using', bgmi.config.DB_PATH)
 
 class NeoDB(peewee.Model):
     class Meta:
