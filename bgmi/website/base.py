@@ -44,9 +44,13 @@ class BaseWebsite(object):
         if subtitle_group_result:
             for subtitle_group in subtitle_group_result:
                 s, if_created = Subtitle.get_or_create(id=_unicode(subtitle_group['id']),
-                                                       name=_unicode(subtitle_group['name']))
+                                                       defaults={'name': _unicode(subtitle_group['name'])})
                 if if_created:
                     s.save()
+                else:
+                    if s.name != _unicode(subtitle_group['name']):
+                        s.name = _unicode(subtitle_group['name'])
+                        s.save()
         if not bangumi_result:
             print('no result return None')
             return []
@@ -129,12 +133,12 @@ class BaseWebsite(object):
         """
 
         :type max_page: str
-        :param max_page: 
+        :param max_page:
         :type bangumi: object
         :type ignore_old_row: bool
-        :param ignore_old_row: 
+        :param ignore_old_row:
         :type bangumi: Bangumi
-        :param subtitle: 
+        :param subtitle:
         :type subtitle: bool
         """
         try:
