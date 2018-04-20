@@ -258,14 +258,14 @@ def update(name, download=None, not_ignore=False):
     print_info('marking bangumi status ...')
     now = int(time.time())
     for i in Followed.get_all_followed():
-        if i['updated_time'] and int(i['updated_time'] + 86400) < now:
+        if i['updated_time'] and int(i['updated_time'] + 60 * 60 * 24) < now:
             followed_obj = Followed.get(bangumi_name=i['bangumi_name'])
             followed_obj.status = STATUS_FOLLOWED
             followed_obj.save()
 
     for script in ScriptRunner().scripts:
         obj = script.Model().obj
-        if obj.updated_time and int(obj.updated_time + 86400) < now:
+        if obj.updated_time and int(obj.updated_time + 60 * 60 * 24) < now:
             obj.status = STATUS_FOLLOWED
             obj.save()
 
