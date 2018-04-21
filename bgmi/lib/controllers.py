@@ -12,7 +12,7 @@ from bgmi.lib.models import (Filter, Subtitle, Download, recreate_source_relativ
                              DoesNotExist, model_to_dict)
 from bgmi.lib.models import (STATUS_DELETED)
 from bgmi.script import ScriptRunner
-from bgmi.utils import print_info, normalize_path, print_warning, print_success, print_error, GREEN, COLOR_END
+from bgmi.utils import print_info, normalize_path, print_warning, print_success, print_error, GREEN, COLOR_END, logger
 
 
 def add(name, episode=None):
@@ -22,20 +22,24 @@ def add(name, episode=None):
     # action add
     # add bangumi by a list of bangumi name
     # result = {}
+    logger.debug('add name: {} episode: {}'.format(name, episode))
     if not Bangumi.get_updating_bangumi():
         website.fetch(save=True, group_by_weekday=False)
 
     try:
         bangumi_obj = Bangumi.get(name=name)
     except Bangumi.DoesNotExist:
-        return {'status': 'error',
+        result = {'status': 'error',
                 'message': '{0} not found, please check the name'.format(name)}
+        return result
 
     followed_obj, this_obj_created = Followed.get_or_create(bangumi_name=bangumi_obj.name,
                                                             defaults={'status': STATUS_FOLLOWED})
     if not this_obj_created:
         if followed_obj.status == STATUS_FOLLOWED:
-            return {'status': 'warning', 'message': '{0} already followed'.format(bangumi_obj.name)}
+            result = {'status': 'warning', 'message': '{0} already followed'.format(bangumi_obj.name)}
+            (result)
+            return result
         else:
             followed_obj.status = STATUS_FOLLOWED
             followed_obj.save()
@@ -46,7 +50,7 @@ def add(name, episode=None):
     followed_obj.episode = bangumi_data['episode'] if episode is None else episode
     followed_obj.save()
     result = {'status': 'success', 'message': '{0} has been followed'.format(bangumi_obj.name)}
-
+    logger.debug(result)
     return result
 
 
@@ -103,6 +107,7 @@ def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
         'exclude': followed_filter_obj.exclude,
         'regex': followed_filter_obj.regex,
     }
+    logger.debug(result)
     return result
 
 
@@ -119,6 +124,7 @@ def delete(name='', clear_all=False, batch=False):
     # action delete
     # just delete subscribed bangumi or clear all the subscribed bangumi
     result = {}
+    logger.debug('delete {}'.format(name))
     if clear_all:
         if Followed.delete_followed(batch=batch):
             result['status'] = "warning"
@@ -138,17 +144,20 @@ def delete(name='', clear_all=False, batch=False):
     else:
         result['status'] = 'warning'
         result['message'] = 'Nothing has been done.'
+    logger.debug(result)
     return result
 
 
 def cal(force_update=False, save=False):
+    logger.debug('cal force_update: {} save: {}'.format(force_update, save))
     weekly_list = website.bangumi_calendar(force_update=force_update, save=save)
     runner = ScriptRunner()
     patch_list = runner.get_models_dict()
     for i in patch_list:
         weekly_list[i['update_time'].lower()].append(i)
+    logger.debug(weekly_list)
 
-    # for web api
+    # for web api, return all subtitle group info
     r = weekly_list
     for day, value in weekly_list.items():
         for index, bangumi in enumerate(value):
@@ -163,6 +172,7 @@ def cal(force_update=False, save=False):
                                               bangumi['subtitle_group'].split(', ' ''))))
 
             r[day][index]['subtitle_group'] = subtitle_group
+    logger.debug(r)
     return r
 
 
@@ -257,6 +267,7 @@ def update(name, download=None, not_ignore=False):
     ignore = not bool(not_ignore)
     print_info('marking bangumi status ...')
     now = int(time.time())
+
     for i in Followed.get_all_followed():
         if i['updated_time'] and int(i['updated_time'] + 60 * 60 * 24) < now:
             followed_obj = Followed.get(bangumi_name=i['bangumi_name'])
@@ -278,8 +289,7 @@ def update(name, download=None, not_ignore=False):
         if not name:
             print_warning('No specified bangumi, ignore `--download` option')
         if len(name) > 1:
-            print_warning(
-                'Multiple specified bangumi, ignore `--download` option')
+            print_warning('Multiple specified bangumi, ignore `--download` option')
 
     if not name:
         updated_bangumi_obj = Followed.get_all_followed()
@@ -311,8 +321,7 @@ def update(name, download=None, not_ignore=False):
                         exit_=False)
             continue
 
-        episode, all_episode_data = website.get_maximum_episode(
-            bangumi=bangumi_obj, ignore_old_row=ignore, max_page=1)
+        episode, all_episode_data = website.get_maximum_episode(bangumi=bangumi_obj, ignore_old_row=ignore, max_page=1)
 
         if (episode.get('episode') > subscribe['episode']) or (len(name) == 1 and download):
             if len(name) == 1 and download:

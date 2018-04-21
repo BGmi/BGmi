@@ -219,6 +219,9 @@ XUNLEI_LX_PATH = os.path.join(BGMI_PATH, 'bgmi-lx')
 # temp path
 TMP_PATH = os.path.join(BGMI_PATH, 'tmp')
 
+# log path
+LOG_PATH = os.path.join(TMP_PATH, 'bgmi.log')
+
 # Download delegate
 DOWNLOAD_DELEGATE = 'aria2-rpc'
 

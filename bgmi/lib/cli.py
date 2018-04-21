@@ -20,7 +20,7 @@ from bgmi.lib.constants import (ACTION_ADD, ACTION_SOURCE, ACTION_DOWNLOAD, ACTI
                                 SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, ACTIONS,
                                 actions_and_arguments)
 from bgmi.utils import (print_info, print_warning, print_success, print_error,
-                        RED, GREEN, YELLOW, COLOR_END, get_terminal_col)
+                        RED, GREEN, YELLOW, COLOR_END, get_terminal_col, logger)
 from bgmi.script import ScriptRunner
 
 
@@ -325,6 +325,7 @@ CONTROLLERS_DICT = {
 
 
 def controllers(ret):
+    logger.info(ret)
     func = CONTROLLERS_DICT.get(ret.action, None)
     if not callable(func):
         return

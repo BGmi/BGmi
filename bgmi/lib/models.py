@@ -42,6 +42,7 @@ db = peewee.SqliteDatabase(bgmi.config.DB_PATH)
 if os.environ.get('DEV'):
     print('using', bgmi.config.DB_PATH)
 
+
 class NeoDB(peewee.Model):
     class Meta:
         database = db
@@ -74,7 +75,6 @@ class Bangumi(NeoDB):
 
     @classmethod
     def get_updating_bangumi(cls, status=None, order=True):
-
         if status is None:
             data = cls.select(cls, Followed.status, Followed.episode) \
                 .join(Followed, peewee.JOIN['LEFT_OUTER'], on=(cls.name == Followed.bangumi_name)) \

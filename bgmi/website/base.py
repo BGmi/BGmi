@@ -42,17 +42,10 @@ class BaseWebsite(object):
     def fetch(self, save=False, group_by_weekday=True):
         bangumi_result, subtitle_group_result = self.fetch_bangumi_calendar_and_subtitle_group()
         if subtitle_group_result:
-            # insert_group = []
             for subtitle_group in subtitle_group_result:
                 (Subtitle.insert({Subtitle.id: _unicode(subtitle_group['id']),
                                   Subtitle.name: _unicode(subtitle_group['name'])})
                  .on_conflict_replace()).execute()
-                # .on_conflict(action="update",
-                #              preserve=(Subtitle.id,),
-                #              update={Subtitle.name: _unicode(subtitle_group['name'])}))
-                # insert_group.append({'id': _unicode(subtitle_group['id']),
-                #                      'name': _unicode(subtitle_group['name'])})
-                # Subtitle.insert_many(subtitle_group_result).execute()
         if not bangumi_result:
             print('no result return None')
             return []

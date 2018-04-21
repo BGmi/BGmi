@@ -4,14 +4,8 @@ os:
 language: python
 
 env:
-    - TRAVIS_CI=TRAVIS_CI
     - DOWNLOADER='aria2-rpc'
     - DOWNLOADER='tranmission-rpc'
-    # - DATA_SOURCE
-
-matrix:
-    exclude:
-        - env: TRAVIS_CI=TRAVIS_CI
 
 sudo: true
 
@@ -30,6 +24,8 @@ install:
 #    - sudo apt update
 
 script:
+    - export TRAVIS_CI=TRAVIS_CI
+    - export BGMI_LOG=debug
     - export BANGUMI_1=名侦探柯南
     - export BANGUMI_2=黑色五叶草
     - export BANGUMI_3=海贼王

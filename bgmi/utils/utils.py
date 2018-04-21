@@ -19,9 +19,21 @@ import urllib3
 from multiprocessing.pool import ThreadPool
 
 from bgmi import __version__, __admin_version__
-from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, FRONT_STATIC_PATH, SAVE_PATH
+from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, FRONT_STATIC_PATH, SAVE_PATH, LOG_PATH
 from bgmi.lib.constants import SUPPORT_WEBSITE
 
+import logging
+
+log_level = os.environ.get('BGMI_LOG') or 'ERROR'
+log_level = log_level.upper()
+logger = logging.getLogger('BGmi')
+if log_level not in ['DEBUG', 'INFO', "WARNING", "ERROR"]:
+    print('log level error')
+    exit(1)
+try:
+    logging.basicConfig(filename=LOG_PATH, level=logging.getLevelName(log_level))
+except IOError as e:
+    logging.basicConfig(stream=sys.stdout, level=logging.getLevelName(log_level))
 
 urllib3.disable_warnings()
 
@@ -34,20 +46,16 @@ if os.environ.get('DEV', False):  # pragma: no cover
             url = url.replace('http://', 'http://localhost:8092/http/')
         return url
 
-
     from requests import request
-
 
     def get(url, params=None, **kwargs):
         url = replace_url(url)
         kwargs.setdefault('allow_redirects', True)
         return request('get', url, params=params, **kwargs)
 
-
     def post(url, data=None, json=None, **kwargs):
         url = replace_url(url)
         return request('post', url, data=data, json=json, **kwargs)
-
 
     requests.get = get
     requests.post = post
@@ -114,24 +122,28 @@ def colorize(f):
 @indicator
 @colorize
 def print_info(message, indicator=True):
+    logger.info(message)
     print(message)
 
 
 @indicator
 @colorize
 def print_success(message, indicator=True):
+    logger.info(message)
     print(message)
 
 
 @indicator
 @colorize
 def print_warning(message, indicator=True):
+    logger.warning(message)
     print(message)
 
 
 @indicator
 @colorize
 def print_error(message, exit_=True, indicator=True):
+    logger.error(message)
     print(message)
     if exit_:
         exit(1)
@@ -386,3 +398,4 @@ def download_cover(cover_url_list):
         with open(file_path, 'wb') as f:
             f.write(r.content)
     p.close()
+
