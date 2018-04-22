@@ -85,7 +85,11 @@ class TransmissionRPC(BaseDownloadService):
         try:
             import transmissionrpc
             tc = PatchClient(TRANSMISSION_RPC_URL, port=TRANSMISSION_RPC_PORT)
-            tc.add_torrent(self.torrent, download_dir=self.save_path)
+            try:
+                tc.add_torrent(self.torrent, download_dir=self.save_path)
+            except UnicodeEncodeError:
+                tc.add_torrent(self.torrent, download_dir=self.save_path.encode('utf-8'))
+
             print_info('Add torrent into the download queue, the file will be saved at {0}'.format(self.save_path))
         except ImportError:
             pass
