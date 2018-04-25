@@ -19,7 +19,7 @@ import urllib3
 from multiprocessing.pool import ThreadPool
 
 from bgmi import __version__, __admin_version__
-from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, FRONT_STATIC_PATH, SAVE_PATH, LOG_PATH
+from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, FRONT_STATIC_PATH, SAVE_PATH, LOG_PATH, unicode_
 from bgmi.lib.constants import SUPPORT_WEBSITE
 
 import logging
@@ -34,6 +34,17 @@ try:
     logging.basicConfig(filename=LOG_PATH, level=logging.getLevelName(log_level))
 except IOError as e:
     logging.basicConfig(stream=sys.stdout, level=logging.getLevelName(log_level))
+
+
+def log_utils_function(func):
+    def echo_func(*func_args, **func_kwargs):
+        logger.debug('')
+        logger.debug(unicode_("start function {} {} {}".format(func.__name__, func_args, func_kwargs)))
+        r = func(*func_args, **func_kwargs)
+        logger.debug(unicode_("return function {} {}".format(func.__name__, r)))
+        return r
+
+    return echo_func
 
 urllib3.disable_warnings()
 
@@ -156,7 +167,7 @@ Github: https://github.com/BGmi/BGmi
 Email: ricterzheng@gmail.com
 Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END)
 
-
+@log_utils_function
 def test_connection():
     try:
         for website in SUPPORT_WEBSITE:
@@ -172,7 +183,7 @@ def bug_report():  # pragma: no cover
                 '    be opened normally, please submit issue at: https://github.com/BGmi/BGmi/issues',
                 exit_=True)
 
-
+@log_utils_function
 def get_terminal_col():  # pragma: no cover
     # https://gist.github.com/jtriley/1108174
     if not sys.platform.startswith('win'):
@@ -208,7 +219,7 @@ def get_terminal_col():  # pragma: no cover
         except:
             return 80
 
-
+@log_utils_function
 def check_update(mark=True):
     def update():
         try:
@@ -270,6 +281,7 @@ FETCH_EPISODE = (
     FETCH_EPISODE_OVA_OAD, FETCH_EPISODE_WITH_VERSION)
 
 
+@log_utils_function
 def parse_episode(episode_title):
     """
     parse episode from title
@@ -279,7 +291,6 @@ def parse_episode(episode_title):
     :return: episode of this title
     :rtype: int
     """
-
     _ = FETCH_EPISODE_ZH.findall(episode_title)
     if _ and _[0].isdigit():
         return int(_[0])
@@ -301,6 +312,7 @@ def parse_episode(episode_title):
     return 0
 
 
+@log_utils_function
 def normalize_path(url):
     """
     normalize link to path
@@ -358,6 +370,7 @@ def get_web_admin(method):
     print_success('Web admin page {} successfully. version: {}'.format(method, version['version']))
 
 
+@log_utils_function
 def convert_cover_url_to_path(cover_url):
     """
     convert bangumi cover to file path
@@ -375,12 +388,12 @@ def convert_cover_url_to_path(cover_url):
 
     return dir_path, file_path
 
-
+@log_utils_function
 def download_file(url):
     print_info('Download: {}'.format(url))
     return requests.get(url)
 
-
+@log_utils_function
 def download_cover(cover_url_list):
     """
 
