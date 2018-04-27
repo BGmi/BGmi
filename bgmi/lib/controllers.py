@@ -38,7 +38,6 @@ def add(name, episode=None):
     if not this_obj_created:
         if followed_obj.status == STATUS_FOLLOWED:
             result = {'status': 'warning', 'message': '{0} already followed'.format(bangumi_obj.name)}
-            (result)
             return result
         else:
             followed_obj.status = STATUS_FOLLOWED
@@ -46,7 +45,7 @@ def add(name, episode=None):
 
     Filter.get_or_create(bangumi_name=name)
 
-    bangumi_data, _ = website.get_maximum_episode(bangumi_obj, subtitle=False, max_page=1)
+    bangumi_data, _ = website.get_maximum_episode(bangumi_obj, subtitle=False, max_page=MAX_PAGE)
     followed_obj.episode = bangumi_data['episode'] if episode is None else episode
     followed_obj.save()
     result = {'status': 'success', 'message': '{0} has been followed'.format(bangumi_obj.name)}
