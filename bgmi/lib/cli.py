@@ -39,7 +39,7 @@ def config_wrapper(ret):
 
 
 def search_wrapper(ret):
-    data = search(keyword=ret.keyword, count=ret.count, regex=ret.regex_filter)
+    data = search(keyword=ret.keyword, count=ret.count, regex=ret.regex_filter, dupe=ret.dupe)
 
     for i in data:
         print_success(i['title'])

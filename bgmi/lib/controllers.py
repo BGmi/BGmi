@@ -225,10 +225,9 @@ def search(keyword, count=MAX_PAGE, regex=None, dupe=True):
         count = 3
 
     data = website.search_by_keyword(keyword, count=count)
+    data = website.filter_keyword(data, regex=regex)
     if not dupe:
         data = website.remove_duplicated_bangumi(data)
-    else:
-        data = website.filter_keyword(data, regex=regex)
 
     return data
 
