@@ -21,7 +21,7 @@ _bgmi(){
         # _arguments \
             # {-t,-w}'[-t FORMAT, -w FORMAT, Specify output format]'
         _alternative \
-        '{{action}}:{{action}} options:(({% for opt in opts %}{% if isinstance(opt['dest'], str) %}{{opt['dest'] }}\:"{{opt['kwargs'].get('help','')}}" {% elif isinstance(opt['dest'], list) %}{% for ar in opt['dest'] %}{{ar}}\:"{{opt['kwargs'].get('help','')}}" {% end %}{% end %}{% end %}))'
+        '{{action}}:{{action}} options:(({% for opt in opts %}{% if isinstance(opt['dest'], string_types) %}{{opt['dest'] }}\:"{{opt['kwargs'].get('help','')}}" {% elif isinstance(opt['dest'], list) %}{% for ar in opt['dest'] %}{{ar}}\:"{{opt['kwargs'].get('help','')}}" {% end %}{% end %}{% end %}))'
     fi
 {% end %}{% end %}
 }

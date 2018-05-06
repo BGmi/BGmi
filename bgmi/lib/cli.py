@@ -7,6 +7,7 @@ import re
 import string
 
 import itertools
+from six import string_types
 from tornado import template
 
 import bgmi.config
@@ -236,7 +237,7 @@ def complete(ret):
     for action_dict in actions_and_arguments:
         actions_and_opts[action_dict['action']] = []
         for arg in action_dict.get('arguments', []):
-            if isinstance(arg['dest'], str) and arg['dest'].startswith('-'):
+            if isinstance(arg['dest'], string_types) and arg['dest'].startswith('-'):
                 actions_and_opts[action_dict['action']].append(arg)
             elif isinstance(arg['dest'], list):
                 actions_and_opts[action_dict['action']].append(arg)
@@ -261,7 +262,8 @@ def complete(ret):
                                                     actions_and_opts=actions_and_opts,
                                                     source=[x['id'] for x in SUPPORT_WEBSITE],
                                                     helper=helper,
-                                                    isinstance=isinstance)  # type: bytes
+                                                    isinstance=isinstance,
+                                                    string_types=string_types)  # type: bytes
 
     if os.environ.get('DEBUG', False):  # pragma: no cover
         with open('./_bgmi', 'wb+') as template_file:
