@@ -143,7 +143,7 @@ actions_and_arguments = [
             {'dest': '--today',
              'kwargs': dict(action='store_true', help='Show bangumi calendar for today.'), },
 
-            {'dest': '--force-update',
+            {'dest': ['-f', '--force-update'],
              'kwargs': dict(action='store_true', help='Get the newest bangumi calendar from bangumi.moe.'), },
 
             {'dest': '--download-cover',

@@ -15,7 +15,7 @@ _bgmi() {
     else
         action=${COMP_WORDS[1]}
 
-        case "$action" in 
+        case "$action" in
             # add|filter|mark|update|fetch )
             # COMPREPLY=( $( compgen -W "$bangumi" -- $cur ) )
             # return 0
@@ -23,14 +23,14 @@ _bgmi() {
 
             update )
             local opts
-            opts="{{' '.join([x['dest'] for x in actions_and_opts['update']])}}"
+            opts="{{' '.join([x['dest'] if isinstance(x['dest'], str) else ' '.join(x['dest']) for x in actions_and_opts['update']])}}"
             COMPREPLY=( $( compgen -W "$opts" -- $cur ) )
             return 0
             ;;
 
             filter )
             local opts
-            opts="{{' '.join([x['dest'] for x in actions_and_opts['filter']])}}"
+            opts="{{' '.join([x['dest'] if isinstance(x['dest'], str) else ' '.join(x['dest']) for x in actions_and_opts['filter']])}}"
             COMPREPLY=( $( compgen -W "$opts" -- $cur ) )
             return 0
             ;;
@@ -42,7 +42,7 @@ _bgmi() {
 
             cal )
             local opts
-            opts="{{' '.join([x['dest'] for x in actions_and_opts['cal']])}}"
+            opts="{{' '.join([x['dest'] if isinstance(x['dest'], str) else ' '.join(x['dest']) for x in actions_and_opts['cal']])}}"
             COMPREPLY=( $( compgen -W "$opts" -- $cur ) )
             return 0
             ;;
@@ -56,14 +56,14 @@ _bgmi() {
 
             search )
             local opts
-            opts="{{' '.join([x['dest'] for x in actions_and_opts['search']])}}"
+            opts="{{' '.join([x['dest'] if isinstance(x['dest'], str) else ' '.join(x['dest']) for x in actions_and_opts['search']])}}"
             COMPREPLY=( $( compgen -W "$opts" -- $cur ) )
             return 0
             ;;
 
             download )
             local opts
-            opts="{{' '.join([x['dest'] for x in actions_and_opts['download']])}}"
+            opts="{{' '.join([x['dest'] if isinstance(x['dest'], str) else ' '.join(x['dest']) for x in actions_and_opts['download']])}}"
             COMPREPLY=( $( compgen -W "$opts" -- $cur ) )
             return 0
             ;;

@@ -13,7 +13,7 @@ import tarfile
 import time
 from io import BytesIO
 from shutil import rmtree, move
-
+import functools
 import requests
 import urllib3
 from multiprocessing.pool import ThreadPool
@@ -24,11 +24,11 @@ from bgmi.lib.constants import SUPPORT_WEBSITE
 
 import logging
 
-log_level = os.environ.get('BGMI_LOG') or 'ERROR'
+log_level = os.environ.get('BGMI_LOG', '') or 'ERROR'
 log_level = log_level.upper()
 logger = logging.getLogger('BGmi')
 if log_level not in ['DEBUG', 'INFO', "WARNING", "ERROR"]:
-    print('log level error')
+    print('log level error, doing nothing and exit')
     exit(1)
 try:
     logging.basicConfig(filename=LOG_PATH, level=logging.getLevelName(log_level))
@@ -37,11 +37,13 @@ except IOError as e:
 
 
 def log_utils_function(func):
+    @functools.wraps(func)
     def echo_func(*func_args, **func_kwargs):
         logger.debug('')
         logger.debug(unicode_("start function {} {} {}".format(func.__name__, func_args, func_kwargs)))
         r = func(*func_args, **func_kwargs)
         logger.debug(unicode_("return function {} {}".format(func.__name__, r)))
+        logger.debug('')
         return r
 
     return echo_func
@@ -378,7 +380,7 @@ def convert_cover_url_to_path(cover_url):
     :param cover_url: bangumi cover path
     :type cover_url:str
     :rtype: str,str
-    :return:file_path, dir_path
+    :return: dir_path, file_path
     """
 
     cover_url = normalize_path(cover_url)

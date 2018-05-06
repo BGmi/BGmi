@@ -40,7 +40,11 @@ def main():
     for action in actions_and_arguments:
         tmp_sub_parser = sub_parser.add_parser(action['action'], help=action.get('help', ''))
         for sub_action in action.get('arguments', []):
-            tmp_sub_parser.add_argument(sub_action['dest'], **sub_action['kwargs'])
+            if isinstance(sub_action['dest'],str):
+                tmp_sub_parser.add_argument(sub_action['dest'], **sub_action['kwargs'])
+            elif isinstance(sub_action['dest'],list):
+                tmp_sub_parser.add_argument(*sub_action['dest'], **sub_action['kwargs'])
+
 
     sub_parser.add_parser(ACTION_COMPLETE, help='Gen completion, `eval "$(bgmi complete)"` '
                                                 'or `eval "$(bgmi complete|dos2unix)"`')
