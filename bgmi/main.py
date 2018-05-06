@@ -5,6 +5,7 @@ import os
 import sys
 import signal
 import argparse
+from six import string_types
 
 from bgmi.lib.cli import controllers
 from bgmi.config import BGMI_PATH, IS_PYTHON3
@@ -40,9 +41,9 @@ def main():
     for action in actions_and_arguments:
         tmp_sub_parser = sub_parser.add_parser(action['action'], help=action.get('help', ''))
         for sub_action in action.get('arguments', []):
-            if isinstance(sub_action['dest'],str):
+            if isinstance(sub_action['dest'],string_types):
                 tmp_sub_parser.add_argument(sub_action['dest'], **sub_action['kwargs'])
-            elif isinstance(sub_action['dest'],list):
+            if isinstance(sub_action['dest'], list):
                 tmp_sub_parser.add_argument(*sub_action['dest'], **sub_action['kwargs'])
 
 
