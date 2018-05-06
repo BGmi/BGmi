@@ -24,7 +24,7 @@ from bgmi.lib.constants import SUPPORT_WEBSITE
 
 import logging
 
-log_level = os.environ.get('BGMI_LOG', '') or 'ERROR'
+log_level = os.environ.get('BGMI_LOG') or 'ERROR'
 log_level = log_level.upper()
 logger = logging.getLogger('BGmi')
 if log_level not in ['DEBUG', 'INFO', "WARNING", "ERROR"]:

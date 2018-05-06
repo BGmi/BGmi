@@ -214,3 +214,4 @@ if __name__ == '__main__':  # pragma:no cover
 
     d = Bangumi.get_updating_bangumi(status=STATUS_FOLLOWED)
     pprint(d)
+    
