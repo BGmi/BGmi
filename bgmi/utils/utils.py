@@ -17,21 +17,28 @@ import functools
 import requests
 import urllib3
 from multiprocessing.pool import ThreadPool
+from six import text_type as unicode_
 
 from bgmi import __version__, __admin_version__
-from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, FRONT_STATIC_PATH, SAVE_PATH, LOG_PATH, unicode_
+from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, FRONT_STATIC_PATH, SAVE_PATH, LOG_PATH
 from bgmi.lib.constants import SUPPORT_WEBSITE
 
 import logging
 
 log_level = os.environ.get('BGMI_LOG') or 'ERROR'
 log_level = log_level.upper()
-logger = logging.getLogger('BGmi')
 if log_level not in ['DEBUG', 'INFO', "WARNING", "ERROR"]:
     print('log level error, doing nothing and exit')
     exit(1)
+logger = logging.getLogger('BGmi')
 try:
-    logging.basicConfig(filename=LOG_PATH, level=logging.getLevelName(log_level))
+    h = logging.FileHandler(LOG_PATH, 'a+', 'utf-8')
+    handlers = [h]
+    fs = logging.BASIC_FORMAT
+    fmt = logging.Formatter(fs)
+    h.setFormatter(fmt)
+    logging.root.addHandler(h)
+    logging.root.setLevel(log_level)
 except IOError as e:
     logging.basicConfig(stream=sys.stdout, level=logging.getLevelName(log_level))
 

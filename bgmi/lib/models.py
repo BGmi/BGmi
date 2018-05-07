@@ -1,22 +1,14 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 
+import os
 from collections import defaultdict
 
 import peewee
 from peewee import IntegerField, FixedCharField, TextField
-
 from playhouse.shortcuts import model_to_dict
 
 import bgmi.config
-from bgmi.config import IS_PYTHON3
-import os
-
-if IS_PYTHON3:
-    _unicode = str
-else:
-    input = raw_input
-    _unicode = unicode
 
 # bangumi status
 STATUS_UPDATING = 0
