@@ -89,7 +89,7 @@ class Bangumi(NeoDB):
             for bangumi_item in data:
                 weekly_list[bangumi_item['update_time'].lower()].append(dict(bangumi_item))
         else:
-            weekly_list = data
+            weekly_list = list(data)
 
         return weekly_list
 
@@ -123,7 +123,7 @@ class Followed(NeoDB):
             .order_by(cls.updated_time.desc()) \
             .dicts()
 
-        return d
+        return list(d)
 
 
 class Download(NeoDB):
