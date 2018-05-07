@@ -260,6 +260,7 @@ def config(name=None, value=None):
 
 
 def update(name, download=None, not_ignore=False):
+    logger.debug('updating bangumi info with args: download: {}'.format(download))
     result = {'status': 'info', 'message': '', 'data': {'updated': [], 'downloaded': []}}
 
     ignore = not bool(not_ignore)

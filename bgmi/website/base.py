@@ -41,6 +41,7 @@ class BaseWebsite(object):
 
     def fetch(self, save=False, group_by_weekday=True):
         bangumi_result, subtitle_group_result = self.fetch_bangumi_calendar_and_subtitle_group()
+        Bangumi.delete_all()
         if subtitle_group_result:
             for subtitle_group in subtitle_group_result:
                 (Subtitle.insert({Subtitle.id: _unicode(subtitle_group['id']),
@@ -100,7 +101,6 @@ class BaseWebsite(object):
 
         if force_update:
             print_info('Fetching bangumi info ...')
-            Bangumi.delete_all()
             weekly_list = self.fetch(save=save)
         else:
             weekly_list = Bangumi.get_updating_bangumi()
