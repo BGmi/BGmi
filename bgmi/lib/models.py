@@ -76,20 +76,13 @@ class Bangumi(NeoDB):
     @classmethod
     def get_updating_bangumi(cls, status=None, order=True):
         if status is None:
-            data = cls.select(cls, Followed.status, Followed.episode) \
+            data = cls.select(Followed.status, Followed.episode, cls, ) \
                 .join(Followed, peewee.JOIN['LEFT_OUTER'], on=(cls.name == Followed.bangumi_name)) \
-                .where(cls.status == STATUS_UPDATING).objects()
+                .where(cls.status == STATUS_UPDATING).dicts()
         else:
-            data = cls.select(cls, Followed.status, Followed.episode) \
+            data = cls.select(Followed.status, Followed.episode, cls, ) \
                 .join(Followed, peewee.JOIN['LEFT_OUTER'], on=(cls.name == Followed.bangumi_name)) \
-                .where((cls.status == STATUS_UPDATING) & (Followed.status == status)).objects()
-        r = []
-        for x in data:
-            d = model_to_dict(x)
-            d['status'] = x.status
-            d['episode'] = x.episode
-            r.append(d)
-        data = r
+                .where((cls.status == STATUS_UPDATING) & (Followed.status == status)).dicts()
 
         if order:
             weekly_list = defaultdict(list)
@@ -124,19 +117,13 @@ class Followed(NeoDB):
     @classmethod
     def get_all_followed(cls, status=STATUS_DELETED, bangumi_status=STATUS_UPDATING):
         join_cond = (Bangumi.name == cls.bangumi_name)
-        d = cls.select(cls, Bangumi.name, Bangumi.update_time, Bangumi.cover) \
+        d = cls.select(Bangumi.name, Bangumi.update_time, Bangumi.cover, cls, ) \
             .join(Bangumi, peewee.JOIN['LEFT_OUTER'], on=join_cond) \
             .where((cls.status != status) & (Bangumi.status == bangumi_status)) \
             .order_by(cls.updated_time.desc()) \
-            .objects()
+            .dicts()
 
-        r = []
-        for x in d:
-            dic = dict(**x.__dict__['__data__'])
-            dic['update_time'] = x.update_time
-            dic['cover'] = x.cover
-            r.append(dic)
-        return r
+        return d
 
 
 class Download(NeoDB):
@@ -214,4 +201,3 @@ if __name__ == '__main__':  # pragma:no cover
 
     d = Bangumi.get_updating_bangumi(status=STATUS_FOLLOWED)
     pprint(d)
-    
