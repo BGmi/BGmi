@@ -4,4 +4,4 @@ requests>=2.9.1
 lxml>=3.2.1
 tornado>=4.0.2
 icalendar>=3.11.3
-peewee>=3.0.0,<=3.3.4
+peewee>=3.2.4,<=3.3.4
