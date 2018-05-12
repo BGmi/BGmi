@@ -15,6 +15,7 @@ Nothing here
 ==========
 Update Log
 ==========
++ You can filter search results by min and max episode
 + Fully new frontend
 
 =======
