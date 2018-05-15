@@ -1,6 +1,7 @@
 # coding=utf-8
 import os
 import sqlite3
+from shutil import copy
 
 from bgmi import __version__
 from bgmi.config import DB_PATH, BGMI_PATH, SCRIPT_DB_PATH
@@ -37,3 +38,6 @@ def update_database():
     if v < '1.4.1':
         exec_sql('ALTER TABLE scripts ADD COLUMN update_time INTEGER', SCRIPT_DB_PATH)
 
+    if v < '2.0.6':
+
+        copy(os.path.join(os.path.dirname(__file__), '../others/cron.vbs'), os.path.join(BGMI_PATH, 'cron.vbs'))

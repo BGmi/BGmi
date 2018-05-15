@@ -46,6 +46,11 @@ Feature
 ============
 Installation
 ============
+
+Try this https://bgmi.github.io/BGmi-tutorial/#/
+
+Or manually
+
 For **Mac OS X / Linux / Windows**:
 
 .. code-block:: bash
@@ -603,11 +608,19 @@ You can easily add your own BGmi data source by extending BGmi website base clas
 
 
 ===================
+Debug
+===================
+Set env :code:`BGMI_LOG` to :code:`debug`, :code:`info`, :code:`warning`, :code:`error` for different log level
+
+log file will locate at :code:`{TMP_PATH}/bgmi.log`
+
+
+===================
 Uninstall
 ===================
 Scheduled task will not be delete automatically, you will have to remove them manually.
 
-*nix: 
+*nix:
     remove them from your crontab
 
 windows:

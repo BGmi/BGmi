@@ -6,6 +6,8 @@ import os
 import re
 import string
 
+import itertools
+from six import string_types
 from tornado import template
 
 import bgmi.config
@@ -19,7 +21,7 @@ from bgmi.lib.constants import (ACTION_ADD, ACTION_SOURCE, ACTION_DOWNLOAD, ACTI
                                 SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, ACTIONS,
                                 actions_and_arguments)
 from bgmi.utils import (print_info, print_warning, print_success, print_error,
-                        RED, GREEN, YELLOW, COLOR_END, get_terminal_col)
+                        RED, GREEN, YELLOW, COLOR_END, get_terminal_col, logger)
 from bgmi.script import ScriptRunner
 
 
@@ -38,7 +40,7 @@ def config_wrapper(ret):
 
 
 def search_wrapper(ret):
-    data = search(keyword=ret.keyword, count=ret.count, regex=ret.regex_filter)
+    data = search(keyword=ret.keyword, count=ret.count, regex=ret.regex_filter, dupe=ret.dupe)
 
     for i in data:
         print_success(i['title'])
@@ -207,7 +209,7 @@ def fetch_(ret):
 
     try:
         Followed.get(bangumi_name=bangumi_obj.name)
-    except Bangumi.DoesNotExist:
+    except Followed.DoesNotExist:
         print_error('Bangumi {0} is not followed'.format(ret.name))
         return
 
@@ -232,10 +234,14 @@ def complete(ret):
 
     actions_and_opts = {}
     helper = {}
-    for action in actions_and_arguments:
-        actions_and_opts[action['action']] = [x for x in action.get('arguments', [])
-                                              if x['dest'].startswith('-')]
-        helper[action['action']] = action.get('help', '')
+    for action_dict in actions_and_arguments:
+        actions_and_opts[action_dict['action']] = []
+        for arg in action_dict.get('arguments', []):
+            if isinstance(arg['dest'], string_types) and arg['dest'].startswith('-'):
+                actions_and_opts[action_dict['action']].append(arg)
+            elif isinstance(arg['dest'], list):
+                actions_and_opts[action_dict['action']].append(arg)
+        helper[action_dict['action']] = action_dict.get('help', '')
 
     if 'bash' in os.getenv('SHELL').lower():  # bash
         template_file_path = os.path.join(os.path.dirname(__file__), '..', 'others', '_bgmi_completion_bash.sh')
@@ -255,7 +261,9 @@ def complete(ret):
                                                     bangumi=updating_bangumi_names, config=all_config,
                                                     actions_and_opts=actions_and_opts,
                                                     source=[x['id'] for x in SUPPORT_WEBSITE],
-                                                    helper=helper)  # type: bytes
+                                                    helper=helper,
+                                                    isinstance=isinstance,
+                                                    string_types=string_types)  # type: bytes
 
     if os.environ.get('DEBUG', False):  # pragma: no cover
         with open('./_bgmi', 'wb+') as template_file:
@@ -269,17 +277,24 @@ def history(ret):
     m = ('January', 'February', 'March', 'April', 'May', 'June', 'July',
          'August', 'September', 'October', 'November', 'December')
     data = Followed.select(Followed).order_by(Followed.updated_time.asc())
+    bangumi_data = Bangumi.get_updating_bangumi()
     year = None
     month = None
+
+    updating_bangumi = list(map(lambda s: s['name'], itertools.chain(*bangumi_data.values())))
 
     print_info('Bangumi Timeline')
     for i in data:
         if i.status == STATUS_DELETED:
-            slogan = ' ABANDON'
+            slogan = 'ABANDON'
             color = RED
         else:
-            slogan = 'FINISHED'
-            color = GREEN
+            if i.bangumi_name in updating_bangumi:
+                slogan = 'FOLLOWING'
+                color = YELLOW
+            else:
+                slogan = 'FINISHED'
+                color = GREEN
 
         if not i.updated_time:
             date = datetime.datetime.fromtimestamp(0)
@@ -291,11 +306,11 @@ def history(ret):
                 print('%s%s%s' % (GREEN, str(date.year), COLOR_END))
                 year = date.year
 
-            if date.year == year and date.month != month :
+            if date.year == year and date.month != month:
                 print('  |\n  |--- %s%s%s\n  |      |' % (YELLOW, m[date.month - 1], COLOR_END))
                 month = date.month
 
-            print('  |      |--- [%s%s%s] %s' % (color, slogan, COLOR_END, i.bangumi_name))
+            print('  |      |--- [%s%-9s%s] (%-2s) %s' % (color, slogan, COLOR_END, i.episode, i.bangumi_name))
 
 
 CONTROLLERS_DICT = {
@@ -317,6 +332,7 @@ CONTROLLERS_DICT = {
 
 
 def controllers(ret):
+    logger.info(ret)
     func = CONTROLLERS_DICT.get(ret.action, None)
     if not callable(func):
         return

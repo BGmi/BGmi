@@ -1,21 +1,14 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 
+import os
 from collections import defaultdict
 
 import peewee
 from peewee import IntegerField, FixedCharField, TextField
-
 from playhouse.shortcuts import model_to_dict
 
 import bgmi.config
-from bgmi.config import IS_PYTHON3
-
-if IS_PYTHON3:
-    _unicode = str
-else:
-    input = raw_input
-    _unicode = unicode
 
 # bangumi status
 STATUS_UPDATING = 0
@@ -37,6 +30,9 @@ DOWNLOAD_STATUS = (STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, STATUS_DOWNLOADED)
 DoesNotExist = peewee.DoesNotExist
 
 db = peewee.SqliteDatabase(bgmi.config.DB_PATH)
+
+if os.environ.get('DEV'):
+    print('using', bgmi.config.DB_PATH)
 
 
 class NeoDB(peewee.Model):
@@ -62,7 +58,8 @@ class Bangumi(NeoDB):
         if update_time and update_time not in self.week:
             raise ValueError('unexpected update time %s' % update_time)
         self.update_time = update_time
-        self.subtitle_group = ', '.join(kwargs.get('subtitle_group', []))
+        if isinstance(kwargs.get('subtitle_group'), list):
+            self.subtitle_group = ', '.join(kwargs.get('subtitle_group', []))
 
     @classmethod
     def delete_all(cls):
@@ -70,29 +67,21 @@ class Bangumi(NeoDB):
 
     @classmethod
     def get_updating_bangumi(cls, status=None, order=True):
-
         if status is None:
-            data = cls.select(cls, Followed.status, Followed.episode) \
+            data = cls.select(Followed.status, Followed.episode, cls, ) \
                 .join(Followed, peewee.JOIN['LEFT_OUTER'], on=(cls.name == Followed.bangumi_name)) \
-                .where(cls.status == STATUS_UPDATING).objects()
+                .where(cls.status == STATUS_UPDATING).dicts()
         else:
-            data = cls.select(cls, Followed.status, Followed.episode) \
+            data = cls.select(Followed.status, Followed.episode, cls, ) \
                 .join(Followed, peewee.JOIN['LEFT_OUTER'], on=(cls.name == Followed.bangumi_name)) \
-                .where((cls.status == STATUS_UPDATING) & (Followed.status == status)).objects()
-        r = []
-        for x in data:
-            d = model_to_dict(x)
-            d['status'] = x.status
-            d['episode'] = x.episode
-            r.append(d)
-        data = r
+                .where((cls.status == STATUS_UPDATING) & (Followed.status == status)).dicts()
 
         if order:
             weekly_list = defaultdict(list)
             for bangumi_item in data:
                 weekly_list[bangumi_item['update_time'].lower()].append(dict(bangumi_item))
         else:
-            weekly_list = data
+            weekly_list = list(data)
 
         return weekly_list
 
@@ -120,19 +109,13 @@ class Followed(NeoDB):
     @classmethod
     def get_all_followed(cls, status=STATUS_DELETED, bangumi_status=STATUS_UPDATING):
         join_cond = (Bangumi.name == cls.bangumi_name)
-        d = cls.select(cls, Bangumi.name, Bangumi.update_time, Bangumi.cover) \
+        d = cls.select(Bangumi.name, Bangumi.update_time, Bangumi.cover, cls, ) \
             .join(Bangumi, peewee.JOIN['LEFT_OUTER'], on=join_cond) \
             .where((cls.status != status) & (Bangumi.status == bangumi_status)) \
             .order_by(cls.updated_time.desc()) \
-            .objects()
+            .dicts()
 
-        r = []
-        for x in d:
-            dic = dict(**x.__dict__['__data__'])
-            dic['update_time'] = x.update_time
-            dic['cover'] = x.cover
-            r.append(dic)
-        return r
+        return list(d)
 
 
 class Download(NeoDB):

@@ -7,16 +7,12 @@ import re
 import time
 from collections import defaultdict
 from itertools import chain
+from six import text_type
 
-from bgmi.config import MAX_PAGE, IS_PYTHON3, GLOBAL_FILTER, ENABLE_GLOBAL_FILTER
+from bgmi.config import MAX_PAGE, GLOBAL_FILTER, ENABLE_GLOBAL_FILTER
 from bgmi.lib.models import Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, STATUS_UPDATING
 from bgmi.utils import (parse_episode, print_warning, print_info,
                         test_connection, download_cover, convert_cover_url_to_path)
-
-if IS_PYTHON3:
-    _unicode = str
-else:
-    _unicode = unicode
 
 
 class BaseWebsite(object):
@@ -41,12 +37,12 @@ class BaseWebsite(object):
 
     def fetch(self, save=False, group_by_weekday=True):
         bangumi_result, subtitle_group_result = self.fetch_bangumi_calendar_and_subtitle_group()
+        Bangumi.delete_all()
         if subtitle_group_result:
             for subtitle_group in subtitle_group_result:
-                s, if_created = Subtitle.get_or_create(id=_unicode(subtitle_group['id']),
-                                                       name=_unicode(subtitle_group['name']))
-                if if_created:
-                    s.save()
+                (Subtitle.insert({Subtitle.id: text_type(subtitle_group['id']),
+                                  Subtitle.name: text_type(subtitle_group['name'])})
+                 .on_conflict_replace()).execute()
         if not bangumi_result:
             print('no result return None')
             return []
@@ -101,7 +97,6 @@ class BaseWebsite(object):
 
         if force_update:
             print_info('Fetching bangumi info ...')
-            Bangumi.delete_all()
             weekly_list = self.fetch(save=save)
         else:
             weekly_list = Bangumi.get_updating_bangumi()
@@ -129,12 +124,12 @@ class BaseWebsite(object):
         """
 
         :type max_page: str
-        :param max_page: 
+        :param max_page:
         :type bangumi: object
         :type ignore_old_row: bool
-        :param ignore_old_row: 
+        :param ignore_old_row:
         :type bangumi: Bangumi
-        :param subtitle: 
+        :param subtitle:
         :type subtitle: bool
         """
         try:
