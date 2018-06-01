@@ -128,7 +128,7 @@ actions_and_arguments = [
             {'dest': 'name',
              'kwargs': dict(metavar='name', type=unicode_, nargs='*', help='Update specified bangumi.'), },
 
-            {'dest': '--download',
+            {'dest': ['--download', '-d'],
              'kwargs': dict(action='store', nargs='*', type=int, metavar='episode',
                             help='Download specified episode of the bangumi when updated.'), },
 
@@ -143,7 +143,7 @@ actions_and_arguments = [
             {'dest': '--today',
              'kwargs': dict(action='store_true', help='Show bangumi calendar for today.'), },
 
-            {'dest': '--force-update',
+            {'dest': ['-f', '--force-update'],
              'kwargs': dict(action='store_true', help='Get the newest bangumi calendar from bangumi.moe.'), },
 
             {'dest': '--download-cover',
@@ -215,8 +215,11 @@ actions_and_arguments = [
             {'dest': '--download',
              'kwargs': dict(action='store_true', help='Download search result.'), },
             {'dest': '--dupe',
-             'kwargs': dict(action='store_true',
-                            help="Show duplicated episode"), },
+             'kwargs': dict(action='store_true', help="Show duplicated episode"), },
+            {'dest': '--min-episode',
+             'kwargs': dict(metavar='min_episode', type=int, help='Minimum episode filter of title.'), },
+            {'dest': '--max-episode',
+             'kwargs': dict(metavar='max_episode', type=int, help='Maximum episode filter of title.'), },
         ],
     },
     {

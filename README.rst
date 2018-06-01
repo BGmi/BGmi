@@ -15,6 +15,8 @@ Nothing here
 ==========
 Update Log
 ==========
++ New download delegate `deluge-rpc <https://www.deluge-torrent.org/>`_
++ You can filter search results by min and max episode
 + Fully new frontend
 
 =======
@@ -46,6 +48,11 @@ Feature
 ============
 Installation
 ============
+
+Try this https://bgmi.github.io/BGmi-tutorial/#/
+
+Or manually
+
 For **Mac OS X / Linux / Windows**:
 
 .. code-block:: bash

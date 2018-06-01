@@ -30,7 +30,7 @@ def add(name, episode=None):
         bangumi_obj = Bangumi.get(name=name)
     except Bangumi.DoesNotExist:
         result = {'status': 'error',
-                'message': '{0} not found, please check the name'.format(name)}
+                  'message': '{0} not found, please check the name'.format(name)}
         return result
 
     followed_obj, this_obj_created = Followed.get_or_create(bangumi_name=bangumi_obj.name,
@@ -38,7 +38,6 @@ def add(name, episode=None):
     if not this_obj_created:
         if followed_obj.status == STATUS_FOLLOWED:
             result = {'status': 'warning', 'message': '{0} already followed'.format(bangumi_obj.name)}
-            (result)
             return result
         else:
             followed_obj.status = STATUS_FOLLOWED
@@ -46,7 +45,7 @@ def add(name, episode=None):
 
     Filter.get_or_create(bangumi_name=name)
 
-    bangumi_data, _ = website.get_maximum_episode(bangumi_obj, subtitle=False, max_page=1)
+    bangumi_data, _ = website.get_maximum_episode(bangumi_obj, subtitle=False, max_page=MAX_PAGE)
     followed_obj.episode = bangumi_data['episode'] if episode is None else episode
     followed_obj.save()
     result = {'status': 'success', 'message': '{0} has been followed'.format(bangumi_obj.name)}
@@ -218,19 +217,46 @@ def mark(name, episode):
     return result
 
 
-def search(keyword, count=MAX_PAGE, regex=None, dupe=True):
+def search(keyword, count=MAX_PAGE, regex=None, dupe=False, min_episode=None, max_episode=None):
     try:
         count = int(count)
     except (TypeError, ValueError):
         count = 3
-
-    data = website.search_by_keyword(keyword, count=count)
-    if not dupe:
-        data = website.remove_duplicated_bangumi(data)
-    else:
+    try:
+        data = website.search_by_keyword(keyword, count=count)
         data = website.filter_keyword(data, regex=regex)
+        if min_episode is not None:
+            data = [x for x in data if x['episode'] >= min_episode]
+        if max_episode is not None:
+            data = [x for x in data if x['episode'] <= max_episode]
+        # for i in data:
+        #     if i['episode'] >= min_episode:
+        #         r.append(i)
 
-    return data
+        if not dupe:
+            data = website.remove_duplicated_bangumi(data)
+        data.sort(key=lambda x: x['episode'])
+        return {
+            'status': 'success',
+            'message': '',
+            'options': dict(keyword=keyword,
+                            count=count,
+                            regex=regex,
+                            dupe=dupe,
+                            min_episode=min_episode,
+                            max_episode=max_episode),
+            'data': data}
+    except Exception as e:
+        return {
+            'status': 'error',
+            'message': str(e),
+            'options': dict(keyword=keyword,
+                            count=count,
+                            regex=regex,
+                            dupe=dupe,
+                            min_episode=min_episode,
+                            max_episode=max_episode),
+            'data': []}
 
 
 def source(data_source):
@@ -262,6 +288,7 @@ def config(name=None, value=None):
 
 
 def update(name, download=None, not_ignore=False):
+    logger.debug('updating bangumi info with args: download: {}'.format(download))
     result = {'status': 'info', 'message': '', 'data': {'updated': [], 'downloaded': []}}
 
     ignore = not bool(not_ignore)

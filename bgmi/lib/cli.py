@@ -7,6 +7,7 @@ import re
 import string
 
 import itertools
+from six import string_types
 from tornado import template
 
 import bgmi.config
@@ -39,8 +40,15 @@ def config_wrapper(ret):
 
 
 def search_wrapper(ret):
-    data = search(keyword=ret.keyword, count=ret.count, regex=ret.regex_filter)
-
+    result = search(keyword=ret.keyword,
+                    count=ret.count,
+                    regex=ret.regex_filter,
+                    dupe=ret.dupe,
+                    min_episode=ret.min_episode,
+                    max_episode=ret.max_episode)
+    if result['status'] != 'success':
+        globals()["print_{}".format(result['status'])](result['message'])
+    data = result['data']
     for i in data:
         print_success(i['title'])
     if ret.download:
@@ -233,10 +241,14 @@ def complete(ret):
 
     actions_and_opts = {}
     helper = {}
-    for action in actions_and_arguments:
-        actions_and_opts[action['action']] = [x for x in action.get('arguments', [])
-                                              if x['dest'].startswith('-')]
-        helper[action['action']] = action.get('help', '')
+    for action_dict in actions_and_arguments:
+        actions_and_opts[action_dict['action']] = []
+        for arg in action_dict.get('arguments', []):
+            if isinstance(arg['dest'], string_types) and arg['dest'].startswith('-'):
+                actions_and_opts[action_dict['action']].append(arg)
+            elif isinstance(arg['dest'], list):
+                actions_and_opts[action_dict['action']].append(arg)
+        helper[action_dict['action']] = action_dict.get('help', '')
 
     if 'bash' in os.getenv('SHELL').lower():  # bash
         template_file_path = os.path.join(os.path.dirname(__file__), '..', 'others', '_bgmi_completion_bash.sh')
@@ -256,7 +268,9 @@ def complete(ret):
                                                     bangumi=updating_bangumi_names, config=all_config,
                                                     actions_and_opts=actions_and_opts,
                                                     source=[x['id'] for x in SUPPORT_WEBSITE],
-                                                    helper=helper)  # type: bytes
+                                                    helper=helper,
+                                                    isinstance=isinstance,
+                                                    string_types=string_types)  # type: bytes
 
     if os.environ.get('DEBUG', False):  # pragma: no cover
         with open('./_bgmi', 'wb+') as template_file:

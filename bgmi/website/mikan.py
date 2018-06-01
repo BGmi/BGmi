@@ -7,6 +7,7 @@ from collections import defaultdict
 from functools import reduce
 from multiprocessing.pool import ThreadPool
 
+from six import string_types
 import bs4
 import requests
 from bs4 import BeautifulSoup
@@ -61,7 +62,7 @@ def parser_day_bangumi(soup):
         if url:
             name = url['title']
             url = url['href']
-            assert isinstance(url, str)
+            assert isinstance(url, string_types)
             bangumi_id = url.split('/')[-1]
             soup.find('li', )
             li.append({'name': name, 'keyword': bangumi_id, 'cover': span['data-src']})

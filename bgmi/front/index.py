@@ -2,17 +2,20 @@
 from __future__ import print_function, unicode_literals
 
 import os
+from pprint import pformat
 
 from bgmi.config import SAVE_PATH, FRONT_STATIC_PATH
 from bgmi.front.base import BaseHandler, COVER_URL
 from bgmi.lib.models import STATUS_DELETED, STATUS_UPDATING, STATUS_END, Followed
-from bgmi.utils import normalize_path
+from bgmi.utils import normalize_path, logger
 
 
 def get_player(bangumi_name):
     episode_list = {}
     bangumi_path = os.path.join(SAVE_PATH, bangumi_name)
-    for root, _, files in os.walk(bangumi_path):
+    path_walk = os.walk(bangumi_path)
+    logger.debug('os.walk(bangumi_path) => {}'.format(pformat(path_walk)))
+    for root, _, files in path_walk:
         _ = root.replace(bangumi_path, '').split(os.path.sep)
         base_path = root.replace(SAVE_PATH, '')
         if len(_) >= 2:

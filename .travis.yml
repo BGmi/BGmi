@@ -1,11 +1,11 @@
 os:
     - linux
 
-language: python
+env: 
+    - TRAVIS_CI=TRAVIS_CI
 
-env:
-    - DOWNLOADER='aria2-rpc'
-    - DOWNLOADER='tranmission-rpc'
+
+language: python
 
 sudo: true
 
@@ -24,7 +24,6 @@ install:
 #    - sudo apt update
 
 script:
-    - export TRAVIS_CI=TRAVIS_CI
     - export BGMI_LOG=debug
     - export BANGUMI_1=名侦探柯南
     - export BANGUMI_2=黑色五叶草
@@ -52,11 +51,7 @@ script:
     - coverage run -a -m bgmi.main filter $BANGUMI_2 --subtitle "" --exclude "MKV" --regex "720p|720P"
     - coverage run -a -m bgmi.main fetch $BANGUMI_2
     - coverage run -a -m unittest tests.test_http_api
-# test downloader
-    - chmod +x ./ci/install_and_start_downloader
-    - ./ci/install_and_start_downloader
     - coverage run -a -m bgmi.main search "海贼王" --regex-filter '.*MP4.*720P.*' --download
-    - sudo python ./ci/stop_downloader.py
     - eval "$(coverage run -a -m bgmi.main complete)"
 #
     - echo 'test mikan'
