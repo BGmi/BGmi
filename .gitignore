@@ -8,3 +8,4 @@ bgmi.egg-info
 .python-version
 .DS_Store
 *debug.sh
+env

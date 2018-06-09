@@ -415,7 +415,7 @@ def download_cover(cover_url_list):
     content_list = p.map(download_file, cover_url_list)
     for index, r in enumerate(content_list):
         dir_path, file_path = convert_cover_url_to_path(cover_url_list[index])
-        if not glob.glob(dir_path):
+        if not os.path.exists(dir_path):
             os.makedirs(dir_path)
         with open(file_path, 'wb') as f:
             f.write(r.content)

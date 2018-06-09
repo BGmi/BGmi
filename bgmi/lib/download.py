@@ -47,10 +47,9 @@ def download_prepare(data):
     queue = save_to_bangumi_download_queue(data)
     for download in queue:
         save_path = os.path.join(os.path.join(SAVE_PATH, download.name), str(download.episode))
-        # dirty fix
-        save_path = save_path.replace('[', '[[]')
-        if not glob.glob(save_path):
+        if not os.path.exists(save_path):
             os.makedirs(save_path)
+
         # mark as downloading
         download.status = STATUS_DOWNLOADING
         download.save()
@@ -65,6 +64,7 @@ def download_prepare(data):
         except Exception as e:
             if os.getenv('DEBUG'):  # pragma: no cover
                 import traceback
+
                 traceback.print_exc()
                 raise e
 
