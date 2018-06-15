@@ -263,6 +263,8 @@ Transmission-rpc configure:
 
 + :code:`TRANSMISSION_RPC_URL`: transmission rpc host
 + :code:`TRANSMISSION_RPC_PORT`: transmission rpc port
++ :code:`TRANSMISSION_RPC_USERNAME`: transmission rpc username
++ :code:`TRANSMISSION_RPC_PASSWORD`: transmission rpc password
 
 
 ==================
