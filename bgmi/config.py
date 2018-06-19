@@ -17,6 +17,7 @@ __wget__ = ('WGET_PATH',)
 __thunder__ = ('XUNLEI_LX_PATH',)
 __transmission__ = ('TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT',)
 __aria2__ = ('ARIA2_RPC_URL', 'ARIA2_RPC_TOKEN',)
+__deluge__ = ('DELUGE_RPC_URL', 'DELUGE_RPC_PASSWORD')
 
 __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
 
@@ -43,6 +44,7 @@ DOWNLOAD_DELEGATE_MAP = {
     'aria2-rpc': __aria2__,
     'xunlei': __thunder__,
     'transmission-rpc': __transmission__,
+    'deluge-rpc': __deluge__,
 }
 
 if not os.environ.get('BGMI_PATH'):  # pragma: no cover
@@ -237,6 +239,10 @@ MAX_PAGE = '3'
 # aria2
 ARIA2_RPC_URL = 'http://localhost:6800/rpc'
 ARIA2_RPC_TOKEN = 'token:'
+
+# deluge
+DELUGE_RPC_URL = 'http://127.0.0.1:8112/json'
+DELUGE_RPC_PASSWORD = 'deluge'
 
 # path of wget
 WGET_PATH = '/usr/bin/wget'

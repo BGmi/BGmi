@@ -37,7 +37,7 @@ API_MAP_GET = {
     ACTION_CONFIG: lambda: config(None, None)
 }
 
-NO_AUTH_ACTION = (ACTION_SEARCH, ACTION_CAL, ACTION_AUTH)
+NO_AUTH_ACTION = (ACTION_CAL, ACTION_AUTH)
 
 
 def auth(f):
