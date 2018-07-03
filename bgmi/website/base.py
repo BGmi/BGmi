@@ -122,7 +122,7 @@ class BaseWebsite(object):
                 for bangumi in daily_bangumi:
                     _, file_path = convert_cover_url_to_path(bangumi['cover'])
 
-                    if not glob.glob(file_path):
+                    if not os.path.exists(file_path):
                         cover_to_be_download.append(bangumi['cover'])
 
             if cover_to_be_download:

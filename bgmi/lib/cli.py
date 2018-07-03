@@ -40,8 +40,15 @@ def config_wrapper(ret):
 
 
 def search_wrapper(ret):
-    data = search(keyword=ret.keyword, count=ret.count, regex=ret.regex_filter, dupe=ret.dupe)
-
+    result = search(keyword=ret.keyword,
+                    count=ret.count,
+                    regex=ret.regex_filter,
+                    dupe=ret.dupe,
+                    min_episode=ret.min_episode,
+                    max_episode=ret.max_episode)
+    if result['status'] != 'success':
+        globals()["print_{}".format(result['status'])](result['message'])
+    data = result['data']
     for i in data:
         print_success(i['title'])
     if ret.download:

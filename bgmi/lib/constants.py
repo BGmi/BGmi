@@ -128,7 +128,7 @@ actions_and_arguments = [
             {'dest': 'name',
              'kwargs': dict(metavar='name', type=unicode_, nargs='*', help='Update specified bangumi.'), },
 
-            {'dest': '--download',
+            {'dest': ['--download', '-d'],
              'kwargs': dict(action='store', nargs='*', type=int, metavar='episode',
                             help='Download specified episode of the bangumi when updated.'), },
 
@@ -215,8 +215,11 @@ actions_and_arguments = [
             {'dest': '--download',
              'kwargs': dict(action='store_true', help='Download search result.'), },
             {'dest': '--dupe',
-             'kwargs': dict(action='store_true',
-                            help="Show duplicated episode"), },
+             'kwargs': dict(action='store_true', help="Show duplicated episode"), },
+            {'dest': '--min-episode',
+             'kwargs': dict(metavar='min_episode', type=int, help='Minimum episode filter of title.'), },
+            {'dest': '--max-episode',
+             'kwargs': dict(metavar='max_episode', type=int, help='Maximum episode filter of title.'), },
         ],
     },
     {
