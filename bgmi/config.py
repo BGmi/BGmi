@@ -15,7 +15,7 @@ except ImportError:
 # download delegate
 __wget__ = ('WGET_PATH',)
 __thunder__ = ('XUNLEI_LX_PATH',)
-__transmission__ = ('TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT',)
+__transmission__ = ('TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT', 'TRANSMISSION_RPC_USERNAME', 'TRANSMISSION_RPC_PASSWORD',)
 __aria2__ = ('ARIA2_RPC_URL', 'ARIA2_RPC_TOKEN',)
 __deluge__ = ('DELUGE_RPC_URL', 'DELUGE_RPC_PASSWORD')
 
@@ -250,6 +250,8 @@ WGET_PATH = '/usr/bin/wget'
 # transmission-rpc
 TRANSMISSION_RPC_URL = '127.0.0.1'
 TRANSMISSION_RPC_PORT = '9091'
+TRANSMISSION_RPC_USERNAME = 'your_username'
+TRANSMISSION_RPC_PASSWORD = 'your_password'
 
 # tag of bangumi on bangumi.moe
 BANGUMI_TAG = '549ef207fe682f7549f1ea90'

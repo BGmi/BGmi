@@ -3,7 +3,7 @@ import base64
 from six import iteritems
 
 from bgmi.downloader.base import BaseDownloadService
-from bgmi.config import TRANSMISSION_RPC_PORT, TRANSMISSION_RPC_URL, IS_PYTHON3
+from bgmi.config import TRANSMISSION_RPC_PORT, TRANSMISSION_RPC_URL, TRANSMISSION_RPC_USERNAME, TRANSMISSION_RPC_PASSWORD, IS_PYTHON3
 from bgmi.utils import print_info, print_warning
 
 
@@ -84,7 +84,7 @@ class TransmissionRPC(BaseDownloadService):
     def download(self):
         try:
             import transmissionrpc
-            tc = PatchClient(TRANSMISSION_RPC_URL, port=TRANSMISSION_RPC_PORT)
+            tc = PatchClient(TRANSMISSION_RPC_URL, port=TRANSMISSION_RPC_PORT, user=TRANSMISSION_RPC_USERNAME, password=TRANSMISSION_RPC_PASSWORD)
             try:
                 tc.add_torrent(self.torrent, download_dir=self.save_path)
             except UnicodeEncodeError:
@@ -111,7 +111,7 @@ class TransmissionRPC(BaseDownloadService):
         print_info('Print download status in transmission-rpc')
         try:
             import transmissionrpc
-            tc = transmissionrpc.Client(TRANSMISSION_RPC_URL, port=TRANSMISSION_RPC_PORT)
+            tc = transmissionrpc.Client(TRANSMISSION_RPC_URL, port=TRANSMISSION_RPC_PORT, user=TRANSMISSION_RPC_USERNAME, password=TRANSMISSION_RPC_PASSWORD)
             for torrent in tc.get_torrents():
                 print_info('  * {0}: {1}'.format(torrent.status, torrent), indicator=False)
         except ImportError:
