@@ -399,8 +399,10 @@ def convert_cover_url_to_path(cover_url):
 
 @log_utils_function
 def download_file(url):
-    print_info('Download: {}'.format(url))
-    return requests.get(url)
+    if url.startswith('https://') or url.startswith('http://'):
+        print_info('Download: {}'.format(url))
+        return requests.get(url)
+
 
 @log_utils_function
 def download_cover(cover_url_list):
@@ -415,7 +417,7 @@ def download_cover(cover_url_list):
     content_list = p.map(download_file, cover_url_list)
     for index, r in enumerate(content_list):
         dir_path, file_path = convert_cover_url_to_path(cover_url_list[index])
-        if not os.path.exists(dir_path):
+        if not glob.glob(dir_path):
             os.makedirs(dir_path)
         with open(file_path, 'wb') as f:
             f.write(r.content)
