@@ -10,7 +10,8 @@ from itertools import chain
 from six import text_type
 
 from bgmi.config import MAX_PAGE, GLOBAL_FILTER, ENABLE_GLOBAL_FILTER
-from bgmi.lib.models import Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, STATUS_UPDATING
+from bgmi.lib.models import (Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED,
+                             Bangumi, STATUS_UPDATING, Followed)
 from bgmi.utils import (parse_episode, print_warning, print_info,
                         test_connection, download_cover, convert_cover_url_to_path)
 
@@ -52,7 +53,16 @@ class BaseWebsite(object):
 
         if save:
             for bangumi in bangumi_result:
+                f = Followed.get_or_none(bangumi_name=bangumi['name'])
+                if f is not None:
+                    # check the bangumi last updated time
+                    if f.updated_time and int(time.time()) - f.updated_time < 2 * 7 * 24 * 3600:
+                        if os.getenv('DEBUG'):
+                            print_warning('Ignored {} because it updated within 2 weeks'.format(bangumi['name']))
+                        continue
+
                 self.save_data(bangumi)
+
         if group_by_weekday:
             result_group_by_weekday = defaultdict(list)
             for bangumi in bangumi_result:
@@ -100,6 +110,7 @@ class BaseWebsite(object):
             weekly_list = self.fetch(save=save)
         else:
             weekly_list = Bangumi.get_updating_bangumi()
+
         if not weekly_list:
             print_warning('Warning: no bangumi schedule, fetching ...')
             weekly_list = self.fetch(save=save)
