@@ -53,14 +53,6 @@ class BaseWebsite(object):
 
         if save:
             for bangumi in bangumi_result:
-                f = Followed.get_or_none(bangumi_name=bangumi['name'])
-                if f is not None:
-                    # check the bangumi last updated time
-                    if f.updated_time and int(time.time()) - f.updated_time < 2 * 7 * 24 * 3600:
-                        if os.getenv('DEBUG'):
-                            print_warning('Ignored {} because it updated within 2 weeks'.format(bangumi['name']))
-                        continue
-
                 self.save_data(bangumi)
 
         if group_by_weekday:

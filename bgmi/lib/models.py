@@ -1,6 +1,7 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 
+import time
 import os
 from collections import defaultdict
 
@@ -64,6 +65,15 @@ class Bangumi(NeoDB):
     @classmethod
     def delete_all(cls):
         cls.update(status=STATUS_END).execute()
+
+        for bangumi in cls.select():
+            f = Followed.get_or_none(bangumi_name=bangumi.name)
+            if f is not None:
+                # check the bangumi last updated time
+                if f.updated_time and int(time.time()) - f.updated_time < 2 * 7 * 24 * 3600:
+                    if os.getenv('DEBUG'):
+                        print('Ignore {}'.format(bangumi.name))
+                    cls.update(status=STATUS_UPDATING).where(cls.name == bangumi.name)
 
     @classmethod
     def get_updating_bangumi(cls, status=None, order=True):
