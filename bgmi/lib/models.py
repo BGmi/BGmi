@@ -4,6 +4,7 @@ from __future__ import print_function, unicode_literals
 import time
 import os
 from collections import defaultdict
+from typing import List
 
 import peewee
 from peewee import IntegerField, FixedCharField, TextField
@@ -64,16 +65,16 @@ class Bangumi(NeoDB):
 
     @classmethod
     def delete_all(cls):
-        cls.update(status=STATUS_END).execute()
+        un_updated_bangumi = Followed.select().where(Followed.updated_time > (int(time.time()) - 2 * 7 * 24 * 3600))  # type: List[Followed]
+        if os.getenv('DEBUG'):  # pragma: no cover
+            print('ignore updating bangumi', [x.bangumi_name for x in un_updated_bangumi])
 
-        for bangumi in cls.select():
-            f = Followed.get_or_none(bangumi_name=bangumi.name)
-            if f is not None:
-                # check the bangumi last updated time
-                if f.updated_time and int(time.time()) - f.updated_time < 2 * 7 * 24 * 3600:
-                    if os.getenv('DEBUG'):
-                        print('Ignore {}'.format(bangumi.name))
-                    cls.update(status=STATUS_UPDATING).where(cls.name == bangumi.name)
+        cls.update(status=STATUS_END) \
+            .where(cls.name.not_in([x.bangumi_name for x in un_updated_bangumi])).execute()  # do not mark updating bangumi as STATUS_END
+
+        # if f.updated_time and int(time.time()) - f.updated_time < 2 * 7 * 24 * 3600:
+        #         print('Ignore {}'.format(bangumi.name))
+        #     cls.update(status=STATUS_UPDATING).where(cls.name == bangumi.name)
 
     @classmethod
     def get_updating_bangumi(cls, status=None, order=True):
