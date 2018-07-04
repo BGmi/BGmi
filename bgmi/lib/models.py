@@ -65,7 +65,7 @@ class Bangumi(NeoDB):
 
     @classmethod
     def delete_all(cls):
-        un_updated_bangumi = Followed.select().where(Followed.updated_time > (int(time.time()) - 2 * 7 * 24 * 3600))  # type: List[Followed]
+        un_updated_bangumi = Followed.select().where(Followed.updated_time > (int(time.time()) - 2 * 7 * 24 * 3600))  # type: list[Followed]
         if os.getenv('DEBUG'):  # pragma: no cover
             print('ignore updating bangumi', [x.bangumi_name for x in un_updated_bangumi])
 
