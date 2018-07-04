@@ -4,7 +4,7 @@ from __future__ import print_function, unicode_literals
 import time
 import os
 from collections import defaultdict
-from typing import List
+# from typing import List
 
 import peewee
 from peewee import IntegerField, FixedCharField, TextField
@@ -71,10 +71,6 @@ class Bangumi(NeoDB):
 
         cls.update(status=STATUS_END) \
             .where(cls.name.not_in([x.bangumi_name for x in un_updated_bangumi])).execute()  # do not mark updating bangumi as STATUS_END
-
-        # if f.updated_time and int(time.time()) - f.updated_time < 2 * 7 * 24 * 3600:
-        #         print('Ignore {}'.format(bangumi.name))
-        #     cls.update(status=STATUS_UPDATING).where(cls.name == bangumi.name)
 
     @classmethod
     def get_updating_bangumi(cls, status=None, order=True):
