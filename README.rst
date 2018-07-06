@@ -3,6 +3,7 @@ BGmi
 BGmi is a cli tool for subscribed bangumi.
 
 |pypi|
+|pypistats|
 |travis|
 |coverage|
 |license|
@@ -15,9 +16,9 @@ Nothing here
 ==========
 Update Log
 ==========
++ Transmission rpc authentication configuration
 + New download delegate `deluge-rpc <https://www.deluge-torrent.org/>`_
 + You can filter search results by min and max episode
-+ Fully new frontend
 
 =======
 Feature
@@ -670,3 +671,8 @@ SOFTWARE.
 
 .. |license| image:: https://img.shields.io/badge/License-MIT-blue.svg
    :target: https://github.com/BGmi/BGmi/blob/master/LICENSE
+
+.. |pypistats| image::  https://pypistats.com/badge/bgmi.png
+   :target: https://pypi.python.org/pypi/bgmi
+
+
