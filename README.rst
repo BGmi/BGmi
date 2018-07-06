@@ -672,7 +672,7 @@ SOFTWARE.
 .. |license| image:: https://img.shields.io/badge/License-MIT-blue.svg
    :target: https://github.com/BGmi/BGmi/blob/master/LICENSE
 
-.. |pypistats| image::  https://pypistats.com/badge/bgmi.png
+.. |pypistats| image::  https://pypistats.com/badge/bgmi.svg
    :target: https://pypi.python.org/pypi/bgmi
 
 
