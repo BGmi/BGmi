@@ -10,7 +10,7 @@ from bgmi.downloader.deluge import DelugeRPC
 from bgmi.downloader.transmission_rpc import TransmissionRPC
 from bgmi.downloader.xunlei import XunleiLixianDownload
 from bgmi.lib.models import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download
-from bgmi.utils import print_error
+from bgmi.utils import print_error, normalize_path
 
 DOWNLOAD_DELEGATE_DICT = {
     'xunlei': XunleiLixianDownload,
@@ -46,7 +46,7 @@ def download_prepare(data):
     """
     queue = save_to_bangumi_download_queue(data)
     for download in queue:
-        save_path = os.path.join(os.path.join(SAVE_PATH, download.name), str(download.episode))
+        save_path = os.path.join(os.path.join(SAVE_PATH, normalize_path(download.name)), str(download.episode))
         if not os.path.exists(save_path):
             os.makedirs(save_path)
 

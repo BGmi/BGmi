@@ -55,6 +55,7 @@ def log_utils_function(func):
 
     return echo_func
 
+
 urllib3.disable_warnings()
 
 # monkey patch for dev
@@ -66,16 +67,20 @@ if os.environ.get('DEV', False):  # pragma: no cover
             url = url.replace('http://', 'http://localhost:8092/http/')
         return url
 
+
     from requests import request
+
 
     def get(url, params=None, **kwargs):
         url = replace_url(url)
         kwargs.setdefault('allow_redirects', True)
         return request('get', url, params=params, **kwargs)
 
+
     def post(url, data=None, json=None, **kwargs):
         url = replace_url(url)
         return request('post', url, data=data, json=json, **kwargs)
+
 
     requests.get = get
     requests.post = post
@@ -176,6 +181,7 @@ Github: https://github.com/BGmi/BGmi
 Email: ricterzheng@gmail.com
 Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END)
 
+
 @log_utils_function
 def test_connection():
     try:
@@ -191,6 +197,7 @@ def bug_report():  # pragma: no cover
     print_error('It seems that no bangumi found, if https://bangumi.moe can \n'
                 '    be opened normally, please submit issue at: https://github.com/BGmi/BGmi/issues',
                 exit_=True)
+
 
 @log_utils_function
 def get_terminal_col():  # pragma: no cover
@@ -227,6 +234,7 @@ def get_terminal_col():  # pragma: no cover
                 return cols
         except:
             return 80
+
 
 @log_utils_function
 def check_update(mark=True):
@@ -426,4 +434,3 @@ def download_cover(cover_url_list):
         with open(file_path, 'wb') as f:
             f.write(r.content)
     p.close()
-

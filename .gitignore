@@ -9,3 +9,4 @@ bgmi.egg-info
 .DS_Store
 *debug.sh
 env
+tmp/
