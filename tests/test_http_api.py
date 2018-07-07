@@ -9,9 +9,9 @@ import string
 
 from tornado.testing import AsyncHTTPTestCase
 
+from bgmi.config import SAVE_PATH, ADMIN_TOKEN
 from bgmi.front.server import make_app
 from bgmi.lib.constants import unicode_
-from bgmi.config import SAVE_PATH
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -23,28 +23,10 @@ def random_word(length):
 
 logger = logging.getLogger()
 logger.setLevel(logging.ERROR)
-api_list = [
-    {
-        'action': 'update',
-        'method': 'post',
-        'params': '{}',
-    }, {
-        'action': 'status',
-        'method': 'post',
-        'params': json.dumps({
-            'name': os.environ.get('BANGUMI_2'),
-            'status': 1,
-        }),
-    }
-]
-
-
-# DB.recreate_source_relatively_table()
 
 
 class ApiTestCase(AsyncHTTPTestCase):
-    # class ApiTestCase(unittest.TestCase)
-    headers = {'BGmi-Token': '233', 'Content-Type': 'application/json'}
+    headers = {'BGmi-Token': ADMIN_TOKEN, 'Content-Type': 'application/json'}
     bangumi_1 = unicode_(os.environ.get('BANGUMI_1'))
     bangumi_2 = unicode_(os.environ.get('BANGUMI_2'))
     bangumi_3 = unicode_(os.environ.get('BANGUMI_3'))
@@ -53,21 +35,8 @@ class ApiTestCase(AsyncHTTPTestCase):
         self.app = make_app(debug=False)
         return self.app
 
-    def test_404(self):
-        pass
-        # r = self.fetch('/api/url_does_not_exist')
-        # self.assertEqual(r.code, 404)
-        # res = self.parse_response(r)
-        # self.assertEqual(res['status'], 'error')
-
-    # def test_405(self):
-    #     r = self.fetch('/url_does_not_exist')
-    #     self.assertEqual(r.code, 405)
-    #     res = self.parse_response(r)
-    #     self.assertEqual(res['status'], 'error')
-
     def test_a_auth(self):
-        r = self.fetch('/api/auth', method='POST', body=json.dumps({'token': '233'}))
+        r = self.fetch('/api/auth', method='POST', body=json.dumps({'token': ADMIN_TOKEN}))
         self.assertEqual(r.code, 200)
         res = self.parse_response(r)
         self.assertEqual(res['status'], 'success')
@@ -167,10 +136,8 @@ class ApiTestCase(AsyncHTTPTestCase):
 
         if len(res['data']['subtitle_group']) >= 2:
             subtitle_group = res['data']['subtitle_group'][:1]
-        elif len(res['data']['subtitle_group']) == 1:
-            subtitle_group = res['data']['subtitle_group'][:0]
         else:
-            subtitle_group = []
+            subtitle_group = res['data']['subtitle_group'][:0]
         subtitle = ','.join(subtitle_group)
 
         r = self.fetch('/api/filter', method='POST', body=json.dumps({
@@ -200,10 +167,12 @@ class ApiTestCase(AsyncHTTPTestCase):
         }), headers=self.headers)
         self.assertEqual(r.code, 400)
         self.assertEqual(self.parse_response(r)['status'], 'error')
-        for item in subtitle_group:
-            self.assertIn(item, res['data']['followed'])
-        for item in res['data']['followed']:
-            self.assertIn(item, subtitle_group)
+        print(subtitle_group)
+        self.assertFalse(bool(list(set(subtitle_group) - set(res['data']['followed']))))
+        # for item in subtitle_group:
+        #     self.assertIn(item, res['data']['followed'])
+        # for item in res['data']['followed']:
+        #     self.assertIn(item, subtitle_group)
 
     def test_e_index(self):
         save_dir = os.path.join(SAVE_PATH)
@@ -227,15 +196,6 @@ class ApiTestCase(AsyncHTTPTestCase):
         self.assertEqual(bangumi_dict['player']['1']['path'], '/{}/1/episode1/1.mp4'.format(self.bangumi_1))
         self.assertIn('2', bangumi_dict['player'].keys())
         self.assertEqual(bangumi_dict['player']['2']['path'], '/{}/2/2.mkv'.format(self.bangumi_1))
-
-    def test_f_update(self):
-        return
-        r = self.fetch('/api/update', method='POST', headers=self.headers,
-                       body=json.dumps({
-                           "name": ''
-                       }))
-        res = self.parse_response(r)
-        self.assertEqual(res['status'], 'info')
 
     def test_resource_ics(self):
         r = self.fetch('/resource/feed.xml')

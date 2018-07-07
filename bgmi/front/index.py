@@ -17,8 +17,6 @@ def get_player(bangumi_name):
         bangumi_name = normalize_path(bangumi_name)
     bangumi_path = os.path.join(SAVE_PATH, bangumi_name)
     path_walk = os.walk(bangumi_path)
-    print(os.path.exists(bangumi_path))
-    print(bangumi_path)
 
     logger.debug('os.walk(bangumi_path) => {}'.format(pformat(path_walk)))
     for root, _, files in path_walk:
