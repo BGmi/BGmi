@@ -48,7 +48,7 @@ def parse_bangumi_with_week_days(content, update_time, array_name):
         (cover_url, name, keyword, subtitle_raw, _) = bangumi_row
         cover = re.findall('(/images/.*)$', cover_url)[0]
 
-        bs = BeautifulSoup(subtitle_raw, 'lxml')
+        bs = BeautifulSoup(subtitle_raw, 'html.parser')
         a_list = bs.find_all('a')
 
         for a in a_list:
@@ -82,7 +82,7 @@ def parse_bangumi_with_week_days(content, update_time, array_name):
 def parse_subtitle_list(content):
     subtitle_list = []
 
-    bs = BeautifulSoup(content, 'lxml')
+    bs = BeautifulSoup(content, 'html.parser')
     li_list = bs.find_all('li', {'class': 'team-item'})
 
     for li in li_list:
@@ -151,7 +151,7 @@ class DmhySource(BaseWebsite):
                 print(search_url, params)
 
             r = fetch_url(search_url, params=params)
-            bs = BeautifulSoup(r, 'lxml')
+            bs = BeautifulSoup(r, 'html.parser')
 
             table = bs.find('table', {'id': 'topic_list'})
             if table == None:
@@ -294,7 +294,7 @@ class DmhySource(BaseWebsite):
                 print(url)
 
             r = fetch_url(url)
-            bs = BeautifulSoup(r, 'lxml')
+            bs = BeautifulSoup(r, 'html.parser')
 
             table = bs.find('table', {'id': 'topic_list'})
             if table == None:

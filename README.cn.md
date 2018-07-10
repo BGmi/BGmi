@@ -478,7 +478,7 @@ class Script(ScriptBase):
 
         # fetch and return dict
         resp = requests.get('http://m.zimuzu.tv/resource/{}'.format(resource_id), headers=HEADERS).content
-        soup = BeautifulSoup(resp, 'lxml')
+        soup = BeautifulSoup(resp, 'html.parser')
 
         data = soup.find('div', id='item1mobile')  # type: bs4.Tag
         data = data.find_all('a', class_='aurl')
@@ -502,7 +502,7 @@ def page_url_to_magnet(url):
     http://m.zimuzu.tv/resource/item?rid=33555&season=3&episode=6
     """
     response = requests.get(url, headers=HEADERS).content
-    response = BeautifulSoup(response, 'lxml')
+    response = BeautifulSoup(response, 'html.parser')
     for li in response.find_all('li', class_="mui-table-view-cell mui-collapse"):
         badge = li.find('span', class_="mui-badge")
         if '中文' in badge.text:

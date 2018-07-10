@@ -474,7 +474,7 @@ Another example:
         def get_download_url(self):
             # fetch and return dict
             resp = requests.get('http://www.itvfans.com/fenji/313463.html').text
-            html = bs(resp, 'lxml')
+            html = bs(resp, 'html.parser')
 
             data = html.find(attrs={'id': '31346-3-720p'})
 
