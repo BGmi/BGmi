@@ -1,6 +1,7 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 
+import imghdr
 import os
 import re
 import time
@@ -114,7 +115,7 @@ class BaseWebsite(object):
                 for bangumi in daily_bangumi:
                     _, file_path = convert_cover_url_to_path(bangumi['cover'])
 
-                    if not os.path.exists(file_path):
+                    if not (os.path.exists(file_path) and imghdr.what(file_path)):
                         cover_to_be_download.append(bangumi['cover'])
 
             if cover_to_be_download:
