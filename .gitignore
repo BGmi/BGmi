@@ -10,3 +10,7 @@ bgmi.egg-info
 *debug.sh
 env
 tmp/
+
+# coverage
+.coverage
+htmlcov
