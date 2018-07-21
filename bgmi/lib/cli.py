@@ -15,7 +15,7 @@ from bgmi.lib.constants import (ACTION_ADD, ACTION_SOURCE, ACTION_DOWNLOAD, ACTI
                                 ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST,
                                 DOWNLOAD_CHOICE_LIST_DICT, ACTION_COMPLETE, ACTION_HISTORY,
                                 SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, ACTIONS,
-                                actions_and_arguments)
+                                actions_and_arguments, ACTION_CONFIG_GEN)
 from bgmi.lib.controllers import filter_, source, config, mark, delete, add, search, update, list_
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
@@ -320,6 +320,23 @@ def history(ret):
             print('  |      |--- [%s%-9s%s] (%-2s) %s' % (color, slogan, COLOR_END, i.episode, i.bangumi_name))
 
 
+def config_gen(ret):
+    template_file_path = os.path.join(os.path.dirname(__file__), '..', 'others', 'nginx.conf')
+
+    with open(template_file_path, 'r') as template_file:
+        shell_template = template.Template(template_file.read(), autoescape='')
+
+    print(bool(bgmi.config.TORNADO_SERVE_STATIC_FILES))
+    template_with_content = shell_template.generate(actions=ACTIONS,
+                                                    server_name=ret.server_name,
+                                                    front_static_path=bgmi.config.FRONT_STATIC_PATH,
+                                                    tornado_server_static_files=bool(bgmi.config.TORNADO_SERVE_STATIC_FILES != '0'),
+                                                    save_path=bgmi.config.SAVE_PATH)  # type: bytes
+
+    template_with_content = template_with_content.decode('utf-8')
+    print(template_with_content)
+
+
 CONTROLLERS_DICT = {
     ACTION_ADD: add_wrapper,
     ACTION_SOURCE: source_wrapper,
@@ -335,6 +352,7 @@ CONTROLLERS_DICT = {
     ACTION_LIST: list_wrapper,
     ACTION_COMPLETE: complete,
     ACTION_HISTORY: history,
+    ACTION_CONFIG_GEN: config_gen,
 }
 
 

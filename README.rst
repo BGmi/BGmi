@@ -297,7 +297,13 @@ Consider most people won't use Nginx on Windows, bgmi_http use tornado.web.Stati
 
 Use bgmi_http on Linux
 -----------------
-Configure tornado with Nginx:
+Generate Nginx config
+
+.. code-block:: bash
+
+    bgmi gen nginx.conf --server-name bgmi.whatever.com > bgmi.whatever.com
+
+Or write your config file manually.
 
 .. code-block:: bash
 

@@ -16,6 +16,7 @@ ACTION_LIST = 'list'
 ACTION_MARK = 'mark'
 ACTION_SEARCH = 'search'
 ACTION_SOURCE = 'source'
+ACTION_CONFIG_GEN = 'gen'
 ACTION_COMPLETE = 'complete'  # bash completion
 ACTIONS = (ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL,
            ACTION_CONFIG, ACTION_FILTER, ACTION_FETCH, ACTION_DOWNLOAD,
@@ -232,6 +233,16 @@ actions_and_arguments = [
         ]
     },
     {
+        'action': ACTION_CONFIG_GEN,
+        'help': 'Generate config for nginx',
+        'arguments': [
+            {'dest': 'config',
+             'kwargs': dict(help='gen nginx.conf', type=unicode_, choices=['nginx.conf', ])},
+            {'dest': '--server-name',
+             'kwargs': dict(metavar='server_name', help='server name', type=unicode_, required=True)},
+        ]
+    },
+    {
         'action': 'install',
         'help': 'Install BGmi front / admin / download delegate'
     },
@@ -242,6 +253,6 @@ actions_and_arguments = [
     {
         'action': 'history',
         'help': 'List your history of following bangumi'
-    }
+    },
 
 ]
