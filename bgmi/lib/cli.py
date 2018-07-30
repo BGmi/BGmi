@@ -326,11 +326,10 @@ def config_gen(ret):
     with open(template_file_path, 'r') as template_file:
         shell_template = template.Template(template_file.read(), autoescape='')
 
-    print(bool(bgmi.config.TORNADO_SERVE_STATIC_FILES))
     template_with_content = shell_template.generate(actions=ACTIONS,
                                                     server_name=ret.server_name,
+                                                    os_sep=os.sep,
                                                     front_static_path=bgmi.config.FRONT_STATIC_PATH,
-                                                    tornado_server_static_files=bool(bgmi.config.TORNADO_SERVE_STATIC_FILES != '0'),
                                                     save_path=bgmi.config.SAVE_PATH)  # type: bytes
 
     template_with_content = template_with_content.decode('utf-8')

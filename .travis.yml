@@ -33,6 +33,7 @@ script:
     - coverage run -a -m unittest tests.test_controllers
     - coverage run -a -m unittest tests.test_config
     - cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
+    - coverage run -a -m bgmi.main gen nginx.conf
     - coverage run -a -m bgmi.main cal -f
     - coverage run -a -m bgmi.main config
     - coverage run -a -m bgmi.main config ADMIN_TOKEN 233
