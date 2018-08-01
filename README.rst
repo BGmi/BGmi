@@ -50,10 +50,6 @@ Feature
 Installation
 ============
 
-Try this https://bgmi.github.io/BGmi-tutorial/#/
-
-Or manually
-
 For **Mac OS X / Linux / Windows**:
 
 .. code-block:: bash
