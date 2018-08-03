@@ -31,6 +31,7 @@ if os.environ.get('DEV'):  # pragma: no cover
 
 def make_app(**kwargs):
     settings = {
+        'autoreload': True,
         'gzip': True,
         'debug': True,
     }
@@ -59,6 +60,7 @@ def make_app(**kwargs):
 
 
 def main():
+    # print(tornado.options.options.__dict__)
     tornado.options.parse_command_line()
     print('BGmi HTTP Server listening on %s:%d' % (options.address, options.port))
     http_server = tornado.httpserver.HTTPServer(make_app())
