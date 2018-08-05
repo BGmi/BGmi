@@ -307,8 +307,6 @@ def update(name, download=None, not_ignore=False):
             obj.status = STATUS_FOLLOWED
             obj.save()
 
-    print_info('updating bangumi data ...')
-    website.fetch(save=True, group_by_weekday=False)
     print_info('updating subscriptions ...')
     download_queue = []
 
