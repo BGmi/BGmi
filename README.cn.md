@@ -378,8 +378,6 @@ Example:
 
 ```python
 # coding=utf-8
-from __future__ import print_function, unicode_literals
-
 import re
 import json
 import requests
@@ -442,8 +440,6 @@ class Script(ScriptBase):
 ```python
 # coding=utf-8
 """download tv play from http://www.zimuzu.tv/, change config for another tv play"""
-from __future__ import print_function, unicode_literals
-
 import re
 
 # import bs4

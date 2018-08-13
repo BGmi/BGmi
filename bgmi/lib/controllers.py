@@ -1,6 +1,4 @@
 # coding=utf-8
-from __future__ import print_function, unicode_literals
-
 import time
 
 from bgmi.config import write_config, MAX_PAGE
@@ -112,7 +110,7 @@ def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
 def delete(name='', clear_all=False, batch=False):
     """
     :param name:
-    :type name: unicode
+    :type name: str
     :param clear_all:
     :type clear_all: bool
     :param batch:

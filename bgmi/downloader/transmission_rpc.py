@@ -1,23 +1,18 @@
-from __future__ import print_function, unicode_literals
 import base64
+from urllib.parse import urlparse
+from urllib.request import build_opener
+
 from six import iteritems
 
+from bgmi.config import TRANSMISSION_RPC_PORT, TRANSMISSION_RPC_URL, TRANSMISSION_RPC_USERNAME, \
+    TRANSMISSION_RPC_PASSWORD
 from bgmi.downloader.base import BaseDownloadService
-from bgmi.config import TRANSMISSION_RPC_PORT, TRANSMISSION_RPC_URL, TRANSMISSION_RPC_USERNAME, TRANSMISSION_RPC_PASSWORD, IS_PYTHON3
 from bgmi.utils import print_info, print_warning
-
-
-if IS_PYTHON3:
-    from urllib.request import build_opener
-    from urllib.parse import urlparse
-else:
-    from urllib2 import build_opener
-    from urlparse import urlparse
-
 
 try:
     import transmissionrpc
     from transmissionrpc.utils import make_rpc_name, argument_value_convert
+
 
     class PatchClient(transmissionrpc.Client):
         def add_torrent(self, torrent, timeout=None, **kwargs):
@@ -51,10 +46,7 @@ try:
                     might_be_base64 = False
                     try:
                         # check if this is base64 data
-                        if IS_PYTHON3:
-                            base64.b64decode(torrent.encode('utf-8'))
-                        else:
-                            base64.b64decode(torrent)
+                        base64.b64decode(torrent.encode('utf-8'))
                         might_be_base64 = True
                     except Exception:
                         pass
@@ -84,7 +76,8 @@ class TransmissionRPC(BaseDownloadService):
     def download(self):
         try:
             import transmissionrpc
-            tc = PatchClient(TRANSMISSION_RPC_URL, port=TRANSMISSION_RPC_PORT, user=TRANSMISSION_RPC_USERNAME, password=TRANSMISSION_RPC_PASSWORD)
+            tc = PatchClient(TRANSMISSION_RPC_URL, port=TRANSMISSION_RPC_PORT, user=TRANSMISSION_RPC_USERNAME,
+                             password=TRANSMISSION_RPC_PASSWORD)
             try:
                 tc.add_torrent(self.torrent, download_dir=self.save_path)
             except UnicodeEncodeError:
@@ -111,7 +104,8 @@ class TransmissionRPC(BaseDownloadService):
         print_info('Print download status in transmission-rpc')
         try:
             import transmissionrpc
-            tc = transmissionrpc.Client(TRANSMISSION_RPC_URL, port=TRANSMISSION_RPC_PORT, user=TRANSMISSION_RPC_USERNAME, password=TRANSMISSION_RPC_PASSWORD)
+            tc = transmissionrpc.Client(TRANSMISSION_RPC_URL, port=TRANSMISSION_RPC_PORT,
+                                        user=TRANSMISSION_RPC_USERNAME, password=TRANSMISSION_RPC_PASSWORD)
             for torrent in tc.get_torrents():
                 print_info('  * {0}: {1}'.format(torrent.status, torrent), indicator=False)
         except ImportError:

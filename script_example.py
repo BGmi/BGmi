@@ -1,21 +1,17 @@
 # coding=utf-8
-from __future__ import print_function, unicode_literals
 
 import json
 import re
-import urllib
+import urllib.parse
 import datetime
 
 import requests
 
-from bgmi.config import IS_PYTHON3
 from bgmi.script import ScriptBase
 from bgmi.utils import print_error, parse_episode
 
-if IS_PYTHON3:
-    unquote = urllib.parse.unquote
-else:
-    unquote = urllib.unquote
+
+unquote = urllib.parse.unquote
 
 
 class Script(ScriptBase):

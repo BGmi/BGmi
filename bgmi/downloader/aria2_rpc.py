@@ -1,15 +1,9 @@
-from __future__ import print_function, unicode_literals
-import bgmi.config
-from bgmi.downloader.base import BaseDownloadService
+from xmlrpc.client import ServerProxy, _Method
+
 from bgmi.config import ARIA2_RPC_URL, ARIA2_RPC_TOKEN
-from bgmi.utils import print_info, print_warning, print_success, print_error
+from bgmi.downloader.base import BaseDownloadService
 from bgmi.lib.models import STATUS_DOWNLOADED, STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING
-
-
-if bgmi.config.IS_PYTHON3:
-    from xmlrpc.client import ServerProxy, _Method
-else:
-    from xmlrpclib import ServerProxy, _Method
+from bgmi.utils import print_info, print_warning, print_success, print_error
 
 
 class _PatchedMethod(_Method):
@@ -86,7 +80,7 @@ class Aria2DownloadRPC(BaseDownloadService):
                 None: ['tellStopped', 'tellWaiting', 'tellActive'],
             }
             for method in status_dict.get(status):
-                if method not in ('tellActive', ):
+                if method not in ('tellActive',):
                     params = (0, 1000)
                 else:
                     params = ()

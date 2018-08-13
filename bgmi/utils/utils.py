@@ -1,10 +1,10 @@
 # coding=utf-8
-from __future__ import print_function, unicode_literals
 
 import functools
 import glob
 import gzip
 import json
+import logging
 import os
 import re
 import struct
@@ -12,18 +12,15 @@ import sys
 import tarfile
 import time
 from io import BytesIO
+from multiprocessing.pool import ThreadPool
 from shutil import rmtree, move
-import functools
+
 import requests
 import urllib3
-from multiprocessing.pool import ThreadPool
-from six import text_type as unicode_
 
 from bgmi import __version__, __admin_version__
-from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, FRONT_STATIC_PATH, SAVE_PATH, LOG_PATH
+from bgmi.config import BGMI_PATH, DATA_SOURCE, FRONT_STATIC_PATH, SAVE_PATH, LOG_PATH
 from bgmi.lib.constants import SUPPORT_WEBSITE
-
-import logging
 
 log_level = os.environ.get('BGMI_LOG') or 'ERROR'
 log_level = log_level.upper()
@@ -47,9 +44,9 @@ def log_utils_function(func):
     @functools.wraps(func)
     def echo_func(*func_args, **func_kwargs):
         logger.debug('')
-        logger.debug(unicode_("start function {} {} {}".format(func.__name__, func_args, func_kwargs)))
+        logger.debug("start function {} {} {}".format(func.__name__, func_args, func_kwargs))
         r = func(*func_args, **func_kwargs)
-        logger.debug(unicode_("return function {} {}".format(func.__name__, r)))
+        logger.debug("return function {} {}".format(func.__name__, r))
         logger.debug('')
         return r
 
@@ -67,20 +64,16 @@ if os.environ.get('DEV', False):  # pragma: no cover
             url = url.replace('http://', 'http://localhost:8092/http/')
         return url
 
-
     from requests import request
-
 
     def get(url, params=None, **kwargs):
         url = replace_url(url)
         kwargs.setdefault('allow_redirects', True)
         return request('get', url, params=params, **kwargs)
 
-
     def post(url, data=None, json=None, **kwargs):
         url = replace_url(url)
         return request('post', url, data=data, json=json, **kwargs)
-
 
     requests.get = get
     requests.post = post
@@ -119,10 +112,7 @@ def indicator(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         if kwargs.get('indicator', True):
-            if IS_PYTHON3:
-                func_name = f.__qualname__
-            else:
-                func_name = f.func_name
+            func_name = f.__qualname__
             args = (indicator_map.get(func_name, '') + args[0],)
         f(*args, **kwargs)
         sys.stdout.flush()
@@ -133,10 +123,7 @@ def indicator(f):
 def colorize(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
-        if IS_PYTHON3:
-            func_name = f.__qualname__
-        else:
-            func_name = f.func_name
+        func_name = f.__qualname__
         b, e = color_map.get(func_name, ''), COLOR_END if color_map.get(func_name) else ''
         args = tuple(map(lambda s: b + s + e, args))
         return f(*args, **kwargs)
