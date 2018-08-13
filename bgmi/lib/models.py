@@ -6,8 +6,12 @@ from collections import defaultdict
 # from typing import List
 
 import peewee
-from peewee import IntegerField, FixedCharField, TextField
+from peewee import IntegerField, FixedCharField, TextField, CompositeKey
 from playhouse.shortcuts import model_to_dict
+from playhouse.sqlite_ext import JSONField
+from typing import Dict, List
+
+import json
 
 import bgmi.config
 
@@ -36,19 +40,67 @@ if os.environ.get('DEV'):
     print('using', bgmi.config.DB_PATH)
 
 
+class SubtitleField(TextField):
+    def python_value(self, value):
+        return [x.strip() for x in value.split(',')]
+
+    def db_value(self, value):
+        return ', '.join(value)
+
+
+class DataSourceField(JSONField):
+
+    def python_value(self, value):
+        e = super().python_value(value)
+        return {k: BangumiItem(**v) for k, v in e.items()}
+
+    def db_value(self, value):
+        data_source = {k: model_to_dict(v) for k, v in value.items()}
+        return super().db_value(data_source)
+
+
 class NeoDB(peewee.Model):
     class Meta:
         database = db
 
 
-class Bangumi(NeoDB):
-    id = IntegerField(primary_key=True)
-    name = TextField(unique=True, null=False)
-    subtitle_group = TextField(null=False)
+class BangumiItem(peewee.Model):
+    """
+    This model is the item of Bangumi.data_source:Dict[str, BangumiItem]
+
+    It will not be stored in database and there isn't a table named BangumiItem in database.
+    """
+    name = TextField(unique=True, null=False, )  # type: str
+    cover = TextField()  # type: str
+    status = IntegerField(default=0)  # type: int
     keyword = TextField()
-    update_time = FixedCharField(5, null=False)
+    update_time = FixedCharField(5, null=False)  # type: str
+    subtitle_group = SubtitleField()  # type: List[str]
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+        update_time = kwargs.get('update_time', '').title()
+        if update_time and update_time not in Bangumi.week:
+            raise ValueError('unexpected update time %s' % update_time)
+        self.update_time = update_time
+        if isinstance(kwargs.get('subtitle_group'), list):
+            self.subtitle_group = ', '.join(kwargs.get('subtitle_group', []))
+
+
+class Bangumi(NeoDB):
+    id = IntegerField(primary_key=True)  # type: int
+    name = TextField(unique=True, null=False)
+    subject_name = TextField(unique=True)
     cover = TextField()
-    status = IntegerField(default=0)
+    status = IntegerField(default=0)  # type: int
+    subject_id = TextField(null=True)
+    update_time = FixedCharField(5, null=False)
+    data_source = DataSourceField(default=lambda: {})  # type: Dict[str, BangumiItem]
+    subtitle_group = SubtitleField(null=True)
 
     week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
@@ -58,6 +110,8 @@ class Bangumi(NeoDB):
         update_time = kwargs.get('update_time', '').title()
         if update_time and update_time not in self.week:
             raise ValueError('unexpected update time %s' % update_time)
+        if not kwargs.get('view_name'):
+            self.view_name = self.name
         self.update_time = update_time
         if isinstance(kwargs.get('subtitle_group'), list):
             self.subtitle_group = ', '.join(kwargs.get('subtitle_group', []))
@@ -94,20 +148,34 @@ class Bangumi(NeoDB):
         return weekly_list
 
     @classmethod
-    def fuzzy_get(cls, **filters):
-        q = []
-        for key, value in filters.items():
-            q.append(getattr(cls, key).contains(value))
-        o = list(cls.select().where(*q))
-        if not o:
-            raise cls.DoesNotExist
+    def get_all_bangumi(cls):
+        return cls.select().dicts()
+
+    def add_data_source(self, source, bangumi):
+        if isinstance(bangumi, dict):
+            self.data_source[source] = BangumiItem(**bangumi)
         else:
-            return o[0]
+            self.data_source[source] = bangumi
+
+    @classmethod
+    def create(cls, **query):
+        if not query.get('subject_name'):
+            query['subject_name'] = query['name']
+        return super().create(**query)
+
+    def __str__(self):
+        d = model_to_dict(self)
+        for key, value in self.data_source.items():
+            d['data_source'][key] = str(value)
+        return 'Bangumi {}'.format(json.dumps(d, ensure_ascii=False))
+
+    def __repr__(self):
+        return self.__str__()
 
 
 class Followed(NeoDB):
     bangumi_name = TextField(unique=True)
-    episode = IntegerField(null=True)
+    episode = IntegerField(null=True, default=0)
     status = IntegerField(null=True)
     updated_time = IntegerField(null=True)
 
@@ -169,23 +237,66 @@ class Filter(NeoDB):
 
 
 class Subtitle(NeoDB):
-    id = TextField(primary_key=True, unique=True)
+    id = TextField()
     name = TextField()
+    data_source = TextField()
+
+    class Meta:
+        database = db
+        indexes = (
+            # create a unique on from/to/date
+            (('id', 'data_source'), True),
+        )
+        primary_key = CompositeKey('id', 'data_source')
 
     @classmethod
-    def get_subtitle_by_id(cls, id_list=None):
-        data = list(cls.select().where(cls.id.in_(id_list)))
-        for index, subtitle in enumerate(data):
-            data[index] = model_to_dict(subtitle)
-        return data
+    def get_subtitle_of_bangumi(cls, bangumi_obj):
+        """
+        :type bangumi_obj: Bangumi
+        """
+        return cls.get_subtitle_from_data_source_dict(bangumi_obj.data_source)
 
     @classmethod
-    def get_subtitle_by_name(cls, name_list=None):
-        data = list(cls.select().where(cls.name.in_(name_list)))
-        for index, subtitle in enumerate(data):
-            data[index] = model_to_dict(subtitle)
-        return data
+    def get_subtitle_from_data_source_dict(cls, data_source):
+        """
+        :type data_source: dict
+        :param data_source:
+        :return:
+        """
+        source = list(data_source.keys())
+        condition = list()
+        for s in source:
+            condition.append(
+                (Subtitle.id.in_(data_source[s]['subtitle_group'])) & (Subtitle.data_source == s)
+            )
+        if len(condition) > 1:
+            tmp_c = condition[0]
+            for c in condition[1:]:
+                tmp_c = tmp_c | c
+        elif len(condition) == 1:
+            tmp_c = condition[0]
+        else:
+            return []
+        return [model_to_dict(x) for x in Subtitle.select().where(tmp_c)]
 
+    @classmethod
+    def save_subtitle_list(cls, subtitle_group_list):
+        """
+        subtitle_group_list example: `tests/data/subtitle.json`
+        :type subtitle_group_list: dict
+        """
+        for data_source_id, subtitle_group_list in subtitle_group_list.items():
+            for subtitle_group in subtitle_group_list:
+                with db.atomic():
+                    s, if_created = Subtitle.get_or_create(id=str(subtitle_group['id']),
+                                                           data_source=data_source_id,
+                                                           defaults={'name': str(subtitle_group['name'])})
+                    if if_created:
+                        pass
+                    else:
+                        if s.name != str(subtitle_group['name']):
+                            s.name = str(subtitle_group['name'])
+                            s.save()
 
 script_db = peewee.SqliteDatabase(bgmi.config.SCRIPT_DB_PATH)
 
