@@ -14,15 +14,13 @@ __transmission__ = ('TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT',
 __aria2__ = ('ARIA2_RPC_URL', 'ARIA2_RPC_TOKEN',)
 __deluge__ = ('DELUGE_RPC_URL', 'DELUGE_RPC_PASSWORD')
 
-__download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__ + __deluge__
+__download_delegate__ = __wget__ + __aria2__ + __transmission__ + __deluge__
 
 # fake __all__
 __all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE',
-           'MAX_PAGE', 'DATA_SOURCE', 'TMP_PATH', 'DANMAKU_API_URL',
+           'MAX_PAGE', 'TMP_PATH', 'DANMAKU_API_URL',
            'LANG', 'FRONT_STATIC_PATH', 'ADMIN_TOKEN', 'SHARE_DMHY_URL',
-           'GLOBAL_FILTER', 'ENABLE_GLOBAL_FILTER',
-           'TORNADO_SERVE_STATIC_FILES',
-           )
+           'GLOBAL_FILTER', 'ENABLE_GLOBAL_FILTER', 'TORNADO_SERVE_STATIC_FILES',)
 
 # cannot be rewrite
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH', 'TOOLS_PATH',
@@ -198,9 +196,6 @@ BANGUMI_MOE_URL = 'https://bangumi.moe'
 
 # Setting share.dmhy.org url
 SHARE_DMHY_URL = 'https://share.dmhy.org'
-
-# Setting bangumi.moe url
-DATA_SOURCE = 'bangumi_moe'
 
 # BGmi user path
 SAVE_PATH = os.path.join(BGMI_PATH, 'bangumi')

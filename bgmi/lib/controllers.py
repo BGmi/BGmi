@@ -2,7 +2,6 @@
 import time
 
 from bgmi.config import write_config, MAX_PAGE
-from bgmi.lib.constants import SUPPORT_WEBSITE
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
 from bgmi.lib.models import (Filter, Subtitle, Download, recreate_source_relatively_table,
@@ -256,28 +255,7 @@ def search(keyword, count=MAX_PAGE, regex=None, dupe=False, min_episode=None, ma
             'data': []}
 
 
-def source(data_source):
-    result = {}
-    if data_source in list(map(lambda x: x['id'], SUPPORT_WEBSITE)):
-        recreate_source_relatively_table()
-        write_config('DATA_SOURCE', data_source)
-        print_success('data source switch succeeds')
-        result['status'] = 'success'
-        result['message'] = 'you have successfully change your data source to {}'.format(data_source)
-    else:
-        result['status'] = 'error'
-        result['message'] = 'please check input.nata source should be {} or {}'.format(
-            *[x['id'] for x in SUPPORT_WEBSITE])
-    return result
-
-
 def config(name=None, value=None):
-    if name == 'DATA_SOURCE':
-        error_message = "you can't change data source in this way. please use `bgmi source ${data source}` in cli"
-        result = {'status': 'error',
-                  'message': error_message,
-                  'data': write_config()['data']}
-        return result
     r = write_config(name, value)
     if name == 'ADMIN_TOKEN':
         r['message'] = 'you need to restart your bgmi_http to make new token work'

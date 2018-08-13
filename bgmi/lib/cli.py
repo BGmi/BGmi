@@ -10,24 +10,18 @@ from six import string_types
 from tornado import template
 
 import bgmi.config
-from bgmi.lib.constants import (ACTION_ADD, ACTION_SOURCE, ACTION_DOWNLOAD, ACTION_CONFIG, ACTION_DELETE, ACTION_MARK,
+from bgmi.lib.constants import (ACTION_ADD, ACTION_DOWNLOAD, ACTION_CONFIG, ACTION_DELETE, ACTION_MARK,
                                 ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST,
                                 DOWNLOAD_CHOICE_LIST_DICT, ACTION_COMPLETE, ACTION_HISTORY,
                                 SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, ACTIONS,
                                 actions_and_arguments, ACTION_CONFIG_GEN)
-from bgmi.lib.controllers import filter_, source, config, mark, delete, add, search, update, list_
+from bgmi.lib.controllers import filter_, config, mark, delete, add, search, update, list_
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
 from bgmi.lib.models import Bangumi, Followed, Filter, Subtitle, STATUS_UPDATED, STATUS_DELETED, STATUS_FOLLOWED
 from bgmi.script import ScriptRunner
 from bgmi.utils import (print_info, print_warning, print_success, print_error,
                         RED, GREEN, YELLOW, COLOR_END, get_terminal_col, logger)
-
-
-def source_wrapper(ret):
-    result = source(data_source=ret.source)
-    globals()["print_{}".format(result['status'])](result['message'])
-    return result
 
 
 def config_wrapper(ret):
@@ -233,7 +227,7 @@ def complete(ret):
     """eval "$(bgmi complete)" to complete bgmi in bash"""
     updating_bangumi_names = [x['name'] for x in Bangumi.get_updating_bangumi(order=False)]
 
-    all_config = [x for x in bgmi.config.__all__ if not x == 'DATA_SOURCE']
+    all_config = bgmi.config.__writeable__
 
     actions_and_opts = {}
     helper = {}
@@ -334,7 +328,6 @@ def config_gen(ret):
 
 CONTROLLERS_DICT = {
     ACTION_ADD: add_wrapper,
-    ACTION_SOURCE: source_wrapper,
     ACTION_DOWNLOAD: download_manager,
     ACTION_CONFIG: config_wrapper,
     ACTION_DELETE: delete_wrapper,

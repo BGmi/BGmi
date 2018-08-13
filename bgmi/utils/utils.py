@@ -19,8 +19,7 @@ import requests
 import urllib3
 
 from bgmi import __version__, __admin_version__
-from bgmi.config import BGMI_PATH, DATA_SOURCE, FRONT_STATIC_PATH, SAVE_PATH, LOG_PATH
-from bgmi.lib.constants import SUPPORT_WEBSITE
+from bgmi.config import BGMI_PATH, FRONT_STATIC_PATH, SAVE_PATH, LOG_PATH
 
 log_level = os.environ.get('BGMI_LOG') or 'ERROR'
 log_level = log_level.upper()
@@ -172,9 +171,7 @@ Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END
 @log_utils_function
 def test_connection():
     try:
-        for website in SUPPORT_WEBSITE:
-            if DATA_SOURCE == website['id']:
-                requests.request('head', website['url'], timeout=10)
+        requests.request('head', 'https://api.bgm.tv/calendar', timeout=3)
     except:
         return False
     return True

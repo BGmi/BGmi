@@ -3,14 +3,14 @@
 import os
 import unittest
 
-from bgmi.lib.fetch import data_source
+from bgmi.lib.fetch import website
 
 
 class ControllersTest(unittest.TestCase):
     def setUp(self):
         self.bangumi_name_1 = os.environ.get('BANGUMI_1')
         self.bangumi_name_2 = os.environ.get('BANGUMI_2')
-        self.w = data_source
+        self.w = website
         pass
 
     def test_info(self):

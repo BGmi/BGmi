@@ -1,6 +1,5 @@
 # coding=utf-8
 
-from bgmi.config import DATA_SOURCE
 from bgmi.utils import print_error
 from bgmi.website import bangumi_moe, mikan, share_dmhy
 
@@ -10,9 +9,4 @@ DATA_SOURCE_MAP = {
     'dmhy': share_dmhy.DmhySource,
 }
 
-
-def wrap(*args, **kwargs):
-    print_error('date source "{}" in config is wrong, please edit it manually'.format(DATA_SOURCE))
-
-
-website = DATA_SOURCE_MAP.get(DATA_SOURCE, wrap)()
+website = bangumi_moe.BangumiMoe()
