@@ -63,19 +63,19 @@ if os.environ.get('DEV', False):  # pragma: no cover
             url = url.replace('http://', 'http://localhost:8092/http/')
         return url
 
-    from requests import request
+    from copy import deepcopy
+    from requests import Session
 
-    def get(url, params=None, **kwargs):
+    origin_request = deepcopy(Session.request)
+
+    def req(self, method, url, **kwargs):
+        if os.environ.get('BGMI_SHOW_ALL_NETWORK_REQUEST'):
+            print(url)
         url = replace_url(url)
-        kwargs.setdefault('allow_redirects', True)
-        return request('get', url, params=params, **kwargs)
+        return origin_request(self, method, url, **kwargs)
 
-    def post(url, data=None, json=None, **kwargs):
-        url = replace_url(url)
-        return request('post', url, data=data, json=json, **kwargs)
+    Session.request = req
 
-    requests.get = get
-    requests.post = post
 
 if sys.platform.startswith('win'):  # pragma: no cover
     GREEN = ''
@@ -220,44 +220,48 @@ def get_terminal_col():  # pragma: no cover
             return 80
 
 
+def update(mark):
+    try:
+        print_info('Checking update ...')
+        version = requests.get('https://pypi.python.org/pypi/bgmi/json',
+                               verify=False).json()['info']['version']
+
+        with open(os.path.join(BGMI_PATH, 'latest'), 'w') as f:
+            f.write(version)
+
+        if version > __version__:
+            print_warning('Please update bgmi to the latest version {}{}{}.'
+                          '\nThen execute `bgmi upgrade` to migrate database'
+                          .format(GREEN, version, COLOR_END))
+        else:
+            print_success('Your BGmi is the latest version.')
+
+        package_json = requests.get(PACKAGE_JSON_URL).json()
+        admin_version = package_json['version']
+        if glob.glob(os.path.join(FRONT_STATIC_PATH, 'package.json')):
+            with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'r') as f:
+                local_version = json.loads(f.read())['version']
+            if [int(x) for x in admin_version.split('.')] > [int(x) for x in local_version.split('.')]:
+                get_web_admin(method='update')
+        else:
+            print_info("Use 'bgmi install' to install BGmi frontend / download delegate")
+        if not mark:
+            update()
+            raise SystemExit
+    except Exception as e:
+        if os.environ.get('DEBUG'):
+            raise e
+        print_warning('Error occurs when checking update, {}'.format(str(e)))
+
+
 @log_utils_function
 def check_update(mark=True):
-    def update():
-        try:
-            print_info('Checking update ...')
-            version = requests.get('https://pypi.python.org/pypi/bgmi/json',
-                                   verify=False).json()['info']['version']
-
-            with open(os.path.join(BGMI_PATH, 'latest'), 'w') as f:
-                f.write(version)
-
-            if version > __version__:
-                print_warning('Please update bgmi to the latest version {}{}{}.'
-                              '\nThen execute `bgmi upgrade` to migrate database'
-                              .format(GREEN, version, COLOR_END))
-            else:
-                print_success('Your BGmi is the latest version.')
-
-            package_json = requests.get(PACKAGE_JSON_URL).json()
-            admin_version = package_json['version']
-            if glob.glob(os.path.join(FRONT_STATIC_PATH, 'package.json')):
-                with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'r') as f:
-                    local_version = json.loads(f.read())['version']
-                if [int(x) for x in admin_version.split('.')] > [int(x) for x in local_version.split('.')]:
-                    get_web_admin(method='update')
-            else:
-                print_info("Use 'bgmi install' to install BGmi frontend / download delegate")
-            if not mark:
-                update()
-                raise SystemExit
-        except Exception as e:
-            print_warning('Error occurs when checking update, {}'.format(str(e)))
 
     version_file = os.path.join(BGMI_PATH, 'version')
     if not os.path.exists(version_file):
         with open(version_file, 'w') as f:
             f.write(str(int(time.time())))
-        return update()
+        return update(mark)
 
     with open(version_file, 'r') as f:
         try:
@@ -265,21 +269,73 @@ def check_update(mark=True):
             if time.time() - 7 * 24 * 3600 > data:
                 with open(version_file, 'w') as f:
                     f.write(str(int(time.time())))
-                return update()
+                return update(mark)
         except ValueError:
             pass
 
 
+def chinese_to_arabic(cn: str) -> int:
+    """
+    https://blog.csdn.net/hexrain/article/details/52790126
+
+    :type cn: str
+    :rtype: int
+    """
+    CN_NUM = {
+        '〇': 0, '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '零': 0,
+        '壹': 1, '贰': 2, '叁': 3, '肆': 4, '伍': 5, '陆': 6, '柒': 7, '捌': 8, '玖': 9, '貮': 2, '两': 2,
+    }
+
+    CN_UNIT = {
+        '十': 10,
+        '拾': 10,
+        '百': 100,
+        '佰': 100,
+        '千': 1000,
+        '仟': 1000,
+        '万': 10000,
+        '萬': 10000,
+    }
+    unit = 0  # current
+    ldig = []  # digest
+    for cndig in reversed(cn):
+        if cndig in CN_UNIT:
+            unit = CN_UNIT.get(cndig)
+            if unit == 10000 or unit == 100000000:
+                ldig.append(unit)
+                unit = 1
+        else:
+            dig = CN_NUM.get(cndig)
+            if unit:
+                dig *= unit
+                unit = 0
+            ldig.append(dig)
+    if unit == 10:
+        ldig.append(10)
+    val, tmp = 0, 0
+    for x in reversed(ldig):
+        if x == 10000 or x == 100000000:
+            val += tmp * x
+            tmp = 0
+        else:
+            tmp += x
+    val += tmp
+    return val
+
+
 FETCH_EPISODE_ZH = re.compile("第?\s?(\d{1,3})\s?[話话集]")
+FETCH_EPISODE_ALL_ZH = re.compile("第(.*)[話话集]")
 FETCH_EPISODE_WITH_BRACKETS = re.compile('[【\[](\d+)\s?(?:END)?[】\]]')
 FETCH_EPISODE_ONLY_NUM = re.compile('^([\d]{2,})$')
 FETCH_EPISODE_RANGE = re.compile('[\d]{2,}\s?-\s?([\d]{2,})')
+FETCH_EPISODE_RANGE_ZH = re.compile('[第][\d]{2,}\s?-\s?([\d]{2,})\s?[話话集]')
+FETCH_EPISODE_RANGE_ALL_ZH = re.compile('[全]([^-]*)[話话集]')
 FETCH_EPISODE_OVA_OAD = re.compile('([\d]{2,})\s?\((?:OVA|OAD)\)]')
 FETCH_EPISODE_WITH_VERSION = re.compile('[【\[](\d+)\s? *v\d(?:END)?[】\]]')
-FETCH_EPISODE = (
-    FETCH_EPISODE_ZH, FETCH_EPISODE_WITH_BRACKETS, FETCH_EPISODE_ONLY_NUM,
-    FETCH_EPISODE_RANGE,
-    FETCH_EPISODE_OVA_OAD, FETCH_EPISODE_WITH_VERSION)
+FETCH_EPISODE = (FETCH_EPISODE_ZH, FETCH_EPISODE_ALL_ZH,
+                 FETCH_EPISODE_WITH_BRACKETS, FETCH_EPISODE_ONLY_NUM,
+                 FETCH_EPISODE_RANGE, FETCH_EPISODE_RANGE_ALL_ZH,
+                 FETCH_EPISODE_OVA_OAD, FETCH_EPISODE_WITH_VERSION)
 
 
 @log_utils_function
@@ -301,6 +357,17 @@ def parse_episode(episode_title):
     _ = FETCH_EPISODE_ZH.findall(episode_title)
     if _ and _[0].isdigit():
         return int(_[0])
+
+    _ = FETCH_EPISODE_RANGE.findall(episode_title)
+    if _ and _[0]:
+        return int(0)
+
+    _ = FETCH_EPISODE_ALL_ZH.findall(episode_title)
+    if _:
+        try:
+            return chinese_to_arabic(_[0])
+        except:
+            pass
 
     _ = FETCH_EPISODE_WITH_BRACKETS.findall(episode_title)
     if _:
@@ -349,9 +416,7 @@ def normalize_path(url):
 
 
 def get_web_admin(method):
-    # frontend_npm_url = 'https://registry.npmjs.com/bgmi-frontend/'
-    print_info('{}ing BGmi frontend'.format(method[0].upper() + method[1:]))
-
+    print_info('{}ing BGmi frontend'.format(method.title()))
     try:
         r = requests.get(FRONTEND_NPM_URL).json()
         version = requests.get(PACKAGE_JSON_URL).json()
@@ -367,7 +432,12 @@ def get_web_admin(method):
     except json.JSONDecodeError:
         print_warning('failed to download web admin')
         return
-    admin_zip = BytesIO(r.content)
+    unzip_zipped_file(r.content, version)
+    print_success('Web admin page {} successfully. version: {}'.format(method, version['version']))
+
+
+def unzip_zipped_file(file_content, front_version):
+    admin_zip = BytesIO(file_content)
     with gzip.GzipFile(fileobj=admin_zip) as f:
         tar_file = BytesIO(f.read())
 
@@ -381,8 +451,7 @@ def get_web_admin(method):
         move(os.path.join(FRONT_STATIC_PATH, 'package', 'dist', file),
              os.path.join(FRONT_STATIC_PATH, file))
     with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'w+') as f:
-        f.write(json.dumps(version))
-    print_success('Web admin page {} successfully. version: {}'.format(method, version['version']))
+        f.write(json.dumps(front_version))
 
 
 @log_utils_function
@@ -392,7 +461,7 @@ def convert_cover_url_to_path(cover_url):
 
     :param cover_url: bangumi cover path
     :type cover_url:str
-    :rtype: str,str
+    :rtype: (str,str)
     :return: dir_path, file_path
     """
 
@@ -427,8 +496,12 @@ def download_cover(cover_url_list):
             continue
 
         dir_path, file_path = convert_cover_url_to_path(cover_url_list[index])
-        if not glob.glob(dir_path):
+
+        os.remove(dir_path) if os.path.exists(dir_path) and not os.path.isdir(dir_path) else None
+
+        if not os.path.exists(dir_path):
             os.makedirs(dir_path)
+
         with open(file_path, 'wb') as f:
             f.write(r.content)
     p.close()
