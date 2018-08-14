@@ -1,1 +1,2 @@
 faker
+python-Levenshtein

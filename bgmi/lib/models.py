@@ -3,7 +3,6 @@
 import time
 import os
 from collections import defaultdict
-# from typing import List
 
 import peewee
 from peewee import IntegerField, FixedCharField, TextField, CompositeKey
@@ -36,8 +35,24 @@ DoesNotExist = peewee.DoesNotExist
 
 db = peewee.SqliteDatabase(bgmi.config.DB_PATH)
 
-if os.environ.get('DEV'):
-    print('using', bgmi.config.DB_PATH)
+
+class SubtitleField(TextField):
+    def python_value(self, value):
+        return [x.strip() for x in value.split(',')]
+
+    def db_value(self, value):
+        return ', '.join(value)
+
+
+class DataSourceField(JSONField):
+
+    def python_value(self, value):
+        e = super().python_value(value)
+        return {k: BangumiItem(**v) for k, v in e.items()}
+
+    def db_value(self, value):
+        data_source = {k: model_to_dict(v) for k, v in value.items()}
+        return super().db_value(data_source)
 
 
 class SubtitleField(TextField):
@@ -70,6 +85,9 @@ class BangumiItem(peewee.Model):
 
     It will not be stored in database and there isn't a table named BangumiItem in database.
     """
+    class Meta:
+        primary_key = False
+
     name = TextField(unique=True, null=False, )  # type: str
     cover = TextField()  # type: str
     status = IntegerField(default=0)  # type: int
@@ -81,14 +99,13 @@ class BangumiItem(peewee.Model):
         return getattr(self, item)
 
     def __init__(self, *args, **kwargs):
-
+        if isinstance(kwargs.get('subtitle_group'), str):
+            kwargs['subtitle_group'] = [x.strip() for x in kwargs['subtitle_group'].split(',')]
         super().__init__(*args, **kwargs)
         update_time = kwargs.get('update_time', '').title()
         if update_time and update_time not in Bangumi.week:
             raise ValueError('unexpected update time %s' % update_time)
         self.update_time = update_time
-        if isinstance(kwargs.get('subtitle_group'), list):
-            self.subtitle_group = ', '.join(kwargs.get('subtitle_group', []))
 
 
 class Bangumi(NeoDB):
@@ -100,7 +117,7 @@ class Bangumi(NeoDB):
     subject_id = TextField(null=True)
     update_time = FixedCharField(5, null=False)
     data_source = DataSourceField(default=lambda: {})  # type: Dict[str, BangumiItem]
-    subtitle_group = SubtitleField(null=True)
+    subtitle_group = SubtitleField(null=True) #type: List[str]
 
     week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
@@ -118,8 +135,8 @@ class Bangumi(NeoDB):
 
     @classmethod
     def delete_all(cls):
-        un_updated_bangumi = Followed.select().where(
-            Followed.updated_time > (int(time.time()) - 2 * 7 * 24 * 3600))  # type: list[Followed]
+        un_updated_bangumi = Followed.select() \
+            .where(Followed.updated_time > (int(time.time()) - 2 * 7 * 24 * 3600))  # type: list[Followed]
         if os.getenv('DEBUG'):  # pragma: no cover
             print('ignore updating bangumi', [x.bangumi_name for x in un_updated_bangumi])
 
@@ -181,7 +198,6 @@ class Followed(NeoDB):
 
     class Meta:
         database = db
-        table_name = 'followed'
 
     @classmethod
     def delete_followed(cls, batch=True):
@@ -230,10 +246,11 @@ class Download(NeoDB):
 
 class Filter(NeoDB):
     bangumi_name = TextField(unique=True)
-    subtitle = TextField()
-    include = TextField()
-    exclude = TextField()
-    regex = TextField()
+    data_source = TextField(null=True)
+    subtitle = TextField(null=True)
+    include = TextField(null=True)
+    exclude = TextField(null=True)
+    regex = TextField(null=True)
 
 
 class Subtitle(NeoDB):
