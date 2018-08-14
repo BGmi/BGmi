@@ -115,7 +115,6 @@ class BangumiList(list):
         if max_similarity > 40:
             most_similar_index = similarity_list.index(max_similarity)
             self[most_similar_index].add_data_source(source, deepcopy(bangumi))
-            # self[most_similar_index]['data_source'][source] = deepcopy(bangumi)
 
         else:
             bangumi_deep_copy = {
@@ -257,8 +256,6 @@ class DataSource:
         bangumi_calendar = get_bgm_tv_calendar()  # type: BangumiList[Bangumi]
 
         for data_source_id, data in bangumi_result.items():
-            # bangumi_list, subtitle_list = data_source.get_bangumi_calendar_and_subtitle_group()
-            # bangumi_list = BangumiList([format_bangumi_dict(bangumi) for bangumi in bangumi_list])
             for item in data:
                 bangumi_calendar.add_bangumi(item, data_source_id)
 
@@ -272,7 +269,6 @@ class DataSource:
         if save:
             with db.atomic():
                 for bangumi in bangumi_calendar:
-                    # bangumi.save()
                     self.save_data(bangumi)
 
         if group_by_weekday:
@@ -289,19 +285,7 @@ class DataSource:
 
         # :type data: dict
         """
-        # (Bangumi.insert({
-        #     Bangumi.name: data['name'],
-        #     Bangumi.update_time: data['update_time'],
-        #     Bangumi.keyword: data['keyword'],
-        #     Bangumi.name_view: data['name_view'],
-        #     Bangumi.status: data['status'],
-        #     Bangumi.cover: data['cover'],
-        #     Bangumi.type: data['type'],
-        #     Bangumi.data_source: data['data_source']  # type: dict
-        # }).on_conflict_replace(
-        #     # conflict_target=(Bangumi.name,),
-        # )).execute()
-        b, obj_created = Bangumi.get_or_create(name=data.name, defaults=model_to_dict(data))
+        b, obj_created = Bangumi.get_or_create(name=data.name, defaults=model_to_dict(data, recurse=True))
         if not obj_created:
             b.status = STATUS_UPDATING
             b.cover = data.cover

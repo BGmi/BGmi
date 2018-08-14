@@ -38,29 +38,16 @@ db = peewee.SqliteDatabase(bgmi.config.DB_PATH)
 
 class SubtitleField(TextField):
     def python_value(self, value):
-        return [x.strip() for x in value.split(',')]
+        if value is None:
+            return []
+        else:
+            return [x.strip() for x in value.split(',')]
 
     def db_value(self, value):
-        return ', '.join(value)
-
-
-class DataSourceField(JSONField):
-
-    def python_value(self, value):
-        e = super().python_value(value)
-        return {k: BangumiItem(**v) for k, v in e.items()}
-
-    def db_value(self, value):
-        data_source = {k: model_to_dict(v) for k, v in value.items()}
-        return super().db_value(data_source)
-
-
-class SubtitleField(TextField):
-    def python_value(self, value):
-        return [x.strip() for x in value.split(',')]
-
-    def db_value(self, value):
-        return ', '.join(value)
+        if value is None:
+            return ''
+        else:
+            return ', '.join(value)
 
 
 class DataSourceField(JSONField):
@@ -117,7 +104,6 @@ class Bangumi(NeoDB):
     subject_id = TextField(null=True)
     update_time = FixedCharField(5, null=False)
     data_source = DataSourceField(default=lambda: {})  # type: Dict[str, BangumiItem]
-    subtitle_group = SubtitleField(null=True) #type: List[str]
 
     week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
@@ -130,8 +116,6 @@ class Bangumi(NeoDB):
         if not kwargs.get('view_name'):
             self.view_name = self.name
         self.update_time = update_time
-        if isinstance(kwargs.get('subtitle_group'), list):
-            self.subtitle_group = ', '.join(kwargs.get('subtitle_group', []))
 
     @classmethod
     def delete_all(cls):
