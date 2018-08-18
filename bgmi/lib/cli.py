@@ -84,8 +84,12 @@ def cal_wrapper(ret):
     else:
         cover = None
 
-    weekly_list = website.bangumi_calendar(
-        force_update=force_update, save=save, cover=cover)
+    weekly_list = website.bangumi_calendar(force_update=force_update, save=save, cover=cover)
+    if os.environ.get('DEBUG'):
+        for bangumi_list in weekly_list.values():
+            for bangumi in bangumi_list:
+                bangumi['name'] = bangumi['name'] + '({})'.format(' '.join([x[:min(1, len(x))] for x in
+                                                                            bangumi['data_source'].keys()]))
 
     patch_list = runner.get_models_dict()
     for i in patch_list:
@@ -117,19 +121,16 @@ def cal_wrapper(ret):
 
     for index, weekday in enumerate(weekday_order):
         if weekly_list[weekday.lower()]:
-            print(
-                '%s%s. %s' % (
+            print('%s%s. %s' % (
                     GREEN, weekday if not today else 'Bangumi Schedule for Today (%s)' % weekday, COLOR_END),
-                end='')
+                  end='')
             print()
             print_line()
             for i, bangumi in enumerate(weekly_list[weekday.lower()]):
                 if bangumi['status'] in (STATUS_UPDATED, STATUS_FOLLOWED) and 'episode' in bangumi:
-                    bangumi['name'] = '%s(%d)' % (
-                        bangumi['name'], bangumi['episode'])
+                    bangumi['name'] = '%s(%d)' % (bangumi['name'], bangumi['episode'])
 
-                half = len(re.findall('[%s]' %
-                                      string.printable, bangumi['name']))
+                half = len(re.findall('[%s]' % string.printable, bangumi['name']))
                 full = (len(bangumi['name']) - half)
                 space_count = col - 2 - (full * 2 + half)
 
@@ -157,14 +158,18 @@ def cal_wrapper(ret):
 
 def filter_wrapper(ret):
     result = filter_(name=ret.name,
-                     subtitle=ret.subtitle,
+                     data_source_input=ret.data_source,
+                     subtitle_input=ret.subtitle,
                      include=ret.include,
                      exclude=ret.exclude,
                      regex=ret.regex)
     if 'data' not in result:
         globals()["print_{}".format(result['status'])](result['message'])
     else:
-        print_info('Usable subtitle group: {0}'.format(', '.join(result['data']['subtitle_group'])))
+        print_info('Usable subtitle group: {0}'.format(
+            ', '.join(set([x['name'] for x in result['data']['subtitle_group']]))))
+        print_info('Usable data source: {}'.format(', '.join(result['data']['data_source'])))
+        print()
         followed_filter_obj = Filter.get(bangumi_name=ret.name)
         print_filter(followed_filter_obj)
     return result['data']
@@ -200,12 +205,10 @@ def download_manager(ret):
 def fetch_(ret):
     try:
         bangumi_obj = Bangumi.get(name=ret.name)
+        Followed.get(bangumi_name=bangumi_obj.name)
     except Bangumi.DoesNotExist:
         print_error('Bangumi {0} not exist'.format(ret.name))
         return
-
-    try:
-        Followed.get(bangumi_name=bangumi_obj.name)
     except Followed.DoesNotExist:
         print_error('Bangumi {0} is not followed'.format(ret.name))
         return
@@ -353,9 +356,11 @@ def controllers(ret):
         return func(ret)
 
 
-def print_filter(followed_filter_obj):
-    print_info('Followed subtitle group: {0}'.format(', '.join(map(lambda s: s['name'], Subtitle.get_subtitle_by_id(
-        followed_filter_obj.subtitle.split(', ')))) if followed_filter_obj.subtitle else 'None'))
-    print_info('Include keywords: {0}'.format(followed_filter_obj.include))
-    print_info('Exclude keywords: {0}'.format(followed_filter_obj.exclude))
-    print_info('Regular expression: {0}'.format(followed_filter_obj.regex))
+def print_filter(followed_filter_obj: Filter):
+    j = lambda x: ', '.join(x) if x else 'None'
+
+    print_info('Followed subtitle group: {0}'.format(j(followed_filter_obj.subtitle)))
+    print_info('Followed data sources: {0}'.format(j(followed_filter_obj.data_source)))
+    print_info('Include keywords: {0}'.format(j(followed_filter_obj.include)))
+    print_info('Exclude keywords: {0}'.format(j(followed_filter_obj.exclude)))
+    print_info('Regular expression: {0}'.format(j(followed_filter_obj.regex)))

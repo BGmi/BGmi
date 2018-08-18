@@ -7,6 +7,7 @@ from bgmi.lib.fetch import website
 from bgmi.lib.models import (Filter, Subtitle, Download, recreate_source_relatively_table,
                              STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NOT_DOWNLOAD, FOLLOWED_STATUS, Followed, Bangumi,
                              DoesNotExist, model_to_dict)
+from bgmi.website import DATA_SOURCE_MAP
 from bgmi.lib.models import (STATUS_DELETED)
 from bgmi.script import ScriptRunner
 from bgmi.utils import print_info, normalize_path, print_warning, print_success, print_error, GREEN, COLOR_END, logger
@@ -49,7 +50,7 @@ def add(name, episode=None):
     return result
 
 
-def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
+def filter_(name, subtitle_input=None, data_source_input=None, include=None, exclude=None, regex=None):
     result = {'status': 'success', 'message': ''}
     try:
         bangumi_obj = Bangumi.fuzzy_get(name=name)
@@ -57,47 +58,75 @@ def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
         result['status'] = 'error'
         result['message'] = 'Bangumi {0} does not exist.'.format(name)
         return result
-
-    try:
-        Followed.get(bangumi_name=bangumi_obj.name)
-    except Followed.DoesNotExist as exc:
+    except Followed.DoesNotExist:
         result['status'] = 'error'
-        result['message'] = 'Bangumi {name} has not subscribed, try \'bgmi add "{name}"\'.' \
-            .format(name=bangumi_obj.name)
+        result['message'] = 'Bangumi {name} has not subscribed, try \'bgmi add "{name}"\'.'.format(name=name)
         return result
 
-    followed_filter_obj, is_this_obj_created = Filter.get_or_create(bangumi_name=name)
+    followed_filter_obj, is_this_obj_created = Filter.get_or_create(bangumi_name=name)  # type:Filter, bool
 
     if is_this_obj_created:
         followed_filter_obj.save()
 
-    if subtitle is not None:
-        subtitle = [s.strip() for s in subtitle.split(',')]
-        subtitle = [s['id'] for s in Subtitle.get_subtitle_by_name(subtitle)]
-        subtitle_list = [s.split('.')[0] for s in bangumi_obj.subtitle_group.split(', ') if '.' in s]
-        subtitle_list.extend(bangumi_obj.subtitle_group.split(', '))
-        subtitle = filter(lambda s: s in subtitle_list, subtitle)
-        subtitle = ', '.join(subtitle)
-        followed_filter_obj.subtitle = subtitle
+    subtitle_list = bangumi_obj.get_subtitle_of_bangumi()
+    valid_data_source_list = [key for key in bangumi_obj.data_source.keys()]
+
+    if subtitle_input is not None:
+        if subtitle_input == '':
+            followed_filter_obj.subtitle = None
+        else:
+            subtitle_input = [s.strip() for s in subtitle_input.split(',')]
+            valid_subtitle_name_list = [x['name'] for x in subtitle_list]
+            for name in subtitle_input:
+                try:
+                    Subtitle.get(name=name)
+                except Subtitle.DoesNotExist:
+                    return {'status': 'error', 'message': '{} is not a valid subtitle_group'.format(name)}
+                if not name in valid_subtitle_name_list:
+                    return {
+                        'status': 'error',
+                        'message': '{} is not a subtitle of bangumi {}'.format(name, bangumi_obj.name)
+                    }
+            followed_filter_obj.subtitle = subtitle_input
+
+    if data_source_input is not None:
+        if data_source_input == '':
+            followed_filter_obj.data_source = None
+        else:
+            data_source_input = [s.strip() for s in data_source_input.split(',')]
+            for data_source in data_source_input:
+                if not data_source in valid_data_source_list:
+                    return {
+                        'status': 'error',
+                        'message': 'There is not bangumi {} in data source {}'.format(bangumi_obj.name, data_source)
+                    }
+            followed_filter_obj.data_source = data_source_input
 
     if include is not None:
-        followed_filter_obj.include = include
+        if include == '':
+            followed_filter_obj.include = None
+        else:
+            followed_filter_obj.include = [s.strip() for s in include.split(',')]
 
     if exclude is not None:
-        followed_filter_obj.exclude = exclude
+        if exclude == '':
+            followed_filter_obj.exclude = None
+        else:
+            followed_filter_obj.exclude = [s.strip() for s in exclude.split(',')]
 
     if regex is not None:
-        followed_filter_obj.regex = regex
+        if regex == '':
+            followed_filter_obj.regex = None
+        else:
+            followed_filter_obj.regex = regex
 
     followed_filter_obj.save()
-    subtitle_list = list(map(lambda s: s['name'],
-                             Subtitle.get_subtitle_by_id(bangumi_obj.subtitle_group.split(', '))))
 
     result['data'] = {
         'name': name,
+        'data_source': valid_data_source_list,
         'subtitle_group': subtitle_list,
-        'followed': list(map(lambda s: s['name'], Subtitle.get_subtitle_by_id(followed_filter_obj.subtitle.split(', ')))
-                         if followed_filter_obj.subtitle else []),
+        'followed': followed_filter_obj.subtitle,
         'include': followed_filter_obj.include,
         'exclude': followed_filter_obj.exclude,
         'regex': followed_filter_obj.regex,

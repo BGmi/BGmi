@@ -118,6 +118,8 @@ actions_and_arguments = [
             {'dest': '--exclude', 'kwargs': dict(metavar='exclude',
                                                  help='Filter by keywords which not int the title, split by ",".'), },
             {'dest': '--regex', 'kwargs': dict(metavar='regex', help='Filter by regular expression'), },
+            {'dest': '--data-source', 'kwargs': dict(metavar='data_source',
+                                                     help='Data source enabled, split by ","'), },
         ]
     },
     {

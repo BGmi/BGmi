@@ -45,9 +45,12 @@ class SubtitleField(JSONField):
 
     def db_value(self, value):
         if value is None:
-            return ''
+            return None
         else:
-            return ', '.join(value)
+            if not value:
+                return None
+            else:
+                return ', '.join(value)
 
 
 class BangumiNamesField(JSONField):
@@ -267,10 +270,10 @@ class Download(NeoDB):
 
 class Filter(NeoDB):
     bangumi_name = TextField(unique=True)
-    data_source = TextField(null=True)
-    subtitle = TextField(null=True)
-    include = TextField(null=True)
-    exclude = TextField(null=True)
+    data_source = SubtitleField(null=True)
+    subtitle = SubtitleField(null=True)
+    include = SubtitleField(null=True)
+    exclude = SubtitleField(null=True)
     regex = TextField(null=True)
 
     def apply_on_list_of_episode(self, episode_list: List[Dict[str, str]]):
