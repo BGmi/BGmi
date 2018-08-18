@@ -2,7 +2,7 @@
 
 from bgmi.config import MAX_PAGE
 from bgmi.lib.models import Bangumi, BangumiItem
-from bgmi.utils import (parse_episode)
+from bgmi.utils import (parse_episode, normalize_path)
 
 
 class BaseWebsite(object):
@@ -14,6 +14,7 @@ class BaseWebsite(object):
         bangumi_result, subtitile_result = self.fetch_bangumi_calendar_and_subtitle_group()
         for item in bangumi_result:
             item['cover'] = self.cover_url + item['cover']
+            item['name'] = normalize_path(item['name'])
         # for i, bangumi in enumerate(bangumi_result):
         #     bangumi_result[i] = Bangumi(**bangumi)
         bangumi_result = [BangumiItem(**bangumi) for bangumi in bangumi_result if bangumi['subtitle_group']]

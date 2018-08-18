@@ -25,17 +25,42 @@ DATA_SOURCE_MAP = {
 }
 
 
+def FullToHalf(s):
+    n = []
+    # s = s.decode('utf-8')
+    for char in s:
+        num = ord(char)
+        if num == 0x3000:
+            num = 32
+        elif 0xFF01 <= num <= 0xFF5E:
+            num -= 0xfee0
+        num = chr(num)
+        n.append(num)
+    return ''.join(n)
+
+
 def similarity_of_two_name(name1: str, name2: str):
     name1 = HanziConv.toSimplified(name1)
     name2 = HanziConv.toSimplified(name2)
-    return fuzz.ratio(name1, name2)
+    name1 = FullToHalf(name1)
+    name2 = FullToHalf(name2)
+    name1 = name1.lower()
+    name2 = name2.lower()
+    if name1 in name2:
+        return 100
+    if name2 in name1:
+        return 100
+    name1_start = name1[:min(5, len(name1))]
+    if name2.startswith(name1_start):
+        return 100
 
+    return fuzz.ratio(name1, name2)
 
 class BangumiList(list):
     """
     a list of bgmi.lib.models.Bangumi
     """
-    threshold = 40
+    threshold = 60
     # __getitem__: Callable[[int], Bangumi]
 
     def append(self, obj):
@@ -43,17 +68,22 @@ class BangumiList(list):
             raise ValueError("BangumiList's item must be a instance of Bangumi")
         super().append(obj)
 
-    def __init__(self, iter=None):
-        if iter is not None:
-            for i, item in enumerate(iter):
+    def __setitem__(self, key, value):
+        if not isinstance(value, Bangumi):
+            raise ValueError("BangumiList's item must be a instance of Bangumi")
+        super().__setitem__(key, value)
+
+    def __init__(self, iterator=None):
+        if iterator is not None:
+            for i, item in enumerate(iterator):
                 if not isinstance(item, Bangumi):
                     item = Bangumi(**item)
-                    iter[i] = item
+                    iterator[i] = item
                 if not item.data_source:
                     item.data_source = {}
                 if not item.subject_name:
                     item.subject_name = item.name
-            super(BangumiList, self).__init__(iter)
+            super(BangumiList, self).__init__(iterator)
         else:
             super(BangumiList, self).__init__()
 
@@ -68,9 +98,9 @@ class BangumiList(list):
                     item['data_source'][data_source_key] = model_to_dict(item['data_source'][data_source_key])
         return e
 
-    def merge_another_bangumi_list(self, another_bangumi_list: List, source: str):
+    def merge_another_bangumi_list(self, source: str, another_bangumi_list: List, ):
         for item in another_bangumi_list:
-            self.add_bangumi(item, source)
+            self.add_bangumi(source, item, set_status=STATUS_UPDATING)
 
     def add_mainline_dict(self, bangumi: Dict[str, Union[List, str]]):
         b = Bangumi(**bangumi)
@@ -82,18 +112,33 @@ class BangumiList(list):
 
             data_source = {key: BangumiItem(**model_to_dict(value)) if isinstance(value, BangumiItem) else BangumiItem(**value)
                            for key, value in self[similar_index].data_source.items()}
-            # self[similar_index]['data_source'] = deepcopy(bangumi)
-
-            self[similar_index] = Bangumi(name=self[similar_index].name,
+            s = [x.name for x in data_source.values()] + [bangumi.name, ]
+            self[similar_index] = Bangumi(id=self[similar_index].id,
+                                          name=self[similar_index].name,
                                           cover=bangumi.cover,
                                           status=bangumi.status,
                                           subject_name=bangumi.name,
+                                          bangumi_names=set(s),
                                           subject_id=bangumi.subject_id,
                                           update_time=bangumi.update_time,
                                           subtitle_group=None,
                                           data_source=data_source)
 
-    def find_most_similar_index(self, name, mainline=False):
+        else:
+            b = Bangumi(name=bangumi.name,
+                        cover=bangumi.cover,
+                        status=bangumi.status,
+                        subject_name=bangumi.name,
+                        bangumi_names={bangumi.name},
+                        subject_id=bangumi.subject_id,
+                        update_time=bangumi.update_time,
+                        subtitle_group=None,
+                        data_source={})
+            self.append(b)
+
+    def find_most_similar_index(self, name, mainline=False, data_source=None):
+        if not self:
+            return 0, None
         similarity_list = list(map(lambda x: similarity_of_two_name(name, x.subject_name), self))
         while True:
             max_similarity = max(similarity_list)
@@ -106,28 +151,35 @@ class BangumiList(list):
                 else:
                     return max_similarity, most_similar_index
 
-    def add_bangumi(self, bangumi: Union[dict, BangumiItem, Bangumi], source: str):
+    def add_bangumi(self, source: str, bangumi: Union[dict, BangumiItem, Bangumi], set_status=False):
         if isinstance(bangumi, BangumiItem) or isinstance(bangumi, Bangumi):
             bangumi = model_to_dict(bangumi)
         similarity_list = list(map(lambda x: similarity_of_two_name(bangumi['name'], x.subject_name), self))
         max_similarity = max(similarity_list)
 
-        if max_similarity > 40:
+        if max_similarity > self.threshold:
             most_similar_index = similarity_list.index(max_similarity)
             self[most_similar_index].add_data_source(source, deepcopy(bangumi))
+            self[most_similar_index].bangumi_names.add(bangumi['name'])
+            if set_status:
+                self[most_similar_index].status = set_status
 
+        # add as mainline
         else:
             bangumi_deep_copy = {
                 "name": bangumi['name'],
                 "cover": bangumi['cover'],
-                "status": bangumi['status'],
+                "status": STATUS_UPDATING,
                 "subject_id": None,  # bangumi id
+                "bangumi_names": {bangumi['name']},
                 "subject_name": bangumi['name'],
                 "update_time": bangumi['update_time'],
                 'data_source': {
                     source: BangumiItem(**deepcopy(bangumi))
                 }
             }
+            if set_status:
+                bangumi_deep_copy['status'] = set_status
 
             self.append(Bangumi(**bangumi_deep_copy))
 
@@ -142,14 +194,18 @@ class BangumiList(list):
             )
         return cls(l)
 
-    @classmethod
-    def from_list_of_dict(cls, bangumi_list: List[dict], source):
-        for i, item in enumerate(bangumi_list):
-            e[i] = Bangumi(
-                data_source={source: deepcopy(item)},
-                **item
-            )
-        return cls(bangumi_list)
+    # @classmethod
+    # def from_list_of_dict(cls, bangumi_list: List[dict], source):
+    #     for i, item in enumerate(bangumi_list):
+    #         e[i] = Bangumi(
+    #             data_source={source: deepcopy(item)},
+    #             **item
+    #         )
+    #     return cls(bangumi_list)
+
+    def add_data_source_bangumi_list(self, bangumi_list: List[Union[dict, Bangumi]], source):
+        for bangumi in bangumi_list:
+            self.add_bangumi(source, bangumi, set_status=STATUS_UPDATING)
 
 
 def format_bangumi_dict(bangumi):
@@ -253,12 +309,34 @@ class DataSource:
     def fetch(self, save=False, group_by_weekday=True):
         bangumi_result, subtitle_group_result = init_data()
 
-        bangumi_calendar = get_bgm_tv_calendar()  # type: BangumiList[Bangumi]
+        bangumi_name_list = []
+        for data_source_id, data in bangumi_result.items():
+            bangumi_name_list += [x['name'] for x in data]
+
+        bgm_tv_weekly_list = get_bgm_tv_calendar()
+        bangumi_name_list += [x.name for x in bgm_tv_weekly_list]
+        bangumi_name_list = list(set(bangumi_name_list))
+
+        bangumi_calendar = BangumiList(Bangumi.select())
+
+        tmp_bangumi_calendar = set()
+
+        for bangumi in bangumi_calendar:
+            for name in bangumi_name_list:
+                if name in bangumi.bangumi_names:
+                    tmp_bangumi_calendar.add(bangumi)
+
+        bangumi_calendar = BangumiList(tmp_bangumi_calendar)
+
+
+        for item in bgm_tv_weekly_list:
+            bangumi_calendar.add_mainline(item)
 
         for data_source_id, data in bangumi_result.items():
             for item in data:
-                bangumi_calendar.add_bangumi(item, data_source_id)
+                bangumi_calendar.add_bangumi(source=data_source_id, bangumi=item, set_status=STATUS_UPDATING)
 
+        bangumi_calendar = BangumiList([x for x in bangumi_calendar if x.data_source])
         Bangumi.delete_all()
         Subtitle.save_subtitle_list(subtitle_group_result)
 
@@ -275,8 +353,9 @@ class DataSource:
             result_group_by_weekday = defaultdict(list)
             for bangumi in bangumi_calendar.to_dict():
                 result_group_by_weekday[bangumi['update_time'].lower()].append(bangumi)
-            bangumi_result = result_group_by_weekday
-        return bangumi_result
+            return result_group_by_weekday
+
+        return bangumi_calendar
 
     @staticmethod
     def save_data(data: Bangumi):
@@ -285,11 +364,32 @@ class DataSource:
 
         # :type data: dict
         """
-        b, obj_created = Bangumi.get_or_create(name=data.name, defaults=model_to_dict(data, recurse=True))
+
+        def to_d(field):
+            return {key: model_to_dict(value) for key, value in dict(field).items()}
+
+        b, obj_created = Bangumi.get_or_create(name=data.name, defaults=model_to_dict(data, recurse=True))  # type: (Bangumi, bool)
+
         if not obj_created:
-            b.status = STATUS_UPDATING
-            b.cover = data.cover
-            b.save()
+            if (
+                b.cover != data.cover or
+                # b.status != data.status or
+                b.subject_id != data.subject_id or
+                b.update_time != data.update_time or
+                b.subject_name != data.subject_name or
+                set(set(b.bangumi_names) - set(data.bangumi_names)) or
+                to_d(b.data_source) != to_d(b.data_source)
+            ):
+
+                b.cover = data.cover
+                b.status = data.status
+                b.subject_id = data.subject_id
+                b.update_time = data.update_time
+                b.bangumi_names = data.bangumi_names
+                b.data_source = data.data_source
+                b.subject_name = data.subject_name
+                b.save()
+
         # data.save()
 
     def bangumi_calendar(self, force_update=False, save=True, cover=None):
@@ -508,17 +608,5 @@ class DataSource:
 
 
 if __name__ == '__main__':
-    # e = BangumiMoe().fetch_bangumi_calendar_and_subtitle_group()[0]
-    e = DmhySource().fetch_bangumi_calendar_and_subtitle_group()[0]
-    e = BangumiList.from_list_of_dict(e, 'dmhy')
-
-    # e = BangumiList.from_list_of_dict(e, 'bangumi_moe')
-
-    # item: Bangumi
-    for item in get_bgm_tv_calendar():
-        if not e.has_this_subject_id_as_mainline(item.subject_id):
-            e.add_mainline(item)
-
-    import json
-
-    print(json.dumps(e.to_dict(), ensure_ascii=False, indent=2))
+    website = DataSource()
+    website.fetch()

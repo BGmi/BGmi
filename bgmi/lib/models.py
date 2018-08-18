@@ -8,7 +8,7 @@ import peewee
 from peewee import IntegerField, FixedCharField, TextField, CompositeKey
 from playhouse.shortcuts import model_to_dict
 from playhouse.sqlite_ext import JSONField
-from typing import Dict, List
+from typing import Dict, List, Union
 
 import json
 
@@ -36,7 +36,7 @@ DoesNotExist = peewee.DoesNotExist
 db = peewee.SqliteDatabase(bgmi.config.DB_PATH)
 
 
-class SubtitleField(TextField):
+class SubtitleField(JSONField):
     def python_value(self, value):
         if value is None:
             return []
@@ -50,6 +50,20 @@ class SubtitleField(TextField):
             return ', '.join(value)
 
 
+class BangumiNamesField(JSONField):
+    def python_value(self, value):
+        if value is None:
+            return set()
+        else:
+            return set([x.strip() for x in value.split(',')])
+
+    def db_value(self, value):
+        if value is not None:
+            if isinstance(value, str):
+                return value
+            return ', '.join(value)
+
+
 class DataSourceField(JSONField):
 
     def python_value(self, value):
@@ -57,8 +71,12 @@ class DataSourceField(JSONField):
         return {k: BangumiItem(**v) for k, v in e.items()}
 
     def db_value(self, value):
-        data_source = {k: model_to_dict(v) for k, v in value.items()}
-        return super().db_value(data_source)
+        if value is not None:
+            # if isinstance(value, str):
+            #     return value
+            data_source = {k: model_to_dict(v) for k, v in value.items()}
+            return json.dumps(data_source, ensure_ascii=False)
+        # return super().db_value(data_source)
 
 
 class NeoDB(peewee.Model):
@@ -72,6 +90,7 @@ class BangumiItem(peewee.Model):
 
     It will not be stored in database and there isn't a table named BangumiItem in database.
     """
+
     class Meta:
         primary_key = False
 
@@ -94,6 +113,12 @@ class BangumiItem(peewee.Model):
             raise ValueError('unexpected update time %s' % update_time)
         self.update_time = update_time
 
+    def __str__(self):
+        return '<BangumiItem name={}>'.format(self.name)
+
+    def __repr__(self):
+        return self.__str__()
+
 
 class Bangumi(NeoDB):
     id = IntegerField(primary_key=True)  # type: int
@@ -101,9 +126,10 @@ class Bangumi(NeoDB):
     subject_name = TextField(unique=True)
     cover = TextField()
     status = IntegerField(default=0)  # type: int
-    subject_id = TextField(null=True)
+    subject_id = IntegerField(null=True)
     update_time = FixedCharField(5, null=False)
-    data_source = DataSourceField(default=lambda: {})  # type: Dict[str, BangumiItem]
+    data_source = DataSourceField(default=lambda: {})  # type: Union[Dict[str, BangumiItem],JSONField]
+    bangumi_names = BangumiNamesField()  # type: set
 
     week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
@@ -155,8 +181,17 @@ class Bangumi(NeoDB):
     def add_data_source(self, source, bangumi):
         if isinstance(bangumi, dict):
             self.data_source[source] = BangumiItem(**bangumi)
-        else:
+        elif isinstance(bangumi, BangumiItem):
             self.data_source[source] = bangumi
+        else:
+            raise ValueError('data_source item must be type dict or BangumiItem, can\'t be {} {}'.format(type(bangumi),
+                                                                                                         bangumi))
+
+    def get_subtitle_of_bangumi(self) -> 'List[Subtitle]':
+        """
+        :type bangumi_obj: Bangumi
+        """
+        return Subtitle.get_subtitle_of_bangumi(self)
 
     @classmethod
     def create(cls, **query):
@@ -166,9 +201,11 @@ class Bangumi(NeoDB):
 
     def __str__(self):
         d = model_to_dict(self)
+        d['data_source'] = {}
+        d['bangumi_names'] = '{}'.format(self.bangumi_names)
         for key, value in self.data_source.items():
             d['data_source'][key] = str(value)
-        return 'Bangumi {}'.format(json.dumps(d, ensure_ascii=False))
+        return '<Bangumi {}>'.format(json.dumps(d, ensure_ascii=False))
 
     def __repr__(self):
         return self.__str__()
@@ -236,6 +273,9 @@ class Filter(NeoDB):
     exclude = TextField(null=True)
     regex = TextField(null=True)
 
+    def apply_on_list_of_episode(self, episode_list: List[Dict[str, str]]):
+        pass
+
 
 class Subtitle(NeoDB):
     id = TextField()
@@ -292,12 +332,21 @@ class Subtitle(NeoDB):
                     s, if_created = Subtitle.get_or_create(id=str(subtitle_group['id']),
                                                            data_source=data_source_id,
                                                            defaults={'name': str(subtitle_group['name'])})
-                    if if_created:
-                        pass
-                    else:
+                    if not if_created:
                         if s.name != str(subtitle_group['name']):
                             s.name = str(subtitle_group['name'])
                             s.save()
+
+    @classmethod
+    def get_subtitle_by_name(cls, subtitle_name_list: List[str]) -> 'List[Subtitle]':
+        return cls.select().where(cls.name.in_(subtitle_name_list))
+
+    @classmethod
+    def get_subtitle_by_id(cls, subtitle_id_list: List[str]) -> 'peewee.ModelSelect':
+        l = cls.select().where(cls.id.in_(subtitle_id_list))
+        # cls.select().dicts()
+        return l
+
 
 script_db = peewee.SqliteDatabase(bgmi.config.SCRIPT_DB_PATH)
 
