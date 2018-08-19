@@ -249,7 +249,7 @@ def search(keyword, count=MAX_PAGE, regex=None, dupe=False, min_episode=None, ma
         count = 3
     try:
         data = website.search_by_keyword(keyword, count=count)
-        data = website.filter_keyword(data, regex=regex)
+        data = website.Utils.filter_keyword(data, regex=regex)
         if min_episode is not None:
             data = [x for x in data if x['episode'] >= min_episode]
         if max_episode is not None:
@@ -259,7 +259,7 @@ def search(keyword, count=MAX_PAGE, regex=None, dupe=False, min_episode=None, ma
         #         r.append(i)
 
         if not dupe:
-            data = website.remove_duplicated_bangumi(data)
+            data = website.Utils.remove_duplicated_bangumi(data)
         data.sort(key=lambda x: x['episode'])
         return {
             'status': 'success',

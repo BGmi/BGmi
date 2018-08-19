@@ -369,7 +369,7 @@ class DataSource:
         if not obj_created:
             if (
                 b.cover != data.cover or
-                # b.status != data.status or
+                b.status != data.status or
                 b.subject_id != data.subject_id or
                 b.update_time != data.update_time or
                 b.subject_name != data.subject_name or
