@@ -270,10 +270,10 @@ class Download(NeoDB):
 
 class Filter(NeoDB):
     bangumi_name = TextField(unique=True)
-    data_source = SubtitleField(null=True)
-    subtitle = SubtitleField(null=True)
-    include = SubtitleField(null=True)
-    exclude = SubtitleField(null=True)
+    data_source = SubtitleField(null=True)  # type:List
+    subtitle = SubtitleField(null=True)  # type:List
+    include = SubtitleField(null=True)  # type:List
+    exclude = SubtitleField(null=True)  # type:List
     regex = TextField(null=True)
 
     def apply_on_list_of_episode(self, episode_list: List[Dict[str, str]]):

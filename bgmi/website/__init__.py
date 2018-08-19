@@ -300,10 +300,6 @@ class DataSource:
                         raise exc
                     return data
 
-            if not ENABLE_GLOBAL_FILTER == '0':
-                data = list(filter(lambda s: all(map(lambda t: t.strip().lower() not in s['title'].lower(),
-                                                     GLOBAL_FILTER.split(','))), data))
-
             return data
 
     def fetch(self, save=False, group_by_weekday=True):
@@ -448,36 +444,8 @@ class DataSource:
         """
         followed_filter_obj, _ = Filter.get_or_create(bangumi_name=bangumi.name)  # type : (Filter, bool)
 
-        if followed_filter_obj and subtitle:
-            subtitle_group = followed_filter_obj.subtitle
-        else:
-            subtitle_group = None
-
-        if followed_filter_obj and subtitle:
-            include = followed_filter_obj.include
-        else:
-            include = None
-
-        if followed_filter_obj and subtitle:
-            exclude = followed_filter_obj.exclude
-        else:
-            exclude = None
-
-        if followed_filter_obj and subtitle:
-            regex = followed_filter_obj.regex
-        else:
-            regex = None
-        if followed_filter_obj and subtitle:
-            source = followed_filter_obj.data_source
-        else:
-            source = None
-
         data = [i for i in self.fetch_episode(bangumi_obj=bangumi,
-                                              subtitle_group=subtitle_group,
-                                              include=include,
-                                              source=source,
-                                              exclude=exclude,
-                                              regex=regex,
+                                              filter_obj=followed_filter_obj,
                                               max_page=int(max_page))
                 if i['episode'] is not None]
 
@@ -490,14 +458,12 @@ class DataSource:
         else:
             return {'episode': 0}, []
 
-    def fetch_episode(self, subtitle_group=None,
-                      include=None,
-                      exclude=None,
-                      regex=None,
-                      source=None,
+    def fetch_episode(self,
+                      filter_obj: Filter = None,
                       bangumi_obj=None,
                       max_page=int(MAX_PAGE)):
         """
+        :type filter_obj: Filter
         :type source: str
         :type bangumi_obj: Bangumi
         :type subtitle_group: str
@@ -511,55 +477,55 @@ class DataSource:
         name = bangumi_obj.name
         max_page = int(max_page)
 
-        if source:
-            source = source.split(', ')
+        if filter_obj.data_source:
+            source = list(set(bangumi_obj.data_source.keys()) & set(filter_obj.data_source))
         else:
-            source = bangumi_obj.data_source.keys()
+            source = list(bangumi_obj.data_source.keys())
+
         response_data = []
-        if subtitle_group and subtitle_group.split(', '):
-            condition = [x.strip() for x in subtitle_group.split(', ')]
-            subtitle_group = Subtitle.select(Subtitle.id, Subtitle.name, Subtitle.data_source) \
-                .where(Subtitle.name.in_(condition) & Subtitle.data_source.in_(source))
+
+        if filter_obj.subtitle:
+            subtitle_group = Subtitle.select(Subtitle.id, Subtitle.data_source) \
+                .where(Subtitle.name.in_(filter_obj.subtitle) & Subtitle.data_source.in_(source))
+
             condition = defaultdict(list)
+
             for subtitle in subtitle_group:
                 condition[subtitle.data_source].append(subtitle.id)
+
             for s, subtitle_group in condition.items():
                 print_info('Fetching {}'.format(s))
                 response_data += DATA_SOURCE_MAP[s].fetch_episode_of_bangumi(
                     bangumi_id=bangumi_obj.data_source[s]['keyword'],
-                    subtitle_list=subtitle_group)
+                    subtitle_list=subtitle_group,
+                    max_page=max_page
+                )
+
         else:
-            for i in source:
-                print_info('Fetching {}'.format(i), )
-                response_data += DATA_SOURCE_MAP[i].fetch_episode_of_bangumi(
-                    bangumi_id=bangumi_obj.data_source[i]['keyword'],
-                    max_page=max_page)
+            for s in source:
+                print_info('Fetching {}'.format(s))
+                response_data += DATA_SOURCE_MAP[s].fetch_episode_of_bangumi(
+                    bangumi_id=bangumi_obj.data_source[s]['keyword'],
+                    max_page=max_page
+                )
 
-        for info in response_data:
-            if '合集' not in info['title']:
-                info['name'] = name
-                result.append(info)
+        result = response_data
+        filter_obj.exclude.append('合集')
 
-        if include:
-            include_list = list(map(lambda s: s.strip(), include.split(',')))
-            result = list(filter(lambda s: True if all(map(lambda t: t in s['title'],
-                                                           include_list)) else False, result))
+        if not ENABLE_GLOBAL_FILTER == '0':
+            filter_obj.exclude += [x.strip() for x in GLOBAL_FILTER.split(',')]
 
-        if exclude:
-            exclude_list = list(map(lambda s: s.strip(), exclude.split(',')))
-            result = list(filter(lambda s: True if all(map(lambda t: t not in s['title'],
-                                                           exclude_list)) else False, result))
-            """
-            
-        if include:
-            include_list = [s.strip() for s in include.split(',')]
-            result = [s for s in result if all(map(lambda t: t in s['title'], include_list))]
-        if exclude:
-            exclude_list = [s.strip() for s in exclude.split(',')]
-            result = [s for s in result if all(map(lambda t: t not in s['title'], exclude_list))]
-"""
+        if filter_obj.include:
+            f = lambda s: all(map(lambda t: t in s['title'], filter_obj.include))
+            result = list(filter(f, result))
 
-        result = self.Utils.filter_keyword(data=result, regex=regex)
+        if filter_obj.exclude:
+            f = lambda s: not any(map(lambda t: t in s['title'], filter_obj.exclude))
+            result = list(filter(f, result))
+
+        if filter_obj.regex:
+            result = self.Utils.filter_keyword(data=result, regex=filter_obj.regex)
+
         return result
 
     @staticmethod
