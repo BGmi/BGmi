@@ -172,9 +172,9 @@ def delete(name='', clear_all=False, batch=False):
     return result
 
 
-def cal(force_update=False, save=False):
-    logger.debug('cal force_update: {} save: {}'.format(force_update, save))
-    weekly_list = website.bangumi_calendar(force_update=force_update, save=save)
+def cal():
+    logger.debug('controllers cal')
+    weekly_list = website.bangumi_calendar()
     runner = ScriptRunner()
     patch_list = runner.get_models_dict()
     for i in patch_list:
@@ -186,16 +186,6 @@ def cal(force_update=False, save=False):
     for day, value in weekly_list.items():
         for index, bangumi in enumerate(value):
             bangumi['cover'] = normalize_path(bangumi['cover'])
-            if isinstance(bangumi['subtitle_group'], list):
-                subtitle_group = list(map(lambda x: {'name': x['name'], 'id': x['id']},
-                                          Subtitle.get_subtitle_by_id(
-                                              bangumi['subtitle_group'])))
-            else:
-                subtitle_group = list(map(lambda x: {'name': x['name'], 'id': x['id']},
-                                          Subtitle.get_subtitle_by_id(
-                                              bangumi['subtitle_group'].split(', ' ''))))
-
-            r[day][index]['subtitle_group'] = subtitle_group
     logger.debug(r)
     return r
 
@@ -437,3 +427,10 @@ def list_():
                 result['message'] += '%s: %s\n' % (bangumi['name'], ', '.join(f) if f else '<None>')
 
     return result
+
+
+if __name__ == '__main__':
+    e = cal()
+    import json
+
+    print(json.dumps(e))

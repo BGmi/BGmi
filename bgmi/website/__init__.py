@@ -6,13 +6,13 @@ from collections import defaultdict
 from copy import deepcopy
 from itertools import chain
 from typing import List, Dict, Iterator, Union, Callable
-
+import imghdr
 import requests
 from fuzzywuzzy import fuzz
 from hanziconv import HanziConv
 
 from bgmi.config import MAX_PAGE, ENABLE_GLOBAL_FILTER, GLOBAL_FILTER
-from bgmi.lib.models import Bangumi, Filter, BangumiItem, db, STATUS_UPDATING, model_to_dict, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED
+from bgmi.lib.models import Bangumi, Filter, BangumiItem, db, STATUS_UPDATING, model_to_dict, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, Followed
 from bgmi.utils import test_connection, print_warning, print_info, download_cover, convert_cover_url_to_path
 from bgmi.website.bangumi_moe import BangumiMoe
 from bgmi.website.mikan import Mikanani
@@ -116,7 +116,7 @@ class BangumiList(list):
             self[similar_index] = Bangumi(id=self[similar_index].id,
                                           name=self[similar_index].name,
                                           cover=bangumi.cover,
-                                          status=bangumi.status,
+                                          status=STATUS_UPDATING,
                                           subject_name=bangumi.name,
                                           bangumi_names=set(s),
                                           subject_id=bangumi.subject_id,
@@ -151,7 +151,7 @@ class BangumiList(list):
                 else:
                     return max_similarity, most_similar_index
 
-    def add_bangumi(self, source: str, bangumi: Union[dict, BangumiItem, Bangumi], set_status=False):
+    def add_bangumi(self, source: str, bangumi: Union[dict, BangumiItem, Bangumi], set_status=None):
         if isinstance(bangumi, BangumiItem) or isinstance(bangumi, Bangumi):
             bangumi = model_to_dict(bangumi)
         similarity_list = list(map(lambda x: similarity_of_two_name(bangumi['name'], x.subject_name), self))
@@ -161,7 +161,7 @@ class BangumiList(list):
             most_similar_index = similarity_list.index(max_similarity)
             self[most_similar_index].add_data_source(source, deepcopy(bangumi))
             self[most_similar_index].bangumi_names.add(bangumi['name'])
-            if set_status:
+            if set_status is not None:
                 self[most_similar_index].status = set_status
 
         # add as mainline
@@ -178,7 +178,7 @@ class BangumiList(list):
                     source: BangumiItem(**deepcopy(bangumi))
                 }
             }
-            if set_status:
+            if set_status is not None:
                 bangumi_deep_copy['status'] = set_status
 
             self.append(Bangumi(**bangumi_deep_copy))
@@ -207,6 +207,12 @@ class BangumiList(list):
         for bangumi in bangumi_list:
             self.add_bangumi(source, bangumi, set_status=STATUS_UPDATING)
 
+    def to_weekly_list(self):
+        result_group_by_weekday = defaultdict(list)
+        for bangumi in self.to_dict():
+            result_group_by_weekday[bangumi['update_time'].lower()].append(bangumi)
+            return result_group_by_weekday
+        return result_group_by_weekday
 
 def format_bangumi_dict(bangumi):
     """
@@ -351,7 +357,7 @@ class DataSource:
                 result_group_by_weekday[bangumi['update_time'].lower()].append(bangumi)
             return result_group_by_weekday
 
-        return bangumi_calendar
+        return bangumi_calendar.to_dict()
 
     @staticmethod
     def save_data(data: Bangumi):
@@ -365,7 +371,6 @@ class DataSource:
             return {key: model_to_dict(value) for key, value in dict(field).items()}
 
         b, obj_created = Bangumi.get_or_create(name=data.name, defaults=model_to_dict(data, recurse=True))  # type: (Bangumi, bool)
-
         if not obj_created:
             if (
                 b.cover != data.cover or
@@ -420,8 +425,7 @@ class DataSource:
             for daily_bangumi in weekly_list.values():
                 for bangumi in daily_bangumi:
                     _, file_path = convert_cover_url_to_path(bangumi['cover'])
-
-                    if not os.path.exists(file_path):
+                    if not (os.path.exists(file_path) and imghdr.what(file_path)):
                         cover_to_be_download.append(bangumi['cover'])
 
             if cover_to_be_download:
