@@ -27,12 +27,11 @@ def add(name, episode=None):
         website.fetch(save=True, group_by_weekday=False)
 
     try:
-        bangumi_obj = Bangumi.get(name=name)
+        bangumi_obj = Bangumi.fuzzy_get(name=name)
     except Bangumi.DoesNotExist:
         result = {'status': 'error',
                   'message': '{0} not found, please check the name'.format(name)}
         return result
-
     followed_obj, this_obj_created = Followed.get_or_create(bangumi_name=bangumi_obj.name,
                                                             defaults={'status': STATUS_FOLLOWED})
     if not this_obj_created:
@@ -56,7 +55,7 @@ def add(name, episode=None):
 def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
     result = {'status': 'success', 'message': ''}
     try:
-        bangumi_obj = Bangumi.get(name=name)
+        bangumi_obj = Bangumi.fuzzy_get(name=name)
     except Bangumi.DoesNotExist:
         result['status'] = 'error'
         result['message'] = 'Bangumi {0} does not exist.'.format(name)
