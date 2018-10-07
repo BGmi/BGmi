@@ -3,11 +3,17 @@ import os
 import codecs
 from setuptools import setup, find_packages
 from bgmi import __version__, __author__, __email__
+import unittest
+
+
+def my_test_suite():
+    test_loader = unittest.TestLoader()
+    test_suite = test_loader.discover('tests', pattern='test_*.py')
+    return test_suite
 
 
 with open('requirements.txt', 'r') as f:
     requirements = f.read().splitlines()
-
 
 ROOT = os.path.abspath(os.path.dirname(__file__))
 
@@ -40,6 +46,7 @@ setup(
         ]
     },
     license='MIT License',
+    test_suite='setup.my_test_suite',
     classifiers=(
         'Development Status :: 4 - Beta',
         'Intended Audience :: Other Audience',

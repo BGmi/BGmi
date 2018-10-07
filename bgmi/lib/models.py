@@ -132,7 +132,7 @@ class Bangumi(NeoDB):
     subject_id = IntegerField(null=True)
     update_time = FixedCharField(5, null=False)
     data_source = DataSourceField(default=lambda: {})  # type: Union[Dict[str, BangumiItem],JSONField]
-    bangumi_names = BangumiNamesField()  # type: set
+    bangumi_names = BangumiNamesField(null=True)  # type: set
 
     week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
@@ -201,6 +201,17 @@ class Bangumi(NeoDB):
         if not query.get('subject_name'):
             query['subject_name'] = query['name']
         return super().create(**query)
+
+    @classmethod
+    def fuzzy_get(cls, **filters):
+        q = []
+        for key, value in filters.items():
+            q.append(getattr(cls, key).contains(value))
+        o = list(cls.select().where(*q))
+        if not o:
+            raise cls.DoesNotExist
+        else:
+            return o[0]
 
     def __str__(self):
         d = model_to_dict(self)

@@ -36,13 +36,13 @@ class BangumiTest(base, TestCase):
     def test__init__(self, **kwargs):
         self.assertRaises(ValueError, lambda: Bangumi(update_time='wrong'))
         query = {
-            'update_time'   : 'wed',
+            'update_time': 'wed',
             'subtitle_group': ['1', '2', '3']
         }
         b = Bangumi(**query)
         self.assertEqual(b.update_time, 'Wed')
         self.assertIn(b.update_time, b.update_time)
-        self.assertEqual(b.subtitle_group, '1, 2, 3')
+        self.assertEqual(b.subtitle_group, ['1', '2', '3'])
 
     #
     """
@@ -209,5 +209,6 @@ class SubtitleTest(TestCase):
         condition.update({'dmhy': {"subtitle_group": ["37", "552"]}, })
         check(condition)
 
-        condition.update({"bangumi_mod": {"subtitle_group": ["58fe0031e777e29f2a08175d", "567cdf0d3e4e6e4148f19bbd", "567bda4eafc701435d468b61"], }})
+        condition.update({"bangumi_mod": {
+            "subtitle_group": ["58fe0031e777e29f2a08175d", "567cdf0d3e4e6e4148f19bbd", "567bda4eafc701435d468b61"], }})
         check(condition)

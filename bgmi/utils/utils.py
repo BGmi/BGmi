@@ -63,10 +63,12 @@ if os.environ.get('DEV', False):  # pragma: no cover
             url = url.replace('http://', 'http://localhost:8092/http/')
         return url
 
+
     from copy import deepcopy
     from requests import Session
 
     origin_request = deepcopy(Session.request)
+
 
     def req(self, method, url, **kwargs):
         if os.environ.get('BGMI_SHOW_ALL_NETWORK_REQUEST'):
@@ -74,8 +76,8 @@ if os.environ.get('DEV', False):  # pragma: no cover
         url = replace_url(url)
         return origin_request(self, method, url, **kwargs)
 
-    Session.request = req
 
+    Session.request = req
 
 if sys.platform.startswith('win'):  # pragma: no cover
     GREEN = ''
@@ -256,7 +258,6 @@ def update(mark):
 
 @log_utils_function
 def check_update(mark=True):
-
     version_file = os.path.join(BGMI_PATH, 'version')
     if not os.path.exists(version_file):
         with open(version_file, 'w') as f:
@@ -323,15 +324,19 @@ def chinese_to_arabic(cn: str) -> int:
     return val
 
 
-FETCH_EPISODE_ZH = re.compile("第?\s?(\d{1,3})\s?[話话集]")
-FETCH_EPISODE_ALL_ZH = re.compile("第(.*)[話话集]")
 FETCH_EPISODE_WITH_BRACKETS = re.compile('[【\[](\d+)\s?(?:END)?[】\]]')
+
+FETCH_EPISODE_ZH = re.compile("第?\s?(\d{1,3})\s?[話话集]")
+FETCH_EPISODE_ALL_ZH = re.compile("第([^第]*?)[話话集]")
 FETCH_EPISODE_ONLY_NUM = re.compile('^([\d]{2,})$')
+
 FETCH_EPISODE_RANGE = re.compile('[\d]{2,}\s?-\s?([\d]{2,})')
 FETCH_EPISODE_RANGE_ZH = re.compile('[第][\d]{2,}\s?-\s?([\d]{2,})\s?[話话集]')
-FETCH_EPISODE_RANGE_ALL_ZH = re.compile('[全]([^-]*)[話话集]')
+FETCH_EPISODE_RANGE_ALL_ZH = re.compile('[全]([^-^第]*?)[話话集]')
+
 FETCH_EPISODE_OVA_OAD = re.compile('([\d]{2,})\s?\((?:OVA|OAD)\)]')
 FETCH_EPISODE_WITH_VERSION = re.compile('[【\[](\d+)\s? *v\d(?:END)?[】\]]')
+
 FETCH_EPISODE = (FETCH_EPISODE_ZH, FETCH_EPISODE_ALL_ZH,
                  FETCH_EPISODE_WITH_BRACKETS, FETCH_EPISODE_ONLY_NUM,
                  FETCH_EPISODE_RANGE, FETCH_EPISODE_RANGE_ALL_ZH,
@@ -354,27 +359,46 @@ def parse_episode(episode_title):
         episode_list = map(int, episode_list)
         return min(episode_list)
 
-    _ = FETCH_EPISODE_ZH.findall(episode_title)
-    if _ and _[0].isdigit():
-        return int(_[0])
+    _ = FETCH_EPISODE_RANGE_ALL_ZH.findall(episode_title)
+    if _ and _[0]:
+        logger.debug('return episode range all zh')
+        return int(0)
 
     _ = FETCH_EPISODE_RANGE.findall(episode_title)
     if _ and _[0]:
+        logger.debug('return episode range')
         return int(0)
 
+    _ = FETCH_EPISODE_RANGE_ZH.findall(episode_title)
+    if _ and _[0]:
+        logger.debug('return episode range zh')
+        return int(0)
+
+    _ = FETCH_EPISODE_ZH.findall(episode_title)
+    if _ and _[0].isdigit():
+        logger.debug('return episode zh')
+        return int(_[0])
+
     _ = FETCH_EPISODE_ALL_ZH.findall(episode_title)
-    if _:
+    if _ and _[0]:
         try:
-            return chinese_to_arabic(_[0])
-        except:
+            logger.debug('try return episode all zh {}'.format(_))
+            e = chinese_to_arabic(_[0])
+            logger.debug('return episode all zh')
+            return e
+        except Exception as e:
+            # raise e
+            logger.debug('can\'t convert {} to int'.format(_[0]))
             pass
 
     _ = FETCH_EPISODE_WITH_BRACKETS.findall(episode_title)
     if _:
+        logger.debug('return episode with brackets')
         return get_real_episode(_)
 
     _ = FETCH_EPISODE_WITH_VERSION.findall(episode_title)
     if _ and _[0].isdigit():
+        logger.debug('return episode range with version')
         return int(_[0])
 
     for split_token in ['【', '[', ' ']:
@@ -479,14 +503,7 @@ def download_file(url):
         print_info('Download: {}'.format(url))
         r = requests.get(url)
 
-        dir_path, file_path = convert_cover_url_to_path(url)
-
-        if os.path.exists(dir_path):
-            if not os.path.isdir(dir_path):
-                os.remove(dir_path)
-
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
+        _, file_path = convert_cover_url_to_path(url)
 
         with open(file_path, 'wb') as f:
             f.write(r.content)
@@ -500,6 +517,15 @@ def download_cover(cover_url_list):
     :type cover_url_list: list
     :return:
     """
+    for url in cover_url_list:
+        dir_path, file_path = convert_cover_url_to_path(url)
+
+        if os.path.exists(dir_path):
+            if not os.path.isdir(dir_path):
+                os.remove(dir_path)
+
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
 
     p = ThreadPool(4)
     content_list = p.map(download_file, cover_url_list)
