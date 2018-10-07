@@ -308,13 +308,19 @@ def parse_episode(episode_title):
     :return: episode of this title
     :rtype: int
     """
+    spare = None
+
+    def get_real_episode(episode_list):
+        episode_list = map(int, episode_list)
+        return min(episode_list)
+
     _ = FETCH_EPISODE_ZH.findall(episode_title)
     if _ and _[0].isdigit():
         return int(_[0])
 
     _ = FETCH_EPISODE_WITH_BRACKETS.findall(episode_title)
-    if _ and _[0].isdigit():
-        return int(_[0])
+    if _:
+        return get_real_episode(_)
 
     _ = FETCH_EPISODE_WITH_VERSION.findall(episode_title)
     if _ and _[0].isdigit():
@@ -325,7 +331,15 @@ def parse_episode(episode_title):
             for regexp in FETCH_EPISODE:
                 match = regexp.findall(i)
                 if match and match[0].isdigit():
-                    return int(match[0])
+                    match = int(match[0])
+                    if match > 1000:
+                        spare = match
+                    else:
+                        return match
+
+    if spare:
+        return spare
+
     return 0
 
 
