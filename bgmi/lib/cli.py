@@ -2,27 +2,27 @@
 from __future__ import print_function, unicode_literals
 
 import datetime
+import itertools
 import os
 import re
 import string
 
-import itertools
 from six import string_types
 from tornado import template
 
 import bgmi.config
-from bgmi.lib.fetch import website
-from bgmi.lib.download import download_prepare, get_download_class
-from bgmi.lib.models import Bangumi, Followed, Filter, Subtitle, STATUS_UPDATED, STATUS_DELETED, STATUS_FOLLOWED
-from bgmi.lib.controllers import filter_, source, config, mark, delete, add, search, update, list_
 from bgmi.lib.constants import (ACTION_ADD, ACTION_SOURCE, ACTION_DOWNLOAD, ACTION_CONFIG, ACTION_DELETE, ACTION_MARK,
                                 ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST,
                                 DOWNLOAD_CHOICE_LIST_DICT, ACTION_COMPLETE, ACTION_HISTORY,
                                 SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, ACTIONS,
-                                actions_and_arguments)
+                                actions_and_arguments, ACTION_CONFIG_GEN)
+from bgmi.lib.controllers import filter_, source, config, mark, delete, add, search, update, list_
+from bgmi.lib.download import download_prepare, get_download_class
+from bgmi.lib.fetch import website
+from bgmi.lib.models import Bangumi, Followed, Filter, Subtitle, STATUS_UPDATED, STATUS_DELETED, STATUS_FOLLOWED
+from bgmi.script import ScriptRunner
 from bgmi.utils import (print_info, print_warning, print_success, print_error,
                         RED, GREEN, YELLOW, COLOR_END, get_terminal_col, logger)
-from bgmi.script import ScriptRunner
 
 
 def source_wrapper(ret):
@@ -40,8 +40,15 @@ def config_wrapper(ret):
 
 
 def search_wrapper(ret):
-    data = search(keyword=ret.keyword, count=ret.count, regex=ret.regex_filter, dupe=ret.dupe)
-
+    result = search(keyword=ret.keyword,
+                    count=ret.count,
+                    regex=ret.regex_filter,
+                    dupe=ret.dupe,
+                    min_episode=ret.min_episode,
+                    max_episode=ret.max_episode)
+    if result['status'] != 'success':
+        globals()["print_{}".format(result['status'])](result['message'])
+    data = result['data']
     for i in data:
         print_success(i['title'])
     if ret.download:
@@ -313,6 +320,22 @@ def history(ret):
             print('  |      |--- [%s%-9s%s] (%-2s) %s' % (color, slogan, COLOR_END, i.episode, i.bangumi_name))
 
 
+def config_gen(ret):
+    template_file_path = os.path.join(os.path.dirname(__file__), '..', 'others', 'nginx.conf')
+
+    with open(template_file_path, 'r') as template_file:
+        shell_template = template.Template(template_file.read(), autoescape='')
+
+    template_with_content = shell_template.generate(actions=ACTIONS,
+                                                    server_name=ret.server_name,
+                                                    os_sep=os.sep,
+                                                    front_static_path=bgmi.config.FRONT_STATIC_PATH,
+                                                    save_path=bgmi.config.SAVE_PATH)  # type: bytes
+
+    template_with_content = template_with_content.decode('utf-8')
+    print(template_with_content)
+
+
 CONTROLLERS_DICT = {
     ACTION_ADD: add_wrapper,
     ACTION_SOURCE: source_wrapper,
@@ -328,6 +351,7 @@ CONTROLLERS_DICT = {
     ACTION_LIST: list_wrapper,
     ACTION_COMPLETE: complete,
     ACTION_HISTORY: history,
+    ACTION_CONFIG_GEN: config_gen,
 }
 
 

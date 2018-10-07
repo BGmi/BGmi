@@ -1,8 +1,10 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 
+import time
 import os
 from collections import defaultdict
+# from typing import List
 
 import peewee
 from peewee import IntegerField, FixedCharField, TextField
@@ -63,7 +65,14 @@ class Bangumi(NeoDB):
 
     @classmethod
     def delete_all(cls):
-        cls.update(status=STATUS_END).execute()
+        un_updated_bangumi = Followed.select().where(
+            Followed.updated_time > (int(time.time()) - 2 * 7 * 24 * 3600))  # type: list[Followed]
+        if os.getenv('DEBUG'):  # pragma: no cover
+            print('ignore updating bangumi', [x.bangumi_name for x in un_updated_bangumi])
+
+        cls.update(status=STATUS_END) \
+            .where(cls.name.not_in(
+            [x.bangumi_name for x in un_updated_bangumi])).execute()  # do not mark updating bangumi as STATUS_END
 
     @classmethod
     def get_updating_bangumi(cls, status=None, order=True):
@@ -84,6 +93,17 @@ class Bangumi(NeoDB):
             weekly_list = list(data)
 
         return weekly_list
+
+    @classmethod
+    def fuzzy_get(cls, **filters):
+        q = []
+        for key, value in filters.items():
+            q.append(getattr(cls, key).contains(value))
+        o = list(cls.select().where(*q))
+        if not o:
+            raise cls.DoesNotExist
+        else:
+            return o[0]
 
 
 class Followed(NeoDB):

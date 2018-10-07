@@ -5,17 +5,18 @@ import glob
 import os
 
 from bgmi.config import SAVE_PATH, DOWNLOAD_DELEGATE
-from bgmi.lib.models import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download
 from bgmi.downloader.aria2_rpc import Aria2DownloadRPC
+from bgmi.downloader.deluge import DelugeRPC
 from bgmi.downloader.transmission_rpc import TransmissionRPC
 from bgmi.downloader.xunlei import XunleiLixianDownload
-from bgmi.utils import print_error
-
+from bgmi.lib.models import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download
+from bgmi.utils import print_error, normalize_path
 
 DOWNLOAD_DELEGATE_DICT = {
     'xunlei': XunleiLixianDownload,
     'aria2-rpc': Aria2DownloadRPC,
     'transmission-rpc': TransmissionRPC,
+    'deluge-rpc': DelugeRPC,
 }
 
 
@@ -45,10 +46,10 @@ def download_prepare(data):
     """
     queue = save_to_bangumi_download_queue(data)
     for download in queue:
-        # print(download)
-        save_path = os.path.join(os.path.join(SAVE_PATH, download.name), str(download.episode))
-        if not glob.glob(save_path):
+        save_path = os.path.join(os.path.join(SAVE_PATH, normalize_path(download.name)), str(download.episode))
+        if not os.path.exists(save_path):
             os.makedirs(save_path)
+
         # mark as downloading
         download.status = STATUS_DOWNLOADING
         download.save()
@@ -63,6 +64,7 @@ def download_prepare(data):
         except Exception as e:
             if os.getenv('DEBUG'):  # pragma: no cover
                 import traceback
+
                 traceback.print_exc()
                 raise e
 

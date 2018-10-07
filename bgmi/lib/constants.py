@@ -16,6 +16,7 @@ ACTION_LIST = 'list'
 ACTION_MARK = 'mark'
 ACTION_SEARCH = 'search'
 ACTION_SOURCE = 'source'
+ACTION_CONFIG_GEN = 'gen'
 ACTION_COMPLETE = 'complete'  # bash completion
 ACTIONS = (ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL,
            ACTION_CONFIG, ACTION_FILTER, ACTION_FETCH, ACTION_DOWNLOAD,
@@ -128,7 +129,7 @@ actions_and_arguments = [
             {'dest': 'name',
              'kwargs': dict(metavar='name', type=unicode_, nargs='*', help='Update specified bangumi.'), },
 
-            {'dest': '--download',
+            {'dest': ['--download', '-d'],
              'kwargs': dict(action='store', nargs='*', type=int, metavar='episode',
                             help='Download specified episode of the bangumi when updated.'), },
 
@@ -215,8 +216,11 @@ actions_and_arguments = [
             {'dest': '--download',
              'kwargs': dict(action='store_true', help='Download search result.'), },
             {'dest': '--dupe',
-             'kwargs': dict(action='store_true',
-                            help="Show duplicated episode"), },
+             'kwargs': dict(action='store_true', help="Show duplicated episode"), },
+            {'dest': '--min-episode',
+             'kwargs': dict(metavar='min_episode', type=int, help='Minimum episode filter of title.'), },
+            {'dest': '--max-episode',
+             'kwargs': dict(metavar='max_episode', type=int, help='Maximum episode filter of title.'), },
         ],
     },
     {
@@ -226,6 +230,16 @@ actions_and_arguments = [
             {'dest': 'source',
              'kwargs': dict(help='bangumi_moe or mikan_project', type=unicode_,
                             choices=[x['id'] for x in SUPPORT_WEBSITE])},
+        ]
+    },
+    {
+        'action': ACTION_CONFIG_GEN,
+        'help': 'Generate config for nginx',
+        'arguments': [
+            {'dest': 'config',
+             'kwargs': dict(help='gen nginx.conf', type=unicode_, choices=['nginx.conf', ])},
+            {'dest': '--server-name',
+             'kwargs': dict(metavar='server_name', help='server name', type=unicode_, required=True)},
         ]
     },
     {
@@ -239,6 +253,6 @@ actions_and_arguments = [
     {
         'action': 'history',
         'help': 'List your history of following bangumi'
-    }
+    },
 
 ]

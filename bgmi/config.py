@@ -15,10 +15,11 @@ except ImportError:
 # download delegate
 __wget__ = ('WGET_PATH',)
 __thunder__ = ('XUNLEI_LX_PATH',)
-__transmission__ = ('TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT',)
+__transmission__ = ('TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT', 'TRANSMISSION_RPC_USERNAME', 'TRANSMISSION_RPC_PASSWORD',)
 __aria2__ = ('ARIA2_RPC_URL', 'ARIA2_RPC_TOKEN',)
+__deluge__ = ('DELUGE_RPC_URL', 'DELUGE_RPC_PASSWORD')
 
-__download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__
+__download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__ + __deluge__
 
 # fake __all__
 __all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE',
@@ -43,6 +44,7 @@ DOWNLOAD_DELEGATE_MAP = {
     'aria2-rpc': __aria2__,
     'xunlei': __thunder__,
     'transmission-rpc': __transmission__,
+    'deluge-rpc': __deluge__,
 }
 
 if not os.environ.get('BGMI_PATH'):  # pragma: no cover
@@ -238,12 +240,18 @@ MAX_PAGE = '3'
 ARIA2_RPC_URL = 'http://localhost:6800/rpc'
 ARIA2_RPC_TOKEN = 'token:'
 
+# deluge
+DELUGE_RPC_URL = 'http://127.0.0.1:8112/json'
+DELUGE_RPC_PASSWORD = 'deluge'
+
 # path of wget
 WGET_PATH = '/usr/bin/wget'
 
 # transmission-rpc
 TRANSMISSION_RPC_URL = '127.0.0.1'
 TRANSMISSION_RPC_PORT = '9091'
+TRANSMISSION_RPC_USERNAME = 'your_username'
+TRANSMISSION_RPC_PASSWORD = 'your_password'
 
 # tag of bangumi on bangumi.moe
 BANGUMI_TAG = '549ef207fe682f7549f1ea90'

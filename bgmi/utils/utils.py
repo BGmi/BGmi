@@ -55,6 +55,7 @@ def log_utils_function(func):
 
     return echo_func
 
+
 urllib3.disable_warnings()
 
 # monkey patch for dev
@@ -66,16 +67,20 @@ if os.environ.get('DEV', False):  # pragma: no cover
             url = url.replace('http://', 'http://localhost:8092/http/')
         return url
 
+
     from requests import request
+
 
     def get(url, params=None, **kwargs):
         url = replace_url(url)
         kwargs.setdefault('allow_redirects', True)
         return request('get', url, params=params, **kwargs)
 
+
     def post(url, data=None, json=None, **kwargs):
         url = replace_url(url)
         return request('post', url, data=data, json=json, **kwargs)
+
 
     requests.get = get
     requests.post = post
@@ -176,6 +181,7 @@ Github: https://github.com/BGmi/BGmi
 Email: ricterzheng@gmail.com
 Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END)
 
+
 @log_utils_function
 def test_connection():
     try:
@@ -191,6 +197,7 @@ def bug_report():  # pragma: no cover
     print_error('It seems that no bangumi found, if https://bangumi.moe can \n'
                 '    be opened normally, please submit issue at: https://github.com/BGmi/BGmi/issues',
                 exit_=True)
+
 
 @log_utils_function
 def get_terminal_col():  # pragma: no cover
@@ -227,6 +234,7 @@ def get_terminal_col():  # pragma: no cover
                 return cols
         except:
             return 80
+
 
 @log_utils_function
 def check_update(mark=True):
@@ -300,13 +308,19 @@ def parse_episode(episode_title):
     :return: episode of this title
     :rtype: int
     """
+    spare = None
+
+    def get_real_episode(episode_list):
+        episode_list = map(int, episode_list)
+        return min(episode_list)
+
     _ = FETCH_EPISODE_ZH.findall(episode_title)
     if _ and _[0].isdigit():
         return int(_[0])
 
     _ = FETCH_EPISODE_WITH_BRACKETS.findall(episode_title)
-    if _ and _[0].isdigit():
-        return int(_[0])
+    if _:
+        return get_real_episode(_)
 
     _ = FETCH_EPISODE_WITH_VERSION.findall(episode_title)
     if _ and _[0].isdigit():
@@ -317,7 +331,15 @@ def parse_episode(episode_title):
             for regexp in FETCH_EPISODE:
                 match = regexp.findall(i)
                 if match and match[0].isdigit():
-                    return int(match[0])
+                    match = int(match[0])
+                    if match > 1000:
+                        spare = match
+                    else:
+                        return match
+
+    if spare:
+        return spare
+
     return 0
 
 
@@ -397,10 +419,13 @@ def convert_cover_url_to_path(cover_url):
 
     return dir_path, file_path
 
+
 @log_utils_function
 def download_file(url):
-    print_info('Download: {}'.format(url))
-    return requests.get(url)
+    if url.startswith('https://') or url.startswith('http://'):
+        print_info('Download: {}'.format(url))
+        return requests.get(url)
+
 
 @log_utils_function
 def download_cover(cover_url_list):
@@ -414,10 +439,12 @@ def download_cover(cover_url_list):
     p = ThreadPool(4)
     content_list = p.map(download_file, cover_url_list)
     for index, r in enumerate(content_list):
+        if not r:
+            continue
+
         dir_path, file_path = convert_cover_url_to_path(cover_url_list[index])
         if not glob.glob(dir_path):
             os.makedirs(dir_path)
         with open(file_path, 'wb') as f:
             f.write(r.content)
     p.close()
-

@@ -7,10 +7,10 @@ from collections import defaultdict
 from functools import reduce
 from multiprocessing.pool import ThreadPool
 
-from six import string_types
 import bs4
 import requests
 from bs4 import BeautifulSoup
+from six import string_types
 
 from bgmi.config import MAX_PAGE
 from bgmi.website.base import BaseWebsite
@@ -35,7 +35,7 @@ def get_weekly_bangumi():
     network
     """
     r = requests.get(server_root)
-    soup = BeautifulSoup(r.text, 'lxml')
+    soup = BeautifulSoup(r.text, 'html.parser')
     sunday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "0"})
     monday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "1"})
     tuesday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "2"})
@@ -69,44 +69,6 @@ def parser_day_bangumi(soup):
     return li
 
 
-def fetch_bangumi_info_and_parser_subtitle_of_bangumi(bangumi_id):
-    """network"""
-    bangumi_id = int(bangumi_id)
-    url = server_root + "Home/ExpandBangumi"
-    data = {'bangumiId': bangumi_id, 'showSubscribed': False}
-    r = requests.post(url, data=data, ).text
-    soup = BeautifulSoup(r, 'lxml')
-
-    # subtitle
-    g = soup.find('ul', class_='list-unstyled res-ul')
-    subtitle_list = []
-    for li in g.find_all('li', class_='js-expand_bangumi-subgroup', ):
-        subgroup_index = li['data-bangumisubgroupindex']
-        name = li.find('div', class_='sk-col tag-res-name').text
-        _id = li.find('div', class_='btn-primary ladda-button sk-col tag-sub js-subscribe_bangumi')[
-            'data-subtitlegroupid']
-        id_div = li.find('div', class_=['js-subscribe_bangumi'])
-        subgroup_div = soup.find('div', class_='js-expand_bangumi-subgroup-{}-episodes'.format(subgroup_index))
-        ul_e = subgroup_div.find('ul', class_='list-unstyled res-detail-ul')
-        episode_list = []
-        for li2 in ul_e.find_all('li'):
-            magnet_url = li2.find('a', class_='js-magnet magnet-link')
-            episode_title = li2.find('a', class_='magnet-link-wrap')
-            if magnet_url:
-                episode_list.append({
-                    '_id': _id,
-                    'title': episode_title.text,
-                    'url': magnet_url['data-clipboard-text'],
-                    'publish_time': li2.find('div', class_='sk-col res-date').text
-                })
-        subtitle_list.append({
-            'id': id_div['data-subtitlegroupid'],
-            'name': name,
-            'episode': [] if not episode_list else episode_list
-        })
-    return subtitle_list
-
-
 class Mikanani(BaseWebsite):
     cover_url = server_root[:-1]
 
@@ -117,7 +79,7 @@ class Mikanani(BaseWebsite):
 
         subtitle_groups = defaultdict(dict)
 
-        soup = BeautifulSoup(r, 'lxml')
+        soup = BeautifulSoup(r, 'html.parser')
 
         # info
         bangumi_info = {'status': 0}
@@ -127,7 +89,7 @@ class Mikanani(BaseWebsite):
         bangumi_info['update_time'] = Cn_week_map[day.text[-3:]]
 
         ######
-        soup = BeautifulSoup(r, 'lxml')
+        soup = BeautifulSoup(r, 'html.parser')
         # name = soup.find('p', class_='bangumi-title').text
         container = soup.find('div', class_='central-container')  # type:bs4.Tag
         episode_container_list = {}
@@ -190,7 +152,7 @@ class Mikanani(BaseWebsite):
 
         result = []
         r = requests.get(server_root + "Home/Search", params={'searchstr': keyword}).text
-        s = BeautifulSoup(r, 'lxml')
+        s = BeautifulSoup(r, 'html.parser')
         td_list = s.find_all('tr', attrs={'class': 'js-search-results-row'})  # type:list[bs4.Tag]
         for tr in td_list:
             title = tr.find('a', class_='magnet-link-wrap').text
@@ -235,7 +197,7 @@ class Mikanani(BaseWebsite):
             print(server_root + 'Bangumi/{}'.format(bangumi_id))
         r = requests.get(server_root + 'Home/Bangumi/{}'.format(bangumi_id)).text
 
-        soup = BeautifulSoup(r, 'lxml')
+        soup = BeautifulSoup(r, 'html.parser')
         # name = soup.find('p', class_='bangumi-title').text
         container = soup.find('div', class_='central-container')  # type:bs4.Tag
         episode_container_list = {}

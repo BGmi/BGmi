@@ -1,16 +1,18 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 
-import glob
+import imghdr
 import os
 import re
 import time
 from collections import defaultdict
 from itertools import chain
+
 from six import text_type
 
 from bgmi.config import MAX_PAGE, GLOBAL_FILTER, ENABLE_GLOBAL_FILTER
-from bgmi.lib.models import Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, STATUS_UPDATING
+from bgmi.lib.models import (Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED,
+                             Bangumi, STATUS_UPDATING)
 from bgmi.utils import (parse_episode, print_warning, print_info,
                         test_connection, download_cover, convert_cover_url_to_path)
 
@@ -53,6 +55,7 @@ class BaseWebsite(object):
         if save:
             for bangumi in bangumi_result:
                 self.save_data(bangumi)
+
         if group_by_weekday:
             result_group_by_weekday = defaultdict(list)
             for bangumi in bangumi_result:
@@ -100,6 +103,7 @@ class BaseWebsite(object):
             weekly_list = self.fetch(save=save)
         else:
             weekly_list = Bangumi.get_updating_bangumi()
+
         if not weekly_list:
             print_warning('Warning: no bangumi schedule, fetching ...')
             weekly_list = self.fetch(save=save)
@@ -111,7 +115,7 @@ class BaseWebsite(object):
                 for bangumi in daily_bangumi:
                     _, file_path = convert_cover_url_to_path(bangumi['cover'])
 
-                    if not glob.glob(file_path):
+                    if not (os.path.exists(file_path) and imghdr.what(file_path)):
                         cover_to_be_download.append(bangumi['cover'])
 
             if cover_to_be_download:
@@ -132,10 +136,7 @@ class BaseWebsite(object):
         :param subtitle:
         :type subtitle: bool
         """
-        try:
-            followed_filter_obj = Filter.get(bangumi_name=bangumi.name)
-        except Filter.DoesNotExist:
-            followed_filter_obj = Filter.create(bangumi_name=bangumi.name)
+        followed_filter_obj, _ = Filter.get_or_create(bangumi_name=bangumi.name)
 
         if followed_filter_obj and subtitle:
             subtitle_group = followed_filter_obj.subtitle
@@ -258,7 +259,7 @@ class BaseWebsite(object):
 
         return data
 
-    def search_by_keyword(self, keyword, count):
+    def search_by_keyword(self, keyword, count):  # pragma: no cover
         """
         return a list of dict with at least 4 key: download, name, title, episode
         example:
@@ -282,7 +283,7 @@ class BaseWebsite(object):
         """
         raise NotImplementedError
 
-    def fetch_bangumi_calendar_and_subtitle_group(self):
+    def fetch_bangumi_calendar_and_subtitle_group(self):  # pragma: no cover
         """
         return a list of all bangumi and a list of all subtitle group
 
@@ -322,7 +323,7 @@ class BaseWebsite(object):
         """
         raise NotImplementedError
 
-    def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
+    def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):  # pragma: no cover
         """
         get all episode by bangumi id
         example

@@ -2,7 +2,10 @@ BGmi
 ====
 BGmi is a cli tool for subscribed bangumi.
 
+`中文说明 <./README.cn.md>`_
+
 |pypi|
+|pypistats|
 |travis|
 |coverage|
 |license|
@@ -10,12 +13,15 @@ BGmi is a cli tool for subscribed bangumi.
 ====
 TODO
 ====
-Nothing here
+`Fetch data from multi data source at same time <https://github.com/BGmi/BGmi/projects/1>`_
 
 ==========
 Update Log
 ==========
-+ Fully new frontend
++ The BGmi version you saw will be the last version that support Python2.
++ Transmission rpc authentication configuration
++ New download delegate `deluge-rpc <https://www.deluge-torrent.org/>`_
++ You can filter search results by min and max episode
 
 =======
 Feature
@@ -46,10 +52,6 @@ Feature
 ============
 Installation
 ============
-
-Try this https://bgmi.github.io/BGmi-tutorial/#/
-
-Or manually
 
 For **Mac OS X / Linux / Windows**:
 
@@ -93,7 +95,7 @@ Build Docker:
     docker build -t bgmi .
     docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi bgmi
 
-You can use bgmi command at client to add / remove bangumi, get into the docker container to manage bangumi.
+You can use bgmi command at host to add / remove bangumi, or get into the docker container to manage bangumi.
 
 Or just:
 
@@ -261,7 +263,13 @@ Transmission-rpc configure:
 
 + :code:`TRANSMISSION_RPC_URL`: transmission rpc host
 + :code:`TRANSMISSION_RPC_PORT`: transmission rpc port
++ :code:`TRANSMISSION_RPC_USERNAME`: transmission rpc username (leave it default if you don't set rpc authentication)
++ :code:`TRANSMISSION_RPC_PASSWORD`: transmission rpc password (leave it default if you don't set rpc authentication)
 
+Deluge-rpc configure:
+
++ :code:`DELUGE_RPC_URL`: deluge rpc url
++ :code:`DELUGE_RPC_PASSWORD`: deluge rpc password
 
 ==================
 Usage of bgmi_http
@@ -292,7 +300,13 @@ Consider most people won't use Nginx on Windows, bgmi_http use tornado.web.Stati
 
 Use bgmi_http on Linux
 -----------------
-Configure tornado with Nginx:
+Generate Nginx config
+
+.. code-block:: bash
+
+    bgmi gen nginx.conf --server-name bgmi.whatever.com > bgmi.whatever.com
+
+Or write your config file manually.
 
 .. code-block:: bash
 
@@ -360,13 +374,13 @@ BGmi use `DPlayer <https://github.com/DIYgod/DPlayer>`_ to play bangumi.
 First, setup nginx to access bangumi files.
 Second, choose one danmaku backend at `DPlayer#related-projects <https://github.com/DIYgod/DPlayer#related-projects>`_.
 
-Use `bgmi config` to setup the url of danmaku api.
+Use :code:`bgmi config` to setup the url of danmaku api.
 
 .. code-block:: bash
 
-    bgmi config DANMAKU_API_URL http://127.0.0.1:1207/
+    bgmi config DANMAKU_API_URL https://api.prprpr.me/dplayer/ # This api is provided by dplayer official
 
-... and enjoy :D
+...restart your :code:`bgmi_http` and enjoy :D
 
 ==============
 Bangumi Script
@@ -666,3 +680,8 @@ SOFTWARE.
 
 .. |license| image:: https://img.shields.io/badge/License-MIT-blue.svg
    :target: https://github.com/BGmi/BGmi/blob/master/LICENSE
+
+.. |pypistats| image::  https://pypistats.com/badge/bgmi.svg
+   :target: https://pypi.python.org/pypi/bgmi
+
+

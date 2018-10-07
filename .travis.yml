@@ -1,11 +1,11 @@
 os:
     - linux
 
-language: python
-
 env:
-    - DOWNLOADER='aria2-rpc'
-    - DOWNLOADER='tranmission-rpc'
+    - TRAVIS_CI=TRAVIS_CI
+
+
+language: python
 
 sudo: true
 
@@ -24,7 +24,6 @@ install:
 #    - sudo apt update
 
 script:
-    - export TRAVIS_CI=TRAVIS_CI
     - export BGMI_LOG=debug
     - export BANGUMI_1=名侦探柯南
     - export BANGUMI_2=黑色五叶草
@@ -34,7 +33,8 @@ script:
     - coverage run -a -m unittest tests.test_controllers
     - coverage run -a -m unittest tests.test_config
     - cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
-    - coverage run -a -m bgmi.main cal
+    - coverage run -a -m bgmi.main gen nginx.conf --server-name _
+    - coverage run -a -m bgmi.main cal -f
     - coverage run -a -m bgmi.main config
     - coverage run -a -m bgmi.main config ADMIN_TOKEN 233
     - coverage run -a -m bgmi.main config DOWNLOAD_DELEGATE 'xunlei'
@@ -52,7 +52,7 @@ script:
     - coverage run -a -m bgmi.main filter $BANGUMI_2 --subtitle "" --exclude "MKV" --regex "720p|720P"
     - coverage run -a -m bgmi.main fetch $BANGUMI_2
     - coverage run -a -m unittest tests.test_http_api
-    - coverage run -a -m bgmi.main search "海贼王" --regex-filter '.*MP4.*720P.*' --download
+    - coverage run -a -m bgmi.main search "海贼王" --regex-filter '.*MP4.*720P.*'
     - eval "$(coverage run -a -m bgmi.main complete)"
 #
     - echo 'test mikan'
