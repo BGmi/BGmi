@@ -33,7 +33,7 @@ class Aria2DownloadRPC(BaseDownloadService):
     def __init__(self, *args, **kwargs):
         self.server = PatchedServerProxy(ARIA2_RPC_URL)
         Aria2DownloadRPC.check_aria2c_version()
-        super(Aria2DownloadRPC, self).__init__(**kwargs)
+        super(Aria2DownloadRPC, self).__init__(*args, **kwargs)
 
     def download(self):
         if self.old_version:
@@ -47,7 +47,7 @@ class Aria2DownloadRPC(BaseDownloadService):
         url = ARIA2_RPC_URL.split('/')
         url[2] = ARIA2_RPC_TOKEN + '@' + url[2]
         url = '/'.join(url)
-        s = ServerProxy(url)
+        s = PatchedServerProxy(url)
         r = s.aria2.getVersion(ARIA2_RPC_TOKEN, )
         version = r['version']
         if version:

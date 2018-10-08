@@ -4,14 +4,6 @@ from bgmi.config import (TRANSMISSION_RPC_PORT, TRANSMISSION_RPC_URL,
 from bgmi.downloader.base import BaseDownloadService
 from bgmi.utils import print_info, print_warning
 
-try:
-    from transmission_rpc import Client
-
-except ImportError:
-    class Client(object):
-        def __init__(self, host, port='', user='', password=''):
-            pass
-
 
 class TransmissionRPC(BaseDownloadService):
 
@@ -22,18 +14,19 @@ class TransmissionRPC(BaseDownloadService):
     def download(self):
         try:
             import transmission_rpc
-            client = Client(TRANSMISSION_RPC_URL, port=TRANSMISSION_RPC_PORT,
-                            user=TRANSMISSION_RPC_USERNAME, password=TRANSMISSION_RPC_PASSWORD)
+            client = transmission_rpc.Client(TRANSMISSION_RPC_URL, port=TRANSMISSION_RPC_PORT,
+                                             user=TRANSMISSION_RPC_USERNAME, password=TRANSMISSION_RPC_PASSWORD)
             client.add_torrent(self.torrent, download_dir=self.save_path)
             print_info('Add torrent into the download queue, the file will be saved at {0}'.format(self.save_path))
         except ImportError:
+            self.install()
             pass
 
     def check_delegate_bin_exist(self, path):
         try:
             import transmission_rpc
         except ImportError:
-            raise Exception('Please run `pip install transmission-rpc`')
+            self.install()
 
     def check_download(self, name):
         pass
