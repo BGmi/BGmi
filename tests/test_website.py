@@ -59,7 +59,7 @@ class MikanProjectTest(BasicT, unittest.TestCase):
     w = bgmi.website.Mikanani()
 
 
-class DMHYTest(BasicT, unittest.TestCase):
+class DmhyTest(BasicT, unittest.TestCase):
     bangumi_name_1 = '名偵探柯南'
     bangumi_name_2 = '海賊王'
     w = bgmi.website.DmhySource()

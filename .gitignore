@@ -4,6 +4,7 @@
 .vscode
 dist/
 build/
+.eggs
 bgmi.egg-info
 .python-version
 .DS_Store

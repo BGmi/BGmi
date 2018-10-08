@@ -69,11 +69,14 @@ if os.environ.get('DEV', False):  # pragma: no cover
 
     origin_request = deepcopy(Session.request)
 
+    import traceback
+
 
     def req(self, method, url, **kwargs):
         if os.environ.get('BGMI_SHOW_ALL_NETWORK_REQUEST'):
             print(url)
         url = replace_url(url)
+        # traceback.print_stack(limit=8)
         return origin_request(self, method, url, **kwargs)
 
 

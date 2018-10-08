@@ -15,6 +15,9 @@ def my_test_suite():
 with open('requirements.txt', 'r') as f:
     requirements = f.read().splitlines()
 
+with open('test_requirements.txt', 'r') as f:
+    test_requirements = f.read().splitlines()
+
 ROOT = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -46,6 +49,7 @@ setup(
         ]
     },
     license='MIT License',
+    tests_require=test_requirements,
     test_suite='setup.my_test_suite',
     classifiers=(
         'Development Status :: 4 - Beta',

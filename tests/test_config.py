@@ -54,9 +54,8 @@ class WriteConfigTest(base, unittest.TestCase):
     def test_wrong_config_value(self):
         bgmi.config.ADMIN_TOKEN = None
         write_default_config()
-        bgmi.config.DOWNLOAD_DELEGATE = 'wrong'
-        self.assertRaises(Exception, write_default_config)
-        bgmi.config.DOWNLOAD_DELEGATE = 'aria2-rpc'
+        with patch('bgmi.config.DOWNLOAD_DELEGATE', 'wrong'):
+            self.assertRaises(Exception, write_default_config)
 
     def test_print_config(self):
         r = config()
@@ -92,8 +91,11 @@ class WriteConfigTest(base, unittest.TestCase):
 
     # def value_data(self):
     def test_set_wrong_DOWNLOAD_DELEGATE(self):
+        delegate = bgmi.config.DOWNLOAD_DELEGATE
         r = config('DOWNLOAD_DELEGATE', 'WRONG_METHOD')
+        bgmi.config.read_config()
         self.assertEqual(r['status'], 'error')
+        self.assertEqual(bgmi.config.DOWNLOAD_DELEGATE, delegate)
 
     def test_DOWNLOAD_DELEGATE(self):
         r = config('DOWNLOAD_DELEGATE', 'aria2-rpc')

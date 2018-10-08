@@ -231,6 +231,10 @@ class Followed(NeoDB):
     status = IntegerField(null=True)
     updated_time = IntegerField(null=True)
 
+    STATUS_DELETED = 0
+    STATUS_FOLLOWED = 1
+    STATUS_UPDATED = 2
+
     class Meta:
         database = db
 
