@@ -99,7 +99,7 @@ class BangumiItem(peewee.Model):
 
     name = TextField(unique=True, null=False, )  # type: str
     cover = TextField()  # type: str
-    status = IntegerField(default=0)  # type: int
+    status = IntegerField()  # type: int
     keyword = TextField()
     update_time = FixedCharField(5, null=False)  # type: str
     subtitle_group = SubtitleField()  # type: List[str]
@@ -389,5 +389,5 @@ def recreate_source_relatively_table():
 if __name__ == '__main__':  # pragma:no cover
     from pprint import pprint
 
-    d = Bangumi.get_updating_bangumi(status=STATUS_FOLLOWED)
+    d = BangumiItem(name='233')
     pprint(d)

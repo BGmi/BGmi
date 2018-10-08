@@ -4,6 +4,7 @@ import codecs
 from setuptools import setup, find_packages
 from bgmi import __version__, __author__, __email__
 import unittest
+import sys
 
 
 def my_test_suite():
@@ -14,6 +15,8 @@ def my_test_suite():
 
 with open('requirements.txt', 'r') as f:
     requirements = f.read().splitlines()
+    if sys.version_info[1] < 5:
+        requirements.append('typing')
 
 with open('test_requirements.txt', 'r') as f:
     test_requirements = f.read().splitlines()
