@@ -40,11 +40,16 @@ class WriteConfigTest(base, unittest.TestCase):
 
     def test_get_bgmi_path(self):
         with patch('bgmi.config.platform.system', Mock(return_value='Windows')):
+            raw_home = os.environ['USERPROFILE']
             os.environ['USERPROFILE'] = 'windows profile'
             self.assertEqual(bgmi.config.get_bgmi_path(), os.path.join('windows profile', '.bgmi'))
+            os.environ['USERPROFILE'] = raw_home
+
         with patch('bgmi.config.platform.system', Mock(return_value='Linux')):
+            raw_home = os.environ['HOME']
             os.environ['HOME'] = 'linux profile'
             self.assertEqual(bgmi.config.get_bgmi_path(), os.path.join('linux profile', '.bgmi'))
+            os.environ['HOME'] = raw_home
 
     def test_wrong_config_value(self):
         bgmi.config.ADMIN_TOKEN = None
