@@ -175,7 +175,7 @@ def filter_wrapper(ret):
         globals()["print_{}".format(result['status'])](result['message'])
     else:
         print_info('Usable subtitle group: {0}'.format(', '.join(result['data']['subtitle_group'])))
-        followed_filter_obj = Filter.get(bangumi_name=ret.name)
+        followed_filter_obj = Filter.get(bangumi_name=result['data']['name'])
         print_filter(followed_filter_obj)
     return result['data']
 

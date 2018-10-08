@@ -41,6 +41,17 @@ class NeoDB(peewee.Model):
     class Meta:
         database = db
 
+    @classmethod
+    def fuzzy_get(cls, **filters):
+        q = []
+        for key, value in filters.items():
+            q.append(getattr(cls, key).contains(value))
+        o = list(cls.select().where(*q))
+        if not o:
+            raise cls.DoesNotExist
+        else:
+            return o[0]
+
 
 class Bangumi(NeoDB):
     id = IntegerField(primary_key=True)
@@ -93,17 +104,6 @@ class Bangumi(NeoDB):
             weekly_list = list(data)
 
         return weekly_list
-
-    @classmethod
-    def fuzzy_get(cls, **filters):
-        q = []
-        for key, value in filters.items():
-            q.append(getattr(cls, key).contains(value))
-        o = list(cls.select().where(*q))
-        if not o:
-            raise cls.DoesNotExist
-        else:
-            return o[0]
 
 
 class Followed(NeoDB):

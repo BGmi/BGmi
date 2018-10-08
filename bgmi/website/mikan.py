@@ -191,7 +191,6 @@ class Mikanani(BaseWebsite):
         :return: list of bangumi
         :rtype: list[dict]
         """
-
         result = []
         if os.environ.get('DEBUG', False):  # pragma: no cover
             print(server_root + 'Bangumi/{}'.format(bangumi_id))
@@ -210,7 +209,6 @@ class Mikanani(BaseWebsite):
                 else:
                     if subtitle_id:
                         episode_container_list[tag.attrs.get('id', None)] = tag.find_next_sibling('table')
-
         for subtitle_id, container in episode_container_list.items():
             for tr in container.find_all('tr')[1:]:
                 title = tr.find('a', class_='magnet-link-wrap').text

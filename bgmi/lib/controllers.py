@@ -56,6 +56,7 @@ def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
     result = {'status': 'success', 'message': ''}
     try:
         bangumi_obj = Bangumi.fuzzy_get(name=name)
+        name = bangumi_obj.name
     except Bangumi.DoesNotExist:
         result['status'] = 'error'
         result['message'] = 'Bangumi {0} does not exist.'.format(name)
@@ -69,7 +70,7 @@ def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
             .format(name=bangumi_obj.name)
         return result
 
-    followed_filter_obj, is_this_obj_created = Filter.get_or_create(bangumi_name=name)
+    followed_filter_obj, is_this_obj_created = Filter.get_or_create(bangumi_name=bangumi_obj.name)
 
     if is_this_obj_created:
         followed_filter_obj.save()
@@ -97,7 +98,7 @@ def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
                              Subtitle.get_subtitle_by_id(bangumi_obj.subtitle_group.split(', '))))
 
     result['data'] = {
-        'name': name,
+        'name': bangumi_obj.name,
         'subtitle_group': subtitle_list,
         'followed': list(map(lambda s: s['name'], Subtitle.get_subtitle_by_id(followed_filter_obj.subtitle.split(', ')))
                          if followed_filter_obj.subtitle else []),
@@ -196,7 +197,17 @@ def mark(name, episode):
     """
     result = {}
     try:
-        followed_obj = Followed.get(bangumi_name=name)
+        bangumi_obj = Bangumi.fuzzy_get(name=name)
+    except Bangumi.DoesNotExist:
+        runner = ScriptRunner()
+        followed_obj = runner.get_model(name)
+        if not followed_obj:
+            result['status'] = 'error'
+            result['message'] = 'Subscribe or Script <{}> does not exist.'.format(name)
+            return result
+
+    try:
+        followed_obj = Followed.fuzzy_get(bangumi_name=name)
     except Followed.DoesNotExist:
         runner = ScriptRunner()
         followed_obj = runner.get_model(name)
