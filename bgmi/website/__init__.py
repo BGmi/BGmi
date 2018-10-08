@@ -579,8 +579,7 @@ class DataSource:
         :return: list of episode search result
         :rtype: list[dict]
         """
-        return sum([print_info('Search in {}'.format(i)) or s.search_by_keyword(keyword, count) for i, s in
-                    DATA_SOURCE_MAP.items()], [])
+        return sum([s.search_by_keyword(keyword, count) for i, s in DATA_SOURCE_MAP.items()], [])
 
 
 if __name__ == '__main__':

@@ -34,7 +34,7 @@ setup(
     keywords='bangumi, bgmi, feed',
     description='BGmi is a cli tool for subscribed bangumi.',
     long_description=long_description(),
-    long_description_content_type='text/x-rst; charset=UTF-8',
+    # long_description_content_type='text/x-rst; charset=UTF-8',
     url='https://github.com/RicterZ/BGmi',
     download_url='https://github.com/RicterZ/BGmi/tarball/master',
     packages=find_packages(),
@@ -51,7 +51,7 @@ setup(
     license='MIT License',
     tests_require=test_requirements,
     test_suite='setup.my_test_suite',
-    classifiers=(
+    classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Other Audience',
         'Natural Language :: Chinese (Traditional)',
@@ -64,5 +64,5 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy'
-    ),
+    ],
 )

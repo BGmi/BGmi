@@ -34,19 +34,19 @@ class ControllersTest(unittest.TestCase):
         Followed.create(bangumi_name=self.bangumi_name_1,
                         status=STATUS_FOLLOWED)
 
-    def test_a_cal(self):
+    def test_cal(self):
         r = cal()
         self.assertIsInstance(r, dict)
         for day in r.keys():
             self.assertIn(day.lower(), [x.lower() for x in Bangumi.week])
             self.assertIsInstance(r[day], list)
             for bangumi in r[day]:
-                for key in ['id', 'name', 'subject_name', 'cover',
-                            'status', 'subject_id', 'update_time',
-                            'data_source']:
+                # {'bangumi_name': 'TEST_BANGUMI', 'cover': '', 'update_time': 'Mon', 'name': 'TEST_BANGUMI', 'status': 1,
+                #  'updated_time': 0, 'subtitle_group': '', 'episode': 0}
+                for key in ['name', 'cover', 'update_time', 'status', 'episode']:
                     self.assertIn(key, bangumi)
 
-    def test_b_add(self):
+    def test_add(self):
         r = add(self.bangumi_name_1, 0)
         self.assertEqual(r['status'], 'warning')
         f = Followed.get(bangumi_name=self.bangumi_name_1)  # type: Followed
@@ -58,7 +58,7 @@ class ControllersTest(unittest.TestCase):
         self.assertEqual(f.status, Followed.STATUS_FOLLOWED)
         self.assertEqual(f.episode, 4)
 
-    def test_c_mark(self):
+    def test_mark(self):
         r = mark(self.bangumi_name_1, 1)
         self.assertEqual(r['status'], 'success')
         r = mark(self.bangumi_name_1, None)
@@ -66,7 +66,7 @@ class ControllersTest(unittest.TestCase):
         r = mark(self.bangumi_name_2, 0)
         self.assertEqual(r['status'], 'error')
 
-    def test_d_delete(self):
+    def test_delete(self):
         r = delete()
         self.assertEqual(r['status'], 'warning')
         r = delete(self.bangumi_name_1)
@@ -78,7 +78,7 @@ class ControllersTest(unittest.TestCase):
         r = delete(clear_all=True, batch=True)
         self.assertEqual(r['status'], 'warning')
 
-    def test_e_search(self):
+    def test_search(self):
         r = search(self.bangumi_name_1, dupe=False)
 
     @classmethod

@@ -76,7 +76,7 @@ class Mikanani(BaseWebsite):
             print(server_root + 'Bangumi/{}'.format(bangumi_id))
         r = requests.get(server_root + 'Home/Bangumi/{}'.format(bangumi_id)).text
 
-        subtitle_groups = defaultdict(dict)
+        subtitle_groups = defaultdict(lambda: defaultdict(list))
 
         soup = BeautifulSoup(r, 'html.parser')
 
@@ -99,7 +99,6 @@ class Mikanani(BaseWebsite):
                     episode_container_list[tag.attrs.get('id', None)] = tag.find_next_sibling('table')
 
         for subtitle_id, container in episode_container_list.items():
-            subtitle_groups[str(subtitle_id)]['episode'] = list()
             for tr in container.find_all('tr')[1:]:
                 title = tr.find('a', class_='magnet-link-wrap').text
                 time_string = tr.find_all('td')[2].string
