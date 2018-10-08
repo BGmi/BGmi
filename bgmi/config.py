@@ -261,13 +261,3 @@ __all_writable_now__ = __writeable__ + DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]
 # Detail URL
 # platform
 IS_WINDOWS = platform.system() == 'Windows'
-
-# - Unify python2 and python3 - #
-import codecs
-import locale
-
-# Wrap sys.stdout into a StreamWriter to allow writing str.
-
-if platform.system() != 'Windows':  # pragma: no cover
-    file_ = sys.stdout.buffer
-    sys.stdout = codecs.getwriter(locale.getpreferredencoding())(file_)
