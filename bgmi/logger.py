@@ -18,7 +18,7 @@ def get_logger():
         h.setFormatter(fmt)
         logger.addHandler(h)
         logger.setLevel(logging.getLevelName(log_level))
-        if log_level == "DEBUG":
+        if log_level == "DEBUG" and not os.environ.get("TRAVIS_CI", False):
             logger.addHandler(logging.StreamHandler(sys.stdout))
             logger.debug("enable debug logger")
     except IOError as e:
