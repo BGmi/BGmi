@@ -1,5 +1,4 @@
 # coding=utf-8
-from __future__ import print_function, unicode_literals
 
 import functools
 import glob
@@ -12,45 +11,77 @@ import sys
 import tarfile
 import time
 from io import BytesIO
+from multiprocessing.pool import ThreadPool
 from shutil import rmtree, move
-import functools
+
 import requests
 import urllib3
-from multiprocessing.pool import ThreadPool
-from six import text_type as unicode_
 
 from bgmi import __version__, __admin_version__
-from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, FRONT_STATIC_PATH, SAVE_PATH, LOG_PATH
-from bgmi.lib.constants import SUPPORT_WEBSITE
+from bgmi.config import BGMI_PATH, FRONT_STATIC_PATH, SAVE_PATH, LOG_PATH
+from bgmi.logger import logger
 
-import logging
+import inspect
 
-log_level = os.environ.get('BGMI_LOG') or 'ERROR'
-log_level = log_level.upper()
-if log_level not in ['DEBUG', 'INFO', "WARNING", "ERROR"]:
-    print('log level error, doing nothing and exit')
-    exit(1)
-logger = logging.getLogger('BGmi')
-try:
-    h = logging.FileHandler(LOG_PATH, 'a+', 'utf-8')
-    handlers = [h]
-    fs = logging.BASIC_FORMAT
-    fmt = logging.Formatter(fs)
-    h.setFormatter(fmt)
-    logging.root.addHandler(h)
-    logging.root.setLevel(log_level)
-except IOError as e:
-    logging.basicConfig(stream=sys.stdout, level=logging.getLevelName(log_level))
+
+def _dict_as_called(f, args, kwargs):
+    """ return a dict of all the args and kwargs as the keywords they would
+    be received in a real f call.  It does not call f.
+    """
+
+    names, args_name, kwargs_name, defaults, _, _, _ = inspect.getfullargspec(f)
+
+    # assign basic args
+    params = {}
+    if args_name:
+        basic_arg_count = len(names)
+        params.update(zip(names[:], args))  # zip stops at shorter sequence
+        params[args_name] = args[basic_arg_count:]
+    else:
+        params.update(zip(names, args))
+
+    # assign kwargs given
+    if kwargs_name:
+        params[kwargs_name] = {}
+        for kw, value in kwargs.items():
+            if kw in names:
+                params[kw] = value
+            else:
+                params[kwargs_name][kw] = value
+    else:
+        params.update(kwargs)
+
+    # assign defaults
+    if defaults:
+        for pos, value in enumerate(defaults):
+            if names[-len(defaults) + pos] not in params:
+                params[names[-len(defaults) + pos]] = value
+
+    # check we did it correctly.  Each param and only params are set
+    assert set(params.keys()) == (
+        set(names) | {args_name} | {kwargs_name}
+    ) - {None}
+
+    return params
 
 
 def log_utils_function(func):
     @functools.wraps(func)
     def echo_func(*func_args, **func_kwargs):
-        logger.debug('')
-        logger.debug(unicode_("start function {} {} {}".format(func.__name__, func_args, func_kwargs)))
         r = func(*func_args, **func_kwargs)
-        logger.debug(unicode_("return function {} {}".format(func.__name__, r)))
-        logger.debug('')
+        called_with = _dict_as_called(func, func_args, func_kwargs)
+        logger.debug("util.{} {} -> `{}`".format(func.__name__, called_with, r))
+        return r
+
+    return echo_func
+
+
+def disable_in_test(func):
+    @functools.wraps(func)
+    def echo_func(*func_args, **func_kwargs):
+        if os.environ.get('UNITTEST'):
+            return
+        r = func(*func_args, **func_kwargs)
         return r
 
     return echo_func
@@ -68,22 +99,23 @@ if os.environ.get('DEV', False):  # pragma: no cover
         return url
 
 
-    from requests import request
+    from copy import deepcopy
+    from requests import Session
+
+    origin_request = deepcopy(Session.request)
+
+    import traceback
 
 
-    def get(url, params=None, **kwargs):
+    def req(self, method, url, **kwargs):
+        if os.environ.get('BGMI_SHOW_ALL_NETWORK_REQUEST'):
+            print(url)
         url = replace_url(url)
-        kwargs.setdefault('allow_redirects', True)
-        return request('get', url, params=params, **kwargs)
+        # traceback.print_stack(limit=8)
+        return origin_request(self, method, url, **kwargs)
 
 
-    def post(url, data=None, json=None, **kwargs):
-        url = replace_url(url)
-        return request('post', url, data=data, json=json, **kwargs)
-
-
-    requests.get = get
-    requests.post = post
+    Session.request = req
 
 if sys.platform.startswith('win'):  # pragma: no cover
     GREEN = ''
@@ -119,10 +151,7 @@ def indicator(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         if kwargs.get('indicator', True):
-            if IS_PYTHON3:
-                func_name = f.__qualname__
-            else:
-                func_name = f.func_name
+            func_name = f.__qualname__
             args = (indicator_map.get(func_name, '') + args[0],)
         f(*args, **kwargs)
         sys.stdout.flush()
@@ -133,10 +162,7 @@ def indicator(f):
 def colorize(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
-        if IS_PYTHON3:
-            func_name = f.__qualname__
-        else:
-            func_name = f.func_name
+        func_name = f.__qualname__
         b, e = color_map.get(func_name, ''), COLOR_END if color_map.get(func_name) else ''
         args = tuple(map(lambda s: b + s + e, args))
         return f(*args, **kwargs)
@@ -144,6 +170,7 @@ def colorize(f):
     return wrapper
 
 
+@disable_in_test
 @indicator
 @colorize
 def print_info(message, indicator=True):
@@ -151,6 +178,7 @@ def print_info(message, indicator=True):
     print(message)
 
 
+@disable_in_test
 @indicator
 @colorize
 def print_success(message, indicator=True):
@@ -158,6 +186,7 @@ def print_success(message, indicator=True):
     print(message)
 
 
+@disable_in_test
 @indicator
 @colorize
 def print_warning(message, indicator=True):
@@ -165,6 +194,7 @@ def print_warning(message, indicator=True):
     print(message)
 
 
+@disable_in_test
 @indicator
 @colorize
 def print_error(message, exit_=True, indicator=True):
@@ -185,9 +215,7 @@ Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END
 @log_utils_function
 def test_connection():
     try:
-        for website in SUPPORT_WEBSITE:
-            if DATA_SOURCE == website['id']:
-                requests.request('head', website['url'], timeout=10)
+        requests.request('head', 'https://api.bgm.tv/calendar', timeout=3)
     except:
         return False
     return True
@@ -236,44 +264,47 @@ def get_terminal_col():  # pragma: no cover
             return 80
 
 
+def update(mark):
+    try:
+        print_info('Checking update ...')
+        version = requests.get('https://pypi.python.org/pypi/bgmi/json',
+                               verify=False).json()['info']['version']
+
+        with open(os.path.join(BGMI_PATH, 'latest'), 'w') as f:
+            f.write(version)
+
+        if version > __version__:
+            print_warning('Please update bgmi to the latest version {}{}{}.'
+                          '\nThen execute `bgmi upgrade` to migrate database'
+                          .format(GREEN, version, COLOR_END))
+        else:
+            print_success('Your BGmi is the latest version.')
+
+        package_json = requests.get(PACKAGE_JSON_URL).json()
+        admin_version = package_json['version']
+        if glob.glob(os.path.join(FRONT_STATIC_PATH, 'package.json')):
+            with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'r') as f:
+                local_version = json.loads(f.read())['version']
+            if [int(x) for x in admin_version.split('.')] > [int(x) for x in local_version.split('.')]:
+                get_web_admin(method='update')
+        else:
+            print_info("Use 'bgmi install' to install BGmi frontend / download delegate")
+        if not mark:
+            update()
+            raise SystemExit
+    except Exception as e:
+        if os.environ.get('DEBUG'):
+            raise e
+        print_warning('Error occurs when checking update, {}'.format(str(e)))
+
+
 @log_utils_function
 def check_update(mark=True):
-    def update():
-        try:
-            print_info('Checking update ...')
-            version = requests.get('https://pypi.python.org/pypi/bgmi/json',
-                                   verify=False).json()['info']['version']
-
-            with open(os.path.join(BGMI_PATH, 'latest'), 'w') as f:
-                f.write(version)
-
-            if version > __version__:
-                print_warning('Please update bgmi to the latest version {}{}{}.'
-                              '\nThen execute `bgmi upgrade` to migrate database'
-                              .format(GREEN, version, COLOR_END))
-            else:
-                print_success('Your BGmi is the latest version.')
-
-            package_json = requests.get(PACKAGE_JSON_URL).json()
-            admin_version = package_json['version']
-            if glob.glob(os.path.join(FRONT_STATIC_PATH, 'package.json')):
-                with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'r') as f:
-                    local_version = json.loads(f.read())['version']
-                if [int(x) for x in admin_version.split('.')] > [int(x) for x in local_version.split('.')]:
-                    get_web_admin(method='update')
-            else:
-                print_info("Use 'bgmi install' to install BGmi frontend / download delegate")
-            if not mark:
-                update()
-                raise SystemExit
-        except Exception as e:
-            print_warning('Error occurs when checking update, {}'.format(str(e)))
-
     version_file = os.path.join(BGMI_PATH, 'version')
     if not os.path.exists(version_file):
         with open(version_file, 'w') as f:
             f.write(str(int(time.time())))
-        return update()
+        return update(mark)
 
     with open(version_file, 'r') as f:
         try:
@@ -281,21 +312,77 @@ def check_update(mark=True):
             if time.time() - 7 * 24 * 3600 > data:
                 with open(version_file, 'w') as f:
                     f.write(str(int(time.time())))
-                return update()
+                return update(mark)
         except ValueError:
             pass
 
 
-FETCH_EPISODE_ZH = re.compile("第?\s?(\d{1,3})\s?[話话集]")
+def chinese_to_arabic(cn: str) -> int:
+    """
+    https://blog.csdn.net/hexrain/article/details/52790126
+
+    :type cn: str
+    :rtype: int
+    """
+    CN_NUM = {
+        '〇': 0, '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '零': 0,
+        '壹': 1, '贰': 2, '叁': 3, '肆': 4, '伍': 5, '陆': 6, '柒': 7, '捌': 8, '玖': 9, '貮': 2, '两': 2,
+    }
+
+    CN_UNIT = {
+        '十': 10,
+        '拾': 10,
+        '百': 100,
+        '佰': 100,
+        '千': 1000,
+        '仟': 1000,
+        '万': 10000,
+        '萬': 10000,
+    }
+    unit = 0  # current
+    ldig = []  # digest
+    for cndig in reversed(cn):
+        if cndig in CN_UNIT:
+            unit = CN_UNIT.get(cndig)
+            if unit == 10000 or unit == 100000000:
+                ldig.append(unit)
+                unit = 1
+        else:
+            dig = CN_NUM.get(cndig)
+            if unit:
+                dig *= unit
+                unit = 0
+            ldig.append(dig)
+    if unit == 10:
+        ldig.append(10)
+    val, tmp = 0, 0
+    for x in reversed(ldig):
+        if x == 10000 or x == 100000000:
+            val += tmp * x
+            tmp = 0
+        else:
+            tmp += x
+    val += tmp
+    return val
+
+
 FETCH_EPISODE_WITH_BRACKETS = re.compile('[【\[](\d+)\s?(?:END)?[】\]]')
+
+FETCH_EPISODE_ZH = re.compile("第?\s?(\d{1,3})\s?[話话集]")
+FETCH_EPISODE_ALL_ZH = re.compile("第([^第]*?)[話话集]")
 FETCH_EPISODE_ONLY_NUM = re.compile('^([\d]{2,})$')
+
 FETCH_EPISODE_RANGE = re.compile('[\d]{2,}\s?-\s?([\d]{2,})')
+FETCH_EPISODE_RANGE_ZH = re.compile('[第][\d]{2,}\s?-\s?([\d]{2,})\s?[話话集]')
+FETCH_EPISODE_RANGE_ALL_ZH = re.compile('[全]([^-^第]*?)[話话集]')
+
 FETCH_EPISODE_OVA_OAD = re.compile('([\d]{2,})\s?\((?:OVA|OAD)\)]')
 FETCH_EPISODE_WITH_VERSION = re.compile('[【\[](\d+)\s? *v\d(?:END)?[】\]]')
-FETCH_EPISODE = (
-    FETCH_EPISODE_ZH, FETCH_EPISODE_WITH_BRACKETS, FETCH_EPISODE_ONLY_NUM,
-    FETCH_EPISODE_RANGE,
-    FETCH_EPISODE_OVA_OAD, FETCH_EPISODE_WITH_VERSION)
+
+FETCH_EPISODE = (FETCH_EPISODE_ZH, FETCH_EPISODE_ALL_ZH,
+                 FETCH_EPISODE_WITH_BRACKETS, FETCH_EPISODE_ONLY_NUM,
+                 FETCH_EPISODE_RANGE, FETCH_EPISODE_RANGE_ALL_ZH,
+                 FETCH_EPISODE_OVA_OAD, FETCH_EPISODE_WITH_VERSION)
 
 
 @log_utils_function
@@ -314,16 +401,45 @@ def parse_episode(episode_title):
         episode_list = map(int, episode_list)
         return min(episode_list)
 
+    _ = FETCH_EPISODE_RANGE_ALL_ZH.findall(episode_title)
+    if _ and _[0]:
+        logger.debug('return episode range all zh')
+        return int(0)
+
+    _ = FETCH_EPISODE_RANGE.findall(episode_title)
+    if _ and _[0]:
+        logger.debug('return episode range')
+        return int(0)
+
+    _ = FETCH_EPISODE_RANGE_ZH.findall(episode_title)
+    if _ and _[0]:
+        logger.debug('return episode range zh')
+        return int(0)
+
     _ = FETCH_EPISODE_ZH.findall(episode_title)
     if _ and _[0].isdigit():
+        logger.debug('return episode zh')
         return int(_[0])
+
+    _ = FETCH_EPISODE_ALL_ZH.findall(episode_title)
+    if _ and _[0]:
+        try:
+            logger.debug('try return episode all zh {}'.format(_))
+            e = chinese_to_arabic(_[0])
+            logger.debug('return episode all zh')
+            return e
+        except Exception:
+            logger.debug('can\'t convert {} to int'.format(_[0]))
+            pass
 
     _ = FETCH_EPISODE_WITH_BRACKETS.findall(episode_title)
     if _:
+        logger.debug('return episode with brackets')
         return get_real_episode(_)
 
     _ = FETCH_EPISODE_WITH_VERSION.findall(episode_title)
     if _ and _[0].isdigit():
+        logger.debug('return episode range with version')
         return int(_[0])
 
     for split_token in ['【', '[', ' ']:
@@ -365,9 +481,7 @@ def normalize_path(url):
 
 
 def get_web_admin(method):
-    # frontend_npm_url = 'https://registry.npmjs.com/bgmi-frontend/'
-    print_info('{}ing BGmi frontend'.format(method[0].upper() + method[1:]))
-
+    print_info('{}ing BGmi frontend'.format(method.title()))
     try:
         r = requests.get(FRONTEND_NPM_URL).json()
         version = requests.get(PACKAGE_JSON_URL).json()
@@ -383,7 +497,12 @@ def get_web_admin(method):
     except json.JSONDecodeError:
         print_warning('failed to download web admin')
         return
-    admin_zip = BytesIO(r.content)
+    unzip_zipped_file(r.content, version)
+    print_success('Web admin page {} successfully. version: {}'.format(method, version['version']))
+
+
+def unzip_zipped_file(file_content, front_version):
+    admin_zip = BytesIO(file_content)
     with gzip.GzipFile(fileobj=admin_zip) as f:
         tar_file = BytesIO(f.read())
 
@@ -397,8 +516,7 @@ def get_web_admin(method):
         move(os.path.join(FRONT_STATIC_PATH, 'package', 'dist', file),
              os.path.join(FRONT_STATIC_PATH, file))
     with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'w+') as f:
-        f.write(json.dumps(version))
-    print_success('Web admin page {} successfully. version: {}'.format(method, version['version']))
+        f.write(json.dumps(front_version))
 
 
 @log_utils_function
@@ -408,7 +526,7 @@ def convert_cover_url_to_path(cover_url):
 
     :param cover_url: bangumi cover path
     :type cover_url:str
-    :rtype: str,str
+    :rtype: (str,str)
     :return: dir_path, file_path
     """
 
@@ -424,7 +542,12 @@ def convert_cover_url_to_path(cover_url):
 def download_file(url):
     if url.startswith('https://') or url.startswith('http://'):
         print_info('Download: {}'.format(url))
-        return requests.get(url)
+        r = requests.get(url)
+
+        _, file_path = convert_cover_url_to_path(url)
+
+        with open(file_path, 'wb') as f:
+            f.write(r.content)
 
 
 @log_utils_function
@@ -435,16 +558,16 @@ def download_cover(cover_url_list):
     :type cover_url_list: list
     :return:
     """
+    for url in cover_url_list:
+        dir_path, file_path = convert_cover_url_to_path(url)
+
+        if os.path.exists(dir_path):
+            if not os.path.isdir(dir_path):
+                os.remove(dir_path)
+
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
 
     p = ThreadPool(4)
-    content_list = p.map(download_file, cover_url_list)
-    for index, r in enumerate(content_list):
-        if not r:
-            continue
-
-        dir_path, file_path = convert_cover_url_to_path(cover_url_list[index])
-        if not glob.glob(dir_path):
-            os.makedirs(dir_path)
-        with open(file_path, 'wb') as f:
-            f.write(r.content)
+    p.map(download_file, cover_url_list)
     p.close()

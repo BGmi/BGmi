@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals
 
 import json
 import logging
@@ -11,7 +10,6 @@ from tornado.testing import AsyncHTTPTestCase
 
 from bgmi.config import SAVE_PATH, ADMIN_TOKEN
 from bgmi.front.server import make_app
-from bgmi.lib.constants import unicode_
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -27,9 +25,9 @@ logger.setLevel(logging.ERROR)
 
 class ApiTestCase(AsyncHTTPTestCase):
     headers = {'BGmi-Token': ADMIN_TOKEN, 'Content-Type': 'application/json'}
-    bangumi_1 = unicode_(os.environ.get('BANGUMI_1'))
-    bangumi_2 = unicode_(os.environ.get('BANGUMI_2'))
-    bangumi_3 = unicode_(os.environ.get('BANGUMI_3'))
+    bangumi_1 = os.environ.get('BANGUMI_1')
+    bangumi_2 = os.environ.get('BANGUMI_2')
+    bangumi_3 = os.environ.get('BANGUMI_3')
 
     def get_app(self):
         self.app = make_app(debug=False)

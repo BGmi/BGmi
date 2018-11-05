@@ -1,33 +1,26 @@
 # coding=utf-8
-from __future__ import unicode_literals
 
+import configparser
 import hashlib
 import os
 import platform
 import random
 import sys
 
-try:
-    import ConfigParser as configparser
-except ImportError:
-    import configparser
-
 # download delegate
 __wget__ = ('WGET_PATH',)
-__thunder__ = ('XUNLEI_LX_PATH',)
-__transmission__ = ('TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT', 'TRANSMISSION_RPC_USERNAME', 'TRANSMISSION_RPC_PASSWORD',)
+__transmission__ = ('TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT',
+                    'TRANSMISSION_RPC_USERNAME', 'TRANSMISSION_RPC_PASSWORD',)
 __aria2__ = ('ARIA2_RPC_URL', 'ARIA2_RPC_TOKEN',)
 __deluge__ = ('DELUGE_RPC_URL', 'DELUGE_RPC_PASSWORD')
 
-__download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__ + __deluge__
+__download_delegate__ = __wget__ + __aria2__ + __transmission__ + __deluge__
 
 # fake __all__
 __all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE',
-           'MAX_PAGE', 'DATA_SOURCE', 'TMP_PATH', 'DANMAKU_API_URL',
+           'MAX_PAGE', 'TMP_PATH', 'DANMAKU_API_URL', 'ENABLE_DATA_SOURCE',
            'LANG', 'FRONT_STATIC_PATH', 'ADMIN_TOKEN', 'SHARE_DMHY_URL',
-           'GLOBAL_FILTER', 'ENABLE_GLOBAL_FILTER',
-           'TORNADO_SERVE_STATIC_FILES',
-           )
+           'GLOBAL_FILTER', 'ENABLE_GLOBAL_FILTER', 'TORNADO_SERVE_STATIC_FILES',)
 
 # cannot be rewrite
 __readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH', 'TOOLS_PATH',
@@ -42,20 +35,26 @@ __all__ = __all__ + __download_delegate__ + __readonly__
 DOWNLOAD_DELEGATE_MAP = {
     'rr!': __wget__,
     'aria2-rpc': __aria2__,
-    'xunlei': __thunder__,
     'transmission-rpc': __transmission__,
     'deluge-rpc': __deluge__,
 }
 
-if not os.environ.get('BGMI_PATH'):  # pragma: no cover
-    if platform.system() == 'Windows':
-        BGMI_PATH = os.path.join(os.environ.get('USERPROFILE', None), '.bgmi')
-        if not BGMI_PATH:
-            raise SystemExit
-    else:
-        BGMI_PATH = os.path.join(os.environ.get('HOME', '/tmp'), '.bgmi')
-else:
-    BGMI_PATH = os.environ.get('BGMI_PATH')
+
+def get_bgmi_path():
+    if not os.environ.get('BGMI_PATH'):
+        if platform.system() == 'Windows':
+            BGMI_PATH = os.path.join(os.environ.get('USERPROFILE', None), '.bgmi')
+
+        else:
+            BGMI_PATH = os.path.join(os.environ.get('HOME', '/tmp'), '.bgmi')
+    else:  # pragma: no cover
+        BGMI_PATH = os.environ.get('BGMI_PATH')
+    return BGMI_PATH
+
+
+BGMI_PATH = get_bgmi_path()
+if not BGMI_PATH:  # pragma: no cover
+    raise SystemExit
 
 DB_PATH = os.path.join(BGMI_PATH, 'bangumi.db')
 CONFIG_FILE_PATH = os.path.join(BGMI_PATH, 'bgmi.cfg')
@@ -83,8 +82,6 @@ def read_config():
 
 def print_config():
     c = configparser.ConfigParser()
-    if not os.path.exists(CONFIG_FILE_PATH):
-        return
 
     c.read(CONFIG_FILE_PATH)
     string = ''
@@ -106,10 +103,7 @@ def write_default_config():
     for k in __writeable__:
         v = globals().get(k, '0')
         if k == 'ADMIN_TOKEN' and v is None:
-            if sys.version_info > (3, 0):
-                v = hashlib.md5(str(random.random()).encode('utf-8')).hexdigest()
-            else:
-                v = hashlib.md5(str(random.random())).hexdigest()
+            v = hashlib.md5(str(random.random()).encode('utf-8')).hexdigest()
 
         c.set('bgmi', k, v)
 
@@ -126,7 +120,7 @@ def write_default_config():
     try:
         with open(CONFIG_FILE_PATH, 'w') as f:
             c.write(f)
-    except IOError:
+    except IOError:  # pragma: no cover
         print('[-] Error writing to config file and ignored')
 
 
@@ -139,10 +133,6 @@ def write_config(config=None, value=None):
 
     c = configparser.ConfigParser()
     c.read(CONFIG_FILE_PATH)
-    if config is not None and config not in __all_writable_now__:
-        result = {'status': 'error',
-                  'message': '{0} does not exist or not writeable'.format(config)}
-        # return result
 
     try:
         if config is None:
@@ -189,7 +179,7 @@ def write_config(config=None, value=None):
                 result = {'status': 'error',
                           'message': '{0} does not exist or not writeable'.format(config)}
 
-    except configparser.NoOptionError:
+    except (configparser.NoOptionError, configparser.NoSectionError):
         write_default_config()
         result = {'status': 'error', 'message': 'Error in config file, try rerun `bgmi config`'}
 
@@ -205,8 +195,7 @@ BANGUMI_MOE_URL = 'https://bangumi.moe'
 # Setting share.dmhy.org url
 SHARE_DMHY_URL = 'https://share.dmhy.org'
 
-# Setting bangumi.moe url
-DATA_SOURCE = 'bangumi_moe'
+ENABLE_DATA_SOURCE = ', '.join(['bangumi_moe', 'mikan_project', 'dmhy'])
 
 # BGmi user path
 SAVE_PATH = os.path.join(BGMI_PATH, 'bangumi')
@@ -214,9 +203,6 @@ FRONT_STATIC_PATH = os.path.join(BGMI_PATH, 'front_static')
 
 # admin token
 ADMIN_TOKEN = None
-
-# Xunlei offline download
-XUNLEI_LX_PATH = os.path.join(BGMI_PATH, 'bgmi-lx')
 
 # temp path
 TMP_PATH = os.path.join(BGMI_PATH, 'tmp')
@@ -273,32 +259,7 @@ read_config()
 __all_writable_now__ = __writeable__ + DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]
 
 # --------- Read-Only ---------- #
-# Python version
-IS_PYTHON3 = sys.version_info > (3, 0)
 
 # Detail URL
 # platform
 IS_WINDOWS = platform.system() == 'Windows'
-
-# - Unify python2 and python3 - #
-import codecs
-import locale
-
-# Wrap sys.stdout into a StreamWriter to allow writing unicode.
-
-if IS_PYTHON3:
-    unicode = str
-    if platform.system() != 'Windows':
-        file_ = sys.stdout.buffer
-        sys.stdout = codecs.getwriter(locale.getpreferredencoding())(file_)
-else:
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
-    input = raw_input
-
-
-def unicode_(s):
-    if not IS_PYTHON3:
-        unicode_string = s.decode(sys.getfilesystemencoding())
-        return unicode_string
-    else:
-        return unicode(s)

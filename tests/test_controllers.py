@@ -1,46 +1,64 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals
 
 import os
 import unittest
 
 from bgmi.lib.controllers import *
 from bgmi.main import setup
-from bgmi.lib.constants import unicode_
+from unittest import mock, TestCase
+
+from bgmi.lib.models import Bangumi, Followed
+from bgmi.website import DataSource, DATA_SOURCE_MAP
+from bgmi.website.base import BaseWebsite
+
+w = lambda: mock.Mock(spec=BaseWebsite)
+
+from bgmi.website import DATA_SOURCE_MAP
+
+import json
+from tests.mock_websites import MockDateSource
 
 
+@mock.patch('bgmi.website.DATA_SOURCE_MAP', MockDateSource)
 class ControllersTest(unittest.TestCase):
-    def setUp(self):
-        self.bangumi_name_1 = unicode_(os.environ.get('BANGUMI_1'))
-        self.bangumi_name_2 = unicode_(os.environ.get('BANGUMI_2'))
-        pass
+    """
+    at the beginning of each test,
+    bangumi 1 is followed
+    bangumi 2 is not followed
+    """
+    bangumi_name_1 = '名侦探柯南'
+    bangumi_name_2 = '海贼王'
 
-    def test_a_cal(self):
+    def setUp(self):
+        Followed.delete().execute()
+        Followed.create(bangumi_name=self.bangumi_name_1,
+                        status=STATUS_FOLLOWED)
+
+    def test_cal(self):
         r = cal()
         self.assertIsInstance(r, dict)
         for day in r.keys():
             self.assertIn(day.lower(), [x.lower() for x in Bangumi.week])
             self.assertIsInstance(r[day], list)
             for bangumi in r[day]:
-                self.assertIn("status", bangumi)
-                self.assertIn("subtitle_group", bangumi)
-                self.assertIn("name", bangumi)
-                self.assertIn("keyword", bangumi)
-                self.assertIn("update_time", bangumi)
-                self.assertIn("cover", bangumi)
+                # {'bangumi_name': 'TEST_BANGUMI', 'cover': '', 'update_time': 'Mon', 'name': 'TEST_BANGUMI', 'status': 1,
+                #  'updated_time': 0, 'subtitle_group': '', 'episode': 0}
+                for key in ['name', 'cover', 'update_time', 'status', 'episode']:
+                    self.assertIn(key, bangumi)
 
-    def test_b_add(self):
-        r = add(self.bangumi_name_1, 0)
-        self.assertEqual(r['status'], 'success')
+    def test_add(self):
         r = add(self.bangumi_name_1, 0)
         self.assertEqual(r['status'], 'warning')
-        r = delete(self.bangumi_name_1)
-        self.assertEqual(r['status'], 'warning')
+        f = Followed.get(bangumi_name=self.bangumi_name_1)  # type: Followed
+        self.assertEqual(f.status, Followed.STATUS_FOLLOWED)
 
-    def test_c_mark(self):
-        r = add(self.bangumi_name_1, 0)
+        r = add(self.bangumi_name_2, episode=4)
         self.assertEqual(r['status'], 'success')
+        f = Followed.get(bangumi_name=self.bangumi_name_2)  # type: Followed
+        self.assertEqual(f.status, Followed.STATUS_FOLLOWED)
+        self.assertEqual(f.episode, 4)
 
+    def test_mark(self):
         r = mark(self.bangumi_name_1, 1)
         self.assertEqual(r['status'], 'success')
         r = mark(self.bangumi_name_1, None)
@@ -48,7 +66,7 @@ class ControllersTest(unittest.TestCase):
         r = mark(self.bangumi_name_2, 0)
         self.assertEqual(r['status'], 'error')
 
-    def test_d_delete(self):
+    def test_delete(self):
         r = delete()
         self.assertEqual(r['status'], 'warning')
         r = delete(self.bangumi_name_1)
@@ -60,10 +78,9 @@ class ControllersTest(unittest.TestCase):
         r = delete(clear_all=True, batch=True)
         self.assertEqual(r['status'], 'warning')
 
-    def test_e_search(self):
+    def test_search(self):
         r = search(self.bangumi_name_1, dupe=False)
 
-    @staticmethod
-    def setUpClass():
-        setup()
+    @classmethod
+    def setUpClass(cls):
         recreate_source_relatively_table()

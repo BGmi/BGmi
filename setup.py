@@ -3,11 +3,15 @@ import os
 import codecs
 from setuptools import setup, find_packages
 from bgmi import __version__, __author__, __email__
-
+import sys
 
 with open('requirements.txt', 'r') as f:
     requirements = f.read().splitlines()
+    if sys.version_info[1] < 5:
+        requirements.append('typing')
 
+with open('test_requirements.txt', 'r') as f:
+    test_requirements = f.read().splitlines()
 
 ROOT = os.path.abspath(os.path.dirname(__file__))
 
@@ -40,18 +44,19 @@ setup(
         ]
     },
     license='MIT License',
-    classifiers=(
+    tests_require=test_requirements,
+    classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Other Audience',
         'Natural Language :: Chinese (Traditional)',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy'
-    ),
+    ],
 )

@@ -1,5 +1,4 @@
 # coding=utf-8
-from __future__ import print_function, unicode_literals
 
 import os
 import time
@@ -10,7 +9,6 @@ from multiprocessing.pool import ThreadPool
 import bs4
 import requests
 from bs4 import BeautifulSoup
-from six import string_types
 
 from bgmi.config import MAX_PAGE
 from bgmi.website.base import BaseWebsite
@@ -62,9 +60,7 @@ def parser_day_bangumi(soup):
         if url:
             name = url['title']
             url = url['href']
-            assert isinstance(url, string_types)
             bangumi_id = url.split('/')[-1]
-            soup.find('li', )
             li.append({'name': name, 'keyword': bangumi_id, 'cover': span['data-src']})
     return li
 
@@ -77,7 +73,7 @@ class Mikanani(BaseWebsite):
             print(server_root + 'Bangumi/{}'.format(bangumi_id))
         r = requests.get(server_root + 'Home/Bangumi/{}'.format(bangumi_id)).text
 
-        subtitle_groups = defaultdict(dict)
+        subtitle_groups = defaultdict(lambda: defaultdict(list))
 
         soup = BeautifulSoup(r, 'html.parser')
 
@@ -100,7 +96,6 @@ class Mikanani(BaseWebsite):
                     episode_container_list[tag.attrs.get('id', None)] = tag.find_next_sibling('table')
 
         for subtitle_id, container in episode_container_list.items():
-            subtitle_groups[str(subtitle_id)]['episode'] = list()
             for tr in container.find_all('tr')[1:]:
                 title = tr.find('a', class_='magnet-link-wrap').text
                 time_string = tr.find_all('td')[2].string
@@ -153,7 +148,7 @@ class Mikanani(BaseWebsite):
         result = []
         r = requests.get(server_root + "Home/Search", params={'searchstr': keyword}).text
         s = BeautifulSoup(r, 'html.parser')
-        td_list = s.find_all('tr', attrs={'class': 'js-search-results-row'})  # type:list[bs4.Tag]
+        td_list = s.find_all('tr', attrs={'class': 'js-search-results-row'})  # type:List[bs4.Tag]
         for tr in td_list:
             title = tr.find('a', class_='magnet-link-wrap').text
             time_string = tr.find_all('td')[2].string
@@ -278,7 +273,7 @@ class Mikanani(BaseWebsite):
 
         [subtitle_result.extend(x['subtitle_groups']) for x in bangumi_result]
 
-        f = lambda x, y: x if y in x else x + [y]
+        def f(x, y): return x if y in x else x + [y]
         subtitle_result = reduce(f, [[], ] + subtitle_result)
         subtitle_result.sort(key=lambda x: int(x['id']))
 

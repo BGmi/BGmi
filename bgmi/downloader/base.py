@@ -1,6 +1,4 @@
 # coding=utf-8
-from __future__ import unicode_literals, print_function
-
 import os
 import subprocess
 
@@ -34,10 +32,6 @@ class BaseDownloadService(object):
     def check_delegate_bin_exist(self, path):
         if not os.path.exists(path):
             raise Exception('{0} not exist, please run command \'bgmi install\' to install'.format(path))
-
-    def call(self, command):
-        self.return_code = subprocess.call(command, env={'PATH': '/usr/local/bin:/usr/bin:/bin',
-                                                         'HOME': os.environ.get('HOME', '/tmp')})
 
     def check_download(self, name):
         if not os.path.exists(self.save_path) or self.return_code != 0:

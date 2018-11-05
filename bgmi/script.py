@@ -1,5 +1,4 @@
 # coding=utf-8
-from __future__ import print_function, unicode_literals
 
 import glob
 import imp
@@ -12,7 +11,7 @@ from bgmi.config import SCRIPT_PATH, MAX_PAGE
 from bgmi.lib.download import download_prepare
 from bgmi.lib.models import STATUS_UPDATED, STATUS_FOLLOWED
 from bgmi.lib.models import Scripts
-from bgmi.lib.fetch import DATA_SOURCE_MAP
+from bgmi.website import DATA_SOURCE_MAP
 from bgmi.utils import print_success, print_warning, print_info
 
 

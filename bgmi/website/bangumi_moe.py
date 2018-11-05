@@ -1,5 +1,4 @@
 # coding=utf-8
-from __future__ import print_function, unicode_literals
 
 import datetime
 import os
@@ -95,6 +94,7 @@ class BangumiMoe(BaseWebsite):
     cover_url = COVER_URL
 
     def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
+        max_page = int(max_page)
         response_data = []
         ret = []
         if subtitle_list:
@@ -104,8 +104,8 @@ class BangumiMoe(BaseWebsite):
                 response_data.extend(response['torrents'])
         else:
             for i in range(max_page):
-                if max_page > 1:
-                    print_info('Fetch page {0} ...'.format(i + 1))
+                # if max_page > 1:
+                #     print_info('Fetch page {0} ...'.format(i + 1))
                 data = {'tag_id': [bangumi_id, BANGUMI_TAG], 'p': i + 1}
                 response = get_response(DETAIL_URL, 'POST', json=data)
                 if response:

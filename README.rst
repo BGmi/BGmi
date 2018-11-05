@@ -27,7 +27,7 @@ Update Log
 Feature
 =======
 + Multi data sources supported: `bangumi_moe <https://bangumi.moe>`_, `mikan_project <https://mikanani.me>`_ or `dmhy <https://share.dmhy.org/>`_
-+ Use aria2, transmission or xunlei-lixian to download bangumi
++ Use aria2, transmission or deluge to download bangumi
 + Web interface to manage bangumi with HTTP API
 + Play bangumi online with danmaku
 + RSS feed for uTorrent, ICS calendar for mobile devices
@@ -242,7 +242,7 @@ BGmi configure:
 
 + :code:`BANGUMI_MOE_URL`: url of bangumi.moe mirror
 + :code:`BGMI_SAVE_PATH`: bangumi saving path
-+ :code:`DOWNLOAD_DELEGATE`: the ways of downloading bangumi (aria2-rpc, transmission-rpc, xunlei)
++ :code:`DOWNLOAD_DELEGATE`: the ways of downloading bangumi (aria2-rpc, transmission-rpc, deluge-rpc)
 + :code:`MAX_PAGE`: max page for fetching bangumi information
 + :code:`BGMI_TMP_PATH`: just a temporary path
 + :code:`DANMAKU_API_URL`: url of danmaku api
@@ -252,12 +252,6 @@ Aria2-rpc configure:
 
 + :code:`ARIA2_RPC_URL`: aria2c daemon RPC url, not jsonrpc url.("http://localhost:6800/rpc" for localhost)
 + :code:`ARIA2_RPC_TOKEN`: aria2c daemon RPC token("token:" for no token)
-
-Xunlei configure:
-
-XunleiLixian is deprecated, please choose aria2-rpc or transmission-rpc.
-
-+ :code:`XUNLEI_LX_PATH`: path of xunlei-lixian binary
 
 Transmission-rpc configure:
 
@@ -397,7 +391,6 @@ Bangumi Script is located at :code:`BGMI_PATH/script`, inherited :code:`ScriptBa
 .. code-block:: python
 
     # coding=utf-8
-    from __future__ import print_function, unicode_literals
 
     import re
     import json
@@ -460,7 +453,6 @@ Another example:
 .. code-block:: python
 
     # coding=utf-8
-    from __future__ import print_function, unicode_literals
 
     import re
     import requests
@@ -482,7 +474,7 @@ Another example:
         def get_download_url(self):
             # fetch and return dict
             resp = requests.get('http://www.itvfans.com/fenji/313463.html').text
-            html = bs(resp, 'lxml')
+            html = bs(resp, 'html.parser')
 
             data = html.find(attrs={'id': '31346-3-720p'})
 
