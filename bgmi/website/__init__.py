@@ -14,6 +14,7 @@ from hanziconv import HanziConv
 from bgmi.config import MAX_PAGE, ENABLE_GLOBAL_FILTER, GLOBAL_FILTER
 from bgmi.lib.models import Bangumi, Filter, BangumiItem, db, STATUS_UPDATING, model_to_dict, Subtitle, STATUS_FOLLOWED, \
     STATUS_UPDATED, Followed
+from bgmi import config
 from bgmi.utils import test_connection, print_warning, print_info, download_cover, convert_cover_url_to_path
 from bgmi.website.bangumi_moe import BangumiMoe
 from bgmi.website.mikan import Mikanani
@@ -267,7 +268,9 @@ def init_data() -> (Dict[str, list], Dict[str, list]):
     subtitle = {}
 
     for data_source_id, data_source in DATA_SOURCE_MAP.items():
-        # print_info('Fetching {}'.format(data_source_id))
+        if data_source_id not in config.ENABLE_DATA_SOURCE:
+            continue
+        print_info('Fetching {}'.format(data_source_id))
         try:
             bangumi[data_source_id], subtitle[data_source_id] = data_source.get_bangumi_calendar_and_subtitle_group()
         except requests.ConnectionError:
@@ -346,16 +349,27 @@ class DataSource:
 
         bangumi_calendar = BangumiList([x for x in bangumi_calendar if x.data_source])
         Bangumi.delete_all()
-        Subtitle.save_subtitle_list(subtitle_group_result)
+
+        for bangumi in bangumi_calendar:
+            data_source_id_need_to_remove = []
+            for data_source_id in bangumi.data_source.keys():
+                if data_source_id not in config.ENABLE_DATA_SOURCE:
+                    data_source_id_need_to_remove.append(data_source_id)
+            for data_source_id in data_source_id_need_to_remove:
+                del bangumi.data_source[data_source_id]
 
         if not bangumi_result:
             print('no result return None')
             return []
 
         if save:
+            Subtitle.save_subtitle_list(subtitle_group_result)
             with db.atomic():
                 for bangumi in bangumi_calendar:
                     self.save_data(bangumi)
+                    for data_source_id, bangumi_item in bangumi.data_source.items():
+                        bangumi_item.data_source = data_source_id
+                        self.save_data_source_item(bangumi_item)
 
         if group_by_weekday:
             result_group_by_weekday = defaultdict(list)
@@ -395,6 +409,32 @@ class DataSource:
                 b.bangumi_names = data.bangumi_names
                 b.data_source = data.data_source
                 b.subject_name = data.subject_name
+                b.save()
+
+        # data.save()
+
+    @staticmethod
+    def save_data_source_item(data: BangumiItem):
+        """
+        save bangumi dict to database
+
+        # :type data: dict
+        """
+
+        b, obj_created = BangumiItem.get_or_create(keyword=data.keyword, data_source=data.data_source,
+                                                   defaults=model_to_dict(data))  # type: (BangumiItem, bool)
+
+        if not obj_created:
+            if (
+                b.cover != data.cover or
+                b.status != data.status or
+                b.update_time != data.update_time or
+                b.subtitle_group != data.subtitle_group
+            ):
+                b.cover = data.cover
+                b.status = data.status
+                b.update_time = data.update_time
+                b.subtitle_group = data.subtitle_group
                 b.save()
 
         # data.save()
@@ -518,7 +558,8 @@ class DataSource:
                     bangumi_id=bangumi_obj.data_source[s]['keyword'],
                     max_page=max_page
                 )
-
+        for episode in response_data:
+            episode['name'] = name
         result = response_data
         filter_obj.exclude.append('合集')
 

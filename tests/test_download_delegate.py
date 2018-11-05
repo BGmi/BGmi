@@ -34,27 +34,6 @@ class Basic:
         overwrite = True
         instance = BaseDownloadService(download_obj, save_path, overwrite)
 
-        # def test_base_init(self):
-        # instance = self.instance
-        # instance = self.cls(self.download_obj, self.save_path, self.overwrite)
-        #
-        # self.assertEqual(instance.overwrite, self.overwrite)
-        # self.assertEqual(instance.save_path, self.save_path)
-        #
-        # self.assertEqual(instance.episode, self.download_obj.episode)
-        # self.assertEqual(instance.name, self.download_obj.name)
-        # self.assertEqual(instance.torrent, self.download_obj.download)
-        # self.assertEqual(instance.return_code, 0)
-
-        def test_install(self):
-            pass
-
-        def test_download(self):
-            pass
-
-        # def get_instance(self):
-        #     instance = bgmi.downloader.aria2_rpc.Aria2DownloadRPC(self.download_obj, self.save_path, self.overwrite)
-
 
 class Aria2cTest(Basic.Test, unittest.TestCase):
     cls = Aria2DownloadRPC

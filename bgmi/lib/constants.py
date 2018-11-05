@@ -70,8 +70,8 @@ STATUS_WARNING = 'warning'
 STATUS_ERROR = 'error'
 STATUS_INFO = 'info'
 
-SPACIAL_APPEND_CHARS = ['Ⅱ', 'Ⅲ', '♪', 'Δ', '×', '☆', 'É', '·', '♭', '★']
-SPACIAL_REMOVE_CHARS = []
+SPACIAL_APPEND_CHARS = 'ⅡⅢⅥ♪Δ×☆É·♭★‧☆'
+SPACIAL_REMOVE_CHARS = ''
 
 UNSUPPORTED_VIDEO_CODING = ['hevc', ]
 COMMON_EXCLUDE_KEYWORD = UNSUPPORTED_VIDEO_CODING
@@ -141,6 +141,8 @@ actions_and_arguments = [
         'action': ACTION_CAL,
         'help': 'Print bangumi calendar.',
         'arguments': [
+            {'dest': ['-s', '--show-source'],
+             'kwargs': dict(action='store_true', help='Show bangumi data source.'), },
             {'dest': '--today',
              'kwargs': dict(action='store_true', help='Show bangumi calendar for today.'), },
 

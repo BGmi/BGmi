@@ -9,7 +9,6 @@ from multiprocessing.pool import ThreadPool
 import bs4
 import requests
 from bs4 import BeautifulSoup
-from six import string_types
 
 from bgmi.config import MAX_PAGE
 from bgmi.website.base import BaseWebsite
@@ -61,9 +60,7 @@ def parser_day_bangumi(soup):
         if url:
             name = url['title']
             url = url['href']
-            assert isinstance(url, string_types)
             bangumi_id = url.split('/')[-1]
-            soup.find('li', )
             li.append({'name': name, 'keyword': bangumi_id, 'cover': span['data-src']})
     return li
 
@@ -151,7 +148,7 @@ class Mikanani(BaseWebsite):
         result = []
         r = requests.get(server_root + "Home/Search", params={'searchstr': keyword}).text
         s = BeautifulSoup(r, 'html.parser')
-        td_list = s.find_all('tr', attrs={'class': 'js-search-results-row'})  # type:list[bs4.Tag]
+        td_list = s.find_all('tr', attrs={'class': 'js-search-results-row'})  # type:List[bs4.Tag]
         for tr in td_list:
             title = tr.find('a', class_='magnet-link-wrap').text
             time_string = tr.find_all('td')[2].string

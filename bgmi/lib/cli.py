@@ -85,11 +85,11 @@ def cal_wrapper(ret):
         cover = None
 
     weekly_list = website.bangumi_calendar(force_update=force_update, save=save, cover=cover)
-    if os.environ.get('DEBUG'):
+    if os.environ.get('DEBUG') or ret.show_source:
         for bangumi_list in weekly_list.values():
             for bangumi in bangumi_list:
-                bangumi['name'] = bangumi['name'] + '({})'.format(' '.join([x[:min(1, len(x))] for x in
-                                                                            bangumi['data_source'].keys()]))
+                bangumi['name'] = bangumi['name'] + ' {' + '{}' \
+                    .format(', '.join([x[:min(1, len(x))] for x in bangumi['data_source'].keys()]) + '}')
 
     patch_list = runner.get_models_dict()
     for i in patch_list:
@@ -122,7 +122,7 @@ def cal_wrapper(ret):
     for index, weekday in enumerate(weekday_order):
         if weekly_list[weekday.lower()]:
             print('%s%s. %s' % (
-                    GREEN, weekday if not today else 'Bangumi Schedule for Today (%s)' % weekday, COLOR_END),
+                GREEN, weekday if not today else 'Bangumi Schedule for Today (%s)' % weekday, COLOR_END),
                   end='')
             print()
             print_line()
@@ -132,6 +132,8 @@ def cal_wrapper(ret):
 
                 half = len(re.findall('[%s]' % string.printable, bangumi['name']))
                 full = (len(bangumi['name']) - half)
+                # print(full, " ", half, "'", bangumi['name'], "'", sep='', end=' ')
+
                 space_count = col - 2 - (full * 2 + half)
 
                 for s in SPACIAL_APPEND_CHARS:

@@ -346,16 +346,13 @@ def update(name, download=None, not_ignore=False):
             if len(name) == 1 and download:
                 episode_range = download
             else:
-                episode_range = range(
-                    subscribe['episode'] + 1, episode.get('episode', 0) + 1)
-                print_success('%s updated, episode: %d' %
-                              (subscribe['bangumi_name'], episode['episode']))
+                episode_range = range(subscribe['episode'] + 1, episode.get('episode', 0) + 1)
+                print_success('%s updated, episode: %d' % (subscribe['bangumi_name'], episode['episode']))
                 followed_obj.episode = episode['episode']
                 followed_obj.status = STATUS_UPDATED
                 followed_obj.updated_time = int(time.time())
                 followed_obj.save()
-                result['data']['updated'].append({'bangumi': subscribe['bangumi_name'],
-                                                  'episode': episode['episode']})
+                result['data']['updated'].append({'bangumi': subscribe['bangumi_name'], 'episode': episode['episode']})
 
             for i in episode_range:
                 for epi in all_episode_data:
@@ -368,8 +365,7 @@ def update(name, download=None, not_ignore=False):
         download_prepare(download_queue)
         download_prepare(script_download_queue)
         print_info('Re-downloading ...')
-        download_prepare(Download.get_all_downloads(
-            status=STATUS_NOT_DOWNLOAD))
+        download_prepare(Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD))
 
     return result
 

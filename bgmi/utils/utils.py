@@ -4,7 +4,6 @@ import functools
 import glob
 import gzip
 import json
-import logging
 import os
 import re
 import struct
@@ -20,33 +19,69 @@ import urllib3
 
 from bgmi import __version__, __admin_version__
 from bgmi.config import BGMI_PATH, FRONT_STATIC_PATH, SAVE_PATH, LOG_PATH
+from bgmi.logger import logger
 
-log_level = os.environ.get('BGMI_LOG') or 'ERROR'
-log_level = log_level.upper()
-if log_level not in ['DEBUG', 'INFO', "WARNING", "ERROR"]:
-    print('log level error, doing nothing and exit')
-    exit(1)
-logger = logging.getLogger('BGmi')
-try:
-    h = logging.FileHandler(LOG_PATH, 'a+', 'utf-8')
-    handlers = [h]
-    fs = logging.BASIC_FORMAT
-    fmt = logging.Formatter(fs)
-    h.setFormatter(fmt)
-    logging.root.addHandler(h)
-    logging.root.setLevel(log_level)
-except IOError as e:
-    logging.basicConfig(stream=sys.stdout, level=logging.getLevelName(log_level))
+import inspect
+
+
+def _dict_as_called(f, args, kwargs):
+    """ return a dict of all the args and kwargs as the keywords they would
+    be received in a real f call.  It does not call f.
+    """
+
+    names, args_name, kwargs_name, defaults, _, _, _ = inspect.getfullargspec(f)
+
+    # assign basic args
+    params = {}
+    if args_name:
+        basic_arg_count = len(names)
+        params.update(zip(names[:], args))  # zip stops at shorter sequence
+        params[args_name] = args[basic_arg_count:]
+    else:
+        params.update(zip(names, args))
+
+    # assign kwargs given
+    if kwargs_name:
+        params[kwargs_name] = {}
+        for kw, value in kwargs.items():
+            if kw in names:
+                params[kw] = value
+            else:
+                params[kwargs_name][kw] = value
+    else:
+        params.update(kwargs)
+
+    # assign defaults
+    if defaults:
+        for pos, value in enumerate(defaults):
+            if names[-len(defaults) + pos] not in params:
+                params[names[-len(defaults) + pos]] = value
+
+    # check we did it correctly.  Each param and only params are set
+    assert set(params.keys()) == (
+        set(names) | {args_name} | {kwargs_name}
+    ) - {None}
+
+    return params
 
 
 def log_utils_function(func):
     @functools.wraps(func)
     def echo_func(*func_args, **func_kwargs):
-        logger.debug('')
-        logger.debug("start function {} {} {}".format(func.__name__, func_args, func_kwargs))
         r = func(*func_args, **func_kwargs)
-        logger.debug("return function {} {}".format(func.__name__, r))
-        logger.debug('')
+        called_with = _dict_as_called(func, func_args, func_kwargs)
+        logger.debug("util.{} {} -> `{}`".format(func.__name__, called_with, r))
+        return r
+
+    return echo_func
+
+
+def disable_in_test(func):
+    @functools.wraps(func)
+    def echo_func(*func_args, **func_kwargs):
+        if os.environ.get('UNITTEST'):
+            return
+        r = func(*func_args, **func_kwargs)
         return r
 
     return echo_func
@@ -135,6 +170,7 @@ def colorize(f):
     return wrapper
 
 
+@disable_in_test
 @indicator
 @colorize
 def print_info(message, indicator=True):
@@ -142,6 +178,7 @@ def print_info(message, indicator=True):
     print(message)
 
 
+@disable_in_test
 @indicator
 @colorize
 def print_success(message, indicator=True):
@@ -149,6 +186,7 @@ def print_success(message, indicator=True):
     print(message)
 
 
+@disable_in_test
 @indicator
 @colorize
 def print_warning(message, indicator=True):
@@ -156,6 +194,7 @@ def print_warning(message, indicator=True):
     print(message)
 
 
+@disable_in_test
 @indicator
 @colorize
 def print_error(message, exit_=True, indicator=True):
@@ -389,8 +428,7 @@ def parse_episode(episode_title):
             e = chinese_to_arabic(_[0])
             logger.debug('return episode all zh')
             return e
-        except Exception as e:
-            # raise e
+        except Exception:
             logger.debug('can\'t convert {} to int'.format(_[0]))
             pass
 
@@ -531,5 +569,5 @@ def download_cover(cover_url_list):
             os.makedirs(dir_path)
 
     p = ThreadPool(4)
-    content_list = p.map(download_file, cover_url_list)
+    p.map(download_file, cover_url_list)
     p.close()
