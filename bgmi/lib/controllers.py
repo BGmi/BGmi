@@ -40,7 +40,7 @@ def add(name, episode=None):
             followed_obj.status = STATUS_FOLLOWED
             followed_obj.save()
 
-    Filter.get_or_create(bangumi_name=name)
+    Filter.get_or_create(bangumi_name=bangumi_obj.name)
 
     bangumi_data, _ = website.get_maximum_episode(bangumi_obj, subtitle=False, max_page=MAX_PAGE)
     followed_obj.episode = bangumi_data['episode'] if episode is None else episode
@@ -63,7 +63,6 @@ def filter_(name, subtitle_input=None, data_source_input=None, include=None, exc
         result['status'] = 'error'
         result['message'] = 'Bangumi {name} has not subscribed, try \'bgmi add "{name}"\'.'.format(name=name)
         return result
-
 
     followed_filter_obj, is_this_obj_created = Filter.get_or_create(bangumi_name=bangumi_obj.name)
 
@@ -125,7 +124,7 @@ def filter_(name, subtitle_input=None, data_source_input=None, include=None, exc
     followed_filter_obj.save()
 
     result['data'] = {
-        'name': name,
+        'name': bangumi_obj.name,
         'data_source': valid_data_source_list,
         'subtitle_group': subtitle_list,
         'followed': followed_filter_obj.subtitle,

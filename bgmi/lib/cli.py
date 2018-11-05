@@ -171,7 +171,7 @@ def filter_wrapper(ret):
         print_info('Usable subtitle group: {0}'.format(', '.join(set([x['name'] for x in result['data']['subtitle_group']]))))
         print_info('Usable data source: {}'.format(', '.join(result['data']['data_source'])))
         print()
-        followed_filter_obj = Filter.get(bangumi_name=ret.name)
+        followed_filter_obj = Filter.get(bangumi_name=result['data']['name'])
         print_filter(followed_filter_obj)
     return result['data']
 

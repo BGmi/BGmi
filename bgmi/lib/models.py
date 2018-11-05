@@ -36,17 +36,17 @@ db = pw.SqliteDatabase(bgmi.config.DB_PATH)
 
 class SubtitleField(pw.TextField):
     def python_value(self, value):
-        if value is None:
+        if not value:
             return []
         else:
             return [x.strip() for x in value.split(',')]
 
     def db_value(self, value):
         if value is None:
-            return None
+            return ''
         else:
             if not value:
-                return None
+                return ''
             else:
                 return ', '.join(value)
 
@@ -300,10 +300,10 @@ class Download(NeoDB):
 
 class Filter(NeoDB):
     bangumi_name = pw.TextField(unique=True)
-    data_source = SubtitleField(null=True)  # type:List
-    subtitle = SubtitleField(null=True)  # type:List
-    include = SubtitleField(null=True)  # type:List
-    exclude = SubtitleField(null=True)  # type:List
+    data_source = SubtitleField(default=[])  # type:List
+    subtitle = SubtitleField(default=[])  # type:List
+    include = SubtitleField(default=[])  # type:List
+    exclude = SubtitleField(default=[])  # type:List
     regex = pw.TextField(null=True)
 
     def apply_on_list_of_episode(self, episode_list: List[Dict[str, str]]):
