@@ -441,17 +441,17 @@ def parse_episode(episode_title):
     if _ and _[0].isdigit():
         logger.debug('return episode range with version')
         return int(_[0])
-
-    for split_token in ['【', '[', ' ']:
-        for i in episode_title.split(split_token):
-            for regexp in FETCH_EPISODE:
-                match = regexp.findall(i)
-                if match and match[0].isdigit():
-                    match = int(match[0])
-                    if match > 1000:
-                        spare = match
-                    else:
-                        return match
+    logger.debug('don\'t match any regex, try match after split')
+    for i in episode_title.replace('[', ' ').replace('【', ',').split(' '):
+        for regexp in FETCH_EPISODE:
+            match = regexp.findall(i)
+            if match and match[0].isdigit():
+                match = int(match[0])
+                if match > 1000:
+                    spare = match
+                else:
+                    logger.debug('match {} {} {}'.format(i, regexp, match))
+                    return match
 
     if spare:
         return spare
