@@ -157,6 +157,7 @@ class ScriptBase(object):
             yield ('subtitle_group', '')
             yield ('episode', self.obj.episode)
             yield ('bangumi_names', {self.bangumi_name, })
+            yield ('data_source', {})
 
     @property
     def _data(self):
