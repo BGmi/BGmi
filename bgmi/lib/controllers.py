@@ -186,7 +186,6 @@ def cal():
     r = weekly_list
     for day, value in weekly_list.items():
         for index, bangumi in enumerate(value):
-
             bangumi['cover'] = normalize_path(bangumi['cover'])
             bangumi['bangumi_names'] = list(bangumi['bangumi_names'])
             for key, data_source in bangumi['data_source'].items():
