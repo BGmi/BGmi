@@ -20,6 +20,10 @@ def auth_(token=''):
     return {'status': 'success' if token == ADMIN_TOKEN else 'error'}
 
 
+def _filter(name, subtitle=None, include=None, exclude=None, regex=None):
+    return filter_(name, subtitle_input=subtitle, include=include, exclude=exclude, regex=regex)
+
+
 API_MAP_POST = {
     ACTION_ADD: add,
     ACTION_DELETE: delete,
@@ -29,7 +33,7 @@ API_MAP_POST = {
     ACTION_AUTH: auth_,
     ACTION_MARK: mark,
     ACTION_STATUS: status_,
-    ACTION_FILTER: filter_,
+    ACTION_FILTER: _filter,
 }
 
 API_MAP_GET = {

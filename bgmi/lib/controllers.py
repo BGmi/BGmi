@@ -104,19 +104,19 @@ def filter_(name, subtitle_input=None, data_source_input=None, include=None, exc
             followed_filter_obj.data_source = data_source_input
 
     if include is not None:
-        if include == '':
+        if not include:
             followed_filter_obj.include = None
         else:
             followed_filter_obj.include = [s.strip() for s in include.split(',')]
 
     if exclude is not None:
-        if exclude == '':
+        if not exclude:
             followed_filter_obj.exclude = None
         else:
             followed_filter_obj.exclude = [s.strip() for s in exclude.split(',')]
 
     if regex is not None:
-        if regex == '':
+        if not regex:
             followed_filter_obj.regex = None
         else:
             followed_filter_obj.regex = regex
@@ -126,7 +126,7 @@ def filter_(name, subtitle_input=None, data_source_input=None, include=None, exc
     result['data'] = {
         'name': bangumi_obj.name,
         'data_source': valid_data_source_list,
-        'subtitle_group': subtitle_list,
+        'subtitle_group': list({x['name'] for x in subtitle_list}),
         'followed': followed_filter_obj.subtitle,
         'include': followed_filter_obj.include,
         'exclude': followed_filter_obj.exclude,
@@ -186,7 +186,11 @@ def cal():
     r = weekly_list
     for day, value in weekly_list.items():
         for index, bangumi in enumerate(value):
+
             bangumi['cover'] = normalize_path(bangumi['cover'])
+            bangumi['bangumi_names'] = list(bangumi['bangumi_names'])
+            for key, data_source in bangumi['data_source'].items():
+                bangumi['data_source'][key] = model_to_dict(data_source)
     logger.debug(r)
     return r
 
