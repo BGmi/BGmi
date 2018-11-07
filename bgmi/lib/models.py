@@ -158,7 +158,7 @@ class Bangumi(NeoDB):
     subject_id = pw.IntegerField(null=True)
     update_time = pw.FixedCharField(5, null=False)
     data_source = DataSourceField(default=lambda: {})  # type: Union[Dict[str, BangumiItem],JSONField]
-    bangumi_names = BangumiNamesField(null=True)  # type: set
+    bangumi_names = BangumiNamesField(null=True, default=set())  # type: set
 
     week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 

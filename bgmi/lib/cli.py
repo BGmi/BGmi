@@ -166,8 +166,7 @@ def filter_wrapper(ret):
     if 'data' not in result:
         globals()["print_{}".format(result['status'])](result['message'])
     else:
-        print_info('Usable subtitle group: {0}'.format(
-            ', '.join(set([x['name'] for x in result['data']['subtitle_group']]))))
+        print_info('Usable subtitle group: {0}'.format(result['data']['subtitle_group']))
         print_info('Usable data source: {}'.format(', '.join(result['data']['data_source'])))
         print()
         followed_filter_obj = Filter.get(bangumi_name=result['data']['name'])
