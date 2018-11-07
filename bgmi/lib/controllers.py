@@ -83,7 +83,7 @@ def filter_(name, subtitle_input=None, data_source_input=None, include=None, exc
                     Subtitle.get(name=name)
                 except Subtitle.DoesNotExist:
                     return {'status': 'error', 'message': '{} is not a valid subtitle_group'.format(name)}
-                if not name in valid_subtitle_name_list:
+                if name not in valid_subtitle_name_list:
                     return {
                         'status': 'error',
                         'message': '{} is not a subtitle of bangumi {}'.format(name, bangumi_obj.name)
@@ -96,7 +96,7 @@ def filter_(name, subtitle_input=None, data_source_input=None, include=None, exc
         else:
             data_source_input = [s.strip() for s in data_source_input.split(',')]
             for data_source in data_source_input:
-                if not data_source in valid_data_source_list:
+                if data_source not in valid_data_source_list:
                     return {
                         'status': 'error',
                         'message': 'There is not bangumi {} in data source {}'.format(bangumi_obj.name, data_source)
@@ -214,6 +214,7 @@ def mark(name, episode):
     result = {}
     try:
         bangumi_obj = Bangumi.fuzzy_get(name=name)
+        name = bangumi_obj.name
     except Bangumi.DoesNotExist:
         runner = ScriptRunner()
         followed_obj = runner.get_model(name)
@@ -384,7 +385,7 @@ def update(name, download=None, not_ignore=False):
 def status_(name, status=STATUS_DELETED):
     result = {'status': 'success', 'message': ''}
 
-    if not status in FOLLOWED_STATUS or not status:
+    if not (status in FOLLOWED_STATUS and status):
         result['status'] = 'error'
         result['message'] = 'Invalid status: {0}'.format(status)
         return result

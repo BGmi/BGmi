@@ -6,7 +6,6 @@ import os
 import re
 import string
 
-from six import string_types
 from tornado import template
 
 import bgmi.config
@@ -122,8 +121,7 @@ def cal_wrapper(ret):
     for index, weekday in enumerate(weekday_order):
         if weekly_list[weekday.lower()]:
             print('%s%s. %s' % (
-                GREEN, weekday if not today else 'Bangumi Schedule for Today (%s)' % weekday, COLOR_END),
-                end='')
+                GREEN, weekday if not today else 'Bangumi Schedule for Today (%s)' % weekday, COLOR_END), end='')
             print()
             print_line()
             for i, bangumi in enumerate(weekly_list[weekday.lower()]):
@@ -168,7 +166,8 @@ def filter_wrapper(ret):
     if 'data' not in result:
         globals()["print_{}".format(result['status'])](result['message'])
     else:
-        print_info('Usable subtitle group: {0}'.format(', '.join(set([x['name'] for x in result['data']['subtitle_group']]))))
+        print_info('Usable subtitle group: {0}'.format(
+            ', '.join(set([x['name'] for x in result['data']['subtitle_group']]))))
         print_info('Usable data source: {}'.format(', '.join(result['data']['data_source'])))
         print()
         followed_filter_obj = Filter.get(bangumi_name=result['data']['name'])
@@ -228,7 +227,7 @@ def fetch_(ret):
 
 def complete(ret):
     # coding=utf-8
-    """eval "$(bgmi complete)" to complete bgmi in bash"""
+    """`eval "$(bgmi complete)"` to complete bgmi in bash"""
     updating_bangumi_names = [x['name'] for x in Bangumi.get_updating_bangumi(order=False)]
 
     all_config = bgmi.config.__writeable__
@@ -238,7 +237,7 @@ def complete(ret):
     for action_dict in actions_and_arguments:
         actions_and_opts[action_dict['action']] = []
         for arg in action_dict.get('arguments', []):
-            if isinstance(arg['dest'], string_types) and arg['dest'].startswith('-'):
+            if isinstance(arg['dest'], str) and arg['dest'].startswith('-'):
                 actions_and_opts[action_dict['action']].append(arg)
             elif isinstance(arg['dest'], list):
                 actions_and_opts[action_dict['action']].append(arg)
@@ -264,7 +263,7 @@ def complete(ret):
                                                     source=[x['id'] for x in SUPPORT_WEBSITE],
                                                     helper=helper,
                                                     isinstance=isinstance,
-                                                    string_types=string_types)  # type: bytes
+                                                    string_types=str)  # type: bytes
 
     if os.environ.get('DEBUG', False):  # pragma: no cover
         with open('./_bgmi', 'wb+') as template_file:
