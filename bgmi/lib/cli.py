@@ -362,4 +362,4 @@ def print_filter(followed_filter_obj: Filter):
     print_info('Followed data sources: {0}'.format(j(followed_filter_obj.data_source)))
     print_info('Include keywords: {0}'.format(j(followed_filter_obj.include)))
     print_info('Exclude keywords: {0}'.format(j(followed_filter_obj.exclude)))
-    print_info('Regular expression: {0}'.format(j(followed_filter_obj.regex)))
+    print_info('Regular expression: {0}'.format(followed_filter_obj.regex))

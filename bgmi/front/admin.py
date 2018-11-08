@@ -21,7 +21,14 @@ def auth_(token=''):
 
 
 def _filter(name, subtitle=None, include=None, exclude=None, regex=None):
-    return filter_(name, subtitle_input=subtitle, include=include, exclude=exclude, regex=regex)
+    result = filter_(name, subtitle_input=subtitle, include=include, exclude=exclude, regex=regex)
+    if 'data' in result:
+        data = result['data']
+        result['data'].update({
+            'include': ', '.join(data['include']),
+            'exclude': ', '.join(data['exclude']),
+        })
+    return result
 
 
 API_MAP_POST = {

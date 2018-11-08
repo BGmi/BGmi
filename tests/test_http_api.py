@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import json
-import logging
 import os
 import random
 import string
@@ -11,16 +10,10 @@ from tornado.testing import AsyncHTTPTestCase
 from bgmi.config import SAVE_PATH, ADMIN_TOKEN
 from bgmi.front.server import make_app
 
-logging.basicConfig(level=logging.DEBUG)
-
 
 def random_word(length):
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for i in range(length))
-
-
-logger = logging.getLogger()
-logger.setLevel(logging.ERROR)
 
 
 class ApiTestCase(AsyncHTTPTestCase):
@@ -30,7 +23,7 @@ class ApiTestCase(AsyncHTTPTestCase):
     bangumi_3 = os.environ.get('BANGUMI_3')
 
     def get_app(self):
-        self.app = make_app(debug=False)
+        self.app = make_app(debug=False, autoreload=False)
         return self.app
 
     def test_a_auth(self):
@@ -165,7 +158,6 @@ class ApiTestCase(AsyncHTTPTestCase):
         }), headers=self.headers)
         self.assertEqual(r.code, 400)
         self.assertEqual(self.parse_response(r)['status'], 'error')
-        print(subtitle_group)
         self.assertFalse(bool(list(set(subtitle_group) - set(res['data']['followed']))))
         # for item in subtitle_group:
         #     self.assertIn(item, res['data']['followed'])

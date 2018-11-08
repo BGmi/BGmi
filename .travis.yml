@@ -33,7 +33,7 @@ script:
     - bgmi -h
     - mv tests/test_script.py $HOME/.bgmi/scripts/test_script.py
 
-    - UNITTEST=1 coverage run -a -m unittest -v
+    - UNITTEST=1 BGMI_LOG=info coverage run -a -m unittest -v
 
     - coverage run -a -m bgmi.main gen nginx.conf --server-name _
 

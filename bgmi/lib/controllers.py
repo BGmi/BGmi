@@ -54,6 +54,7 @@ def filter_(name, subtitle_input=None, data_source_input=None, include=None, exc
     result = {'status': 'success', 'message': ''}
     try:
         bangumi_obj = Bangumi.fuzzy_get(name=name)
+        Followed.get(bangumi_name=bangumi_obj.name)
         name = bangumi_obj.name
     except Bangumi.DoesNotExist:
         result['status'] = 'error'

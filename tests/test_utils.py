@@ -1,38 +1,21 @@
 # coding=utf-8
-
-import configparser
 import json
 import os
 import os.path
-import re
 import shutil
-import unittest
-from types import SimpleNamespace
 import unittest.mock
-import glob
+from types import SimpleNamespace
+from typing import List
 from unittest.mock import patch, Mock
 
-from typing import List
-
-from bgmi.utils import FRONTEND_NPM_URL, PACKAGE_JSON_URL, logger
-import logging
-import sys
-
-# logger.addHandler(logging.StreamHandler(sys.stdout))
-# logger.setLevel(logging.DEBUG)
-
-import bgmi
-
 from bgmi import utils
+from bgmi.utils import FRONTEND_NPM_URL, PACKAGE_JSON_URL
 
 
 class UtilsTest(unittest.TestCase):
     def setUp(self):
         test_dir = './test_dir'
         self.test_dir = test_dir
-        # remove test dir if exists
-        # if os.path.exists(test_dir) and os.path.isdir(test_dir):
-        #     shutil.rmtree(test_dir, )
         if os.path.exists(test_dir):
             if os.path.isdir(test_dir):
                 shutil.rmtree(test_dir)
