@@ -18,7 +18,7 @@ def get_logger():
         logger.addHandler(h)
         logger.setLevel(logging.getLevelName(log_level))
     except IOError as e:
-        logging.basicConfig(stream=sys.stdout, level=logging.getLevelName(log_level))
+        print("can't create log file, disable logger. Ignore this if you run bgmi at first time.")
     return logger
 
 
