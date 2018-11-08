@@ -54,7 +54,8 @@ script:
     - coverage run -a -m bgmi.main filter $BANGUMI_2 --subtitle "" --exclude "MKV" --regex "720p|720P"
     - coverage run -a -m bgmi.main fetch $BANGUMI_2
 
-    - coverage run -a -m bgmi.main search "海贼王" --regex-filter '.*MP4.*720P.*'
+    - coverage run -a -m bgmi.main search "海贼王" --regex-filter '.*MP4.*720P.*' --min-episode 800 --max-episode 900
+
     - eval "$(coverage run -a -m bgmi.main complete)"
 
 after_success:
