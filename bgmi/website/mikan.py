@@ -263,7 +263,7 @@ class Mikanani(BaseWebsite):
             for obj in parser_day_bangumi(day):
                 bangumi_list.append(obj)
 
-        p = ThreadPool()
+        p = ThreadPool(4)
         r = p.map(self.parse_bangumi_details_page, [x['keyword'] for x in bangumi_list])
         p.close()
 
@@ -273,7 +273,9 @@ class Mikanani(BaseWebsite):
 
         [subtitle_result.extend(x['subtitle_groups']) for x in bangumi_result]
 
-        def f(x, y): return x if y in x else x + [y]
+        def f(x, y):
+            return x if y in x else x + [y]
+
         subtitle_result = reduce(f, [[], ] + subtitle_result)
         subtitle_result.sort(key=lambda x: int(x['id']))
 

@@ -141,7 +141,7 @@ class BangumiList(list):
                         data_source={})
             self.append(b)
 
-    def find_most_similar_index(self, name, mainline=False, data_source=None):
+    def find_most_similar_index(self, name, mainline=False):
         if not self:
             return 0, None
         similarity_list = list(map(lambda x: similarity_of_two_name(name, x.subject_name), self))
@@ -329,7 +329,7 @@ class DataSource:
         bangumi_name_list += [x.name for x in bgm_tv_weekly_list]
         bangumi_name_list = list(set(bangumi_name_list))
 
-        bangumi_calendar = BangumiList(Bangumi.select())
+        bangumi_calendar = BangumiList(Bangumi.select().where(Bangumi.status == STATUS_UPDATING))
 
         tmp_bangumi_calendar = set()
 
@@ -480,7 +480,7 @@ class DataSource:
 
         return weekly_list
 
-    def get_maximum_episode(self, bangumi, subtitle=True, ignore_old_row=True, max_page=int(MAX_PAGE)):
+    def get_maximum_episode(self, bangumi, ignore_old_row=True, max_page=int(MAX_PAGE)):
         """
 
         :type max_page: str
@@ -508,10 +508,7 @@ class DataSource:
         else:
             return {'episode': 0}, []
 
-    def fetch_episode(self,
-                      filter_obj: Filter = None,
-                      bangumi_obj=None,
-                      max_page=int(MAX_PAGE)):
+    def fetch_episode(self, filter_obj: Filter = None, bangumi_obj=None, max_page=int(MAX_PAGE)):
         """
         :type filter_obj: Filter
         :type source: str
@@ -522,17 +519,15 @@ class DataSource:
         :type regex: str
         :type max_page: int
         """
-        result = []
         _id = bangumi_obj.id
         name = bangumi_obj.name
         max_page = int(max_page)
+        response_data = []
 
         if filter_obj.data_source:
             source = list(set(bangumi_obj.data_source.keys()) & set(filter_obj.data_source))
         else:
             source = list(bangumi_obj.data_source.keys())
-
-        response_data = []
 
         if filter_obj.subtitle:
             subtitle_group = Subtitle.select(Subtitle.id, Subtitle.data_source) \
