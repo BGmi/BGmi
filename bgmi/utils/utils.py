@@ -432,15 +432,18 @@ def parse_episode(episode_title):
             logger.debug('can\'t convert {} to int'.format(_[0]))
             pass
 
+    _ = FETCH_EPISODE_WITH_VERSION.findall(episode_title)
+    if _ and _[0].isdigit():
+        logger.debug('return episode range with version')
+        return int(_[0])
+
     _ = FETCH_EPISODE_WITH_BRACKETS.findall(episode_title)
     if _:
         logger.debug('return episode with brackets')
         return get_real_episode(_)
 
-    _ = FETCH_EPISODE_WITH_VERSION.findall(episode_title)
-    if _ and _[0].isdigit():
-        logger.debug('return episode range with version')
-        return int(_[0])
+
+
     logger.debug('don\'t match any regex, try match after split')
     for i in episode_title.replace('[', ' ').replace('【', ',').split(' '):
         for regexp in FETCH_EPISODE:
