@@ -1,0 +1,18 @@
+[MASTER]
+disable=C0103,C0111,W0611
+ignore=share_dmhy.py
+
+[FORMAT]
+
+# Maximum number of characters on a single line.
+max-line-length=120
+
+# Regexp for a line that is allowed to be longer than the limit.
+ignore-long-lines=^\s*(# )?<?https?://\S+>?$
+
+# Maximum number of lines in a module
+max-module-lines=1000
+
+# String used as indentation unit. This is usually " " (4 spaces) or "\t" (1
+# tab).
+indent-string='    '

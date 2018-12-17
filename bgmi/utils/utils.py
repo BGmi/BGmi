@@ -104,8 +104,6 @@ if os.environ.get('DEV', False):  # pragma: no cover
 
     origin_request = deepcopy(Session.request)
 
-    import traceback
-
 
     def req(self, method, url, **kwargs):
         if os.environ.get('BGMI_SHOW_ALL_NETWORK_REQUEST'):
@@ -249,9 +247,7 @@ def get_terminal_col():  # pragma: no cover
             csbi = create_string_buffer(22)
             res = windll.kernel32.GetConsoleScreenBufferInfo(h, csbi)
             if res:
-                (bufx, bufy, curx, cury, wattr,
-                 left, top, right, bottom,
-                 maxx, maxy) = struct.unpack("hhhhHhhhhhh", csbi.raw)
+                (_, _, _, _, _, left, _, right, _, _, _) = struct.unpack("hhhhHhhhhhh", csbi.raw)
                 sizex = right - left + 1
                 # sizey = bottom - top + 1
                 return sizex
@@ -366,18 +362,18 @@ def chinese_to_arabic(cn: str) -> int:
     return val
 
 
-FETCH_EPISODE_WITH_BRACKETS = re.compile('[【\[](\d+)\s?(?:END)?[】\]]')
+FETCH_EPISODE_WITH_BRACKETS = re.compile(r'[【\[](\d+)\s?(?:END)?[】\]]')
 
-FETCH_EPISODE_ZH = re.compile("第?\s?(\d{1,3})\s?[話话集]")
-FETCH_EPISODE_ALL_ZH = re.compile("第([^第]*?)[話话集]")
-FETCH_EPISODE_ONLY_NUM = re.compile('^([\d]{2,})$')
+FETCH_EPISODE_ZH = re.compile(r"第?\s?(\d{1,3})\s?[話话集]")
+FETCH_EPISODE_ALL_ZH = re.compile(r"第([^第]*?)[話话集]")
+FETCH_EPISODE_ONLY_NUM = re.compile(r'^([\d]{2,})$')
 
-FETCH_EPISODE_RANGE = re.compile('[\d]{2,}\s?-\s?([\d]{2,})')
-FETCH_EPISODE_RANGE_ZH = re.compile('[第][\d]{2,}\s?-\s?([\d]{2,})\s?[話话集]')
-FETCH_EPISODE_RANGE_ALL_ZH = re.compile('[全]([^-^第]*?)[話话集]')
+FETCH_EPISODE_RANGE = re.compile(r'[\d]{2,}\s?-\s?([\d]{2,})')
+FETCH_EPISODE_RANGE_ZH = re.compile(r'[第][\d]{2,}\s?-\s?([\d]{2,})\s?[話话集]')
+FETCH_EPISODE_RANGE_ALL_ZH = re.compile(r'[全]([^-^第]*?)[話话集]')
 
-FETCH_EPISODE_OVA_OAD = re.compile('([\d]{2,})\s?\((?:OVA|OAD)\)]')
-FETCH_EPISODE_WITH_VERSION = re.compile('[【\[](\d+)\s? *v\d(?:END)?[】\]]')
+FETCH_EPISODE_OVA_OAD = re.compile(r'([\d]{2,})\s?\((?:OVA|OAD)\)]')
+FETCH_EPISODE_WITH_VERSION = re.compile(r'[【\[](\d+)\s? *v\d(?:END)?[】\]]')
 
 FETCH_EPISODE = (FETCH_EPISODE_ZH, FETCH_EPISODE_ALL_ZH,
                  FETCH_EPISODE_WITH_BRACKETS, FETCH_EPISODE_ONLY_NUM,
@@ -424,12 +420,12 @@ def parse_episode(episode_title):
     _ = FETCH_EPISODE_ALL_ZH.findall(episode_title)
     if _ and _[0]:
         try:
-            logger.debug('try return episode all zh {}'.format(_))
+            logger.debug('try return episode all zh %s', _)
             e = chinese_to_arabic(_[0])
             logger.debug('return episode all zh')
             return e
         except Exception:
-            logger.debug('can\'t convert {} to int'.format(_[0]))
+            logger.debug('can\'t convert %s to int', _[0])
             pass
 
     _ = FETCH_EPISODE_WITH_VERSION.findall(episode_title)
@@ -441,8 +437,6 @@ def parse_episode(episode_title):
     if _:
         logger.debug('return episode with brackets')
         return get_real_episode(_)
-
-
 
     logger.debug('don\'t match any regex, try match after split')
     for i in episode_title.replace('[', ' ').replace('【', ',').split(' '):

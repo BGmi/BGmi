@@ -20,7 +20,6 @@ class TransmissionRPC(BaseDownloadService):
             print_info('Add torrent into the download queue, the file will be saved at {0}'.format(self.save_path))
         except ImportError:
             self.install()
-            pass
 
     def check_delegate_bin_exist(self, path):
         try:

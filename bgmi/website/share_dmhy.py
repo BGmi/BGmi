@@ -345,5 +345,3 @@ class DmhySource(BaseWebsite):
                 })
 
         return result
-
-    pass

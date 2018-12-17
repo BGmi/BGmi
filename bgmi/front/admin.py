@@ -60,16 +60,15 @@ def auth(f):
         token = args[0].request.headers.get('bgmi-token')
         if token == ADMIN_TOKEN:
             return f(*args, **kwargs)
-        else:
-            # HTTPError will be except in `BaseHandler.write_error`
-            raise HTTPError(401)
+        # HTTPError will be except in `BaseHandler.write_error`
+        raise HTTPError(401)
 
     return wrapper
 
 
 class AdminApiHandler(BaseHandler):
     @auth
-    def get(self, action, *args, **kwargs):
+    def get(self, action):
         try:
             result = API_MAP_GET.get(action)()
         except Exception:
@@ -78,7 +77,7 @@ class AdminApiHandler(BaseHandler):
         self.finish(self.jsonify(**result))
 
     @auth
-    def post(self, action, *args, **kwargs):
+    def post(self, action):
         data = self.get_json()
 
         try:

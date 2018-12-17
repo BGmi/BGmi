@@ -180,8 +180,8 @@ class Bangumi(NeoDB):
             print('ignore updating bangumi', [x.bangumi_name for x in un_updated_bangumi])
 
         cls.update(status=STATUS_END) \
-            .where(cls.name.not_in(
-            [x.bangumi_name for x in un_updated_bangumi])).execute()  # do not mark updating bangumi as STATUS_END
+            .where(cls.name.not_in([x.bangumi_name for x in un_updated_bangumi])) \
+            .execute()  # do not mark updating bangumi as STATUS_END
 
     @classmethod
     def get_updating_bangumi(cls, status=None, order=True):
@@ -238,6 +238,19 @@ class Bangumi(NeoDB):
 
     def __repr__(self):
         return self.__str__()
+
+    @staticmethod
+    def to_d(field):
+        return {key: model_to_dict(value) for key, value in dict(field).items()}
+
+    def __eq__(self, data):
+        return self.cover != data.cover \
+               or self.status != data.status \
+               or self.subject_id != data.subject_id \
+               or self.update_time != data.update_time \
+               or self.subject_name != data.subject_name \
+               or set(set(self.bangumi_names) - set(data.bangumi_names)) \
+               or self.to_d(self.data_source) != self.to_d(data.data_source)
 
 
 class Followed(NeoDB):
@@ -359,8 +372,8 @@ class Subtitle(NeoDB):
         subtitle_group_list example: `tests/data/subtitle.json`
         :type subtitle_group_list: dict
         """
-        for data_source_id, subtitle_group_list in subtitle_group_list.items():
-            for subtitle_group in subtitle_group_list:
+        for data_source_id, subtitle_group_lists in subtitle_group_list.items():
+            for subtitle_group in subtitle_group_lists:
                 with db.atomic():
                     s, if_created = Subtitle.get_or_create(id=str(subtitle_group['id']),
                                                            data_source=data_source_id,

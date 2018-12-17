@@ -6,7 +6,7 @@ from bgmi.lib.models import STATUS_DOWNLOADED, STATUS_NOT_DOWNLOAD, STATUS_DOWNL
 from bgmi.utils import print_warning, print_info, print_success
 
 
-class BaseDownloadService(object):
+class BaseDownloadService:
     def __init__(self, download_obj, save_path, overwrite=True):
         self.name = download_obj.name
         self.torrent = download_obj.download

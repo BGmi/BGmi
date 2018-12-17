@@ -5,7 +5,6 @@ import hashlib
 import os
 import platform
 import random
-import sys
 
 # download delegate
 __wget__ = ('WGET_PATH',)
@@ -43,13 +42,13 @@ DOWNLOAD_DELEGATE_MAP = {
 def get_bgmi_path():
     if not os.environ.get('BGMI_PATH'):
         if platform.system() == 'Windows':
-            BGMI_PATH = os.path.join(os.environ.get('USERPROFILE', None), '.bgmi')
+            _BGMI_PATH = os.path.join(os.environ.get('USERPROFILE', None), '.bgmi')
 
         else:
-            BGMI_PATH = os.path.join(os.environ.get('HOME', '/tmp'), '.bgmi')
+            _BGMI_PATH = os.path.join(os.environ.get('HOME', '/tmp'), '.bgmi')
     else:  # pragma: no cover
-        BGMI_PATH = os.environ.get('BGMI_PATH')
-    return BGMI_PATH
+        _BGMI_PATH = os.environ.get('BGMI_PATH')
+    return _BGMI_PATH
 
 
 BGMI_PATH = get_bgmi_path()

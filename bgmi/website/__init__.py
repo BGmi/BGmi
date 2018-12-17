@@ -12,8 +12,8 @@ from fuzzywuzzy import fuzz
 from hanziconv import HanziConv
 
 from bgmi.config import MAX_PAGE, ENABLE_GLOBAL_FILTER, GLOBAL_FILTER
-from bgmi.lib.models import Bangumi, Filter, BangumiItem, db, STATUS_UPDATING, model_to_dict, Subtitle, STATUS_FOLLOWED, \
-    STATUS_UPDATED, Followed
+from bgmi.lib.models import Bangumi, Filter, BangumiItem, db, STATUS_UPDATING, model_to_dict, Subtitle, \
+    STATUS_FOLLOWED, STATUS_UPDATED, Followed
 from bgmi import config
 from bgmi.utils import test_connection, print_warning, print_info, download_cover, convert_cover_url_to_path
 from bgmi.website.bangumi_moe import BangumiMoe
@@ -150,14 +150,13 @@ class BangumiList(list):
             most_similar_index = similarity_list.index(max_similarity)
             if not mainline:
                 return max_similarity, most_similar_index
+            if self[most_similar_index].get('subject_id'):
+                similarity_list[most_similar_index] = 0
             else:
-                if self[most_similar_index].get('subject_id'):
-                    similarity_list[most_similar_index] = 0
-                else:
-                    return max_similarity, most_similar_index
+                return max_similarity, most_similar_index
 
     def add_bangumi(self, source: str, bangumi: Union[dict, BangumiItem, Bangumi], set_status=None):
-        if isinstance(bangumi, BangumiItem) or isinstance(bangumi, Bangumi):
+        if isinstance(bangumi, (BangumiItem, Bangumi)):
             bangumi = model_to_dict(bangumi)
         similarity_list = list(map(lambda x: similarity_of_two_name(bangumi['name'], x.subject_name), self))
         max_similarity = max(similarity_list)
@@ -242,7 +241,7 @@ def get_bgm_tv_calendar() -> BangumiList:
     bangumi_tv_weekly_list = BangumiList()
 
     for day in r:
-        for index, item in enumerate(day['items']):
+        for item in day['items']:
             if item['name_cn']:
                 name = item['name_cn']
             else:
@@ -387,21 +386,10 @@ class DataSource:
         # :type data: dict
         """
 
-        def to_d(field):
-            return {key: model_to_dict(value) for key, value in dict(field).items()}
-
         b, obj_created = Bangumi.get_or_create(name=data.name,
                                                defaults=model_to_dict(data, recurse=True))  # type: (Bangumi, bool)
         if not obj_created:
-            if (
-                b.cover != data.cover or
-                b.status != data.status or
-                b.subject_id != data.subject_id or
-                b.update_time != data.update_time or
-                b.subject_name != data.subject_name or
-                set(set(b.bangumi_names) - set(data.bangumi_names)) or
-                to_d(b.data_source) != to_d(b.data_source)
-            ):
+            if b != data:
                 b.cover = data.cover
                 b.status = data.status
                 b.subject_id = data.subject_id
@@ -425,12 +413,8 @@ class DataSource:
                                                    defaults=model_to_dict(data))  # type: (BangumiItem, bool)
 
         if not obj_created:
-            if (
-                b.cover != data.cover or
-                b.status != data.status or
-                b.update_time != data.update_time or
-                b.subtitle_group != data.subtitle_group
-            ):
+            if b.cover != data.cover or b.status != data.status \
+                or b.update_time != data.update_time or b.subtitle_group != data.subtitle_group:
                 b.cover = data.cover
                 b.status = data.status
                 b.update_time = data.update_time
@@ -505,8 +489,7 @@ class DataSource:
         if data:
             bangumi = max(data, key=lambda _i: _i['episode'])
             return bangumi, data
-        else:
-            return {'episode': 0}, []
+        return {'episode': 0}, []
 
     def fetch_episode(self, filter_obj: Filter = None, bangumi_obj=None, max_page=int(MAX_PAGE)):
         """
@@ -558,7 +541,7 @@ class DataSource:
         result = response_data
         filter_obj.exclude.append('合集')
 
-        if not ENABLE_GLOBAL_FILTER == '0':
+        if ENABLE_GLOBAL_FILTER != '0':
             filter_obj.exclude += [x.strip() for x in GLOBAL_FILTER.split(',')]
 
         if filter_obj.include:
@@ -593,7 +576,8 @@ class DataSource:
                                              Subtitle.get_subtitle_from_data_source_dict(bangumi['data_source'])]
         return weekly_list
 
-    def search_by_keyword(self, keyword, count):  # pragma: no cover
+    @staticmethod
+    def search_by_keyword(keyword, count):  # pragma: no cover
         """
         return a list of dict with at least 4 key: download, name, title, episode
         example:

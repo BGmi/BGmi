@@ -8,7 +8,6 @@ from multiprocessing.pool import ThreadPool
 
 import bs4
 import requests
-from bs4 import BeautifulSoup
 
 from bgmi.config import MAX_PAGE
 from bgmi.website.base import BaseWebsite
@@ -33,7 +32,7 @@ def get_weekly_bangumi():
     network
     """
     r = requests.get(server_root)
-    soup = BeautifulSoup(r.text, 'html.parser')
+    soup = bs4.BeautifulSoup(r.text, 'html.parser')
     sunday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "0"})
     monday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "1"})
     tuesday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "2"})
@@ -75,7 +74,7 @@ class Mikanani(BaseWebsite):
 
         subtitle_groups = defaultdict(lambda: defaultdict(list))
 
-        soup = BeautifulSoup(r, 'html.parser')
+        soup = bs4.BeautifulSoup(r, 'html.parser')
 
         # info
         bangumi_info = {'status': 0}
@@ -85,11 +84,11 @@ class Mikanani(BaseWebsite):
         bangumi_info['update_time'] = Cn_week_map[day.text[-3:]]
 
         ######
-        soup = BeautifulSoup(r, 'html.parser')
+        soup = bs4.BeautifulSoup(r, 'html.parser')
         # name = soup.find('p', class_='bangumi-title').text
         container = soup.find('div', class_='central-container')  # type:bs4.Tag
         episode_container_list = {}
-        for index, tag in enumerate(container.contents):
+        for tag in container.contents:
             if hasattr(tag, 'attrs'):
                 subtitle_id = tag.attrs.get('id', False)
                 if subtitle_id:
@@ -147,7 +146,7 @@ class Mikanani(BaseWebsite):
 
         result = []
         r = requests.get(server_root + "Home/Search", params={'searchstr': keyword}).text
-        s = BeautifulSoup(r, 'html.parser')
+        s = bs4.BeautifulSoup(r, 'html.parser')
         td_list = s.find_all('tr', attrs={'class': 'js-search-results-row'})  # type:List[bs4.Tag]
         for tr in td_list:
             title = tr.find('a', class_='magnet-link-wrap').text
@@ -191,11 +190,11 @@ class Mikanani(BaseWebsite):
             print(server_root + 'Bangumi/{}'.format(bangumi_id))
         r = requests.get(server_root + 'Home/Bangumi/{}'.format(bangumi_id)).text
 
-        soup = BeautifulSoup(r, 'html.parser')
+        soup = bs4.BeautifulSoup(r, 'html.parser')
         # name = soup.find('p', class_='bangumi-title').text
         container = soup.find('div', class_='central-container')  # type:bs4.Tag
         episode_container_list = {}
-        for index, tag in enumerate(container.contents):
+        for tag in container.contents:
             if hasattr(tag, 'attrs'):
                 subtitle_id = tag.attrs.get('id', False)
                 if subtitle_list:
@@ -271,7 +270,8 @@ class Mikanani(BaseWebsite):
             bangumi.update(r[i])
             bangumi_result.append(bangumi)
 
-        [subtitle_result.extend(x['subtitle_groups']) for x in bangumi_result]
+        for x in bangumi_result:
+            subtitle_result.extend(x['subtitle_groups'])
 
         def f(x, y):
             return x if y in x else x + [y]

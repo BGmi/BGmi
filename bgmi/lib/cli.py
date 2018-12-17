@@ -76,7 +76,6 @@ def cal_wrapper(ret):
     force_update = ret.force_update
     today = ret.today
     save = not ret.no_save
-
     runner = ScriptRunner()
     if ret.download_cover:
         cover = runner.get_download_cover()

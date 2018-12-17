@@ -20,7 +20,7 @@ def add(name, episode=None):
     # action add
     # add bangumi by a list of bangumi name
     # result = {}
-    logger.debug('add name: {} episode: {}'.format(name, episode))
+    logger.debug('add name: %s episode: %s', name, episode)
     if not Bangumi.get_updating_bangumi():
         website.fetch(save=True, group_by_weekday=False)
 
@@ -79,15 +79,15 @@ def filter_(name, subtitle_input=None, data_source_input=None, include=None, exc
         else:
             subtitle_input = [s.strip() for s in subtitle_input.split(',')]
             valid_subtitle_name_list = [x['name'] for x in subtitle_list]
-            for name in subtitle_input:
+            for bangumi_name in subtitle_input:
                 try:
-                    Subtitle.get(name=name)
+                    Subtitle.get(name=bangumi_name)
                 except Subtitle.DoesNotExist:
-                    return {'status': 'error', 'message': '{} is not a valid subtitle_group'.format(name)}
-                if name not in valid_subtitle_name_list:
+                    return {'status': 'error', 'message': '{} is not a valid subtitle_group'.format(bangumi_name)}
+                if bangumi_name not in valid_subtitle_name_list:
                     return {
                         'status': 'error',
-                        'message': '{} is not a subtitle of bangumi {}'.format(name, bangumi_obj.name)
+                        'message': '{} is not a subtitle of bangumi {}'.format(bangumi_name, bangumi_obj.name)
                     }
             followed_filter_obj.subtitle = subtitle_input
 
@@ -150,7 +150,7 @@ def delete(name='', clear_all=False, batch=False):
     # action delete
     # just delete subscribed bangumi or clear all the subscribed bangumi
     result = {}
-    logger.debug('delete {}'.format(name))
+    logger.debug('delete %s', name)
     if clear_all:
         if Followed.delete_followed(batch=batch):
             result['status'] = "warning"
@@ -185,8 +185,8 @@ def cal():
 
     # for web api, return all subtitle group info
     r = weekly_list
-    for day, value in weekly_list.items():
-        for index, bangumi in enumerate(value):
+    for value in weekly_list.values():
+        for bangumi in value:
             bangumi['cover'] = normalize_path(bangumi['cover'])
             bangumi['bangumi_names'] = list(bangumi['bangumi_names'])
             for key, data_source in bangumi['data_source'].items():
@@ -298,7 +298,7 @@ def config(name=None, value=None):
 
 
 def update(name, download=None, not_ignore=False):
-    logger.debug('updating bangumi info with args: download: {}'.format(download))
+    logger.debug('updating bangumi info with args: download: %s' % download)
     result = {'status': 'info', 'message': '', 'data': {'updated': [], 'downloaded': []}}
 
     ignore = not bool(not_ignore)
@@ -426,7 +426,7 @@ def list_():
 
     result['status'] = 'info'
     result['message'] = ''
-    for index, weekday in enumerate(weekday_order):
+    for weekday in weekday_order:
         if followed_bangumi[weekday.lower()]:
             result['message'] += '%s%s. %s' % (GREEN, weekday, COLOR_END)
             for i, bangumi in enumerate(followed_bangumi[weekday.lower()]):
