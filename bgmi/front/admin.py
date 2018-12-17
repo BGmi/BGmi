@@ -1,8 +1,10 @@
 # coding: utf-8
 import functools
 import traceback
+from concurrent.futures.thread import ThreadPoolExecutor
 from multiprocessing.pool import ThreadPool
 
+from tornado.concurrent import run_on_executor
 from tornado.web import asynchronous, HTTPError
 
 from bgmi.config import ADMIN_TOKEN
@@ -84,10 +86,31 @@ class AdminApiHandler(BaseHandler):
         self.finish(resp)
 
 
+from multiprocessing.pool import ThreadPool
+from tornado.ioloop import IOLoop
+import time
+
+# from tornado.locks import Lock
+from threading import Lock
+
+
 class UpdateHandler(BaseHandler):
+    executor = ThreadPoolExecutor(2)
+    lock = Lock()
+
     @auth
     @asynchronous
     def post(self):
+        if not self.lock.locked():
+            self.lock.acquire()
+            IOLoop.instance().add_callback(self.hard_task)  # 这样将在下一轮事件循环执行self.sleep
+            self.finish(self.jsonify(message='start updating'))
+        else:
+            self.finish(self.jsonify(message='previous updating has not finish'))
+
+    @run_on_executor
+    def hard_task(self, ):
+        print('start work')
         data = self.get_json()
 
         name = data.get('name', '')
@@ -95,10 +118,5 @@ class UpdateHandler(BaseHandler):
 
         if not download:
             download = None
-
-        pool = ThreadPool(processes=1)
-        pool.apply_async(update, (name, download,), callback=self.resp)
-
-    def resp(self, result):
-        self.write(self.jsonify(**result))
-        self.finish()
+        update(name, download)
+        self.lock.release()
