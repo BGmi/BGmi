@@ -1,8 +1,6 @@
 openapi: 3.0.0
 # Added by API Auto Mocking Plugin
 servers:
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/Trim21/BGmi/1.0.0
   - url: '{scheme}://{host}:{port}/api/'
     variables:
       scheme:
@@ -491,7 +489,7 @@ components:
           type: string
           format: url
           example:    "https/mikanani.me/Images/Bangumi/201806/42f2b7e0.jpg"
-          description: real cover image url
+          description: cover img, real url image path is `/bangumi/cover/` + this value
 
     BangumiItemList:
       type: array

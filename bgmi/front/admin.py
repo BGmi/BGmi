@@ -2,7 +2,7 @@
 import functools
 import traceback
 from concurrent.futures.thread import ThreadPoolExecutor
-from multiprocessing.pool import ThreadPool
+from tornado.ioloop import IOLoop
 
 from tornado.concurrent import run_on_executor
 from tornado.web import asynchronous, HTTPError
@@ -85,10 +85,6 @@ class AdminApiHandler(BaseHandler):
         resp = self.jsonify(**result)
         self.finish(resp)
 
-
-from multiprocessing.pool import ThreadPool
-from tornado.ioloop import IOLoop
-import time
 
 # from tornado.locks import Lock
 from threading import Lock

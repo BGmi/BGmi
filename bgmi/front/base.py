@@ -22,7 +22,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def get_json(self):
         try:
-            return json.loads(self.request.body)
+            return json.loads(self.request.body.decode())
         except json.decoder.JSONDecodeError:
             raise HTTPError(400)
 
