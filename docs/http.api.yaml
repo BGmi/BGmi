@@ -1,0 +1,604 @@
+openapi: 3.0.0
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/Trim21/BGmi/1.0.0
+  - url: '{scheme}://{host}:{port}/api/'
+    variables:
+      scheme:
+        enum:
+          - http
+          - https
+        default: http
+      host:
+        default: localhost
+        description: host your bgmi http server running
+      port:
+        default: '8888'
+
+info:
+  description: This is a simple API
+  version: "2.1.0-beta"
+  title: BGmi HTTP API
+  # contact:
+  # email: you@your-company.com
+  license:
+    name: MIT License
+    url: https://github.com/BGmi/BGmi/blob/master/LICENSE
+
+security:
+  - ApiKeyAuth: []     # use the same name as under securitySchemes
+
+tags:
+  - name: viewers
+    description: Get data without auth
+  - name: admins
+    description: Secured Admin-only calls
+
+paths:
+  /index:
+    get:
+      tags:
+        - viewers
+      summary: get index
+      description: get bangumi calendar index
+      responses:
+        '200':
+          description: followed bangumi
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: object
+                        #                        properties:
+                        #                          key:
+                        #                            type: string
+                        #                            example: value
+                        $ref: '#/components/schemas/BangumiItemList'
+        '400':
+          description: bad input parameter
+  /old:
+    get:
+      tags:
+        - viewers
+      responses:
+        '200':
+          description: followed bangumi
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: object
+                        $ref: '#/components/schemas/BangumiItemList'
+  /auth:
+    post:
+      tags:
+        - admins
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+              properties:
+                token:
+                  type: string
+                  description: admin token in bgmi config
+                  example: 1c52f209c22383d9dfc9f98d1ebc6685
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        nullable: true
+        400:
+          description: auth faliue
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        nullable: true
+
+
+  /cal:
+    get:
+      tags:
+        - admins
+      responses:
+        '200':
+          description: followed bangumi
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          mon:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/CalendarItem'
+                          tue:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/CalendarItem'
+                          wed:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/CalendarItem'
+                          thu:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/CalendarItem'
+                          fri:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/CalendarItem'
+                          sat:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/CalendarItem'
+                          sun:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/CalendarItem'
+
+  /add:
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - admins
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: name you want to followed
+                  example: 海贼王
+                episode:
+                  type: integer
+                  description: episode you want to set
+
+      responses:
+        '200':
+          description: followed bangumi
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: object
+                        nullable: true
+
+  /delete:
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - admins
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: name you want to followed
+                  example: 海贼王
+
+      responses:
+        '200':
+          description: followed bangumi
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: object
+                        nullable: true
+
+  /mark:
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - admins
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - episode
+              properties:
+                name:
+                  type: string
+                  description: name you want to followed
+                  example: 海贼王
+                episode:
+                  type: integer
+                  description: episode you want to set
+
+      responses:
+        '200':
+          description: followed bangumi
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: object
+                        nullable: true
+  /filter:
+    post:
+      summary: bangumi download filter, when post data has only name, will return all filter condition.
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - admins
+      requestBody:
+        description: 'subtitle, include, exclude, regex maybe array in future version.'
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: name you want to followed
+                  example: 海贼王
+                subtitle:
+                  type: string
+                  nullable: true
+                  example: '极影, 澄空, 动漫国'
+                  description: followed subtitle list splited with comma
+                include:
+                  nullable: true
+                  type: string
+                  example: '720'
+                  description: words list splited with comma
+                exclude:
+                  nullable: true
+                  type: string
+                  example: 'HEVC, 生肉, h265'
+                  description: words list splited with comma
+                regex:
+                  nullable: true
+                  type: string
+                  format: regex
+                  example: '.*720.*'
+                  description: words list splited with comma
+      responses:
+        '200':
+          description: bangumi download filter, when post data has only name, will return a only
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                            example: 海贼王
+                          subtitle_group:
+                            type: array
+                            items:
+                              type: string
+                              example: "幻樱字幕组"
+                          followed:
+                            type: array
+                            nullable: true
+                            items:
+                              type: string
+                              example: "幻樱字幕组"
+                          include:
+                            type: string
+                            nullable: true
+                            example: '720'
+                          exclude:
+                            type: string
+                            nullable: true
+                            example: 'HEVC, 生肉, h265'
+                          regex:
+                            type: string
+                            nullable: true
+                            example: '.*720.*'
+
+  /update:
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - admins
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: if in python bool(name) is false will update all followed bangumi
+                  example: 海贼王
+                  default: ''
+                download:
+                  type: boolean
+                  default: false
+                  description: if download video file
+
+      responses:
+        '200':
+          description: followed bangumi
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    required:
+                      - message
+                    properties:
+                      message:
+                        type: string
+
+
+components:
+  schemas:
+    Response:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: ['success', 'warning', 'error']
+        lang:
+          type: string
+          example: zh_cn
+          description: useless at this time
+        latest_version:
+          type: string
+          example: '2.1.0-beta'
+          description: latest bgmi version in pypi
+        version:
+          type: string
+          example: 2.0.6
+          description: current bgmi version
+        danmaku_api:
+          type: string
+          format: url
+          example: https://api.prprpr.me/dplayer/
+        frontend_version:
+          type: string
+          example: 1.1.x
+          description: front version pattern
+        message:
+          type: string
+          description: server message
+        data:
+          type: object
+    CalendarItem:
+      type: object
+      properties:
+        status:
+          type: integer
+          enum: [0, 1, 2]
+          nullable: true
+          description: '1: followed bangumi 2: updated bangumi'
+        episode:
+          type: integer
+          nullable: true
+        id:
+          type: integer
+          example: 1
+          description: bgmi inner db id
+        name:
+          type: string
+          example: ZOMBIE LAND SAGA
+        subtitle_group:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: 极影字幕社
+              id:
+                type: string
+                example: '24'
+                description: subtitle group id on website and bgmi subtitle_group table primary key
+        update_time:
+          type: string
+          enum: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+        keyword:
+          type: string
+          example: "1682"
+          description: primary key on data source website
+        cover:
+          type: string
+          format: url
+          example:    "https/mikanani.me/Images/Bangumi/201806/42f2b7e0.jpg"
+          description: real cover image url
+
+    BangumiItemList:
+      type: array
+      items:
+        $ref: '#/components/schemas/BangumiItem'
+    BangumiItem:
+      type: object
+      required:
+        - name
+        - update_time
+        - cover
+        - id
+        - bangumi_name
+        - episode
+        - status
+        - updated_time
+        - player
+      properties:
+        name:
+          type: string
+          example: ZOMBIE LAND SAGA
+        update_time:
+          type: string
+          enum: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+        cover:
+          type: string
+          example: "/bangumi/cover/https/bangumi.moe/data/images/2018/10/1538250190254-cover.png"
+        id:
+          type: integer
+          example: 1
+          description: bgmi inner db id
+        bangumi_name:
+          type: string
+          example: ZOMBIE LAND SAGA
+        episode:
+          type: integer
+          example: 1
+        status:
+          type: integer
+          enum: [1, 2]
+          description: '1: followed bangumi 2: updated bangumi'
+        updated_time:
+          type: integer
+          format: date-time
+          example: 1544724018
+          description: unix timestamp
+        player:
+          $ref: '#/components/schemas/Player'
+    Player:
+      type: object
+      #      patternProperties:
+      #        "^[0-9]+$":
+      #          type: object
+      #          $ref: '#/components/schemas/PlayerValue'
+      example:
+        9:
+          path: "/ZOMBIE LAND SAGA/9/Zombieland Saga 09 [62CCBE38].mp4"
+        10:
+          path: "/ZOMBIE LAND SAGA/10/Zombieland Saga 10 [F75180D0].mp4"
+    #    PlayerValue:
+    #      type: object
+    #      properties:
+    #        path:
+    #          type: string
+    #          example: "/ZOMBIE LAND SAGA/10/Zombieland Saga 10 [F75180D0].mp4"
+    #          description: \
+    #            need append `/bangumi` at path,
+    #            real video path is `/bangumi/ZOMBIE LAND SAGA/10/Zombieland Saga 10 [F75180D0].mp4`
+    InventoryItem:
+      type: object
+      required:
+        - id
+        - name
+        - manufacturer
+        - releaseDate
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        name:
+          type: string
+          example: Widget Adapter
+        releaseDate:
+          type: string
+          format: date-time
+          example: '2016-08-29T09:12:33.001Z'
+        manufacturer:
+          $ref: '#/components/schemas/Manufacturer'
+    Manufacturer:
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: ACME Corporation
+        homePage:
+          type: string
+          format: url
+          example: 'https://www.acme-corp.com'
+        phone:
+          type: string
+          example: 408-867-5309
+      type: object
+
+  securitySchemes:
+    ApiKeyAuth:        # arbitrary name for the security scheme
+      type: apiKey
+      in: header       # can be "header", "query" or "cookie"
+      name: bgmi-token  # name of the header, query parameter or cookie
