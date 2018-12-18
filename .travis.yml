@@ -10,12 +10,13 @@ language: python
 sudo: true
 
 cache:
-    - pip
-    - $HOME/virtualenv
+    directories:
+        - /home/travis/virtualenv/
 
 python:
     - 2.7
     - 3.4
+    - 3.5
     - 3.6
 
 install:
@@ -26,8 +27,8 @@ install:
 script:
     - export BGMI_LOG=debug
     - export BANGUMI_1=名侦探柯南
-    - export BANGUMI_2=黑色五叶草
-    - export BANGUMI_3=海贼王
+    - export BANGUMI_2=强风吹拂
+    - export BANGUMI_3=妖精的尾巴
     - coverage run -a -m bgmi.main install
     - bgmi -h
     - coverage run -a -m unittest tests.test_controllers
@@ -54,7 +55,7 @@ script:
     - coverage run -a -m unittest tests.test_http_api
     - coverage run -a -m bgmi.main search "海贼王" --regex-filter '.*MP4.*720P.*'
     - eval "$(coverage run -a -m bgmi.main complete)"
-#
+    #
     - echo 'test mikan'
     - export BANGUMI_1=名侦探柯南
     - export BANGUMI_2=海贼王
@@ -70,4 +71,4 @@ script:
     - coverage run -a -m unittest tests.test_data_source
 
 after_success:
-  - codecov
+    - codecov
