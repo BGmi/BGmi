@@ -53,6 +53,8 @@ Feature
 Installation
 ============
 
+Attention: If you are using Python 2.x, please install a version prior to 2.1.0.
+
 For **Mac OS X / Linux / Windows**:
 
 .. code-block:: bash
