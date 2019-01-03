@@ -100,9 +100,8 @@ class BaseWebsite(object):
 
         if force_update:
             print_info('Fetching bangumi info ...')
-            weekly_list = self.fetch(save=save)
-        else:
-            weekly_list = Bangumi.get_updating_bangumi()
+            self.fetch(save=save)
+        weekly_list = Bangumi.get_updating_bangumi()
 
         if not weekly_list:
             print_warning('Warning: no bangumi schedule, fetching ...')
