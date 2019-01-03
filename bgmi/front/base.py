@@ -1,8 +1,10 @@
 #!coding: utf-8
 import json
+import json.decoder
 import os
 
 import tornado.web
+from tornado.web import HTTPError
 
 from bgmi import __version__, __admin_version__
 from bgmi.config import DANMAKU_API_URL, BGMI_PATH, LANG
@@ -19,9 +21,9 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def get_json(self):
         try:
-            return json.loads(self.request.body.decode('utf-8'))
-        except (json.JSONDecoder, ValueError):
-            return {}
+            return json.loads(self.request.body.decode())
+        except json.decoder.JSONDecodeError:
+            raise HTTPError(400)
 
     def jsonify(self, data=None, **kwargs):
         j = {

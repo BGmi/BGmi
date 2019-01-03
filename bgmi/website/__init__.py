@@ -5,7 +5,7 @@ import time
 from collections import defaultdict
 from copy import deepcopy
 from itertools import chain
-from typing import List, Dict, Iterator, Union, Callable
+from typing import List, Dict, Union
 import imghdr
 import requests
 from fuzzywuzzy import fuzz
@@ -13,12 +13,13 @@ from hanziconv import HanziConv
 
 from bgmi.config import MAX_PAGE, ENABLE_GLOBAL_FILTER, GLOBAL_FILTER
 from bgmi.lib.models import Bangumi, Filter, BangumiItem, db, STATUS_UPDATING, model_to_dict, Subtitle, \
-    STATUS_FOLLOWED, STATUS_UPDATED, Followed
+    STATUS_FOLLOWED, STATUS_UPDATED
 from bgmi import config
-from bgmi.utils import test_connection, print_warning, print_info, download_cover, convert_cover_url_to_path
+from bgmi.utils import test_connection, print_warning, print_info, download_cover, convert_cover_url_to_path, FullToHalf
 from bgmi.website.bangumi_moe import BangumiMoe
 from bgmi.website.mikan import Mikanani
 from bgmi.website.share_dmhy import DmhySource
+from bgmi.lib.models import combined_bangumi
 
 DATA_SOURCE_MAP = {
     'mikan_project': Mikanani(),
@@ -27,21 +28,10 @@ DATA_SOURCE_MAP = {
 }
 
 
-def FullToHalf(s):
-    n = []
-    # s = s.decode('utf-8')
-    for char in s:
-        num = ord(char)
-        if num == 0x3000:
-            num = 32
-        elif 0xFF01 <= num <= 0xFF5E:
-            num -= 0xfee0
-        num = chr(num)
-        n.append(num)
-    return ''.join(n)
-
-
 def similarity_of_two_name(name1: str, name2: str):
+    for s in combined_bangumi:
+        if name1 in s and name2 in s:
+            return 100
     name1 = HanziConv.toSimplified(name1)
     name2 = HanziConv.toSimplified(name2)
     name1 = FullToHalf(name1)

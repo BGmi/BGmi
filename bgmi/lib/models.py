@@ -149,6 +149,12 @@ class BangumiItem(pw.Model):
             return o[0]
 
 
+import hashlib
+
+print(hash('hello world'))
+print(hash('hello world1'))
+
+
 class Bangumi(NeoDB):
     id = pw.IntegerField(primary_key=True)  # type: int
     name = pw.TextField(unique=True, null=False)
@@ -251,6 +257,10 @@ class Bangumi(NeoDB):
                or self.subject_name != data.subject_name \
                or set(set(self.bangumi_names) - set(data.bangumi_names)) \
                or self.to_d(self.data_source) != self.to_d(data.data_source)
+
+    def __hash__(self):
+        return int(hashlib.sha1(self.name.encode()).hexdigest(), 16) % (10 ** 8)
+        # return self.name
 
 
 class Followed(NeoDB):
@@ -394,6 +404,10 @@ class Subtitle(NeoDB):
         return l
 
 
+class PreMatchedBangumi(NeoDB):
+    pass
+
+
 script_db = pw.SqliteDatabase(bgmi.config.SCRIPT_DB_PATH)
 
 
@@ -413,6 +427,8 @@ def recreate_source_relatively_table():
         table.delete().execute()
     return True
 
+
+combined_bangumi = []  # type: List[set]
 
 if __name__ == '__main__':  # pragma:no cover
     from pprint import pprint

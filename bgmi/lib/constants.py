@@ -15,10 +15,13 @@ ACTION_LIST = 'list'
 ACTION_MARK = 'mark'
 ACTION_SEARCH = 'search'
 ACTION_CONFIG_GEN = 'gen'
+ACTION_COMBINE = 'combine'
+ACTION_REMOVE_COMBINE = 'remove-combine'
 ACTION_COMPLETE = 'complete'  # bash completion
 ACTIONS = (ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL,
            ACTION_CONFIG, ACTION_FILTER, ACTION_FETCH, ACTION_DOWNLOAD,
-           ACTION_LIST, ACTION_MARK, ACTION_SEARCH, ACTION_COMPLETE)
+           ACTION_LIST, ACTION_MARK, ACTION_SEARCH, ACTION_COMPLETE,
+           ACTION_COMBINE, ACTION_REMOVE_COMBINE)
 ACTION_FOLLOWED = 'followed'  # place holder?
 ACTION_HISTORY = 'history'
 
@@ -233,6 +236,22 @@ actions_and_arguments = [
              'kwargs': dict(help='gen nginx.conf', choices=['nginx.conf', ])},
             {'dest': '--server-name',
              'kwargs': dict(metavar='server_name', help='server name', required=True)},
+        ]
+    },
+    {
+        'action': ACTION_COMBINE,
+        'help': 'Combine too bangumi which not auto combined by bgmi',
+        'arguments': [
+            {'dest': 'bangumi_names',
+             'kwargs': dict(nargs='+')}
+        ]
+    },
+    {
+        'action': ACTION_REMOVE_COMBINE,
+        'help': 'remove bangumi names from pre-combined list',
+        'arguments': [
+            {'dest': 'bangumi_names',
+             'kwargs': dict(nargs='+')}
         ]
     },
     {

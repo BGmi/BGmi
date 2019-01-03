@@ -13,8 +13,8 @@ from bgmi.lib.constants import (ACTION_ADD, ACTION_DOWNLOAD, ACTION_CONFIG, ACTI
                                 ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST,
                                 DOWNLOAD_CHOICE_LIST_DICT, ACTION_COMPLETE, ACTION_HISTORY,
                                 SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, ACTIONS,
-                                actions_and_arguments, ACTION_CONFIG_GEN)
-from bgmi.lib.controllers import filter_, config, mark, delete, add, search, update, list_
+                                actions_and_arguments, ACTION_CONFIG_GEN, ACTION_COMBINE, ACTION_REMOVE_COMBINE)
+from bgmi.lib.controllers import filter_, config, mark, delete, add, search, update, list_, combine, remove_combine
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
 from bgmi.lib.models import Bangumi, Followed, Filter, Subtitle, STATUS_UPDATED, STATUS_DELETED, STATUS_FOLLOWED
@@ -327,6 +327,14 @@ def config_gen(ret):
     print(template_with_content)
 
 
+def combine_wrapper(ret):
+    return combine(*ret.bangumi_names)
+
+
+def remove_combine_wrapper(ret):
+    return remove_combine(*ret.bangumi_names)
+
+
 CONTROLLERS_DICT = {
     ACTION_ADD: add_wrapper,
     ACTION_DOWNLOAD: download_manager,
@@ -342,6 +350,8 @@ CONTROLLERS_DICT = {
     ACTION_COMPLETE: complete,
     ACTION_HISTORY: history,
     ACTION_CONFIG_GEN: config_gen,
+    ACTION_COMBINE: combine_wrapper,
+    ACTION_REMOVE_COMBINE: remove_combine_wrapper,
 }
 
 

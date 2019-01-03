@@ -568,3 +568,17 @@ def download_cover(cover_url_list):
     p = ThreadPool(4)
     p.map(download_file, cover_url_list)
     p.close()
+
+
+def FullToHalf(s):
+    n = []
+    # s = s.decode('utf-8')
+    for char in s:
+        num = ord(char)
+        if num == 0x3000:
+            num = 32
+        elif 0xFF01 <= num <= 0xFF5E:
+            num -= 0xfee0
+        num = chr(num)
+        n.append(num)
+    return ''.join(n)
