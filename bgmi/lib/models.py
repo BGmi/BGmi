@@ -247,13 +247,13 @@ class Bangumi(NeoDB):
         return {key: model_to_dict(value) for key, value in dict(field).items()}
 
     def __eq__(self, data):
-        return self.cover != data.cover \
-               or self.status != data.status \
-               or self.subject_id != data.subject_id \
-               or self.update_time != data.update_time \
-               or self.subject_name != data.subject_name \
-               or set(set(self.bangumi_names) - set(data.bangumi_names)) \
-               or self.to_d(self.data_source) != self.to_d(data.data_source)
+        return self.cover == data.cover \
+               and self.status == data.status \
+               and self.subject_id == data.subject_id \
+               and self.update_time == data.update_time \
+               and self.subject_name == data.subject_name \
+               and not set(set(self.bangumi_names) - set(data.bangumi_names)) \
+               and self.to_d(self.data_source) == self.to_d(data.data_source)
 
     def __hash__(self):
         return int(hashlib.sha1(self.name.encode()).hexdigest(), 16) % (10 ** 8)

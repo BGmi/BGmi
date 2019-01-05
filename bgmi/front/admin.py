@@ -27,8 +27,8 @@ def _filter(name, subtitle=None, include=None, exclude=None, regex=None):
     if 'data' in result:
         data = result['data']
         result['data'].update({
-            'include': ', '.join(data['include']),
-            'exclude': ', '.join(data['exclude']),
+            'include': ', '.join(data['include'] or []),
+            'exclude': ', '.join(data['exclude'] or []),
         })
     return result
 
