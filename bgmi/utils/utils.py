@@ -1,7 +1,6 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 
-import functools
 import glob
 import gzip
 import json
@@ -286,7 +285,7 @@ def check_update(mark=True):
             pass
 
 
-def chinese_to_arabic(cn: str) -> int:
+def chinese_to_arabic(cn):
     """
     https://blog.csdn.net/hexrain/article/details/52790126
     :type cn: str
