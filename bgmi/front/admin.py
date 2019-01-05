@@ -69,19 +69,22 @@ def auth(f):
 
 
 class AdminApiHandler(BaseHandler):
+    executor = ThreadPoolExecutor(4)
+
     @auth
+    @run_on_executor
     def get(self, action):
         try:
             result = API_MAP_GET.get(action)()
         except Exception:
             traceback.print_exc()
             raise HTTPError(400)
-        self.finish(self.jsonify(**result))
+        self.write(self.jsonify(**result))
 
     @auth
+    @run_on_executor
     def post(self, action):
         data = self.get_json()
-
         try:
             result = API_MAP_POST.get(action)(**data)
             if result['status'] == 'error':
@@ -93,7 +96,7 @@ class AdminApiHandler(BaseHandler):
             raise HTTPError(500)
 
         resp = self.jsonify(**result)
-        self.finish(resp)
+        self.write(resp)
 
 
 # from tornado.locks import Lock
