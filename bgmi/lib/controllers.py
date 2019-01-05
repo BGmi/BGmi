@@ -415,10 +415,12 @@ import bgmi.lib.models
 
 
 def remove_combine(*bangumi_names):
+    Bangumi.delete().where(Bangumi.name.in_(bangumi_names)).execute()
     bgmi.lib.models.PreMatchedBangumi.remove_combine(*bangumi_names)
 
 
 def combine(*bangumi_names):
+    Bangumi.delete().where(Bangumi.name.in_(bangumi_names)).execute()
     bgmi.lib.models.PreMatchedBangumi.combine(*bangumi_names)
 
 

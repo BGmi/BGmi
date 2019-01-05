@@ -407,7 +407,7 @@ class PreMatchedBangumi(NeoDB):
     @classmethod
     def getAll(cls):
         try:
-            return map(lambda x: eval(x.value), cls.select())
+            return list(map(lambda x: eval(x.value), cls.select()))
         except:
             return []
 
