@@ -35,16 +35,11 @@ def get_weekly_bangumi():
     network
     """
     r = requests.get(server_root)
-    soup = BeautifulSoup(r.text, 'html.parser')
-    sunday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "0"})
-    monday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "1"})
-    tuesday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "2"})
-    wednesday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "3"})
-    thursday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "4"})
-    friday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "5"})
-    saturday = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "6"})
-    ova_bangumi = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': "8"})
-    return [sunday, monday, tuesday, wednesday, thursday, friday, saturday, ova_bangumi]
+    soup = bs4.BeautifulSoup(r.text, 'html.parser')
+    for day_of_week in range(0, 9):
+        d = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': str(day_of_week)})
+        if d:
+            yield d
 
 
 def parser_day_bangumi(soup):
