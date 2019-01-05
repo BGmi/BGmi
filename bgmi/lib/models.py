@@ -151,9 +151,6 @@ class BangumiItem(pw.Model):
 
 import hashlib
 
-print(hash('hello world'))
-print(hash('hello world1'))
-
 
 class Bangumi(NeoDB):
     id = pw.IntegerField(primary_key=True)  # type: int
@@ -405,7 +402,46 @@ class Subtitle(NeoDB):
 
 
 class PreMatchedBangumi(NeoDB):
-    pass
+    value = pw.TextField()
+
+    @classmethod
+    def getAll(cls):
+        try:
+            return map(lambda x: eval(x.value), cls.select())
+        except:
+            return []
+
+    @classmethod
+    def remove_combine(cls, *bangumi_names):
+        v = None
+        for name in bangumi_names:
+            f = cls.select().where(cls.value.contains(name))
+            if f:
+                v = f[0]
+                break
+        if v:
+            s = set(eval(v.value))
+            for name in bangumi_names:
+                s.remove(name)
+            v.value = repr(s)
+            v.save()
+
+    @classmethod
+    def combine(cls, *bangumi_names):
+        v = None
+        for name in bangumi_names:
+            f = cls.select().where(cls.value.contains(name))
+            if f:
+                v = f[0]
+                break
+        if v:
+            s = set(eval(v.value))
+            for name in bangumi_names:
+                s.add(name)
+            v.value = repr(s)
+            v.save()
+        else:
+            cls.create(value=repr(set(bangumi_names)))
 
 
 script_db = pw.SqliteDatabase(bgmi.config.SCRIPT_DB_PATH)
@@ -428,7 +464,7 @@ def recreate_source_relatively_table():
     return True
 
 
-combined_bangumi = []  # type: List[set]
+combined_bangumi = PreMatchedBangumi.getAll()  # type: List[set]
 
 if __name__ == '__main__':  # pragma:no cover
     from pprint import pprint

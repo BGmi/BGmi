@@ -413,41 +413,13 @@ def status_(name, status=STATUS_DELETED):
 
 import bgmi.lib.models
 
-with open('a.pickle', 'rb') as f:
-    try:
-        bgmi.lib.models.combined_bangumi = pickle.load(f)
-    except (pickle.PickleError, EOFError):
-        pass
-
 
 def remove_combine(*bangumi_names):
-    for s in bgmi.lib.models.combined_bangumi:
-        for name in bangumi_names:
-            if name in s:
-                s.remove(name)
-    save_combined_bangumi()
-
-
-def save_combined_bangumi():
-    for index, s in enumerate(bgmi.lib.models.combined_bangumi):
-        if not s:
-            del bgmi.lib.models.combined_bangumi[index]
-
-    with open('a.pickle', 'wb+') as f:
-        pickle.dump(bgmi.lib.models.combined_bangumi, f)
-    print(bgmi.lib.models.combined_bangumi)
+    bgmi.lib.models.PreMatchedBangumi.remove_combine(*bangumi_names)
 
 
 def combine(*bangumi_names):
-    for s in bgmi.lib.models.combined_bangumi:
-        for name in bangumi_names:
-            if name in s:
-                s.update(bangumi_names)
-                save_combined_bangumi()
-                return
-    s = set(bangumi_names)
-    bgmi.lib.models.combined_bangumi.append(s)
-    save_combined_bangumi()
+    bgmi.lib.models.PreMatchedBangumi.combine(*bangumi_names)
 
 
 def list_():
