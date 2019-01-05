@@ -13,12 +13,13 @@ BGmi is a cli tool for subscribed bangumi.
 ====
 TODO
 ====
-`Fetch data from multi data source at same time <https://github.com/BGmi/BGmi/projects/1>`_
 
 ==========
 Update Log
 ==========
-+ The BGmi version you saw will be the last version that support Python2.
++ Fetch data from multi data sources at same time
++ Refactor server code to improve performance
++ Remove python2 support
 + Transmission rpc authentication configuration
 + New download delegate `deluge-rpc <https://www.deluge-torrent.org/>`_
 + You can filter search results by min and max episode
@@ -124,7 +125,7 @@ Cli completion(bash and zsh. Shell was detected from your env $SHELL)
 
 .. code-block:: bash
 
-    eval "$(bgmi complete)"
+ eval "$(bgmi complete)"
 
 Setup custom BGMI_PATH:
 
@@ -132,28 +133,13 @@ Setup custom BGMI_PATH:
 
     BGMI_PATH=/bgmi bgmi -h
 
+
 Or add this code to your .bashrc file:
 
 .. code-block:: bash
 
     alias bgmi='BGMI_PATH=/tmp bgmi'
 
-Supported data source:
-
-+ `bangumi_moe(default) <https://bangumi.moe>`_
-+ `mikan_project <https://mikanani.me>`_
-+ `dmhy <https://share.dmhy.org/>`_
-
-Change data source:
-
-**All bangumi in database will be deleted when changing data source!** but scripts won't be affected
-
-video files will still store on the disk, but won't be shown on website.
-
-
-.. code-block:: bash
-
-    bgmi source mikan_project
 
 Show bangumi calendar:
 
@@ -231,6 +217,22 @@ Status code:
 + 1 - Downloading items
 + 2 - Downloaded items
 
+Manually match bangumi from multi data source.
+
+BGmi will try to find same bangumis from different data source. `example <https://github.com/BGmi/BGmi/issues/109#issuecomment-435870748>`_,
+but there may also be accidents. like "魔偶马戏团" and "傀儡马戏团", so BGmi apply two actions for user to tell BGmi that
+a bangumi name have different chinese translations.
+
+
+.. code-block:: bash
+
+    bgmi combine 魔偶马戏团 傀儡马戏团
+    bgmi cal --force-update
+
+    bgmi remove-combine 魔偶马戏团 傀儡马戏团 # maybe you have a typo in last input
+    bgmi cal --force-update
+
+
 Show BGmi configure and modify it:
 
 .. code-block:: bash
@@ -242,6 +244,7 @@ Fields of configure file:
 
 BGmi configure:
 
++ :code:`ENABLE_DATA_SOURCE`:enabled data sources.
 + :code:`BANGUMI_MOE_URL`: url of bangumi.moe mirror
 + :code:`BGMI_SAVE_PATH`: bangumi saving path
 + :code:`DOWNLOAD_DELEGATE`: the ways of downloading bangumi (aria2-rpc, transmission-rpc, deluge-rpc)
@@ -300,7 +303,7 @@ Generate Nginx config
 
 .. code-block:: bash
 
-    bgmi gen nginx.conf --server-name bgmi.whatever.com > bgmi.whatever.com
+    bgmi gen nginx.conf --server-name bgmi.example.com > bgmi.example.com
 
 Or write your config file manually.
 
@@ -402,13 +405,9 @@ Bangumi Script is located at :code:`BGMI_PATH/script`, inherited :code:`ScriptBa
     from bgmi.utils import parse_episode
     from bgmi.script import ScriptBase
     from bgmi.utils import print_error
-    from bgmi.config import IS_PYTHON3
 
 
-    if IS_PYTHON3:
-        unquote = urllib.parse.unquote
-    else:
-        unquote = urllib.unquote
+    unquote = urllib.parse.unquote
 
 
     class Script(ScriptBase):
@@ -463,7 +462,6 @@ Another example:
     from bgmi.utils import parse_episode
     from bgmi.script import ScriptBase
     from bgmi.utils import print_error
-    from bgmi.config import IS_PYTHON3
 
 
     class Script(ScriptBase):
@@ -515,7 +513,8 @@ The keys `1`, `2`, `3` is the episode, the value is the url of bangumi.
 ================
 BGmi Data Source
 ================
-You can easily add your own BGmi data source by extending BGmi website base class and implement all the method.
+You can easily add your own BGmi data source by extending BGmi website base(:code:`bgmi.website.base.BaseWebsite`) class
+ and implement all the method.
 
 .. code-block:: python
 
@@ -642,7 +641,7 @@ License
 =======
 The MIT License (MIT)
 
-Copyright (c) 2017 BGmi Developer Team (https://github.com/BGmi)
+Copyright (c) 2017-2019 BGmi Developer Team (https://github.com/BGmi)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

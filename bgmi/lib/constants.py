@@ -240,7 +240,7 @@ actions_and_arguments = [
     },
     {
         'action': ACTION_COMBINE,
-        'help': 'Combine too bangumi which not auto combined by bgmi',
+        'help': 'Combine two bangumi which not auto combined by bgmi',
         'arguments': [
             {'dest': 'bangumi_names',
              'kwargs': dict(nargs='+')}
@@ -248,7 +248,7 @@ actions_and_arguments = [
     },
     {
         'action': ACTION_REMOVE_COMBINE,
-        'help': 'remove bangumi names from pre-combined list',
+        'help': 'Remove bangumi names from pre-combined list',
         'arguments': [
             {'dest': 'bangumi_names',
              'kwargs': dict(nargs='+')}

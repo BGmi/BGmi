@@ -102,7 +102,7 @@ class BangumiList(list):
 
     def add_mainline(self, bangumi: Bangumi):
         similarity, similar_index = self.find_most_similar_index(bangumi.name)  # type: int, int
-        if similarity > self.threshold:
+        if similarity >= self.threshold:
 
             data_source = {
                 key: BangumiItem(**model_to_dict(value)) if isinstance(value, BangumiItem) else BangumiItem(**value)
@@ -151,7 +151,7 @@ class BangumiList(list):
         similarity_list = list(map(lambda x: similarity_of_two_name(bangumi['name'], x.subject_name), self))
         max_similarity = max(similarity_list)
 
-        if max_similarity > self.threshold:
+        if max_similarity >= self.threshold:
             most_similar_index = similarity_list.index(max_similarity)
             self[most_similar_index].add_data_source(source, deepcopy(bangumi))
             self[most_similar_index].bangumi_names.add(bangumi['name'])
