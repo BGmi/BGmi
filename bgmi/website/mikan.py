@@ -53,6 +53,8 @@ def parser_day_bangumi(soup):
     :rtype: list[dict]
     """
     li = []
+    if type(soup) is not bs4.element.Tag:
+        return li
     for soup in soup.find_all('li'):
         url = soup.select_one('a')
         span = soup.find('span')
