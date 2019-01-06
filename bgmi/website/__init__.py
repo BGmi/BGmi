@@ -19,7 +19,7 @@ from bgmi.utils import test_connection, print_warning, print_info, download_cove
 from bgmi.website.bangumi_moe import BangumiMoe
 from bgmi.website.mikan import Mikanani
 from bgmi.website.share_dmhy import DmhySource
-from bgmi.lib.models import combined_bangumi
+from bgmi.lib.models import combined_bangumi, uncombined_bangumi
 
 DATA_SOURCE_MAP = {
     'mikan_project': Mikanani(),
@@ -32,6 +32,10 @@ def similarity_of_two_name(name1: str, name2: str):
     for s in combined_bangumi:
         if name1 in s and name2 in s:
             return 100
+    for s in uncombined_bangumi:
+        if name1 in s and name2 in s:
+            return 0
+
     name1 = HanziConv.toSimplified(name1)
     name2 = HanziConv.toSimplified(name2)
     name1 = FullToHalf(name1)
@@ -512,7 +516,7 @@ class DataSource:
                 condition[subtitle.data_source].append(subtitle.id)
 
             for s, subtitle_group in condition.items():
-                print_info('Fetching {}'.format(s))
+                print_info('Fetching {} from {}'.format(bangumi_obj.data_source[s]['name'], s))
                 response_data += DATA_SOURCE_MAP[s].fetch_episode_of_bangumi(
                     bangumi_id=bangumi_obj.data_source[s]['keyword'],
                     subtitle_list=subtitle_group,
@@ -521,7 +525,7 @@ class DataSource:
 
         else:
             for s in source:
-                print_info('Fetching {}'.format(s))
+                print_info('Fetching {} from {}'.format(bangumi_obj.data_source[s]['name'], s))
                 response_data += DATA_SOURCE_MAP[s].fetch_episode_of_bangumi(
                     bangumi_id=bangumi_obj.data_source[s]['keyword'],
                     max_page=max_page

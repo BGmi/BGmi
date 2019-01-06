@@ -51,6 +51,7 @@ class SubtitleField(pw.TextField):
                 return ', '.join(value)
 
 
+# SetField
 class BangumiNamesField(JSONField):
     def python_value(self, value):
         if value is None:
@@ -167,7 +168,6 @@ class Bangumi(NeoDB):
 
     def __init__(self, **kwargs):
         super(NeoDB, self).__init__(**kwargs)
-
         update_time = kwargs.get('update_time', '').title()
         if update_time and update_time not in self.week:
             raise ValueError('unexpected update time %s' % update_time)
@@ -401,47 +401,89 @@ class Subtitle(NeoDB):
         return l
 
 
-class PreMatchedBangumi(NeoDB):
+class BangumiLink(NeoDB):
     value = pw.TextField()
+    status = pw.IntegerField()
+
+    class STATUS:
+        link = 1
+        unlink = 0
 
     @classmethod
     def getAll(cls):
         try:
-            return list(map(lambda x: eval(x.value), cls.select()))
+            link = []
+            unlink = []
+
+            for b in cls.select():
+                if b.status == cls.STATUS.link:
+                    link.append(eval(b.value))
+                if b.status == cls.STATUS.unlink:
+                    unlink.append(eval(b.value))
+            return {
+                cls.STATUS.link: link,
+                cls.STATUS.unlink: unlink,
+            }
+
+        except:
+            return {
+                cls.STATUS.link: [],
+                cls.STATUS.unlink: []
+            }
+
+    @classmethod
+    def getLinkedBangumis(cls):
+        try:
+            return list(map(lambda x: eval(x.value), cls.select().where(cls.status == cls.STATUS.link)))
         except:
             return []
 
     @classmethod
-    def remove_combine(cls, *bangumi_names):
-        v = None
-        for name in bangumi_names:
-            f = cls.select().where(cls.value.contains(name))
-            if f:
-                v = f[0]
-                break
-        if v:
-            s = set(eval(v.value))
-            for name in bangumi_names:
-                s.remove(name)
-            v.value = repr(s)
-            v.save()
+    def getUnlinkedBangumis(cls):
+        try:
+            return list(map(lambda x: eval(x.value), cls.select().where(cls.status == cls.STATUS.unlink)))
+        except:
+            return []
 
     @classmethod
-    def combine(cls, *bangumi_names):
-        v = None
-        for name in bangumi_names:
-            f = cls.select().where(cls.value.contains(name))
-            if f:
-                v = f[0]
-                break
-        if v:
-            s = set(eval(v.value))
-            for name in bangumi_names:
-                s.add(name)
-            v.value = repr(s)
-            v.save()
-        else:
-            cls.create(value=repr(set(bangumi_names)))
+    def try_remove_record(cls, bangumi_name_1, bangumi_name_2, status):
+        f = cls.select().where(cls.value.contains(bangumi_name_1)
+                               & cls.value.contains(bangumi_name_2)
+                               & (cls.status == status))
+        f = list(f)
+        if f:
+            v = f[0]
+            s = eval(v.value)
+            if s == {bangumi_name_2, bangumi_name_1}:
+                v.delete_instance()
+
+    @classmethod
+    def add_record(cls, bangumi_name_1, bangumi_name_2, status):
+        f = cls.select().where(cls.value.contains(bangumi_name_1)
+                               & cls.value.contains(bangumi_name_2)
+                               & (cls.status == status))
+        f = list(f)
+        find = False
+        if f:
+            v = f[0]
+            s = eval(v.value)
+            if s == {bangumi_name_2, bangumi_name_1}:
+                find = True
+        if not find:
+            cls.create(value=repr({bangumi_name_1, bangumi_name_2}), status=status)
+
+    @classmethod
+    def link(cls, bangumi_name_1, bangumi_name_2):
+        cls.try_remove_record(bangumi_name_1, bangumi_name_2, cls.STATUS.unlink)
+        cls.add_record(bangumi_name_1, bangumi_name_2, cls.STATUS.link)
+
+    @classmethod
+    def unlink(cls, bangumi_name_1, bangumi_name_2):
+        cls.try_remove_record(bangumi_name_1, bangumi_name_2, cls.STATUS.link)
+        cls.add_record(bangumi_name_1, bangumi_name_2, cls.STATUS.unlink)
+
+    def __repr__(self):
+        return '<BangumiLink: {} {} {}>'.format(self.id, self.value, self.status)
 
 
 script_db = pw.SqliteDatabase(bgmi.config.SCRIPT_DB_PATH)
@@ -464,7 +506,10 @@ def recreate_source_relatively_table():
     return True
 
 
-combined_bangumi = PreMatchedBangumi.getAll()  # type: List[set]
+bangumi_links = BangumiLink.getAll()  # type: Dict[str, List[set]]
+
+combined_bangumi = bangumi_links[BangumiLink.STATUS.link]
+uncombined_bangumi = bangumi_links[BangumiLink.STATUS.unlink]
 
 if __name__ == '__main__':  # pragma:no cover
     from pprint import pprint

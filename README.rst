@@ -226,10 +226,10 @@ a bangumi name have different chinese translations.
 
 .. code-block:: bash
 
-    bgmi combine 魔偶马戏团 傀儡马戏团
+    bgmi link 魔偶马戏团 傀儡马戏团
     bgmi cal --force-update
 
-    bgmi remove-combine 魔偶马戏团 傀儡马戏团 # maybe you have a typo in last input
+    bgmi unlink 魔偶马戏团 傀儡马戏团 # these two bangumis will be treated as different bangumis
     bgmi cal --force-update
 
 

@@ -359,7 +359,8 @@ def update(name, download=None, not_ignore=False):
                         exit_=False)
             continue
 
-        episode, all_episode_data = website.get_maximum_episode(bangumi=bangumi_obj, ignore_old_row=ignore, max_page=1)
+        episode, all_episode_data = website.get_maximum_episode(bangumi=bangumi_obj, ignore_old_row=ignore,
+                                                                max_page=MAX_PAGE)
 
         if (episode.get('episode') > subscribe['episode']) or (len(name) == 1 and download):
             if len(name) == 1 and download:
@@ -414,14 +415,14 @@ def status_(name, status=STATUS_DELETED):
 import bgmi.lib.models
 
 
-def remove_combine(*bangumi_names):
+def unlink(*bangumi_names):
     Bangumi.delete().where(Bangumi.name.in_(bangumi_names)).execute()
-    bgmi.lib.models.PreMatchedBangumi.remove_combine(*bangumi_names)
+    bgmi.lib.models.BangumiLink.unlink(*bangumi_names)
 
 
-def combine(*bangumi_names):
+def link(*bangumi_names):
     Bangumi.delete().where(Bangumi.name.in_(bangumi_names)).execute()
-    bgmi.lib.models.PreMatchedBangumi.combine(*bangumi_names)
+    bgmi.lib.models.BangumiLink.link(*bangumi_names)
 
 
 def list_():

@@ -13,11 +13,12 @@ from bgmi.lib.constants import (ACTION_ADD, ACTION_DOWNLOAD, ACTION_CONFIG, ACTI
                                 ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST,
                                 DOWNLOAD_CHOICE_LIST_DICT, ACTION_COMPLETE, ACTION_HISTORY,
                                 SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, ACTIONS,
-                                actions_and_arguments, ACTION_CONFIG_GEN, ACTION_COMBINE, ACTION_REMOVE_COMBINE)
-from bgmi.lib.controllers import filter_, config, mark, delete, add, search, update, list_, combine, remove_combine
+                                actions_and_arguments, ACTION_CONFIG_GEN, ACTION_LINK, ACTION_UNLINK)
+from bgmi.lib.controllers import filter_, config, mark, delete, add, search, update, list_, unlink, link
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
-from bgmi.lib.models import Bangumi, Followed, Filter, Subtitle, STATUS_UPDATED, STATUS_DELETED, STATUS_FOLLOWED
+from bgmi.lib.models import Bangumi, Followed, Filter, Subtitle, STATUS_UPDATED, STATUS_DELETED, STATUS_FOLLOWED, \
+    BangumiLink
 from bgmi.script import ScriptRunner
 from bgmi.utils import (print_info, print_warning, print_success, print_error,
                         RED, GREEN, YELLOW, COLOR_END, get_terminal_col, logger)
@@ -327,12 +328,18 @@ def config_gen(ret):
     print(template_with_content)
 
 
-def combine_wrapper(ret):
-    return combine(*ret.bangumi_names)
+def link_wrapper(ret):
+    link(*ret.bangumi_names)
+    print_info('linked bangumi:')
+    for l in BangumiLink.getLinkedBangumis():
+        print_info('- {} {}'.format(*l))
 
 
-def remove_combine_wrapper(ret):
-    return remove_combine(*ret.bangumi_names)
+def unlink_wrapper(ret):
+    unlink(*ret.bangumi_names)
+    print_info('unlinked bangumi:')
+    for l in BangumiLink.getUnlinkedBangumis():
+        print_info('- {} {}'.format(*l))
 
 
 CONTROLLERS_DICT = {
@@ -350,8 +357,8 @@ CONTROLLERS_DICT = {
     ACTION_COMPLETE: complete,
     ACTION_HISTORY: history,
     ACTION_CONFIG_GEN: config_gen,
-    ACTION_COMBINE: combine_wrapper,
-    ACTION_REMOVE_COMBINE: remove_combine_wrapper,
+    ACTION_LINK: link_wrapper,
+    ACTION_UNLINK: unlink_wrapper,
 }
 
 

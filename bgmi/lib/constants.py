@@ -15,13 +15,13 @@ ACTION_LIST = 'list'
 ACTION_MARK = 'mark'
 ACTION_SEARCH = 'search'
 ACTION_CONFIG_GEN = 'gen'
-ACTION_COMBINE = 'combine'
-ACTION_REMOVE_COMBINE = 'remove-combine'
+ACTION_LINK = 'link'
+ACTION_UNLINK = 'unlink'
 ACTION_COMPLETE = 'complete'  # bash completion
 ACTIONS = (ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL,
            ACTION_CONFIG, ACTION_FILTER, ACTION_FETCH, ACTION_DOWNLOAD,
            ACTION_LIST, ACTION_MARK, ACTION_SEARCH, ACTION_COMPLETE,
-           ACTION_COMBINE, ACTION_REMOVE_COMBINE)
+           ACTION_LINK, ACTION_UNLINK)
 ACTION_FOLLOWED = 'followed'  # place holder?
 ACTION_HISTORY = 'history'
 
@@ -239,7 +239,7 @@ actions_and_arguments = [
         ]
     },
     {
-        'action': ACTION_COMBINE,
+        'action': ACTION_LINK,
         'help': 'Combine two bangumi which not auto combined by bgmi',
         'arguments': [
             {'dest': 'bangumi_names',
@@ -247,7 +247,7 @@ actions_and_arguments = [
         ]
     },
     {
-        'action': ACTION_REMOVE_COMBINE,
+        'action': ACTION_UNLINK,
         'help': 'Remove bangumi names from pre-combined list',
         'arguments': [
             {'dest': 'bangumi_names',
