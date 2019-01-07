@@ -17,7 +17,7 @@ from bgmi.lib.constants import (ACTION_ADD, ACTION_DOWNLOAD, ACTION_CONFIG, ACTI
 from bgmi.lib.controllers import filter_, config, mark, delete, add, search, update, list_, unlink, link
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
-from bgmi.lib.models import Bangumi, Followed, Filter, Subtitle, STATUS_UPDATED, STATUS_DELETED, STATUS_FOLLOWED, \
+from bgmi.lib.models import Bangumi, Followed, Filter, STATUS_UPDATED, STATUS_DELETED, STATUS_FOLLOWED, \
     BangumiLink
 from bgmi.script import ScriptRunner
 from bgmi.utils import (print_info, print_warning, print_success, print_error,
@@ -329,14 +329,16 @@ def config_gen(ret):
 
 
 def link_wrapper(ret):
-    link(*ret.bangumi_names)
+    if ret.bangumi_names:
+        link(*ret.bangumi_names)
     print_info('linked bangumi:')
     for l in BangumiLink.getLinkedBangumis():
         print_info('- {} {}'.format(*l))
 
 
 def unlink_wrapper(ret):
-    unlink(*ret.bangumi_names)
+    if ret.bangumi_names:
+        unlink(*ret.bangumi_names)
     print_info('unlinked bangumi:')
     for l in BangumiLink.getUnlinkedBangumis():
         print_info('- {} {}'.format(*l))

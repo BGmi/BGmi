@@ -97,5 +97,5 @@ class Aria2DownloadRPC(BaseDownloadService):
                     for file_ in row['files']:
                         print_info('    * {0}'.format(file_['path']), indicator=False)
 
-        except Exception as e:
+        except:
             print_error('Cannot connect to aria2-rpc server')

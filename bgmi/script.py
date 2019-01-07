@@ -4,18 +4,17 @@ import glob
 import imp
 import os
 import time
-import datetime
 import traceback
 
 from bgmi.config import SCRIPT_PATH, MAX_PAGE
 from bgmi.lib.download import download_prepare
 from bgmi.lib.models import STATUS_UPDATED, STATUS_FOLLOWED
 from bgmi.lib.models import Scripts
-from bgmi.website import DATA_SOURCE_MAP
 from bgmi.utils import print_success, print_warning, print_info
+from bgmi.website import DATA_SOURCE_MAP
 
 
-class ScriptRunner(object):
+class ScriptRunner:
     _defined = None
     scripts = []
     download_queue = []
@@ -122,8 +121,8 @@ class ScriptRunner(object):
         return [script['cover'] for script in self.get_models_dict()]
 
 
-class ScriptBase(object):
-    class Model(object):
+class ScriptBase:
+    class Model:
         obj = None
 
         # data
@@ -212,8 +211,7 @@ class ScriptBase(object):
                 if int(i['episode']) not in data:
                     ret[int(i['episode'])] = i['download']
             return ret
-        else:
-            return {}
+        return {}
 
 
 if __name__ == '__main__':

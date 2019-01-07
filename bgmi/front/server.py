@@ -25,6 +25,7 @@ if os.environ.get('DEV'):  # pragma: no cover
         self.set_header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
         self.set_header("Access-Control-Allow-Headers", "Content-Type, bgmi-token, X-Requested-With")
 
+
     tornado.web.RequestHandler.prepare = prepare
 
 
@@ -52,7 +53,7 @@ def make_app(**kwargs):
     else:
         handlers.extend([
             (r'^/bangumi/?(.*)', BangumiHandler),
-            (r'^/(.*)$', IndexHandler)
+            (r'^/.*$', IndexHandler)
         ])
 
     return tornado.web.Application(handlers, **settings)

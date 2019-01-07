@@ -1,14 +1,15 @@
 # coding=utf-8
 
-import time
+import hashlib
+import json
 import os
+import time
 from collections import defaultdict
+from typing import Dict, List, Union
+
 import peewee as pw
 from playhouse.shortcuts import model_to_dict
 from playhouse.sqlite_ext import JSONField
-from typing import Dict, List, Union
-
-import json
 
 import bgmi.config
 
@@ -148,9 +149,6 @@ class BangumiItem(pw.Model):
             raise cls.DoesNotExist
         else:
             return o[0]
-
-
-import hashlib
 
 
 class Bangumi(NeoDB):
@@ -402,7 +400,7 @@ class Subtitle(NeoDB):
 
 
 class BangumiLink(NeoDB):
-    value = pw.TextField()
+    value = BangumiNamesField()
     status = pw.IntegerField()
 
     class STATUS:
@@ -417,9 +415,9 @@ class BangumiLink(NeoDB):
 
             for b in cls.select():
                 if b.status == cls.STATUS.link:
-                    link.append(eval(b.value))
+                    link.append(b.value)
                 if b.status == cls.STATUS.unlink:
-                    unlink.append(eval(b.value))
+                    unlink.append(b.value)
             return {
                 cls.STATUS.link: link,
                 cls.STATUS.unlink: unlink,
@@ -434,14 +432,14 @@ class BangumiLink(NeoDB):
     @classmethod
     def getLinkedBangumis(cls):
         try:
-            return list(map(lambda x: eval(x.value), cls.select().where(cls.status == cls.STATUS.link)))
+            return list(map(lambda x: x.value, cls.select().where(cls.status == cls.STATUS.link)))
         except:
             return []
 
     @classmethod
     def getUnlinkedBangumis(cls):
         try:
-            return list(map(lambda x: eval(x.value), cls.select().where(cls.status == cls.STATUS.unlink)))
+            return list(map(lambda x: x.value, cls.select().where(cls.status == cls.STATUS.unlink)))
         except:
             return []
 
@@ -450,10 +448,8 @@ class BangumiLink(NeoDB):
         f = cls.select().where(cls.value.contains(bangumi_name_1)
                                & cls.value.contains(bangumi_name_2)
                                & (cls.status == status))
-        f = list(f)
-        if f:
-            v = f[0]
-            s = eval(v.value)
+        for v in f:
+            s = v.value
             if s == {bangumi_name_2, bangumi_name_1}:
                 v.delete_instance()
 
@@ -464,13 +460,12 @@ class BangumiLink(NeoDB):
                                & (cls.status == status))
         f = list(f)
         find = False
-        if f:
-            v = f[0]
-            s = eval(v.value)
+        for v in f:
+            s = v.value
             if s == {bangumi_name_2, bangumi_name_1}:
                 find = True
         if not find:
-            cls.create(value=repr({bangumi_name_1, bangumi_name_2}), status=status)
+            cls.create(value={bangumi_name_1, bangumi_name_2}, status=status)
 
     @classmethod
     def link(cls, bangumi_name_1, bangumi_name_2):

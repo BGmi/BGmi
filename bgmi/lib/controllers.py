@@ -1,19 +1,15 @@
 # coding=utf-8
 import time
 
-from typing import List
-
 from bgmi.config import write_config, MAX_PAGE
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
 from bgmi.lib.models import (Filter, Subtitle, Download, recreate_source_relatively_table,
                              STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NOT_DOWNLOAD, FOLLOWED_STATUS, Followed, Bangumi,
                              DoesNotExist, model_to_dict)
-from bgmi.website import DATA_SOURCE_MAP
-from bgmi.lib.models import (STATUS_DELETED)
+from bgmi.lib.models import STATUS_DELETED, BangumiLink
 from bgmi.script import ScriptRunner
 from bgmi.utils import print_info, normalize_path, print_warning, print_success, print_error, GREEN, COLOR_END, logger
-import pickle
 
 
 def add(name, episode=None):
@@ -412,17 +408,14 @@ def status_(name, status=STATUS_DELETED):
     return result
 
 
-import bgmi.lib.models
-
-
 def unlink(*bangumi_names):
     Bangumi.delete().where(Bangumi.name.in_(bangumi_names)).execute()
-    bgmi.lib.models.BangumiLink.unlink(*bangumi_names)
+    BangumiLink.unlink(*bangumi_names)
 
 
 def link(*bangumi_names):
     Bangumi.delete().where(Bangumi.name.in_(bangumi_names)).execute()
-    bgmi.lib.models.BangumiLink.link(*bangumi_names)
+    BangumiLink.link(*bangumi_names)
 
 
 def list_():

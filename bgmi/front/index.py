@@ -17,7 +17,7 @@ def get_player(bangumi_name):
     bangumi_path = os.path.join(SAVE_PATH, bangumi_name)
     path_walk = os.walk(bangumi_path)
 
-    logger.debug('os.walk(bangumi_path) => {}'.format(pformat(path_walk)))
+    logger.debug('os.walk(bangumi_path) => %s', pformat(path_walk))
     for root, _, files in path_walk:
         _ = root.replace(bangumi_path, '').split(os.path.sep)
         base_path = root.replace(SAVE_PATH, '')
@@ -42,7 +42,7 @@ def get_player(bangumi_name):
 
 
 class IndexHandler(BaseHandler):
-    def get(self, path):
+    def get(self):
         if not os.path.exists(FRONT_STATIC_PATH):
             msg = '''<h1>Thanks for your using BGmi</h1>
             <p>It seems you have not install BGmi Frontend, please run <code>bgmi install</code> to install.</p>
