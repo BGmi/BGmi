@@ -85,7 +85,10 @@ def parse_episode(episode_title):
 
     def get_real_episode(episode_list):
         episode_list = map(int, episode_list)
-        return min(episode_list)
+        real = min(episode_list)
+        if real > 1900:
+            return 0
+        return real
 
     _ = FETCH_EPISODE_RANGE_ALL_ZH.findall(episode_title)
     if _ and _[0]:
