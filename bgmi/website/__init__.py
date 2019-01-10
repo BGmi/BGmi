@@ -1,4 +1,5 @@
 # coding=utf-8
+import imghdr
 import os.path
 import re
 import time
@@ -6,20 +7,20 @@ from collections import defaultdict
 from copy import deepcopy
 from itertools import chain
 from typing import List, Dict, Union
-import imghdr
+
 import requests
 from fuzzywuzzy import fuzz
 from hanziconv import HanziConv
 
+from bgmi import config
 from bgmi.config import MAX_PAGE, ENABLE_GLOBAL_FILTER, GLOBAL_FILTER
 from bgmi.lib.models import Bangumi, Filter, BangumiItem, db, STATUS_UPDATING, model_to_dict, Subtitle, \
     STATUS_FOLLOWED, STATUS_UPDATED
-from bgmi import config
+from bgmi.lib.models import combined_bangumi, uncombined_bangumi
 from bgmi.utils import test_connection, print_warning, print_info, download_cover, convert_cover_url_to_path, FullToHalf
 from bgmi.website.bangumi_moe import BangumiMoe
 from bgmi.website.mikan import Mikanani
 from bgmi.website.share_dmhy import DmhySource
-from bgmi.lib.models import combined_bangumi, uncombined_bangumi
 
 DATA_SOURCE_MAP = {
     'mikan_project': Mikanani(),
@@ -261,7 +262,7 @@ def init_data() -> (Dict[str, list], Dict[str, list]):
     subtitle = {}
 
     for data_source_id, data_source in DATA_SOURCE_MAP.items():
-        if data_source_id not in config.ENABLE_DATA_SOURCE:
+        if data_source_id in config.DISABLED_DATA_SOURCE:
             continue
         print_info('Fetching {}'.format(data_source_id))
         try:
@@ -346,7 +347,7 @@ class DataSource:
         for bangumi in bangumi_calendar:
             data_source_id_need_to_remove = []
             for data_source_id in bangumi.data_source.keys():
-                if data_source_id not in config.ENABLE_DATA_SOURCE:
+                if data_source_id in config.DISABLED_DATA_SOURCE:
                     data_source_id_need_to_remove.append(data_source_id)
             for data_source_id in data_source_id_need_to_remove:
                 del bangumi.data_source[data_source_id]

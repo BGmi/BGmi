@@ -17,7 +17,7 @@ __download_delegate__ = __wget__ + __aria2__ + __transmission__ + __deluge__
 
 # fake __all__
 __all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE',
-           'MAX_PAGE', 'TMP_PATH', 'DANMAKU_API_URL', 'ENABLE_DATA_SOURCE',
+           'MAX_PAGE', 'TMP_PATH', 'DANMAKU_API_URL', 'DISABLED_DATA_SOURCE',
            'LANG', 'FRONT_STATIC_PATH', 'ADMIN_TOKEN', 'SHARE_DMHY_URL',
            'GLOBAL_FILTER', 'ENABLE_GLOBAL_FILTER', 'TORNADO_SERVE_STATIC_FILES',)
 
@@ -194,7 +194,7 @@ BANGUMI_MOE_URL = 'https://bangumi.moe'
 # Setting share.dmhy.org url
 SHARE_DMHY_URL = 'https://share.dmhy.org'
 
-ENABLE_DATA_SOURCE = ', '.join(['bangumi_moe', 'mikan_project', 'dmhy'])
+DISABLED_DATA_SOURCE = ''
 
 # BGmi user path
 SAVE_PATH = os.path.join(BGMI_PATH, 'bangumi')
