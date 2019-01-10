@@ -5,7 +5,7 @@ import json
 import os
 import time
 from collections import defaultdict
-from typing import Dict, List, Union
+from typing import Dict, List
 
 import peewee as pw
 from playhouse.shortcuts import model_to_dict
@@ -79,7 +79,7 @@ class DataSourceField(JSONField):
             #     return value
             data_source = {k: model_to_dict(v) for k, v in value.items()}
             return json.dumps(data_source, ensure_ascii=False)
-        # return super().db_value(data_source)
+        return {}
 
 
 class NeoDB(pw.Model):
@@ -159,13 +159,13 @@ class Bangumi(NeoDB):
     status = pw.IntegerField(default=0)  # type: int
     subject_id = pw.IntegerField(null=True)
     update_time = pw.FixedCharField(5, null=False)
-    data_source = DataSourceField(default=lambda: {})  # type: Union[Dict[str, BangumiItem],JSONField]
+    data_source = DataSourceField(default=lambda: {})  # type: Dict[str, BangumiItem]
     bangumi_names = BangumiNamesField(null=True, default=set())  # type: set
 
     week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
-    def __init__(self, **kwargs):
-        super(NeoDB, self).__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         update_time = kwargs.get('update_time', '').title()
         if update_time and update_time not in self.week:
             raise ValueError('unexpected update time %s' % update_time)

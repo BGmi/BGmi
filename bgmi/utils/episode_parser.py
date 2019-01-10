@@ -1,5 +1,6 @@
-from bgmi.logger import logger
 import re
+
+from bgmi.logger import logger
 from bgmi.utils.utils import log_utils_function
 
 
@@ -30,7 +31,7 @@ def chinese_to_arabic(cn: str) -> int:
     for cndig in reversed(cn):
         if cndig in CN_UNIT:
             unit = CN_UNIT.get(cndig)
-            if unit == 10000 or unit == 100000000:
+            if unit in (10000, 100000000):
                 ldig.append(unit)
                 unit = 1
         else:
@@ -43,7 +44,7 @@ def chinese_to_arabic(cn: str) -> int:
         ldig.append(10)
     val, tmp = 0, 0
     for x in reversed(ldig):
-        if x == 10000 or x == 100000000:
+        if x in (10000, 100000000):
             val += tmp * x
             tmp = 0
         else:
@@ -119,7 +120,6 @@ def parse_episode(episode_title):
             return e
         except Exception:
             logger.debug('can\'t convert %s to int', _[0])
-            pass
 
     _ = FETCH_EPISODE_WITH_VERSION.findall(episode_title)
     if _ and _[0].isdigit():
@@ -140,7 +140,7 @@ def parse_episode(episode_title):
                 if match > 1000:
                     spare = match
                 else:
-                    logger.debug('match {} {} {}'.format(i, regexp, match))
+                    logger.debug('match %s %s %s', i, regexp, match)
                     return match
 
     if spare:

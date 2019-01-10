@@ -39,8 +39,8 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_header('content-type', 'application/json; charset=utf-8')
         return json.dumps(j)
 
-    # def data_received(self, chunk):
-    #     pass
+    def data_received(self, chunk):
+        pass
 
     def __init__(self, *args, **kwargs):
         if self.latest_version is None:

@@ -4,8 +4,8 @@ import time
 from bgmi.config import write_config, MAX_PAGE
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
-from bgmi.lib.models import (Filter, Subtitle, Download, recreate_source_relatively_table,
-                             STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NOT_DOWNLOAD, FOLLOWED_STATUS, Followed, Bangumi,
+from bgmi.lib.models import (Filter, Subtitle, Download, STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NOT_DOWNLOAD,
+                             FOLLOWED_STATUS, Followed, Bangumi,
                              DoesNotExist, model_to_dict)
 from bgmi.lib.models import STATUS_DELETED, BangumiLink
 from bgmi.script import ScriptRunner
@@ -297,7 +297,7 @@ def config(name=None, value=None):
 
 
 def update(name, download=None, not_ignore=False):
-    logger.debug('updating bangumi info with args: download: %s' % download)
+    logger.debug('updating bangumi info with args: download: %s', download)
     result = {'status': 'info', 'message': '', 'data': {'updated': [], 'downloaded': []}}
 
     ignore = not bool(not_ignore)

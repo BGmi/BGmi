@@ -42,7 +42,7 @@ def get_player(bangumi_name):
 
 
 class IndexHandler(BaseHandler):
-    def get(self):
+    def get(self, *args, **kwargs):
         if not os.path.exists(FRONT_STATIC_PATH):
             msg = '''<h1>Thanks for your using BGmi</h1>
             <p>It seems you have not install BGmi Frontend, please run <code>bgmi install</code> to install.</p>

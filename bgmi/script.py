@@ -1,5 +1,5 @@
 # coding=utf-8
-
+import datetime
 import glob
 import imp
 import os
@@ -32,7 +32,7 @@ class ScriptRunner:
                         cls.scripts.append(script_class)
                         print_info('Load script {} successfully.'.format(i))
 
-                except:
+                except SyntaxError:
                     print_warning('Load script {} failed, ignored'.format(i))
                     if os.getenv('DEBUG_SCRIPT'):  # pragma: no cover
                         traceback.print_exc()
@@ -46,14 +46,14 @@ class ScriptRunner:
     @classmethod
     def check(cls, script):
         condition = [
-            'script.Model().due_date > datetime.datetime.now()',
+            lambda: script.Model().due_date > datetime.datetime.now(),
         ]
 
         for i in condition:
             try:
-                if not eval(i):
+                if not i():
                     return False
-            except:
+            except SyntaxError:
                 # ignore if error
                 if os.getenv('DEBUG_SCRIPT'):  # pragma: no cover
                     traceback.print_exc()
