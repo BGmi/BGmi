@@ -33,7 +33,7 @@ def get_weekly_bangumi():
     """
     r = requests.get(server_root)
     soup = bs4.BeautifulSoup(r.text, 'html.parser')
-    for day_of_week in range(0, 9):
+    for day_of_week in [x for x in range(0, 9) if x != 7]:
         d = soup.find('div', attrs={'class': 'sk-bangumi', 'data-dayofweek': str(day_of_week)})
         if d:
             yield d
