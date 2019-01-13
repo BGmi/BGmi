@@ -1,21 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import os
 import unittest
+from unittest import mock
 
 from bgmi.lib.controllers import *
-from bgmi.main import setup
-from unittest import mock, TestCase
-
 from bgmi.lib.models import Bangumi, Followed
-from bgmi.website import DataSource, DATA_SOURCE_MAP
 from bgmi.website.base import BaseWebsite
 
 w = lambda: mock.Mock(spec=BaseWebsite)
 
-from bgmi.website import DATA_SOURCE_MAP
-
-import json
 from tests.mock_websites import MockDateSource
 
 
@@ -80,7 +73,3 @@ class ControllersTest(unittest.TestCase):
 
     def test_search(self):
         r = search(self.bangumi_name_1, dupe=False)
-
-    @classmethod
-    def setUpClass(cls):
-        recreate_source_relatively_table()
