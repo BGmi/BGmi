@@ -10,10 +10,11 @@ ENV TRAVIS_CI 1
 ADD ./ /opt/bgmi
 WORKDIR /opt/bgmi
 
-RUN apt-get update \
-    && apt-get -y install aria2 nginx supervisor cron wget unzip python3 \
+RUN apt-get update --fix-missing \
+    && apt-get -y install aria2 nginx supervisor cron wget unzip python3 python3-dev \
     && wget -O- https://bootstrap.pypa.io/get-pip.py | python3 \
     && pip install -r requirements.txt \
+    && pip install python-Levenshtein \
     && python3 setup.py install \
     && cp others/aria2c.conf /root \
     && cp others/bgmi.conf /etc/nginx/sites-enabled/default \
