@@ -53,7 +53,7 @@ class ScriptRunner:
             try:
                 if not i():
                     return False
-            except SyntaxError:
+            except (SyntaxError, TypeError):
                 # ignore if error
                 if os.getenv('DEBUG_SCRIPT'):  # pragma: no cover
                     traceback.print_exc()

@@ -77,7 +77,6 @@ class UtilsTest(unittest.TestCase):
             class Mo:
                 def __init__(self, content):
                     self.content = bytes(content, encoding='utf8')
-
             m.side_effect = lambda x: Mo(x) if x.startswith('https://') or x.startswith('http://') else False
 
             cover_list = {x: x for x in [
