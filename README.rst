@@ -96,16 +96,25 @@ Build Docker:
     git clone https://github.com/BGmi/BGmi
     cd BGmi
     docker build -t bgmi .
+    # start bgmi http server
     docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi bgmi
+    alias bgmi='docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi bgmi'
 
-You can use bgmi command at host to add / remove bangumi, or get into the docker container to manage bangumi.
-
-Or just:
+Or pull from docker register:
 
 .. code-block:: bash
 
     docker pull ricterz/bgmi
+    # start bgmi http server
     docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi ricterz/bgmi
+    alias bgmi='docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi ricterz/bgmi'
+
+Then use docker image as same as bgmi installed with pip:
+
+.. code-block::
+
+    bgmi install
+    bgmi cal
 
 Configure BGmi docker:
 
