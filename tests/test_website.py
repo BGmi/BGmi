@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import os
 import unittest
 
-# from bgmi.lib.fetch import website
-from bgmi.website import DATA_SOURCE_MAP
-from bgmi.website.base import BaseWebsite
 import bgmi.website
+# from bgmi.lib.fetch import website
+from bgmi.website.base import BaseWebsite
 
 
 class BasicT:
