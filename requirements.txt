@@ -3,6 +3,5 @@ requests>=2.9.1
 tornado>=4.0.2
 icalendar>=3.11.3
 peewee>=3.2.4,<4.0.0
-fuzzywuzzy==0.16.0
 hanziconv>=0.3.2
 # typing

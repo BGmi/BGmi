@@ -5,11 +5,11 @@ import re
 import time
 from collections import defaultdict
 from copy import deepcopy
+from difflib import SequenceMatcher
 from itertools import chain
 from typing import List, Dict, Union
 
 import requests
-from fuzzywuzzy import fuzz
 from hanziconv import HanziConv
 
 from bgmi import config
@@ -50,8 +50,7 @@ def similarity_of_two_name(name1: str, name2: str):
     name1_start = name1[:min(5, len(name1))]
     if name2.startswith(name1_start):
         return 100
-
-    return fuzz.ratio(name1, name2)
+    return int(SequenceMatcher(None, name1, name2).ratio() * 100)
 
 
 class BangumiList(list):
