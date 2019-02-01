@@ -1,2 +1,2 @@
-faker
+faker==1.0.2
 transmission_rpc
