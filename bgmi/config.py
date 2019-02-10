@@ -166,7 +166,14 @@ def write_config(config=None, value=None):
                 else:
                     c.set('bgmi', config, value)
                     with codecs.open(CONFIG_FILE_PATH, 'w', 'utf-8') as f:
-                        c.write(f)
+                        if not IS_PYTHON3:
+                            import __builtin__
+
+                            origin_str = str
+                            __builtin__.str = unicode
+                            c.write(f)
+                            __builtin__.str = origin_str
+
                     read_config()
                     if config == 'DOWNLOAD_DELEGATE':
                         if not c.has_section(DOWNLOAD_DELEGATE):
@@ -176,14 +183,26 @@ def write_config(config=None, value=None):
                                 c.set(DOWNLOAD_DELEGATE, i, v)
 
                             with open(CONFIG_FILE_PATH, 'w') as f:
-                                c.write(f)
+                                if not IS_PYTHON3:
+                                    import __builtin__
+
+                                    origin_str = str
+                                    __builtin__.str = unicode
+                                    c.write(f)
+                                    __builtin__.str = origin_str
                     result = {'status': 'success',
                               'message': '{0} has been set to {1}'.format(config, value)}
 
             elif config in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
                 c.set(DOWNLOAD_DELEGATE, config, value)
                 with open(CONFIG_FILE_PATH, 'w') as f:
-                    c.write(f)
+                    if not IS_PYTHON3:
+                        import __builtin__
+
+                        origin_str = str
+                        __builtin__.str = unicode
+                        c.write(f)
+                        __builtin__.str = origin_str
                 result = {'status': 'success',
                           'message': '{0} has been set to {1}'.format(config, value)}
             else:
@@ -293,11 +312,9 @@ if IS_PYTHON3:
         file_ = sys.stdout.buffer
         sys.stdout = codecs.getwriter(locale.getpreferredencoding())(file_)
 else:
-    import __builtin__
 
     sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
     input = raw_input
-    __builtin__.str = unicode
 
 
 def unicode_(s):

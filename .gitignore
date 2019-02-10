@@ -10,6 +10,7 @@ bgmi.egg-info
 *debug.sh
 env
 tmp/
+.eggs
 
 # coverage
 .coverage
