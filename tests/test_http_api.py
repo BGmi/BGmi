@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+import logging
 import os
 import random
 import string
@@ -203,3 +204,7 @@ class ApiTestCase(AsyncHTTPTestCase):
     def parse_response(response):
         r = json.loads(response.body.decode('utf-8'))
         return r
+
+    @classmethod
+    def setUpClass(cls):
+        logging.getLogger('tornado.access').setLevel(logging.ERROR)

@@ -165,6 +165,7 @@ actions_and_arguments = [
         'arguments': [
             {'dest': 'name',
              'kwargs': dict(nargs='?', help='Config name',
+                            type=lambda s: s.upper(),
                             choices=bgmi.config.__all_writable_now__), },
 
             {'dest': 'value',
