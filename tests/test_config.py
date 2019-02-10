@@ -2,6 +2,8 @@
 from __future__ import print_function, unicode_literals
 
 import unittest
+
+import bgmi.config as bgmi_config
 from bgmi.lib.controllers import config
 
 
@@ -47,18 +49,15 @@ class ConfigTest(unittest.TestCase):
         r = config('WGET_PATH', 'some_place')
         # self.assertEqual(r['status'], 'error')
 
-    @staticmethod
-    def setUpClass():
+    @classmethod
+    def setUpClass(cls):
         from bgmi.config import CONFIG_FILE_PATH
         import os
         os.remove(CONFIG_FILE_PATH)
-        from bgmi.config import write_default_config
-        write_default_config()
+        bgmi_config.write_default_config()
+        print(os.path.exists(CONFIG_FILE_PATH))
+        bgmi_config.read_config()
 
-    @staticmethod
-    def tearDownClass():
-        from bgmi.config import CONFIG_FILE_PATH
-        import os
-        os.remove(CONFIG_FILE_PATH)
-        from bgmi.config import write_default_config
-        write_default_config()
+    # @classmethod
+    # def tearDownClass(cls):
+    #     bgmi_config.write_default_config()

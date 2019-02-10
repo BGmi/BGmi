@@ -125,7 +125,7 @@ def write_default_config():
         c.set(DOWNLOAD_DELEGATE, k, v)
 
     try:
-        with open(CONFIG_FILE_PATH, 'w') as f:
+        with open(CONFIG_FILE_PATH, 'w+') as f:
             c.write(f)
     except IOError:
         print('[-] Error writing to config file and ignored')
@@ -173,6 +173,8 @@ def write_config(config=None, value=None):
                             __builtin__.str = unicode
                             c.write(f)
                             __builtin__.str = origin_str
+                        else:
+                            c.write(f)
 
                     read_config()
                     if config == 'DOWNLOAD_DELEGATE':
@@ -190,6 +192,9 @@ def write_config(config=None, value=None):
                                     __builtin__.str = unicode
                                     c.write(f)
                                     __builtin__.str = origin_str
+                                else:
+                                    c.write(f)
+
                     result = {'status': 'success',
                               'message': '{0} has been set to {1}'.format(config, value)}
 
@@ -203,6 +208,9 @@ def write_config(config=None, value=None):
                         __builtin__.str = unicode
                         c.write(f)
                         __builtin__.str = origin_str
+                    else:
+                        c.write(f)
+
                 result = {'status': 'success',
                           'message': '{0} has been set to {1}'.format(config, value)}
             else:
@@ -323,3 +331,7 @@ def unicode_(s):
         return unicode_string
     else:
         return unicode(s)
+
+
+if __name__ == '__main__':
+    write_default_config()
