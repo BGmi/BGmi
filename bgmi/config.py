@@ -15,7 +15,8 @@ except ImportError:
 # download delegate
 __wget__ = ('WGET_PATH',)
 __thunder__ = ('XUNLEI_LX_PATH',)
-__transmission__ = ('TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT', 'TRANSMISSION_RPC_USERNAME', 'TRANSMISSION_RPC_PASSWORD',)
+__transmission__ = (
+    'TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT', 'TRANSMISSION_RPC_USERNAME', 'TRANSMISSION_RPC_PASSWORD',)
 __aria2__ = ('ARIA2_RPC_URL', 'ARIA2_RPC_TOKEN',)
 __deluge__ = ('DELUGE_RPC_URL', 'DELUGE_RPC_PASSWORD')
 
@@ -164,7 +165,7 @@ def write_config(config=None, value=None):
                               'message': '{0} is not a support download_delegate'.format(value)}
                 else:
                     c.set('bgmi', config, value)
-                    with open(CONFIG_FILE_PATH, 'w') as f:
+                    with codecs.open(CONFIG_FILE_PATH, 'w', 'utf-8') as f:
                         c.write(f)
                     read_config()
                     if config == 'DOWNLOAD_DELEGATE':
@@ -292,8 +293,11 @@ if IS_PYTHON3:
         file_ = sys.stdout.buffer
         sys.stdout = codecs.getwriter(locale.getpreferredencoding())(file_)
 else:
+    import __builtin__
+
     sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
     input = raw_input
+    __builtin__.str = unicode
 
 
 def unicode_(s):
