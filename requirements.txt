@@ -2,6 +2,6 @@ six>=1.10.0
 beautifulsoup4>=4.4.0
 requests>=2.9.1
 lxml>=3.2.1
-tornado>=4.0.2
+tornado>=4.0.2,<6.0.0
 icalendar>=3.11.3
 peewee>=3.3.4
