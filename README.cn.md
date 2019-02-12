@@ -10,12 +10,12 @@ BGmi是一个用来追番的命令行程序.
 
 ## TODO
 
-[同时抓取多个数据源](https://github.com/BGmi/BGmi/projects/1)
-
+暂时没有
 
 ## 更新日志
 
-- 你现在看到的BGmi版本是最后一个支持python2的版本, 快拥抱python3吧.
+- 可以同时抓取多个数据源的番剧
+- 不再支持python2
 - Transmission rpc 认证设置
 - 新的下载方式 [deluge-rpc](https://www.deluge-torrent.org/)
 - 使用最大和最小集数筛选搜索结果
@@ -39,6 +39,13 @@ BGmi是一个用来追番的命令行程序.
 
 ## 安装
 
+从源码安装
+
+```bash
+branch='master'
+pip install https://api.github.com/repos/BGmi/BGmi/tarball/$branch
+```
+
 使用pip安装稳定版本:
 
 ```bash
@@ -51,6 +58,13 @@ pip install bgmi
 pip install https://github.com/Bgmi/BGmi/tarball/dev
 ```
 
+或者直接使用docker安装
+
+```bash
+docker pull ricterz/bgmi:3
+# 记得把这个alias添加到bashrc或者zshrc中
+alias bgmi='docker run -v $HOME/.bgmi:$HOME/.bgmi ricterz/bgmi'
+```
 
 
 安装`BGmi`所需的依赖以及下载`BGmi`的前端文件
@@ -67,41 +81,6 @@ bgmi upgrade
 ```
 
 在升级后请确保运行`bgmi upgrade`
-
-
-
-## 使用Docker
-
-构建 Docker 镜像:
-
-```bash
-git clone https://github.com/BGmi/BGmi
-cd BGmi
-docker build -t bgmi .
-docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi bgmi
-```
-
-你可以直接在宿主机上使用`bgmi`命令行添加/删除你的订阅的番剧, 也可以进入docker镜像再添加.
-
-或者直接使用DockerHub上已经构建好的镜像:
-
-```bash
-docker pull ricterz/bgmi
-docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi ricterz/bgmi
-```
-
-设置 BGmi docker:
-
-```bash
-
-# bgmi config ARIA2_RPC_TOKEN token:TOKEN_OF_ARIA2_RPC
-# docker exec -it <CONTAINER ID> ln -s ~/.bgmi/ /bgmi
-# docker exec -it <CONTAINER ID> bash -c 'echo rpc-secret=token:TOKEN_OF_ARIA2_RPC >> /root/aria2c.conf'
-# docker exec -it <CONTAINER ID> supervisorctl
-supervisor> restart bgmi:aria2c
-supervisor> quit
-```
-
 
 
 ## 使用
@@ -278,6 +257,15 @@ bgmi install
 
 ```bash
 bgmi_http --port=8888 --address=0.0.0.0
+```
+
+
+如果你是使用docker安装的:
+
+```bash
+host_port=8888
+aria2c_port=6800
+docker run -p127.0.0.1:$host_port:80 -p$aria2c_port:6800 -d -v $HOME/.bgmi:$HOME/.bgmi ricterz/bgmi
 ```
 
 ### 在Windows上使用`bgmi_http`

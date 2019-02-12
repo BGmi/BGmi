@@ -1,9 +1,9 @@
 # coding=utf-8
 
+import datetime
 import json
 import re
-import urllib.parse
-import datetime
+from urllib.parse import unquote
 
 import requests
 
@@ -11,11 +11,7 @@ from bgmi.script import ScriptBase
 from bgmi.utils import print_error, parse_episode
 
 
-unquote = urllib.parse.unquote
-
-
 class Script(ScriptBase):
-
     class Model(ScriptBase.Model):
         bangumi_name = '猜谜王(BGmi Script)'
         cover = 'COVER URL'

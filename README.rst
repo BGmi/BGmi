@@ -58,17 +58,26 @@ Attention: If you are using Python 2.x, please install a version prior to 2.1.0.
 
 For **Mac OS X / Linux / Windows**:
 
+Install from source:
+
 .. code-block:: bash
 
-    git clone https://github.com/BGmi/BGmi
-    cd BGmi
-    python setup.py install
+    branch='master'
+    pip install https://api.github.com/repos/BGmi/BGmi/tarball/$branch
 
 Or use pip:
 
 .. code-block:: bash
 
     pip install bgmi
+
+Or use docker:
+
+.. code-block:: bash
+
+    docker pull ricterz/bgmi:3
+    # add this to your bashrc to avoid alias this every times
+    alias bgmi='docker run -v $HOME/.bgmi:$HOME/.bgmi ricterz/bgmi'
 
 Init BGmi database and install BGmi web interface:
 
@@ -300,6 +309,14 @@ Start BGmi HTTP Service bind on :code:`0.0.0.0:8888`:
 
     bgmi_http --port=8888 --address=0.0.0.0
 
+If you are using docker:
+
+.. code-block:: bash
+
+    host_port=8888
+    aria2c_port=6800
+    docker run -p127.0.0.1:$host_port:80 -p$aria2c_port:6800 -d -v $HOME/.bgmi:$HOME/.bgmi ricterz/bgmi
+
 Use bgmi_http on Windows
 -----------------
 Just start your bgmi_http and open `http://localhost:8888/ <http://localhost:8888/>`_ in your browser.
@@ -365,7 +382,7 @@ Of cause you can use `yaaw <https://github.com/binux/yaaw/>`_ to manage download
     }
     ...
 
-Example file: `bgmi.conf <https://github.com/BGmi/BGmi/blob/dev/bgmi.conf>`_
+Example: :code:`bgmi gen nginx.conf --server-name _`
 
 macOS launchctl service controller
 -----------------
