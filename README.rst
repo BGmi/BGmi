@@ -65,17 +65,13 @@ Install from source:
     branch='master'
     pip install https://api.github.com/repos/BGmi/BGmi/tarball/$branch
 
-    branch='master'
-    pip install https://api.github.com/repos/BGmi/BGmi/tarball/$branch
-
 Or use pip:
 
 .. code-block:: bash
 
     pip install bgmi
 
-If you want to use mysql as your database:
- you need to install :code:`pymysql` `https://github.com/PyMySQL/PyMySQL`_ or :code:`mysqldb` `https://github.com/PyMySQL/mysqlclient-python`_
+If you want to use mysql as your database you need to install :code:`pymysql` `<https://github.com/PyMySQL/PyMySQL>`_ or :code:`mysqldb` `<https://github.com/PyMySQL/mysqlclient-python>`_
 
 Or:
 
@@ -282,8 +278,7 @@ BGmi configure:
 + :code:`BGMI_TMP_PATH`: just a temporary path
 + :code:`DANMAKU_API_URL`: url of danmaku api
 + :code:`LANG`: language
-+ :code:`DB_URL`: peewee Database URL, see `peewee#database-url http://docs.peewee-orm.com/en/latest/peewee/playhouse.html#database-url`_ for more details. Only sqlite and mysql are tested. default mysql charset is :code:`utf8md4`
-
++ :code:`DB_URL`: peewee Database URL, see `peewee#database-url <https://docs.peewee-orm.com/en/latest/peewee/playhouse.html#database-url>`_ for more details. Only sqlite and mysql are tested. default mysql database charset is :code:`utf8md4`, so if you are using mysql, you should set it you :code:`mysql://{username}:{password}@{host}:{port}/{dbname}?charset=utf8mb4`
 
 
 Aria2-rpc configure:
@@ -554,8 +549,8 @@ The keys `1`, `2`, `3` is the episode, the value is the url of bangumi.
 ================
 BGmi Data Source
 ================
-You can easily add your own BGmi data source by extending BGmi website base(:code:`bgmi.website.base.BaseWebsite`) class
- and implement all the method.
+
+You can easily add your own BGmi data source by extending BGmi website base(:code:`bgmi.website.base.BaseWebsite`) class and implement all the method.
 
 .. code-block:: python
 
