@@ -151,7 +151,7 @@ Cli completion(bash and zsh. Shell was detected from your env $SHELL)
 
 .. code-block:: bash
 
- eval "$(bgmi complete)"
+    eval "$(bgmi complete)"
 
 Setup custom BGMI_PATH:
 
@@ -664,6 +664,7 @@ Uninstall
 Scheduled task will not be delete automatically, you will have to remove them manually.
 
 *nix:
+
     remove them from your crontab
 
 windows:
