@@ -95,6 +95,7 @@ class BangumiMoe(BaseWebsite):
     cover_url = COVER_URL
 
     def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
+        max_page = int(max_page)
         response_data = []
         ret = []
         if subtitle_list:
