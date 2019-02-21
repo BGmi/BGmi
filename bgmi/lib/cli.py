@@ -44,9 +44,8 @@ def config_wrapper(ret):
         print(result['message'])
     else:
         if ret.name == 'DB_URL' and ret.value:
-            print_info('you are editing DB_URL, try creating database tables')
-            bgmi.config.read_config()
-            init_db()
+            print_info('you are editing DB_URL, please run `bgmi install` to init db')
+
         globals()["print_{}".format(result['status'])](result['message'])
 
 
@@ -360,10 +359,6 @@ def unlink_wrapper(ret):
     print_info('unlinked bangumi:')
     for l in BangumiLink.getUnlinkedBangumis():
         print_info('- {} {}'.format(*l))
-
-
-def init_db_wrapper(ret):
-    pass
 
 
 CONTROLLERS_DICT = {
