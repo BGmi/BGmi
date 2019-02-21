@@ -75,10 +75,13 @@ Or use pip:
     pip install bgmi
 
 If you want to use mysql as your database:
+ you need to install :code:`pymysql` `https://github.com/PyMySQL/PyMySQL`_ or :code:`mysqldb` `https://github.com/PyMySQL/mysqlclient-python`_
+
+Or:
 
 .. code-block:: bash
 
-    pip install bgmi[mysql]
+    pip install bgmi[mysql] # will use pymysql as driver
 
 Or use docker:
 
@@ -279,6 +282,9 @@ BGmi configure:
 + :code:`BGMI_TMP_PATH`: just a temporary path
 + :code:`DANMAKU_API_URL`: url of danmaku api
 + :code:`LANG`: language
++ :code:`DB_URL`: peewee Database URL, see `peewee#database-url http://docs.peewee-orm.com/en/latest/peewee/playhouse.html#database-url`_ for more details. Only sqlite and mysql are tested. default mysql charset is :code:`utf8md4`
+
+
 
 Aria2-rpc configure:
 
