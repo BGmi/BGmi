@@ -88,6 +88,9 @@ setup(
             'bgmi_http = bgmi.front.server:main'
         ]
     },
+    extras_require={
+        'mysql': ["pymysql", ],
+    },
     license='MIT License',
     tests_require=test_requirements,
     classifiers=[

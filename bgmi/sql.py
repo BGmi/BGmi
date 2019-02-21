@@ -1,28 +1,45 @@
 # coding=utf-8
 import sqlite3
 
-from bgmi.config import DB_PATH, SCRIPT_DB_PATH, BGMI_PATH
+from playhouse import db_url
+
+from bgmi import config
+from bgmi.lib.models import Bangumi, Followed, Subtitle, Filter, Download, BangumiItem, BangumiLink, Scripts
 from bgmi.utils import print_error
-from bgmi.lib.models import Bangumi, Followed, Subtitle, Filter, Download, Scripts, BangumiItem, BangumiLink
 
 
 def init_db():
-    try:
-        # bangumi.db
-        sqlite3.connect(DB_PATH).close()
-        Bangumi.create_table()
-        Followed.create_table()
-        Download.create_table()
-        Filter.create_table()
-        Subtitle.create_table()
-        BangumiItem.create_table()
-        BangumiLink.create_table()
+    # bangumi.db
+    database = db_url.parse(config.DB_URL)
+    schema = config.DB_URL.split(':', 1).pop(0)
+    if 'mysql' in schema:
+        import pymysql
 
-        # script.db
-        sqlite3.connect(SCRIPT_DB_PATH).close()
-        Scripts.create_table()
-    except sqlite3.OperationalError:
-        print_error('Open database file failed, path %s is not writable.' % BGMI_PATH)
+        conn = pymysql.connect(host=database.get('host'),
+                               user=database.get('user'),
+                               password=database.get('password'))
+        conn.cursor().execute('CREATE DATABASE IF NOT EXISTS {}'.format(database['database']))
+        conn.close()
+
+    elif 'sqlite' in schema:
+        try:
+            sqlite3.connect(database['database'])
+        except sqlite3.OperationalError:
+            print_error('Open database file failed, path %s is not writable.' % config.BGMI_PATH)
+    else:
+        print_error('unsupported database, not only support sqlite and mysql')
+        return
+    db = db_url.connect(config.DB_URL)
+    db.create_tables([
+        Bangumi,
+        Followed,
+        Download,
+        Filter,
+        Subtitle,
+        BangumiItem,
+        BangumiLink,
+        Scripts,
+    ])
 
 
 if __name__ == '__main__':

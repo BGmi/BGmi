@@ -16,14 +16,13 @@ __deluge__ = ('DELUGE_RPC_URL', 'DELUGE_RPC_PASSWORD')
 __download_delegate__ = __wget__ + __aria2__ + __transmission__ + __deluge__
 
 # fake __all__
-__all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE',
+__all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE', 'DB_URL',
            'MAX_PAGE', 'TMP_PATH', 'DANMAKU_API_URL', 'DISABLED_DATA_SOURCE',
            'LANG', 'FRONT_STATIC_PATH', 'ADMIN_TOKEN', 'SHARE_DMHY_URL',
            'GLOBAL_FILTER', 'ENABLE_GLOBAL_FILTER', 'TORNADO_SERVE_STATIC_FILES',)
 
 # cannot be rewrite
-__readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH', 'TOOLS_PATH',
-                'SCRIPT_PATH', 'SCRIPT_DB_PATH', 'FRONT_STATIC_PATH',)
+__readonly__ = ('BGMI_PATH', 'CONFIG_FILE_PATH', 'TOOLS_PATH', 'SCRIPT_PATH', 'FRONT_STATIC_PATH',)
 
 # writeable
 __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
@@ -55,10 +54,11 @@ BGMI_PATH = get_bgmi_path()
 if not BGMI_PATH:  # pragma: no cover
     raise SystemExit
 
-DB_PATH = os.path.join(BGMI_PATH, 'bangumi.db')
+# DB_URL = os.path.join(BGMI_PATH, 'bangumi.db')
+DB_URL = 'sqlite:///{}'.format(os.path.join(BGMI_PATH, 'bangumi.db'))
 CONFIG_FILE_PATH = os.path.join(BGMI_PATH, 'bgmi.cfg')
 
-SCRIPT_DB_PATH = os.path.join(BGMI_PATH, 'script.db')
+# SCRIPT_DB_URL = 'sqlite:///{}'.format(os.path.join(BGMI_PATH, 'script.db'))
 SCRIPT_PATH = os.path.join(BGMI_PATH, 'scripts')
 TOOLS_PATH = os.path.join(BGMI_PATH, 'tools')
 

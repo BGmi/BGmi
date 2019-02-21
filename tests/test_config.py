@@ -78,7 +78,7 @@ class WriteConfigTest(base, unittest.TestCase):
         self.assertTrue(r['message'].endswith('233'))
 
     def test_readonly(self):
-        r = config('DB_PATH', '/tmp/233')
+        r = config('DB_URL', '/tmp/233')
         self.assertEqual(r['status'], 'error')
 
     def test_writable(self):

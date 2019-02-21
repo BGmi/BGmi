@@ -8,6 +8,7 @@ from collections import defaultdict
 from typing import Dict, List
 
 import peewee as pw
+from playhouse.db_url import connect
 from playhouse.shortcuts import model_to_dict
 from playhouse.sqlite_ext import JSONField
 
@@ -32,7 +33,10 @@ DOWNLOAD_STATUS = (STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, STATUS_DOWNLOADED)
 
 DoesNotExist = pw.DoesNotExist
 
-db = pw.SqliteDatabase(bgmi.config.DB_PATH)
+db = connect(bgmi.config.DB_URL)
+
+
+# db = pw.SqliteDatabase(bgmi.config.DB_URL)
 
 
 class SubtitleField(pw.TextField):
@@ -111,14 +115,15 @@ class BangumiItem(pw.Model):
             # create a unique on from/to/date
             (('keyword', 'data_source'), True),
         )
-        primary_key = pw.CompositeKey('keyword', 'data_source')
+        # primary_key = pw.CompositeKey('keyword', 'data_source')
 
-    name = pw.TextField()  # type: str
-    cover = pw.TextField()  # type: str
+    id = pw.AutoField(primary_key=True)
+    name = pw.CharField()  # type: str
+    cover = pw.CharField()  # type: str
     status = pw.IntegerField()  # type: int
     update_time = pw.FixedCharField(5, null=False)  # type: str
     subtitle_group = SubtitleField()  # type: List[str]
-    keyword = pw.TextField()  # type: str
+    keyword = pw.CharField()  # type: str
     data_source = pw.FixedCharField(max_length=30)  # type: str
 
     def __getitem__(self, item):
@@ -152,10 +157,10 @@ class BangumiItem(pw.Model):
 
 
 class Bangumi(NeoDB):
-    id = pw.IntegerField(primary_key=True)  # type: int
+    id = pw.AutoField(primary_key=True)  # type: int
     name = pw.TextField(unique=True, null=False)
     subject_name = pw.TextField(unique=True)
-    cover = pw.TextField()
+    cover = pw.CharField()
     status = pw.IntegerField(default=0)  # type: int
     subject_id = pw.IntegerField(null=True)
     update_time = pw.FixedCharField(5, null=False)
@@ -258,8 +263,13 @@ class Bangumi(NeoDB):
         # return self.name
 
 
+class BangumiItemMapToBangumi(NeoDB):
+    bangumi = pw.ForeignKeyField(Bangumi)
+    bangumi_item = pw.ForeignKeyField(BangumiItem)
+
+
 class Followed(NeoDB):
-    bangumi_name = pw.TextField(unique=True)
+    bangumi_name = pw.CharField(unique=True)
     episode = pw.IntegerField(null=True, default=0)
     status = pw.IntegerField(null=True)
     updated_time = pw.IntegerField(null=True)
@@ -297,7 +307,7 @@ class Download(NeoDB):
     name = pw.TextField(null=False)
     title = pw.TextField(null=False)
     episode = pw.IntegerField(default=0)
-    download = pw.TextField()
+    download = pw.CharField()
     status = pw.IntegerField(default=0)
 
     @classmethod
@@ -317,7 +327,7 @@ class Download(NeoDB):
 
 
 class Filter(NeoDB):
-    bangumi_name = pw.TextField(unique=True)
+    bangumi_name = pw.CharField(unique=True)
     data_source = SubtitleField(default=[])  # type:List
     subtitle = SubtitleField(default=[])  # type:List
     include = SubtitleField(default=[])  # type:List
@@ -329,9 +339,9 @@ class Filter(NeoDB):
 
 
 class Subtitle(NeoDB):
-    id = pw.TextField()
-    name = pw.TextField()
-    data_source = pw.TextField()
+    id = pw.CharField()
+    name = pw.CharField()
+    data_source = pw.CharField()
 
     class Meta:
         database = db
@@ -481,17 +491,14 @@ class BangumiLink(NeoDB):
         return '<BangumiLink: {} {} {}>'.format(self.id, self.value, self.status)
 
 
-script_db = pw.SqliteDatabase(bgmi.config.SCRIPT_DB_PATH)
-
-
-class Scripts(pw.Model):
-    bangumi_name = pw.TextField(null=False, unique=True)
+class Scripts(NeoDB):
+    bangumi_name = pw.CharField(null=False, unique=True)
     episode = pw.IntegerField(default=0)
     status = pw.IntegerField(default=0)
     updated_time = pw.IntegerField(default=0)
 
     class Meta:
-        database = script_db
+        database = db
 
 
 def recreate_source_relatively_table():

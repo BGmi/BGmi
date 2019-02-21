@@ -20,6 +20,7 @@ from bgmi.lib.fetch import website
 from bgmi.lib.models import Bangumi, Followed, Filter, STATUS_UPDATED, STATUS_DELETED, STATUS_FOLLOWED, \
     BangumiLink
 from bgmi.script import ScriptRunner
+from bgmi.sql import init_db
 from bgmi.utils import (print_info, print_warning, print_success, print_error,
                         RED, GREEN, YELLOW, COLOR_END, get_terminal_col, logger)
 
@@ -29,6 +30,10 @@ def config_wrapper(ret):
     if (not ret.name) and (not ret.value):
         print(result['message'])
     else:
+        if ret.name == 'DB_URL':
+            print_info('you are editing DB_URL, try creating database tables')
+            bgmi.config.read_config()
+            init_db()
         globals()["print_{}".format(result['status'])](result['message'])
 
 
@@ -342,6 +347,10 @@ def unlink_wrapper(ret):
     print_info('unlinked bangumi:')
     for l in BangumiLink.getUnlinkedBangumis():
         print_info('- {} {}'.format(*l))
+
+
+def init_db_wrapper(ret):
+    pass
 
 
 CONTROLLERS_DICT = {

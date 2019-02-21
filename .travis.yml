@@ -1,13 +1,16 @@
+language: python
+
 os:
   - linux
 
 env:
-  - TRAVIS_CI=TRAVIS_CI
+  matrix:
+    - DB=sqlite
+    - DB=mysql
 
+services:
+  - mysql
 
-language: python
-
-sudo: true
 
 cache:
   directories:
@@ -17,15 +20,22 @@ python:
   - 3.4
   - 3.6
 
+before_install:
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
+  - sudo mysql -e "use mysql; update user set authentication_string=PASSWORD('new_password') where User='root'; update user set plugin='mysql_native_password';FLUSH PRIVILEGES;"
+  - sudo service mysql restart
+
 install:
   - pip install -r requirements.txt
   - pip install -r test_requirements.txt
   - python setup.py install
+  - if [[ "$DB" == "mysql" ]]; then pip install pymysql; fi
   - pip install codecov
   - pip install python-Levenshtein
 #    - sudo apt update
 
 script:
+  - export TRAVIS_CI=TRAVIS_CI
   - export BGMI_LOG=debug
   - export BANGUMI_1=名侦探柯南
   - export BANGUMI_2=刃牙
@@ -47,6 +57,10 @@ script:
 
   - coverage run -a -m bgmi.main cal -f
   - coverage run -a -m bgmi.main config
+  -
+  - if [[ "$DB" == "sqlite" ]];then bgmi config 'sqlite'          ; fi
+  - if [[ "$DB" == "mysql" ]]; then bgmi config DB_URL 'mysql+pool://root:new_password@127.0.0.1:3306/test'; fi
+
   - coverage run -a -m bgmi.main config ADMIN_TOKEN 233
   - coverage run -a -m bgmi.main config DOWNLOAD_DELEGATE 'aria2-rpc'
   - coverage run -a -m bgmi.main add $BANGUMI_1 $BANGUMI_2 $BANGUMI_3

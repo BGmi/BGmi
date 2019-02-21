@@ -3,6 +3,7 @@
 import bgmi.config
 from bgmi.config import BANGUMI_MOE_URL, SHARE_DMHY_URL
 
+ACTION_INIT_DB = 'init_db'
 ACTION_ADD = 'add'
 ACTION_FETCH = 'fetch'
 ACTION_FILTER = 'filter'
@@ -81,6 +82,11 @@ COMMON_EXCLUDE_KEYWORD = UNSUPPORTED_VIDEO_CODING
 
 # There should be no `'` in any help message
 actions_and_arguments = [
+    {
+        'action': ACTION_INIT_DB,
+        'help': 'Init Database and tables if you has change DB_URL in file.',
+        'arguments': []
+    },
     {
         'action': ACTION_ADD,
         'help': 'Subscribe bangumi.',
