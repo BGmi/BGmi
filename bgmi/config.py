@@ -182,8 +182,6 @@ def write_config(config=None, value=None):
         write_default_config()
         result = {'status': 'error', 'message': 'Error in config file, try rerun `bgmi config`'}
 
-    result['data'] = [{'writable': True, 'name': x, 'value': globals()[x]} for x in __writeable__] + \
-                     [{'writable': False, 'name': x, 'value': globals()[x]} for x in __readonly__]
     return result
 
 

@@ -290,13 +290,6 @@ def search(keyword, count=MAX_PAGE, regex=None, dupe=False, min_episode=None, ma
 
 
 def config(name=None, value=None):
-    if name == 'DB_URL':
-        from playhouse.db_url import parse, schemes
-        db_url_dict = parse(value)
-        if db_url_dict.get('database') not in schemes:
-            return {'status': 'error',
-                    'message': 'not support schemes, only support "`{}`"'.format('`, `'.join(schemes.keys()))}
-
     r = write_config(name, value)
     if name == 'ADMIN_TOKEN':
         r['message'] = 'you need to restart your bgmi_http to make new token work'

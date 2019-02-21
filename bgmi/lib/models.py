@@ -10,7 +10,6 @@ from typing import Dict, List
 import peewee as pw
 from playhouse.db_url import connect
 from playhouse.shortcuts import model_to_dict
-from playhouse.sqlite_ext import JSONField
 
 import bgmi.config
 
@@ -32,7 +31,6 @@ STATUS_DOWNLOADED = 2
 DOWNLOAD_STATUS = (STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, STATUS_DOWNLOADED)
 
 DoesNotExist = pw.DoesNotExist
-
 db = connect(bgmi.config.DB_URL)
 
 
@@ -57,7 +55,7 @@ class SubtitleField(pw.TextField):
 
 
 # SetField
-class BangumiNamesField(JSONField):
+class BangumiNamesField(SubtitleField):
     def python_value(self, value):
         if value is None:
             return set()
@@ -71,6 +69,21 @@ class BangumiNamesField(JSONField):
             return ', '.join(value)
 
 
+class JSONField(pw.TextField):
+    # field_type = ''
+
+    def python_value(self, value):
+        if value is not None:
+            try:
+                return json.loads(value)
+            except (TypeError, ValueError):
+                return value
+
+    def db_value(self, value):
+        if value is not None:
+            return json.dumps(value)
+
+
 class DataSourceField(JSONField):
 
     def python_value(self, value):
@@ -79,8 +92,6 @@ class DataSourceField(JSONField):
 
     def db_value(self, value):
         if value is not None:
-            # if isinstance(value, str):
-            #     return value
             data_source = {k: model_to_dict(v) for k, v in value.items()}
             return json.dumps(data_source, ensure_ascii=False)
         return {}
@@ -158,8 +169,8 @@ class BangumiItem(pw.Model):
 
 class Bangumi(NeoDB):
     id = pw.AutoField(primary_key=True)  # type: int
-    name = pw.TextField(unique=True, null=False)
-    subject_name = pw.TextField(unique=True)
+    name = pw.CharField(unique=True, null=False)
+    subject_name = pw.CharField(unique=True)
     cover = pw.CharField()
     status = pw.IntegerField(default=0)  # type: int
     subject_id = pw.IntegerField(null=True)
@@ -304,8 +315,8 @@ class Followed(NeoDB):
 
 
 class Download(NeoDB):
-    name = pw.TextField(null=False)
-    title = pw.TextField(null=False)
+    name = pw.CharField(null=False)
+    title = pw.CharField(null=False)
     episode = pw.IntegerField(default=0)
     download = pw.CharField()
     status = pw.IntegerField(default=0)
@@ -332,7 +343,7 @@ class Filter(NeoDB):
     subtitle = SubtitleField(default=[])  # type:List
     include = SubtitleField(default=[])  # type:List
     exclude = SubtitleField(default=[])  # type:List
-    regex = pw.TextField(null=True)
+    regex = pw.CharField(null=True)
 
     def apply_on_list_of_episode(self, episode_list: List[Dict[str, str]]):
         pass
@@ -496,9 +507,6 @@ class Scripts(NeoDB):
     episode = pw.IntegerField(default=0)
     status = pw.IntegerField(default=0)
     updated_time = pw.IntegerField(default=0)
-
-    class Meta:
-        database = db
 
 
 def recreate_source_relatively_table():

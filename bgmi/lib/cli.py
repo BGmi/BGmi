@@ -26,11 +26,24 @@ from bgmi.utils import (print_info, print_warning, print_success, print_error,
 
 
 def config_wrapper(ret):
+    name = ret.name
+    value = ret.value
+    if name == 'DB_URL':
+        if value:
+            from playhouse.db_url import schemes
+
+            scheme = value.split('://')[0]
+            if scheme not in schemes:
+                print_error(
+                    '{} if not a supported schemes, only support "`{}`"'.format(scheme, '`, `'.join(schemes.keys()))
+                )
+                return
+
     result = config(ret.name, ret.value)
     if (not ret.name) and (not ret.value):
         print(result['message'])
     else:
-        if ret.name == 'DB_URL':
+        if ret.name == 'DB_URL' and ret.value:
             print_info('you are editing DB_URL, try creating database tables')
             bgmi.config.read_config()
             init_db()

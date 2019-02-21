@@ -1,5 +1,6 @@
-import os
 import logging
+import os
+
 from bgmi.config import LOG_PATH
 
 
@@ -16,8 +17,13 @@ def get_logger():
         h.setFormatter(fmt)
         _logger.addHandler(h)
         _logger.setLevel(logging.getLevelName(log_level))
+        if log_level == 'DEBUG':
+            orm_logger = logging.getLogger('peewee')
+            orm_logger.setLevel(logging.DEBUG)
+            orm_logger.addHandler(h)
     except IOError:
         print("can't create log file, disable logger. Ignore this if you run bgmi at first time.")
+
     return _logger
 
 

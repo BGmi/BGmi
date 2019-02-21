@@ -89,10 +89,6 @@ class WriteConfigTest(base, unittest.TestCase):
     def test_not_writable(self):
         r = config('DAN_API_URL', '233')
 
-    def test_source(self):
-        r = config('DATA_SOURCE', '233')
-        self.assertEqual(r['status'], 'error')
-
     def test_wrong_config_name(self):
         r = config('WRONG_CONFIG_NAME', '233')
         self.assertEqual(r['status'], 'error')
