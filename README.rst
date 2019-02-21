@@ -65,11 +65,20 @@ Install from source:
     branch='master'
     pip install https://api.github.com/repos/BGmi/BGmi/tarball/$branch
 
+    branch='master'
+    pip install https://api.github.com/repos/BGmi/BGmi/tarball/$branch
+
 Or use pip:
 
 .. code-block:: bash
 
     pip install bgmi
+
+If you want to use mysql as your database:
+
+.. code-block:: bash
+
+    pip install bgmi[mysql]
 
 Or use docker:
 
