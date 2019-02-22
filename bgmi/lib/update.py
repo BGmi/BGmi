@@ -5,7 +5,8 @@ from playhouse import db_url
 
 from bgmi import __version__
 from bgmi.config import DB_URL, BGMI_PATH, write_default_config
-from bgmi.lib.models import db
+from bgmi.lib import constants
+from bgmi.lib.models import db, get_kv_storage
 from bgmi.sql import init_db
 from bgmi.utils import print_error, print_info, print_warning
 
@@ -43,5 +44,4 @@ def update_database():
         else:
             exit()
 
-    with open(OLD, 'w') as f:
-        f.write(__version__)
+    get_kv_storage()[constants.kv.OLD_VERSION] = __version__

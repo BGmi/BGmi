@@ -71,7 +71,7 @@ Or use pip:
 
     pip install bgmi
 
-If you want to use mysql as your database you need to install :code:`pymysql` `<https://github.com/PyMySQL/PyMySQL>`_ or :code:`mysqldb` `<https://github.com/PyMySQL/mysqlclient-python>`_
+If you want to use mysql as your database you need to install :code:`pymysql` `<https://github.com/PyMySQL/PyMySQL>`_.
 
 Or:
 

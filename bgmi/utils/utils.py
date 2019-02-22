@@ -18,8 +18,12 @@ import requests
 import urllib3
 
 from bgmi import __version__, __admin_version__
-from bgmi.config import BGMI_PATH, FRONT_STATIC_PATH, SAVE_PATH
+from bgmi.config import FRONT_STATIC_PATH, SAVE_PATH
+from bgmi.lib import constants
+from bgmi.lib.models import get_kv_storage
 from bgmi.logger import logger
+
+SECOND_OF_WEEK = 7 * 24 * 3600
 
 
 def _dict_as_called(f, args, kwargs):
@@ -54,11 +58,6 @@ def _dict_as_called(f, args, kwargs):
         for pos, value in enumerate(defaults):
             if names[-len(defaults) + pos] not in params:
                 params[names[-len(defaults) + pos]] = value
-
-    # check we did it correctly.  Each param and only params are set
-    assert set(params.keys()) == (
-        set(names) | {args_name} | {kwargs_name}
-    ) - {None}
 
     return params
 
@@ -259,11 +258,10 @@ def get_terminal_col():  # pragma: no cover
 def update(mark=True):
     try:
         print_info('Checking update ...')
-        version = requests.get('https://pypi.python.org/pypi/bgmi/json',
-                               verify=False).json()['info']['version']
-
-        with open(os.path.join(BGMI_PATH, 'latest'), 'w') as f:
-            f.write(version)
+        version = requests.get('https://pypi.python.org/pypi/bgmi/json').json()['info']['version']
+        get_kv_storage()[constants.kv.LATEST_VERSION] = version
+        # with open(os.path.join(BGMI_PATH, 'latest'), 'w') as f:
+        #     f.write(version)
 
         if version > __version__:
             print_warning('Please update bgmi to the latest version {}{}{}.'
@@ -292,21 +290,15 @@ def update(mark=True):
 
 @log_utils_function
 def check_update(mark=True):
-    version_file = os.path.join(BGMI_PATH, 'version')
-    if not os.path.exists(version_file):
-        with open(version_file, 'w') as f:
-            f.write(str(int(time.time())))
+    if constants.kv.LAST_UPDATE not in get_kv_storage():
+        get_kv_storage()[constants.kv.LAST_UPDATE] = int(time.time())
         return update(mark)
 
-    with open(version_file, 'r') as f:
-        try:
-            data = int(f.read())
-            if time.time() - 7 * 24 * 3600 > data:
-                with open(version_file, 'w') as f:
-                    f.write(str(int(time.time())))
-                return update(mark)
-        except ValueError:
-            pass
+    data = get_kv_storage().get(constants.kv.LAST_UPDATE, 0)
+    if time.time() - data > - SECOND_OF_WEEK:
+        get_kv_storage()[constants.kv.LAST_UPDATE] = int(time.time())
+
+        return update(mark)
 
 
 @log_utils_function
@@ -423,7 +415,7 @@ def download_cover(cover_url_list):
     p.close()
 
 
-def FullToHalf(s):
+def full_to_half(s):
     n = []
     # s = s.decode('utf-8')
     for char in s:

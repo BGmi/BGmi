@@ -1,10 +1,13 @@
 # coding=utf-8
 import os
 from shutil import copy
+
 from bgmi import __version__
 from bgmi.config import (IS_WINDOWS, BGMI_PATH, DOWNLOAD_DELEGATE,
                          SAVE_PATH, FRONT_STATIC_PATH, TMP_PATH, SCRIPT_PATH, TOOLS_PATH)
+from bgmi.lib import constants
 from bgmi.lib.download import get_download_class
+from bgmi.lib.models import get_kv_storage
 from bgmi.utils import print_success, print_warning, print_info, print_error
 
 
@@ -32,11 +35,8 @@ def create_dir():
             if not os.path.exists(path):
                 os.makedirs(path)
                 print_success('%s created successfully' % path)
-        OLD = os.path.join(BGMI_PATH, 'old')
-        # create OLD if not exist oninstall
-        if not os.path.exists(OLD):
-            with open(OLD, 'w') as f:
-                f.write(__version__)
+        if constants.kv.OLD_VERSION not in get_kv_storage():
+            get_kv_storage()[constants.kv.OLD_VERSION] = __version__
     except OSError as e:
         print_error('Error: {0}'.format(str(e)))
 

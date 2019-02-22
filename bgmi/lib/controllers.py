@@ -326,7 +326,7 @@ def update(name, download=None, not_ignore=False):
                 f = model_to_dict(f)
                 updated_bangumi_obj.append(f)
             except DoesNotExist:
-                pass
+                print_error('{} is not a followed bangumi'.format(i))
 
     runner = ScriptRunner()
     script_download_queue = runner.run()

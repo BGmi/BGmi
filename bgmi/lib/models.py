@@ -8,6 +8,7 @@ from collections import defaultdict
 from typing import Dict, List
 
 import peewee as pw
+from playhouse import kv
 from playhouse.db_url import connect
 from playhouse.shortcuts import model_to_dict
 
@@ -504,6 +505,21 @@ bangumi_links = BangumiLink.getAll()  # type: Dict[str, List[set]]
 
 combined_bangumi = bangumi_links[BangumiLink.STATUS.link]
 uncombined_bangumi = bangumi_links[BangumiLink.STATUS.unlink]
+kv_db = pw.SqliteDatabase(bgmi.config.KV_DB_PATH)
+
+try:
+    kv_instance = kv.KeyValue(database=kv_db)
+except pw.OperationalError:
+    kv_instance = None
+
+
+def get_kv_storage():
+    global kv_instance
+    if kv_instance is not None:
+        return kv_instance
+    kv_instance = kv.KeyValue(database=kv_db)
+    return kv_instance
+
 
 if __name__ == '__main__':  # pragma:no cover
     from pprint import pprint

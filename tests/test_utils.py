@@ -8,7 +8,11 @@ from types import SimpleNamespace
 from typing import List
 from unittest.mock import patch, Mock
 
+import bgmi
+import bgmi.config
 from bgmi import utils
+from bgmi.lib import constants
+from bgmi.lib.models import get_kv_storage
 from bgmi.utils import FRONTEND_NPM_URL, PACKAGE_JSON_URL
 
 
@@ -77,6 +81,7 @@ class UtilsTest(unittest.TestCase):
             class Mo:
                 def __init__(self, content):
                     self.content = bytes(content, encoding='utf8')
+
             m.side_effect = lambda x: Mo(x) if x.startswith('https://') or x.startswith('http://') else False
 
             cover_list = {x: x for x in [
@@ -127,45 +132,40 @@ class UtilsTest(unittest.TestCase):
     def test_check_update(self):
         # ask for upgrade if old version
 
-        with patch('bgmi.utils.utils.BGMI_PATH', self.test_dir), patch('bgmi.utils.utils.time.time') as time:
+        with patch('bgmi.utils.utils.time.time') as time:
             time.return_value = 12345
-            version_file = os.path.join(self.test_dir, 'version')
-            self.assertFalse(os.path.exists(version_file))
             with patch('bgmi.utils.utils.update') as update:
+                get_kv_storage()[constants.kv.LAST_UPDATE] = time.return_value
                 utils.check_update()
                 update.assert_called_once()
-                with open(version_file, 'r') as f:
-                    content = f.read()
-                    self.assertEqual(content, '12345')
-                time.return_value = 12345 + 30 * 30 * 24 * 3600
+                self.assertEqual(get_kv_storage().get(constants.kv.LAST_UPDATE), 12345)
+
+            time.return_value = 12345 + 30 * 30 * 24 * 3600
             with patch('bgmi.utils.utils.update') as update:
+                get_kv_storage()[constants.kv.LAST_UPDATE] = time.return_value
                 utils.check_update()
                 update.assert_called_once()
-                with open(version_file, 'r') as f:
-                    content = f.read()
-                    self.assertEqual(content, str(12345 + 30 * 30 * 24 * 3600))
+                self.assertEqual(get_kv_storage().get(constants.kv.LAST_UPDATE), 12345 + 30 * 30 * 24 * 3600)
 
     def test_update(self):
-        with patch('bgmi.utils.utils.FRONT_STATIC_PATH', self.test_dir), patch('bgmi.utils.utils.BGMI_PATH',
-                                                                               self.test_dir):
-            with patch('bgmi.utils.utils.requests.get') as m, patch('bgmi.utils.utils.get_web_admin')as get_web_admin:
-                pypi = 'https://pypi.python.org/pypi/bgmi/json'
-                request_map = {
-                    FRONTEND_NPM_URL: Mock(json=Mock(return_value={"version": '1.2.3',
-                                                                   'versions': {'1.2.3': {
-                                                                       'dist': {'tarball': 'tarball'}}}})),
-                    PACKAGE_JSON_URL: Mock(
-                        json=Mock(return_value={'version': '1.2.3', 'dist': {'tarball': 'tarball'}})),
-                    'tarball': SimpleNamespace(content='tarball content'),
-                    pypi: Mock(json=Mock(return_value={'info': {"version": ''}})),
-                }
+        with patch('bgmi.utils.utils.requests.get') as m, patch('bgmi.utils.utils.get_web_admin') as get_web_admin:
+            pypi = 'https://pypi.python.org/pypi/bgmi/json'
+            request_map = {
+                FRONTEND_NPM_URL: Mock(json=Mock(return_value={"version": '1.2.3',
+                                                               'versions': {'1.2.3': {
+                                                                   'dist': {'tarball': 'tarball'}}}})),
+                PACKAGE_JSON_URL: Mock(
+                    json=Mock(return_value={'version': '1.2.3', 'dist': {'tarball': 'tarball'}})),
+                'tarball': SimpleNamespace(content='tarball content'),
+                pypi: Mock(json=Mock(return_value={'info': {"version": ''}})),
+            }
 
-                def mock_get(url, *args, **kwargs):
-                    return request_map[url]
+            def mock_get(url, *args, **kwargs):
+                return request_map[url]
 
-                m.side_effect = mock_get
+            m.side_effect = mock_get
 
-                with open(self.test_dir + '/package.json', 'w', encoding='utf8')as f:
-                    json.dump({'version': '1.1.2'}, f)
-                utils.update(True)
-                get_web_admin.assert_called_once()
+            with open(bgmi.config.FRONT_STATIC_PATH + '/package.json', 'w', encoding='utf8') as f:
+                json.dump({'version': '1.1.2'}, f)
+            utils.update(True)
+            get_web_admin.assert_called_once()

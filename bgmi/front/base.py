@@ -1,13 +1,14 @@
 #!coding: utf-8
 import json
 import json.decoder
-import os
 
 import tornado.web
 from tornado.web import HTTPError
 
 from bgmi import __version__, __admin_version__
-from bgmi.config import DANMAKU_API_URL, BGMI_PATH, LANG
+from bgmi.config import DANMAKU_API_URL, LANG
+from bgmi.lib import constants
+from bgmi.lib.models import get_kv_storage
 from bgmi.script import ScriptRunner
 from bgmi.utils.utils import normalize_path
 
@@ -44,9 +45,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def __init__(self, *args, **kwargs):
         if self.latest_version is None:
-            if os.path.exists(os.path.join(BGMI_PATH, 'latest')):
-                with open(os.path.join(BGMI_PATH, 'latest')) as f:
-                    self.latest_version = f.read().strip()
+            self.latest_version = get_kv_storage().get(constants.kv.LATEST_VERSION, None)
 
         if self.patch_list is None:
             runner = ScriptRunner()

@@ -17,7 +17,8 @@ from bgmi.config import MAX_PAGE, ENABLE_GLOBAL_FILTER, GLOBAL_FILTER
 from bgmi.lib.models import Bangumi, Filter, BangumiItem, db, STATUS_UPDATING, model_to_dict, Subtitle, \
     STATUS_FOLLOWED, STATUS_UPDATED
 from bgmi.lib.models import combined_bangumi, uncombined_bangumi
-from bgmi.utils import test_connection, print_warning, print_info, download_cover, convert_cover_url_to_path, FullToHalf
+from bgmi.utils import test_connection, print_warning, print_info, download_cover, convert_cover_url_to_path, \
+    full_to_half
 from bgmi.website.bangumi_moe import BangumiMoe
 from bgmi.website.mikan import Mikanani
 from bgmi.website.share_dmhy import DmhySource
@@ -39,8 +40,8 @@ def similarity_of_two_name(name1: str, name2: str):
 
     name1 = HanziConv.toSimplified(name1)
     name2 = HanziConv.toSimplified(name2)
-    name1 = FullToHalf(name1)
-    name2 = FullToHalf(name2)
+    name1 = full_to_half(name1)
+    name2 = full_to_half(name2)
     name1 = name1.lower()
     name2 = name2.lower()
     if name1 in name2:
