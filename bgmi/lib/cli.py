@@ -310,7 +310,8 @@ def history(ret):
                 color = GREEN
 
         if not i.updated_time:
-            date = datetime.datetime.fromtimestamp(0)
+            # can't be 0, will raise OSError on windows
+            date = datetime.datetime.fromtimestamp(100000)
         else:
             date = datetime.datetime.fromtimestamp(int(i.updated_time))
 
