@@ -11,7 +11,7 @@ from bgmi.config import write_default_config, CONFIG_FILE_PATH
 from bgmi.lib.controllers import config
 
 
-class base():
+class base:
     def setUp(self):
         os.remove(CONFIG_FILE_PATH) if os.path.exists(CONFIG_FILE_PATH) else None
 
@@ -32,7 +32,8 @@ class base():
 
     @staticmethod
     def tearDownClass():
-        os.remove(CONFIG_FILE_PATH) if os.path.exists(CONFIG_FILE_PATH) else None
+        if os.path.exists(CONFIG_FILE_PATH):
+            os.remove(CONFIG_FILE_PATH)
         write_default_config()
 
 

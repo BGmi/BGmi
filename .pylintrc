@@ -1,5 +1,5 @@
 [MASTER]
-disable=C0103,C0111,W0611
+disable=C0103,C0111,W0611,R0903,R1710,E1120
 ignore=share_dmhy.py
 
 [FORMAT]

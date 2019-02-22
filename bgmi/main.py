@@ -16,7 +16,8 @@ from bgmi.utils import print_warning, print_error, print_version, check_update, 
 
 
 # global Ctrl-C signal handler
-def signal_handler(s, f):  # pragma: no cover
+def signal_handler(ken):  # pragma: no cover # pylint: disable=W0613
+
     print_error('User aborted, quit')
 
 

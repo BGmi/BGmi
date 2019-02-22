@@ -3,9 +3,9 @@
 import functools
 import glob
 import gzip
+import inspect
 import json
 import os
-import re
 import struct
 import sys
 import tarfile
@@ -18,10 +18,8 @@ import requests
 import urllib3
 
 from bgmi import __version__, __admin_version__
-from bgmi.config import BGMI_PATH, FRONT_STATIC_PATH, SAVE_PATH, LOG_PATH
+from bgmi.config import BGMI_PATH, FRONT_STATIC_PATH, SAVE_PATH
 from bgmi.logger import logger
-
-import inspect
 
 
 def _dict_as_called(f, args, kwargs):
@@ -70,7 +68,7 @@ def log_utils_function(func):
     def echo_func(*func_args, **func_kwargs):
         r = func(*func_args, **func_kwargs)
         called_with = _dict_as_called(func, func_args, func_kwargs)
-        logger.debug("util.{} {} -> `{}`".format(func.__name__, called_with, r))
+        logger.debug("util.%s %s -> `%s`", func.__name__, called_with, r)
         return r
 
     return echo_func
@@ -145,7 +143,7 @@ FRONTEND_NPM_URL = 'https://{}/bgmi-frontend/'.format(NPM_REGISTER_DOMAIN)
 PACKAGE_JSON_URL = 'https://{}/bgmi-frontend/{}'.format(NPM_REGISTER_DOMAIN, __admin_version__)
 
 
-def indicator(f):
+def _indicator(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         if kwargs.get('indicator', True):
@@ -169,7 +167,7 @@ def colorize(f):
 
 
 @disable_in_test
-@indicator
+@_indicator
 @colorize
 def print_info(message, indicator=True):
     logger.info(message)
@@ -177,7 +175,7 @@ def print_info(message, indicator=True):
 
 
 @disable_in_test
-@indicator
+@_indicator
 @colorize
 def print_success(message, indicator=True):
     logger.info(message)
@@ -185,7 +183,7 @@ def print_success(message, indicator=True):
 
 
 @disable_in_test
-@indicator
+@_indicator
 @colorize
 def print_warning(message, indicator=True):
     logger.warning(message)
@@ -193,7 +191,7 @@ def print_warning(message, indicator=True):
 
 
 @disable_in_test
-@indicator
+@_indicator
 @colorize
 def print_error(message, exit_=True, indicator=True):
     logger.error(message)
@@ -236,31 +234,29 @@ def get_terminal_col():  # pragma: no cover
                                                               struct.pack(str('HHHH'), 0, 0, 0, 0)))
 
         return col
-    else:
-        try:
-            from ctypes import windll, create_string_buffer
+    try:
+        from ctypes import windll, create_string_buffer
 
-            # stdin handle is -10
-            # stdout handle is -11
-            # stderr handle is -12
-            h = windll.kernel32.GetStdHandle(-12)
-            csbi = create_string_buffer(22)
-            res = windll.kernel32.GetConsoleScreenBufferInfo(h, csbi)
-            if res:
-                (_, _, _, _, _, left, _, right, _, _, _) = struct.unpack("hhhhHhhhhhh", csbi.raw)
-                sizex = right - left + 1
-                # sizey = bottom - top + 1
-                return sizex
-            else:
-                import subprocess
+        # stdin handle is -10
+        # stdout handle is -11
+        # stderr handle is -12
+        h = windll.kernel32.GetStdHandle(-12)
+        csbi = create_string_buffer(22)
+        res = windll.kernel32.GetConsoleScreenBufferInfo(h, csbi)
+        if res:
+            (_, _, _, _, _, left, _, right, _, _, _) = struct.unpack("hhhhHhhhhhh", csbi.raw)
+            sizex = right - left + 1
+            # sizey = bottom - top + 1
+            return sizex
+        import subprocess
 
-                cols = int(subprocess.check_output('tput cols'))
-                return cols
-        except:
-            return 80
+        cols = int(subprocess.check_output('tput cols'))
+        return cols
+    except:
+        return 80
 
 
-def update(mark):
+def update(mark=True):
     try:
         print_info('Checking update ...')
         version = requests.get('https://pypi.python.org/pypi/bgmi/json',

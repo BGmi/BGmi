@@ -5,11 +5,13 @@ import time
 from collections import defaultdict
 from functools import reduce
 from multiprocessing.pool import ThreadPool
+from typing import List
 
 import bs4
 import requests
 
 from bgmi.config import MAX_PAGE
+from bgmi.utils import parse_episode
 from bgmi.website.base import BaseWebsite
 
 week = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -59,6 +61,30 @@ def parser_day_bangumi(soup):
     return li
 
 
+def parse_episodes_from_soup(soup: bs4.BeautifulSoup):
+    container = soup.find('div', class_='central-container')  # type:bs4.Tag
+    subtitle_groups = defaultdict(lambda: defaultdict(list))
+    episode_container_list = {}
+    for tag in container.contents:
+        if hasattr(tag, 'attrs'):
+            subtitle_id = tag.attrs.get('id', False)
+            if subtitle_id:
+                episode_container_list[tag.attrs.get('id', None)] = tag.find_next_sibling('table')
+
+    for subtitle_id, container in episode_container_list.items():
+        for tr in container.find_all('tr')[1:]:
+            title = tr.find('a', class_='magnet-link-wrap').text
+            time_string = tr.find_all('td')[2].string
+            subtitle_groups[str(subtitle_id)]['episode'].append({
+                'download': tr.find('a', class_='magnet-link').attrs.get('data-clipboard-text', ''),
+                'subtitle_group': str(subtitle_id),
+                'title': title,
+                'episode': parse_episode(title),
+                'time': int(time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M")))
+            })
+    return subtitle_groups
+
+
 class Mikanani(BaseWebsite):
     cover_url = server_root[:-1]
 
@@ -66,8 +92,6 @@ class Mikanani(BaseWebsite):
         if os.environ.get('DEBUG', False):  # pragma: no cover
             print(server_root + 'Bangumi/{}'.format(bangumi_id))
         r = requests.get(server_root + 'Home/Bangumi/{}'.format(bangumi_id)).text
-
-        subtitle_groups = defaultdict(lambda: defaultdict(list))
 
         soup = bs4.BeautifulSoup(r, 'html.parser')
 
@@ -78,28 +102,7 @@ class Mikanani(BaseWebsite):
         day = title.find_next_sibling('p', class_='bangumi-info')
         bangumi_info['update_time'] = Cn_week_map[day.text[-3:]]
 
-        ######
-        soup = bs4.BeautifulSoup(r, 'html.parser')
-        # name = soup.find('p', class_='bangumi-title').text
-        container = soup.find('div', class_='central-container')  # type:bs4.Tag
-        episode_container_list = {}
-        for tag in container.contents:
-            if hasattr(tag, 'attrs'):
-                subtitle_id = tag.attrs.get('id', False)
-                if subtitle_id:
-                    episode_container_list[tag.attrs.get('id', None)] = tag.find_next_sibling('table')
-
-        for subtitle_id, container in episode_container_list.items():
-            for tr in container.find_all('tr')[1:]:
-                title = tr.find('a', class_='magnet-link-wrap').text
-                time_string = tr.find_all('td')[2].string
-                subtitle_groups[str(subtitle_id)]['episode'].append({
-                    'download': tr.find('a', class_='magnet-link').attrs.get('data-clipboard-text', ''),
-                    'subtitle_group': str(subtitle_id),
-                    'title': title,
-                    'episode': self.parse_episode(title),
-                    'time': int(time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M")))
-                })
+        subtitle_groups = parse_episodes_from_soup(soup)
 
         ######
         bangumi_info['subtitle_group'] = list(subtitle_groups.keys())
@@ -108,10 +111,10 @@ class Mikanani(BaseWebsite):
         li_list = dv.ul.find_all('li')
         for li in li_list:
             a = li.find('a')
-            subtitle = {'id': a.attrs['data-anchor'][1:],
-                        'name': a.text,
-                        }
-            nr.append(subtitle)
+            nr.append({
+                'id': a.attrs['data-anchor'][1:],
+                'name': a.text,
+            })
 
         bangumi_info['subtitle_groups'] = nr
         return bangumi_info
@@ -180,36 +183,13 @@ class Mikanani(BaseWebsite):
         :return: list of bangumi
         :rtype: list[dict]
         """
-        result = []
         if os.environ.get('DEBUG', False):  # pragma: no cover
             print(server_root + 'Bangumi/{}'.format(bangumi_id))
         r = requests.get(server_root + 'Home/Bangumi/{}'.format(bangumi_id)).text
 
         soup = bs4.BeautifulSoup(r, 'html.parser')
-        # name = soup.find('p', class_='bangumi-title').text
-        container = soup.find('div', class_='central-container')  # type:bs4.Tag
-        episode_container_list = {}
-        for tag in container.contents:
-            if hasattr(tag, 'attrs'):
-                subtitle_id = tag.attrs.get('id', False)
-                if subtitle_list:
-                    if subtitle_id in subtitle_list:
-                        episode_container_list[tag.attrs.get('id', None)] = tag.find_next_sibling('table')
-                else:
-                    if subtitle_id:
-                        episode_container_list[tag.attrs.get('id', None)] = tag.find_next_sibling('table')
-        for subtitle_id, container in episode_container_list.items():
-            for tr in container.find_all('tr')[1:]:
-                title = tr.find('a', class_='magnet-link-wrap').text
-                time_string = tr.find_all('td')[2].string
-                result.append({
-                    'download': server_root[:-1] + tr.find_all('td')[-1].find('a', ).attrs.get('href', ''),
-                    'subtitle_group': str(subtitle_id),
-                    'title': title,
-                    'episode': self.parse_episode(title),
-                    'time': int(time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M")))
-                })
-
+        episode = parse_episodes_from_soup(soup)
+        result = sum([x['episode'] for x in episode.values()], [])
         return result
 
     def fetch_bangumi_calendar_and_subtitle_group(self):

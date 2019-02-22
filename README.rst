@@ -245,8 +245,11 @@ Status code:
 
 Manually match bangumi from multi data source.
 
-BGmi will try to find same bangumis from different data source. `example <https://github.com/BGmi/BGmi/issues/109#issuecomment-435870748>`_,
-but there may also be accidents. like "魔偶马戏团" and "傀儡马戏团", so BGmi apply two actions for user to tell BGmi that
+BGmi will try to find same bangumis from different data source.
+
+`example <https://github.com/BGmi/BGmi/issues/109#issuecomment-435870748>`_
+
+But there may also be accidents. like "魔偶马戏团" and "傀儡马戏团", so BGmi apply two actions for user to tell BGmi that
 a bangumi name have different chinese translations.
 
 

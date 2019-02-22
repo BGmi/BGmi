@@ -3,14 +3,17 @@
 import unittest
 
 import bgmi.website
+import bgmi.utils.utils
+
 # from bgmi.lib.fetch import website
-from bgmi.website.base import BaseWebsite
+# from bgmi.website.base import BaseWebsite
 
 
 class BasicT:
     bangumi_name_1 = 'BANGUMI_1'
     bangumi_name_2 = 'BANGUMI_2'
-    w = BaseWebsite()
+
+    # w  # type: BaseWebsite
 
     def test_info(self):
         bs, gs = self.w.fetch_bangumi_calendar_and_subtitle_group()

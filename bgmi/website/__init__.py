@@ -311,6 +311,7 @@ class DataSource:
 
             return data
 
+    # todo split to some small function
     def fetch(self, save=False, group_by_weekday=True):
         bangumi_result, subtitle_group_result = init_data()
 
@@ -538,11 +539,15 @@ class DataSource:
             filter_obj.exclude += [x.strip() for x in GLOBAL_FILTER.split(',')]
 
         if filter_obj.include:
-            f = lambda s: all(map(lambda t: t in s['title'], filter_obj.include))
+            def f(s):
+                return all(map(lambda t: t in s['title'], filter_obj.include))
+
             result = list(filter(f, result))
 
         if filter_obj.exclude:
-            f = lambda s: not any(map(lambda t: t in s['title'], filter_obj.exclude))
+            def f(s):
+                return not any(map(lambda t: t in s['title'], filter_obj.exclude))
+
             result = list(filter(f, result))
 
         if filter_obj.regex:

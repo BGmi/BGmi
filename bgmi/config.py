@@ -149,24 +149,22 @@ def write_config(config=None, value=None):
         else:  # config(config, Value)
             if config in __writeable__:
                 if config == 'DOWNLOAD_DELEGATE' and value not in DOWNLOAD_DELEGATE_MAP:
-                    result = {'status': 'error',
-                              'message': '{0} is not a support download_delegate'.format(value)}
-                else:
-                    c.set('bgmi', config, value)
+                    return {'status': 'error',
+                            'message': '{0} is not a support download_delegate'.format(value)}
+                c.set('bgmi', config, value)
+                with open(CONFIG_FILE_PATH, 'w') as f:
+                    c.write(f)
+                read_config()
+                if config == 'DOWNLOAD_DELEGATE' and not c.has_section(DOWNLOAD_DELEGATE):
+                    c.add_section(DOWNLOAD_DELEGATE)
+                    for i in DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]:
+                        v = globals().get(i, '')
+                        c.set(DOWNLOAD_DELEGATE, i, v)
+
                     with open(CONFIG_FILE_PATH, 'w') as f:
                         c.write(f)
-                    read_config()
-                    if config == 'DOWNLOAD_DELEGATE':
-                        if not c.has_section(DOWNLOAD_DELEGATE):
-                            c.add_section(DOWNLOAD_DELEGATE)
-                            for i in DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]:
-                                v = globals().get(i, '')
-                                c.set(DOWNLOAD_DELEGATE, i, v)
-
-                            with open(CONFIG_FILE_PATH, 'w') as f:
-                                c.write(f)
-                    result = {'status': 'success',
-                              'message': '{0} has been set to {1}'.format(config, value)}
+                result = {'status': 'success',
+                          'message': '{0} has been set to {1}'.format(config, value)}
 
             elif config in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
                 c.set(DOWNLOAD_DELEGATE, config, value)

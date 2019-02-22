@@ -13,7 +13,7 @@ from bgmi.lib.models import Download, Followed, Bangumi
 
 
 class BangumiHandler(BaseHandler):
-    def get(self, _):
+    def get(self, _):  # pylint: disable=W0221
         if os.environ.get('DEV', False):  # pragma: no cover
             with open(os.path.join(SAVE_PATH, _), 'rb') as f:
                 self.write(f.read())
@@ -37,14 +37,14 @@ class BangumiHandler(BaseHandler):
 
 
 class RssHandler(BaseHandler):
-    def get(self):
+    def get(self):  # pylint: disable=W0221
         data = Download.get_all_downloads()
         self.set_header('Content-Type', 'text/xml')
         self.render('templates/download.xml', data=data)
 
 
 class CalendarHandler(BaseHandler):
-    def get(self):
+    def get(self):  # pylint: disable=W0221
         type_ = self.get_argument('type', 0)
 
         cal = Calendar()

@@ -35,9 +35,8 @@ def add(name, episode=None):
         if followed_obj.status == STATUS_FOLLOWED:
             result = {'status': 'warning', 'message': '{0} already followed'.format(bangumi_obj.name)}
             return result
-        else:
-            followed_obj.status = STATUS_FOLLOWED
-            followed_obj.save()
+        followed_obj.status = STATUS_FOLLOWED
+        followed_obj.save()
 
     Filter.get_or_create(bangumi_name=bangumi_obj.name)
 
@@ -56,18 +55,14 @@ def filter_(name, subtitle_input=None, data_source_input=None, include=None, exc
         Followed.get(bangumi_name=bangumi_obj.name)
         name = bangumi_obj.name
     except Bangumi.DoesNotExist:
-        result['status'] = 'error'
-        result['message'] = 'Bangumi {0} does not exist.'.format(name)
-        return result
+        return {'status': 'error', 'message': 'Bangumi {0} does not exist.'.format(name)}
     except Followed.DoesNotExist:
-        result['status'] = 'error'
-        result['message'] = 'Bangumi {name} has not subscribed, try \'bgmi add "{name}"\'.'.format(name=name)
-        return result
+        return {
+            'status': 'error',
+            'message': 'Bangumi {name} has not subscribed, try \'bgmi add "{name}"\'.'.format(name=name)
+        }
 
-    followed_filter_obj, is_this_obj_created = Filter.get_or_create(bangumi_name=bangumi_obj.name)
-
-    if is_this_obj_created:
-        followed_filter_obj.save()
+    followed_filter_obj, _ = Filter.get_or_create(bangumi_name=bangumi_obj.name)
 
     subtitle_list = bangumi_obj.get_subtitle_of_bangumi()
     valid_data_source_list = [key for key in bangumi_obj.data_source.keys()]
@@ -259,10 +254,6 @@ def search(keyword, count=MAX_PAGE, regex=None, dupe=False, min_episode=None, ma
             data = [x for x in data if x['episode'] >= min_episode]
         if max_episode is not None:
             data = [x for x in data if x['episode'] <= max_episode]
-        # for i in data:
-        #     if i['episode'] >= min_episode:
-        #         r.append(i)
-
         if not dupe:
             data = website.Utils.remove_duplicated_bangumi(data)
         data.sort(key=lambda x: x['episode'])
@@ -452,7 +443,7 @@ def list_():
 
 
 if __name__ == '__main__':
-    e = cal()
+    ee = cal()
     import json
 
-    print(json.dumps(e))
+    print(json.dumps(ee))

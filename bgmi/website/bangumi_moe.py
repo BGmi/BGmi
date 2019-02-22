@@ -143,22 +143,21 @@ class BangumiMoe(BaseWebsite):
 
         for i in range(count):
             data = get_response(SEARCH_URL, 'POST', json={'query': keyword, 'p': i + 1})
-            if not 'torrents' in data:
+            if 'torrents' not in data:
                 print_warning('No torrents in response data, please re-run')
                 return []
             rows.extend(data['torrents'])
 
         for info in rows:
-            if True:
-                result.append({
-                    'download': TORRENT_URL + info['_id'] + '/download.torrent',
-                    'name': keyword,
-                    'subtitle_group': info['team_id'],
-                    'title': info['title'],
-                    'episode': self.parse_episode(info['title']),
-                    'time': int(time.mktime(datetime.datetime.strptime(info['publish_time'].split('.')[0],
-                                                                       "%Y-%m-%dT%H:%M:%S").timetuple()))
-                })
+            result.append({
+                'download': TORRENT_URL + info['_id'] + '/download.torrent',
+                'name': keyword,
+                'subtitle_group': info['team_id'],
+                'title': info['title'],
+                'episode': self.parse_episode(info['title']),
+                'time': int(time.mktime(datetime.datetime.strptime(info['publish_time'].split('.')[0],
+                                                                   "%Y-%m-%dT%H:%M:%S").timetuple()))
+            })
 
         # Avoid bangumi collection. It's ok but it will waste your traffic and bandwidth.
         result = result[::-1]

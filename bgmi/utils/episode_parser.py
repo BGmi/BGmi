@@ -91,20 +91,12 @@ def parse_episode(episode_title):
             return 0
         return real
 
-    _ = FETCH_EPISODE_RANGE_ALL_ZH.findall(episode_title)
-    if _ and _[0]:
-        logger.debug('return episode range all zh')
-        return int(0)
-
-    _ = FETCH_EPISODE_RANGE.findall(episode_title)
-    if _ and _[0]:
-        logger.debug('return episode range')
-        return int(0)
-
-    _ = FETCH_EPISODE_RANGE_ZH.findall(episode_title)
-    if _ and _[0]:
-        logger.debug('return episode range zh')
-        return int(0)
+    # check if range episode, return 0
+    for regexp in [FETCH_EPISODE_RANGE_ALL_ZH, FETCH_EPISODE_RANGE, FETCH_EPISODE_RANGE_ZH]:
+        _ = regexp.findall(episode_title)
+        if _ and _[0]:
+            logger.debug('return episode range all zh')
+            return int(0)
 
     _ = FETCH_EPISODE_ZH.findall(episode_title)
     if _ and _[0].isdigit():
@@ -118,7 +110,7 @@ def parse_episode(episode_title):
             e = chinese_to_arabic(_[0])
             logger.debug('return episode all zh')
             return e
-        except Exception:
+        except (ValueError, TypeError):
             logger.debug('can\'t convert %s to int', _[0])
 
     _ = FETCH_EPISODE_WITH_VERSION.findall(episode_title)

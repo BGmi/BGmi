@@ -1,14 +1,10 @@
 from unittest import mock, TestCase
 
-from bgmi.lib.models import Bangumi
-from bgmi.website import DataSource, DATA_SOURCE_MAP
+from bgmi.website import DataSource
 from bgmi.website.base import BaseWebsite
 
 w = lambda: mock.Mock(spec=BaseWebsite)
 
-from bgmi.website import DATA_SOURCE_MAP
-
-import json
 # from .mock_websites import MockDateSource
 from tests.mock_websites import MockDateSource
 
@@ -74,33 +70,13 @@ class TestDataSource():
         """
         raise Exception
 
-        pass
-        # data.save()
-
     def test_get_maximum_episode(self):
         """
-
-        :type max_page: str
-        :param max_page:
-        :type bangumi: object
-        :type ignore_old_row: bool
-        :param ignore_old_row:
-        :type bangumi: Bangumi
-        :param subtitle:
-        :type subtitle: bool
         """
         raise Exception
 
     def test_fetch_episode(self):
         """
-        :type filter_obj: Filter
-        :type source: str
-        :type bangumi_obj: Bangumi
-        :type subtitle_group: str
-        :type include: str
-        :type exclude: str
-        :type regex: str
-        :type max_page: int
         """
         raise Exception
 

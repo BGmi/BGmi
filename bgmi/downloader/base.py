@@ -1,12 +1,12 @@
 # coding=utf-8
 import os
-import subprocess
+from abc import abstractmethod, ABC
 
 from bgmi.lib.models import STATUS_DOWNLOADED, STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, Download
 from bgmi.utils import print_warning, print_info, print_success
 
 
-class BaseDownloadService:
+class BaseDownloadService(ABC):
     def __init__(self, download_obj, save_path, overwrite=True):
         self.name = download_obj.name
         self.torrent = download_obj.download
@@ -15,6 +15,7 @@ class BaseDownloadService:
         self.episode = download_obj.episode
         self.return_code = 0
 
+    @abstractmethod
     def download(self):
         # download
         raise NotImplementedError
@@ -29,9 +30,9 @@ class BaseDownloadService:
             print_warning('Create dir {0}'.format(self.save_path))
             os.makedirs(self.save_path)
 
-    def check_delegate_bin_exist(self, path):
-        if not os.path.exists(path):
-            raise Exception('{0} not exist, please run command \'bgmi install\' to install'.format(path))
+    @abstractmethod
+    def check_delegate_bin_exist(self):
+        raise NotImplementedError
 
     def check_download(self, name):
         if not os.path.exists(self.save_path) or self.return_code != 0:

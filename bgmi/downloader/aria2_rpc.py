@@ -99,3 +99,6 @@ class Aria2DownloadRPC(BaseDownloadService):
 
         except:
             print_error('Cannot connect to aria2-rpc server')
+
+    def check_delegate_bin_exist(self):
+        pass

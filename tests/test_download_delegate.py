@@ -1,22 +1,17 @@
 # -*- coding: utf-8 -*-
 
-import os
 import unittest
 from unittest.mock import MagicMock, patch
-import sys
 
-from unittest import mock
+import bgmi.downloader
+import bgmi.website
 # from bgmi.lib.fetch import website
 from bgmi.config import ARIA2_RPC_TOKEN
-from bgmi.website import DATA_SOURCE_MAP
-from bgmi.website.base import BaseWebsite
-import bgmi.website
 from bgmi.downloader.aria2_rpc import Aria2DownloadRPC
+from bgmi.downloader.base import BaseDownloadService
 from bgmi.downloader.deluge import DelugeRPC
 from bgmi.downloader.transmissionRpc import TransmissionRPC
-from bgmi.downloader.base import BaseDownloadService
 from bgmi.lib.models import Download
-import bgmi.downloader
 
 
 class Basic:
@@ -32,7 +27,7 @@ class Basic:
         )
         cls = BaseDownloadService
         overwrite = True
-        instance = BaseDownloadService(download_obj, save_path, overwrite)
+        # instance = BaseDownloadService(download_obj, save_path, overwrite)
 
 
 class Aria2cTest(Basic.Test, unittest.TestCase):

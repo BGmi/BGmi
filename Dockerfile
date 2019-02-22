@@ -1,5 +1,5 @@
-FROM ubuntu:latest
-MAINTAINER ricterzheng@gmail.com
+FROM ubuntu:18.04
+LABEL MAINTAINER="ricterzheng@gmail.com"
 
 EXPOSE 80
 EXPOSE 6800
@@ -7,7 +7,7 @@ EXPOSE 6800
 ENV LANG C.UTF-8
 ENV TRAVIS_CI 1
 
-ADD ./ /opt/bgmi
+COPY ./ /opt/bgmi
 WORKDIR /opt/bgmi
 
 RUN apt-get update --fix-missing \

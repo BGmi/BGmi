@@ -39,34 +39,29 @@ db = connect(bgmi.config.DB_URL)
 
 class SubtitleField(pw.TextField):
     def python_value(self, value):
-        if not value:
-            return []
-        else:
+        if value:
             return [x.strip() for x in value.split(',')]
+        return []
 
     def db_value(self, value):
-        if value is None:
-            return ''
-        else:
-            if not value:
-                return ''
-            else:
-                return ', '.join(value)
+        if value:
+            return ', '.join(value)
+        return ''
 
 
 # SetField
 class BangumiNamesField(SubtitleField):
     def python_value(self, value):
-        if value is None:
-            return set()
-        else:
-            return set([x.strip() for x in value.split(',')])
+        if value:
+            return {x.strip() for x in value.split(',')}
+        return set()
 
     def db_value(self, value):
-        if value is not None:
+        if value:
             if isinstance(value, str):
                 return value
             return ', '.join(value)
+        return ''
 
 
 class JSONField(pw.TextField):
@@ -154,17 +149,6 @@ class BangumiItem(pw.Model):
 
     def __repr__(self):
         return self.__str__()
-
-    @classmethod
-    def fuzzy_get(cls, **filters):
-        q = []
-        for key, value in filters.items():
-            q.append(getattr(cls, key).contains(value))
-        o = list(cls.select().where(*q))
-        if not o:
-            raise cls.DoesNotExist
-        else:
-            return o[0]
 
 
 class Bangumi(NeoDB):
@@ -524,5 +508,5 @@ uncombined_bangumi = bangumi_links[BangumiLink.STATUS.unlink]
 if __name__ == '__main__':  # pragma:no cover
     from pprint import pprint
 
-    d = BangumiItem(name='233')
-    pprint(d)
+    dd = BangumiItem(name='233')
+    pprint(dd)

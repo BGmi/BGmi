@@ -2,17 +2,18 @@
 import functools
 import traceback
 from concurrent.futures.thread import ThreadPoolExecutor
-from tornado.ioloop import IOLoop
+from threading import Lock
 
 from tornado.concurrent import run_on_executor
+from tornado.ioloop import IOLoop
 from tornado.web import HTTPError
-from tornado.gen import coroutine
+
 from bgmi.config import ADMIN_TOKEN
+from bgmi.front.base import BaseHandler
 from bgmi.lib.constants import (ACTION_ADD, ACTION_DELETE, ACTION_CAL, ACTION_SEARCH, ACTION_CONFIG, ACTION_DOWNLOAD,
                                 ACTION_MARK, ACTION_FILTER)
 from bgmi.lib.controllers import add, delete, search, cal, config, update, mark, status_, filter_
 from bgmi.lib.download import download_prepare
-from bgmi.front.base import BaseHandler
 
 ACTION_AUTH = 'auth'
 ACTION_STATUS = 'status'
@@ -99,18 +100,13 @@ class AdminApiHandler(BaseHandler):
         self.write(resp)
 
 
-# from tornado.locks import Lock
-from threading import Lock
-
-
 class UpdateHandler(BaseHandler):
     executor = ThreadPoolExecutor(2)
-    lock = Lock()
+    _lock = Lock()
 
     @auth
     def post(self):
-        if not self.lock.locked():
-            self.lock.acquire()
+        if self._lock.acquire(False):
             IOLoop.instance().add_callback(self.hard_task)  # 这样将在下一轮事件循环执行self.sleep
             self.finish(self.jsonify(message='start updating'))
         else:
@@ -126,4 +122,4 @@ class UpdateHandler(BaseHandler):
         if not download:
             download = None
         update(name, download)
-        self.lock.release()
+        self._lock.release()

@@ -8,7 +8,7 @@ from bgmi.utils import print_info, print_warning
 class TransmissionRPC(BaseDownloadService):
 
     def __init__(self, *args, **kwargs):
-        self.check_delegate_bin_exist('')
+        self.check_delegate_bin_exist()
         super(TransmissionRPC, self).__init__(*args, **kwargs)
 
     def download(self):
@@ -21,7 +21,7 @@ class TransmissionRPC(BaseDownloadService):
         except ImportError:
             self.install()
 
-    def check_delegate_bin_exist(self, path):
+    def check_delegate_bin_exist(self):
         try:
             import transmission_rpc
         except ImportError:
@@ -30,8 +30,8 @@ class TransmissionRPC(BaseDownloadService):
     def check_download(self, name):
         pass
 
-    @staticmethod
-    def download_status(status=None):
+    @classmethod
+    def download_status(cls, status=None):
         print_info('Print download status in database')
         BaseDownloadService.download_status(status=status)
         print('')
@@ -43,7 +43,7 @@ class TransmissionRPC(BaseDownloadService):
             for torrent in tc.get_torrents():
                 print_info('  * {0}: {1}'.format(torrent.status, torrent), indicator=False)
         except ImportError:
-            pass
+            cls.install()
 
     @staticmethod
     def install():

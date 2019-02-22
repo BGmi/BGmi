@@ -1,7 +1,8 @@
 # coding=utf-8
 
-import glob
 import os
+import xmlrpc.client
+from functools import singledispatch
 
 from bgmi.config import SAVE_PATH, DOWNLOAD_DELEGATE
 from bgmi.downloader.aria2_rpc import Aria2DownloadRPC
@@ -29,6 +30,27 @@ def get_download_class(download_obj=None, save_path='', overwrite=True, instance
     return delegate
 
 
+@singledispatch
+def handle_specific_exception(e):  # got an exception we don't handle
+    print_error('Error, {0}'.format(e), exit_=False)
+
+
+@handle_specific_exception.register(xmlrpc.client.Fault)
+def _(e):
+    # handle exception 1
+    err_string = str(e)
+    if 'Unauthorized' in err_string:
+        print_error('aria2-rpc, wrong secret token', exit_=False)
+    else:
+        print_error('Error, {0}'.format(e), exit_=False)
+
+
+@handle_specific_exception.register(xmlrpc.client.ProtocolError)
+def _(e):
+    # handle exception 2
+    print_error('can\'t connect to aria2-rpc server, {0}'.format(e), exit_=False)
+
+
 def download_prepare(data):
     """
     list[dict]
@@ -50,6 +72,7 @@ def download_prepare(data):
         # mark as downloading
         download.status = STATUS_DOWNLOADING
         download.save()
+
         try:
             # start download
             download_class = get_download_class(download_obj=download, save_path=save_path)
@@ -58,16 +81,18 @@ def download_prepare(data):
 
             # mark as downloaded
             download.downloaded()
-        except Exception as e:
+
+        except Exception as e:  # pylint: disable=W0703
+            handle_specific_exception(e)
+
+            download.status = STATUS_NOT_DOWNLOAD
+            download.save()
+
             if os.getenv('DEBUG'):  # pragma: no cover
                 import traceback
 
                 traceback.print_exc()
                 raise e
-
-            print_error('Error: {0}'.format(e), exit_=False)
-            download.status = STATUS_NOT_DOWNLOAD
-            download.save()
 
 
 def save_to_bangumi_download_queue(data):

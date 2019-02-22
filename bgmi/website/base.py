@@ -1,11 +1,13 @@
 # coding=utf-8
 
+from abc import ABC, abstractmethod
+
 from bgmi.config import MAX_PAGE
-from bgmi.lib.models import Bangumi, BangumiItem
+from bgmi.lib.models import BangumiItem
 from bgmi.utils import (parse_episode, normalize_path)
 
 
-class BaseWebsite(object):
+class BaseWebsite(ABC):
     cover_url = ''
     source_id = ''
     parse_episode = staticmethod(parse_episode)
@@ -20,6 +22,7 @@ class BaseWebsite(object):
         bangumi_result = [BangumiItem(**bangumi) for bangumi in bangumi_result if bangumi['subtitle_group']]
         return bangumi_result, subtitile_result
 
+    @abstractmethod
     def fetch_bangumi_calendar_and_subtitle_group(self):  # pragma: no cover
         """
         return a list of all bangumi and a list of all subtitle group
@@ -60,6 +63,7 @@ class BaseWebsite(object):
         """
         raise NotImplementedError
 
+    @abstractmethod
     def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):  # pragma: no cover
         """
         get all episode by bangumi id
@@ -86,6 +90,7 @@ class BaseWebsite(object):
         """
         raise NotImplementedError
 
+    @abstractmethod
     def search_by_keyword(self, keyword, count=None):
         """
         return a list of dict with at least 4 key: download, name, title, episode

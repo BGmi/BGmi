@@ -45,6 +45,9 @@ class DelugeRPC(BaseDownloadService):
 
         return e
 
+    def check_delegate_bin_exist(self):
+        pass
+
     @staticmethod
     def install():
         pass

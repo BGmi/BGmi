@@ -20,7 +20,6 @@ from bgmi.lib.fetch import website
 from bgmi.lib.models import Bangumi, Followed, Filter, STATUS_UPDATED, STATUS_DELETED, STATUS_FOLLOWED, \
     BangumiLink
 from bgmi.script import ScriptRunner
-from bgmi.sql import init_db
 from bgmi.utils import (print_info, print_warning, print_success, print_error,
                         RED, GREEN, YELLOW, COLOR_END, get_terminal_col, logger)
 
@@ -85,14 +84,12 @@ def add_wrapper(ret):
         globals()["print_{}".format(result['status'])](result['message'])
 
 
-def list_wrapper(*args):
+def list_wrapper(ret):
     result = list_()
     print(result['message'])
 
 
 def cal_wrapper(ret):
-    force_update = ret.force_update
-    today = ret.today
     save = not ret.no_save
     runner = ScriptRunner()
     if ret.download_cover:
@@ -100,7 +97,7 @@ def cal_wrapper(ret):
     else:
         cover = None
 
-    weekly_list = website.bangumi_calendar(force_update=force_update, save=save, cover=cover)
+    weekly_list = website.bangumi_calendar(force_update=ret.force_update, save=save, cover=cover)
     if os.environ.get('DEBUG') or ret.show_source:
         for bangumi_list in weekly_list.values():
             for bangumi in bangumi_list:
@@ -115,7 +112,7 @@ def cal_wrapper(ret):
         n %= len(seq)
         return seq[n:] + seq[:n]
 
-    if today:
+    if ret.today:
         weekday_order = (Bangumi.week[datetime.datetime.today().weekday()],)
     else:
         weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
@@ -135,11 +132,10 @@ def cal_wrapper(ret):
         split = '-' * num + '   '
         print(split * row)
 
-    for index, weekday in enumerate(weekday_order):
+    for weekday in weekday_order:
         if weekly_list[weekday.lower()]:
             print('%s%s. %s' % (
-                GREEN, weekday if not today else 'Bangumi Schedule for Today (%s)' % weekday, COLOR_END), end='')
-            print()
+                GREEN, weekday if not ret.today else 'Bangumi Schedule for Today (%s)' % weekday, COLOR_END))
             print_line()
             for i, bangumi in enumerate(weekly_list[weekday.lower()]):
                 if bangumi['status'] in (STATUS_UPDATED, STATUS_FOLLOWED) and 'episode' in bangumi:
@@ -233,7 +229,8 @@ def fetch_(ret):
     print_filter(followed_filter_obj)
 
     print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
-    _, data = website.get_maximum_episode(bangumi_obj, ignore_old_row=False if ret.not_ignore else True)
+    # False if ret.not_ignore else True
+    _, data = website.get_maximum_episode(bangumi_obj, ignore_old_row=not ret.not_ignore)
 
     if not data:
         print_warning('Nothing.')
@@ -386,12 +383,14 @@ def controllers(ret):
     func = CONTROLLERS_DICT.get(ret.action, None)
     if not callable(func):
         return
-    else:
-        return func(ret)
+    return func(ret)
 
 
 def print_filter(followed_filter_obj: Filter):
-    def j(x): return ', '.join(x) if x else 'None'
+    def j(x):
+        if x:
+            return ', '.join(x)
+        return 'None'
 
     print_info('Followed subtitle group: {0}'.format(j(followed_filter_obj.subtitle)))
     print_info('Followed data sources: {0}'.format(j(followed_filter_obj.data_source)))

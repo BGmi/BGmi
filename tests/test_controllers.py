@@ -3,7 +3,7 @@
 import unittest
 from unittest import mock
 
-from bgmi.lib.controllers import *
+import bgmi.lib.controllers
 from bgmi.lib.models import Bangumi, Followed
 from bgmi.website.base import BaseWebsite
 
@@ -25,10 +25,10 @@ class ControllersTest(unittest.TestCase):
     def setUp(self):
         Followed.delete().execute()
         Followed.create(bangumi_name=self.bangumi_name_1,
-                        status=STATUS_FOLLOWED)
+                        status=bgmi.lib.controllers.STATUS_FOLLOWED)
 
     def test_cal(self):
-        r = cal()
+        r = bgmi.lib.controllers.cal()
         self.assertIsInstance(r, dict)
         for day in r.keys():
             self.assertIn(day.lower(), [x.lower() for x in Bangumi.week])
@@ -40,36 +40,36 @@ class ControllersTest(unittest.TestCase):
                     self.assertIn(key, bangumi)
 
     def test_add(self):
-        r = add(self.bangumi_name_1, 0)
+        r = bgmi.lib.controllers.add(self.bangumi_name_1, 0)
         self.assertEqual(r['status'], 'warning')
         f = Followed.get(bangumi_name=self.bangumi_name_1)  # type: Followed
         self.assertEqual(f.status, Followed.STATUS_FOLLOWED)
 
-        r = add(self.bangumi_name_2, episode=4)
+        r = bgmi.lib.controllers.add(self.bangumi_name_2, episode=4)
         self.assertEqual(r['status'], 'success')
         f = Followed.get(bangumi_name=self.bangumi_name_2)  # type: Followed
         self.assertEqual(f.status, Followed.STATUS_FOLLOWED)
         self.assertEqual(f.episode, 4)
 
     def test_mark(self):
-        r = mark(self.bangumi_name_1, 1)
+        r = bgmi.lib.controllers.mark(self.bangumi_name_1, 1)
         self.assertEqual(r['status'], 'success')
-        r = mark(self.bangumi_name_1, None)
+        r = bgmi.lib.controllers.mark(self.bangumi_name_1, None)
         self.assertEqual(r['status'], 'info')
-        r = mark(self.bangumi_name_2, 0)
+        r = bgmi.lib.controllers.mark(self.bangumi_name_2, 0)
         self.assertEqual(r['status'], 'error')
 
     def test_delete(self):
-        r = delete()
+        r = bgmi.lib.controllers.delete()
         self.assertEqual(r['status'], 'warning')
-        r = delete(self.bangumi_name_1)
+        r = bgmi.lib.controllers.delete(self.bangumi_name_1)
         self.assertEqual(r['status'], 'warning')
-        r = delete(self.bangumi_name_1)
+        r = bgmi.lib.controllers.delete(self.bangumi_name_1)
         self.assertEqual(r['status'], 'warning')
-        r = delete(self.bangumi_name_2)
+        r = bgmi.lib.controllers.delete(self.bangumi_name_2)
         self.assertEqual(r['status'], 'error')
-        r = delete(clear_all=True, batch=True)
+        r = bgmi.lib.controllers.delete(clear_all=True, batch=True)
         self.assertEqual(r['status'], 'warning')
 
     def test_search(self):
-        r = search(self.bangumi_name_1, dupe=False)
+        r = bgmi.lib.controllers.search(self.bangumi_name_1, dupe=False)
