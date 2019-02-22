@@ -78,7 +78,7 @@ class WriteConfigTest(base, unittest.TestCase):
         self.assertTrue(r['message'].endswith('233'))
 
     def test_readonly(self):
-        r = config('DB_PATH', '/tmp/233')
+        r = config('CONFIG_FILE_PATH', '/tmp/233')
         self.assertEqual(r['status'], 'error')
 
     def test_writable(self):
@@ -88,10 +88,6 @@ class WriteConfigTest(base, unittest.TestCase):
 
     def test_not_writable(self):
         r = config('DAN_API_URL', '233')
-
-    def test_source(self):
-        r = config('DATA_SOURCE', '233')
-        self.assertEqual(r['status'], 'error')
 
     def test_wrong_config_name(self):
         r = config('WRONG_CONFIG_NAME', '233')

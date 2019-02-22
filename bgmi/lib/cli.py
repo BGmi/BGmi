@@ -20,15 +20,32 @@ from bgmi.lib.fetch import website
 from bgmi.lib.models import Bangumi, Followed, Filter, STATUS_UPDATED, STATUS_DELETED, STATUS_FOLLOWED, \
     BangumiLink
 from bgmi.script import ScriptRunner
+from bgmi.sql import init_db
 from bgmi.utils import (print_info, print_warning, print_success, print_error,
                         RED, GREEN, YELLOW, COLOR_END, get_terminal_col, logger)
 
 
 def config_wrapper(ret):
+    name = ret.name
+    value = ret.value
+    if name == 'DB_URL':
+        if value:
+            from playhouse.db_url import schemes
+
+            scheme = value.split('://')[0]
+            if scheme not in schemes:
+                print_error(
+                    '{} if not a supported schemes, only support "`{}`"'.format(scheme, '`, `'.join(schemes.keys()))
+                )
+                return
+
     result = config(ret.name, ret.value)
     if (not ret.name) and (not ret.value):
         print(result['message'])
     else:
+        if ret.name == 'DB_URL' and ret.value:
+            print_info('you are editing DB_URL, please run `bgmi install` to init db')
+
         globals()["print_{}".format(result['status'])](result['message'])
 
 

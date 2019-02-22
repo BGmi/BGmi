@@ -379,7 +379,6 @@ class DataSource:
 
         # :type data: dict
         """
-
         b, obj_created = Bangumi.get_or_create(name=data.name,
                                                defaults=model_to_dict(data, recurse=True))  # type: (Bangumi, bool)
         if not obj_created:

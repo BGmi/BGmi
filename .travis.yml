@@ -1,13 +1,22 @@
-os:
-  - linux
-
-env:
-  - TRAVIS_CI=TRAVIS_CI
-
-
 language: python
 
-sudo: true
+os:
+  - linux
+dist: xenial
+
+env:
+  global:
+    - TRAVIS_CI=TRAVIS_CI
+    - BGMI_LOG=debug
+    - BANGUMI_1=名侦探柯南
+    - BANGUMI_2=刃牙
+    - BANGUMI_3=海贼王
+  matrix:
+    - DB=sqlite
+    - DB=mysql
+
+services:
+  - mysql
 
 cache:
   directories:
@@ -17,22 +26,20 @@ python:
   - 3.4
   - 3.6
 
+#before_install:
+#  - if [[ "$DB" == "mysql" ]]; then mysql -e 'CREATE DATABASE IF NOT EXISTS test DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_general_ci;'; fi
+
 install:
   - pip install -r requirements.txt
   - pip install -r test_requirements.txt
   - python setup.py install
+  - if [[ "$DB" == "mysql" ]]; then pip install pymysql; fi
   - pip install codecov
   - pip install python-Levenshtein
-#    - sudo apt update
 
 script:
-  - export BGMI_LOG=debug
-  - export BANGUMI_1=名侦探柯南
-  - export BANGUMI_2=刃牙
-  - export BANGUMI_3=海贼王
   - coverage run -a -m bgmi.main install
-  - bgmi -h
-  - mv tests/test_script.py $HOME/.bgmi/scripts/test_script.py
+  - cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
 
   - UNITTEST=1 BGMI_LOG=info coverage run -a -m unittest tests.test_website -v
   - UNITTEST=1 BGMI_LOG=info coverage run -a -m unittest tests.test_utils -v
@@ -42,8 +49,14 @@ script:
   - UNITTEST=1 BGMI_LOG=info coverage run -a -m unittest tests.test_config -v
   - UNITTEST=1 BGMI_LOG=info coverage run -a -m unittest tests.test_download_delegate -v
   - UNITTEST=1 BGMI_LOG=info coverage run -a -m unittest tests.test_http_api -v
+  - rm ~/.bgmi -rf
 
+  - coverage run -a -m bgmi.main install
+  - bgmi -h
+
+  - cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
   - coverage run -a -m bgmi.main gen nginx.conf --server-name _
+  - if [[ "$DB" == "mysql" ]]; then bgmi config DB_URL 'mysql+pool://root:@127.0.0.1:3306/bgmi?charset=utf8mb4';bgmi install; fi
 
   - coverage run -a -m bgmi.main cal -f
   - coverage run -a -m bgmi.main config
