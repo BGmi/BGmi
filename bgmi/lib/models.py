@@ -1,12 +1,12 @@
 # coding=utf-8
-
+import functools
 import hashlib
 import json
 import os
 import re
 import time
 from collections import defaultdict
-from typing import Dict, List
+from typing import Dict, List, Union
 
 import peewee as pw
 from playhouse import kv
@@ -32,11 +32,10 @@ STATUS_DOWNLOADING = 1
 STATUS_DOWNLOADED = 2
 DOWNLOAD_STATUS = (STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, STATUS_DOWNLOADED)
 
+SECOND_OF_WEEK = 7 * 24 * 3600
+
 DoesNotExist = pw.DoesNotExist
 db = connect(bgmi.config.DB_URL)
-
-
-# db = pw.SqliteDatabase(bgmi.config.DB_URL)
 
 
 class SubtitleField(pw.TextField):
@@ -152,10 +151,16 @@ class BangumiItem(pw.Model):
     def __repr__(self):
         return self.__str__()
 
+    def __eq__(self, data):
+        return self.cover == data.cover \
+            and self.status == data.status \
+            and self.update_time == data.update_time \
+            and set(self.subtitle_group) == set(data.subtitle_group)
+
 
 class Bangumi(NeoDB):
     id = pw.AutoField(primary_key=True)  # type: int
-    name = pw.CharField(unique=True, null=False)
+    name = pw.CharField(unique=True, null=False)  # type: Union[str,pw.CharField]
     subject_name = pw.CharField(unique=True)
     cover = pw.CharField()
     status = pw.IntegerField(default=0)  # type: int
@@ -178,7 +183,7 @@ class Bangumi(NeoDB):
     @classmethod
     def delete_all(cls):
         un_updated_bangumi = Followed.select() \
-            .where(Followed.updated_time > (int(time.time()) - 2 * 7 * 24 * 3600))  # type: list[Followed]
+            .where(Followed.updated_time > (int(time.time()) - 2 * SECOND_OF_WEEK))  # type: List[Followed]
         if os.getenv('DEBUG'):  # pragma: no cover
             print('ignore updating bangumi', [x.bangumi_name for x in un_updated_bangumi])
 
@@ -220,9 +225,6 @@ class Bangumi(NeoDB):
                                                                                                          bangumi))
 
     def get_subtitle_of_bangumi(self) -> 'List[Subtitle]':
-        """
-        :type bangumi_obj: Bangumi
-        """
         return Subtitle.get_subtitle_of_bangumi(self)
 
     @classmethod
@@ -248,12 +250,12 @@ class Bangumi(NeoDB):
 
     def __eq__(self, data):
         return self.cover == data.cover \
-               and self.status == data.status \
-               and self.subject_id == data.subject_id \
-               and self.update_time == data.update_time \
-               and self.subject_name == data.subject_name \
-               and not set(set(self.bangumi_names) - set(data.bangumi_names)) \
-               and self.to_d(self.data_source) == self.to_d(data.data_source)
+            and self.status == data.status \
+            and self.subject_id == data.subject_id \
+            and self.update_time == data.update_time \
+            and self.subject_name == data.subject_name \
+            and not set(set(self.bangumi_names) - set(data.bangumi_names)) \
+            and self.to_d(self.data_source) == self.to_d(data.data_source)
 
     def __hash__(self):
         return int(hashlib.sha1(self.name.encode()).hexdigest(), 16) % (10 ** 8)
@@ -266,11 +268,15 @@ class BangumiItemMapToBangumi(NeoDB):
 
 
 class Followed(NeoDB):
-    bangumi_name = pw.CharField(unique=True)
+    """
+    Followed bangumi and filter condition
+    """
+    bangumi_name = pw.CharField(unique=True, primary_key=True)
     episode = pw.IntegerField(null=True, default=0)
     status = pw.IntegerField(null=True)
     updated_time = pw.IntegerField(null=True)
 
+    # followed filter
     data_source = SubtitleField(default=[])  # type:List
     subtitle = SubtitleField(default=[])  # type:List
     include = SubtitleField(default=[])  # type:List
@@ -323,19 +329,21 @@ class Followed(NeoDB):
         exclude = self.exclude
         if bgmi.config.ENABLE_GLOBAL_FILTER != '0':
             exclude += [x.strip() for x in bgmi.config.GLOBAL_FILTER.split(',')]
+        exclude.append('合集')
 
-        if exclude:
-            def f2(s):
-                return not any(map(lambda t: t in s['title'], exclude))
+        def f2(s):
+            return not any(map(lambda t: t in s['title'], exclude))
 
-            episode_list = list(filter(f2, episode_list))
+        episode_list = list(filter(f2, episode_list))
         return episode_list
 
     def _apply_regex(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
         if self.regex:
             try:
                 match = re.compile(self.regex)
-                episode_list = [s for s in episode_list if match.findall(s['title'])]
+                episode_list = [
+                    s for s in episode_list if match.findall(
+                        s['title'])]
             except re.error as exc:
                 if os.getenv('DEBUG'):  # pragma: no cover
                     import traceback
@@ -403,7 +411,8 @@ class Subtitle(NeoDB):
         condition = list()
         for s in source:
             condition.append(
-                (Subtitle.id.in_(data_source[s]['subtitle_group'])) & (Subtitle.data_source == s)
+                (Subtitle.id.in_(data_source[s]['subtitle_group'])) & (
+                    Subtitle.data_source == s)
             )
         if len(condition) > 1:
             tmp_c = condition[0]
@@ -438,9 +447,7 @@ class Subtitle(NeoDB):
 
     @classmethod
     def get_subtitle_by_id(cls, subtitle_id_list: List[str]) -> 'pw.ModelSelect':
-        l = cls.select().where(cls.id.in_(subtitle_id_list))
-        # cls.select().dicts()
-        return l
+        return cls.select().where(cls.id.in_(subtitle_id_list))
 
 
 class BangumiLink(NeoDB):
@@ -452,7 +459,11 @@ class BangumiLink(NeoDB):
         unlink = 0
 
     @classmethod
-    def getAll(cls):
+    def get_all(cls):
+        """
+        :rtype: Dict[int, List[set]]
+        :return:
+        """
         try:
             link = []
             unlink = []
@@ -467,31 +478,31 @@ class BangumiLink(NeoDB):
                 cls.STATUS.unlink: unlink,
             }
 
-        except:
+        except BaseException:
             return {
                 cls.STATUS.link: [],
                 cls.STATUS.unlink: []
             }
 
     @classmethod
-    def getLinkedBangumis(cls):
+    def get_linked_bangumi_list(cls):
         try:
             return list(map(lambda x: x.value, cls.select().where(cls.status == cls.STATUS.link)))
-        except:
+        except BaseException:
             return []
 
     @classmethod
-    def getUnlinkedBangumis(cls):
+    def get_unlinked_bangumi_list(cls):
         try:
             return list(map(lambda x: x.value, cls.select().where(cls.status == cls.STATUS.unlink)))
-        except:
+        except BaseException:
             return []
 
     @classmethod
     def try_remove_record(cls, bangumi_name_1, bangumi_name_2, status):
-        f = cls.select().where(cls.value.contains(bangumi_name_1)
-                               & cls.value.contains(bangumi_name_2)
-                               & (cls.status == status))
+        f = cls.select().where(cls.value.contains(bangumi_name_1) &
+                               cls.value.contains(bangumi_name_2) &
+                               (cls.status == status))
         for v in f:
             s = v.value
             if s == {bangumi_name_2, bangumi_name_1}:
@@ -499,9 +510,9 @@ class BangumiLink(NeoDB):
 
     @classmethod
     def add_record(cls, bangumi_name_1, bangumi_name_2, status):
-        f = cls.select().where(cls.value.contains(bangumi_name_1)
-                               & cls.value.contains(bangumi_name_2)
-                               & (cls.status == status))
+        f = cls.select().where(cls.value.contains(bangumi_name_1) &
+                               cls.value.contains(bangumi_name_2) &
+                               (cls.status == status))
         f = list(f)
         find = False
         for v in f:
@@ -539,22 +550,30 @@ def recreate_source_relatively_table():
     return True
 
 
-bangumi_links = BangumiLink.getAll()  # type: Dict[str, List[set]]
+bangumi_links = BangumiLink.get_all()
 
 combined_bangumi = bangumi_links[BangumiLink.STATUS.link]
 uncombined_bangumi = bangumi_links[BangumiLink.STATUS.unlink]
 kv_db = pw.SqliteDatabase(bgmi.config.KV_DB_PATH)
 
-try:
-    kv_instance = kv.KeyValue(database=kv_db)
-except pw.OperationalError:
-    kv_instance = None
+
+def _kv_storage_decorator(func):
+    try:
+        kv_instance = [kv.KeyValue(database=kv_db), ]
+    except pw.OperationalError:
+        kv_instance = []
+
+    @functools.wraps(func)
+    def wrapper():
+        if not kv_instance:
+            kv_instance.append(func())
+        return kv_instance[0]
+
+    return wrapper
 
 
+@_kv_storage_decorator
 def get_kv_storage():
-    global kv_instance
-    if kv_instance is not None:
-        return kv_instance
     kv_instance = kv.KeyValue(database=kv_db)
     return kv_instance
 

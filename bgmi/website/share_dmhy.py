@@ -138,7 +138,7 @@ class DmhySource(BaseWebsite):
         :return: list of episode search result
         :rtype: list[dict]
         """
-        if count == None:
+        if count is None:
             count = 3
 
         result = []
@@ -154,7 +154,7 @@ class DmhySource(BaseWebsite):
             bs = BeautifulSoup(r, 'html.parser')
 
             table = bs.find('table', {'id': 'topic_list'})
-            if table == None:
+            if table is None:
                 break
             tr_list = table.tbody.find_all('tr', {'class': ''})
             for tr in tr_list:
@@ -297,7 +297,7 @@ class DmhySource(BaseWebsite):
             bs = BeautifulSoup(r, 'html.parser')
 
             table = bs.find('table', {'id': 'topic_list'})
-            if table == None:
+            if table is None:
                 break
             tr_list = table.tbody.find_all('tr', {'class': ''})
             for tr in tr_list:
@@ -320,7 +320,7 @@ class DmhySource(BaseWebsite):
                 for tag in tag_list:
 
                     href = tag.a.get('href')
-                    if href == None:
+                    if href is None:
                         continue
 
                     team_id_raw = re.findall('team_id\/(.*)$', href)

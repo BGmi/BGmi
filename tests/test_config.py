@@ -104,9 +104,6 @@ class WriteConfigTest(base, unittest.TestCase):
 
     def test_DOWNLOAD_DELEGATE(self):
         r = config('DOWNLOAD_DELEGATE', 'aria2-rpc')
-        r = config('DOWNLOAD_DELEGATE', 'rr!')
-        r = config('WGET_PATH', 'some_place')
-        # self.assertEqual(r['status'], 'error')
 
     def test_DOWNLOAD_DELEGATE_VALUE(self):
         r = config('DOWNLOAD_DELEGATE', 'aria2-rpc')

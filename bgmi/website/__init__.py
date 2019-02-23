@@ -1,7 +1,6 @@
 # coding=utf-8
 import imghdr
 import os.path
-import re
 import time
 from collections import defaultdict
 from copy import deepcopy
@@ -13,10 +12,9 @@ import requests
 from hanziconv import HanziConv
 
 from bgmi import config
-from bgmi.config import MAX_PAGE, ENABLE_GLOBAL_FILTER, GLOBAL_FILTER
+from bgmi.config import MAX_PAGE
 from bgmi.lib.models import Bangumi, Followed, BangumiItem, db, STATUS_UPDATING, model_to_dict, Subtitle, \
-    STATUS_FOLLOWED, STATUS_UPDATED
-from bgmi.lib.models import combined_bangumi, uncombined_bangumi
+    STATUS_FOLLOWED, STATUS_UPDATED, combined_bangumi, uncombined_bangumi
 from bgmi.utils import test_connection, print_warning, print_info, download_cover, convert_cover_url_to_path, \
     full_to_half
 from bgmi.website.bangumi_moe import BangumiMoe
@@ -290,28 +288,6 @@ class DataSource:
 
             return ret
 
-        @staticmethod
-        def filter_keyword(data, regex=None):
-            """
-
-            :type regex: str
-            :param data: list of bangumi dict
-            :type data: list[dict]
-            """
-            if regex:
-                try:
-                    match = re.compile(regex)
-                    data = [s for s in data if match.findall(s['title'])]
-                except re.error as exc:
-                    if os.getenv('DEBUG'):  # pragma: no cover
-                        import traceback
-
-                        traceback.print_exc()
-                        raise exc
-                    return data
-
-            return data
-
     # todo split to some small function
     def fetch(self, save=False, group_by_weekday=True):
         bangumi_result, subtitle_group_result = init_data()
@@ -408,8 +384,7 @@ class DataSource:
                                                    defaults=model_to_dict(data))  # type: (BangumiItem, bool)
 
         if not obj_created:
-            if b.cover != data.cover or b.status != data.status \
-                or b.update_time != data.update_time or b.subtitle_group != data.subtitle_group:
+            if b != data:
                 b.cover = data.cover
                 b.status = data.status
                 b.update_time = data.update_time
@@ -533,11 +508,8 @@ class DataSource:
                 )
         for episode in response_data:
             episode['name'] = name
-        result = response_data
-        filter_obj.exclude.append('合集')
 
-
-        return result
+        return filter_obj.apply_keywords_filter_on_list_of_episode(response_data)
 
     @staticmethod
     def followed_bangumi():

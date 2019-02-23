@@ -7,13 +7,12 @@ import platform
 import random
 
 # download delegate
-__wget__ = ('WGET_PATH',)
 __transmission__ = ('TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT',
                     'TRANSMISSION_RPC_USERNAME', 'TRANSMISSION_RPC_PASSWORD',)
 __aria2__ = ('ARIA2_RPC_URL', 'ARIA2_RPC_TOKEN',)
 __deluge__ = ('DELUGE_RPC_URL', 'DELUGE_RPC_PASSWORD')
 
-__download_delegate__ = __wget__ + __aria2__ + __transmission__ + __deluge__
+__download_delegate__ = __aria2__ + __transmission__ + __deluge__
 
 # fake __all__
 __all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE', 'DB_URL', 'KV_DB_PATH',
@@ -31,7 +30,6 @@ __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
 __all__ = __all__ + __download_delegate__ + __readonly__
 
 DOWNLOAD_DELEGATE_MAP = {
-    'rr!': __wget__,
     'aria2-rpc': __aria2__,
     'transmission-rpc': __transmission__,
     'deluge-rpc': __deluge__,
@@ -225,9 +223,6 @@ ARIA2_RPC_TOKEN = 'token:'
 # deluge
 DELUGE_RPC_URL = 'http://127.0.0.1:8112/json'
 DELUGE_RPC_PASSWORD = 'deluge'
-
-# path of wget
-WGET_PATH = '/usr/bin/wget'
 
 # transmission-rpc
 TRANSMISSION_RPC_URL = '127.0.0.1'

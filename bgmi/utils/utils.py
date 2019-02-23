@@ -95,12 +95,10 @@ if os.environ.get('DEV', False):  # pragma: no cover
             url = url.replace('http://', 'http://localhost:8092/http/')
         return url
 
-
     from copy import deepcopy
     from requests import Session
 
     origin_request = deepcopy(Session.request)
-
 
     def req(self, method, url, **kwargs):
         if os.environ.get('BGMI_SHOW_ALL_NETWORK_REQUEST'):
@@ -108,7 +106,6 @@ if os.environ.get('DEV', False):  # pragma: no cover
         url = replace_url(url)
         # traceback.print_stack(limit=8)
         return origin_request(self, method, url, **kwargs)
-
 
     Session.request = req
 
@@ -211,7 +208,7 @@ Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END
 def test_connection():
     try:
         requests.request('head', 'https://api.bgm.tv/calendar', timeout=3)
-    except:
+    except BaseException:
         return False
     return True
 
@@ -251,7 +248,7 @@ def get_terminal_col():  # pragma: no cover
 
         cols = int(subprocess.check_output('tput cols'))
         return cols
-    except:
+    except BaseException:
         return 80
 
 

@@ -49,7 +49,7 @@ class IndexHandler(BaseHandler):
             '''
         else:
             msg = '''<h1>Thanks for your using BGmi</h1>
-            <p>If use want to use Tornado to serve static files, please run 
+            <p>If use want to use Tornado to serve static files, please run
             <code>bgmi config TORNADO_SERVE_STATIC_FILES 1</code>, and do not forget install bgmi-frontend by
             running <code>bgmi install</code></p>'''
 

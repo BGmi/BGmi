@@ -97,7 +97,7 @@ class Aria2DownloadRPC(BaseDownloadService):
                     for file_ in row['files']:
                         print_info('    * {0}'.format(file_['path']), indicator=False)
 
-        except:
+        except BaseException:
             print_error('Cannot connect to aria2-rpc server')
 
     def check_delegate_bin_exist(self):
