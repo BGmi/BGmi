@@ -11,26 +11,6 @@ from tests.mock_websites import MockDateSource
 
 @mock.patch('bgmi.website.DATA_SOURCE_MAP', MockDateSource)
 class TestDataSourceUtils(TestCase):
-    def test_filter_keyword_correct_regex_include_match(self):
-        l = [{
-            'title': 'bangumi'
-        }]
-        e = DataSource.Utils.filter_keyword(l, regex='bangumi')
-        self.assertListEqual(e, l)
-
-    def test_filter_keyword_correct_regex_remove_not_match(self):
-        l = [{
-            'title': 'b'
-        }]
-        e = DataSource.Utils.filter_keyword(l, regex='bangumi')
-        self.assertEqual(len(e), 0)
-
-    def test_filter_keyword_wrong_regex_filter_nothing(self):
-        l = [{
-            'title': 'bangumi'
-        }]
-        e = DataSource.Utils.filter_keyword(l, regex='bang[umi')
-        self.assertListEqual(e, l)
 
     def test_remove_duplicated_bangumi(self):
         l = [{
@@ -43,14 +23,14 @@ class TestDataSourceUtils(TestCase):
             'title': 'bangumi',
             'episode': 2,
         }, ]
-        e = DataSource.Utils.remove_duplicated_bangumi(l)
+        e = DataSource.Utils.remove_duplicated_episode_bangumi(l)
         self.assertEqual(len(e), 2)
         self.assertListEqual(e, [l[0], l[-1]])
 
 
 @mock.patch('bgmi.website.DATA_SOURCE_MAP', MockDateSource)
 # class TestDataSource(TestCase):
-class TestDataSource():
+class TestDataSource:
 
     def test_bangumi_calendar(self):
         DataSource().fetch()

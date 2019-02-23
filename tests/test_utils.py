@@ -129,17 +129,17 @@ class UtilsTest(unittest.TestCase):
         with patch('bgmi.utils.utils.time.time') as time:
             time.return_value = 12345
             with patch('bgmi.utils.utils.update') as update:
-                get_kv_storage()[constants.kv.LAST_UPDATE] = time.return_value
+                get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = time.return_value
                 utils.check_update()
                 update.assert_called_once()
-                self.assertEqual(get_kv_storage().get(constants.kv.LAST_UPDATE), 12345)
+                self.assertEqual(get_kv_storage().get(constants.kv.LAST_CHECK_UPDATE_TIME), 12345)
 
             time.return_value = 12345 + 30 * 30 * 24 * 3600
             with patch('bgmi.utils.utils.update') as update:
-                get_kv_storage()[constants.kv.LAST_UPDATE] = time.return_value
+                get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = time.return_value
                 utils.check_update()
                 update.assert_called_once()
-                self.assertEqual(get_kv_storage().get(constants.kv.LAST_UPDATE), 12345 + 30 * 30 * 24 * 3600)
+                self.assertEqual(get_kv_storage().get(constants.kv.LAST_CHECK_UPDATE_TIME), 12345 + 30 * 30 * 24 * 3600)
 
     def test_update(self):
         with patch('bgmi.utils.utils.requests.get') as m, patch('bgmi.utils.utils.get_web_admin') as get_web_admin:

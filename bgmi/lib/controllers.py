@@ -4,10 +4,8 @@ import time
 from bgmi.config import write_config, MAX_PAGE
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
-from bgmi.lib.models import STATUS_DELETED, BangumiLink
-from bgmi.lib.models import (Subtitle, Download, STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NOT_DOWNLOAD,
-                             FOLLOWED_STATUS, Followed, Bangumi,
-                             DoesNotExist, model_to_dict)
+from bgmi.lib.models import STATUS_DELETED, BangumiLink, Subtitle, Download, STATUS_FOLLOWED, STATUS_UPDATED, \
+    STATUS_NOT_DOWNLOAD, FOLLOWED_STATUS, Followed, Bangumi, DoesNotExist, model_to_dict
 from bgmi.script import ScriptRunner
 from bgmi.utils import print_info, normalize_path, print_warning, print_success, print_error, GREEN, COLOR_END, logger
 
@@ -249,14 +247,17 @@ def search(keyword, count=MAX_PAGE, regex=None, dupe=False, min_episode=None, ma
         count = 3
     try:
         data = website.search_by_keyword(keyword, count=count)
-        data = website.Utils.filter_keyword(data, regex=regex)
+        data = Followed(regex=regex).apply_regex(data)
         if min_episode is not None:
             data = [x for x in data if x['episode'] >= min_episode]
         if max_episode is not None:
             data = [x for x in data if x['episode'] <= max_episode]
         if not dupe:
-            data = website.Utils.remove_duplicated_bangumi(data)
+            data = website.Utils.remove_duplicated_episode_bangumi(data)
         data.sort(key=lambda x: x['episode'])
+        if data:
+            if data[0]['episode'] == 0:
+                data.pop(0)
         return {
             'status': 'success',
             'message': '',
@@ -266,7 +267,8 @@ def search(keyword, count=MAX_PAGE, regex=None, dupe=False, min_episode=None, ma
                             dupe=dupe,
                             min_episode=min_episode,
                             max_episode=max_episode),
-            'data': data}
+            'data': data
+        }
     except Exception as e:
         return {
             'status': 'error',
@@ -277,7 +279,8 @@ def search(keyword, count=MAX_PAGE, regex=None, dupe=False, min_episode=None, ma
                             dupe=dupe,
                             min_episode=min_episode,
                             max_episode=max_episode),
-            'data': []}
+            'data': []
+        }
 
 
 def config(name=None, value=None):

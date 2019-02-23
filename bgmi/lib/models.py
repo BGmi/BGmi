@@ -132,6 +132,8 @@ class BangumiItem(pw.Model):
     subtitle_group = SubtitleField()  # type: List[str]
     keyword = pw.CharField()  # type: str
     data_source = pw.FixedCharField(max_length=30)  # type: str
+    # foreign key
+    bangumi = pw.IntegerField(default=0)
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -153,9 +155,9 @@ class BangumiItem(pw.Model):
 
     def __eq__(self, data):
         return self.cover == data.cover \
-            and self.status == data.status \
-            and self.update_time == data.update_time \
-            and set(self.subtitle_group) == set(data.subtitle_group)
+               and self.status == data.status \
+               and self.update_time == data.update_time \
+               and set(self.subtitle_group) == set(data.subtitle_group)
 
 
 class Bangumi(NeoDB):
@@ -166,8 +168,8 @@ class Bangumi(NeoDB):
     status = pw.IntegerField(default=0)  # type: int
     subject_id = pw.IntegerField(null=True)
     update_time = pw.FixedCharField(5, null=False)
-    data_source = DataSourceField(default=lambda: {})  # type: Dict[str, BangumiItem]
-    bangumi_names = BangumiNamesField(null=True, default=set())  # type: set
+    # data_source = DataSourceField(default=lambda: {})  # type: Dict[str, BangumiItem]
+    # bangumi_names = BangumiNamesField(null=True, default=set())  # type: set
 
     week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
@@ -236,7 +238,7 @@ class Bangumi(NeoDB):
     def __str__(self):
         d = model_to_dict(self)
         d['data_source'] = {}
-        d['bangumi_names'] = '{}'.format(self.bangumi_names)
+        # d['bangumi_names'] = '{}'.format(self.bangumi_names)
         for key, value in self.data_source.items():
             d['data_source'][key] = str(value)
         return '<Bangumi {}>'.format(json.dumps(d, ensure_ascii=False))
@@ -250,21 +252,15 @@ class Bangumi(NeoDB):
 
     def __eq__(self, data):
         return self.cover == data.cover \
-            and self.status == data.status \
-            and self.subject_id == data.subject_id \
-            and self.update_time == data.update_time \
-            and self.subject_name == data.subject_name \
-            and not set(set(self.bangumi_names) - set(data.bangumi_names)) \
-            and self.to_d(self.data_source) == self.to_d(data.data_source)
+               and self.status == data.status \
+               and self.subject_id == data.subject_id \
+               and self.update_time == data.update_time \
+               and self.subject_name == data.subject_name \
+               and self.to_d(self.data_source) == self.to_d(data.data_source)
+        # and not set(set(self.bangumi_names) - set(data.bangumi_names)) \
 
     def __hash__(self):
         return int(hashlib.sha1(self.name.encode()).hexdigest(), 16) % (10 ** 8)
-        # return self.name
-
-
-class BangumiItemMapToBangumi(NeoDB):
-    bangumi = pw.ForeignKeyField(Bangumi)
-    bangumi_item = pw.ForeignKeyField(BangumiItem)
 
 
 class Followed(NeoDB):
@@ -312,12 +308,12 @@ class Followed(NeoDB):
         return list(d)
 
     def apply_keywords_filter_on_list_of_episode(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
-        episode_list = self._apply_include(episode_list)
-        episode_list = self._apply_exclude(episode_list)
-        episode_list = self._apply_regex(episode_list)
+        episode_list = self.apply_include(episode_list)
+        episode_list = self.apply_exclude(episode_list)
+        episode_list = self.apply_regex(episode_list)
         return episode_list
 
-    def _apply_include(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    def apply_include(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
         if self.include:
             def f1(s):
                 return all(map(lambda t: t in s['title'], self.include))
@@ -325,7 +321,7 @@ class Followed(NeoDB):
             episode_list = list(filter(f1, episode_list))
         return episode_list
 
-    def _apply_exclude(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    def apply_exclude(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
         exclude = self.exclude
         if bgmi.config.ENABLE_GLOBAL_FILTER != '0':
             exclude += [x.strip() for x in bgmi.config.GLOBAL_FILTER.split(',')]
@@ -337,13 +333,11 @@ class Followed(NeoDB):
         episode_list = list(filter(f2, episode_list))
         return episode_list
 
-    def _apply_regex(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    def apply_regex(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
         if self.regex:
             try:
                 match = re.compile(self.regex)
-                episode_list = [
-                    s for s in episode_list if match.findall(
-                        s['title'])]
+                episode_list = [s for s in episode_list if match.findall(s['title'])]
             except re.error as exc:
                 if os.getenv('DEBUG'):  # pragma: no cover
                     import traceback

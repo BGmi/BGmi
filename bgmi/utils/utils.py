@@ -95,10 +95,12 @@ if os.environ.get('DEV', False):  # pragma: no cover
             url = url.replace('http://', 'http://localhost:8092/http/')
         return url
 
+
     from copy import deepcopy
     from requests import Session
 
     origin_request = deepcopy(Session.request)
+
 
     def req(self, method, url, **kwargs):
         if os.environ.get('BGMI_SHOW_ALL_NETWORK_REQUEST'):
@@ -106,6 +108,7 @@ if os.environ.get('DEV', False):  # pragma: no cover
         url = replace_url(url)
         # traceback.print_stack(limit=8)
         return origin_request(self, method, url, **kwargs)
+
 
     Session.request = req
 
@@ -287,14 +290,9 @@ def update(mark=True):
 
 @log_utils_function
 def check_update(mark=True):
-    if constants.kv.LAST_UPDATE not in get_kv_storage():
-        get_kv_storage()[constants.kv.LAST_UPDATE] = int(time.time())
-        return update(mark)
-
-    data = get_kv_storage().get(constants.kv.LAST_UPDATE, 0)
-    if time.time() - data > - SECOND_OF_WEEK:
-        get_kv_storage()[constants.kv.LAST_UPDATE] = int(time.time())
-
+    data = get_kv_storage().get(constants.kv.LAST_CHECK_UPDATE_TIME, 0)
+    if time.time() - data > SECOND_OF_WEEK:
+        get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = int(time.time())
         return update(mark)
 
 
