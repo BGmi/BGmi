@@ -31,7 +31,7 @@ class UtilsTest(unittest.TestCase):
     def test_download_file(self):
         with patch('bgmi.utils.requests.get') as m:
             m.return_value = Mock(content=b'mock')
-            dir_path, file_path = utils.convert_cover_url_to_path('https://hello world')
+            dir_path, _ = utils.convert_cover_url_to_path('https://hello world')
             try:
                 os.makedirs(dir_path)
             except OSError:
@@ -103,11 +103,6 @@ class UtilsTest(unittest.TestCase):
                     self.assertFalse(os.path.exists(file_path))
 
     def test_get_web_admin(self):
-        error_response = {
-            "error": "not_found",
-            "reason": "document not found"
-        }
-
         with patch('bgmi.utils.utils.requests.get') as m, patch('bgmi.utils.utils.unzip_zipped_file') as unzip:
             request_map = {
                 FRONTEND_NPM_URL: Mock(json=Mock(return_value={"version": '1.2.3',
@@ -121,7 +116,6 @@ class UtilsTest(unittest.TestCase):
             unzip.assert_called_with('tarball content', {'version': '1.2.3', 'dist': {'tarball': 'tarball'}})
 
     def test_unzip_zipped_file(self):
-        version = {'version': '1.2.3', 'dist': {'tarball': 'tarball'}}
         with open('./tests/data/bgmi-frontend-1.1.4.tgz', 'rb') as f:
             file_content = f.read()
         with patch('bgmi.utils.utils.FRONT_STATIC_PATH', self.test_dir):

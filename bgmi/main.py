@@ -8,7 +8,7 @@ from six import string_types
 
 from bgmi.config import BGMI_PATH
 from bgmi.lib.cli import controllers
-from bgmi.lib.constants import actions_and_arguments, ACTION_COMPLETE
+from bgmi.lib.constants import actions_and_arguments
 from bgmi.lib.update import update_database
 from bgmi.setup import create_dir, install_crontab
 from bgmi.sql import init_db
@@ -40,10 +40,6 @@ def main():
                 tmp_sub_parser.add_argument(sub_action['dest'], **sub_action['kwargs'])
             if isinstance(sub_action['dest'], list):
                 tmp_sub_parser.add_argument(*sub_action['dest'], **sub_action['kwargs'])
-
-    sub_parser.add_parser(ACTION_COMPLETE, help='Gen completion, `eval "$(bgmi complete)"` '
-                                                'or `eval "$(bgmi complete|dos2unix)"`')
-    # sub_parser_del.add_argument('command', nargs='+', )
 
     ret = c.parse_args()
     if ret.action == 'install':

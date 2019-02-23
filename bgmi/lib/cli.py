@@ -11,14 +11,13 @@ from tornado import template
 import bgmi.config
 from bgmi.lib.constants import (ACTION_ADD, ACTION_DOWNLOAD, ACTION_CONFIG, ACTION_DELETE, ACTION_MARK,
                                 ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST,
-                                DOWNLOAD_CHOICE_LIST_DICT, ACTION_COMPLETE, ACTION_HISTORY,
-                                SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, ACTIONS,
+                                DOWNLOAD_CHOICE_LIST_DICT, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE,
                                 actions_and_arguments, ACTION_CONFIG_GEN, ACTION_LINK, ACTION_UNLINK)
+from bgmi.lib.constants.actions import ACTION_COMPLETE, ACTIONS, ACTION_HISTORY
 from bgmi.lib.controllers import filter_, config, mark, delete, add, search, update, list_, unlink, link
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
-from bgmi.lib.models import Bangumi, Followed, Filter, STATUS_UPDATED, STATUS_DELETED, STATUS_FOLLOWED, \
-    BangumiLink
+from bgmi.lib.models import Bangumi, Followed, STATUS_UPDATED, STATUS_DELETED, STATUS_FOLLOWED, BangumiLink
 from bgmi.script import ScriptRunner
 from bgmi.utils import (print_info, print_warning, print_success, print_error,
                         RED, GREEN, YELLOW, COLOR_END, get_terminal_col, logger)
@@ -182,7 +181,7 @@ def filter_wrapper(ret):
         print_info('Usable subtitle group: {0}'.format(result['data']['subtitle_group']))
         print_info('Usable data source: {}'.format(', '.join(result['data']['data_source'])))
         print()
-        followed_filter_obj = Filter.get(bangumi_name=result['data']['name'])
+        followed_filter_obj = Followed.get(bangumi_name=result['data']['name'])
         print_filter(followed_filter_obj)
     return result['data']
 
@@ -225,7 +224,7 @@ def fetch_(ret):
         print_error('Bangumi {0} is not followed'.format(ret.name))
         return
 
-    followed_filter_obj = Filter.get(bangumi_name=ret.name)
+    followed_filter_obj = Followed.get(bangumi_name=ret.name)
     print_filter(followed_filter_obj)
 
     print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
@@ -387,7 +386,7 @@ def controllers(ret):
     return func(ret)
 
 
-def print_filter(followed_filter_obj: Filter):
+def print_filter(followed_filter_obj: Followed):
     def j(x):
         if x:
             return ', '.join(x)

@@ -14,7 +14,7 @@ from hanziconv import HanziConv
 
 from bgmi import config
 from bgmi.config import MAX_PAGE, ENABLE_GLOBAL_FILTER, GLOBAL_FILTER
-from bgmi.lib.models import Bangumi, Filter, BangumiItem, db, STATUS_UPDATING, model_to_dict, Subtitle, \
+from bgmi.lib.models import Bangumi, Followed, BangumiItem, db, STATUS_UPDATING, model_to_dict, Subtitle, \
     STATUS_FOLLOWED, STATUS_UPDATED
 from bgmi.lib.models import combined_bangumi, uncombined_bangumi
 from bgmi.utils import test_connection, print_warning, print_info, download_cover, convert_cover_url_to_path, \
@@ -471,7 +471,7 @@ class DataSource:
         :param subtitle:
         :type subtitle: bool
         """
-        followed_filter_obj, _ = Filter.get_or_create(bangumi_name=bangumi.name)  # type : (Filter, bool)
+        followed_filter_obj, _ = Followed.get_or_create(bangumi_name=bangumi.name)  # type : (Filter, bool)
 
         data = [i for i in self.fetch_episode(bangumi_obj=bangumi,
                                               filter_obj=followed_filter_obj,
@@ -486,9 +486,9 @@ class DataSource:
             return bangumi, data
         return {'episode': 0}, []
 
-    def fetch_episode(self, filter_obj: Filter = None, bangumi_obj=None, max_page=int(MAX_PAGE)):
+    def fetch_episode(self, filter_obj: Followed = None, bangumi_obj=None, max_page=int(MAX_PAGE)):
         """
-        :type filter_obj: Filter
+        :type filter_obj: Followed
         :type source: str
         :type bangumi_obj: Bangumi
         :type subtitle_group: str
@@ -536,23 +536,6 @@ class DataSource:
         result = response_data
         filter_obj.exclude.append('合集')
 
-        if ENABLE_GLOBAL_FILTER != '0':
-            filter_obj.exclude += [x.strip() for x in GLOBAL_FILTER.split(',')]
-
-        if filter_obj.include:
-            def f(s):
-                return all(map(lambda t: t in s['title'], filter_obj.include))
-
-            result = list(filter(f, result))
-
-        if filter_obj.exclude:
-            def f(s):
-                return not any(map(lambda t: t in s['title'], filter_obj.exclude))
-
-            result = list(filter(f, result))
-
-        if filter_obj.regex:
-            result = self.Utils.filter_keyword(data=result, regex=filter_obj.regex)
 
         return result
 

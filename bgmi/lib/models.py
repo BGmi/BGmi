@@ -3,6 +3,7 @@
 import hashlib
 import json
 import os
+import re
 import time
 from collections import defaultdict
 from typing import Dict, List
@@ -270,6 +271,12 @@ class Followed(NeoDB):
     status = pw.IntegerField(null=True)
     updated_time = pw.IntegerField(null=True)
 
+    data_source = SubtitleField(default=[])  # type:List
+    subtitle = SubtitleField(default=[])  # type:List
+    include = SubtitleField(default=[])  # type:List
+    exclude = SubtitleField(default=[])  # type:List
+    regex = pw.CharField(null=False, default='')  # type: str
+
     STATUS_DELETED = 0
     STATUS_FOLLOWED = 1
     STATUS_UPDATED = 2
@@ -298,6 +305,46 @@ class Followed(NeoDB):
 
         return list(d)
 
+    def apply_keywords_filter_on_list_of_episode(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
+        episode_list = self._apply_include(episode_list)
+        episode_list = self._apply_exclude(episode_list)
+        episode_list = self._apply_regex(episode_list)
+        return episode_list
+
+    def _apply_include(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
+        if self.include:
+            def f1(s):
+                return all(map(lambda t: t in s['title'], self.include))
+
+            episode_list = list(filter(f1, episode_list))
+        return episode_list
+
+    def _apply_exclude(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
+        exclude = self.exclude
+        if bgmi.config.ENABLE_GLOBAL_FILTER != '0':
+            exclude += [x.strip() for x in bgmi.config.GLOBAL_FILTER.split(',')]
+
+        if exclude:
+            def f2(s):
+                return not any(map(lambda t: t in s['title'], exclude))
+
+            episode_list = list(filter(f2, episode_list))
+        return episode_list
+
+    def _apply_regex(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
+        if self.regex:
+            try:
+                match = re.compile(self.regex)
+                episode_list = [s for s in episode_list if match.findall(s['title'])]
+            except re.error as exc:
+                if os.getenv('DEBUG'):  # pragma: no cover
+                    import traceback
+
+                    traceback.print_exc()
+                    raise exc
+                return episode_list
+        return episode_list
+
 
 class Download(NeoDB):
     name = pw.CharField(null=False)
@@ -322,16 +369,7 @@ class Download(NeoDB):
         self.save()
 
 
-class Filter(NeoDB):
-    bangumi_name = pw.CharField(unique=True)
-    data_source = SubtitleField(default=[])  # type:List
-    subtitle = SubtitleField(default=[])  # type:List
-    include = SubtitleField(default=[])  # type:List
-    exclude = SubtitleField(default=[])  # type:List
-    regex = pw.CharField(null=True)
-
-    def apply_on_list_of_episode(self, episode_list: List[Dict[str, str]]):
-        pass
+# class Followed(NeoDB):
 
 
 class Subtitle(NeoDB):
@@ -495,7 +533,7 @@ class Scripts(NeoDB):
 
 
 def recreate_source_relatively_table():
-    table_to_drop = [Bangumi, Followed, Subtitle, Filter, Download]
+    table_to_drop = [Bangumi, Subtitle, Followed, Download]
     for table in table_to_drop:
         table.delete().execute()
     return True

@@ -4,7 +4,7 @@ import sqlite3
 from playhouse import db_url
 
 from bgmi import config
-from bgmi.lib.models import Bangumi, Followed, Subtitle, Filter, Download, BangumiItem, BangumiLink, Scripts
+from bgmi.lib.models import Bangumi, Subtitle, Followed, Download, BangumiItem, BangumiLink, Scripts
 from bgmi.utils import print_error
 
 
@@ -37,7 +37,6 @@ def init_db():
         Bangumi,
         Followed,
         Download,
-        Filter,
         Subtitle,
         BangumiItem,
         BangumiLink,

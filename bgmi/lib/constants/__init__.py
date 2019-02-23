@@ -1,35 +1,10 @@
 # coding=utf-8
 
 import bgmi.config
-from bgmi.config import BANGUMI_MOE_URL, SHARE_DMHY_URL
 from . import kv
-
-ACTION_ADD = 'add'
-ACTION_FETCH = 'fetch'
-ACTION_FILTER = 'filter'
-ACTION_DELETE = 'delete'
-ACTION_UPDATE = 'update'
-ACTION_CAL = 'cal'
-ACTION_CONFIG = 'config'
-ACTION_DOWNLOAD = 'download'
-ACTION_LIST = 'list'
-ACTION_MARK = 'mark'
-ACTION_SEARCH = 'search'
-ACTION_CONFIG_GEN = 'gen'
-ACTION_LINK = 'link'
-ACTION_UNLINK = 'unlink'
-ACTION_COMPLETE = 'complete'  # bash completion
-ACTIONS = (ACTION_ADD, ACTION_DELETE, ACTION_UPDATE, ACTION_CAL,
-           ACTION_CONFIG, ACTION_FILTER, ACTION_FETCH, ACTION_DOWNLOAD,
-           ACTION_LIST, ACTION_MARK, ACTION_SEARCH, ACTION_COMPLETE,
-           ACTION_LINK, ACTION_UNLINK)
-ACTION_FOLLOWED = 'followed'  # place holder?
-ACTION_HISTORY = 'history'
-
-FILTER_CHOICE_TODAY = 'today'
-FILTER_CHOICE_ALL = 'all'
-FILTER_CHOICE_FOLLOWED = 'followed'
-FILTER_CHOICES = (FILTER_CHOICE_ALL, FILTER_CHOICE_FOLLOWED, FILTER_CHOICE_TODAY)
+from .actions import ACTION_ADD, ACTION_FETCH, ACTION_FILTER, ACTION_DELETE, ACTION_UPDATE, \
+    ACTION_CAL, ACTION_CONFIG, ACTION_DOWNLOAD, ACTION_LIST, ACTION_MARK, ACTION_SEARCH, \
+    ACTION_CONFIG_GEN, ACTION_LINK, ACTION_UNLINK, ACTION_COMPLETE
 
 DOWNLOAD_ACTION_LIST = 'list'
 DOWNLOAD_ACTION_MARK = 'mark'
@@ -56,17 +31,14 @@ SUPPORT_WEBSITE = [
     {
         'view': '萌番组 https://bangumi.moe/',
         'id': "bangumi_moe",
-        'url': BANGUMI_MOE_URL
     },
     {
         'view': '蜜柑计划 https://mikanani.me/',
         'id': 'mikan_project',
-        'url': 'https://mikanani.me/'
     },
     {
         'view': '动漫花园 http://share.dmhy.org/',
         'id': 'dmhy',
-        'url': SHARE_DMHY_URL
     },
 ]
 STATUS_SUCCESS = 'success'
@@ -255,6 +227,10 @@ actions_and_arguments = [
             {'dest': 'bangumi_names',
              'kwargs': dict(nargs='*')}
         ]
+    },
+    {
+        'action': ACTION_COMPLETE,
+        'help': 'Gen completion, `eval "$(bgmi complete)"` or `eval "$(bgmi complete|dos2unix)"`'
     },
     {
         'action': 'install',
