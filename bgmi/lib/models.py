@@ -168,8 +168,8 @@ class Bangumi(NeoDB):
     status = pw.IntegerField(default=0)  # type: int
     subject_id = pw.IntegerField(null=True)
     update_time = pw.FixedCharField(5, null=False)
-    # data_source = DataSourceField(default=lambda: {})  # type: Dict[str, BangumiItem]
-    # bangumi_names = BangumiNamesField(null=True, default=set())  # type: set
+    data_source = DataSourceField(default=lambda: {})  # type: Dict[str, BangumiItem]
+    bangumi_names = BangumiNamesField(null=True, default=set())  # type: set
 
     week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 

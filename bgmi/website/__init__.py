@@ -28,10 +28,6 @@ DATA_SOURCE_MAP = {
 }
 
 
-def combine_bangumi_to_mainline():
-    pass
-
-
 def similarity_of_two_name(name1: str, name2: str):
     for s in combined_bangumi:
         if name1 in s and name2 in s:
@@ -94,9 +90,6 @@ class BangumiList(list):
     def to_dict(self):
         e = [model_to_dict(x) for x in self]
         for item in e:
-            if 'data_source' not in item:
-                print(item)
-                continue
             for data_source_key in item['data_source']:
                 if not isinstance(item['data_source'][data_source_key], dict):
                     item['data_source'][data_source_key] = model_to_dict(item['data_source'][data_source_key])
@@ -198,15 +191,6 @@ class BangumiList(list):
             )
         return cls(l)
 
-    # @classmethod
-    # def from_list_of_dict(cls, bangumi_list: List[dict], source):
-    #     for i, item in enumerate(bangumi_list):
-    #         e[i] = Bangumi(
-    #             data_source={source: deepcopy(item)},
-    #             **item
-    #         )
-    #     return cls(bangumi_list)
-
     def add_data_source_bangumi_list(self, bangumi_list: List[Union[dict, Bangumi]], source):
         for bangumi in bangumi_list:
             self.add_bangumi(source, bangumi, set_status=STATUS_UPDATING)
@@ -272,8 +256,6 @@ def init_data() -> (Dict[str, list], Dict[str, list]):
         print_info('Fetching {}'.format(data_source_id))
         try:
             bangumi[data_source_id], subtitle[data_source_id] = data_source.get_bangumi_calendar_and_subtitle_group()
-            for b in bangumi[data_source_id]:
-                b.data_source = data_source_id
         except requests.ConnectionError:
             print_warning('Fetch {} failure'.format(data_source_id))
     return bangumi, subtitle
@@ -299,19 +281,26 @@ class DataSource:
 
     # todo split to some small function
     def fetch(self, save=False, group_by_weekday=True):
-        # get all bangumi item
-        bgm_tv_weekly_list = get_bgm_tv_calendar()
         bangumi_result, subtitle_group_result = init_data()
 
-        # save bangumi item and data source to db
-        if save:
-            with db.atomic():
-                Subtitle.save_subtitle_list(subtitle_group_result)
-                for data_source_id, bangumi_list in bangumi_result.items():
-                    for bangumi in bangumi_list:
-                        self.save_data_bangumi_item(bangumi)
+        bangumi_name_list = []
+        for data_source_id, data in bangumi_result.items():
+            bangumi_name_list += [x['name'] for x in data]
+
+        bgm_tv_weekly_list = get_bgm_tv_calendar()
+        bangumi_name_list += [x.name for x in bgm_tv_weekly_list]
+        bangumi_name_list = list(set(bangumi_name_list))
 
         bangumi_calendar = BangumiList(Bangumi.select().where(Bangumi.status == STATUS_UPDATING))
+
+        tmp_bangumi_calendar = set()
+
+        for bangumi in bangumi_calendar:
+            for name in bangumi_name_list:
+                if name in bangumi.bangumi_names:
+                    tmp_bangumi_calendar.add(bangumi)
+
+        bangumi_calendar = BangumiList(tmp_bangumi_calendar)
 
         for item in bgm_tv_weekly_list:
             bangumi_calendar.add_mainline(item)
@@ -320,12 +309,29 @@ class DataSource:
             for item in data:
                 bangumi_calendar.add_bangumi(source=data_source_id, bangumi=item, set_status=STATUS_UPDATING)
 
-        # bangumi_calendar = BangumiList([x for x in bangumi_calendar if x.data_source])
-        # Bangumi.delete_all()
+        bangumi_calendar = BangumiList([x for x in bangumi_calendar if x.data_source])
+        Bangumi.delete_all()
+
+        for bangumi in bangumi_calendar:
+            data_source_id_need_to_remove = []
+            for data_source_id in bangumi.data_source.keys():
+                if data_source_id in config.DISABLED_DATA_SOURCE:
+                    data_source_id_need_to_remove.append(data_source_id)
+            for data_source_id in data_source_id_need_to_remove:
+                del bangumi.data_source[data_source_id]
 
         if not bangumi_result:
             print('no result return None')
             return []
+
+        if save:
+            Subtitle.save_subtitle_list(subtitle_group_result)
+            with db.atomic():
+                for bangumi in bangumi_calendar:
+                    self.save_data(bangumi)
+                    for data_source_id, bangumi_item in bangumi.data_source.items():
+                        bangumi_item.data_source = data_source_id
+                        self.save_data_source_item(bangumi_item)
 
         if group_by_weekday:
             result_group_by_weekday = defaultdict(list)
@@ -350,7 +356,7 @@ class DataSource:
                 b.status = data.status
                 b.subject_id = data.subject_id
                 b.update_time = data.update_time
-                # b.bangumi_names = data.bangumi_names
+                b.bangumi_names = data.bangumi_names
                 b.data_source = data.data_source
                 b.subject_name = data.subject_name
                 b.save()
@@ -358,7 +364,7 @@ class DataSource:
         # data.save()
 
     @staticmethod
-    def save_data_bangumi_item(data: BangumiItem):
+    def save_data_source_item(data: BangumiItem):
         """
         save bangumi dict to database
 
