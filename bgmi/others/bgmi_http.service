@@ -1,0 +1,13 @@
+[Unit]
+Description=BGmi http frontend api Server
+After=network.target
+Documentation=https://github.com/BGmi/BGmi
+
+[Service]
+Type=simple
+ExecStart={{ python_path }} -m bgmi.front.server
+Restart=always
+User={{ user }}
+
+[Install]
+WantedBy=multi-user.target

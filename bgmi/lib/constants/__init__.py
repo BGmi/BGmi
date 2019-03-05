@@ -207,9 +207,9 @@ actions_and_arguments = [
         'help': 'Generate config for nginx',
         'arguments': [
             {'dest': 'config',
-             'kwargs': dict(help='gen nginx.conf', choices=['nginx.conf', ])},
+             'kwargs': dict(help='gen nginx.conf', choices=['nginx.conf', 'bgmi_http.service', ])},
             {'dest': '--server-name',
-             'kwargs': dict(metavar='server_name', help='server name', required=True)},
+             'kwargs': dict(metavar='server_name', help='nginx server name')},
         ]
     },
     {

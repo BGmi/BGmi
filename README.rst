@@ -331,18 +331,19 @@ If you are using docker:
     docker run -p127.0.0.1:$host_port:80 -p$aria2c_port:6800 -d -v $HOME/.bgmi:$HOME/.bgmi ricterz/bgmi
 
 Use bgmi_http on Windows
------------------
+--------------------------
 Just start your bgmi_http and open `http://localhost:8888/ <http://localhost:8888/>`_ in your browser.
 
 Consider most people won't use Nginx on Windows, bgmi_http use tornado.web.StaticFileHandler to serve static files(frontend, bangumi covers, bangumi files) without Nginx.
 
 Use bgmi_http on Linux
------------------
+--------------------------
 Generate Nginx config
 
 .. code-block:: bash
 
-    bgmi gen nginx.conf --server-name bgmi.example.com > bgmi.example.com
+    bgmi gen nginx.conf --server-name bgmi.example.com | sudo tee /etc/nginx/sites-enabled/bgmi.example.com
+    sudo nginx -s reload
 
 Or write your config file manually.
 
@@ -397,8 +398,19 @@ Of cause you can use `yaaw <https://github.com/binux/yaaw/>`_ to manage download
 
 Example: :code:`bgmi gen nginx.conf --server-name _`
 
+Generate systemd service unit file
+----------------------------------
+
+.. code-block:: bash
+
+    bgmi gen bgmi_http.service | sudo tee /etc/systemd/system/bgmi_http.service
+    sudo systemctl daemon-reload
+    sudo systemctl enable bgmi_http.service
+    sudo systemctl start bgmi_http.service
+
+
 macOS launchctl service controller
------------------
+----------------------------------
 see `issue #77 <https://github.com/BGmi/BGmi/pull/77>`_
 
 `me.ricterz.bgmi.plist <https://github.com/BGmi/BGmi/blob/master/bgmi/others/me.ricterz.bgmi.plist>`_
@@ -661,12 +673,12 @@ Set env :code:`BGMI_LOG` to :code:`debug`, :code:`info`, :code:`warning`, :code:
 log file will locate at :code:`{TMP_PATH}/bgmi.log`
 
 
-===================
+=========
 Uninstall
-===================
+=========
 Scheduled task will not be delete automatically, you will have to remove them manually.
 
-*nix:
+\*nix:
 
     remove them from your crontab
 

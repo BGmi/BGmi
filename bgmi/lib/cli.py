@@ -5,6 +5,7 @@ import itertools
 import os
 import re
 import string
+import sys
 
 from tornado import template
 
@@ -327,19 +328,31 @@ def history(ret):
 
 
 def config_gen(ret):
-    template_file_path = os.path.join(os.path.dirname(__file__), '..', 'others', 'nginx.conf')
-
+    template_file_path = os.path.join(os.path.dirname(__file__), '..', 'others', ret.config)
     with open(template_file_path, 'r') as template_file:
         shell_template = template.Template(template_file.read(), autoescape='')
 
-    template_with_content = shell_template.generate(actions=ACTIONS,
-                                                    server_name=ret.server_name,
-                                                    os_sep=os.sep,
-                                                    front_static_path=bgmi.config.FRONT_STATIC_PATH,
-                                                    save_path=bgmi.config.SAVE_PATH)  # type: bytes
+    if ret.config == 'nginx.conf':
+        no_server_name = False
+        if not ret.server_name:
+            no_server_name = True
+            ret.server_name = '_'
+        template_with_content = shell_template.generate(actions=ACTIONS,
+                                                        server_name=ret.server_name,
+                                                        os_sep=os.sep,
+                                                        front_static_path=bgmi.config.FRONT_STATIC_PATH,
+                                                        save_path=bgmi.config.SAVE_PATH)  # type: bytes
 
-    template_with_content = template_with_content.decode('utf-8')
-    print(template_with_content)
+        template_with_content = template_with_content.decode('utf-8')
+        print(template_with_content)
+        if no_server_name:
+            print('# not giving a server name, take `_` as default server name')
+            print('# usage: `bgmi gen nginx.conf --server-name bgmi.my-website.com`')
+    elif ret.config == 'bgmi_http.service':
+        user = os.environ.get('USER', os.environ.get('USERNAME'))
+        template_with_content = shell_template.generate(python_path=sys.executable, user=user)  # type: bytes
+        template_with_content = template_with_content.decode('utf-8')
+        print(template_with_content)
 
 
 def link_wrapper(ret):
