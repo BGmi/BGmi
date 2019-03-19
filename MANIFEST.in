@@ -1,3 +1,6 @@
 include requirements.txt
 include test_requirements.txt
+include LICENSE
 recursive-include bgmi *
+recursive-exclude bgmi *.pyc
+recursive-exclude tests *
