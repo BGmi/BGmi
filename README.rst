@@ -686,7 +686,8 @@ windows:
 
 .. code-block:: bash
 
-     schtasks /Delete /TN 'bgmi updater'
+     schtasks /Delete /TN 'bgmi calendar updater'
+     schtasks /Delete /TN 'bgmi bangumi updater'
 
 =======
 License

@@ -9,7 +9,7 @@ from six import string_types
 from bgmi.config import BGMI_PATH
 from bgmi.lib.cli import controllers
 from bgmi.lib.constants import actions_and_arguments
-from bgmi.lib.update import update_database
+from bgmi.lib.update import upgrade_version
 from bgmi.setup import create_dir, install_crontab
 from bgmi.sql import init_db
 from bgmi.utils import print_warning, print_error, print_version, check_update, get_web_admin
@@ -51,7 +51,7 @@ def main():
         raise SystemExit
     elif ret.action == 'upgrade':
         create_dir()
-        update_database()
+        upgrade_version()
         check_update(mark=False)
     else:
         check_update()

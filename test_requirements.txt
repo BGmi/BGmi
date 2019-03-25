@@ -1,2 +1,2 @@
 faker==1.0.2
-transmission_rpc==1.0.0
+transmission_rpc>=1.0.0, <2.0.0

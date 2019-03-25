@@ -1,5 +1,4 @@
 # coding=utf-8
-
 import functools
 import glob
 import gzip
@@ -7,6 +6,7 @@ import inspect
 import json
 import os
 import struct
+import subprocess
 import sys
 import tarfile
 import time
@@ -422,3 +422,14 @@ def full_to_half(s):
         num = chr(num)
         n.append(num)
     return ''.join(n)
+
+
+@log_utils_function
+def exec_command(command: str) -> int:
+    """
+    exec command and stdout iconv
+    :return: command exec result
+    """
+    status, stdout = subprocess.getstatusoutput(command)
+    print(stdout)
+    return status
