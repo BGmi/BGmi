@@ -27,8 +27,8 @@ install:
 script:
     - export BGMI_LOG=debug
     - export BANGUMI_1=名侦探柯南
-    - export BANGUMI_2=强风吹拂
-    - export BANGUMI_3=妖精的尾巴
+    - export BANGUMI_2=海贼王
+    - export BANGUMI_3=黑色五叶草
     - coverage run -a -m bgmi.main install
     - bgmi -h
     - coverage run -a -m unittest tests.test_controllers
