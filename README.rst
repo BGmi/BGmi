@@ -71,7 +71,7 @@ Or use pip:
 
     pip install bgmi
 
-If you want to use mysql as your database you need to install :code:`pymysql` `<https://github.com/PyMySQL/PyMySQL>`_.
+If you want to use mysql as your database you need to install ``pymysql`` `<https://github.com/PyMySQL/PyMySQL>`_.
 
 Or:
 
@@ -93,6 +93,8 @@ Init BGmi database and install BGmi web interface:
 
     bgmi install
 
+** ``bgmi`` now will not try to create dirs and init db every time, you will have to use ``bgmi install`` at first time**
+
 ============
 Upgrade
 ============
@@ -113,7 +115,7 @@ Build Docker:
     git clone https://github.com/BGmi/BGmi
     cd BGmi
     docker build -t bgmi .
-    # start bgmi http server
+    # start bgmi http server in back ground
     docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi bgmi
     alias bgmi='docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi bgmi'
 
@@ -122,27 +124,16 @@ Or pull from docker register:
 .. code-block:: bash
 
     docker pull ricterz/bgmi
-    # start bgmi http server
+    # start bgmi http server in back ground
     docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi ricterz/bgmi
     alias bgmi='docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi ricterz/bgmi'
 
 Then use docker image as same as bgmi installed with pip:
 
-.. code-block::
+.. code-block:: bash
 
     bgmi install
     bgmi cal
-
-Configure BGmi docker:
-
-.. code-block:: bash
-
-    # bgmi config ARIA2_RPC_TOKEN token:TOKEN_OF_ARIA2_RPC
-    # docker exec -it <CONTAINER ID> ln -s ~/.bgmi/ /bgmi
-    # docker exec -it <CONTAINER ID> bash -c 'echo rpc-secret=token:TOKEN_OF_ARIA2_RPC >> /root/aria2c.conf'
-    # docker exec -it <CONTAINER ID> supervisorctl
-    supervisor> restart bgmi:aria2c
-    supervisor> quit
 
 =============
 Usage of bgmi
@@ -718,16 +709,16 @@ SOFTWARE.
 .. |pypi| image:: https://img.shields.io/pypi/v/bgmi.svg
    :target: https://pypi.python.org/pypi/bgmi
 
-.. |travis| image:: https://travis-ci.org/BGmi/BGmi.svg?branch=master
+.. |travis| image:: https://img.shields.io/travis/BGmi/BGmi/master.svg
    :target: https://travis-ci.org/BGmi/BGmi
 
-.. |coverage| image:: https://codecov.io/gh/BGmi/BGmi/branch/master/graph/badge.svg
+.. |coverage| image:: https://img.shields.io/codecov/c/github/BGmi/BGmi/master.svg
    :target: https://codecov.io/gh/BGmi/BGmi
 
 .. |license| image:: https://img.shields.io/badge/License-MIT-blue.svg
    :target: https://github.com/BGmi/BGmi/blob/master/LICENSE
 
-.. |pypistats| image::  https://pypistats.com/badge/bgmi.svg
+.. |pypistats| image::  https://img.shields.io/pypi/dm/bgmi.svg
    :target: https://pypi.python.org/pypi/bgmi
 
 
