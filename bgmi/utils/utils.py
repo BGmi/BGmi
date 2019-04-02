@@ -12,13 +12,15 @@ import tarfile
 import time
 from io import BytesIO
 from multiprocessing.pool import ThreadPool
+from pathlib import Path
 from shutil import rmtree, move
+from typing import Union, TextIO
 
 import requests
 import urllib3
+from tornado import template
 
-from bgmi import __version__, __admin_version__
-from bgmi.config import FRONT_STATIC_PATH, SAVE_PATH
+from bgmi import __version__, __admin_version__, config
 from bgmi.lib import constants
 from bgmi.lib.models import get_kv_storage
 from bgmi.logger import logger
@@ -225,7 +227,7 @@ def bug_report():  # pragma: no cover
 @log_utils_function
 def get_terminal_col():  # pragma: no cover
     # https://gist.github.com/jtriley/1108174
-    if not sys.platform.startswith('win'):
+    if not config.IS_WINDOWS:
         import fcntl
         import termios
 
@@ -272,8 +274,8 @@ def update(mark=True):
 
         package_json = requests.get(PACKAGE_JSON_URL).json()
         admin_version = package_json['version']
-        if glob.glob(os.path.join(FRONT_STATIC_PATH, 'package.json')):
-            with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'r') as f:
+        if glob.glob(os.path.join(config.FRONT_STATIC_PATH, 'package.json')):
+            with open(os.path.join(config.FRONT_STATIC_PATH, 'package.json'), 'r') as f:
                 local_version = json.loads(f.read())['version']
             if [int(x) for x in admin_version.split('.')] > [int(x) for x in local_version.split('.')]:
                 get_web_admin(method='update')
@@ -343,16 +345,16 @@ def unzip_zipped_file(file_content, front_version):
     with gzip.GzipFile(fileobj=admin_zip) as f:
         tar_file = BytesIO(f.read())
 
-    rmtree(FRONT_STATIC_PATH)
-    os.makedirs(FRONT_STATIC_PATH)
+    rmtree(config.FRONT_STATIC_PATH)
+    os.makedirs(config.FRONT_STATIC_PATH)
 
     with tarfile.open(fileobj=tar_file) as tar_file_obj:
-        tar_file_obj.extractall(path=FRONT_STATIC_PATH)
+        tar_file_obj.extractall(path=config.FRONT_STATIC_PATH)
 
-    for file in os.listdir(os.path.join(FRONT_STATIC_PATH, 'package', 'dist')):
-        move(os.path.join(FRONT_STATIC_PATH, 'package', 'dist', file),
-             os.path.join(FRONT_STATIC_PATH, file))
-    with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'w+') as f:
+    for file in os.listdir(os.path.join(config.FRONT_STATIC_PATH, 'package', 'dist')):
+        move(os.path.join(config.FRONT_STATIC_PATH, 'package', 'dist', file),
+             os.path.join(config.FRONT_STATIC_PATH, file))
+    with open(os.path.join(config.FRONT_STATIC_PATH, 'package.json'), 'w+') as f:
         f.write(json.dumps(front_version))
 
 
@@ -368,7 +370,7 @@ def convert_cover_url_to_path(cover_url):
     """
 
     cover_url = normalize_path(cover_url)
-    file_path = os.path.join(SAVE_PATH, 'cover')
+    file_path = os.path.join(config.SAVE_PATH, 'cover')
     file_path = os.path.join(file_path, cover_url)
     dir_path = os.path.dirname(file_path)
 
@@ -433,3 +435,28 @@ def exec_command(command: str) -> int:
     status, stdout = subprocess.getstatusoutput(command)
     print(stdout)
     return status
+
+
+def render_template(path_or_file: Union[str, Path, TextIO], ctx: dict = None, **kwargs):
+    """
+    read file content and render it as tornado template with kwargs or ctx
+
+    :param ctx:
+    :param path_or_file: path-like or file-like object
+    :param kwargs:
+    :rtype: str
+    :return:
+    """
+    if ctx and kwargs:
+        raise ValueError('render_template and only be called with ctx or kwargs')
+    if hasattr(path_or_file, 'read'):
+        # input is a file
+        content = path_or_file.read()
+    else:
+        # py3.4 can't open pathlib.Path directly, need to be str
+        with open(str(path_or_file), 'r', encoding='utf8') as f:
+            content = f.read()
+    template_obj = template.Template(content, autoescape='')
+    template_with_content = template_obj.generate(**(ctx or kwargs))  # type: bytes
+    template_with_content = template_with_content.decode('utf-8')
+    return template_with_content

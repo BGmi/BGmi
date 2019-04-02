@@ -4,6 +4,7 @@ import os
 import os.path
 import shutil
 import unittest.mock
+from pathlib import Path
 from types import SimpleNamespace
 from typing import List
 from unittest.mock import patch, Mock
@@ -77,7 +78,7 @@ class UtilsTest(unittest.TestCase):
         self.assertTrue(file_path.endswith('http/hello world/233.qq'))
 
     def test_download_cover(self):
-        with patch('bgmi.utils.utils.SAVE_PATH', self.test_dir), patch('bgmi.utils.utils.requests.get') as m:
+        with patch('bgmi.config.SAVE_PATH', self.test_dir), patch('bgmi.utils.utils.requests.get') as m:
             class Mo:
                 def __init__(self, content):
                     self.content = bytes(content, encoding='utf8')
@@ -118,7 +119,7 @@ class UtilsTest(unittest.TestCase):
     def test_unzip_zipped_file(self):
         with open('./tests/data/bgmi-frontend-1.1.4.tgz', 'rb') as f:
             file_content = f.read()
-        with patch('bgmi.utils.utils.FRONT_STATIC_PATH', self.test_dir):
+        with patch('bgmi.config.FRONT_STATIC_PATH', self.test_dir):
             utils.unzip_zipped_file(file_content, {'version': '1.2.3', 'dist': {'tarball': 'tarball'}})
             for file_path in ['index.html', 'static/js/app.js', 'package.json']:
                 self.assertTrue(os.path.exists(os.path.join(self.test_dir, file_path)))
@@ -163,3 +164,37 @@ class UtilsTest(unittest.TestCase):
                 json.dump({'version': '1.1.2'}, f)
             utils.update(True)
             get_web_admin.assert_called_once()
+
+    @property
+    def template_path(self) -> str:
+        # print( os.path.join(self.test_dir, 'template.html'))
+        return os.path.join(self.test_dir, 'template.html')
+
+    def test_render_template_with_path(self):
+        content = 'template content'
+        with open(self.template_path, 'w+', encoding='utf8') as f:
+            f.write(content)
+        self.assertEqual(utils.render_template(self.template_path), content)
+        self.assertEqual(utils.render_template(Path(self.template_path)), content)
+
+    def test_render_template_with_file(self):
+        content = 'template content'
+
+        with open(self.template_path, 'w+', encoding='utf8') as f:
+            f.write(content)
+        with open(self.template_path, 'r', encoding='utf8') as f:
+            self.assertEqual(utils.render_template(f), content)
+
+    def test_render_template_with_ctx(self):
+        content = '{{name}} world'
+        with open(self.template_path, 'w+', encoding='utf8') as f:
+            f.write(content)
+        with open(self.template_path, 'r', encoding='utf8') as f:
+            self.assertEqual(utils.render_template(f, ctx={'name': 'hello'}), 'hello world')
+
+    def test_render_template_with_kwargs(self):
+        content = '{{name}} world'
+        with open(self.template_path, 'w+', encoding='utf8') as f:
+            f.write(content)
+        with open(self.template_path, 'r', encoding='utf8') as f:
+            self.assertEqual(utils.render_template(f, name='hello'), 'hello world')

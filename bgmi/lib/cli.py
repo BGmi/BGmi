@@ -7,8 +7,6 @@ import re
 import string
 import sys
 
-from tornado import template
-
 import bgmi.config
 from bgmi.lib.constants import (ACTION_ADD, ACTION_DOWNLOAD, ACTION_CONFIG, ACTION_DELETE, ACTION_MARK,
                                 ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST,
@@ -20,7 +18,7 @@ from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
 from bgmi.lib.models import Bangumi, Followed, STATUS_UPDATED, STATUS_DELETED, STATUS_FOLLOWED, BangumiLink
 from bgmi.script import ScriptRunner
-from bgmi.utils import (print_info, print_warning, print_success, print_error,
+from bgmi.utils import (print_info, print_warning, print_success, print_error, render_template,
                         RED, GREEN, YELLOW, COLOR_END, get_terminal_col, logger)
 
 
@@ -263,26 +261,20 @@ def complete(ret):
         template_file_path = os.path.join(os.path.dirname(__file__), '..', 'others', '_bgmi_completion_zsh.sh')
 
     else:
-        import sys
         print('unsupported shell {}'.format(os.getenv('SHELL').lower()), file=sys.stderr)
         return
 
-    with open(template_file_path, 'r') as template_file:
-        shell_template = template.Template(template_file.read(), autoescape='')
-
-    template_with_content = shell_template.generate(actions=ACTIONS,
-                                                    bangumi=updating_bangumi_names, config=all_config,
-                                                    actions_and_opts=actions_and_opts,
-                                                    source=[x['id'] for x in SUPPORT_WEBSITE],
-                                                    helper=helper,
-                                                    isinstance=isinstance,
-                                                    string_types=str)  # type: bytes
-
+    template_with_content = render_template(template_file_path, ctx=dict(actions=ACTIONS,
+                                                                         bangumi=updating_bangumi_names,
+                                                                         config=all_config,
+                                                                         actions_and_opts=actions_and_opts,
+                                                                         source=[x['id'] for x in SUPPORT_WEBSITE],
+                                                                         helper=helper,
+                                                                         isinstance=isinstance,
+                                                                         string_types=str))
     if os.environ.get('DEBUG', False):  # pragma: no cover
-        with open('./_bgmi', 'wb+') as template_file:
+        with open('./_bgmi', 'w+', encoding='utf8') as template_file:
             template_file.write(template_with_content)
-
-    template_with_content = template_with_content.decode('utf-8')
     print(template_with_content)
 
 
@@ -329,29 +321,28 @@ def history(ret):
 
 def config_gen(ret):
     template_file_path = os.path.join(os.path.dirname(__file__), '..', 'others', ret.config)
-    with open(template_file_path, 'r') as template_file:
-        shell_template = template.Template(template_file.read(), autoescape='')
 
     if ret.config == 'nginx.conf':
         no_server_name = False
         if not ret.server_name:
             no_server_name = True
             ret.server_name = '_'
-        template_with_content = shell_template.generate(actions=ACTIONS,
-                                                        server_name=ret.server_name,
-                                                        os_sep=os.sep,
-                                                        front_static_path=bgmi.config.FRONT_STATIC_PATH,
-                                                        save_path=bgmi.config.SAVE_PATH)  # type: bytes
 
-        template_with_content = template_with_content.decode('utf-8')
+        template_with_content = render_template(template_file_path,
+                                                actions=ACTIONS,
+                                                server_name=ret.server_name,
+                                                os_sep=os.sep,
+                                                front_static_path=bgmi.config.FRONT_STATIC_PATH,
+                                                save_path=bgmi.config.SAVE_PATH)
         print(template_with_content)
         if no_server_name:
             print('# not giving a server name, take `_` as default server name')
             print('# usage: `bgmi gen nginx.conf --server-name bgmi.my-website.com`')
     elif ret.config == 'bgmi_http.service':
         user = os.environ.get('USER', os.environ.get('USERNAME'))
-        template_with_content = shell_template.generate(python_path=sys.executable, user=user)  # type: bytes
-        template_with_content = template_with_content.decode('utf-8')
+        template_with_content = render_template(template_file_path,
+                                                python_path=sys.executable,
+                                                user=user)
         print(template_with_content)
 
 
