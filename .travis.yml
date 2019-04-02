@@ -1,7 +1,16 @@
 language: python
+python:
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "pypy3.5"
 
+# make matrix
 os:
   - linux
+  - windows
+  - osx
+
 dist: xenial
 
 env:
@@ -11,6 +20,7 @@ env:
     - BANGUMI_1=名侦探柯南
     - BANGUMI_2=刃牙
     - BANGUMI_3=海贼王
+  # make matrix
   matrix:
     - DB=sqlite
     - DB=mysql
@@ -18,18 +28,86 @@ env:
 services:
   - mysql
 
-cache:
-  directories:
-    - /home/travis/virtualenv/
+matrix:
+  fast_finish: true
 
-python:
-  - 3.4
-  - 3.5
-  - 3.6
+  include:
+    -   python: '3.7'
+        dist: xenial
+        env: DB=sqlite
 
-#before_install:
-#  - if [[ "$DB" == "mysql" ]]; then mysql -e 'CREATE DATABASE IF NOT EXISTS test DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_general_ci;'; fi
+    -   python: '3.7'
+        dist: xenial
+        env: DB=mysql
 
+    # todo: don't know how to install old python on osx seems that travis can do it by itself
+    -   os: osx
+        language: generic
+        python: "3.7"
+        before_install:
+          - export TRAVIS_PYTHON_VERSION=3.7
+          - brew update
+          - brew upgrade python3
+          - python3 -m pip install virtualenv
+          - virtualenv venv -p python3
+          - source venv/bin/activate
+
+    -   os: windows
+        language: sh
+        python: "3.7"
+        before_install:
+          - export TRAVIS_PYTHON_VERSION=3.7
+          - choco install python3
+          - export PATH="/c/Python37:/c/Python37/Scripts:$PATH"
+
+    -   os: windows
+        language: sh
+        python: "3.6"
+        before_install:
+          - export TRAVIS_PYTHON_VERSION=3.6
+          - choco install python --version 3.6.8
+          - export PATH="/c/Python36:/c/Python36/Scripts:$PATH"
+
+    -   os: windows
+        language: sh
+        python: "3.5"
+        before_install:
+          - export TRAVIS_PYTHON_VERSION=3.5
+          - choco install python --version 3.5.4
+          - export PATH="/c/Python35:/c/Python35/Scripts:$PATH"
+
+
+  exclude:
+    -   os: windows
+        env: DB=mysql
+    -   os: windows
+        python: "3.4"
+    -   os: windows
+        python: "3.5"
+    -   os: windows
+        python: "3.6"
+    -   os: windows
+        python: "pypy3.5"
+    -   os: osx
+        python: "3.4"
+    -   os: osx
+        python: "3.5"
+    -   os: osx
+        python: "3.6"
+    -   os: osx
+        python: "pypy3.5"
+cache: pip
+#  directories:
+#    - /home/travis/virtualenv/
+
+
+before_install:
+  - if [[ $TRAVIS_OS_NAME == "osx" ]]; then brew update > /dev/null && brew install mariadb && mysql.server start; fi
+  - if [[ "$DB" == "mysql" ]]; then mysql -e 'CREATE DATABASE IF NOT EXISTS test DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_general_ci;'; fi
+  - |
+    if [ "${TRAVIS_OS_NAME}" == "windows" ]; then
+        python -m pip install --upgrade pip wheel
+    fi
 install:
   - pip install -r requirements.txt
   - pip install -r test_requirements.txt
@@ -39,6 +117,7 @@ install:
   - pip install python-Levenshtein
 
 script:
+  - python --version
   - coverage run -a -m bgmi.main
   - cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
 
