@@ -6,7 +6,8 @@ from playhouse import db_url
 from bgmi import __version__
 from bgmi.config import DB_URL, BGMI_PATH, write_default_config
 from bgmi.lib import constants
-from bgmi.lib.models import db, get_kv_storage
+from bgmi.lib.models import db
+from bgmi.lib.models._kv import get_kv_storage
 from bgmi.setup import install_crontab
 from bgmi.sql import init_db
 from bgmi.utils import print_error, print_info, print_warning, exec_command
@@ -34,8 +35,9 @@ def upgrade_version():
             v = f.read()
 
     if v < '3.0.0':
-        print_warning("can't simply upgrade from bgmi<3.0.0, database structure changed too much,\n"
-                      "so bgmi must clear your database. type 'y' to continue")
+        print_warning(
+            "can't simply upgrade from bgmi<3.0.0, database structure changed too much,\n"
+            "so bgmi must clear your database. type 'y' to continue")
         c = input()
         if c.lower().startswith('y'):
             db.close()
@@ -53,4 +55,6 @@ def upgrade_version():
 def remove_old_windows_cron():
     result = exec_command('schtasks /Delete /TN "bgmi updater" /F')
     if result:
-        print_error("can't delete schedule task named 'bgmi updater', please delete it manually")
+        print_error(
+            "can't delete schedule task named 'bgmi updater', please delete it manually"
+        )

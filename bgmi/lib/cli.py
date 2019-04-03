@@ -1,41 +1,36 @@
 # coding=utf-8
-
 import datetime
 import itertools
 import os
 import re
 import string
 import sys
+from functools import wraps
 
 import bgmi.config
-from bgmi.lib.constants import (
-    ACTION_ADD,
-    ACTION_DOWNLOAD,
-    ACTION_CONFIG,
-    ACTION_DELETE,
-    ACTION_MARK,
-    ACTION_SEARCH,
-    ACTION_FILTER,
-    ACTION_CAL,
-    ACTION_UPDATE,
-    ACTION_FETCH,
-    ACTION_LIST,
-    DOWNLOAD_CHOICE_LIST_DICT,
-    SPACIAL_APPEND_CHARS,
-    SPACIAL_REMOVE_CHARS,
-    SUPPORT_WEBSITE,
-    actions_and_arguments,
-    ACTION_CONFIG_GEN,
-    ACTION_LINK,
-    ACTION_UNLINK)
+import bgmi.website
+from bgmi.lib.constants import ACTION_ADD, ACTION_DOWNLOAD, ACTION_CONFIG, ACTION_DELETE, \
+    ACTION_MARK, ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH,\
+    ACTION_LIST, DOWNLOAD_CHOICE_LIST_DICT, SPACIAL_APPEND_CHARS,\
+    SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, actions_and_arguments,\
+    ACTION_CONFIG_GEN, ACTION_LINK, ACTION_UNLINK
 from bgmi.lib.constants.actions import ACTION_COMPLETE, ACTIONS, ACTION_HISTORY
 from bgmi.lib.controllers import filter_, config, mark, delete, add, search, update, list_, unlink, link
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
-from bgmi.lib.models import Bangumi, Followed, STATUS_UPDATED, STATUS_DELETED, STATUS_FOLLOWED, BangumiLink
+from bgmi.lib.models import Bangumi, Followed, BangumiLink
 from bgmi.script import ScriptRunner
-from bgmi.utils import (print_info, print_warning, print_success, print_error, render_template,
-                        RED, GREEN, YELLOW, COLOR_END, get_terminal_col, logger)
+from bgmi.utils import print_info, print_warning, print_success, print_error,\
+    render_template, RED, GREEN, YELLOW, COLOR_END,\
+    get_terminal_col, logger
+
+
+def action_decorator(fn):
+    @wraps(fn)
+    def wrapped(*args, **kwargs):
+        return fn(*args, **kwargs)
+
+    return wrapped
 
 
 def config_wrapper(ret):
@@ -114,10 +109,12 @@ def cal_wrapper(ret):
 
     weekly_list = website.bangumi_calendar(force_update=ret.force_update, save=save, cover=cover)
     if os.environ.get('DEBUG') or ret.show_source:
-        for bangumi_list in weekly_list.values():
-            for bangumi in bangumi_list:
-                bangumi['name'] = bangumi['name'] + ' {' + '{}' .format(
-                    ', '.join([x[:min(1, len(x))] for x in bangumi['data_source'].keys()]) + '}')
+        pass
+        # todo
+        # for bangumi_list in weekly_list.values():
+        #     for bangumi in bangumi_list:
+        #         bangumi['name'] = bangumi['name'] + ' {' + '{}' \
+        #             .format(', '.join([x[:min(1, len(x))] for x in bangumi['data_source'].keys()]) + '}')
 
     patch_list = runner.get_models_dict()
     for i in patch_list:
@@ -128,11 +125,14 @@ def cal_wrapper(ret):
         return seq[n:] + seq[:n]
 
     if ret.today:
-        weekday_order = (Bangumi.week[datetime.datetime.today().weekday()],)
+        weekday_order = (Bangumi.week[datetime.datetime.today().weekday()], )
     else:
         weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
 
-    env_columns = 42 if os.environ.get('TRAVIS_CI', False) else get_terminal_col()
+    if os.environ.get('TRAVIS_CI', False):
+        env_columns = 42
+    else:
+        env_columns = get_terminal_col()
 
     col = 42
 
@@ -149,16 +149,16 @@ def cal_wrapper(ret):
 
     for weekday in weekday_order:
         if weekly_list[weekday.lower()]:
-            print(
-                '%s%s. %s' %
-                (GREEN,
-                 weekday if not ret.today else 'Bangumi Schedule for Today (%s)' %
-                 weekday,
-                 COLOR_END))
+            print('%s%s. %s' %
+                  (GREEN, weekday if not ret.today else
+                   'Bangumi Schedule for Today (%s)' % weekday, COLOR_END))
             print_line()
             for i, bangumi in enumerate(weekly_list[weekday.lower()]):
-                if bangumi['status'] in (STATUS_UPDATED, STATUS_FOLLOWED) and 'episode' in bangumi:
-                    bangumi['name'] = '%s(%d)' % (bangumi['name'], bangumi['episode'])
+                if bangumi['status'] in (
+                        Followed.STATUS.UPDATED,
+                        Followed.STATUS.FOLLOWED) and 'episode' in bangumi:
+                    bangumi['name'] = '%s(%d)' % (bangumi['name'],
+                                                  bangumi['episode'])
 
                 half = len(re.findall('[%s]' % string.printable, bangumi['name']))
                 full = (len(bangumi['name']) - half)
@@ -174,13 +174,11 @@ def cal_wrapper(ret):
                     if s in bangumi['name']:
                         space_count -= bangumi['name'].count(s)
 
-                if bangumi['status'] == STATUS_FOLLOWED:
-                    bangumi['name'] = '%s%s%s' % (
-                        YELLOW, bangumi['name'], COLOR_END)
+                if bangumi['status'] == Followed.STATUS.FOLLOWED:
+                    bangumi['name'] = '%s%s%s' % (YELLOW, bangumi['name'], COLOR_END)
 
-                if bangumi['status'] == STATUS_UPDATED:
-                    bangumi['name'] = '%s%s%s' % (
-                        GREEN, bangumi['name'], COLOR_END)
+                if bangumi['status'] == Followed.STATUS.UPDATED:
+                    bangumi['name'] = '%s%s%s' % (GREEN, bangumi['name'], COLOR_END)
                 print(' ' + bangumi['name'], ' ' * space_count, end='')
 
                 if (i + 1) % row == 0 or i + 1 == len(weekly_list[weekday.lower()]):
@@ -276,15 +274,12 @@ def complete(ret):
         helper[action_dict['action']] = action_dict.get('help', '')
 
     if 'bash' in os.getenv('SHELL').lower():  # bash
-        template_file_path = os.path.join(
-            os.path.dirname(__file__),
-            '..',
-            'others',
-            '_bgmi_completion_bash.sh')
+        template_file_path = os.path.join(os.path.dirname(__file__), '..',
+                                          'others', '_bgmi_completion_bash.sh')
 
     elif 'zsh' in os.getenv('SHELL').lower():  # zsh
-        template_file_path = os.path.join(os.path.dirname(
-            __file__), '..', 'others', '_bgmi_completion_zsh.sh')
+        template_file_path = os.path.join(os.path.dirname(__file__), '..',
+                                          'others', '_bgmi_completion_zsh.sh')
 
     else:
         print('unsupported shell {}'.format(os.getenv('SHELL').lower()), file=sys.stderr)
@@ -297,8 +292,7 @@ def complete(ret):
             bangumi=updating_bangumi_names,
             config=all_config,
             actions_and_opts=actions_and_opts,
-            source=[
-                x['id'] for x in SUPPORT_WEBSITE],
+            source=[x['id'] for x in SUPPORT_WEBSITE],
             helper=helper,
             isinstance=isinstance,
             string_types=str))
@@ -320,7 +314,7 @@ def history(ret):
 
     print_info('Bangumi Timeline')
     for i in data:
-        if i.status == STATUS_DELETED:
+        if i.status == Followed.STATUS.DELETED:
             slogan = 'ABANDON'
             color = RED
         else:

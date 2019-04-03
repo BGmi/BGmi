@@ -8,7 +8,7 @@ import faker
 import bgmi.config
 import bgmi.lib.models
 from bgmi.lib import models
-from bgmi.lib.models import Subtitle, Bangumi, Followed, STATUS_UPDATED, STATUS_UPDATING, STATUS_FOLLOWED
+from bgmi.lib.models import Subtitle, Bangumi, Followed
 from bgmi.sql import init_db
 
 test_data = {}
@@ -68,42 +68,44 @@ class BangumiTest(base, TestCase):
         name_updating = []
         for i in range(5):
             name = self.faker.name()
-            Bangumi.create(name=name, keyword=name, cover=name, update_time='mon', status=STATUS_UPDATING)
+            Bangumi.create(name=name, keyword=name, cover=name, update_time='mon', status=Bangumi.STATUS.UPDATING)
             Followed.create(bangumi_name=name, updated_time=now + i)
             name_updating.append(name)
 
         name_end = []
         for i in range(5):
             name = self.faker.name()
-            Bangumi.create(name=name, keyword=name, cover=name, update_time='mon', status=models.STATUS_UPDATING)
+            Bangumi.create(name=name, keyword=name, cover=name, update_time='mon',
+                           status=models.Bangumi.STATUS.UPDATING)
             Followed.create(bangumi_name=name, updated_time=now - 2 * 2 * 7 * 24 * 3600 - 200)
             name_end.append(name)
 
         Bangumi.delete_all()
 
         for bangumi in Bangumi.select().where(Bangumi.name.in_(name_updating)):
-            self.assertEqual(bangumi.status, models.STATUS_UPDATING)
+            self.assertEqual(bangumi.status, models.Bangumi.STATUS.UPDATING)
 
         for bangumi in Bangumi.select().where(Bangumi.name.in_(name_end)):
-            self.assertEqual(bangumi.status, models.STATUS_END)
+            self.assertEqual(bangumi.status, models.Bangumi.STATUS.END)
 
     def test_get_updating_bangumi(self):
         bgm_followed = []
         for day in Bangumi.week:
             name = self.faker.name()
-            bangumi = Bangumi.create(name=name, keyword=name, cover=name, update_time=day, status=models.STATUS_DELETED)
-            Followed.create(bangumi_name=name, status=STATUS_FOLLOWED)
+            bangumi = Bangumi.create(name=name, keyword=name, cover=name, update_time=day, status=models.Followed.STATUS.DELETED)
+            Followed.create(bangumi_name=name, status=Followed.STATUS.FOLLOWED)
             bgm_followed.append(name)
 
         bgm_updated = []
         for day in Bangumi.week:
             name = self.faker.name()
-            bangumi = Bangumi.create(name=name, keyword=name, cover=name, update_time=day, status=STATUS_UPDATING)
-            Followed.create(bangumi_name=name, status=STATUS_UPDATED)
+            bangumi = Bangumi.create(name=name, keyword=name, cover=name, update_time=day,
+                                     status=Bangumi.STATUS.UPDATING)
+            Followed.create(bangumi_name=name, status=Followed.STATUS.UPDATED)
             bgm_updated.append(name)
 
-        b1 = Bangumi.get_updating_bangumi(status=STATUS_FOLLOWED, order=True)
-        b2 = Bangumi.get_updating_bangumi(status=STATUS_UPDATED, order=True)
+        b1 = Bangumi.get_updating_bangumi(status=Followed.STATUS.FOLLOWED, order=True)
+        b2 = Bangumi.get_updating_bangumi(status=Followed.STATUS.UPDATED, order=True)
         b3 = Bangumi.get_updating_bangumi(order=False)
 
         for key, value in b1.items():
@@ -123,7 +125,7 @@ class BangumiTest(base, TestCase):
     def test_get_all_bangumi(self):
         Bangumi.delete().execute()
 
-        Bangumi.create(name='name', cover='name', update_time='mon', status=STATUS_UPDATING)
+        Bangumi.create(name='name', cover='name', update_time='mon', status=Bangumi.STATUS.UPDATING)
         b = Bangumi.get_all_bangumi()
         for bg in b:
             self.assertEqual(bg['name'], 'name')

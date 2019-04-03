@@ -4,8 +4,7 @@ import time
 from bgmi.config import write_config, MAX_PAGE
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
-from bgmi.lib.models import STATUS_DELETED, BangumiLink, Subtitle, Download, STATUS_FOLLOWED, STATUS_UPDATED, \
-    STATUS_NOT_DOWNLOAD, FOLLOWED_STATUS, Followed, Bangumi, DoesNotExist, model_to_dict
+from bgmi.lib.models import BangumiLink, Subtitle, Download, Followed, Bangumi, DoesNotExist, model_to_dict
 from bgmi.script import ScriptRunner
 from bgmi.utils import print_info, normalize_path, print_warning, print_success, print_error, GREEN, COLOR_END, logger
 
@@ -27,16 +26,18 @@ def add(name, episode=None):
         result = {'status': 'error',
                   'message': '{0} not found, please check the name'.format(name)}
         return result
-    followed_obj, this_obj_created = Followed.get_or_create(bangumi_name=bangumi_obj.name,
-                                                            defaults={'status': STATUS_FOLLOWED})
+    followed_obj, this_obj_created = Followed.get_or_create(
+        bangumi_name=bangumi_obj.name,
+        defaults={'status': Followed.STATUS.FOLLOWED}
+    )
     if not this_obj_created:
-        if followed_obj.status == STATUS_FOLLOWED:
+        if followed_obj.status == Followed.STATUS.FOLLOWED:
             result = {
                 'status': 'warning',
                 'message': '{0} already followed'.format(
                     bangumi_obj.name)}
             return result
-        followed_obj.status = STATUS_FOLLOWED
+        followed_obj.status = Followed.STATUS.FOLLOWED
         followed_obj.save()
 
     Followed.get_or_create(bangumi_name=bangumi_obj.name)
@@ -49,13 +50,12 @@ def add(name, episode=None):
     return result
 
 
-def filter_(
-        name,
-        subtitle_input=None,
-        data_source_input=None,
-        include=None,
-        exclude=None,
-        regex=None):
+def filter_(name,
+            subtitle_input=None,
+            data_source_input=None,
+            include=None,
+            exclude=None,
+            regex=None):
     result = {'status': 'success', 'message': ''}
     try:
         bangumi_obj = Bangumi.fuzzy_get(name=name)
@@ -165,7 +165,7 @@ def delete(name='', clear_all=False, batch=False):
     elif name:
         try:
             followed = Followed.get(bangumi_name=name)
-            followed.status = STATUS_DELETED
+            followed.status = Followed.STATUS.DELETED
             followed.save()
             result['status'] = 'warning'
             result['message'] = 'Bangumi {} has been deleted'.format(name)
@@ -253,7 +253,12 @@ def mark(name, episode):
     return result
 
 
-def search(keyword, count=MAX_PAGE, regex=None, dupe=False, min_episode=None, max_episode=None):
+def search(keyword,
+           count=MAX_PAGE,
+           regex=None,
+           dupe=False,
+           min_episode=None,
+           max_episode=None):
     try:
         count = int(count)
     except (TypeError, ValueError):
@@ -314,13 +319,13 @@ def update(name, download=None, not_ignore=False):
     for i in Followed.get_all_followed():
         if i['updated_time'] and int(i['updated_time'] + 60 * 60 * 24) < now:
             followed_obj = Followed.get(bangumi_name=i['bangumi_name'])
-            followed_obj.status = STATUS_FOLLOWED
+            followed_obj.status = Followed.STATUS.FOLLOWED
             followed_obj.save()
 
     for script in ScriptRunner().scripts:
         obj = script.Model().obj
         if obj.updated_time and int(obj.updated_time + 60 * 60 * 24) < now:
-            obj.status = STATUS_FOLLOWED
+            obj.status = Followed.STATUS.FOLLOWED
             obj.save()
 
     print_info('updating subscriptions ...')
@@ -374,7 +379,7 @@ def update(name, download=None, not_ignore=False):
                     '%s updated, episode: %d' %
                     (subscribe['bangumi_name'], episode['episode']))
                 followed_obj.episode = episode['episode']
-                followed_obj.status = STATUS_UPDATED
+                followed_obj.status = Followed.STATUS.UPDATED
                 followed_obj.updated_time = int(time.time())
                 followed_obj.save()
                 result['data']['updated'].append(
@@ -391,15 +396,15 @@ def update(name, download=None, not_ignore=False):
         download_prepare(download_queue)
         download_prepare(script_download_queue)
         print_info('Re-downloading ...')
-        download_prepare(Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD))
+        download_prepare(Download.get_all_downloads(status=Download.STATUS.NOT_DOWNLOAD))
 
     return result
 
 
-def status_(name, status=STATUS_DELETED):
+def status_(name, status=Followed.STATUS.DELETED):
     result = {'status': 'success', 'message': ''}
 
-    if not (status in FOLLOWED_STATUS and status):
+    if not (Followed.has_status(status) and status):
         result['status'] = 'error'
         result['message'] = 'Invalid status: {0}'.format(status)
         return result
@@ -450,9 +455,9 @@ def list_():
         if followed_bangumi[weekday.lower()]:
             result['message'] += '%s%s. %s' % (GREEN, weekday, COLOR_END)
             for i, bangumi in enumerate(followed_bangumi[weekday.lower()]):
-                if bangumi['status'] in (STATUS_UPDATED, STATUS_FOLLOWED) and 'episode' in bangumi:
-                    bangumi['name'] = '%s(%d)' % (
-                        bangumi['name'], bangumi['episode'])
+                if bangumi['status'] in (Followed.STATUS.UPDATED, Followed.STATUS.FOLLOWED) \
+                        and 'episode' in bangumi:
+                    bangumi['name'] = '%s(%d)' % (bangumi['name'], bangumi['episode'])
                 if i > 0:
                     result['message'] += ' ' * 5
                 f = map(lambda x: x['name'], bangumi['subtitle_group'])

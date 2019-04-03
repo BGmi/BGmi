@@ -25,7 +25,7 @@ class ControllersTest(unittest.TestCase):
     def setUp(self):
         Followed.delete().execute()
         Followed.create(bangumi_name=self.bangumi_name_1,
-                        status=bgmi.lib.controllers.STATUS_FOLLOWED)
+                        status=bgmi.lib.controllers.Followed.STATUS.FOLLOWED)
 
     def test_cal(self):
         r = bgmi.lib.controllers.cal()
@@ -43,12 +43,12 @@ class ControllersTest(unittest.TestCase):
         r = bgmi.lib.controllers.add(self.bangumi_name_1, 0)
         self.assertEqual(r['status'], 'warning')
         f = Followed.get(bangumi_name=self.bangumi_name_1)  # type: Followed
-        self.assertEqual(f.status, Followed.STATUS_FOLLOWED)
+        self.assertEqual(f.status, Followed.STATUS.FOLLOWED)
 
         r = bgmi.lib.controllers.add(self.bangumi_name_2, episode=4)
         self.assertEqual(r['status'], 'success')
         f = Followed.get(bangumi_name=self.bangumi_name_2)  # type: Followed
-        self.assertEqual(f.status, Followed.STATUS_FOLLOWED)
+        self.assertEqual(f.status, Followed.STATUS.FOLLOWED)
         self.assertEqual(f.episode, 4)
 
     def test_mark(self):

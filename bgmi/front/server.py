@@ -19,16 +19,6 @@ define('address', default='0.0.0.0', help='binding at given address', type=str)
 
 API_ACTIONS = '%s|%s' % ('|'.join(API_MAP_GET.keys()), '|'.join(API_MAP_POST.keys()))
 
-if os.environ.get('DEV'):  # pragma: no cover
-    def prepare(self):
-        self.set_header('Access-Control-Allow-Origin', 'http://localhost:8080')
-        self.set_header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-        self.set_header(
-            "Access-Control-Allow-Headers",
-            "Content-Type, bgmi-token, X-Requested-With")
-
-    tornado.web.RequestHandler.prepare = prepare
-
 
 def make_app(**kwargs):
     settings = {

@@ -8,8 +8,7 @@ import traceback
 
 from bgmi.config import SCRIPT_PATH, MAX_PAGE
 from bgmi.lib.download import download_prepare
-from bgmi.lib.models import STATUS_UPDATED, STATUS_FOLLOWED
-from bgmi.lib.models import Scripts
+from bgmi.lib.models import Followed, Scripts
 from bgmi.utils import print_success, print_warning, print_info
 from bgmi.website import DATA_SOURCE_MAP
 
@@ -97,7 +96,7 @@ class ScriptRunner:
 
             print_success('{} updated, episode: {}'.format(script.bangumi_name, episode))
             script_obj.episode = episode
-            script_obj.status = STATUS_UPDATED
+            script_obj.status = Followed.STATUS.UPDATED
             script_obj.updated_time = int(time.time())
             script_obj.save()
 
@@ -141,8 +140,12 @@ class ScriptBase:
 
         def __init__(self):
             if self.bangumi_name is not None:
-                s, _ = Scripts.get_or_create(bangumi_name=self.bangumi_name,
-                                             defaults={'episode': 0, 'status': STATUS_FOLLOWED})
+                s, _ = Scripts.get_or_create(
+                    bangumi_name=self.bangumi_name,
+                    defaults={
+                        'episode': 0,
+                        'status': Followed.STATUS.FOLLOWED
+                    })
                 self.obj = s
 
         def __iter__(self):
