@@ -31,7 +31,10 @@ def add(name, episode=None):
                                                             defaults={'status': STATUS_FOLLOWED})
     if not this_obj_created:
         if followed_obj.status == STATUS_FOLLOWED:
-            result = {'status': 'warning', 'message': '{0} already followed'.format(bangumi_obj.name)}
+            result = {
+                'status': 'warning',
+                'message': '{0} already followed'.format(
+                    bangumi_obj.name)}
             return result
         followed_obj.status = STATUS_FOLLOWED
         followed_obj.save()
@@ -46,7 +49,13 @@ def add(name, episode=None):
     return result
 
 
-def filter_(name, subtitle_input=None, data_source_input=None, include=None, exclude=None, regex=None):
+def filter_(
+        name,
+        subtitle_input=None,
+        data_source_input=None,
+        include=None,
+        exclude=None,
+        regex=None):
     result = {'status': 'success', 'message': ''}
     try:
         bangumi_obj = Bangumi.fuzzy_get(name=name)
@@ -57,8 +66,8 @@ def filter_(name, subtitle_input=None, data_source_input=None, include=None, exc
     except Followed.DoesNotExist:
         return {
             'status': 'error',
-            'message': 'Bangumi {name} has not subscribed, try \'bgmi add "{name}"\'.'.format(name=name)
-        }
+            'message': 'Bangumi {name} has not subscribed, try \'bgmi add "{name}"\'.'.format(
+                name=name)}
 
     followed_filter_obj, _ = Followed.get_or_create(bangumi_name=bangumi_obj.name)
 
@@ -75,12 +84,15 @@ def filter_(name, subtitle_input=None, data_source_input=None, include=None, exc
                 try:
                     Subtitle.get(name=bangumi_name)
                 except Subtitle.DoesNotExist:
-                    return {'status': 'error', 'message': '{} is not a valid subtitle_group'.format(bangumi_name)}
+                    return {
+                        'status': 'error',
+                        'message': '{} is not a valid subtitle_group'.format(bangumi_name)}
                 if bangumi_name not in valid_subtitle_name_list:
                     return {
                         'status': 'error',
-                        'message': '{} is not a subtitle of bangumi {}'.format(bangumi_name, bangumi_obj.name)
-                    }
+                        'message': '{} is not a subtitle of bangumi {}'.format(
+                            bangumi_name,
+                            bangumi_obj.name)}
             followed_filter_obj.subtitle = subtitle_input
 
     if data_source_input is not None:
@@ -92,8 +104,9 @@ def filter_(name, subtitle_input=None, data_source_input=None, include=None, exc
                 if data_source not in valid_data_source_list:
                     return {
                         'status': 'error',
-                        'message': 'There is not bangumi {} in data source {}'.format(bangumi_obj.name, data_source)
-                    }
+                        'message': 'There is not bangumi {} in data source {}'.format(
+                            bangumi_obj.name,
+                            data_source)}
             followed_filter_obj.data_source = data_source_input
 
     if include is not None:
@@ -349,20 +362,23 @@ def update(name, download=None, not_ignore=False):
                         exit_=False)
             continue
 
-        episode, all_episode_data = website.get_maximum_episode(bangumi=bangumi_obj, ignore_old_row=ignore,
-                                                                max_page=MAX_PAGE)
+        episode, all_episode_data = website.get_maximum_episode(
+            bangumi=bangumi_obj, ignore_old_row=ignore, max_page=MAX_PAGE)
 
         if (episode.get('episode') > subscribe['episode']) or (len(name) == 1 and download):
             if len(name) == 1 and download:
                 episode_range = download
             else:
                 episode_range = range(subscribe['episode'] + 1, episode.get('episode', 0) + 1)
-                print_success('%s updated, episode: %d' % (subscribe['bangumi_name'], episode['episode']))
+                print_success(
+                    '%s updated, episode: %d' %
+                    (subscribe['bangumi_name'], episode['episode']))
                 followed_obj.episode = episode['episode']
                 followed_obj.status = STATUS_UPDATED
                 followed_obj.updated_time = int(time.time())
                 followed_obj.save()
-                result['data']['updated'].append({'bangumi': subscribe['bangumi_name'], 'episode': episode['episode']})
+                result['data']['updated'].append(
+                    {'bangumi': subscribe['bangumi_name'], 'episode': episode['episode']})
 
             for i in episode_range:
                 for epi in all_episode_data:

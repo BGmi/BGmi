@@ -14,10 +14,15 @@ class TransmissionRPC(BaseDownloadService):
     def download(self):
         try:
             import transmission_rpc
-            client = transmission_rpc.Client(TRANSMISSION_RPC_URL, port=TRANSMISSION_RPC_PORT,
-                                             user=TRANSMISSION_RPC_USERNAME, password=TRANSMISSION_RPC_PASSWORD)
+            client = transmission_rpc.Client(
+                TRANSMISSION_RPC_URL,
+                port=TRANSMISSION_RPC_PORT,
+                user=TRANSMISSION_RPC_USERNAME,
+                password=TRANSMISSION_RPC_PASSWORD)
             client.add_torrent(self.torrent, download_dir=self.save_path)
-            print_info('Add torrent into the download queue, the file will be saved at {0}'.format(self.save_path))
+            print_info(
+                'Add torrent into the download queue, the file will be saved at {0}'.format(
+                    self.save_path))
         except ImportError:
             self.install()
 
@@ -38,8 +43,11 @@ class TransmissionRPC(BaseDownloadService):
         print_info('Print download status in transmission-rpc')
         try:
             import transmissionrpc
-            tc = transmissionrpc.Client(TRANSMISSION_RPC_URL, port=TRANSMISSION_RPC_PORT,
-                                        user=TRANSMISSION_RPC_USERNAME, password=TRANSMISSION_RPC_PASSWORD)
+            tc = transmissionrpc.Client(
+                TRANSMISSION_RPC_URL,
+                port=TRANSMISSION_RPC_PORT,
+                user=TRANSMISSION_RPC_USERNAME,
+                password=TRANSMISSION_RPC_PASSWORD)
             for torrent in tc.get_torrents():
                 print_info('  * {0}: {1}'.format(torrent.status, torrent), indicator=False)
         except ImportError:

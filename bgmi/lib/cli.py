@@ -8,10 +8,26 @@ import string
 import sys
 
 import bgmi.config
-from bgmi.lib.constants import (ACTION_ADD, ACTION_DOWNLOAD, ACTION_CONFIG, ACTION_DELETE, ACTION_MARK,
-                                ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH, ACTION_LIST,
-                                DOWNLOAD_CHOICE_LIST_DICT, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE,
-                                actions_and_arguments, ACTION_CONFIG_GEN, ACTION_LINK, ACTION_UNLINK)
+from bgmi.lib.constants import (
+    ACTION_ADD,
+    ACTION_DOWNLOAD,
+    ACTION_CONFIG,
+    ACTION_DELETE,
+    ACTION_MARK,
+    ACTION_SEARCH,
+    ACTION_FILTER,
+    ACTION_CAL,
+    ACTION_UPDATE,
+    ACTION_FETCH,
+    ACTION_LIST,
+    DOWNLOAD_CHOICE_LIST_DICT,
+    SPACIAL_APPEND_CHARS,
+    SPACIAL_REMOVE_CHARS,
+    SUPPORT_WEBSITE,
+    actions_and_arguments,
+    ACTION_CONFIG_GEN,
+    ACTION_LINK,
+    ACTION_UNLINK)
 from bgmi.lib.constants.actions import ACTION_COMPLETE, ACTIONS, ACTION_HISTORY
 from bgmi.lib.controllers import filter_, config, mark, delete, add, search, update, list_, unlink, link
 from bgmi.lib.download import download_prepare, get_download_class
@@ -32,8 +48,9 @@ def config_wrapper(ret):
             scheme = value.split('://')[0]
             if scheme not in schemes:
                 print_error(
-                    '{} if not a supported schemes, only support "`{}`"'.format(scheme, '`, `'.join(schemes.keys()))
-                )
+                    '{} if not a supported schemes, only support "`{}`"'.format(
+                        scheme, '`, `'.join(
+                            schemes.keys())))
                 return
 
     result = config(ret.name, ret.value)
@@ -99,8 +116,8 @@ def cal_wrapper(ret):
     if os.environ.get('DEBUG') or ret.show_source:
         for bangumi_list in weekly_list.values():
             for bangumi in bangumi_list:
-                bangumi['name'] = bangumi['name'] + ' {' + '{}' \
-                    .format(', '.join([x[:min(1, len(x))] for x in bangumi['data_source'].keys()]) + '}')
+                bangumi['name'] = bangumi['name'] + ' {' + '{}' .format(
+                    ', '.join([x[:min(1, len(x))] for x in bangumi['data_source'].keys()]) + '}')
 
     patch_list = runner.get_models_dict()
     for i in patch_list:
@@ -132,8 +149,12 @@ def cal_wrapper(ret):
 
     for weekday in weekday_order:
         if weekly_list[weekday.lower()]:
-            print('%s%s. %s' % (
-                GREEN, weekday if not ret.today else 'Bangumi Schedule for Today (%s)' % weekday, COLOR_END))
+            print(
+                '%s%s. %s' %
+                (GREEN,
+                 weekday if not ret.today else 'Bangumi Schedule for Today (%s)' %
+                 weekday,
+                 COLOR_END))
             print_line()
             for i, bangumi in enumerate(weekly_list[weekday.lower()]):
                 if bangumi['status'] in (STATUS_UPDATED, STATUS_FOLLOWED) and 'episode' in bangumi:
@@ -255,23 +276,32 @@ def complete(ret):
         helper[action_dict['action']] = action_dict.get('help', '')
 
     if 'bash' in os.getenv('SHELL').lower():  # bash
-        template_file_path = os.path.join(os.path.dirname(__file__), '..', 'others', '_bgmi_completion_bash.sh')
+        template_file_path = os.path.join(
+            os.path.dirname(__file__),
+            '..',
+            'others',
+            '_bgmi_completion_bash.sh')
 
     elif 'zsh' in os.getenv('SHELL').lower():  # zsh
-        template_file_path = os.path.join(os.path.dirname(__file__), '..', 'others', '_bgmi_completion_zsh.sh')
+        template_file_path = os.path.join(os.path.dirname(
+            __file__), '..', 'others', '_bgmi_completion_zsh.sh')
 
     else:
         print('unsupported shell {}'.format(os.getenv('SHELL').lower()), file=sys.stderr)
         return
 
-    template_with_content = render_template(template_file_path, ctx=dict(actions=ACTIONS,
-                                                                         bangumi=updating_bangumi_names,
-                                                                         config=all_config,
-                                                                         actions_and_opts=actions_and_opts,
-                                                                         source=[x['id'] for x in SUPPORT_WEBSITE],
-                                                                         helper=helper,
-                                                                         isinstance=isinstance,
-                                                                         string_types=str))
+    template_with_content = render_template(
+        template_file_path,
+        ctx=dict(
+            actions=ACTIONS,
+            bangumi=updating_bangumi_names,
+            config=all_config,
+            actions_and_opts=actions_and_opts,
+            source=[
+                x['id'] for x in SUPPORT_WEBSITE],
+            helper=helper,
+            isinstance=isinstance,
+            string_types=str))
     if os.environ.get('DEBUG', False):  # pragma: no cover
         with open('./_bgmi', 'w+', encoding='utf8') as template_file:
             template_file.write(template_with_content)
@@ -316,7 +346,8 @@ def history(ret):
                 print('  |\n  |--- %s%s%s\n  |      |' % (YELLOW, m[date.month - 1], COLOR_END))
                 month = date.month
 
-            print('  |      |--- [%s%-9s%s] (%-2s) %s' % (color, slogan, COLOR_END, i.episode, i.bangumi_name))
+            print('  |      |--- [%s%-9s%s] (%-2s) %s' %
+                  (color, slogan, COLOR_END, i.episode, i.bangumi_name))
 
 
 def config_gen(ret):

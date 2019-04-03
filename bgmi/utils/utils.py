@@ -97,12 +97,10 @@ if os.environ.get('DEV', False):  # pragma: no cover
             url = url.replace('http://', 'http://localhost:8092/http/')
         return url
 
-
     from copy import deepcopy
     from requests import Session
 
     origin_request = deepcopy(Session.request)
-
 
     def req(self, method, url, **kwargs):
         if os.environ.get('BGMI_SHOW_ALL_NETWORK_REQUEST'):
@@ -110,7 +108,6 @@ if os.environ.get('DEV', False):  # pragma: no cover
         url = replace_url(url)
         # traceback.print_stack(limit=8)
         return origin_request(self, method, url, **kwargs)
-
 
     Session.request = req
 
@@ -139,7 +136,11 @@ indicator_map = {
     'print_error': '[x] ',
 }
 
-NPM_REGISTER_DOMAIN = 'registry.npmjs.com' if os.environ.get('TRAVIS_CI', False) else 'registry.npm.taobao.org'
+if os.environ.get(
+        'TRAVIS_CI', False):
+    NPM_REGISTER_DOMAIN = 'registry.npmjs.com'
+else:
+    NPM_REGISTER_DOMAIN = 'registry.npm.taobao.org'
 FRONTEND_NPM_URL = 'https://{}/bgmi-frontend/'.format(NPM_REGISTER_DOMAIN)
 PACKAGE_JSON_URL = 'https://{}/bgmi-frontend/{}'.format(NPM_REGISTER_DOMAIN, __admin_version__)
 
@@ -220,8 +221,13 @@ def test_connection():
 
 def bug_report():  # pragma: no cover
     print_error('It seems that no bangumi found, if https://bangumi.moe can \n'
-                '    be opened normally, please submit issue at: https://github.com/BGmi/BGmi/issues',
+                '    be opened normally, '
+                'please submit issue at: https://github.com/BGmi/BGmi/issues',
                 exit_=True)
+
+
+def _parse_version(version_string):
+    return [int(x) for x in version_string.split('.')]
 
 
 @log_utils_function
@@ -257,6 +263,10 @@ def get_terminal_col():  # pragma: no cover
         return 80
 
 
+def _parse_version(s):
+    return [int(x) for x in s.split('.')]
+
+
 def update(mark=True):
     try:
         print_info('Checking update ...')
@@ -277,7 +287,7 @@ def update(mark=True):
         if glob.glob(os.path.join(config.FRONT_STATIC_PATH, 'package.json')):
             with open(os.path.join(config.FRONT_STATIC_PATH, 'package.json'), 'r') as f:
                 local_version = json.loads(f.read())['version']
-            if [int(x) for x in admin_version.split('.')] > [int(x) for x in local_version.split('.')]:
+            if _parse_version(admin_version) > _parse_version(local_version):
                 get_web_admin(method='update')
         else:
             print_info("Use 'bgmi install' to install BGmi frontend / download delegate")

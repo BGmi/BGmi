@@ -92,7 +92,8 @@ class BangumiList(list):
         for item in e:
             for data_source_key in item['data_source']:
                 if not isinstance(item['data_source'][data_source_key], dict):
-                    item['data_source'][data_source_key] = model_to_dict(item['data_source'][data_source_key])
+                    item['data_source'][data_source_key] = model_to_dict(
+                        item['data_source'][data_source_key])
         return e
 
     def merge_another_bangumi_list(self, source: str, another_bangumi_list: List, ):
@@ -151,7 +152,8 @@ class BangumiList(list):
     def add_bangumi(self, source: str, bangumi: Union[dict, BangumiItem, Bangumi], set_status=None):
         if isinstance(bangumi, (BangumiItem, Bangumi)):
             bangumi = model_to_dict(bangumi)
-        similarity_list = list(map(lambda x: similarity_of_two_name(bangumi['name'], x.subject_name), self))
+        similarity_list = list(map(lambda x: similarity_of_two_name(
+            bangumi['name'], x.subject_name), self))
         max_similarity = max(similarity_list)
 
         if max_similarity >= self.threshold:
@@ -307,7 +309,9 @@ class DataSource:
 
         for data_source_id, data in bangumi_result.items():
             for item in data:
-                bangumi_calendar.add_bangumi(source=data_source_id, bangumi=item, set_status=STATUS_UPDATING)
+                bangumi_calendar.add_bangumi(source=data_source_id,
+                                             bangumi=item,
+                                             set_status=STATUS_UPDATING)
 
         bangumi_calendar = BangumiList([x for x in bangumi_calendar if x.data_source])
         Bangumi.delete_all()
@@ -348,8 +352,10 @@ class DataSource:
 
         # :type data: dict
         """
-        b, obj_created = Bangumi.get_or_create(name=data.name,
-                                               defaults=model_to_dict(data, recurse=True))  # type: (Bangumi, bool)
+        b, obj_created = Bangumi.get_or_create(
+            name=data.name,
+            defaults=model_to_dict(data, recurse=True)
+        )  # type: (Bangumi, bool)
         if not obj_created:
             if b != data:
                 b.cover = data.cover
@@ -435,7 +441,9 @@ class DataSource:
         :param ignore_old_row:
         :type bangumi: Bangumi
         """
-        followed_filter_obj, _ = Followed.get_or_create(bangumi_name=bangumi.name)  # type : (Filter, bool)
+        followed_filter_obj, _ = Followed.get_or_create(
+            bangumi_name=bangumi.name
+        )  # type : (Filter, bool)
 
         data = [i for i in self.fetch_episode(bangumi_obj=bangumi,
                                               filter_obj=followed_filter_obj,
@@ -443,7 +451,8 @@ class DataSource:
                 if i['episode'] is not None]
 
         if ignore_old_row:
-            data = [row for row in data if row['time'] > int(time.time()) - 3600 * 24 * 30 * 3]  # three month
+            data = [row for row in data if row['time'] > int(
+                time.time()) - 3600 * 24 * 30 * 3]  # three month
 
         if data:
             bangumi = max(data, key=lambda _i: _i['episode'])
@@ -509,9 +518,8 @@ class DataSource:
             weekly_list[k].extend(v)
         for bangumi_list in weekly_list.values():
             for bangumi in bangumi_list:
-                bangumi['subtitle_group'] = [{'name': x['name'],
-                                              'id': x['id']} for x in
-                                             Subtitle.get_subtitle_from_data_source_dict(bangumi['data_source'])]
+                bangumi['subtitle_group'] = [{'name': x['name'], 'id': x['id']}
+                                             for x in Subtitle.get_subtitle_from_data_source_dict(bangumi['data_source'])]
         return weekly_list
 
     @staticmethod

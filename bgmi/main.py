@@ -24,10 +24,15 @@ def signal_handler(s, h):  # pragma: no cover # pylint: disable=W0613
 signal.signal(signal.SIGINT, signal_handler)
 
 # main function
+
+
 def main(program_name='bgmi'):
     c = argparse.ArgumentParser(prog=program_name)
 
-    c.add_argument('--version', help='Show the version of BGmi.', action='version', version=print_version())
+    c.add_argument('--version',
+                   help='Show the version of BGmi.',
+                   action='version',
+                   version=print_version())
 
     sub_parser = c.add_subparsers(help='BGmi actions', dest='action')
 

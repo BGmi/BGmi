@@ -155,9 +155,9 @@ class BangumiItem(pw.Model):
 
     def __eq__(self, data):
         return self.cover == data.cover \
-               and self.status == data.status \
-               and self.update_time == data.update_time \
-               and set(self.subtitle_group) == set(data.subtitle_group)
+            and self.status == data.status \
+            and self.update_time == data.update_time \
+            and set(self.subtitle_group) == set(data.subtitle_group)
 
 
 class Bangumi(NeoDB):
@@ -184,8 +184,8 @@ class Bangumi(NeoDB):
 
     @classmethod
     def delete_all(cls):
-        un_updated_bangumi = Followed.select() \
-            .where(Followed.updated_time > (int(time.time()) - 2 * SECOND_OF_WEEK))  # type: List[Followed]
+        un_updated_bangumi = Followed.select() .where(Followed.updated_time > (
+            int(time.time()) - 2 * SECOND_OF_WEEK))  # type: List[Followed]
         if os.getenv('DEBUG'):  # pragma: no cover
             print('ignore updating bangumi', [x.bangumi_name for x in un_updated_bangumi])
 
@@ -223,8 +223,9 @@ class Bangumi(NeoDB):
         elif isinstance(bangumi, BangumiItem):
             self.data_source[source] = bangumi
         else:
-            raise ValueError('data_source item must be type dict or BangumiItem, can\'t be {} {}'.format(type(bangumi),
-                                                                                                         bangumi))
+            raise ValueError(
+                'data_source item must be type dict or BangumiItem, can\'t be {} {}'.format(
+                    type(bangumi), bangumi))
 
     def get_subtitle_of_bangumi(self) -> 'List[Subtitle]':
         return Subtitle.get_subtitle_of_bangumi(self)
@@ -252,11 +253,11 @@ class Bangumi(NeoDB):
 
     def __eq__(self, data):
         return self.cover == data.cover \
-               and self.status == data.status \
-               and self.subject_id == data.subject_id \
-               and self.update_time == data.update_time \
-               and self.subject_name == data.subject_name \
-               and self.to_d(self.data_source) == self.to_d(data.data_source)
+            and self.status == data.status \
+            and self.subject_id == data.subject_id \
+            and self.update_time == data.update_time \
+            and self.subject_name == data.subject_name \
+            and self.to_d(self.data_source) == self.to_d(data.data_source)
         # and not set(set(self.bangumi_names) - set(data.bangumi_names)) \
 
     def __hash__(self):
@@ -307,7 +308,8 @@ class Followed(NeoDB):
 
         return list(d)
 
-    def apply_keywords_filter_on_list_of_episode(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    def apply_keywords_filter_on_list_of_episode(
+            self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
         episode_list = self.apply_include(episode_list)
         episode_list = self.apply_exclude(episode_list)
         episode_list = self.apply_regex(episode_list)
@@ -427,9 +429,11 @@ class Subtitle(NeoDB):
         for data_source_id, subtitle_group_lists in subtitle_group_list.items():
             for subtitle_group in subtitle_group_lists:
                 with db.atomic():
-                    s, if_created = Subtitle.get_or_create(id=str(subtitle_group['id']),
-                                                           data_source=data_source_id,
-                                                           defaults={'name': str(subtitle_group['name'])})
+                    s, if_created = Subtitle.get_or_create(
+                        id=str(
+                            subtitle_group['id']), data_source=data_source_id, defaults={
+                            'name': str(
+                                subtitle_group['name'])})
                     if not if_created:
                         if s.name != str(subtitle_group['name']):
                             s.name = str(subtitle_group['name'])

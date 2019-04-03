@@ -65,7 +65,11 @@ def download_prepare(data):
     """
     queue = save_to_bangumi_download_queue(data)
     for download in queue:
-        save_path = os.path.join(os.path.join(SAVE_PATH, normalize_path(download.name)), str(download.episode))
+        save_path = os.path.join(
+            os.path.join(
+                SAVE_PATH, normalize_path(
+                    download.name)), str(
+                download.episode))
         if not os.path.exists(save_path):
             os.makedirs(save_path)
 

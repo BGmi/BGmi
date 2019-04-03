@@ -33,7 +33,9 @@ def get_player(bangumi_name):
         for bangumi in files:
             if any([bangumi.lower().endswith(x) for x in ['.mp4', '.mkv', '.webm']]):
                 video_file_path = os.path.join(base_path, bangumi)
-                video_file_path = os.path.join(os.path.dirname(video_file_path), os.path.basename(video_file_path))
+                video_file_path = os.path.join(
+                    os.path.dirname(video_file_path),
+                    os.path.basename(video_file_path))
                 video_file_path = video_file_path.replace(os.path.sep, '/')
                 episode_list[episode] = {'path': video_file_path}
                 break
@@ -59,7 +61,8 @@ class IndexHandler(BaseHandler):
 
 class BangumiListHandler(BaseHandler):
     def get(self, type_=''):
-        data = Followed.get_all_followed(STATUS_DELETED, STATUS_UPDATING if type_ != 'old' else STATUS_END)
+        data = Followed.get_all_followed(STATUS_DELETED,
+                                         STATUS_UPDATING if type_ != 'old' else STATUS_END)
 
         if type_ == 'index':
             data.extend(self.patch_list)

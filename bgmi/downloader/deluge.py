@@ -41,7 +41,9 @@ class DelugeRPC(BaseDownloadService):
 
         e = self._call('web.add_torrents', [[options]])
 
-        print_info('Add torrent into the download queue, the file will be saved at {0}'.format(self.save_path))
+        print_info(
+            'Add torrent into the download queue, the file will be saved at {0}'.format(
+                self.save_path))
 
         return e
 

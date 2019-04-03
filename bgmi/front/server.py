@@ -23,7 +23,9 @@ if os.environ.get('DEV'):  # pragma: no cover
     def prepare(self):
         self.set_header('Access-Control-Allow-Origin', 'http://localhost:8080')
         self.set_header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-        self.set_header("Access-Control-Allow-Headers", "Content-Type, bgmi-token, X-Requested-With")
+        self.set_header(
+            "Access-Control-Allow-Headers",
+            "Content-Type, bgmi-token, X-Requested-With")
 
     tornado.web.RequestHandler.prepare = prepare
 

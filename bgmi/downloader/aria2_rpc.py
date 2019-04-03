@@ -40,7 +40,9 @@ class Aria2DownloadRPC(BaseDownloadService):
             self.server.aria2.addUri([self.torrent], {"dir": self.save_path})
         else:
             self.server.aria2.addUri(ARIA2_RPC_TOKEN, [self.torrent], {"dir": self.save_path})
-        print_info('Add torrent into the download queue, the file will be saved at {0}'.format(self.save_path))
+        print_info(
+            'Add torrent into the download queue, the file will be saved at {0}'.format(
+                self.save_path))
 
     @staticmethod
     def check_aria2c_version():

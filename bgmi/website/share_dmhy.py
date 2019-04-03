@@ -22,7 +22,9 @@ def fetch_url(url, **kwargs):
     try:
         ret = requests.get(url, **kwargs).text
     except requests.ConnectionError:
-        print_error('Create connection to {site}... failed'.format(site=SHARE_DMHY_URL), exit_=False)
+        print_error('Create connection to {site}...'
+                    ' failed'.format(site=SHARE_DMHY_URL),
+                    exit_=False)
         print_error(
             'Check internet connection or try to set a DMHY mirror site via: bgmi config SHARE_DMHY_URL <site url>')
 
@@ -30,7 +32,9 @@ def fetch_url(url, **kwargs):
 
 
 def parse_bangumi_with_week_days(content, update_time, array_name):
-    r = re.compile(array_name + '\.push\(\[\'(.*?)\',\'(.*?)\',\'(.*?)\',\'(.*?)\',\'(.*?)\'\]\)')
+    r = re.compile(
+        array_name +
+        r'\.push\(\[\'(.*?)\',\'(.*?)\',\'(.*?)\',\'(.*?)\',\'(.*?)\'\]\)')
     ret = r.findall(content)
 
     bangumi_list = []
@@ -87,7 +91,7 @@ def parse_subtitle_list(content):
 
     for li in li_list:
         subtitle_group_name = li.span.a.get('title')
-        subtitle_group_id_raw = re.findall('team_id\/(.+)$', li.span.a.get('href'))
+        subtitle_group_id_raw = re.findall('team_id/(.+)$', li.span.a.get('href'))
 
         if (len(subtitle_group_id_raw) == 0) or subtitle_group_name == '':
             continue
@@ -323,7 +327,7 @@ class DmhySource(BaseWebsite):
                     if href is None:
                         continue
 
-                    team_id_raw = re.findall('team_id\/(.*)$', href)
+                    team_id_raw = re.findall('team_id/(.*)$', href)
                     if len(team_id_raw) == 0:
                         continue
                     subtitle_group = team_id_raw[0]

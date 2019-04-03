@@ -4,7 +4,8 @@ import sqlite3
 from playhouse import db_url
 
 from bgmi import config
-from bgmi.lib.models import Bangumi, Subtitle, Followed, Download, BangumiItem, BangumiLink, Scripts
+from bgmi.lib.models import Bangumi, Subtitle, Followed, Download, BangumiItem, BangumiLink
+from bgmi.lib.models._tables import Scripts
 from bgmi.utils import print_error
 
 
@@ -16,19 +17,21 @@ def init_db():
     if 'mysql' in schema:
         import pymysql
 
-        conn = pymysql.connect(host=database.get('host'),
-                               user=database.get('user'),
-                               password=database.get('password'))
+        conn = pymysql.connect(
+            host=database.get('host'),
+            user=database.get('user'),
+            password=database.get('password'))
         conn.cursor().execute(
-            'CREATE DATABASE IF NOT EXISTS {} default character set utf8mb4 collate utf8mb4_unicode_ci;'.format(db_name)
-        )
+            'CREATE DATABASE IF NOT EXISTS {} default character set utf8mb4 collate utf8mb4_unicode_ci;'
+            .format(db_name))
         conn.close()
 
     elif 'sqlite' in schema:
         try:
             sqlite3.connect(db_name)
         except sqlite3.OperationalError:
-            print_error('Open database file failed, path %s is not writable.' % config.BGMI_PATH)
+            print_error('Open database file failed, path %s is not writable.' %
+                        config.BGMI_PATH)
     else:
         print_error('unsupported database, not only support sqlite and mysql')
         return
