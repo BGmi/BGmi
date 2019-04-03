@@ -17,7 +17,6 @@ from shutil import rmtree, move
 from typing import Union, TextIO
 
 import requests
-import urllib3
 from tornado import template
 
 from bgmi import __version__, __admin_version__, config
@@ -86,31 +85,6 @@ def disable_in_test(func):
     return echo_func
 
 
-urllib3.disable_warnings()
-
-# monkey patch for dev
-if os.environ.get('DEV', False):  # pragma: no cover
-    def replace_url(url):
-        if url.startswith('https://'):
-            url = url.replace('https://', 'http://localhost:8092/https/')
-        elif url.startswith('http://'):
-            url = url.replace('http://', 'http://localhost:8092/http/')
-        return url
-
-    from copy import deepcopy
-    from requests import Session
-
-    origin_request = deepcopy(Session.request)
-
-    def req(self, method, url, **kwargs):
-        if os.environ.get('BGMI_SHOW_ALL_NETWORK_REQUEST'):
-            print(url)
-        url = replace_url(url)
-        # traceback.print_stack(limit=8)
-        return origin_request(self, method, url, **kwargs)
-
-    Session.request = req
-
 if sys.platform.startswith('win'):  # pragma: no cover
     GREEN = ''
     YELLOW = ''
@@ -136,8 +110,7 @@ indicator_map = {
     'print_error': '[x] ',
 }
 
-if os.environ.get(
-        'TRAVIS_CI', False):
+if os.environ.get('TRAVIS_CI', False):
     NPM_REGISTER_DOMAIN = 'registry.npmjs.com'
 else:
     NPM_REGISTER_DOMAIN = 'registry.npm.taobao.org'
@@ -447,7 +420,9 @@ def exec_command(command: str) -> int:
     return status
 
 
-def render_template(path_or_file: Union[str, Path, TextIO], ctx: dict = None, **kwargs):
+def render_template(path_or_file: Union[str, Path, TextIO],
+                    ctx: dict = None,
+                    **kwargs):
     """
     read file content and render it as tornado template with kwargs or ctx
 
@@ -467,6 +442,4 @@ def render_template(path_or_file: Union[str, Path, TextIO], ctx: dict = None, **
         with open(str(path_or_file), 'r', encoding='utf8') as f:
             content = f.read()
     template_obj = template.Template(content, autoescape='')
-    template_with_content = template_obj.generate(**(ctx or kwargs))  # type: bytes
-    template_with_content = template_with_content.decode('utf-8')
-    return template_with_content
+    return template_obj.generate(**(ctx or kwargs)).decode('utf-8')

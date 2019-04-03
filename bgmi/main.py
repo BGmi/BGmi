@@ -23,10 +23,9 @@ def signal_handler(s, h):  # pragma: no cover # pylint: disable=W0613
 
 signal.signal(signal.SIGINT, signal_handler)
 
+
 # main function
-
-
-def main(program_name='bgmi'):
+def main(argv=None, program_name='bgmi'):
     c = argparse.ArgumentParser(prog=program_name)
 
     c.add_argument('--version',
@@ -44,7 +43,7 @@ def main(program_name='bgmi'):
             if isinstance(sub_action['dest'], list):
                 tmp_sub_parser.add_argument(*sub_action['dest'], **sub_action['kwargs'])
 
-    ret = c.parse_args()
+    ret = c.parse_args(argv)
     if ret.action == 'install':
         setup()
         import bgmi.setup
@@ -60,6 +59,8 @@ def main(program_name='bgmi'):
         try:
             check_update()
         except peewee.OperationalError:
+            if os.getenv('DEBUG'):
+                raise
             print_error('call `bgmi install` to install bgmi')
 
         controllers(ret)
