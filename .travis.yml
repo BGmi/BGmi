@@ -110,7 +110,7 @@ before_install:
     fi
 install:
   - pip install -r requirements.txt
-  - pip install -r test_requirements.txt
+  - pip install -r requirements-test.txt
   - python setup.py install
   - if [[ "$DB" == "mysql" ]]; then pip install pymysql; fi
   - pip install codecov
@@ -118,6 +118,7 @@ install:
 
 script:
   - python --version
+  - pycodestyle -r ./bgmi/
   - coverage run -a -m bgmi.main
   - cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
 

@@ -10,7 +10,7 @@ from bgmi import __version__, __author__, __email__
 with open('requirements.txt', 'r') as f:
     requirements = f.read().splitlines()
 
-with open('test_requirements.txt', 'r') as f:
+with open('requirements-test.txt', 'r') as f:
     test_requirements = f.read().splitlines()
 
 
