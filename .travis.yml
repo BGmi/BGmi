@@ -18,7 +18,7 @@ env:
     - TRAVIS_CI=TRAVIS_CI
     - BGMI_LOG=debug
     - BANGUMI_1=名侦探柯南
-    - BANGUMI_2=刃牙
+    - BANGUMI_2=妖怪手表
     - BANGUMI_3=海贼王
   # make matrix
   matrix:
@@ -30,6 +30,8 @@ services:
 
 matrix:
   fast_finish: true
+  allow_failures:
+    -   python: 'pypy3.5'
 
   include:
     -   python: '3.7'
@@ -40,7 +42,7 @@ matrix:
         dist: xenial
         env: DB=mysql
 
-    # todo: don't know how to install old python on osx seems that travis can do it by itself
+    # todo: don't know how to install old python on osx
     -   os: osx
         language: generic
         python: "3.7"
@@ -103,24 +105,31 @@ cache: pip
 
 before_install:
   - if [[ $TRAVIS_OS_NAME == "osx" ]]; then brew update > /dev/null && brew install mariadb && mysql.server start; fi
-  - if [[ "$DB" == "mysql" ]]; then mysql -e 'CREATE DATABASE IF NOT EXISTS test DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_general_ci;'; fi
+  - |
+    if [[ "$DB" == "mysql" ]]; then
+      mysql -e 'CREATE DATABASE IF NOT EXISTS bgmi DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_general_ci;';
+    fi
   - |
     if [ "${TRAVIS_OS_NAME}" == "windows" ]; then
         python -m pip install --upgrade pip wheel
     fi
+  - pip install codecov
+
 install:
   - pip install -r requirements.txt
   - pip install -r requirements-test.txt
   - python setup.py install
   - if [[ "$DB" == "mysql" ]]; then pip install pymysql; fi
-  - pip install codecov
-  - pip install python-Levenshtein
 
 script:
   - python --version
   - pycodestyle -r ./bgmi/
-  - coverage run -a -m bgmi.main
-  - cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
+  - coverage run -a -m bgmi install
+  - |
+   if [[ "$DB" == "mysql" ]]; then
+     bgmi config DB_URL 'mysql+pool://root:@127.0.0.1:3306/bgmi?charset=utf8mb4';
+     coverage run -a -m bgmi install;
+   fi
 
   - bash tests/init_env_and_run_unit_test.sh test_website
   - bash tests/init_env_and_run_unit_test.sh test_utils
@@ -130,37 +139,41 @@ script:
   - bash tests/init_env_and_run_unit_test.sh test_config
   - bash tests/init_env_and_run_unit_test.sh test_download_delegate
 #  - UNITTEST=1 BGMI_LOG=info coverage run -a -m unittest tests.test_http_api -v
+  - cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
 
   - rm ~/.bgmi -rf
-
-  - coverage run -a -m bgmi.main install
-  - bgmi -h
-
+  - coverage run -a -m bgmi install
   - cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
-#  - bgmi cal
-  - coverage run -a -m bgmi.main gen nginx.conf --server-name _
+
   - if [[ "$DB" == "mysql" ]]; then bgmi config DB_URL 'mysql+pool://root:@127.0.0.1:3306/bgmi?charset=utf8mb4';bgmi install; fi
 
-  - coverage run -a -m bgmi.main cal -f
-  - coverage run -a -m bgmi.main config
-  - coverage run -a -m bgmi.main config ADMIN_TOKEN 233
-  - coverage run -a -m bgmi.main config DOWNLOAD_DELEGATE 'aria2-rpc'
-  - coverage run -a -m bgmi.main add $BANGUMI_1 $BANGUMI_2 $BANGUMI_3
-  - coverage run -a -m bgmi.main update
-  - coverage run -a -m bgmi.main delete --name $BANGUMI_3
-  - coverage run -a -m bgmi.main delete --clear-all --batch
-  - coverage run -a -m bgmi.main add $BANGUMI_2 --episode 1
-  - coverage run -a -m bgmi.main fetch $BANGUMI_2
-  - coverage run -a -m bgmi.main list
+  - bgmi -h
+  - coverage run -a -m bgmi gen nginx.conf --server-name _
+  - coverage run -a -m bgmi cal -f
+  - coverage run -a -m bgmi cal
+  - coverage run -a -m bgmi config
+  - coverage run -a -m bgmi config ADMIN_TOKEN 233
+  - coverage run -a -m bgmi config DOWNLOAD_DELEGATE 'aria2-rpc'
 
-  - coverage run -a -m bgmi.main mark $BANGUMI_2 1
-  - coverage run -a -m bgmi.main update $BANGUMI_2
-  - coverage run -a -m bgmi.main filter $BANGUMI_2 --subtitle "" --exclude "MKV" --regex "720p|720P"
-  - coverage run -a -m bgmi.main fetch $BANGUMI_2
+  - coverage run -a -m bgmi add $BANGUMI_1 $BANGUMI_2 $BANGUMI_3
+  - coverage run -a -m bgmi update
+  - coverage run -a -m bgmi delete --name $BANGUMI_3
+  - coverage run -a -m bgmi delete --clear-all --batch
+  - coverage run -a -m bgmi add $BANGUMI_2 --episode 1
+  - coverage run -a -m bgmi fetch $BANGUMI_2
 
-  - coverage run -a -m bgmi.main search "海贼王" --regex-filter '.*MP4.*720P.*' --min-episode 800 --max-episode 900
+  # todo: reafactor bgmi.lib.models._tables.Subtitle#get_subtitle_from_data_source_dict
+#  - coverage run -a -m bgmi list
 
-  - eval "$(coverage run -a -m bgmi.main complete)"
+  - coverage run -a -m bgmi mark $BANGUMI_2 1
+  - coverage run -a -m bgmi update $BANGUMI_2
+  # todo: reafactor bgmi.lib.models._tables.Subtitle#get_subtitle_of_bangumi
+#  - coverage run -a -m bgmi filter $BANGUMI_2 --subtitle "" --exclude "MKV" --regex "720p|720P"
+  - coverage run -a -m bgmi fetch $BANGUMI_2
+
+  - coverage run -a -m bgmi search "海贼王" --regex-filter '.*MP4.*720P.*' --min-episode 800 --max-episode 900
+
+  - eval "$(coverage run -a -m bgmi complete)"
 
 after_success:
   - codecov

@@ -154,7 +154,7 @@ class DataSource:
         bangumi_result = get_updating_bangumi_with_data_source(order=group_by_weekday)
         if not bangumi_result:
             print('no result return None')
-            return []
+            return defaultdict(list)
         return bangumi_result
 
     @staticmethod
@@ -373,29 +373,23 @@ def find_most_similar_index(container, name):
 
 
 def bind_bangumi_item_in_db_to_bangumi():
-    with db.atomic() as txn:
-        try:
-            bangumi_item_list = list(BangumiItem.get_unmarked_updating_bangumi())
-            bangumi_list = list(Bangumi.get_updating_bangumi(order=False, obj=True))
-            for bangumi in bangumi_item_list:
-                value, index = (find_most_similar_index(bangumi_list, bangumi.name))
-                if value > THRESHOLD:
-                    bangumi.bangumi = bangumi_list[index].id
-                    bangumi_list[index].has_data_source = 1
-                    print(bangumi_list[index])
-                    bangumi_list[index].save()
-                    bangumi.save()
+    bangumi_item_list = list(BangumiItem.get_unmarked_updating_bangumi())
+    bangumi_list = list(Bangumi.get_updating_bangumi(order=False, obj=True))
+    for bangumi in bangumi_item_list:
+        value, index = find_most_similar_index(bangumi_list, bangumi.name)
+        if value > THRESHOLD:
+            bangumi.bangumi = bangumi_list[index].id
+            bangumi_list[index].has_data_source = 1
+            bangumi_list[index].save()
+            bangumi.save()
 
-            bangumi_item_list = list(BangumiItem.get_marked_updating_bangumi())
-            Bangumi.update(has_data_source=1)\
-                .where(Bangumi.id.in_([x.bangumi for x in bangumi_item_list]) &
-                       (Bangumi.status == Bangumi.STATUS.UPDATING)).execute()
-            Bangumi.update(has_data_source=0) \
-                .where(Bangumi.id.not_in([x.bangumi for x in bangumi_item_list]) &
-                       (Bangumi.status == Bangumi.STATUS.UPDATING)).execute()
-        except BaseException:
-            txn.rollback()
-            raise
+    bangumi_item_list = list(BangumiItem.get_marked_updating_bangumi())
+    Bangumi.update(has_data_source=1)\
+        .where(Bangumi.id.in_([x.bangumi for x in bangumi_item_list]) &
+               (Bangumi.status == Bangumi.STATUS.UPDATING)).execute()
+    Bangumi.update(has_data_source=0) \
+        .where(Bangumi.id.not_in([x.bangumi for x in bangumi_item_list]) &
+               (Bangumi.status == Bangumi.STATUS.UPDATING)).execute()
 
 
 if __name__ == '__main__':

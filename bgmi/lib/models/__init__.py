@@ -14,8 +14,8 @@ DoesNotExist = pw.DoesNotExist
 
 def get_updating_bangumi_with_data_source(status=None, order=True):
     common_cond = ((Bangumi.status == Bangumi.STATUS.UPDATING) &
-                   (Bangumi.status == Bangumi.STATUS.UPDATING) &
                    (Bangumi.has_data_source == 1))
+
     query = Bangumi.select(Followed.status, Followed.episode, Bangumi) \
         .join(Followed, pw.JOIN.LEFT_OUTER, on=(Bangumi.name == Followed.bangumi_name))
 

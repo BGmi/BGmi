@@ -3,16 +3,18 @@
 import argparse
 import os
 import signal
+import time
 
 import peewee
 
 from bgmi.config import BGMI_PATH
 from bgmi.lib.cli import controllers
 from bgmi.lib.constants import actions_and_arguments
+from bgmi.lib.models import get_kv_storage
 from bgmi.lib.update import upgrade_version
 from bgmi.setup import create_dir, install_crontab
 from bgmi.sql import init_db
-from bgmi.utils import print_warning, print_error, print_version, check_update, get_web_admin
+from bgmi.utils import print_warning, print_error, print_version, check_update, get_web_admin, constants
 
 
 # global Ctrl-C signal handler
@@ -28,10 +30,9 @@ signal.signal(signal.SIGINT, signal_handler)
 def main(argv=None, program_name='bgmi'):
     c = argparse.ArgumentParser(prog=program_name)
 
-    c.add_argument('--version',
-                   help='Show the version of BGmi.',
-                   action='version',
-                   version=print_version())
+    c.add_argument(
+        '--version', help='Show the version of BGmi.', action='version', version=print_version()
+    )
 
     sub_parser = c.add_subparsers(help='BGmi actions', dest='action')
 
@@ -50,6 +51,7 @@ def main(argv=None, program_name='bgmi'):
         bgmi.setup.install()
         get_web_admin(method='install')
         init_db()
+        get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = int(time.time())
     elif ret.action == 'upgrade':
         create_dir()
         upgrade_version()
@@ -74,5 +76,4 @@ def setup():
 
 
 if __name__ == '__main__':
-    setup()
     main()

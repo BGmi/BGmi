@@ -142,10 +142,8 @@ class BangumiTest(Base, TestCase):
             self.assertEqual(bangumi.status, models.Bangumi.STATUS.END)
 
     def test_get_updating_bangumi(self):
-        bgm_followed = [
-            '海贼王',
-        ]
-
+        old_bangumi = ['机动奥特曼']
+        bgm_followed = ['海贼王']
         bgm_updated = ['名侦探柯南']
 
         b1 = Bangumi.get_updating_bangumi(status=Followed.STATUS.FOLLOWED, order=True)
@@ -164,7 +162,13 @@ class BangumiTest(Base, TestCase):
                 self.assertIn(v['name'], bgm_updated)
 
         for bangumi in b3:
-            self.assertIn(bangumi['name'], bgm_followed + bgm_updated)
+            self.assertIn(bangumi['name'], [
+                "机动奥特曼",
+                "川柳少女",
+                "名侦探柯南",
+                "海贼王",
+                "汉化日记",
+            ])
 
     def test_get_all_bangumi(self):
         Bangumi.delete().execute()
