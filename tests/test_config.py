@@ -44,14 +44,14 @@ class WriteConfigTest(base, unittest.TestCase):
         if old_bgmi_path:
             del os.environ['BGMI_PATH']
 
-        with patch('bgmi.config.platform.system', Mock(return_value='Windows')):
+        with patch('bgmi.config.IS_WINDOWS', True):
             raw_home = os.environ.get('USERPROFILE')
             os.environ['USERPROFILE'] = 'windows profile'
             self.assertEqual(bgmi.config.get_bgmi_path(), os.path.join('windows profile', '.bgmi'))
             if raw_home:
                 os.environ['USERPROFILE'] = raw_home
 
-        with patch('bgmi.config.platform.system', Mock(return_value='Linux')):
+        with patch('bgmi.config.IS_WINDOWS', False):
             raw_home = os.environ['HOME']
             os.environ['HOME'] = 'linux profile'
             self.assertEqual(bgmi.config.get_bgmi_path(), os.path.join('linux profile', '.bgmi'))

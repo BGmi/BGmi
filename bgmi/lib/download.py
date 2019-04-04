@@ -8,7 +8,7 @@ from bgmi.config import SAVE_PATH, DOWNLOAD_DELEGATE
 from bgmi.downloader.aria2_rpc import Aria2DownloadRPC
 from bgmi.downloader.deluge import DelugeRPC
 from bgmi.downloader.transmissionRpc import TransmissionRPC
-from bgmi.lib.models import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download
+from bgmi.lib.models import Download
 from bgmi.utils import print_error, normalize_path
 
 DOWNLOAD_DELEGATE_DICT = {
@@ -18,14 +18,19 @@ DOWNLOAD_DELEGATE_DICT = {
 }
 
 
-def get_download_class(download_obj=None, save_path='', overwrite=True, instance=True):
+def get_download_class(download_obj=None,
+                       save_path='',
+                       overwrite=True,
+                       instance=True):
     if DOWNLOAD_DELEGATE not in DOWNLOAD_DELEGATE_DICT:
         print_error('unexpected delegate {0}'.format(DOWNLOAD_DELEGATE))
 
     delegate = DOWNLOAD_DELEGATE_DICT.get(DOWNLOAD_DELEGATE)
 
     if instance:
-        delegate = delegate(download_obj=download_obj, overwrite=overwrite, save_path=save_path)
+        delegate = delegate(download_obj=download_obj,
+                            overwrite=overwrite,
+                            save_path=save_path)
 
     return delegate
 
@@ -65,12 +70,13 @@ def download_prepare(data):
     """
     queue = save_to_bangumi_download_queue(data)
     for download in queue:
-        save_path = os.path.join(os.path.join(SAVE_PATH, normalize_path(download.name)), str(download.episode))
+        save_path = os.path.join(
+            os.path.join(SAVE_PATH, normalize_path(download.name)), str(download.episode))
         if not os.path.exists(save_path):
             os.makedirs(save_path)
 
         # mark as downloading
-        download.status = STATUS_DOWNLOADING
+        download.status = Download.STATUS.DOWNLOADING
         download.save()
 
         try:
@@ -85,7 +91,7 @@ def download_prepare(data):
         except Exception as e:  # pylint: disable=W0703
             handle_specific_exception(e)
 
-            download.status = STATUS_NOT_DOWNLOAD
+            download.status = Download.STATUS.NOT_DOWNLOAD
             download.save()
 
             if os.getenv('DEBUG'):  # pragma: no cover
@@ -109,9 +115,11 @@ def save_to_bangumi_download_queue(data):
     """
     queue = []
     for i in data:
-        download, _ = Download.get_or_create(title=i['title'], download=i['download'],
-                                             name=i['name'], episode=i['episode'],
-                                             status=STATUS_NOT_DOWNLOAD)
+        download, _ = Download.get_or_create(title=i['title'],
+                                             download=i['download'],
+                                             name=i['name'],
+                                             episode=i['episode'],
+                                             status=Download.STATUS.NOT_DOWNLOAD)
 
         queue.append(download)
 

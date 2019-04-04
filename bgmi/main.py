@@ -3,20 +3,22 @@
 import argparse
 import os
 import signal
+import time
 
-from six import string_types
+import peewee
 
 from bgmi.config import BGMI_PATH
 from bgmi.lib.cli import controllers
 from bgmi.lib.constants import actions_and_arguments
-from bgmi.lib.update import update_database
+from bgmi.lib.models import get_kv_storage
+from bgmi.lib.update import upgrade_version
 from bgmi.setup import create_dir, install_crontab
 from bgmi.sql import init_db
-from bgmi.utils import print_warning, print_error, print_version, check_update, get_web_admin
+from bgmi.utils import print_warning, print_error, print_version, check_update, get_web_admin, constants
 
 
 # global Ctrl-C signal handler
-def signal_handler(ken):  # pragma: no cover # pylint: disable=W0613
+def signal_handler(s, h):  # pragma: no cover # pylint: disable=W0613
 
     print_error('User aborted, quit')
 
@@ -25,51 +27,53 @@ signal.signal(signal.SIGINT, signal_handler)
 
 
 # main function
-def main():
-    setup()
-    c = argparse.ArgumentParser()
+def main(argv=None, program_name='bgmi'):
+    c = argparse.ArgumentParser(prog=program_name)
 
-    c.add_argument('--version', help='Show the version of BGmi.', action='version', version=print_version())
+    c.add_argument(
+        '--version', help='Show the version of BGmi.', action='version', version=print_version()
+    )
 
     sub_parser = c.add_subparsers(help='BGmi actions', dest='action')
 
     for action in actions_and_arguments:
         tmp_sub_parser = sub_parser.add_parser(action['action'], help=action.get('help', ''))
         for sub_action in action.get('arguments', []):
-            if isinstance(sub_action['dest'], string_types):
+            if isinstance(sub_action['dest'], str):
                 tmp_sub_parser.add_argument(sub_action['dest'], **sub_action['kwargs'])
             if isinstance(sub_action['dest'], list):
                 tmp_sub_parser.add_argument(*sub_action['dest'], **sub_action['kwargs'])
 
-    ret = c.parse_args()
+    ret = c.parse_args(argv)
     if ret.action == 'install':
+        setup()
         import bgmi.setup
-
         bgmi.setup.install()
         get_web_admin(method='install')
         init_db()
-        raise SystemExit
+        get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = int(time.time())
     elif ret.action == 'upgrade':
         create_dir()
-        update_database()
+        upgrade_version()
         check_update(mark=False)
     else:
-        check_update()
+        try:
+            check_update()
+        except peewee.OperationalError:
+            if os.getenv('DEBUG'):
+                raise
+            print_error('call `bgmi install` to install bgmi')
+
         controllers(ret)
 
 
 def setup():
-    need_to_init = False
     if not os.path.exists(BGMI_PATH):
-        need_to_init = True
         print_warning('BGMI_PATH %s does not exist, installing' % BGMI_PATH)
 
     create_dir()
-    if need_to_init:
-        init_db()
-        install_crontab()
+    install_crontab()
 
 
 if __name__ == '__main__':
-    setup()
     main()

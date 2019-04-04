@@ -1,5 +1,4 @@
 # coding=utf-8
-
 import functools
 import glob
 import gzip
@@ -7,18 +6,20 @@ import inspect
 import json
 import os
 import struct
+import subprocess
 import sys
 import tarfile
 import time
 from io import BytesIO
 from multiprocessing.pool import ThreadPool
+from pathlib import Path
 from shutil import rmtree, move
+from typing import Union, TextIO
 
 import requests
-import urllib3
+from tornado import template
 
-from bgmi import __version__, __admin_version__
-from bgmi.config import FRONT_STATIC_PATH, SAVE_PATH
+from bgmi import __version__, __admin_version__, config
 from bgmi.lib import constants
 from bgmi.lib.models import get_kv_storage
 from bgmi.logger import logger
@@ -84,34 +85,6 @@ def disable_in_test(func):
     return echo_func
 
 
-urllib3.disable_warnings()
-
-# monkey patch for dev
-if os.environ.get('DEV', False):  # pragma: no cover
-    def replace_url(url):
-        if url.startswith('https://'):
-            url = url.replace('https://', 'http://localhost:8092/https/')
-        elif url.startswith('http://'):
-            url = url.replace('http://', 'http://localhost:8092/http/')
-        return url
-
-
-    from copy import deepcopy
-    from requests import Session
-
-    origin_request = deepcopy(Session.request)
-
-
-    def req(self, method, url, **kwargs):
-        if os.environ.get('BGMI_SHOW_ALL_NETWORK_REQUEST'):
-            print(url)
-        url = replace_url(url)
-        # traceback.print_stack(limit=8)
-        return origin_request(self, method, url, **kwargs)
-
-
-    Session.request = req
-
 if sys.platform.startswith('win'):  # pragma: no cover
     GREEN = ''
     YELLOW = ''
@@ -137,7 +110,10 @@ indicator_map = {
     'print_error': '[x] ',
 }
 
-NPM_REGISTER_DOMAIN = 'registry.npmjs.com' if os.environ.get('TRAVIS_CI', False) else 'registry.npm.taobao.org'
+if os.environ.get('TRAVIS_CI', False):
+    NPM_REGISTER_DOMAIN = 'registry.npmjs.com'
+else:
+    NPM_REGISTER_DOMAIN = 'registry.npm.taobao.org'
 FRONTEND_NPM_URL = 'https://{}/bgmi-frontend/'.format(NPM_REGISTER_DOMAIN)
 PACKAGE_JSON_URL = 'https://{}/bgmi-frontend/{}'.format(NPM_REGISTER_DOMAIN, __admin_version__)
 
@@ -147,7 +123,7 @@ def _indicator(f):
     def wrapper(*args, **kwargs):
         if kwargs.get('indicator', True):
             func_name = f.__qualname__
-            args = (indicator_map.get(func_name, '') + args[0],)
+            args = (indicator_map.get(func_name, '') + args[0], )
         f(*args, **kwargs)
         sys.stdout.flush()
 
@@ -217,20 +193,24 @@ def test_connection():
 
 
 def bug_report():  # pragma: no cover
-    print_error('It seems that no bangumi found, if https://bangumi.moe can \n'
-                '    be opened normally, please submit issue at: https://github.com/BGmi/BGmi/issues',
-                exit_=True)
+    print_error(
+        'It seems that no bangumi found, if https://bangumi.moe can \n'
+        '    be opened normally, '
+        'please submit issue at: https://github.com/BGmi/BGmi/issues',
+        exit_=True
+    )
 
 
 @log_utils_function
 def get_terminal_col():  # pragma: no cover
     # https://gist.github.com/jtriley/1108174
-    if not sys.platform.startswith('win'):
+    if not config.IS_WINDOWS:
         import fcntl
         import termios
 
-        _, col, _, _ = struct.unpack(str('HHHH'), fcntl.ioctl(0, termios.TIOCGWINSZ,
-                                                              struct.pack(str('HHHH'), 0, 0, 0, 0)))
+        _, col, _, _ = struct.unpack(
+            str('HHHH'), fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack(str('HHHH'), 0, 0, 0, 0))
+        )
 
         return col
     try:
@@ -255,6 +235,10 @@ def get_terminal_col():  # pragma: no cover
         return 80
 
 
+def _parse_version(version_string):
+    return [int(x) for x in version_string.split('.')]
+
+
 def update(mark=True):
     try:
         print_info('Checking update ...')
@@ -264,18 +248,21 @@ def update(mark=True):
         #     f.write(version)
 
         if version > __version__:
-            print_warning('Please update bgmi to the latest version {}{}{}.'
-                          '\nThen execute `bgmi upgrade` to migrate database'
-                          .format(GREEN, version, COLOR_END))
+            print_warning(
+                'Please update bgmi to the latest version {}{}{}.'
+                '\nThen execute `bgmi upgrade` to migrate database'.format(
+                    GREEN, version, COLOR_END
+                )
+            )
         else:
             print_success('Your BGmi is the latest version.')
 
         package_json = requests.get(PACKAGE_JSON_URL).json()
         admin_version = package_json['version']
-        if glob.glob(os.path.join(FRONT_STATIC_PATH, 'package.json')):
-            with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'r') as f:
+        if glob.glob(os.path.join(config.FRONT_STATIC_PATH, 'package.json')):
+            with open(os.path.join(config.FRONT_STATIC_PATH, 'package.json'), 'r') as f:
                 local_version = json.loads(f.read())['version']
-            if [int(x) for x in admin_version.split('.')] > [int(x) for x in local_version.split('.')]:
+            if _parse_version(admin_version) > _parse_version(local_version):
                 get_web_admin(method='update')
         else:
             print_info("Use 'bgmi install' to install BGmi frontend / download delegate")
@@ -323,8 +310,10 @@ def get_web_admin(method):
         r = requests.get(FRONTEND_NPM_URL).json()
         version = requests.get(PACKAGE_JSON_URL).json()
         if 'error' in version and version['reason'] == "document not found":  # pragma: no cover
-            print_error("Cnpm has not synchronized the latest version of BGmi-frontend from npm, "
-                        "please try it later")
+            print_error(
+                "Cnpm has not synchronized the latest version of BGmi-frontend from npm, "
+                "please try it later"
+            )
             return
         tar_url = r['versions'][version['version']]['dist']['tarball']
         r = requests.get(tar_url)
@@ -343,16 +332,18 @@ def unzip_zipped_file(file_content, front_version):
     with gzip.GzipFile(fileobj=admin_zip) as f:
         tar_file = BytesIO(f.read())
 
-    rmtree(FRONT_STATIC_PATH)
-    os.makedirs(FRONT_STATIC_PATH)
+    rmtree(config.FRONT_STATIC_PATH)
+    os.makedirs(config.FRONT_STATIC_PATH)
 
     with tarfile.open(fileobj=tar_file) as tar_file_obj:
-        tar_file_obj.extractall(path=FRONT_STATIC_PATH)
+        tar_file_obj.extractall(path=config.FRONT_STATIC_PATH)
 
-    for file in os.listdir(os.path.join(FRONT_STATIC_PATH, 'package', 'dist')):
-        move(os.path.join(FRONT_STATIC_PATH, 'package', 'dist', file),
-             os.path.join(FRONT_STATIC_PATH, file))
-    with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'w+') as f:
+    for file in os.listdir(os.path.join(config.FRONT_STATIC_PATH, 'package', 'dist')):
+        move(
+            os.path.join(config.FRONT_STATIC_PATH, 'package', 'dist', file),
+            os.path.join(config.FRONT_STATIC_PATH, file)
+        )
+    with open(os.path.join(config.FRONT_STATIC_PATH, 'package.json'), 'w+') as f:
         f.write(json.dumps(front_version))
 
 
@@ -368,7 +359,7 @@ def convert_cover_url_to_path(cover_url):
     """
 
     cover_url = normalize_path(cover_url)
-    file_path = os.path.join(SAVE_PATH, 'cover')
+    file_path = os.path.join(config.SAVE_PATH, 'cover')
     file_path = os.path.join(file_path, cover_url)
     dir_path = os.path.dirname(file_path)
 
@@ -422,3 +413,37 @@ def full_to_half(s):
         num = chr(num)
         n.append(num)
     return ''.join(n)
+
+
+@log_utils_function
+def exec_command(command: str) -> int:
+    """
+    exec command and stdout iconv
+    :return: command exec result
+    """
+    status, stdout = subprocess.getstatusoutput(command)
+    print(stdout)
+    return status
+
+
+def render_template(path_or_file: Union[str, Path, TextIO], ctx: dict = None, **kwargs):
+    """
+    read file content and render it as tornado template with kwargs or ctx
+
+    :param ctx:
+    :param path_or_file: path-like or file-like object
+    :param kwargs:
+    :rtype: str
+    :return:
+    """
+    if ctx and kwargs:
+        raise ValueError('render_template and only be called with ctx or kwargs')
+    if hasattr(path_or_file, 'read'):
+        # input is a file
+        content = path_or_file.read()
+    else:
+        # py3.4 can't open pathlib.Path directly, need to be str
+        with open(str(path_or_file), 'r', encoding='utf8') as f:
+            content = f.read()
+    template_obj = template.Template(content, autoescape='')
+    return template_obj.generate(**(ctx or kwargs)).decode('utf-8')

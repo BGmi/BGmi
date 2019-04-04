@@ -1,112 +1,19 @@
-# coding=utf-8
-import functools
 import hashlib
 import json
 import os
 import re
 import time
 from collections import defaultdict
-from typing import Dict, List, Union
+from enum import IntEnum
+from typing import List, Dict, Union, Iterator
 
 import peewee as pw
-from playhouse import kv
-from playhouse.db_url import connect
 from playhouse.shortcuts import model_to_dict
 
 import bgmi.config
-
-# bangumi status
-STATUS_UPDATING = 0
-STATUS_END = 1
-BANGUMI_STATUS = (STATUS_UPDATING, STATUS_END)
-
-# subscription status
-STATUS_DELETED = 0
-STATUS_FOLLOWED = 1
-STATUS_UPDATED = 2
-FOLLOWED_STATUS = (STATUS_DELETED, STATUS_FOLLOWED, STATUS_UPDATED)
-
-# download status
-STATUS_NOT_DOWNLOAD = 0
-STATUS_DOWNLOADING = 1
-STATUS_DOWNLOADED = 2
-DOWNLOAD_STATUS = (STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, STATUS_DOWNLOADED)
-
-SECOND_OF_WEEK = 7 * 24 * 3600
-
-DoesNotExist = pw.DoesNotExist
-db = connect(bgmi.config.DB_URL)
-
-
-class SubtitleField(pw.TextField):
-    def python_value(self, value):
-        if value:
-            return [x.strip() for x in value.split(',')]
-        return []
-
-    def db_value(self, value):
-        if value:
-            return ', '.join(value)
-        return ''
-
-
-# SetField
-class BangumiNamesField(SubtitleField):
-    def python_value(self, value):
-        if value:
-            return {x.strip() for x in value.split(',')}
-        return set()
-
-    def db_value(self, value):
-        if value:
-            if isinstance(value, str):
-                return value
-            return ', '.join(value)
-        return ''
-
-
-class JSONField(pw.TextField):
-    # field_type = ''
-
-    def python_value(self, value):
-        if value is not None:
-            try:
-                return json.loads(value)
-            except (TypeError, ValueError):
-                return value
-
-    def db_value(self, value):
-        if value is not None:
-            return json.dumps(value)
-
-
-class DataSourceField(JSONField):
-
-    def python_value(self, value):
-        e = super().python_value(value)
-        return {k: BangumiItem(**v) for k, v in e.items()}
-
-    def db_value(self, value):
-        if value is not None:
-            data_source = {k: model_to_dict(v) for k, v in value.items()}
-            return json.dumps(data_source, ensure_ascii=False)
-        return {}
-
-
-class NeoDB(pw.Model):
-    class Meta:
-        database = db
-
-    @classmethod
-    def fuzzy_get(cls, **filters):
-        q = []
-        for key, value in filters.items():
-            q.append(getattr(cls, key).contains(value))
-        o = list(cls.select().where(*q))
-        if not o:
-            raise cls.DoesNotExist
-        else:
-            return o[0]
+from bgmi.lib.constants import SECOND_OF_WEEK
+from ._db import NeoDB, db
+from ._fields import SubtitleField, BangumiNamesField
 
 
 class BangumiItem(pw.Model):
@@ -117,6 +24,7 @@ class BangumiItem(pw.Model):
     """
 
     class Meta:
+        table_name = 'bangumi_item'
         database = db
         indexes = (
             # create a unique on from/to/date
@@ -134,6 +42,10 @@ class BangumiItem(pw.Model):
     data_source = pw.FixedCharField(max_length=30)  # type: str
     # foreign key
     bangumi = pw.IntegerField(default=0)
+
+    class STATUS(IntEnum):
+        UPDATING = 0
+        END = 1
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -155,21 +67,47 @@ class BangumiItem(pw.Model):
 
     def __eq__(self, data):
         return self.cover == data.cover \
-               and self.status == data.status \
-               and self.update_time == data.update_time \
-               and set(self.subtitle_group) == set(data.subtitle_group)
+            and self.status == data.status \
+            and self.update_time == data.update_time \
+            and set(self.subtitle_group) == set(data.subtitle_group)
+
+    @classmethod
+    def get_updating_bangumi_item(cls):
+        return cls.select().where(cls.status == cls.STATUS.UPDATING)
+
+    @classmethod
+    def delete_all(cls):
+        return cls.update(status=cls.STATUS.END).execute()
+
+    @classmethod
+    def get_unmarked_updating_bangumi(cls) -> Iterator['BangumiItem']:
+        cond = (cls.bangumi == cls.bangumi.default) & \
+               (cls.status == cls.STATUS.UPDATING)
+        return cls.select().where(cond)
+
+    @classmethod
+    def get_marked_updating_bangumi(cls) -> Iterator['BangumiItem']:
+        cond = (cls.bangumi != cls.bangumi.default) \
+            & (cls.status == cls.STATUS.UPDATING)
+        return cls.select().where(cond)
 
 
 class Bangumi(NeoDB):
-    id = pw.AutoField(primary_key=True)  # type: int
-    name = pw.CharField(unique=True, null=False)  # type: Union[str,pw.CharField]
-    subject_name = pw.CharField(unique=True)
-    cover = pw.CharField()
+    """
+    bangumi mainline table
+
+    """
+    id = pw.AutoField(primary_key=True)  # type: Union[int, pw.AutoField]
+    name = pw.CharField(unique=True, null=False)  # type: Union[str, pw.CharField]
+    cover = pw.CharField(default='')
     status = pw.IntegerField(default=0)  # type: int
     subject_id = pw.IntegerField(null=True)
     update_time = pw.FixedCharField(5, null=False)
-    data_source = DataSourceField(default=lambda: {})  # type: Dict[str, BangumiItem]
-    bangumi_names = BangumiNamesField(null=True, default=set())  # type: set
+    has_data_source = pw.IntegerField(default=0)
+
+    class STATUS(IntEnum):
+        UPDATING = 0
+        END = 1
 
     week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 
@@ -178,31 +116,32 @@ class Bangumi(NeoDB):
         update_time = kwargs.get('update_time', '').title()
         if update_time and update_time not in self.week:
             raise ValueError('unexpected update time %s' % update_time)
-        if not kwargs.get('view_name'):
-            self.view_name = self.name
         self.update_time = update_time
 
     @classmethod
     def delete_all(cls):
-        un_updated_bangumi = Followed.select() \
-            .where(Followed.updated_time > (int(time.time()) - 2 * SECOND_OF_WEEK))  # type: List[Followed]
+        un_updated_bangumi = Followed.select().where(
+            Followed.updated_time > (int(time.time()) - 2 * SECOND_OF_WEEK)
+        )  # type: List[Followed]
         if os.getenv('DEBUG'):  # pragma: no cover
             print('ignore updating bangumi', [x.bangumi_name for x in un_updated_bangumi])
 
-        cls.update(status=STATUS_END) \
+        cls.update(status=cls.STATUS.END) \
             .where(cls.name.not_in([x.bangumi_name for x in un_updated_bangumi])) \
-            .execute()  # do not mark updating bangumi as STATUS_END
+            .execute()  # do not mark updating bangumi as Bangumi.STATUS.END
 
     @classmethod
-    def get_updating_bangumi(cls, status=None, order=True):
+    def get_updating_bangumi(cls, status=None, order=True, obj=False) -> Dict:
+        base_cond = (cls.status == cls.STATUS.UPDATING)
+        query = cls.select(Followed.status, Followed.episode, cls, ) \
+            .join(Followed, pw.JOIN['LEFT_OUTER'], on=(cls.name == Followed.bangumi_name))
+
         if status is None:
-            data = cls.select(Followed.status, Followed.episode, cls, ) \
-                .join(Followed, pw.JOIN['LEFT_OUTER'], on=(cls.name == Followed.bangumi_name)) \
-                .where(cls.status == STATUS_UPDATING).dicts()
+            data = query.where(base_cond)
         else:
-            data = cls.select(Followed.status, Followed.episode, cls, ) \
-                .join(Followed, pw.JOIN['LEFT_OUTER'], on=(cls.name == Followed.bangumi_name)) \
-                .where((cls.status == STATUS_UPDATING) & (Followed.status == status)).dicts()
+            data = query.where(base_cond & (Followed.status == status))
+        if not obj:
+            data = data.dicts()
 
         if order:
             weekly_list = defaultdict(list)
@@ -214,8 +153,12 @@ class Bangumi(NeoDB):
         return weekly_list
 
     @classmethod
-    def get_all_bangumi(cls):
-        return cls.select().dicts()
+    def get_all_bangumi(cls, has_source=True):
+        if has_source:
+            cond = (cls.has_data_source == has_source)
+        else:
+            cond = None
+        return cls.select().where(cond).dicts()
 
     def add_data_source(self, source, bangumi):
         if isinstance(bangumi, dict):
@@ -223,8 +166,10 @@ class Bangumi(NeoDB):
         elif isinstance(bangumi, BangumiItem):
             self.data_source[source] = bangumi
         else:
-            raise ValueError('data_source item must be type dict or BangumiItem, can\'t be {} {}'.format(type(bangumi),
-                                                                                                         bangumi))
+            raise ValueError(
+                'data_source item must be type dict or BangumiItem,'
+                ' can\'t be {} {}'.format(type(bangumi), bangumi)
+            )
 
     def get_subtitle_of_bangumi(self) -> 'List[Subtitle]':
         return Subtitle.get_subtitle_of_bangumi(self)
@@ -237,10 +182,6 @@ class Bangumi(NeoDB):
 
     def __str__(self):
         d = model_to_dict(self)
-        d['data_source'] = {}
-        # d['bangumi_names'] = '{}'.format(self.bangumi_names)
-        for key, value in self.data_source.items():
-            d['data_source'][key] = str(value)
         return '<Bangumi {}>'.format(json.dumps(d, ensure_ascii=False))
 
     def __repr__(self):
@@ -252,15 +193,15 @@ class Bangumi(NeoDB):
 
     def __eq__(self, data):
         return self.cover == data.cover \
-               and self.status == data.status \
-               and self.subject_id == data.subject_id \
-               and self.update_time == data.update_time \
-               and self.subject_name == data.subject_name \
-               and self.to_d(self.data_source) == self.to_d(data.data_source)
+            and self.status == data.status \
+            and self.subject_id == data.subject_id \
+            and self.update_time == data.update_time
+        # and self.to_d(self.data_source) == self.to_d(data.data_source)
+        # and self.subject_name == data.subject_name \
         # and not set(set(self.bangumi_names) - set(data.bangumi_names)) \
 
     def __hash__(self):
-        return int(hashlib.sha1(self.name.encode()).hexdigest(), 16) % (10 ** 8)
+        return int(hashlib.sha1(self.name.encode()).hexdigest(), 16) % (10**8)
 
 
 class Followed(NeoDB):
@@ -279,12 +220,10 @@ class Followed(NeoDB):
     exclude = SubtitleField(default=[])  # type:List
     regex = pw.CharField(null=False, default='')  # type: str
 
-    STATUS_DELETED = 0
-    STATUS_FOLLOWED = 1
-    STATUS_UPDATED = 2
-
-    class Meta:
-        database = db
+    class STATUS(IntEnum):
+        DELETED = 0
+        FOLLOWED = 1
+        UPDATED = 2
 
     @classmethod
     def delete_followed(cls, batch=True):
@@ -297,7 +236,7 @@ class Followed(NeoDB):
         return True
 
     @classmethod
-    def get_all_followed(cls, status=STATUS_DELETED, bangumi_status=STATUS_UPDATING):
+    def get_all_followed(cls, status=STATUS.DELETED, bangumi_status=Bangumi.STATUS.UPDATING):
         join_cond = (Bangumi.name == cls.bangumi_name)
         d = cls.select(Bangumi.name, Bangumi.update_time, Bangumi.cover, cls, ) \
             .join(Bangumi, pw.JOIN['LEFT_OUTER'], on=join_cond) \
@@ -307,7 +246,7 @@ class Followed(NeoDB):
 
         return list(d)
 
-    def apply_keywords_filter_on_list_of_episode(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    def apply_keywords_filter_on_list_of_episode(self, episode_list: List[Dict]) -> List[Dict]:
         episode_list = self.apply_include(episode_list)
         episode_list = self.apply_exclude(episode_list)
         episode_list = self.apply_regex(episode_list)
@@ -315,6 +254,7 @@ class Followed(NeoDB):
 
     def apply_include(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
         if self.include:
+
             def f1(s):
                 return all(map(lambda t: t in s['title'], self.include))
 
@@ -355,6 +295,11 @@ class Download(NeoDB):
     download = pw.CharField()
     status = pw.IntegerField(default=0)
 
+    class STATUS(IntEnum):
+        NOT_DOWNLOAD = 0
+        DOWNLOADING = 1
+        DOWNLOADED = 2
+
     @classmethod
     def get_all_downloads(cls, status=None):
         if status is None:
@@ -367,11 +312,8 @@ class Download(NeoDB):
         return data
 
     def downloaded(self):
-        self.status = STATUS_DOWNLOADED
+        self.status = self.STATUS.DOWNLOADED
         self.save()
-
-
-# class Followed(NeoDB):
 
 
 class Subtitle(NeoDB):
@@ -389,13 +331,16 @@ class Subtitle(NeoDB):
 
     @classmethod
     def get_subtitle_of_bangumi(cls, bangumi_obj):
+        # todo
         """
         :type bangumi_obj: Bangumi
         """
+
         return cls.get_subtitle_from_data_source_dict(bangumi_obj.data_source)
 
     @classmethod
     def get_subtitle_from_data_source_dict(cls, data_source):
+        # todo
         """
         :type data_source: dict
         :param data_source:
@@ -404,10 +349,8 @@ class Subtitle(NeoDB):
         source = list(data_source.keys())
         condition = list()
         for s in source:
-            condition.append(
-                (Subtitle.id.in_(data_source[s]['subtitle_group'])) & (
-                    Subtitle.data_source == s)
-            )
+            condition.append((Subtitle.id.in_(data_source[s]['subtitle_group'])) &
+                             (Subtitle.data_source == s))
         if len(condition) > 1:
             tmp_c = condition[0]
             for c in condition[1:]:
@@ -427,9 +370,11 @@ class Subtitle(NeoDB):
         for data_source_id, subtitle_group_lists in subtitle_group_list.items():
             for subtitle_group in subtitle_group_lists:
                 with db.atomic():
-                    s, if_created = Subtitle.get_or_create(id=str(subtitle_group['id']),
-                                                           data_source=data_source_id,
-                                                           defaults={'name': str(subtitle_group['name'])})
+                    s, if_created = Subtitle.get_or_create(
+                        id=str(subtitle_group['id']),
+                        data_source=data_source_id,
+                        defaults={'name': str(subtitle_group['name'])}
+                    )
                     if not if_created:
                         if s.name != str(subtitle_group['name']):
                             s.name = str(subtitle_group['name'])
@@ -473,10 +418,7 @@ class BangumiLink(NeoDB):
             }
 
         except BaseException:
-            return {
-                cls.STATUS.link: [],
-                cls.STATUS.unlink: []
-            }
+            return {cls.STATUS.link: [], cls.STATUS.unlink: []}
 
     @classmethod
     def get_linked_bangumi_list(cls):
@@ -494,9 +436,10 @@ class BangumiLink(NeoDB):
 
     @classmethod
     def try_remove_record(cls, bangumi_name_1, bangumi_name_2, status):
-        f = cls.select().where(cls.value.contains(bangumi_name_1) &
-                               cls.value.contains(bangumi_name_2) &
-                               (cls.status == status))
+        f = cls.select().where(
+            cls.value.contains(bangumi_name_1) & cls.value.contains(bangumi_name_2) &
+            (cls.status == status)
+        )
         for v in f:
             s = v.value
             if s == {bangumi_name_2, bangumi_name_1}:
@@ -504,9 +447,10 @@ class BangumiLink(NeoDB):
 
     @classmethod
     def add_record(cls, bangumi_name_1, bangumi_name_2, status):
-        f = cls.select().where(cls.value.contains(bangumi_name_1) &
-                               cls.value.contains(bangumi_name_2) &
-                               (cls.status == status))
+        f = cls.select().where(
+            cls.value.contains(bangumi_name_1) & cls.value.contains(bangumi_name_2) &
+            (cls.status == status)
+        )
         f = list(f)
         find = False
         for v in f:
@@ -535,45 +479,3 @@ class Scripts(NeoDB):
     episode = pw.IntegerField(default=0)
     status = pw.IntegerField(default=0)
     updated_time = pw.IntegerField(default=0)
-
-
-def recreate_source_relatively_table():
-    table_to_drop = [Bangumi, Subtitle, Followed, Download]
-    for table in table_to_drop:
-        table.delete().execute()
-    return True
-
-
-bangumi_links = BangumiLink.get_all()
-
-combined_bangumi = bangumi_links[BangumiLink.STATUS.link]
-uncombined_bangumi = bangumi_links[BangumiLink.STATUS.unlink]
-kv_db = pw.SqliteDatabase(bgmi.config.KV_DB_PATH)
-
-
-def _kv_storage_decorator(func):
-    try:
-        kv_instance = [kv.KeyValue(database=kv_db), ]
-    except pw.OperationalError:
-        kv_instance = []
-
-    @functools.wraps(func)
-    def wrapper():
-        if not kv_instance:
-            kv_instance.append(func())
-        return kv_instance[0]
-
-    return wrapper
-
-
-@_kv_storage_decorator
-def get_kv_storage():
-    kv_instance = kv.KeyValue(database=kv_db)
-    return kv_instance
-
-
-if __name__ == '__main__':  # pragma:no cover
-    from pprint import pprint
-
-    dd = BangumiItem(name='233')
-    pprint(dd)

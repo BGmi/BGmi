@@ -2,7 +2,7 @@
 import os
 from abc import abstractmethod, ABC
 
-from bgmi.lib.models import STATUS_DOWNLOADED, STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, Download
+from bgmi.lib.models import Download
 from bgmi.utils import print_warning, print_info, print_success
 
 
@@ -36,27 +36,29 @@ class BaseDownloadService(ABC):
 
     def check_download(self, name):
         if not os.path.exists(self.save_path) or self.return_code != 0:
-            raise Exception('It seems the bangumi {0} not be downloaded'.format(name))
+            raise Exception(
+                'It seems the bangumi {0} not be downloaded'.format(name))
 
     @staticmethod
     def download_status(status=None):
         last_status = -1
         for download_data in Download.get_all_downloads(status=status):
             latest_status = download_data['status']
-            name = '  {0}. <{1}: {2}>'.format(download_data['id'], download_data['name'],
+            name = '  {0}. <{1}: {2}>'.format(download_data['id'],
+                                              download_data['name'],
                                               download_data['episode'])
             if latest_status != last_status:
-                if latest_status == STATUS_DOWNLOADING:
+                if latest_status == Download.STATUS.DOWNLOADING:
                     print('Downloading items:')
-                elif latest_status == STATUS_NOT_DOWNLOAD:
+                elif latest_status == Download.STATUS.NOT_DOWNLOAD:
                     print('Not downloaded items:')
-                elif latest_status == STATUS_DOWNLOADED:
+                elif latest_status == Download.STATUS.DOWNLOADED:
                     print('Downloaded items:')
 
-            if download_data['status'] == STATUS_NOT_DOWNLOAD:
+            if download_data['status'] == Download.STATUS.NOT_DOWNLOAD:
                 print_info(name, indicator=False)
-            elif download_data['status'] == STATUS_DOWNLOADING:
+            elif download_data['status'] == Download.STATUS.DOWNLOADING:
                 print_warning(name, indicator=False)
-            elif download_data['status'] == STATUS_DOWNLOADED:
+            elif download_data['status'] == Download.STATUS.DOWNLOADED:
                 print_success(name, indicator=False)
             last_status = download_data['status']

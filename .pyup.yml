@@ -8,3 +8,7 @@ branch_prefix: pyup/
 branch: dev
 
 label_prs: update
+
+update: insecure
+
+pin: False

@@ -47,12 +47,16 @@ class Aria2cTest(Basic.Test, unittest.TestCase):
 
         self.m.return_value.aria2.getVersion.return_value = {'version': '4.0.1'}
 
-        instance = bgmi.downloader.aria2_rpc.Aria2DownloadRPC(self.download_obj, self.save_path, self.overwrite)
+        instance = bgmi.downloader.aria2_rpc.Aria2DownloadRPC(
+            self.download_obj, self.save_path, self.overwrite
+        )
         self.assertFalse(instance.old_version)
 
         self.m.return_value.aria2.getVersion.return_value = {'version': '1.0.1'}
 
-        instance = bgmi.downloader.aria2_rpc.Aria2DownloadRPC(self.download_obj, self.save_path, self.overwrite)
+        instance = bgmi.downloader.aria2_rpc.Aria2DownloadRPC(
+            self.download_obj, self.save_path, self.overwrite
+        )
         self.assertTrue(instance.old_version)
 
         self.p.stop()
@@ -65,17 +69,21 @@ class Aria2cTest(Basic.Test, unittest.TestCase):
         self.p.start()
 
         # not old version
-        instance = bgmi.downloader.aria2_rpc.Aria2DownloadRPC(self.download_obj, self.save_path, self.overwrite)
+        instance = bgmi.downloader.aria2_rpc.Aria2DownloadRPC(
+            self.download_obj, self.save_path, self.overwrite
+        )
         instance.download()
-        self.m.return_value.aria2.addUri.assert_called_once_with(ARIA2_RPC_TOKEN,
-                                                                 [self.download_obj.download],
-                                                                 {"dir": self.save_path})
+        self.m.return_value.aria2.addUri.assert_called_once_with(
+            ARIA2_RPC_TOKEN, [self.download_obj.download], {"dir": self.save_path}
+        )
 
         self.m.return_value.aria2.addUri.reset_mock()
 
         # old version
         self.m.return_value.aria2.getVersion.return_value = {'version': '1.0.1'}
-        instance = bgmi.downloader.aria2_rpc.Aria2DownloadRPC(self.download_obj, self.save_path, self.overwrite)
+        instance = bgmi.downloader.aria2_rpc.Aria2DownloadRPC(
+            self.download_obj, self.save_path, self.overwrite
+        )
         instance.download()
         self.m.return_value.aria2.addUri.assert_called_once_with([self.download_obj.download],
                                                                  {"dir": self.save_path})
@@ -93,9 +101,13 @@ class TransmissionRPCTest(Basic.Test, unittest.TestCase):
     def test_init(self):
         mock_client = MagicMock()
         with patch('transmission_rpc.Client', MagicMock(return_value=mock_client)) as p:
-            rpc = bgmi.downloader.transmissionRpc.TransmissionRPC(self.download_obj, self.save_path, self.overwrite)
+            rpc = bgmi.downloader.transmissionRpc.TransmissionRPC(
+                self.download_obj, self.save_path, self.overwrite
+            )
             rpc.download()
-            mock_client.add_torrent.assert_called_once_with(self.download_obj.download, download_dir=self.save_path)
+            mock_client.add_torrent.assert_called_once_with(
+                self.download_obj.download, download_dir=self.save_path
+            )
 
 
 class DelugeRPCTest(Basic.Test, unittest.TestCase):
@@ -104,15 +116,20 @@ class DelugeRPCTest(Basic.Test, unittest.TestCase):
     def test_init(self):
         with patch('bgmi.downloader.deluge.DelugeRPC._call') as m:
             bgmi.downloader.deluge.DelugeRPC(self.download_obj, self.save_path, self.overwrite)
-            m.assert_called_once_with('auth.login', [bgmi.config.DELUGE_RPC_PASSWORD, ])
+            m.assert_called_once_with('auth.login', [
+                bgmi.config.DELUGE_RPC_PASSWORD,
+            ])
 
-    def test_download(self):
-        with patch('bgmi.downloader.deluge.DelugeRPC._call') as m:
-            rpc = bgmi.downloader.deluge.DelugeRPC(self.download_obj, self.save_path, self.overwrite)
-            m.reset_mock()
-            rpc.torrent = 'https://b/a.torrent'
-            rpc.download()
-            m.assert_called()
-            for called in m.call_args_list:
-                args, kwargs = called
-                self.assertIn(args[0], ['web.download_torrent_from_url', 'web.add_torrents'])
+    @patch('bgmi.downloader.deluge.DelugeRPC._call')
+    def test_download(self, m):
+        rpc = bgmi.downloader.deluge.DelugeRPC(self.download_obj, self.save_path, self.overwrite)
+        m.reset_mock()
+        rpc.torrent = 'https://b/a.torrent'
+        rpc.download()
+        # m.call_args_list()
+        # m.assert_any_call('web.download_torrent_from_url', [
+        #     self.download_obj.download,
+        # ])
+        for called in m.call_args_list:
+            args, kwargs = called
+            self.assertIn(args[0], ['web.download_torrent_from_url', 'web.add_torrents'])

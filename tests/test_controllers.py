@@ -7,25 +7,23 @@ import bgmi.lib.controllers
 from bgmi.lib.models import Bangumi, Followed
 from bgmi.website.base import BaseWebsite
 
-w = lambda: mock.Mock(spec=BaseWebsite)
-
 from tests.mock_websites import MockDateSource
+from tests.test_models import Base
+
+
+def w():
+    return mock.Mock(spec=BaseWebsite)
 
 
 @mock.patch('bgmi.website.DATA_SOURCE_MAP', MockDateSource)
-class ControllersTest(unittest.TestCase):
+class ControllersTest(Base, unittest.TestCase):
     """
     at the beginning of each test,
     bangumi 1 is followed
     bangumi 2 is not followed
     """
-    bangumi_name_1 = '名侦探柯南'
-    bangumi_name_2 = '海贼王'
-
-    def setUp(self):
-        Followed.delete().execute()
-        Followed.create(bangumi_name=self.bangumi_name_1,
-                        status=bgmi.lib.controllers.STATUS_FOLLOWED)
+    bangumi_name_1 = '机动奥特曼'  # not followed bangumi
+    bangumi_name_2 = '海贼王'  # followed bangumi
 
     def test_cal(self):
         r = bgmi.lib.controllers.cal()
@@ -41,33 +39,43 @@ class ControllersTest(unittest.TestCase):
 
     def test_add(self):
         r = bgmi.lib.controllers.add(self.bangumi_name_1, 0)
-        self.assertEqual(r['status'], 'warning')
-        f = Followed.get(bangumi_name=self.bangumi_name_1)  # type: Followed
-        self.assertEqual(f.status, Followed.STATUS_FOLLOWED)
-
-        r = bgmi.lib.controllers.add(self.bangumi_name_2, episode=4)
         self.assertEqual(r['status'], 'success')
+
+        f = Followed.get(bangumi_name=self.bangumi_name_1)  # type: Followed
+        self.assertEqual(f.status, Followed.STATUS.FOLLOWED)
+
+    def test_add_dupe_warning(self):
+        r = bgmi.lib.controllers.add(self.bangumi_name_2, 0)
+        self.assertEqual(r['status'], 'warning')
+
         f = Followed.get(bangumi_name=self.bangumi_name_2)  # type: Followed
-        self.assertEqual(f.status, Followed.STATUS_FOLLOWED)
+        self.assertEqual(f.status, Followed.STATUS.FOLLOWED)
+
+    def test_add_with_episode(self):
+
+        r = bgmi.lib.controllers.add(self.bangumi_name_1, episode=4)
+        self.assertEqual(r['status'], 'success')
+        f = Followed.get(bangumi_name=self.bangumi_name_1)  # type: Followed
+        self.assertEqual(f.status, Followed.STATUS.FOLLOWED)
         self.assertEqual(f.episode, 4)
 
     def test_mark(self):
-        r = bgmi.lib.controllers.mark(self.bangumi_name_1, 1)
-        self.assertEqual(r['status'], 'success')
-        r = bgmi.lib.controllers.mark(self.bangumi_name_1, None)
+        r = bgmi.lib.controllers.mark(self.bangumi_name_2, 1)
+        self.assertEqual(r['status'], 'success', r['message'])
+        r = bgmi.lib.controllers.mark(self.bangumi_name_2, None)
         self.assertEqual(r['status'], 'info')
-        r = bgmi.lib.controllers.mark(self.bangumi_name_2, 0)
-        self.assertEqual(r['status'], 'error')
+        r = bgmi.lib.controllers.mark(self.bangumi_name_1, 0)
+        self.assertEqual(r['status'], 'error', r['message'])
 
     def test_delete(self):
         r = bgmi.lib.controllers.delete()
         self.assertEqual(r['status'], 'warning')
         r = bgmi.lib.controllers.delete(self.bangumi_name_1)
-        self.assertEqual(r['status'], 'warning')
-        r = bgmi.lib.controllers.delete(self.bangumi_name_1)
-        self.assertEqual(r['status'], 'warning')
+        self.assertEqual(r['status'], 'error', r['message'])
+        # r = bgmi.lib.controllers.delete(self.bangumi_name_1)
+        # self.assertEqual(r['status'], 'warning')
         r = bgmi.lib.controllers.delete(self.bangumi_name_2)
-        self.assertEqual(r['status'], 'error')
+        self.assertEqual(r['status'], 'warning', r['message'])
         r = bgmi.lib.controllers.delete(clear_all=True, batch=True)
         self.assertEqual(r['status'], 'warning')
 

@@ -25,9 +25,6 @@ COVER_URL = 'https://bangumi.moe/'
 
 
 def get_response(url, method='GET', **kwargs):
-    # kwargs['proxies'] = {'http': "http://localhost:1080"}
-    if os.environ.get('DEV'):  # pragma: no cover
-        url = url.replace('https://', 'http://localhost:8092/https/')
     if os.environ.get('DEBUG'):  # pragma: no cover
         print_info('Request URL: {0}'.format(url))
     try:
@@ -38,7 +35,9 @@ def get_response(url, method='GET', **kwargs):
     except requests.ConnectionError:
         print_error('error: failed to establish a new connection')
     except ValueError:
-        print_error('error: server returned data maybe not be json, please contact ricterzheng@gmail.com')
+        print_error(
+            'error: server returned data maybe not be json, please contact ricterzheng@gmail.com'
+        )
 
 
 def process_name(data):
@@ -71,17 +70,16 @@ def parser_bangumi(data):
     subtitle_group_list = []
     for bangumi_item in data:
         subtitle_of_bangumi = process_subtitle(subtitle.get(bangumi_item['tag_id'], []))
-        item = {'status': 0,
-                'subtitle_group': list(subtitle_of_bangumi.keys()),
-                'name': name[bangumi_item['tag_id']],
-                'keyword': bangumi_item['tag_id'],
-                'update_time': Bangumi.week[bangumi_item['showOn'] - 1],
-                'cover': bangumi_item['cover']}
+        item = {
+            'status': 0,
+            'subtitle_group': list(subtitle_of_bangumi.keys()),
+            'name': name[bangumi_item['tag_id']],
+            'keyword': bangumi_item['tag_id'],
+            'update_time': Bangumi.week[bangumi_item['showOn'] - 1],
+            'cover': bangumi_item['cover']
+        }
         for key, value in subtitle_of_bangumi.items():
-            subtitle_group_list.append({
-                'id': key,
-                'name': value
-            })
+            subtitle_group_list.append({'id': key, 'name': value})
 
         weekly_list.append(item)
 
@@ -118,8 +116,13 @@ class BangumiMoe(BaseWebsite):
                 'subtitle_group': bangumi['team_id'],
                 'title': bangumi['title'],
                 'episode': self.parse_episode(bangumi['title']),
-                'time': int(time.mktime(datetime.datetime.strptime(bangumi['publish_time'].split('.')[0],
-                                                                   "%Y-%m-%dT%H:%M:%S").timetuple()))
+                'time': int(
+                    time.mktime(
+                        datetime.datetime.strptime(
+                            bangumi['publish_time'].split('.')[0], "%Y-%m-%dT%H:%M:%S"
+                        ).timetuple()
+                    )
+                )
             })
 
             if os.environ.get('DEBUG'):
@@ -132,6 +135,8 @@ class BangumiMoe(BaseWebsite):
         if not response:
             return []
         bangumi_result, subtitile_result = parser_bangumi(response)
+        # todo: need to fix https://github.com/BGmi/BGmi/issues/150 and remove this line
+        return [x for x in bangumi_result if x['name']], subtitile_result
         return bangumi_result, subtitile_result
 
     def search_by_keyword(self, keyword, count=None):
@@ -155,8 +160,6 @@ class BangumiMoe(BaseWebsite):
                 'subtitle_group': info['team_id'],
                 'title': info['title'],
                 'episode': self.parse_episode(info['title']),
-                'time': int(time.mktime(datetime.datetime.strptime(info['publish_time'].split('.')[0],
-                                                                   "%Y-%m-%dT%H:%M:%S").timetuple()))
             })
 
         # Avoid bangumi collection. It's ok but it will waste your traffic and bandwidth.

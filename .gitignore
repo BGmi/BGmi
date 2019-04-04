@@ -17,3 +17,5 @@ tmp/
 htmlcov
 .xml
 watchdemo.yaml
+.tox
+dev.py

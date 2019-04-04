@@ -2,7 +2,7 @@ from xmlrpc.client import ServerProxy, _Method
 
 from bgmi.config import ARIA2_RPC_URL, ARIA2_RPC_TOKEN
 from bgmi.downloader.base import BaseDownloadService
-from bgmi.lib.models import STATUS_DOWNLOADED, STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING
+from bgmi.lib.models import Download
 from bgmi.utils import print_info, print_warning, print_success, print_error
 
 
@@ -40,7 +40,9 @@ class Aria2DownloadRPC(BaseDownloadService):
             self.server.aria2.addUri([self.torrent], {"dir": self.save_path})
         else:
             self.server.aria2.addUri(ARIA2_RPC_TOKEN, [self.torrent], {"dir": self.save_path})
-        print_info('Add torrent into the download queue, the file will be saved at {0}'.format(self.save_path))
+        print_info(
+            'Add torrent into the download queue, the file will be saved at {0}'.format(
+                self.save_path))
 
     @staticmethod
     def check_aria2c_version():
@@ -74,13 +76,13 @@ class Aria2DownloadRPC(BaseDownloadService):
             server = PatchedServerProxy(ARIA2_RPC_URL)
             # self.server.aria2
             status_dict = {
-                STATUS_DOWNLOADING: ['tellActive'],
-                STATUS_NOT_DOWNLOAD: ['tellWaiting'],
-                STATUS_DOWNLOADED: ['tellStopped'],
+                Download.STATUS.DOWNLOADING: ['tellActive'],
+                Download.STATUS.NOT_DOWNLOAD: ['tellWaiting'],
+                Download.STATUS.DOWNLOADED: ['tellStopped'],
                 None: ['tellStopped', 'tellWaiting', 'tellActive'],
             }
             for method in status_dict.get(status):
-                if method not in ('tellActive',):
+                if method not in ('tellActive', ):
                     params = (0, 1000)
                 else:
                     params = ()

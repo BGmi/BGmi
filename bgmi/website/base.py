@@ -19,7 +19,8 @@ class BaseWebsite(ABC):
             item['name'] = normalize_path(item['name'])
         # for i, bangumi in enumerate(bangumi_result):
         #     bangumi_result[i] = Bangumi(**bangumi)
-        bangumi_result = [BangumiItem(**bangumi) for bangumi in bangumi_result if bangumi['subtitle_group']]
+        bangumi_result = [BangumiItem(**bangumi)
+                          for bangumi in bangumi_result if bangumi['subtitle_group']]
         return bangumi_result, subtitile_result
 
     @abstractmethod

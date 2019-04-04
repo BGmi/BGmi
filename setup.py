@@ -1,21 +1,17 @@
 # coding=utf-8
-import codecs
 import os
-import sys
+from distutils import log
+from distutils.command.clean import clean as _clean
 
-from setuptools import setup, find_packages, Command
+from setuptools import setup, Command, find_packages
 
 from bgmi import __version__, __author__, __email__
 
 with open('requirements.txt', 'r') as f:
     requirements = f.read().splitlines()
-    if sys.version_info[1] < 5:
-        requirements.append('typing')
 
-with open('test_requirements.txt', 'r') as f:
+with open('requirements-test.txt', 'r') as f:
     test_requirements = f.read().splitlines()
-
-from distutils.command.clean import clean as _clean
 
 
 class TestCommand(Command):
@@ -42,7 +38,8 @@ class clean(_clean):
     CLEAN_FILES = [
         './build', './dist',
         './*.pyc', './*.tgz',
-        './*.egg-info', './__pycache__'
+        './*.egg-info', './__pycache__',
+        "./.coverage"
     ]
 
     def run(self):
@@ -50,63 +47,28 @@ class clean(_clean):
         """After calling the super class implementation, this function removes
         the directories specific to scikit-build."""
 
-        from distutils import log
         from shutil import rmtree
         from glob import glob
 
         super(clean, self).run()
         for dirs in self.CLEAN_FILES:
-            for dir in glob(dirs):
-                log.info("removing '%s'", dir)
-                rmtree(dir)
+            for glob_to_remove in glob(dirs):
+                log.info("removing '%s'", glob_to_remove)
+                if os.path.isdir(glob_to_remove):
+                    rmtree(glob_to_remove)
+                else:
+                    os.remove(glob_to_remove)
 
 
-def long_description():
-    with codecs.open('README.rst', 'rb') as f:
-        return f.read().decode('utf-8')
-
-
+packages = find_packages(exclude=('tests',))
+log.info('find package %s', packages)
 setup(
-    name='bgmi',
     version=__version__,
     author=__author__,
     author_email=__email__,
-    keywords='bangumi, bgmi, feed',
-    description='BGmi is a cli tool for subscribed bangumi.',
-    long_description=long_description(),
-    long_description_content_type='text/x-rst',
-    url='https://github.com/BGmi/BGmi',
-    download_url='https://github.com/BGmi/BGmi/tarball/master',
-    packages=find_packages(),
-    package_data={'': ['LICENSES']},
-    include_package_data=True,
-    zip_safe=False,
     install_requires=requirements,
-    entry_points={
-        'console_scripts': [
-            'bgmi = bgmi.main:main',
-            'bgmi_http = bgmi.front.server:main'
-        ]
-    },
-    extras_require={
-        'mysql': ["pymysql", ],
-    },
-    license='MIT License',
     tests_require=test_requirements,
-    classifiers=[
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Other Audience',
-        'Natural Language :: Chinese (Traditional)',
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy'
-    ],
+    packages=packages,
     cmdclass={
         'clean': clean,
         'test': TestCommand

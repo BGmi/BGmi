@@ -6,22 +6,58 @@ import os
 import platform
 import random
 
+
+# --------- Read-Only ---------- #
+
+# Detail URL
+# platform
+IS_WINDOWS = platform.system() == 'Windows'
+
+# ------- Read-Only End -------- #
+
+
 # download delegate
-__transmission__ = ('TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT',
-                    'TRANSMISSION_RPC_USERNAME', 'TRANSMISSION_RPC_PASSWORD',)
-__aria2__ = ('ARIA2_RPC_URL', 'ARIA2_RPC_TOKEN',)
+__transmission__ = (
+    'TRANSMISSION_RPC_URL',
+    'TRANSMISSION_RPC_PORT',
+    'TRANSMISSION_RPC_USERNAME',
+    'TRANSMISSION_RPC_PASSWORD',
+)
+__aria2__ = (
+    'ARIA2_RPC_URL',
+    'ARIA2_RPC_TOKEN',
+)
 __deluge__ = ('DELUGE_RPC_URL', 'DELUGE_RPC_PASSWORD')
 
 __download_delegate__ = __aria2__ + __transmission__ + __deluge__
 
 # fake __all__
-__all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE', 'DB_URL', 'KV_DB_PATH',
-           'MAX_PAGE', 'TMP_PATH', 'DANMAKU_API_URL', 'DISABLED_DATA_SOURCE',
-           'LANG', 'FRONT_STATIC_PATH', 'ADMIN_TOKEN', 'SHARE_DMHY_URL',
-           'GLOBAL_FILTER', 'ENABLE_GLOBAL_FILTER', 'TORNADO_SERVE_STATIC_FILES',)
+__all__ = (
+    'BANGUMI_MOE_URL',
+    'SAVE_PATH',
+    'DOWNLOAD_DELEGATE',
+    'DB_URL',
+    'MAX_PAGE',
+    'TMP_PATH',
+    'DANMAKU_API_URL',
+    'DISABLED_DATA_SOURCE',
+    'LANG',
+    'FRONT_STATIC_PATH',
+    'ADMIN_TOKEN',
+    'SHARE_DMHY_URL',
+    'GLOBAL_FILTER',
+    'ENABLE_GLOBAL_FILTER',
+    'TORNADO_SERVE_STATIC_FILES',
+)
 
 # cannot be rewrite
-__readonly__ = ('BGMI_PATH', 'CONFIG_FILE_PATH', 'TOOLS_PATH', 'SCRIPT_PATH', 'KV_DB_PATH', 'FRONT_STATIC_PATH',)
+__readonly__ = (
+    'BGMI_PATH',
+    'CONFIG_FILE_PATH',
+    'TOOLS_PATH',
+    'SCRIPT_PATH',
+    'FRONT_STATIC_PATH',
+)
 
 # writeable
 __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
@@ -38,9 +74,8 @@ DOWNLOAD_DELEGATE_MAP = {
 
 def get_bgmi_path():
     if not os.environ.get('BGMI_PATH'):
-        if platform.system() == 'Windows':
+        if IS_WINDOWS:
             _BGMI_PATH = os.path.join(os.environ.get('USERPROFILE', None), '.bgmi')
-
         else:
             _BGMI_PATH = os.path.join(os.environ.get('HOME', '/tmp'), '.bgmi')
     else:  # pragma: no cover
@@ -54,7 +89,6 @@ if not BGMI_PATH:  # pragma: no cover
 
 # DB_URL = os.path.join(BGMI_PATH, 'bangumi.db')
 DB_URL = 'sqlite:///{}'.format(os.path.join(BGMI_PATH, 'bangumi.db'))
-KV_DB_PATH = os.path.join(BGMI_PATH, 'kv.db')
 CONFIG_FILE_PATH = os.path.join(BGMI_PATH, 'bgmi.cfg')
 
 # SCRIPT_DB_URL = 'sqlite:///{}'.format(os.path.join(BGMI_PATH, 'script.db'))
@@ -125,17 +159,19 @@ def write_default_config():
 def write_config(config=None, value=None):
     if not os.path.exists(CONFIG_FILE_PATH):
         write_default_config()
-        return {'status': 'error',
-                'message': 'Config file does not exists, writing default config file',
-                'data': []}
+        return {
+            'status': 'error',
+            'message':
+            'Config file does not exists, writing default config file',
+            'data': []
+        }
 
     c = configparser.ConfigParser()
     c.read(CONFIG_FILE_PATH)
 
     try:
         if config is None:
-            result = {'status': 'info',
-                      'message': print_config()}
+            result = {'status': 'info', 'message': print_config()}
 
         elif value is None:  # config(config, None)
             result = {'status': 'info'}
@@ -148,8 +184,12 @@ def write_config(config=None, value=None):
         else:  # config(config, Value)
             if config in __writeable__:
                 if config == 'DOWNLOAD_DELEGATE' and value not in DOWNLOAD_DELEGATE_MAP:
-                    return {'status': 'error',
-                            'message': '{0} is not a support download_delegate'.format(value)}
+                    return {
+                        'status':
+                        'error',
+                        'message':
+                        '{0} is not a support download_delegate'.format(value)
+                    }
                 c.set('bgmi', config, value)
                 with open(CONFIG_FILE_PATH, 'w') as f:
                     c.write(f)
@@ -162,22 +202,32 @@ def write_config(config=None, value=None):
 
                     with open(CONFIG_FILE_PATH, 'w') as f:
                         c.write(f)
-                result = {'status': 'success',
-                          'message': '{0} has been set to {1}'.format(config, value)}
+                result = {
+                    'status': 'success',
+                    'message': '{0} has been set to {1}'.format(config, value)
+                }
 
             elif config in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
                 c.set(DOWNLOAD_DELEGATE, config, value)
                 with open(CONFIG_FILE_PATH, 'w') as f:
                     c.write(f)
-                result = {'status': 'success',
-                          'message': '{0} has been set to {1}'.format(config, value)}
+                result = {
+                    'status': 'success',
+                    'message': '{0} has been set to {1}'.format(config, value)
+                }
             else:
-                result = {'status': 'error',
-                          'message': '{0} does not exist or not writeable'.format(config)}
+                result = {
+                    'status': 'error',
+                    'message':
+                    '{0} does not exist or not writeable'.format(config)
+                }
 
     except (configparser.NoOptionError, configparser.NoSectionError):
         write_default_config()
-        result = {'status': 'error', 'message': 'Error in config file, try rerun `bgmi config`'}
+        result = {
+            'status': 'error',
+            'message': 'Error in config file, try rerun `bgmi config`'
+        }
 
     return result
 
@@ -248,9 +298,3 @@ read_config()
 # ------------------------------ #
 # will be used in other other models
 __all_writable_now__ = __writeable__ + DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]
-
-# --------- Read-Only ---------- #
-
-# Detail URL
-# platform
-IS_WINDOWS = platform.system() == 'Windows'
