@@ -15,6 +15,7 @@ dist: xenial
 
 env:
   global:
+    - PYTHONIOENCODING=utf-8
     - TRAVIS_CI=TRAVIS_CI
     - BGMI_LOG=debug
     - BANGUMI_1=名侦探柯南
