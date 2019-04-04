@@ -1,7 +1,9 @@
 # pragma: no cover, noqa: pylint: diable=all
 # monkey patch for dev
 import os
+import sys
 from pprint import pprint as print
+
 # use this to cache http data
 # https://github.com/active-video/caching-proxy
 
@@ -35,14 +37,15 @@ os.environ.update({
     'BANGUMI_1': '名侦探柯南',
     'BANGUMI_2': '刃牙',
     'BANGUMI_3': '海贼王',
-    # "DEBUG": "1",
     'DEV': '1',
 })
 # monkey patch end
 
 from bgmi import main, website  # noqa
-from bgmi.lib import models
-from bgmi.lib.models import BangumiItem
-import peewee as pw
 
-main.main('cal --force-update'.split(' '))
+if len(sys.argv) > 1:
+    # call in cmd line
+    main.main()
+else:
+    # just run file
+    main.main('cal --force-update'.split(' '))

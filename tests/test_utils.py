@@ -13,21 +13,28 @@ import bgmi
 import bgmi.config
 from bgmi import utils
 from bgmi.lib import constants
-from bgmi.lib.models import get_kv_storage
+from bgmi.lib.models import get_kv_storage, db
+from bgmi.lib.models._kv import create_kv_storage
+from bgmi.sql import init_db
 from bgmi.utils import FRONTEND_NPM_URL, PACKAGE_JSON_URL
 
 
 class UtilsTest(unittest.TestCase):
+    test_dir = './test_dir'
+
     def setUp(self):
-        test_dir = './test_dir'
-        self.test_dir = test_dir
-        if os.path.exists(test_dir):
-            if os.path.isdir(test_dir):
-                shutil.rmtree(test_dir)
-                # os.rmdir(test_dir)
+        init_db()
+        create_kv_storage()
+        db.close()
+
+    def tearDown(self):
+        db.close()
+        if os.path.exists(self.test_dir):
+            if os.path.isdir(self.test_dir):
+                shutil.rmtree(self.test_dir)
             else:
-                os.remove(test_dir, )
-        os.mkdir(test_dir)
+                os.remove(self.test_dir)
+        os.mkdir(self.test_dir)
 
     def test_download_file(self):
         with patch('bgmi.utils.requests.get') as m:
@@ -70,7 +77,9 @@ class UtilsTest(unittest.TestCase):
             self.assertEqual(utils.chinese_to_arabic(raw), result)
 
     def test_normalize_path(self):
-        self.assertEqual(utils.normalize_path('http://hello? world:/233.qq'), 'http/hello world/233.qq')
+        self.assertEqual(
+            utils.normalize_path('http://hello? world:/233.qq'),
+            'http/hello world/233.qq')
 
     def test_convert_cover_url_to_path(self):
         dir_path, file_path = utils.convert_cover_url_to_path('http://hello? world:/233.qq')
@@ -83,7 +92,8 @@ class UtilsTest(unittest.TestCase):
                 def __init__(self, content):
                     self.content = bytes(content, encoding='utf8')
 
-            m.side_effect = lambda x: Mo(x) if x.startswith('https://') or x.startswith('http://') else False
+            m.side_effect = lambda x: Mo(x) if x.startswith(
+                'https://') or x.startswith('http://') else False
 
             cover_list = {x: x for x in [
                 "https://bangumi.moe/data/images/2014/12/6dv8ukxc0odnwade3pi.jpg",
@@ -106,21 +116,34 @@ class UtilsTest(unittest.TestCase):
     def test_get_web_admin(self):
         with patch('bgmi.utils.utils.requests.get') as m, patch('bgmi.utils.utils.unzip_zipped_file') as unzip:
             request_map = {
-                FRONTEND_NPM_URL: Mock(json=Mock(return_value={"version": '1.2.3',
-                                                               'versions':
-                                                                   {'1.2.3': {'dist': {'tarball': 'tarball'}}}})),
-                PACKAGE_JSON_URL: Mock(json=Mock(return_value={'version': '1.2.3', 'dist': {'tarball': 'tarball'}})),
-                'tarball': SimpleNamespace(content='tarball content')
-            }
+                FRONTEND_NPM_URL: Mock(
+                    json=Mock(
+                        return_value={
+                            "version": '1.2.3', 'versions': {
+                                '1.2.3': {
+                                    'dist': {
+                                        'tarball': 'tarball'}}}})), PACKAGE_JSON_URL: Mock(
+                                json=Mock(
+                                    return_value={
+                                        'version': '1.2.3', 'dist': {
+                                            'tarball': 'tarball'}})), 'tarball': SimpleNamespace(
+                                                content='tarball content')}
             m.side_effect = lambda x: request_map[x]
             utils.get_web_admin('install')
-            unzip.assert_called_with('tarball content', {'version': '1.2.3', 'dist': {'tarball': 'tarball'}})
+            unzip.assert_called_with(
+                'tarball content', {
+                    'version': '1.2.3', 'dist': {
+                        'tarball': 'tarball'}})
 
     def test_unzip_zipped_file(self):
         with open('./tests/data/bgmi-frontend-1.1.4.tgz', 'rb') as f:
             file_content = f.read()
         with patch('bgmi.config.FRONT_STATIC_PATH', self.test_dir):
-            utils.unzip_zipped_file(file_content, {'version': '1.2.3', 'dist': {'tarball': 'tarball'}})
+            utils.unzip_zipped_file(file_content,
+                                    {
+                                        'version': '1.2.3',
+                                        'dist': {'tarball': 'tarball'}
+                                    })
             for file_path in ['index.html', 'static/js/app.js', 'package.json']:
                 self.assertTrue(os.path.exists(os.path.join(self.test_dir, file_path)))
 
@@ -140,17 +163,23 @@ class UtilsTest(unittest.TestCase):
                 get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = 12345
                 utils.check_update()
                 update.assert_called_once()
-                self.assertEqual(get_kv_storage().get(constants.kv.LAST_CHECK_UPDATE_TIME), 12345 + 30 * 30 * 24 * 3600)
+                self.assertEqual(
+                    get_kv_storage().get(
+                        constants.kv.LAST_CHECK_UPDATE_TIME),
+                    12345 + 30 * 30 * 24 * 3600)
 
     def test_update(self):
-        with patch('bgmi.utils.utils.requests.get') as m, patch('bgmi.utils.utils.get_web_admin') as get_web_admin:
+        with patch('bgmi.utils.utils.requests.get') as m, \
+                patch('bgmi.utils.utils.get_web_admin') as get_web_admin:
             pypi = 'https://pypi.python.org/pypi/bgmi/json'
             request_map = {
-                FRONTEND_NPM_URL: Mock(json=Mock(return_value={"version": '1.2.3',
-                                                               'versions': {'1.2.3': {
-                                                                   'dist': {'tarball': 'tarball'}}}})),
-                PACKAGE_JSON_URL: Mock(
-                    json=Mock(return_value={'version': '1.2.3', 'dist': {'tarball': 'tarball'}})),
+                FRONTEND_NPM_URL: Mock(json=Mock(return_value={
+                    "version": '1.2.3',
+                    'versions': {'1.2.3': {'dist': {'tarball': 'tarball'}}}
+                })
+                ),
+                PACKAGE_JSON_URL: Mock(json=Mock(return_value={'version': '1.2.3',
+                                                               'dist': {'tarball': 'tarball'}})),
                 'tarball': SimpleNamespace(content='tarball content'),
                 pypi: Mock(json=Mock(return_value={'info': {"version": ''}})),
             }
@@ -159,8 +188,9 @@ class UtilsTest(unittest.TestCase):
                 return request_map[url]
 
             m.side_effect = mock_get
-
-            with open(bgmi.config.FRONT_STATIC_PATH + '/package.json', 'w', encoding='utf8') as f:
+            if not os.path.exists(bgmi.config.FRONT_STATIC_PATH):
+                os.makedirs(bgmi.config.FRONT_STATIC_PATH)
+            with open(bgmi.config.FRONT_STATIC_PATH + '/package.json', 'w+', encoding='utf8') as f:
                 json.dump({'version': '1.1.2'}, f)
             utils.update(True)
             get_web_admin.assert_called_once()

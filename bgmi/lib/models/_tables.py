@@ -123,8 +123,8 @@ class Bangumi(NeoDB):
 
     @classmethod
     def delete_all(cls):
-        un_updated_bangumi = Followed.select() \
-            .where(Followed.updated_time > (int(time.time()) - 2 * SECOND_OF_WEEK))  # type: List[Followed]
+        un_updated_bangumi = Followed.select() .where(Followed.updated_time > (
+            int(time.time()) - 2 * SECOND_OF_WEEK))  # type: List[Followed]
         if os.getenv('DEBUG'):  # pragma: no cover
             print('ignore updating bangumi',
                   [x.bangumi_name for x in un_updated_bangumi])
@@ -135,14 +135,14 @@ class Bangumi(NeoDB):
 
     @classmethod
     def get_updating_bangumi(cls, status=None, order=True, obj=False) -> Dict:
+        base_cond = ((cls.has_data_source == 1) & (cls.status == Bangumi.STATUS.UPDATING))
+        query = cls.select(Followed.status, Followed.episode, cls, ) \
+            .join(Followed, pw.JOIN['LEFT_OUTER'], on=(cls.name == Followed.bangumi_name))
+
         if status is None:
-            data = cls.select(Followed.status, Followed.episode, cls, ) \
-                .join(Followed, pw.JOIN['LEFT_OUTER'], on=(cls.name == Followed.bangumi_name)) \
-                .where(cls.status == Bangumi.STATUS.UPDATING)
+            data = query.where(base_cond)
         else:
-            data = cls.select(Followed.status, Followed.episode, cls, ) \
-                .join(Followed, pw.JOIN['LEFT_OUTER'], on=(cls.name == Followed.bangumi_name)) \
-                .where((cls.status == Bangumi.STATUS.UPDATING) & (Followed.status == status))
+            data = query.where(base_cond & (Followed.status == status))
         if not obj:
             data = data.dicts()
 
@@ -181,10 +181,6 @@ class Bangumi(NeoDB):
 
     def __str__(self):
         d = model_to_dict(self)
-        d['data_source'] = {}
-        # d['bangumi_names'] = '{}'.format(self.bangumi_names)
-        for key, value in self.data_source.items():
-            d['data_source'][key] = str(value)
         return '<Bangumi {}>'.format(json.dumps(d, ensure_ascii=False))
 
     def __repr__(self):

@@ -389,19 +389,19 @@ def unlink_wrapper(ret):
 
 CONTROLLERS_DICT = {
     ACTION_ADD: add_wrapper,
-    ACTION_DOWNLOAD: download_manager,
+    ACTION_CAL: cal_wrapper,
     ACTION_CONFIG: config_wrapper,
+    ACTION_CONFIG_GEN: config_gen,
+    ACTION_COMPLETE: complete,
+    ACTION_DOWNLOAD: download_manager,
     ACTION_DELETE: delete_wrapper,
     ACTION_MARK: mark_wrapper,
     ACTION_SEARCH: search_wrapper,
     ACTION_FILTER: filter_wrapper,
-    ACTION_CAL: cal_wrapper,
     ACTION_UPDATE: update_wrapper,
     ACTION_FETCH: fetch_,
     ACTION_LIST: list_wrapper,
-    ACTION_COMPLETE: complete,
     ACTION_HISTORY: history,
-    ACTION_CONFIG_GEN: config_gen,
     ACTION_LINK: link_wrapper,
     ACTION_UNLINK: unlink_wrapper,
 }

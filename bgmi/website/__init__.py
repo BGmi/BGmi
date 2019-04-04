@@ -93,7 +93,8 @@ def get_bgm_tv_calendar() -> list:
                     subject_id=item['id'],
                     update_time=day['weekday']['en'].capitalize(),
                     data_source={},
-                ))
+                )
+            )
     return bangumi_tv_weekly_list
 
 
@@ -164,8 +165,8 @@ class DataSource:
         # :type data: dict
         """
         b, obj_created = Bangumi.get_or_create(
-            name=data.name, defaults=model_to_dict(
-                data, recurse=True))  # type: (Bangumi, bool)
+            name=data.name, defaults=model_to_dict(data, recurse=True)
+        )  # type: (Bangumi, bool)
         if not obj_created:
             if b != data:
                 b.cover = data.cover
@@ -186,9 +187,8 @@ class DataSource:
         """
 
         b, obj_created = BangumiItem.get_or_create(
-            keyword=data.keyword,
-            data_source=data.data_source,
-            defaults=model_to_dict(data))  # type: (BangumiItem, bool)
+            keyword=data.keyword, data_source=data.data_source, defaults=model_to_dict(data)
+        )  # type: (BangumiItem, bool)
 
         if not obj_created:
             if b != data:
@@ -232,8 +232,7 @@ class DataSource:
             for daily_bangumi in weekly_list.values():
                 for bangumi in daily_bangumi:
                     _, file_path = convert_cover_url_to_path(bangumi['cover'])
-                    if not (os.path.exists(file_path) and
-                            imghdr.what(file_path)):
+                    if not (os.path.exists(file_path) and imghdr.what(file_path)):
                         cover_to_be_download.append(bangumi['cover'])
 
             if cover_to_be_download:
@@ -242,10 +241,7 @@ class DataSource:
 
         return weekly_list
 
-    def get_maximum_episode(self,
-                            bangumi,
-                            ignore_old_row=True,
-                            max_page=int(MAX_PAGE)):
+    def get_maximum_episode(self, bangumi, ignore_old_row=True, max_page=int(MAX_PAGE)):
         """
 
         :type max_page: str
@@ -256,19 +252,18 @@ class DataSource:
         :type bangumi: bgmi.lib.models._tables.Bangumi
         """
         followed_filter_obj, _ = Followed.get_or_create(
-            bangumi_name=bangumi.name)  # type : (Filter, bool)
+            bangumi_name=bangumi.name
+        )  # type : (Filter, bool)
 
         data = [
             i for i in self.fetch_episode(
-                bangumi_obj=bangumi,
-                filter_obj=followed_filter_obj,
-                max_page=int(max_page)) if i['episode'] is not None
+                bangumi_obj=bangumi, filter_obj=followed_filter_obj, max_page=int(max_page)
+            ) if i['episode'] is not None
         ]
 
         if ignore_old_row:
             data = [
-                row for row in data
-                if row['time'] > int(time.time()) - 3600 * 24 * 30 * 3
+                row for row in data if row['time'] > int(time.time()) - 3600 * 24 * 30 * 3
             ]  # three month
 
         if data:
@@ -276,10 +271,7 @@ class DataSource:
             return bangumi, data
         return {'episode': 0}, []
 
-    def fetch_episode(self,
-                      filter_obj: Followed = None,
-                      bangumi_obj=None,
-                      max_page=int(MAX_PAGE)):
+    def fetch_episode(self, filter_obj: Followed = None, bangumi_obj=None, max_page=int(MAX_PAGE)):
         """
         :type filter_obj: bgmi.lib.models._tables.Followed
         :type bangumi_obj: bgmi.lib.models._tables.Bangumi
@@ -289,13 +281,13 @@ class DataSource:
         name = bangumi_obj.name
         max_page = int(max_page)
         response_data = []
+        available_source = list(BangumiItem.select().where(BangumiItem.bangumi == bangumi_obj.id))
+        available_source_ids = [x.data_source for x in available_source]
 
         if filter_obj.data_source:
-            source = list(
-                set(bangumi_obj.data_source.keys()) & set(
-                    filter_obj.data_source))
+            source = list(set(available_source_ids) & set(filter_obj.data_source))
         else:
-            source = list(bangumi_obj.data_source.keys())
+            source = available_source_ids
 
         if filter_obj.subtitle:
             subtitle_group = Subtitle.select(Subtitle.id, Subtitle.data_source) \
@@ -307,25 +299,23 @@ class DataSource:
                 condition[subtitle.data_source].append(subtitle.id)
 
             for s, subtitle_group in condition.items():
-                print_info('Fetching {} from {}'.format(
-                    bangumi_obj.data_source[s]['name'], s))
+                print_info('Fetching {} from {}'.format(bangumi_obj.data_source[s]['name'], s))
                 response_data += DATA_SOURCE_MAP[s].fetch_episode_of_bangumi(
                     bangumi_id=bangumi_obj.data_source[s]['keyword'],
                     subtitle_list=subtitle_group,
-                    max_page=max_page)
+                    max_page=max_page
+                )
 
         else:
-            for s in source:
-                print_info('Fetching {} from {}'.format(
-                    bangumi_obj.data_source[s]['name'], s))
-                response_data += DATA_SOURCE_MAP[s].fetch_episode_of_bangumi(
-                    bangumi_id=bangumi_obj.data_source[s]['keyword'],
-                    max_page=max_page)
+            for source in available_source:
+                print_info('Fetching {} from {}'.format(name, source.data_source))
+                response_data += DATA_SOURCE_MAP[source.data_source].fetch_episode_of_bangumi(
+                    bangumi_id=source.keyword, max_page=max_page
+                )
         for episode in response_data:
             episode['name'] = name
 
-        return filter_obj.apply_keywords_filter_on_list_of_episode(
-            response_data)
+        return filter_obj.apply_keywords_filter_on_list_of_episode(response_data)
 
     @staticmethod
     def followed_bangumi():
@@ -334,13 +324,10 @@ class DataSource:
         :return: list of bangumi followed
         :rtype: list[dict]
         """
-        weekly_list_followed = Bangumi.get_updating_bangumi(
-            status=Followed.STATUS.FOLLOWED)
-        weekly_list_updated = Bangumi.get_updating_bangumi(
-            status=Followed.STATUS.UPDATED)
+        weekly_list_followed = Bangumi.get_updating_bangumi(status=Followed.STATUS.FOLLOWED)
+        weekly_list_updated = Bangumi.get_updating_bangumi(status=Followed.STATUS.UPDATED)
         weekly_list = defaultdict(list)
-        for k, v in chain(weekly_list_followed.items(),
-                          weekly_list_updated.items()):
+        for k, v in chain(weekly_list_followed.items(), weekly_list_updated.items()):
             weekly_list[k].extend(v)
         for bangumi_list in weekly_list.values():
             for bangumi in bangumi_list:
@@ -373,10 +360,7 @@ class DataSource:
         :return: list of episode search result
         :rtype: list[dict]
         """
-        return sum([
-            s.search_by_keyword(keyword, count)
-            for i, s in DATA_SOURCE_MAP.items()
-        ], [])
+        return sum([s.search_by_keyword(keyword, count) for i, s in DATA_SOURCE_MAP.items()], [])
 
 
 def find_most_similar_index(container, name):

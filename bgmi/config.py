@@ -6,6 +6,16 @@ import os
 import platform
 import random
 
+
+# --------- Read-Only ---------- #
+
+# Detail URL
+# platform
+IS_WINDOWS = platform.system() == 'Windows'
+
+# ------- Read-Only End -------- #
+
+
 # download delegate
 __transmission__ = (
     'TRANSMISSION_RPC_URL',
@@ -27,7 +37,6 @@ __all__ = (
     'SAVE_PATH',
     'DOWNLOAD_DELEGATE',
     'DB_URL',
-    'KV_DB_PATH',
     'MAX_PAGE',
     'TMP_PATH',
     'DANMAKU_API_URL',
@@ -47,7 +56,6 @@ __readonly__ = (
     'CONFIG_FILE_PATH',
     'TOOLS_PATH',
     'SCRIPT_PATH',
-    'KV_DB_PATH',
     'FRONT_STATIC_PATH',
 )
 
@@ -81,7 +89,6 @@ if not BGMI_PATH:  # pragma: no cover
 
 # DB_URL = os.path.join(BGMI_PATH, 'bangumi.db')
 DB_URL = 'sqlite:///{}'.format(os.path.join(BGMI_PATH, 'bangumi.db'))
-KV_DB_PATH = os.path.join(BGMI_PATH, 'kv.db')
 CONFIG_FILE_PATH = os.path.join(BGMI_PATH, 'bgmi.cfg')
 
 # SCRIPT_DB_URL = 'sqlite:///{}'.format(os.path.join(BGMI_PATH, 'script.db'))
@@ -291,9 +298,3 @@ read_config()
 # ------------------------------ #
 # will be used in other other models
 __all_writable_now__ = __writeable__ + DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]
-
-# --------- Read-Only ---------- #
-
-# Detail URL
-# platform
-IS_WINDOWS = platform.system() == 'Windows'

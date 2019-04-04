@@ -1,0 +1,24 @@
+[
+  {
+    "bangumi_name": "海贼王",
+    "episode": 0,
+    "status": 1,
+    "updated_time": null,
+    "data_source": "",
+    "subtitle": "",
+    "include": "",
+    "exclude": "",
+    "regex": ""
+  },
+  {
+    "bangumi_name": "名侦探柯南",
+    "episode": 0,
+    "status": 2,
+    "updated_time": null,
+    "data_source": "",
+    "subtitle": "",
+    "include": "",
+    "exclude": "",
+    "regex": ""
+  }
+]

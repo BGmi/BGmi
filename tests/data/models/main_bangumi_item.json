@@ -1,0 +1,178 @@
+[
+  {
+    "id": 1,
+    "name": "名侦探柯南",
+    "cover": "https://mikanani.me/Images/Bangumi/201310/91d95f43.jpg",
+    "status": 0,
+    "update_time": "Sun",
+    "subtitle_group": "10, 161, 93, 202, 22, 466, 387, 305, 169, 373, 7, 38, 21, 97, 25, 81, 151, 14, 65, 85, 9, 57, 52",
+    "keyword": "227",
+    "data_source": "mikan_project",
+    "bangumi": 41
+  },
+  {
+    "id": 2,
+    "name": "海贼王",
+    "cover": "https://mikanani.me/Images/Bangumi/201310/0aa598c7.jpg",
+    "status": 0,
+    "update_time": "Sun",
+    "subtitle_group": "9, 202, 1, 38, 22",
+    "keyword": "228",
+    "data_source": "mikan_project",
+    "bangumi": 49
+  },
+  {
+    "id": 12,
+    "name": "名侦探柯南",
+    "cover": "https://bangumi.moe/data/images/2014/12/6s8brph4pbw53m1ehi9.jpg",
+    "status": 0,
+    "update_time": "Sat",
+    "subtitle_group": "59af67e5d04829c1623b0e51, 5492ecbc2a934ba5288acb20",
+    "keyword": "548fe27ef892774b140ac6e8",
+    "data_source": "bangumi_moe",
+    "bangumi": 41
+  },
+  {
+    "id": 13,
+    "name": "海贼王",
+    "cover": "https://bangumi.moe/data/images/2014/12/4812mhys7u6n7vvlvgl.jpg",
+    "status": 0,
+    "update_time": "Sun",
+    "subtitle_group": "59030031e777e29f2a081ba1, 59058a79e777e29f2a081e10, 55a3ddfab85ffe43596230d5",
+    "keyword": "548ef7225af0fb402813b57b",
+    "data_source": "bangumi_moe",
+    "bangumi": 49
+  },
+  {
+    "id": 21,
+    "name": "海賊王",
+    "cover": "https://share.dmhy.org/images/weekly/OnePiece.jpg",
+    "status": 0,
+    "update_time": "Sun",
+    "subtitle_group": "34, 57, 380, 485, 506",
+    "keyword": "%E6%B5%B7%E8%B3%8A%E7%8E%8B",
+    "data_source": "dmhy",
+    "bangumi": 49
+  },
+  {
+    "id": 53,
+    "name": "妖怪手錶",
+    "cover": "https://share.dmhy.org/images/weekly/youkai-watch.jpg",
+    "status": 0,
+    "update_time": "Thu",
+    "subtitle_group": "490, 88",
+    "keyword": "Youkai+Watch",
+    "data_source": "dmhy",
+    "bangumi": 30
+  },
+  {
+    "id": 69,
+    "name": "魔法禁書目錄Ⅲ",
+    "cover": "https://share.dmhy.org/images/weekly/404.gif",
+    "status": 0,
+    "update_time": "Fri",
+    "subtitle_group": "710, 720, 619, 47, 303, 283, 468, 225",
+    "keyword": "%E9%AD%94%E6%B3%95%E7%A6%81%E4%B9%A6%E7%9B%AE%E5%BD%95",
+    "data_source": "dmhy",
+    "bangumi": 0
+  },
+  {
+    "id": 70,
+    "name": "火之丸相撲",
+    "cover": "https://share.dmhy.org/images/weekly/404.gif",
+    "status": 0,
+    "update_time": "Fri",
+    "subtitle_group": "117",
+    "keyword": "%E7%81%AB+%E7%9B%B8%E6%89%91",
+    "data_source": "dmhy",
+    "bangumi": 0
+  },
+  {
+    "id": 71,
+    "name": "名偵探柯南",
+    "cover": "https://share.dmhy.org/images/weekly/conan.gif",
+    "status": 0,
+    "update_time": "Sat",
+    "subtitle_group": "241, 75, 380, 299, 359, 412, 506, 454, 576",
+    "keyword": "%E6%9F%AF%E5%8D%97",
+    "data_source": "dmhy",
+    "bangumi": 41
+  },
+  {
+    "id": 72,
+    "name": "約會大作戰Ⅲ",
+    "cover": "https://share.dmhy.org/images/weekly/404.gif",
+    "status": 0,
+    "update_time": "Sat",
+    "subtitle_group": "58, 407, 657",
+    "keyword": "%E6%9C%83%E5%A4%A7",
+    "data_source": "dmhy",
+    "bangumi": 0
+  },
+  {
+    "id": 73,
+    "name": "B-PROJECT～絕頂＊Emotion～",
+    "cover": "https://share.dmhy.org/images/weekly/404.gif",
+    "status": 0,
+    "update_time": "Sat",
+    "subtitle_group": "710",
+    "keyword": "%E7%BB%9D%E9%A1%B6",
+    "data_source": "dmhy",
+    "bangumi": 0
+  },
+  {
+    "id": 74,
+    "name": "家有女友",
+    "cover": "https://share.dmhy.org/images/weekly/404.gif",
+    "status": 0,
+    "update_time": "Sat",
+    "subtitle_group": "619, 720",
+    "keyword": "%E5%AE%B6%E6%9C%89%E5%A5%B3%E5%8F%8B",
+    "data_source": "dmhy",
+    "bangumi": 0
+  },
+  {
+    "id": 75,
+    "name": "JoJo的奇妙冒險 黃金之風",
+    "cover": "https://share.dmhy.org/images/weekly/404.gif",
+    "status": 0,
+    "update_time": "Sat",
+    "subtitle_group": "151, 185",
+    "keyword": "%E9%BB%84%E9%87%91+%E4%B9%8B%E9%A3%8E",
+    "data_source": "dmhy",
+    "bangumi": 0
+  },
+  {
+    "id": 76,
+    "name": "魔法少女特殊戰明日香",
+    "cover": "https://share.dmhy.org/images/weekly/404.gif",
+    "status": 0,
+    "update_time": "Sat",
+    "subtitle_group": "720, 663",
+    "keyword": "%E5%B0%91%E5%A5%B3+%E6%98%8E%E6%97%A5%E9%A6%99",
+    "data_source": "dmhy",
+    "bangumi": 0
+  },
+  {
+    "id": 77,
+    "name": "百慕大三角～Colorful Pastrale～",
+    "cover": "https://share.dmhy.org/images/weekly/404.gif",
+    "status": 0,
+    "update_time": "Sat",
+    "subtitle_group": "710",
+    "keyword": "%E7%99%BE%E6%85%95",
+    "data_source": "dmhy",
+    "bangumi": 0
+  },
+  {
+    "id": 78,
+    "name": "不愉快的妖怪庵Ⅱ",
+    "cover": "https://share.dmhy.org/images/weekly/404.gif",
+    "status": 0,
+    "update_time": "Sat",
+    "subtitle_group": "303, 627",
+    "keyword": "%E6%80%AA%E5%BA%B5",
+    "data_source": "dmhy",
+    "bangumi": 0
+  }
+]

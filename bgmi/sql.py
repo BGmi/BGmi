@@ -45,7 +45,6 @@ def init_db():
         BangumiLink,
         Scripts,
     ])
-    sqlite3.connect(config.KV_DB_PATH).close()
 
 
 if __name__ == '__main__':

@@ -50,7 +50,6 @@ def main(argv=None, program_name='bgmi'):
         bgmi.setup.install()
         get_web_admin(method='install')
         init_db()
-        raise SystemExit
     elif ret.action == 'upgrade':
         create_dir()
         upgrade_version()

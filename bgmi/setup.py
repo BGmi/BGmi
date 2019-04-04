@@ -14,13 +14,11 @@ def install_crontab():
     print_info('Installing crontab job')
     if IS_WINDOWS:
         base = os.path.join(os.path.dirname(__file__), 'others\\windows\\cron')
-        exec_command(
-            'SCHTASKS /Create /TN "bgmi calendar updater" /SC HOURLY /MO 2 '
-            '/TR "{tr}" /F'.format(tr=os.path.join(base, 'cal.vbs')))
+        exec_command('SCHTASKS /Create /TN "bgmi calendar updater" /SC HOURLY /MO 2 '
+                     '/TR "{tr}" /F'.format(tr=os.path.join(base, 'cal.vbs')))
 
-        exec_command(
-            'SCHTASKS /Create /TN "bgmi bangumi updater" /SC HOURLY /MO 12 '
-            '/TR "{tr}" /F'.format(tr=os.path.join(base, 'update.vbs')))
+        exec_command('SCHTASKS /Create /TN "bgmi bangumi updater" /SC HOURLY /MO 12 '
+                     '/TR "{tr}" /F'.format(tr=os.path.join(base, 'update.vbs')))
     else:
         path = os.path.join(os.path.dirname(__file__), 'others/crontab.sh')
         exec_command("bash '%s'" % path)
