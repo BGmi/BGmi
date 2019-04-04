@@ -355,7 +355,15 @@ actions_and_arguments = [
     },
     {
         'action': 'install',
-        'help': 'Install BGmi front / admin / download delegate'
+        'help': 'Install BGmi front / admin / download delegate',
+        'arguments': [
+            {
+                'dest': '--no-web',
+                'kwargs': dict(
+                    action='store_false', dest='install_web', help='Download web static file.'
+                ),
+            },
+        ]
     },
     {
         'action': 'upgrade',
