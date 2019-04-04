@@ -150,7 +150,7 @@ script:
 #  - UNITTEST=1 BGMI_LOG=info coverage run -a -m unittest tests.test_http_api -v
   - cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
 
-  - rm ~/.bgmi -rf
+  - rm -rf ~/.bgmi | true
   - coverage run -a -m bgmi install
   - cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
 
