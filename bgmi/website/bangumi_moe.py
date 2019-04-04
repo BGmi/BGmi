@@ -69,8 +69,7 @@ def parser_bangumi(data):
     weekly_list = []
     subtitle_group_list = []
     for bangumi_item in data:
-        subtitle_of_bangumi = process_subtitle(
-            subtitle.get(bangumi_item['tag_id'], []))
+        subtitle_of_bangumi = process_subtitle(subtitle.get(bangumi_item['tag_id'], []))
         item = {
             'status': 0,
             'subtitle_group': list(subtitle_of_bangumi.keys()),
@@ -92,10 +91,7 @@ def parser_bangumi(data):
 class BangumiMoe(BaseWebsite):
     cover_url = COVER_URL
 
-    def fetch_episode_of_bangumi(self,
-                                 bangumi_id,
-                                 subtitle_list=None,
-                                 max_page=MAX_PAGE):
+    def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
         max_page = int(max_page)
         response_data = []
         ret = []
@@ -116,20 +112,17 @@ class BangumiMoe(BaseWebsite):
         for index, bangumi in enumerate(response_data):
             ret.append({
                 # 'download': bangumi['magnet'],
-                'download':
-                TORRENT_URL + bangumi['_id'] + '/download.torrent',
-                'subtitle_group':
-                bangumi['team_id'],
-                'title':
-                bangumi['title'],
-                'episode':
-                self.parse_episode(bangumi['title']),
-                'time':
-                int(
+                'download': TORRENT_URL + bangumi['_id'] + '/download.torrent',
+                'subtitle_group': bangumi['team_id'],
+                'title': bangumi['title'],
+                'episode': self.parse_episode(bangumi['title']),
+                'time': int(
                     time.mktime(
                         datetime.datetime.strptime(
-                            bangumi['publish_time'].split('.')[0],
-                            "%Y-%m-%dT%H:%M:%S").timetuple()))
+                            bangumi['publish_time'].split('.')[0], "%Y-%m-%dT%H:%M:%S"
+                        ).timetuple()
+                    )
+                )
             })
 
             if os.environ.get('DEBUG'):
@@ -142,6 +135,7 @@ class BangumiMoe(BaseWebsite):
         if not response:
             return []
         bangumi_result, subtitile_result = parser_bangumi(response)
+        # todo: need to fix https://github.com/BGmi/BGmi/issues/150 and remove this line
         return [x for x in bangumi_result if x['name']], subtitile_result
         return bangumi_result, subtitile_result
 
@@ -153,11 +147,7 @@ class BangumiMoe(BaseWebsite):
         result = []
 
         for i in range(count):
-            data = get_response(
-                SEARCH_URL, 'POST', json={
-                    'query': keyword,
-                    'p': i + 1
-                })
+            data = get_response(SEARCH_URL, 'POST', json={'query': keyword, 'p': i + 1})
             if 'torrents' not in data:
                 print_warning('No torrents in response data, please re-run')
                 return []
@@ -170,7 +160,11 @@ class BangumiMoe(BaseWebsite):
                 'subtitle_group': info['team_id'],
                 'title': info['title'],
                 'episode': self.parse_episode(info['title']),
-                # 'time': int(datetime.datetime.strptime(info['publish_time'].split('.')[0], "%Y-%m-%dT%H:%M:%S").timetuple())
+                'time': int(
+                    datetime.datetime.strptime(
+                        info['publish_time'].split('.')[0], "%Y-%m-%dT%H:%M:%S"
+                    ).timetuple()
+                )
             })
 
         # Avoid bangumi collection. It's ok but it will waste your traffic and bandwidth.
