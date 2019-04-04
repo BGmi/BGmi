@@ -129,7 +129,6 @@ script:
   - bash tests/init_env_and_run_unit_test.sh test_controllers
   - bash tests/init_env_and_run_unit_test.sh test_config
   - bash tests/init_env_and_run_unit_test.sh test_download_delegate
-  - bgmi cal
 #  - UNITTEST=1 BGMI_LOG=info coverage run -a -m unittest tests.test_http_api -v
 
   - rm ~/.bgmi -rf
@@ -138,6 +137,7 @@ script:
   - bgmi -h
 
   - cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
+#  - bgmi cal
   - coverage run -a -m bgmi.main gen nginx.conf --server-name _
   - if [[ "$DB" == "mysql" ]]; then bgmi config DB_URL 'mysql+pool://root:@127.0.0.1:3306/bgmi?charset=utf8mb4';bgmi install; fi
 

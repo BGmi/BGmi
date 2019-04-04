@@ -194,9 +194,6 @@ def cal():
     for value in weekly_list.values():
         for bangumi in value:
             bangumi['cover'] = normalize_path(bangumi['cover'])
-            bangumi['bangumi_names'] = list(bangumi['bangumi_names'])
-            for key, data_source in bangumi['data_source'].items():
-                bangumi['data_source'][key] = model_to_dict(data_source)
     logger.debug(r)
     return r
 
