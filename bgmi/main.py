@@ -14,7 +14,7 @@ from bgmi.lib.models import get_kv_storage
 from bgmi.lib.update import upgrade_version
 from bgmi.setup import create_dir, install_crontab
 from bgmi.sql import init_db
-from bgmi.utils import print_warning, print_error, print_version, check_update, get_web_admin, constants
+from bgmi.utils import print_warning, print_error, print_version, check_update, get_web_admin, constants, print_info
 
 
 # global Ctrl-C signal handler
@@ -49,7 +49,10 @@ def main(argv=None, program_name='bgmi'):
         setup()
         import bgmi.setup
         bgmi.setup.install()
-        get_web_admin(method='install')
+        if ret.install_web:
+            get_web_admin(method='install')
+        else:
+            print_info('skip downloading web static files')
         init_db()
         get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = int(time.time())
     elif ret.action == 'upgrade':

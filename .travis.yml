@@ -133,11 +133,11 @@ script:
   - python --version
   - pip freeze
   - pycodestyle -r ./bgmi/
-  - coverage run -a -m bgmi install
+  - coverage run -a -m bgmi install --no-web
   - |
    if [[ "$DB" == "mysql" ]]; then
      bgmi config DB_URL 'mysql+pool://root:@127.0.0.1:3306/bgmi?charset=utf8mb4';
-     coverage run -a -m bgmi install;
+     coverage run -a -m bgmi install --no-web;
    fi
 
   - bash tests/init_env_and_run_unit_test.sh test_website
@@ -154,7 +154,11 @@ script:
   - coverage run -a -m bgmi install
   - cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
 
-  - if [[ "$DB" == "mysql" ]]; then bgmi config DB_URL 'mysql+pool://root:@127.0.0.1:3306/bgmi?charset=utf8mb4';bgmi install; fi
+  - |
+    if [[ "$DB" == "mysql" ]]; then
+      bgmi config DB_URL 'mysql+pool://root:@127.0.0.1:3306/bgmi?charset=utf8mb4';
+      bgmi install --no-web;
+    fi
 
   - bgmi -h
   - coverage run -a -m bgmi gen nginx.conf --server-name _

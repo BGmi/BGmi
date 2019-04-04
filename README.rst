@@ -93,6 +93,8 @@ Init BGmi database and install BGmi web interface:
 
     bgmi install
 
+if you don't need bgmi-frontend, add ``--no-web`` options to skip download front static file
+
 ** ``bgmi`` now will not try to create dirs and init db every time, you will have to use ``bgmi install`` at first time**
 
 ============
