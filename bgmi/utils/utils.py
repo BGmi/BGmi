@@ -123,7 +123,7 @@ def _indicator(f):
     def wrapper(*args, **kwargs):
         if kwargs.get('indicator', True):
             func_name = f.__qualname__
-            args = (indicator_map.get(func_name, '') + args[0],)
+            args = (indicator_map.get(func_name, '') + args[0], )
         f(*args, **kwargs)
         sys.stdout.flush()
 
@@ -193,14 +193,12 @@ def test_connection():
 
 
 def bug_report():  # pragma: no cover
-    print_error('It seems that no bangumi found, if https://bangumi.moe can \n'
-                '    be opened normally, '
-                'please submit issue at: https://github.com/BGmi/BGmi/issues',
-                exit_=True)
-
-
-def _parse_version(version_string):
-    return [int(x) for x in version_string.split('.')]
+    print_error(
+        'It seems that no bangumi found, if https://bangumi.moe can \n'
+        '    be opened normally, '
+        'please submit issue at: https://github.com/BGmi/BGmi/issues',
+        exit_=True
+    )
 
 
 @log_utils_function
@@ -210,8 +208,9 @@ def get_terminal_col():  # pragma: no cover
         import fcntl
         import termios
 
-        _, col, _, _ = struct.unpack(str('HHHH'), fcntl.ioctl(0, termios.TIOCGWINSZ,
-                                                              struct.pack(str('HHHH'), 0, 0, 0, 0)))
+        _, col, _, _ = struct.unpack(
+            str('HHHH'), fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack(str('HHHH'), 0, 0, 0, 0))
+        )
 
         return col
     try:
@@ -236,8 +235,8 @@ def get_terminal_col():  # pragma: no cover
         return 80
 
 
-def _parse_version(s):
-    return [int(x) for x in s.split('.')]
+def _parse_version(version_string):
+    return [int(x) for x in version_string.split('.')]
 
 
 def update(mark=True):
@@ -249,9 +248,12 @@ def update(mark=True):
         #     f.write(version)
 
         if version > __version__:
-            print_warning('Please update bgmi to the latest version {}{}{}.'
-                          '\nThen execute `bgmi upgrade` to migrate database'
-                          .format(GREEN, version, COLOR_END))
+            print_warning(
+                'Please update bgmi to the latest version {}{}{}.'
+                '\nThen execute `bgmi upgrade` to migrate database'.format(
+                    GREEN, version, COLOR_END
+                )
+            )
         else:
             print_success('Your BGmi is the latest version.')
 
@@ -308,8 +310,10 @@ def get_web_admin(method):
         r = requests.get(FRONTEND_NPM_URL).json()
         version = requests.get(PACKAGE_JSON_URL).json()
         if 'error' in version and version['reason'] == "document not found":  # pragma: no cover
-            print_error("Cnpm has not synchronized the latest version of BGmi-frontend from npm, "
-                        "please try it later")
+            print_error(
+                "Cnpm has not synchronized the latest version of BGmi-frontend from npm, "
+                "please try it later"
+            )
             return
         tar_url = r['versions'][version['version']]['dist']['tarball']
         r = requests.get(tar_url)
@@ -335,8 +339,10 @@ def unzip_zipped_file(file_content, front_version):
         tar_file_obj.extractall(path=config.FRONT_STATIC_PATH)
 
     for file in os.listdir(os.path.join(config.FRONT_STATIC_PATH, 'package', 'dist')):
-        move(os.path.join(config.FRONT_STATIC_PATH, 'package', 'dist', file),
-             os.path.join(config.FRONT_STATIC_PATH, file))
+        move(
+            os.path.join(config.FRONT_STATIC_PATH, 'package', 'dist', file),
+            os.path.join(config.FRONT_STATIC_PATH, file)
+        )
     with open(os.path.join(config.FRONT_STATIC_PATH, 'package.json'), 'w+') as f:
         f.write(json.dumps(front_version))
 
@@ -420,9 +426,7 @@ def exec_command(command: str) -> int:
     return status
 
 
-def render_template(path_or_file: Union[str, Path, TextIO],
-                    ctx: dict = None,
-                    **kwargs):
+def render_template(path_or_file: Union[str, Path, TextIO], ctx: dict = None, **kwargs):
     """
     read file content and render it as tornado template with kwargs or ctx
 

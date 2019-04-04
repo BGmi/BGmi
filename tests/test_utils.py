@@ -186,7 +186,7 @@ class UtilsTest(unittest.TestCase):
             with patch('bgmi.utils.utils.update') as update:
                 get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = 12345
                 utils.check_update()
-                update.assert_called_once()
+                update.assert_called_once_with(True)
                 self.assertEqual(
                     get_kv_storage().get(constants.kv.LAST_CHECK_UPDATE_TIME),
                     12345 + 30 * 30 * 24 * 3600
@@ -194,7 +194,7 @@ class UtilsTest(unittest.TestCase):
 
     def test_update(self):
         with patch('bgmi.utils.utils.requests.get') as m, \
-                patch('bgmi.utils.utils.get_web_admin') as get_web_admin:
+                patch('bgmi.utils.utils.get_web_admin', Mock()) as get_web_admin:
             pypi = 'https://pypi.python.org/pypi/bgmi/json'
             request_map = {
                 FRONTEND_NPM_URL: Mock(
@@ -234,7 +234,7 @@ class UtilsTest(unittest.TestCase):
             with open(bgmi.config.FRONT_STATIC_PATH + '/package.json', 'w+', encoding='utf8') as f:
                 json.dump({'version': '1.1.2'}, f)
             utils.update(True)
-            get_web_admin.assert_called_once()
+            get_web_admin.assert_any_call(method='update')
 
     @property
     def template_path(self) -> str:
