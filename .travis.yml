@@ -126,11 +126,11 @@ script:
   - bash tests/init_env_and_run_unit_test.sh test_utils
   - bash tests/init_env_and_run_unit_test.sh test_models
   - bash tests/init_env_and_run_unit_test.sh test_data_source
-#  - bash tests/init_env_and_run_unit_test.sh test_controllers
+  - bash tests/init_env_and_run_unit_test.sh test_controllers
   - bash tests/init_env_and_run_unit_test.sh test_config
   - bash tests/init_env_and_run_unit_test.sh test_download_delegate
   - bgmi cal
-  - UNITTEST=1 BGMI_LOG=info coverage run -a -m unittest tests.test_http_api -v
+#  - UNITTEST=1 BGMI_LOG=info coverage run -a -m unittest tests.test_http_api -v
 
   - rm ~/.bgmi -rf
 

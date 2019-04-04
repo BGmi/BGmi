@@ -235,7 +235,7 @@ split_before_closing_bracket=True
 #       variable: 'Hello world, have a nice day!'
 #       for variable in bar if variable != 42
 #   }
-split_before_dict_set_generator=True
+split_before_dict_set_generator=False
 
 # Split before the '.' if we need to split a longer expression:
 #

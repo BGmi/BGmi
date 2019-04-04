@@ -160,11 +160,6 @@ class BangumiMoe(BaseWebsite):
                 'subtitle_group': info['team_id'],
                 'title': info['title'],
                 'episode': self.parse_episode(info['title']),
-                'time': int(
-                    datetime.datetime.strptime(
-                        info['publish_time'].split('.')[0], "%Y-%m-%dT%H:%M:%S"
-                    ).timetuple()
-                )
             })
 
         # Avoid bangumi collection. It's ok but it will waste your traffic and bandwidth.
