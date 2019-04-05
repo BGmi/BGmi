@@ -154,14 +154,15 @@ def cal_wrapper(ret):
         if weekly_list[weekday.lower()]:
             print(
                 '%s%s. %s' % (
-                    GREEN, weekday
-                    if not ret.today else 'Bangumi Schedule for Today (%s)' % weekday, COLOR_END
+                    GREEN, weekday if not ret.today else 'Bangumi Schedule for Today (%s)' % weekday,
+                    COLOR_END
                 )
             )
             print_line()
             for i, bangumi in enumerate(weekly_list[weekday.lower()]):
                 if bangumi['status'] in (
-                    Followed.STATUS.UPDATED, Followed.STATUS.FOLLOWED
+                    Followed.STATUS.UPDATED,
+                    Followed.STATUS.FOLLOWED,
                 ) and 'episode' in bangumi:
                     bangumi['name'] = '%s(%d)' % (bangumi['name'], bangumi['episode'])
 
@@ -200,11 +201,11 @@ def filter_wrapper(ret):
         exclude=ret.exclude,
         regex=ret.regex
     )
-    if 'data' not in result:
-        globals()["print_{}".format(result['status'])](result['message'])
-    else:
+
+    result.print()
+    if result.data:
         print_info('Usable subtitle group: {0}'.format(result['data']['subtitle_group']))
-        print_info('Usable data source: {}'.format(', '.join(result['data']['data_source'])))
+        print_info('Usable data source: {}'.format(result['data']['data_source']))
         print()
         followed_filter_obj = Followed.get(bangumi_name=result['data']['name'])
         print_filter(followed_filter_obj)
@@ -446,3 +447,4 @@ def print_filter(followed_filter_obj: Followed):
     print_info('Include keywords: {0}'.format(j(followed_filter_obj.include)))
     print_info('Exclude keywords: {0}'.format(j(followed_filter_obj.exclude)))
     print_info('Regular expression: {0}'.format(followed_filter_obj.regex))
+    print_info('(`None` means noneffective filter)')

@@ -175,13 +175,11 @@ script:
   - coverage run -a -m bgmi add $BANGUMI_2 --episode 1
   - coverage run -a -m bgmi fetch $BANGUMI_2
 
-  # todo: reafactor bgmi.lib.models._tables.Subtitle#get_subtitle_from_data_source_dict
-#  - coverage run -a -m bgmi list
+  - coverage run -a -m bgmi list
 
   - coverage run -a -m bgmi mark $BANGUMI_2 1
   - coverage run -a -m bgmi update $BANGUMI_2
-  # todo: reafactor bgmi.lib.models._tables.Subtitle#get_subtitle_of_bangumi
-#  - coverage run -a -m bgmi filter $BANGUMI_2 --subtitle "" --exclude "MKV" --regex "720p|720P"
+  - coverage run -a -m bgmi filter $BANGUMI_2 --subtitle "" --exclude "MKV" --regex "720p|720P"
   - coverage run -a -m bgmi fetch $BANGUMI_2
 
   - coverage run -a -m bgmi search "海贼王" --regex-filter '.*MP4.*720P.*' --min-episode 800 --max-episode 900

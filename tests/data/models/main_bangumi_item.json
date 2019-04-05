@@ -44,17 +44,6 @@
     "bangumi": 49
   },
   {
-    "id": 21,
-    "name": "海賊王",
-    "cover": "https://share.dmhy.org/images/weekly/OnePiece.jpg",
-    "status": 0,
-    "update_time": "Sun",
-    "subtitle_group": "34, 57, 380, 485, 506",
-    "keyword": "%E6%B5%B7%E8%B3%8A%E7%8E%8B",
-    "data_source": "dmhy",
-    "bangumi": 49
-  },
-  {
     "id": 53,
     "name": "妖怪手錶",
     "cover": "https://share.dmhy.org/images/weekly/youkai-watch.jpg",

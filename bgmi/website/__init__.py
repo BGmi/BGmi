@@ -142,7 +142,7 @@ class DataSource:
         if save:
             with db.atomic():
                 Subtitle.save_subtitle_list(subtitle_group_result)
-                for data_source_id, bangumi_list in bangumi_result.items():
+                for bangumi_list in bangumi_result.values():
                     for bangumi in bangumi_list:
                         self.save_data_bangumi_item(bangumi)
 
@@ -257,7 +257,9 @@ class DataSource:
 
         data = [
             i for i in self.fetch_episode(
-                bangumi_obj=bangumi, filter_obj=followed_filter_obj, max_page=int(max_page)
+                bangumi_obj=bangumi,
+                filter_obj=followed_filter_obj,
+                max_page=int(max_page),
             ) if i['episode'] is not None
         ]
 
@@ -299,7 +301,8 @@ class DataSource:
                 condition[subtitle.data_source].append(subtitle.id)
 
             for s, subtitle_group in condition.items():
-                print_info('Fetching {} from {}'.format(bangumi_obj.data_source[s]['name'], s))
+                print(bangumi_obj.data_source)
+                print_info('Fetching {} from {}'.format(name, s))
                 response_data += DATA_SOURCE_MAP[s].fetch_episode_of_bangumi(
                     bangumi_id=bangumi_obj.data_source[s]['keyword'],
                     subtitle_list=subtitle_group,

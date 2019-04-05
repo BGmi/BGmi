@@ -1,3 +1,5 @@
+from typing import TypeVar, Type
+
 import peewee as pw
 from playhouse.db_url import connect
 
@@ -5,13 +7,15 @@ import bgmi.config
 
 db = connect(bgmi.config.DB_URL)
 
+T = TypeVar('T')
+
 
 class NeoDB(pw.Model):
     class Meta:
         database = db
 
     @classmethod
-    def fuzzy_get(cls, **filters):
+    def fuzzy_get(cls: Type[T], **filters) -> 'T':
         q = []
         for key, value in filters.items():
             q.append(getattr(cls, key).contains(value))

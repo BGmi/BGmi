@@ -19,3 +19,4 @@ htmlcov
 watchdemo.yaml
 .tox
 dev.py
+test_dir

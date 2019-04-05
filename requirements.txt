@@ -6,3 +6,4 @@ peewee>=3.9.2,<4.0.0
 hanziconv>=0.3.2,<1.0.0
 setuptools==40.6.2
 typing
+attrs>=19.0.0,<20.0.0

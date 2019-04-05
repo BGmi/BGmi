@@ -12,6 +12,17 @@ from ._kv import get_kv_storage
 DoesNotExist = pw.DoesNotExist
 
 
+def order_by_weekday(data, obj=False) -> defaultdict:
+    weekly_list = defaultdict(list)
+    for bangumi_item in data:
+        if obj:
+            weekly_list[bangumi_item.update_time.lower()].append(bangumi_item)
+        else:
+            weekly_list[bangumi_item['update_time'].lower()].append(
+                bangumi_item)
+    return weekly_list
+
+
 def get_updating_bangumi_with_data_source(status=None, order=True):
     common_cond = ((Bangumi.status == Bangumi.STATUS.UPDATING) &
                    (Bangumi.has_data_source == 1))
@@ -27,12 +38,20 @@ def get_updating_bangumi_with_data_source(status=None, order=True):
     data = data.dicts()
 
     if order:
-        weekly_list = defaultdict(list)
-        for bangumi_item in data:
-            weekly_list[bangumi_item['update_time'].lower()].append(bangumi_item)
+        weekly_list = order_by_weekday(data)
     else:
         weekly_list = list(data)
 
+    return weekly_list
+
+
+def get_followed_bangumi():
+    common_cond = ((Bangumi.status == Bangumi.STATUS.UPDATING) &
+                   (Bangumi.has_data_source == 1))
+    data = Followed.select(Followed, Bangumi, Bangumi.id) \
+        .join(Bangumi, pw.JOIN.LEFT_OUTER, on=(Bangumi.name == Followed.bangumi_name),)\
+        .where(common_cond).dicts()
+    weekly_list = order_by_weekday(data)
     return weekly_list
 
 
