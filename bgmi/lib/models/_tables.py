@@ -91,6 +91,10 @@ class BangumiItem(pw.Model):
             & (cls.status == cls.STATUS.UPDATING)
         return cls.select().where(cond)
 
+    @classmethod
+    def get_data_source_by_id(cls, id) -> Iterator['BangumiItem']:
+        return cls.select().where(cls.bangumi == id)
+
 
 class Bangumi(NeoDB):
     """
@@ -333,10 +337,17 @@ class Subtitle(NeoDB):
     def get_subtitle_of_bangumi(cls, bangumi_obj):
         # todo
         """
-        :type bangumi_obj: Bangumi
+        :type bangumi_obj: Union[Bangumi,dict]
         """
+        if isinstance(bangumi_obj, dict):
+            items = BangumiItem.select().where(BangumiItem.bangumi == bangumi_obj['id']).dicts()
+        else:
+            items = BangumiItem.select().where(BangumiItem.bangumi == bangumi_obj.id).dicts()
 
-        return cls.get_subtitle_from_data_source_dict(bangumi_obj.data_source)
+        data_source_dict = {}
+        for item in items:
+            data_source_dict[item['data_source']] = item
+        return cls.get_subtitle_from_data_source_dict(data_source_dict)
 
     @classmethod
     def get_subtitle_from_data_source_dict(cls, data_source):

@@ -29,8 +29,10 @@ with open(
     path.join(project_dir, 'tests/data/models/main_bangumi_item.json'), 'r', encoding='utf8'
 ) as f:
     bangumi_item_list = json.load(f)
+    for item in bangumi_item_list:
+        item['subtitle_group'] = [x.strip() for x in item['subtitle_group'].split(',')]
 
-with open('tests/data/models/subtitle.json', 'r', encoding='utf8') as f:
+with open(path.join(project_dir, 'tests/data/models/subtitle.json'), 'r', encoding='utf8') as f:
     subtitle_group = json.load(f)
     for key, value in subtitle_group.items():
         for subtitle in value:
@@ -196,16 +198,9 @@ class FollowedTest(Base, TestCase):
 
 
 class SubtitleTest(Base, TestCase):
-
-    # def setUp(self):
-    #     Base.setUp(self)
-
-    # def tearDown(self):
-    #     Base.tearDown(self)
-
     def test_get_subtitle_of_bangumi(self):
         """
-
+        todo: need to fix this
         :type bangumi_obj: Bangumi
         """
         pass
@@ -218,7 +213,7 @@ class SubtitleTest(Base, TestCase):
             'bgmi.lib.models.Subtitle.get_subtitle_from_data_source_dict', Mock(return_value=r)
         ) as m:
             Subtitle.get_subtitle_of_bangumi(B())
-            m.assert_called_with({'dmhy': {}})
+            m.assert_called_with({})
 
     def test_get_subtitle_from_data_source_dict(self):
         """

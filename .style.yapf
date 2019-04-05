@@ -1,4 +1,6 @@
 [style]
+based_on_style = pep8
+
 # Align closing bracket with visual indentation.
 align_closing_bracket_with_visual_indent=True
 
@@ -106,6 +108,7 @@ continuation_indent_width=4
 #   config = {
 #       'key1': 'value1',
 #       'key2': 'value2',
+#       'key2': 'value2',
 #   }        # <--- this bracket is dedented and on a separate line
 #
 #   time_series = self.remote_client.query_entity_counters(
@@ -122,7 +125,7 @@ dedent_closing_brackets=True
 disable_ending_comma_heuristic=False
 
 # Place each dictionary entry onto its own line.
-each_dict_entry_on_separate_line=True
+each_dict_entry_on_separate_line=False
 
 # The regex for an i18n comment. The presence of this comment stops
 # reformatting of that line, because the comments are required to be
@@ -152,7 +155,7 @@ indent_dictionary_value=False
 indent_width=4
 
 # Join short lines into one line. E.g., single line 'if' statements.
-join_multiple_lines=True
+join_multiple_lines=False
 
 # Do not include spaces around selected binary operators. For example:
 #
@@ -245,7 +248,7 @@ split_before_dict_set_generator=False
 #
 #   foo = ('This is a really long string: {}, {}, {}, {}'
 #          .format(a, b, c, d))
-split_before_dot=False
+split_before_dot=True
 
 # Split after the opening paren which surrounds an expression if it doesn't
 # fit on a single line.
@@ -276,7 +279,7 @@ split_before_named_assigns=True
 #       a_long_var + 100
 #       for a_long_var in xrange(1000)
 #       if a_long_var % 10]
-split_complex_comprehension=False
+split_complex_comprehension=True
 
 # The penalty for splitting right after the opening bracket.
 split_penalty_after_opening_bracket=30
@@ -296,7 +299,7 @@ split_penalty_bitwise_operator=300
 split_penalty_comprehension=80
 
 # The penalty for characters over the column limit.
-split_penalty_excess_character=7000
+split_penalty_excess_character=700
 
 # The penalty incurred by adding a line split to the unwrapped line. The
 # more line splits added the higher the penalty.
@@ -320,4 +323,3 @@ split_penalty_logical_operator=300
 
 # Use the Tab character for indentation.
 use_tabs=False
-

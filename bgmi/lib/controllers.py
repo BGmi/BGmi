@@ -3,11 +3,70 @@ import os
 import time
 
 from bgmi.config import write_config, MAX_PAGE
+from bgmi.lib import models
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
-from bgmi.lib.models import BangumiLink, Subtitle, Download, Followed, Bangumi, DoesNotExist, model_to_dict
+from bgmi.lib.models import BangumiLink, Subtitle, Download, Followed, Bangumi, DoesNotExist, model_to_dict, BangumiItem
 from bgmi.script import ScriptRunner
 from bgmi.utils import print_info, normalize_path, print_warning, print_success, print_error, GREEN, COLOR_END, logger
+from bgmi.website import DATA_SOURCE_MAP
+import attr
+
+
+@attr.s
+class ControllerResult:
+    success = 'success'
+    warning = 'warning'
+    error = 'error'
+
+    status = attr.ib(
+        type=str,
+        default=success,
+        validator=attr.validators.in_([success, warning, error]),
+    )
+    message = attr.ib(type=str, default='')
+    data = attr.ib(factory=dict)
+
+    def __getitem__(self, item):
+        _data = {
+            'status': self.status,
+            'message': self.message,
+            'data': self.data,
+        }
+        v = _data.get(item, KeyError)
+        if v == KeyError:
+            raise KeyError(item)
+        return v
+
+    def __setitem__(self, key, value):
+        if key in ['status', 'message', 'data']:
+            setattr(self, key, value)
+        else:
+            raise KeyError('ControllerResponse can\'t set {}'.format(key))
+
+    @classmethod
+    def from_dict(cls, d) -> 'ControllerResult':
+        return cls(**d)
+
+    @classmethod
+    def new_error(cls, message, **kwargs):
+        return cls(status=cls.error, message=message, **kwargs)
+
+    @classmethod
+    def new_warning(cls, message, **kwargs):
+        return cls(status=cls.warning, message=message, **kwargs)
+
+    def __contains__(self, item):
+        return item in ['status', 'message', 'data']
+
+    print_map = {
+        success: print_info,
+        warning: print_warning,
+        error: print_error,
+    }
+
+    def print(self):
+        self.print_map.get(self.status, print)(self.message)
 
 
 def add(name, episode=None):
@@ -50,27 +109,31 @@ def add(name, episode=None):
 
 
 def filter_(
-    name, subtitle_input=None, data_source_input=None, include=None, exclude=None, regex=None
-):
-    result = {'status': 'success', 'message': ''}
+    name,
+    subtitle_input=None,
+    data_source_input=None,
+    include=None,
+    exclude=None,
+    regex=None,
+) -> ControllerResult:
+    result = ControllerResult()
     try:
         bangumi_obj = Bangumi.fuzzy_get(name=name)
         Followed.get(bangumi_name=bangumi_obj.name)
         name = bangumi_obj.name
     except Bangumi.DoesNotExist:
-        return {'status': 'error', 'message': 'Bangumi {0} does not exist.'.format(name)}
+        return ControllerResult.new_error('Bangumi {0} does not exist.'.format(name))
     except Followed.DoesNotExist:
-        return {
-            'status': 'error',
-            'message': 'Bangumi {name} has not subscribed, try \'bgmi add "{name}"\'.'.format(
-                name=name
-            )
-        }
+        return ControllerResult.new_error(
+            'Bangumi {name} has not subscribed, try \'bgmi add "{name}"\'.'.format(name=name)
+        )
 
     followed_filter_obj, _ = Followed.get_or_create(bangumi_name=bangumi_obj.name)
 
     subtitle_list = bangumi_obj.get_subtitle_of_bangumi()
-    valid_data_source_list = [key for key in bangumi_obj.data_source.keys()]
+    valid_data_source_list = [
+        x.data_source for x in BangumiItem.get_data_source_by_id(bangumi_obj.id)
+    ]
 
     if subtitle_input is not None:
         if subtitle_input == '':
@@ -82,17 +145,23 @@ def filter_(
                 try:
                     Subtitle.get(name=bangumi_name)
                 except Subtitle.DoesNotExist:
-                    return {
-                        'status': 'error',
-                        'message': '{} is not a valid subtitle_group'.format(bangumi_name)
-                    }
+                    return ControllerResult.new_error(
+                        '{} is not a available subtitle_group'.format(bangumi_name),
+                        data={
+                            'name': bangumi_obj.name,
+                            'data_source': valid_data_source_list,
+                            'subtitle_group': list({x['name'] for x in subtitle_list}),
+                        }
+                    )
                 if bangumi_name not in valid_subtitle_name_list:
-                    return {
-                        'status': 'error',
-                        'message': '{} is not a subtitle of bangumi {}'.format(
-                            bangumi_name, bangumi_obj.name
-                        )
-                    }
+                    return ControllerResult.new_error(
+                        '{} is not a available subtitle'.format(bangumi_name),
+                        data={
+                            'name': bangumi_obj.name,
+                            'data_source': valid_data_source_list,
+                            'subtitle_group': list({x['name'] for x in subtitle_list}),
+                        }
+                    )
             followed_filter_obj.subtitle = subtitle_input
 
     if data_source_input is not None:
@@ -102,12 +171,9 @@ def filter_(
             data_source_input = [s.strip() for s in data_source_input.split(',')]
             for data_source in data_source_input:
                 if data_source not in valid_data_source_list:
-                    return {
-                        'status': 'error',
-                        'message': 'There is not bangumi {} in data source {}'.format(
-                            bangumi_obj.name, data_source
-                        )
-                    }
+                    return ControllerResult.new_error(
+                        '{} is not a available data source'.format(data_source)
+                    )
             followed_filter_obj.data_source = data_source_input
 
     if include is not None:
@@ -124,17 +190,18 @@ def filter_(
 
     if regex is not None:
         if not regex:
-            followed_filter_obj.regex = None
+            followed_filter_obj.regex = ''
         else:
             followed_filter_obj.regex = regex
 
     followed_filter_obj.save()
 
-    result['data'] = {
+    result.data = {
         'name': bangumi_obj.name,
         'data_source': valid_data_source_list,
         'subtitle_group': list({x['name'] for x in subtitle_list}),
         'followed': followed_filter_obj.subtitle,
+        'followed_data_source': followed_filter_obj.data_source,
         'include': followed_filter_obj.include,
         'exclude': followed_filter_obj.exclude,
         'regex': followed_filter_obj.regex,
@@ -438,35 +505,36 @@ def link(*bangumi_names):
 
 
 def list_():
-    result = {}
+    result = ControllerResult()
     weekday_order = Bangumi.week
-    followed_bangumi = website.followed_bangumi()
-
+    followed_bangumi = models.get_followed_bangumi()
     script_bangumi = ScriptRunner().get_models_dict()
 
     if not followed_bangumi and not script_bangumi:
-        result['status'] = 'warning'
-        result['message'] = 'you have not subscribed any bangumi'
-        return result
-
+        return ControllerResult.new_warning('you have not subscribed any bangumi')
+    for bangumi_list in followed_bangumi.values():
+        for bangumi in bangumi_list:
+            bangumi['subtitle_group'] = Subtitle.get_subtitle_of_bangumi(bangumi)
     for i in script_bangumi:
         i['subtitle_group'] = [{'name': '<BGmi Script>'}]
         followed_bangumi[i['update_time'].lower()].append(i)
 
-    result['status'] = 'info'
-    result['message'] = ''
+    message = ''
+
     for weekday in weekday_order:
         if followed_bangumi[weekday.lower()]:
-            result['message'] += '%s%s. %s' % (GREEN, weekday, COLOR_END)
+            message += '%s%s. %s' % (GREEN, weekday, COLOR_END)
             for i, bangumi in enumerate(followed_bangumi[weekday.lower()]):
-                if bangumi['status'] in (Followed.STATUS.UPDATED, Followed.STATUS.FOLLOWED) \
-                        and 'episode' in bangumi:
+                if bangumi['status'] in (
+                    Followed.STATUS.UPDATED, Followed.STATUS.FOLLOWED
+                ) and 'episode' in bangumi:
                     bangumi['name'] = '%s(%d)' % (bangumi['name'], bangumi['episode'])
                 if i > 0:
-                    result['message'] += ' ' * 5
-                f = map(lambda x: x['name'], bangumi['subtitle_group'])
-                result['message'] += '%s: %s\n' % (bangumi['name'], ', '.join(f) if f else '<None>')
+                    message += ' ' * 5
+                f = [x['name'] for x in bangumi['subtitle_group']]
+                message += '%s: %s\n' % (bangumi['name'], ', '.join(f) if f else '<None>')
 
+    result.message = message
     return result
 
 
