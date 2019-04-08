@@ -73,10 +73,10 @@ def parser_bangumi(data):
         item = {
             'status': 0,
             'subtitle_group': list(subtitle_of_bangumi.keys()),
-            'name': name[bangumi_item['tag_id']],
+            'name': name[bangumi_item['tag_id']] or bangumi_item['name'],
             'keyword': bangumi_item['tag_id'],
             'update_time': Bangumi.week[bangumi_item['showOn'] - 1],
-            'cover': bangumi_item['cover']
+            'cover': bangumi_item['cover'],
         }
         for key, value in subtitle_of_bangumi.items():
             subtitle_group_list.append({'id': key, 'name': value})
@@ -135,8 +135,6 @@ class BangumiMoe(BaseWebsite):
         if not response:
             return []
         bangumi_result, subtitile_result = parser_bangumi(response)
-        # todo: need to fix https://github.com/BGmi/BGmi/issues/150 and remove this line
-        return [x for x in bangumi_result if x['name']], subtitile_result
         return bangumi_result, subtitile_result
 
     def search_by_keyword(self, keyword, count=None):
