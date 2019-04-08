@@ -78,6 +78,10 @@ def parser_bangumi(data):
                 'keyword': bangumi_item['tag_id'],
                 'update_time': Bangumi.week[bangumi_item['showOn'] - 1],
                 'cover': bangumi_item['cover']}
+
+        if item['name'] is None:
+            item['name'] = bangumi_item['name']
+
         for key, value in subtitle_of_bangumi.items():
             subtitle_group_list.append({
                 'id': key,
