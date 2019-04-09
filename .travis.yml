@@ -95,7 +95,7 @@ before_cache:
   - rm -f $HOME/.cache/pip/log/debug.log | true
   - |
     if [[ $TRAVIS_OS_NAME == "osx" ]]; then
-      brew clean
+      brew cleanup
     fi
 before_install:
   - |
