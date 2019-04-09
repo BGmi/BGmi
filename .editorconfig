@@ -11,4 +11,3 @@ max_line_length=100
 [{*.yaml,*.yml,*.cfg}]
 indent_style=space
 indent_size=2
-
