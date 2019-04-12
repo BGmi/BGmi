@@ -6,9 +6,8 @@ import time
 
 import requests
 
-from bgmi.config import (LANG, MAX_PAGE, BANGUMI_MOE_URL)
+from bgmi.config import BANGUMI_MOE_URL, LANG, MAX_PAGE
 from bgmi.lib.models import Bangumi
-from bgmi.utils import (print_info, bug_report, print_error, print_warning)
 from bgmi.website.base import BaseWebsite
 
 # tag of bangumi on bangumi.moe
@@ -24,22 +23,6 @@ TORRENT_URL = '{0}{1}download/torrent/'.format(BANGUMI_MOE_URL, __split)
 COVER_URL = 'https://bangumi.moe/'
 
 
-def get_response(url, method='GET', **kwargs):
-    if os.environ.get('DEBUG'):  # pragma: no cover
-        print_info('Request URL: {0}'.format(url))
-    try:
-        r = requests.request(method.lower(), url, **kwargs)
-        if os.environ.get('DEBUG'):  # pragma: no cover
-            print(r.text)
-        return r.json()
-    except requests.ConnectionError:
-        print_error('error: failed to establish a new connection')
-    except ValueError:
-        print_error(
-            'error: server returned data maybe not be json, please contact ricterzheng@gmail.com'
-        )
-
-
 def process_name(data):
     lang = 'zh_cn' if LANG not in ('zh_cn', 'zh_tw', 'ja', 'en') else LANG
     return {i['_id']: i['locale'][lang] for i in data}
@@ -50,10 +33,6 @@ def process_subtitle(data):
     """
     result = {}
     for s in data:
-        # pprint(data)
-        # f = Subtitle(id=s['tag_id'], name=s['name'])
-        # if not f.select():
-        #     f.save()
         result[s['tag_id']] = s['name']
     return result
 
@@ -63,8 +42,8 @@ def parser_bangumi(data):
     """
 
     ids = list(map(lambda b: b['tag_id'], data))
-    subtitle = get_response(TEAM_URL, 'POST', json={'tag_ids': ids})
-    name = process_name(get_response(NAME_URL, 'POST', json={'_ids': ids}))
+    subtitle = requests.post(TEAM_URL, json={'tag_ids': ids}).json()
+    name = process_name(requests.post(NAME_URL, json={'_ids': ids}).json())
 
     weekly_list = []
     subtitle_group_list = []
@@ -83,8 +62,6 @@ def parser_bangumi(data):
 
         weekly_list.append(item)
 
-    if not weekly_list:
-        bug_report()
     return weekly_list, subtitle_group_list
 
 
@@ -98,14 +75,14 @@ class BangumiMoe(BaseWebsite):
         if subtitle_list:
             for subtitle_id in subtitle_list:
                 data = {'tag_id': [bangumi_id, subtitle_id, BANGUMI_TAG]}
-                response = get_response(DETAIL_URL, 'POST', json=data)
+                response = requests.post(DETAIL_URL, json=data).json()
                 response_data.extend(response['torrents'])
         else:
             for i in range(max_page):
                 # if max_page > 1:
                 #     print_info('Fetch page {0} ...'.format(i + 1))
                 data = {'tag_id': [bangumi_id, BANGUMI_TAG], 'p': i + 1}
-                response = get_response(DETAIL_URL, 'POST', json=data)
+                response = requests.post(DETAIL_URL, json=data).json()
                 if response:
                     response_data.extend(response['torrents'])
 
@@ -131,7 +108,7 @@ class BangumiMoe(BaseWebsite):
         return ret
 
     def fetch_bangumi_calendar_and_subtitle_group(self):
-        response = get_response(FETCH_URL)
+        response = requests.get(FETCH_URL).json()
         if not response:
             return []
         bangumi_result, subtitile_result = parser_bangumi(response)
@@ -145,9 +122,8 @@ class BangumiMoe(BaseWebsite):
         result = []
 
         for i in range(count):
-            data = get_response(SEARCH_URL, 'POST', json={'query': keyword, 'p': i + 1})
+            data = requests.post(SEARCH_URL, json={'query': keyword, 'p': i + 1}).json()
             if 'torrents' not in data:
-                print_warning('No torrents in response data, please re-run')
                 return []
             rows.extend(data['torrents'])
 

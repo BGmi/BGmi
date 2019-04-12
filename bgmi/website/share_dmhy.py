@@ -8,8 +8,7 @@ import urllib.parse
 import requests
 from bs4 import BeautifulSoup
 
-from bgmi.config import (MAX_PAGE, SHARE_DMHY_URL)
-from bgmi.utils import print_error
+from bgmi.config import MAX_PAGE, SHARE_DMHY_URL
 from bgmi.website.base import BaseWebsite
 
 unquote = urllib.parse.unquote
@@ -17,24 +16,8 @@ unquote = urllib.parse.unquote
 base_url = SHARE_DMHY_URL
 
 
-def fetch_url(url, **kwargs):
-    ret = None
-    try:
-        ret = requests.get(url, **kwargs).text
-    except requests.ConnectionError:
-        print_error('Create connection to {site}...'
-                    ' failed'.format(site=SHARE_DMHY_URL),
-                    exit_=False)
-        print_error(
-            'Check internet connection or try to set a DMHY mirror site via: bgmi config SHARE_DMHY_URL <site url>')
-
-    return ret
-
-
 def parse_bangumi_with_week_days(content, update_time, array_name):
-    r = re.compile(
-        array_name +
-        r'\.push\(\[\'(.*?)\',\'(.*?)\',\'(.*?)\',\'(.*?)\',\'(.*?)\'\]\)')
+    r = re.compile(array_name + r'\.push\(\[\'(.*?)\',\'(.*?)\',\'(.*?)\',\'(.*?)\',\'(.*?)\'\]\)')
     ret = r.findall(content)
 
     bangumi_list = []
@@ -66,7 +49,7 @@ def parse_bangumi_with_week_days(content, update_time, array_name):
             # append to subtitle_list
             subtitle_list.append({
                 'id': subtitle_group_id,
-                'name': subtitle_group_name
+                'name': subtitle_group_name,
             })
 
             bangumi['subtitle_group'].append(subtitle_group_id)
@@ -98,10 +81,7 @@ def parse_subtitle_list(content):
 
         subtitle_group_id = subtitle_group_id_raw[0]
         # append to subtitle_list
-        subtitle_list.append({
-            'id': subtitle_group_id,
-            'name': subtitle_group_name
-        })
+        subtitle_list.append({'id': subtitle_group_id, 'name': subtitle_group_name})
 
     return subtitle_list
 
@@ -154,7 +134,7 @@ class DmhySource(BaseWebsite):
             if os.environ.get('DEBUG', False):  # pragma: no cover
                 print(search_url, params)
 
-            r = fetch_url(search_url, params=params)
+            r = requests.get(search_url, params=params).text
             bs = BeautifulSoup(r, 'html.parser')
 
             table = bs.find('table', {'id': 'topic_list'})
@@ -238,7 +218,7 @@ class DmhySource(BaseWebsite):
 
         url = base_url + '/cms/page/name/programme.html'
 
-        r = fetch_url(url)
+        r = requests.get(url).text
 
         for update_time, array_name in week_days_mapping:
             (b_list, s_list) = parse_bangumi_with_week_days(r, update_time, array_name)
@@ -249,7 +229,7 @@ class DmhySource(BaseWebsite):
         # fetch subtitle
         url = base_url + '/team/navigate/'
 
-        r = fetch_url(url)
+        r = requests.get(url).text
 
         subtitle_list.extend(parse_subtitle_list(r))
 
@@ -297,7 +277,7 @@ class DmhySource(BaseWebsite):
             if os.environ.get('DEBUG', False):  # pragma: no cover
                 print(url)
 
-            r = fetch_url(url)
+            r = requests.get(url).text
             bs = BeautifulSoup(r, 'html.parser')
 
             table = bs.find('table', {'id': 'topic_list'})

@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 from bgmi.config import MAX_PAGE
 from bgmi.lib.models import BangumiItem
-from bgmi.utils import (parse_episode, normalize_path)
+from bgmi.utils import normalize_path, parse_episode
 
 
 class BaseWebsite(ABC):
@@ -19,8 +19,9 @@ class BaseWebsite(ABC):
             item['name'] = normalize_path(item['name'])
         # for i, bangumi in enumerate(bangumi_result):
         #     bangumi_result[i] = Bangumi(**bangumi)
-        bangumi_result = [BangumiItem(**bangumi)
-                          for bangumi in bangumi_result if bangumi['subtitle_group']]
+        bangumi_result = [
+            BangumiItem(**bangumi) for bangumi in bangumi_result if bangumi['subtitle_group']
+        ]
         return bangumi_result, subtitile_result
 
     @abstractmethod
@@ -65,7 +66,9 @@ class BaseWebsite(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):  # pragma: no cover
+    def fetch_episode_of_bangumi(
+        self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE
+    ):  # pragma: no cover
         """
         get all episode by bangumi id
         example
