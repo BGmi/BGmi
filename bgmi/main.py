@@ -14,7 +14,8 @@ from bgmi.lib.models import get_kv_storage
 from bgmi.lib.update import upgrade_version
 from bgmi.setup import create_dir, install_crontab
 from bgmi.sql import init_db
-from bgmi.utils import print_warning, print_error, print_version, check_update, get_web_admin, constants, print_info
+from bgmi.utils import check_update, constants, get_web_admin, print_error, print_info, \
+    print_version, print_warning
 
 
 # global Ctrl-C signal handler

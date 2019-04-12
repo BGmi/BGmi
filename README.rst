@@ -303,7 +303,7 @@ Download all bangumi cover:
 
     bgmi cal --download-cover
 
-Download frontend static files(you may have done it before):
+Download frontend static files:
 
 .. code-block:: bash
 
@@ -323,73 +323,19 @@ If you are using docker:
     aria2c_port=6800
     docker run -p127.0.0.1:$host_port:80 -p$aria2c_port:6800 -d -v $HOME/.bgmi:$HOME/.bgmi ricterz/bgmi
 
-Use bgmi_http on Windows
---------------------------
-Just start your bgmi_http and open `http://localhost:8888/ <http://localhost:8888/>`_ in your browser.
-
-Consider most people won't use Nginx on Windows, bgmi_http use tornado.web.StaticFileHandler to serve static files(frontend, bangumi covers, bangumi files) without Nginx.
-
-Use bgmi_http on Linux
---------------------------
-Generate Nginx config
+Behind a Web Server
+-------------------
+Generate a sample Nginx config
 
 .. code-block:: bash
 
-    bgmi gen nginx.conf --server-name bgmi.example.com | sudo tee /etc/nginx/sites-enabled/bgmi.example.com
-    sudo nginx -s reload
+    bgmi gen nginx.conf --server-name bgmi.example.com
 
-Or write your config file manually.
-
-.. code-block:: bash
-
-    server {
-        listen 80;
-        server_name bgmi;
-
-        root /path/to/bgmi;
-        autoindex on;
-        charset utf-8;
-
-        location /bangumi {
-            # ~/.bgmi/bangumi
-            alias /path/to/bangumi;
-        }
-
-        location /api {
-            proxy_pass http://127.0.0.1:8888;
-            # Requests to api/update may take more than 60s
-            proxy_connect_timeout 500s;
-            proxy_read_timeout 500s;
-            proxy_send_timeout 500s;
-        }
-
-        location /resource {
-            proxy_pass http://127.0.0.1:8888;
-        }
-
-        location / {
-            # ~/.bgmi/front_static/;
-            alias /path/to/front_static/;
-        }
-
-    }
-
-Of cause you can use `yaaw <https://github.com/binux/yaaw/>`_ to manage download items if you use aria2c to download bangumi.
+Generate a sample Caddyfile
 
 .. code-block:: bash
 
-    ...
-    location /yaaw {
-        alias /path/to/yaaw;
-    }
-
-    location /jsonrpc {
-        # aria2c rpc
-        proxy_pass http://127.0.0.1:6800;
-    }
-    ...
-
-Example: :code:`bgmi gen nginx.conf --server-name _`
+    bgmi gen caddyfile --server-name bgmi.example.com
 
 Generate systemd service unit file
 ----------------------------------
@@ -406,7 +352,7 @@ macOS launchctl service controller
 ----------------------------------
 see `issue #77 <https://github.com/BGmi/BGmi/pull/77>`_
 
-`me.ricterz.bgmi.plist <https://github.com/BGmi/BGmi/blob/master/bgmi/others/me.ricterz.bgmi.plist>`_
+`me.ricterz.bgmi.plist <./bgmi/others/me.ricterz.bgmi.plist>`_
 
 ===================
 DPlayer and Danmaku
@@ -414,14 +360,14 @@ DPlayer and Danmaku
 
 BGmi use `DPlayer <https://github.com/DIYgod/DPlayer>`_ to play bangumi.
 
-First, setup nginx to access bangumi files.
+First, setup your ``bgmi_http``.
 Second, choose one danmaku backend at `DPlayer#related-projects <https://github.com/DIYgod/DPlayer#related-projects>`_.
 
-Use :code:`bgmi config` to setup the url of danmaku api.
+Use ``bgmi config`` to setup the url of danmaku api.
 
 .. code-block:: bash
 
-    bgmi config DANMAKU_API_URL https://api.prprpr.me/dplayer/ # This api is provided by dplayer official
+    bgmi config DANMAKU_API_URL https://api.prprpr.me/dplayer/ # This api is provided by dplayer official, seems broken now.
 
 ...restart your :code:`bgmi_http` and enjoy :D
 
@@ -544,15 +490,16 @@ Another example:
 
 The returned dict as follows.
 
-.. code-block:: bash
+.. code-block:: python
 
     {
         1: 'http://example.com/Bangumi/1/1.mp4'
-        2: 'http://example.com/Bangumi/1/2.mp4'
-        3: 'http://example.com/Bangumi/1/3.mp4'
+        2: 'http://example.com/Bangumi/1/2.torrent'
+        3: 'magnet:?xt=urn:btih:aaa1bbb2ccc3ddd4eee5fff6ggg7'
     }
 
-The keys `1`, `2`, `3` is the episode, the value is the url of bangumi.
+
+The keys ``1``, ``2``, ``3`` are the episodes, the values are the urls of bangumi files or torrent.
 
 ================
 BGmi Data Source
@@ -561,10 +508,9 @@ BGmi Data Source
 You can easily add your own BGmi data source by extending BGmi website base(:code:`bgmi.website.base.BaseWebsite`) class and implement all the method.
 
 .. code-block:: python
+    from bgmi.website.base import BaseWebsite
 
-    class DataSource(bgmi.website.base.BaseWebsite)
-        cover_url=''
-
+    class DataSource(BaseWebsite)
         def search_by_keyword(self, keyword, count):
             """
             return a list of dict with at least 4 key: download, name, title, episode
@@ -607,11 +553,12 @@ You can easily add your own BGmi data source by extending BGmi website base(:cod
                         "name": "名侦探柯南",
                         "keyword": "1234", #bangumi id
                         "update_time": "Sat",
-                        "cover": "data/images/cover1.jpg"
+                        "cover": "https://example.com/images/cover1.jpg"
                     },
                 ]
             ```
-            when downloading cover images, BGmi will try to get `self.cover_url + bangumi['cover']`
+
+            ``cover`` should be a full url of bangumi cover image file
 
 
             list of subtitle group dict:
@@ -661,10 +608,11 @@ You can easily add your own BGmi data source by extending BGmi website base(:cod
 ===================
 Debug
 ===================
-Set env :code:`BGMI_LOG` to :code:`debug`, :code:`info`, :code:`warning`, :code:`error` for different log level
+Some error will not be raised unless you ``export DEBUG=1``.
 
-log file will locate at :code:`{TMP_PATH}/bgmi.log`
+Set env ``BGMI_LOG`` to ``debug``, ``info``, ``warning``, ``error`` for different log level
 
+log file will locate at ``{TMP_PATH}/bgmi.log``
 
 =========
 Uninstall
@@ -681,6 +629,8 @@ windows:
 
      schtasks /Delete /TN 'bgmi calendar updater'
      schtasks /Delete /TN 'bgmi bangumi updater'
+
+Then, consider remove your ``~/.bgmi`` directory.
 
 =======
 License
@@ -722,5 +672,3 @@ SOFTWARE.
 
 .. |pypistats| image::  https://img.shields.io/pypi/dm/bgmi.svg
    :target: https://pypi.python.org/pypi/bgmi
-
-

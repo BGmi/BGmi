@@ -21,7 +21,8 @@ from bgmi.lib import constants
 from bgmi.lib.models import get_kv_storage
 from bgmi.logger import logger
 
-from ._decorator import COLOR_END, YELLOW, _indicator, colorize, disable_in_test, log_utils_function
+from ._decorator import COLOR_END, GREEN, YELLOW, _indicator, colorize, disable_in_test, \
+    log_utils_function
 
 SECOND_OF_WEEK = 7 * 24 * 3600
 

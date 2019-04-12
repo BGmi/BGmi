@@ -1,10 +1,12 @@
 # coding=utf-8
 
 import bgmi.config
+
 from . import kv
-from .actions import ACTION_ADD, ACTION_FETCH, ACTION_FILTER, ACTION_DELETE, ACTION_UPDATE, \
-    ACTION_CAL, ACTION_CONFIG, ACTION_DOWNLOAD, ACTION_LIST, ACTION_MARK, ACTION_SEARCH, \
-    ACTION_CONFIG_GEN, ACTION_LINK, ACTION_UNLINK, ACTION_COMPLETE
+from .actions import ACTION_ADD, ACTION_CAL, ACTION_COMPLETE, ACTION_CONFIG, ACTION_CONFIG_GEN, \
+    ACTION_DELETE, ACTION_DOWNLOAD, ACTION_FETCH, ACTION_FILTER, ACTION_LINK, ACTION_LIST, \
+    ACTION_MARK, ACTION_SEARCH, ACTION_UNLINK, ACTION_UPDATE
+
 SECOND_OF_WEEK = 7 * 24 * 3600
 
 DOWNLOAD_ACTION_LIST = 'list'
@@ -72,17 +74,17 @@ actions_and_arguments = [
                 'kwargs': dict(
                     metavar='episode',
                     help='Add bangumi and mark it as specified episode.',
-                    type=int
+                    type=int,
                 ),
             },
             {
                 'dest': '--not-ignore',
                 'kwargs': dict(
                     action='store_true',
-                    help='Do not ignore the old bangumi detail rows (3 month ago).'
+                    help='Do not ignore the old bangumi detail rows (3 month ago).',
                 ),
             },
-        ]
+        ],
     },
     {
         'action': ACTION_DELETE,
@@ -103,7 +105,7 @@ actions_and_arguments = [
                 'dest': '--batch',
                 'kwargs': dict(action='store_true', help='No confirmation.'),
             },
-        ]
+        ],
     },
     {
         'action': ACTION_LIST,
@@ -142,7 +144,7 @@ actions_and_arguments = [
                 'dest': '--data-source',
                 'kwargs': dict(metavar='data_source', help='Data source enabled, split by ","'),
             },
-        ]
+        ],
     },
     {
         'action': ACTION_UPDATE,
@@ -163,13 +165,12 @@ actions_and_arguments = [
                 ),
             },
             {
-                'dest': '--not-ignore',
-                'kwargs': dict(
+                'dest': '--not-ignore', 'kwargs': dict(
                     action='store_true',
                     help='Do not ignore the old bangumi detail rows (3 month ago).'
                 )
             },
-        ]
+        ],
     },
     {
         'action': ACTION_CAL,
@@ -194,8 +195,7 @@ actions_and_arguments = [
                 'kwargs': dict(action='store_true', help='Download the cover to local'),
             },
             {
-                'dest': '--no-save',
-                'kwargs': dict(
+                'dest': '--no-save', 'kwargs': dict(
                     action='store_true', help='Do not save the bangumi data when force update.'
                 )
             },
@@ -214,10 +214,7 @@ actions_and_arguments = [
                     choices=bgmi.config.__all_writable_now__
                 ),
             },
-            {
-                'dest': 'value',
-                'kwargs': dict(nargs='?', help='Config value')
-            },
+            {'dest': 'value', 'kwargs': dict(nargs='?', help='Config value')},
         ],
     },
     {
@@ -254,7 +251,7 @@ actions_and_arguments = [
                     type=int,
                     help='Download items status (0: not download, 1: '
                     'downloading, 2: already downloaded).',
-                    choices=[0, 1, 2]
+                    choices=[0, 1, 2],
                 ),
             },
         ],
@@ -271,7 +268,7 @@ actions_and_arguments = [
                 'dest': '--not-ignore',
                 'kwargs': dict(
                     action='store_true',
-                    help='Do not ignore the old bangumi detail rows (3 month ago).'
+                    help='Do not ignore the old bangumi detail rows (3 month ago).',
                 ),
             },
         ],
@@ -303,13 +300,17 @@ actions_and_arguments = [
             {
                 'dest': '--min-episode',
                 'kwargs': dict(
-                    metavar='min_episode', type=int, help='Minimum episode filter of title.'
+                    metavar='min_episode',
+                    type=int,
+                    help='Minimum episode filter of title.',
                 ),
             },
             {
                 'dest': '--max-episode',
                 'kwargs': dict(
-                    metavar='max_episode', type=int, help='Maximum episode filter of title.'
+                    metavar='max_episode',
+                    type=int,
+                    help='Maximum episode filter of title.',
                 ),
             },
         ],
@@ -319,39 +320,40 @@ actions_and_arguments = [
         'help': 'Generate config for nginx',
         'arguments': [
             {
-                'dest': 'config',
-                'kwargs': dict(
-                    help='gen nginx.conf', choices=[
+                'dest': 'config', 'kwargs': dict(
+                    help='gen config file',
+                    choices=[
                         'nginx.conf',
                         'bgmi_http.service',
+                        'caddyfile',
                     ]
                 )
             },
             {
                 'dest': '--server-name',
-                'kwargs': dict(metavar='server_name', help='nginx server name')
+                'kwargs': dict(metavar='server_name', help='nginx server name'),
             },
-        ]
+        ],
     },
     {
         'action': ACTION_LINK,
         'help': 'Combine two bangumi which not auto combined by bgmi',
         'arguments': [{
             'dest': 'bangumi_names',
-            'kwargs': dict(nargs='*')
-        }]
+            'kwargs': dict(nargs='*'),
+        }],
     },
     {
         'action': ACTION_UNLINK,
         'help': 'Uncombine two bangumi which auto combined by bgmi',
         'arguments': [{
             'dest': 'bangumi_names',
-            'kwargs': dict(nargs='*')
-        }]
+            'kwargs': dict(nargs='*'),
+        }],
     },
     {
         'action': ACTION_COMPLETE,
-        'help': 'Gen completion, `eval "$(bgmi complete)"` or `eval "$(bgmi complete|dos2unix)"`'
+        'help': 'Gen completion, `eval "$(bgmi complete)"` or `eval "$(bgmi complete|dos2unix)"`',
     },
     {
         'action': 'install',
@@ -363,14 +365,14 @@ actions_and_arguments = [
                     action='store_false', dest='install_web', help='Download web static file.'
                 ),
             },
-        ]
+        ],
     },
     {
         'action': 'upgrade',
-        'help': 'Check update.'
+        'help': 'Check update.',
     },
     {
         'action': 'history',
-        'help': 'List your history of following bangumi'
+        'help': 'List your history of following bangumi',
     },
 ]

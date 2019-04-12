@@ -1,0 +1,16 @@
+http://{{ server_name }} {
+    gzip
+    proxy /api 127.0.0.1:8888
+    proxy /resource 127.0.0.1:8888
+    root {{ front_static_path }}
+    header /static/ {
+        Cache-Control max-age=604800 # a week
+    }
+    # proxy /jsonrpc http://127.0.0.1:6800/jsonrpc # aria2 jsonrpc url
+}
+
+http://{{ server_name }}/bangumi/ {
+    gzip
+    browse
+    root {{ save_path }}
+}

@@ -9,24 +9,19 @@ from functools import wraps
 
 import bgmi.config
 import bgmi.website
-from bgmi.lib.constants import (
-    ACTION_ADD, ACTION_CAL, ACTION_CONFIG, ACTION_CONFIG_GEN, ACTION_DELETE, ACTION_DOWNLOAD,
-    ACTION_FETCH, ACTION_FILTER, ACTION_LINK, ACTION_LIST, ACTION_MARK, ACTION_SEARCH,
-    ACTION_UNLINK, ACTION_UPDATE, DOWNLOAD_CHOICE_LIST_DICT, SPACIAL_APPEND_CHARS,
-    SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, actions_and_arguments
-)
+from bgmi.lib.constants import ACTION_ADD, ACTION_CAL, ACTION_CONFIG, ACTION_CONFIG_GEN, \
+    ACTION_DELETE, ACTION_DOWNLOAD, ACTION_FETCH, ACTION_FILTER, ACTION_LINK, ACTION_LIST, \
+    ACTION_MARK, ACTION_SEARCH, ACTION_UNLINK, ACTION_UPDATE, DOWNLOAD_CHOICE_LIST_DICT, \
+    SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, actions_and_arguments
 from bgmi.lib.constants.actions import ACTION_COMPLETE, ACTION_HISTORY, ACTIONS
-from bgmi.lib.controllers import (
-    add, config, delete, filter_, link, list_, mark, search, unlink, update
-)
+from bgmi.lib.controllers import add, config, delete, filter_, link, list_, mark, search, unlink, \
+    update
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
 from bgmi.lib.models import Bangumi, BangumiLink, Followed
 from bgmi.script import ScriptRunner
-from bgmi.utils import (
-    COLOR_END, GREEN, RED, YELLOW, get_terminal_col, logger, print_error, print_info, print_success,
-    print_warning, render_template
-)
+from bgmi.utils import COLOR_END, GREEN, RED, YELLOW, get_terminal_col, logger, print_error, \
+    print_info, print_success, print_warning, render_template
 
 
 def action_decorator(fn):
@@ -392,6 +387,17 @@ def config_gen(ret):
         user = os.environ.get('USER', os.environ.get('USERNAME'))
         template_with_content = render_template(
             template_file_path, python_path=sys.executable, user=user
+        )
+        print(template_with_content)
+    elif ret.config == 'caddyfile':
+        if not ret.server_name:
+            ret.server_name = 'localhost'
+
+        template_with_content = render_template(
+            template_file_path,
+            server_name=ret.server_name,
+            front_static_path=bgmi.config.FRONT_STATIC_PATH,
+            save_path=bgmi.config.SAVE_PATH
         )
         print(template_with_content)
 
