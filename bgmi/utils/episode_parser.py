@@ -1,7 +1,8 @@
 import re
 
 from bgmi.logger import logger
-from bgmi.utils.utils import log_utils_function
+
+from ._decorator import log_utils_function
 
 
 def chinese_to_arabic(cn: str) -> int:
@@ -86,10 +87,11 @@ FETCH_EPISODE_RANGE_ALL_ZH = re.compile(r'[全]([^-^第]*?)[話话集]')
 FETCH_EPISODE_OVA_OAD = re.compile(r'([\d]{2,})\s?\((?:OVA|OAD)\)]')
 FETCH_EPISODE_WITH_VERSION = re.compile(r'[【\[](\d+)\s? *v\d(?:END)?[】\]]')
 
-FETCH_EPISODE = (FETCH_EPISODE_ZH, FETCH_EPISODE_ALL_ZH,
-                 FETCH_EPISODE_WITH_BRACKETS, FETCH_EPISODE_ONLY_NUM,
-                 FETCH_EPISODE_RANGE, FETCH_EPISODE_RANGE_ALL_ZH,
-                 FETCH_EPISODE_OVA_OAD, FETCH_EPISODE_WITH_VERSION)
+FETCH_EPISODE = (
+    FETCH_EPISODE_ZH, FETCH_EPISODE_ALL_ZH, FETCH_EPISODE_WITH_BRACKETS, FETCH_EPISODE_ONLY_NUM,
+    FETCH_EPISODE_RANGE, FETCH_EPISODE_RANGE_ALL_ZH, FETCH_EPISODE_OVA_OAD,
+    FETCH_EPISODE_WITH_VERSION
+)
 
 
 @log_utils_function
@@ -112,10 +114,7 @@ def parse_episode(episode_title):
         return real
 
     # check if range episode, return 0
-    for regexp in [
-            FETCH_EPISODE_RANGE_ALL_ZH, FETCH_EPISODE_RANGE,
-            FETCH_EPISODE_RANGE_ZH
-    ]:
+    for regexp in [FETCH_EPISODE_RANGE_ALL_ZH, FETCH_EPISODE_RANGE, FETCH_EPISODE_RANGE_ZH]:
         _ = regexp.findall(episode_title)
         if _ and _[0]:
             logger.debug('return episode range all zh')

@@ -5,12 +5,12 @@ import json.decoder
 import tornado.web
 from tornado.web import HTTPError
 
-from bgmi import __version__, __admin_version__
+from bgmi import __admin_version__, __version__
 from bgmi.config import DANMAKU_API_URL, LANG
 from bgmi.lib import constants
 from bgmi.lib.models import get_kv_storage
 from bgmi.script import ScriptRunner
-from bgmi.utils.utils import normalize_path
+from bgmi.utils import normalize_path
 
 COVER_URL = '/bangumi/cover'
 WEEK = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
@@ -34,7 +34,7 @@ class BaseHandler(tornado.web.RequestHandler):
             'status': 'success',
             'lang': LANG,
             'danmaku_api': DANMAKU_API_URL,
-            'data': data
+            'data': data,
         }
         j.update(kwargs)
         self.set_header('content-type', 'application/json; charset=utf-8')
@@ -77,5 +77,9 @@ class BaseHandler(tornado.web.RequestHandler):
         }
 
         self.set_status(status_code)
-        self.finish(self.jsonify(status='error',
-                                 message=code_and_message_map.get(status_code, self._reason)))
+        self.finish(
+            self.jsonify(
+                status='error',
+                message=code_and_message_map.get(status_code, self._reason),
+            )
+        )

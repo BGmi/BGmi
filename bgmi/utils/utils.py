@@ -1,114 +1,29 @@
 # coding=utf-8
-import functools
 import glob
 import gzip
-import inspect
 import json
 import os
 import struct
 import subprocess
-import sys
 import tarfile
 import time
 from io import BytesIO
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
-from shutil import rmtree, move
-from typing import Union, TextIO
+from shutil import move, rmtree
+from typing import TextIO, Union
 
 import requests
 from tornado import template
 
-from bgmi import __version__, __admin_version__, config
+from bgmi import __admin_version__, __version__, config
 from bgmi.lib import constants
 from bgmi.lib.models import get_kv_storage
 from bgmi.logger import logger
 
+from ._decorator import COLOR_END, YELLOW, _indicator, colorize, disable_in_test, log_utils_function
+
 SECOND_OF_WEEK = 7 * 24 * 3600
-
-
-def _dict_as_called(f, args, kwargs):
-    """ return a dict of all the args and kwargs as the keywords they would
-    be received in a real f call.  It does not call f.
-    """
-
-    names, args_name, kwargs_name, defaults, _, _, _ = inspect.getfullargspec(f)
-
-    # assign basic args
-    params = {}
-    if args_name:
-        basic_arg_count = len(names)
-        params.update(zip(names[:], args))  # zip stops at shorter sequence
-        params[args_name] = args[basic_arg_count:]
-    else:
-        params.update(zip(names, args))
-
-    # assign kwargs given
-    if kwargs_name:
-        params[kwargs_name] = {}
-        for kw, value in kwargs.items():
-            if kw in names:
-                params[kw] = value
-            else:
-                params[kwargs_name][kw] = value
-    else:
-        params.update(kwargs)
-
-    # assign defaults
-    if defaults:
-        for pos, value in enumerate(defaults):
-            if names[-len(defaults) + pos] not in params:
-                params[names[-len(defaults) + pos]] = value
-
-    return params
-
-
-def log_utils_function(func):
-    @functools.wraps(func)
-    def echo_func(*func_args, **func_kwargs):
-        r = func(*func_args, **func_kwargs)
-        called_with = _dict_as_called(func, func_args, func_kwargs)
-        logger.debug("util.%s %s -> `%s`", func.__name__, called_with, r)
-        return r
-
-    return echo_func
-
-
-def disable_in_test(func):
-    @functools.wraps(func)
-    def echo_func(*func_args, **func_kwargs):
-        if os.environ.get('UNITTEST'):
-            return
-        r = func(*func_args, **func_kwargs)
-        return r
-
-    return echo_func
-
-
-if sys.platform.startswith('win'):  # pragma: no cover
-    GREEN = ''
-    YELLOW = ''
-    RED = ''
-    COLOR_END = ''
-else:
-    GREEN = '\033[1;32m'
-    YELLOW = '\033[1;33m'
-    RED = '\033[1;31m'
-    COLOR_END = '\033[0m'
-
-color_map = {
-    'print_info': '',
-    'print_success': GREEN,
-    'print_warning': YELLOW,
-    'print_error': RED,
-}
-
-indicator_map = {
-    'print_info': '[*] ',
-    'print_success': '[+] ',
-    'print_warning': '[-] ',
-    'print_error': '[x] ',
-}
 
 if os.environ.get('TRAVIS_CI', False):
     NPM_REGISTER_DOMAIN = 'registry.npmjs.com'
@@ -116,29 +31,6 @@ else:
     NPM_REGISTER_DOMAIN = 'registry.npm.taobao.org'
 FRONTEND_NPM_URL = 'https://{}/bgmi-frontend/'.format(NPM_REGISTER_DOMAIN)
 PACKAGE_JSON_URL = 'https://{}/bgmi-frontend/{}'.format(NPM_REGISTER_DOMAIN, __admin_version__)
-
-
-def _indicator(f):
-    @functools.wraps(f)
-    def wrapper(*args, **kwargs):
-        if kwargs.get('indicator', True):
-            func_name = f.__qualname__
-            args = (indicator_map.get(func_name, '') + args[0], )
-        f(*args, **kwargs)
-        sys.stdout.flush()
-
-    return wrapper
-
-
-def colorize(f):
-    @functools.wraps(f)
-    def wrapper(*args, **kwargs):
-        func_name = f.__qualname__
-        b, e = color_map.get(func_name, ''), COLOR_END if color_map.get(func_name) else ''
-        args = tuple(map(lambda s: b + s + e, args))
-        return f(*args, **kwargs)
-
-    return wrapper
 
 
 @disable_in_test
