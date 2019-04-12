@@ -18,5 +18,4 @@ htmlcov
 .xml
 watchdemo.yaml
 .tox
-dev.py
 test_dir

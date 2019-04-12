@@ -11,15 +11,10 @@ from tornado.web import HTTPError
 from bgmi.config import ADMIN_TOKEN
 from bgmi.front.base import BaseHandler
 from bgmi.lib.constants import (
-    ACTION_ADD,
-    ACTION_DELETE,
-    ACTION_CAL,
-    ACTION_SEARCH,
-    ACTION_CONFIG,
-    ACTION_DOWNLOAD,
-    ACTION_MARK,
-    ACTION_FILTER)
-from bgmi.lib.controllers import add, delete, search, cal, config, update, mark, status_, filter_
+    ACTION_ADD, ACTION_CAL, ACTION_CONFIG, ACTION_DELETE, ACTION_DOWNLOAD, ACTION_FILTER,
+    ACTION_MARK, ACTION_SEARCH
+)
+from bgmi.lib.controllers import add, cal, config, delete, filter_, mark, search, status_, update
 from bgmi.lib.download import download_prepare
 
 ACTION_AUTH = 'auth'
@@ -55,7 +50,7 @@ API_MAP_POST = {
 
 API_MAP_GET = {
     ACTION_CAL: lambda: {'data': cal()},
-    ACTION_CONFIG: lambda: config(None, None)
+    ACTION_CONFIG: lambda: config(None, None),
 }
 
 NO_AUTH_ACTION = (ACTION_CAL, ACTION_AUTH)
@@ -103,7 +98,11 @@ class AdminApiHandler(BaseHandler):
             traceback.print_exc()
             raise HTTPError(500)
 
-        resp = self.jsonify(**result)
+        resp = self.jsonify(
+            status=result['status'],
+            message=result.get('message'),
+            data=result.get('data'),
+        )
         self.write(resp)
 
 

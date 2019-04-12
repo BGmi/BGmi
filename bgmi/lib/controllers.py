@@ -1,16 +1,21 @@
 # coding=utf-8
 import os
 import time
+import warnings
 
-from bgmi.config import write_config, MAX_PAGE
+import attr
+
+from bgmi.config import MAX_PAGE, SHOW_WARNING, write_config
 from bgmi.lib import models
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
-from bgmi.lib.models import BangumiLink, Subtitle, Download, Followed, Bangumi, DoesNotExist, model_to_dict, BangumiItem
+from bgmi.lib.models import (
+    Bangumi, BangumiItem, BangumiLink, DoesNotExist, Download, Followed, Subtitle, model_to_dict
+)
 from bgmi.script import ScriptRunner
-from bgmi.utils import print_info, normalize_path, print_warning, print_success, print_error, GREEN, COLOR_END, logger
-from bgmi.website import DATA_SOURCE_MAP
-import attr
+from bgmi.utils import (
+    COLOR_END, GREEN, logger, normalize_path, print_error, print_info, print_success, print_warning
+)
 
 
 @attr.s
@@ -28,6 +33,8 @@ class ControllerResult:
     data = attr.ib(factory=dict)
 
     def __getitem__(self, item):
+        if SHOW_WARNING:
+            warnings.warn("don't use ControllerResult as dict")
         _data = {
             'status': self.status,
             'message': self.message,
@@ -37,6 +44,8 @@ class ControllerResult:
         if v == KeyError:
             raise KeyError(item)
         return v
+
+    get = __getitem__
 
     def __setitem__(self, key, value):
         if key in ['status', 'message', 'data']:
@@ -66,7 +75,8 @@ class ControllerResult:
     }
 
     def print(self):
-        self.print_map.get(self.status, print)(self.message)
+        if self.message:
+            self.print_map.get(self.status, print)(self.message)
 
 
 def add(name, episode=None):
@@ -92,7 +102,7 @@ def add(name, episode=None):
         if followed_obj.status == Followed.STATUS.FOLLOWED:
             result = {
                 'status': 'warning',
-                'message': '{0} already followed'.format(bangumi_obj.name)
+                'message': '{0} already followed'.format(bangumi_obj.name),
             }
             return result
         followed_obj.status = Followed.STATUS.FOLLOWED
@@ -345,9 +355,9 @@ def search(keyword, count=MAX_PAGE, regex=None, dupe=False, min_episode=None, ma
                 'regex': regex,
                 'dupe': dupe,
                 'min_episode': min_episode,
-                'max_episode': max_episode
+                'max_episode': max_episode,
             },
-            'data': data
+            'data': data,
         }
     except Exception as e:
         if os.getenv('DEBUG'):
@@ -361,9 +371,9 @@ def search(keyword, count=MAX_PAGE, regex=None, dupe=False, min_episode=None, ma
                 'regex': regex,
                 'dupe': dupe,
                 'min_episode': min_episode,
-                'max_episode': max_episode
+                'max_episode': max_episode,
             },
-            'data': []
+            'data': [],
         }
 
 
@@ -453,7 +463,7 @@ def update(name, download=None, not_ignore=False):
                 followed_obj.save()
                 result['data']['updated'].append({
                     'bangumi': subscribe['bangumi_name'],
-                    'episode': episode['episode']
+                    'episode': episode['episode'],
                 })
 
             for i in episode_range:

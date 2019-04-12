@@ -303,7 +303,7 @@ split_penalty_excess_character=700
 
 # The penalty incurred by adding a line split to the unwrapped line. The
 # more line splits added the higher the penalty.
-split_penalty_for_added_line_split=30
+split_penalty_for_added_line_split=10
 
 # The penalty of splitting a list of "import as" names. For example:
 #

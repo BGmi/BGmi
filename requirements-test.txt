@@ -1,4 +1,6 @@
 faker==1.0.2
 transmission_rpc>=1.0.0, <2.0.0
-pycodestyle
-mock
+yapf==0.27.0
+setuptools==40.6.2
+pycodestyle==2.5.0
+mock==2.0.0

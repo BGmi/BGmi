@@ -7,12 +7,12 @@ import tornado.ioloop
 import tornado.options
 import tornado.template
 import tornado.web
-from tornado.options import options, define
+from tornado.options import define, options
 
-from bgmi.config import SAVE_PATH, FRONT_STATIC_PATH, TORNADO_SERVE_STATIC_FILES
-from bgmi.front.admin import AdminApiHandler, UpdateHandler, API_MAP_POST, API_MAP_GET
+from bgmi.config import FRONT_STATIC_PATH, SAVE_PATH, TORNADO_SERVE_STATIC_FILES
+from bgmi.front.admin import API_MAP_GET, API_MAP_POST, AdminApiHandler, UpdateHandler
 from bgmi.front.index import BangumiListHandler, IndexHandler
-from bgmi.front.resources import RssHandler, CalendarHandler, BangumiHandler
+from bgmi.front.resources import BangumiHandler, CalendarHandler, RssHandler
 
 define('port', default=8888, help='listen on the port', type=int)
 define('address', default='0.0.0.0', help='binding at given address', type=str)
@@ -36,15 +36,15 @@ def make_app(**kwargs):
     ]
 
     if TORNADO_SERVE_STATIC_FILES != '0':
-        handlers.extend([
-            (r'/bangumi/(.*)', tornado.web.StaticFileHandler, {'path': SAVE_PATH}),
-            (r'^/(.*)$', tornado.web.StaticFileHandler, {'path': FRONT_STATIC_PATH,
-                                                         'default_filename': 'index.html'})
-        ])
+        handlers.extend([(r'/bangumi/(.*)', tornado.web.StaticFileHandler, {'path': SAVE_PATH}),
+                         (
+                             r'^/(.*)$', tornado.web.StaticFileHandler,
+                             {'path': FRONT_STATIC_PATH, 'default_filename': 'index.html'}
+                         )])
     else:
         handlers.extend([
             (r'^/bangumi/?(.*)', BangumiHandler),
-            (r'^/.*$', IndexHandler)
+            (r'^/.*$', IndexHandler),
         ])
 
     return tornado.web.Application(handlers, **settings)

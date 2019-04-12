@@ -6,15 +6,14 @@ import os
 import platform
 import random
 
-
 # --------- Read-Only ---------- #
 
 # Detail URL
 # platform
 IS_WINDOWS = platform.system() == 'Windows'
+SHOW_WARNING = bool(os.getenv('DEV') or os.getenv('DEBUG'))
 
 # ------- Read-Only End -------- #
-
 
 # download delegate
 __transmission__ = (
@@ -23,10 +22,7 @@ __transmission__ = (
     'TRANSMISSION_RPC_USERNAME',
     'TRANSMISSION_RPC_PASSWORD',
 )
-__aria2__ = (
-    'ARIA2_RPC_URL',
-    'ARIA2_RPC_TOKEN',
-)
+__aria2__ = ('ARIA2_RPC_URL', 'ARIA2_RPC_TOKEN')
 __deluge__ = ('DELUGE_RPC_URL', 'DELUGE_RPC_PASSWORD')
 
 __download_delegate__ = __aria2__ + __transmission__ + __deluge__
@@ -52,6 +48,7 @@ __all__ = (
 
 # cannot be rewrite
 __readonly__ = (
+    'SHOW_WARNING',
     'BGMI_PATH',
     'CONFIG_FILE_PATH',
     'TOOLS_PATH',
@@ -161,9 +158,8 @@ def write_config(config=None, value=None):
         write_default_config()
         return {
             'status': 'error',
-            'message':
-            'Config file does not exists, writing default config file',
-            'data': []
+            'message': 'Config file does not exists, writing default config file',
+            'data': [],
         }
 
     c = configparser.ConfigParser()
@@ -185,10 +181,8 @@ def write_config(config=None, value=None):
             if config in __writeable__:
                 if config == 'DOWNLOAD_DELEGATE' and value not in DOWNLOAD_DELEGATE_MAP:
                     return {
-                        'status':
-                        'error',
-                        'message':
-                        '{0} is not a support download_delegate'.format(value)
+                        'status': 'error',
+                        'message': '{0} is not a support download_delegate'.format(value)
                     }
                 c.set('bgmi', config, value)
                 with open(CONFIG_FILE_PATH, 'w') as f:
@@ -204,7 +198,7 @@ def write_config(config=None, value=None):
                         c.write(f)
                 result = {
                     'status': 'success',
-                    'message': '{0} has been set to {1}'.format(config, value)
+                    'message': '{0} has been set to {1}'.format(config, value),
                 }
 
             elif config in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
@@ -213,20 +207,19 @@ def write_config(config=None, value=None):
                     c.write(f)
                 result = {
                     'status': 'success',
-                    'message': '{0} has been set to {1}'.format(config, value)
+                    'message': '{0} has been set to {1}'.format(config, value),
                 }
             else:
                 result = {
                     'status': 'error',
-                    'message':
-                    '{0} does not exist or not writeable'.format(config)
+                    'message': '{0} does not exist or not writeable'.format(config),
                 }
 
     except (configparser.NoOptionError, configparser.NoSectionError):
         write_default_config()
         result = {
             'status': 'error',
-            'message': 'Error in config file, try rerun `bgmi config`'
+            'message': 'Error in config file, try rerun `bgmi config`',
         }
 
     return result

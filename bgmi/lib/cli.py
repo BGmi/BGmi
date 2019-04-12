@@ -9,20 +9,24 @@ from functools import wraps
 
 import bgmi.config
 import bgmi.website
-from bgmi.lib.constants import ACTION_ADD, ACTION_DOWNLOAD, ACTION_CONFIG, ACTION_DELETE, \
-    ACTION_MARK, ACTION_SEARCH, ACTION_FILTER, ACTION_CAL, ACTION_UPDATE, ACTION_FETCH,\
-    ACTION_LIST, DOWNLOAD_CHOICE_LIST_DICT, SPACIAL_APPEND_CHARS,\
-    SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, actions_and_arguments,\
-    ACTION_CONFIG_GEN, ACTION_LINK, ACTION_UNLINK
-from bgmi.lib.constants.actions import ACTION_COMPLETE, ACTIONS, ACTION_HISTORY
-from bgmi.lib.controllers import filter_, config, mark, delete, add, search, update, list_, unlink, link
+from bgmi.lib.constants import (
+    ACTION_ADD, ACTION_CAL, ACTION_CONFIG, ACTION_CONFIG_GEN, ACTION_DELETE, ACTION_DOWNLOAD,
+    ACTION_FETCH, ACTION_FILTER, ACTION_LINK, ACTION_LIST, ACTION_MARK, ACTION_SEARCH,
+    ACTION_UNLINK, ACTION_UPDATE, DOWNLOAD_CHOICE_LIST_DICT, SPACIAL_APPEND_CHARS,
+    SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, actions_and_arguments
+)
+from bgmi.lib.constants.actions import ACTION_COMPLETE, ACTION_HISTORY, ACTIONS
+from bgmi.lib.controllers import (
+    add, config, delete, filter_, link, list_, mark, search, unlink, update
+)
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
-from bgmi.lib.models import Bangumi, Followed, BangumiLink
+from bgmi.lib.models import Bangumi, BangumiLink, Followed
 from bgmi.script import ScriptRunner
-from bgmi.utils import print_info, print_warning, print_success, print_error,\
-    render_template, RED, GREEN, YELLOW, COLOR_END,\
-    get_terminal_col, logger
+from bgmi.utils import (
+    COLOR_END, GREEN, RED, YELLOW, get_terminal_col, logger, print_error, print_info, print_success,
+    print_warning, render_template
+)
 
 
 def action_decorator(fn):
@@ -154,8 +158,8 @@ def cal_wrapper(ret):
         if weekly_list[weekday.lower()]:
             print(
                 '%s%s. %s' % (
-                    GREEN, weekday if not ret.today else 'Bangumi Schedule for Today (%s)' % weekday,
-                    COLOR_END
+                    GREEN, weekday if not ret.today else 'Bangumi Schedule for Today (%s)' %
+                    weekday, COLOR_END
                 )
             )
             print_line()
@@ -204,12 +208,12 @@ def filter_wrapper(ret):
 
     result.print()
     if result.data:
-        print_info('Usable subtitle group: {0}'.format(result['data']['subtitle_group']))
-        print_info('Usable data source: {}'.format(result['data']['data_source']))
+        print_info('Usable subtitle group: {0}'.format(result.data['subtitle_group']))
+        print_info('Usable data source: {}'.format(result.data['data_source']))
         print()
-        followed_filter_obj = Followed.get(bangumi_name=result['data']['name'])
+        followed_filter_obj = Followed.get(bangumi_name=result.data['name'])
         print_filter(followed_filter_obj)
-    return result['data']
+    return result.data
 
 
 def update_wrapper(ret):
