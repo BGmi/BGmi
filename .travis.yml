@@ -122,12 +122,12 @@ install:
       mysql -u root -e 'CREATE DATABASE IF NOT EXISTS bgmi DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_general_ci;';
     fi
 
+  - pip install -r requirements-test.txt
   - pip install codecov
   - pip install -r requirements.txt
   - python setup.py sdist
   - pip install --no-cache-dir dist/bgmi-*.tar.gz
   - if [[ "$DB" == "mysql" ]]; then pip install pymysql; fi
-  - pip install -r requirements-test.txt
 
 script:
   - python --version
