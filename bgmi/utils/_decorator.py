@@ -64,12 +64,12 @@ def disable_in_test(func):
     return echo_func
 
 
-if sys.platform.startswith('win'):  # pragma: no cover
-    GREEN = ''
-    YELLOW = ''
-    RED = ''
-    COLOR_END = ''
-else:
+GREEN = ''
+YELLOW = ''
+RED = ''
+COLOR_END = ''
+
+if not sys.platform.startswith('win') or os.getenv('SHELL'):
     GREEN = '\033[1;32m'
     YELLOW = '\033[1;33m'
     RED = '\033[1;31m'
