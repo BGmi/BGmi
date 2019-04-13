@@ -1,5 +1,6 @@
 # coding=utf-8
 import datetime
+import imghdr
 import itertools
 import os
 import re
@@ -20,8 +21,9 @@ from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
 from bgmi.lib.models import Bangumi, BangumiLink, Followed
 from bgmi.script import ScriptRunner
-from bgmi.utils import COLOR_END, GREEN, RED, YELLOW, get_terminal_col, logger, print_error, \
-    print_info, print_success, print_warning, render_template
+from bgmi.utils import COLOR_END, GREEN, RED, YELLOW, convert_cover_url_to_path, download_cover, \
+    get_terminal_col, logger, print_error, print_info, print_success, print_warning, \
+    render_template
 
 
 def action_decorator(fn):
@@ -101,15 +103,24 @@ def list_wrapper(ret):
     print(result['message'])
 
 
+def cover_has_downloaded(url: str) -> bool:
+    """
+    check is a cover url exists on disk and if its a valid image file
+    Args:
+        url: cover image url
+
+    Returns:
+
+    """
+    _, file_path = convert_cover_url_to_path(url)
+    return os.path.exists(file_path) and imghdr.what(file_path)
+
+
 def cal_wrapper(ret):
     save = not ret.no_save
     runner = ScriptRunner()
-    if ret.download_cover:
-        cover = runner.get_download_cover()
-    else:
-        cover = None
 
-    weekly_list = website.bangumi_calendar(force_update=ret.force_update, save=save, cover=cover)
+    weekly_list = website.bangumi_calendar(force_update=ret.force_update, save=save)
     if os.environ.get('DEBUG') or ret.show_source:
         pass
         # todo
@@ -121,6 +132,21 @@ def cal_wrapper(ret):
     patch_list = runner.get_models_dict()
     for i in patch_list:
         weekly_list[i['update_time'].lower()].append(i)
+
+    # download cover to local
+    if ret.download_cover:
+        cover_to_be_download = [
+            x for x in runner.get_download_cover() if not cover_has_downloaded(x)
+        ]
+
+        for daily_bangumi in weekly_list.values():
+            for bangumi in daily_bangumi:
+                if not cover_has_downloaded(bangumi['cover']):
+                    cover_to_be_download.append(bangumi['cover'])
+
+        if cover_to_be_download:
+            print_info('Updating cover ...')
+            download_cover(cover_to_be_download)
 
     def shift(seq, n):
         n %= len(seq)

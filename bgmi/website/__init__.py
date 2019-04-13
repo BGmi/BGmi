@@ -6,23 +6,21 @@ from collections import defaultdict
 from copy import deepcopy
 from difflib import SequenceMatcher
 from itertools import chain
-from typing import List, Dict, Union
+from typing import Dict, List, Union
 
 import requests
 from hanziconv import HanziConv
 
 from bgmi import config
 from bgmi.config import MAX_PAGE
-from bgmi.lib.models import model_to_dict, combined_bangumi, \
-    uncombined_bangumi, get_updating_bangumi_with_data_source, db, BangumiItem, \
-    Bangumi, Followed, Subtitle
-from bgmi.utils import test_connection, print_warning, print_info, \
-    download_cover, convert_cover_url_to_path, full_to_half
+from bgmi.lib.models import Bangumi, BangumiItem, Followed, Subtitle, combined_bangumi, db, \
+    get_updating_bangumi_with_data_source, model_to_dict, uncombined_bangumi
+from bgmi.utils import full_to_half, print_info, print_warning, test_connection
 from bgmi.website.bangumi_moe import BangumiMoe
 from bgmi.website.mikan import Mikanani
 from bgmi.website.share_dmhy import DmhySource
-THRESHOLD = 60
 
+THRESHOLD = 60
 DATA_SOURCE_MAP = {
     'mikan_project': Mikanani(),
     'bangumi_moe': BangumiMoe(),
@@ -200,7 +198,7 @@ class DataSource:
 
         # data.save()
 
-    def bangumi_calendar(self, force_update=False, save=True, cover=None):
+    def bangumi_calendar(self, force_update=False, save=True):
         """
 
         :param force_update:
@@ -225,19 +223,6 @@ class DataSource:
         if not weekly_list:
             print_warning('Warning: no bangumi schedule, fetching ...')
             weekly_list = self.fetch(save=save)
-
-        if cover is not None:
-            # download cover to local
-            cover_to_be_download = []
-            for daily_bangumi in weekly_list.values():
-                for bangumi in daily_bangumi:
-                    _, file_path = convert_cover_url_to_path(bangumi['cover'])
-                    if not (os.path.exists(file_path) and imghdr.what(file_path)):
-                        cover_to_be_download.append(bangumi['cover'])
-
-            if cover_to_be_download:
-                print_info('Updating cover ...')
-                download_cover(cover_to_be_download)
 
         return weekly_list
 
@@ -335,8 +320,7 @@ class DataSource:
         for bangumi_list in weekly_list.values():
             for bangumi in bangumi_list:
                 bangumi['subtitle_group'] = [{
-                    'name': x['name'],
-                    'id': x['id']
+                    'name': x['name'], 'id': x['id']
                 } for x in Subtitle.get_subtitle_from_data_source_dict(bangumi)]
         return weekly_list
 
