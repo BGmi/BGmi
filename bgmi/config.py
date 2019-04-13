@@ -5,6 +5,7 @@ import hashlib
 import os
 import platform
 import random
+import chardet
 
 # --------- Read-Only ---------- #
 
@@ -93,13 +94,31 @@ SCRIPT_PATH = os.path.join(BGMI_PATH, 'scripts')
 TOOLS_PATH = os.path.join(BGMI_PATH, 'tools')
 
 
-def read_config():
+def get_config_parser_and_read() -> configparser.ConfigParser:
+    with open(CONFIG_FILE_PATH, 'rb') as f:
+        encoding = chardet.detect(f.read()).get('encoding')
+
     c = configparser.ConfigParser()
+    c.read(CONFIG_FILE_PATH, encoding)
+    return c
+
+
+def write_config_parser(config_parser: configparser.ConfigParser):
+    try:
+        with open(CONFIG_FILE_PATH, 'rb+') as f:
+            encoding = chardet.detect(f.read()).get('encoding')
+    except IOError:
+        encoding = None
+    with open(CONFIG_FILE_PATH, 'w+', encoding=encoding) as f:
+        config_parser.write(f)
+
+
+def read_config():
     if not os.path.exists(CONFIG_FILE_PATH):
         write_default_config()
         return
-    c.read(CONFIG_FILE_PATH)
 
+    c = get_config_parser_and_read()
     for i in __writeable__:
         if c.has_option('bgmi', i):
             globals().update({i: c.get('bgmi', i)})
@@ -110,9 +129,7 @@ def read_config():
 
 
 def print_config():
-    c = configparser.ConfigParser()
-
-    c.read(CONFIG_FILE_PATH)
+    c = get_config_parser_and_read()
     string = ''
     string += '[bgmi]\n'
     for i in __writeable__:
@@ -147,8 +164,7 @@ def write_default_config():
         c.set(DOWNLOAD_DELEGATE, k, v)
 
     try:
-        with open(CONFIG_FILE_PATH, 'w') as f:
-            c.write(f)
+        write_config_parser(c)
     except IOError:  # pragma: no cover
         print('[-] Error writing to config file and ignored')
 
@@ -162,8 +178,7 @@ def write_config(config=None, value=None):
             'data': [],
         }
 
-    c = configparser.ConfigParser()
-    c.read(CONFIG_FILE_PATH)
+    c = get_config_parser_and_read()
 
     try:
         if config is None:
@@ -185,8 +200,7 @@ def write_config(config=None, value=None):
                         'message': '{0} is not a support download_delegate'.format(value)
                     }
                 c.set('bgmi', config, value)
-                with open(CONFIG_FILE_PATH, 'w') as f:
-                    c.write(f)
+                write_config_parser(c)
                 read_config()
                 if config == 'DOWNLOAD_DELEGATE' and not c.has_section(DOWNLOAD_DELEGATE):
                     c.add_section(DOWNLOAD_DELEGATE)
@@ -194,8 +208,7 @@ def write_config(config=None, value=None):
                         v = globals().get(i, '')
                         c.set(DOWNLOAD_DELEGATE, i, v)
 
-                    with open(CONFIG_FILE_PATH, 'w') as f:
-                        c.write(f)
+                    write_config_parser(c)
                 result = {
                     'status': 'success',
                     'message': '{0} has been set to {1}'.format(config, value),
@@ -203,8 +216,7 @@ def write_config(config=None, value=None):
 
             elif config in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
                 c.set(DOWNLOAD_DELEGATE, config, value)
-                with open(CONFIG_FILE_PATH, 'w') as f:
-                    c.write(f)
+                write_config_parser(c)
                 result = {
                     'status': 'success',
                     'message': '{0} has been set to {1}'.format(config, value),

@@ -5,4 +5,5 @@ icalendar>=4.0.0,<5.0.0
 peewee>=3.9.2,<4.0.0
 hanziconv>=0.3.2,<1.0.0
 attrs>=19.0.0,<20.0.0
+chardet>=3.0.0,<4.0.0
 typing

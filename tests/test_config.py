@@ -37,8 +37,77 @@ class base:
         write_default_config()
 
 
-class WriteConfigTest(base, unittest.TestCase):
+class ReadConfigTest(base, unittest.TestCase):
+    def setUp(self):
+        os.remove(CONFIG_FILE_PATH) if os.path.exists(CONFIG_FILE_PATH) else None
 
+    @staticmethod
+    def setUpClass():
+        os.remove(CONFIG_FILE_PATH) if os.path.exists(CONFIG_FILE_PATH) else None
+        write_default_config()
+
+    @staticmethod
+    def tearDownClass():
+        if os.path.exists(CONFIG_FILE_PATH):
+            os.remove(CONFIG_FILE_PATH)
+        write_default_config()
+
+    def test_gbk_config_file(self):
+        with open(CONFIG_FILE_PATH, 'w+', encoding='gbk') as f:
+            f.write(
+                '''[bgmi]
+bangumi_moe_url = https://bangumi.moe
+save_path = /tmp/bangumi
+download_delegate = aria2-rpc
+db_url = sqlite:///:memory:
+max_page = 3
+tmp_path = /tmp/bgmi/tmp
+danmaku_api_url =
+disabled_data_source =
+lang = zh_cn
+admin_token = 233
+share_dmhy_url = https://share.dmhy.org
+global_filter = Leopard-Raws, hevc, x265, c-a Raws
+enable_global_filter = 1
+tornado_serve_static_files = 1
+
+[aria2-rpc]
+aria2_rpc_url = http://localhost:6800/rpc
+aria2_rpc_token = token:
+'''
+            )
+        bgmi.config.read_config()
+        self.assertEqual(bgmi.config.ADMIN_TOKEN, '233')
+
+    def test_utf8_config_file(self):
+        with open(CONFIG_FILE_PATH, 'w+', encoding='utf8') as f:
+            f.write(
+                '''[bgmi]
+bangumi_moe_url = https://bangumi.moe
+save_path = /tmp/bangumi
+download_delegate = aria2-rpc
+db_url = sqlite:///:memory:
+max_page = 3
+tmp_path = /tmp/bgmi/tmp
+danmaku_api_url =
+disabled_data_source =
+lang = zh_cn
+admin_token = 233
+share_dmhy_url = https://share.dmhy.org
+global_filter = Leopard-Raws, hevc, x265, c-a Raws
+enable_global_filter = 1
+tornado_serve_static_files = 1
+
+[aria2-rpc]
+aria2_rpc_url = http://localhost:6800/rpc
+aria2_rpc_token = token:
+'''
+            )
+        bgmi.config.read_config()
+        self.assertEqual(bgmi.config.ADMIN_TOKEN, '233')
+
+
+class WriteConfigTest(base, unittest.TestCase):
     def test_get_bgmi_path(self):
         old_bgmi_path = os.environ.get('BGMI_PATH', None)
         if old_bgmi_path:
