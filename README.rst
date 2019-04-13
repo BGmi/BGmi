@@ -276,6 +276,24 @@ BGmi configure:
 + :code:`LANG`: language
 + :code:`DB_URL`: peewee Database URL, see `peewee#database-url <https://docs.peewee-orm.com/en/latest/peewee/playhouse.html#database-url>`_ for more details. Only sqlite and mysql are tested. default mysql database charset is :code:`utf8md4`, so if you are using mysql, you should set it you :code:`mysql://{username}:{password}@{host}:{port}/{dbname}?charset=utf8mb4`
 
+Keyword Weight configure:
+
+If you some preferred keywords like ``720``, ``内嵌`` or ``双语``,
+but you don't want to include or exclude it,
+you can add ``keyword=weight`` pair to ``keyword weight`` section of config file.
+
+example:
+
+.. code-block:: ini
+
+    [keyword weight]
+    720 = 10
+    内嵌 = 100
+    双语 = 100
+
+If there are titles named ``720p 简体`` and ``1080p 双语`` and ``720 内嵌 双语``,
+their weight will be ``10``, ``100`` and ``210``(``10+100+100``)
+``bgmi`` will choose to download the third torrent.
 
 Aria2-rpc configure:
 
@@ -293,6 +311,9 @@ Deluge-rpc configure:
 
 + :code:`DELUGE_RPC_URL`: deluge rpc url
 + :code:`DELUGE_RPC_PASSWORD`: deluge rpc password
+
+
+
 
 ==================
 Usage of bgmi_http

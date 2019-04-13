@@ -5,6 +5,7 @@ import hashlib
 import os
 import platform
 import random
+
 import chardet
 
 # --------- Read-Only ---------- #
@@ -45,10 +46,12 @@ __all__ = (
     'GLOBAL_FILTER',
     'ENABLE_GLOBAL_FILTER',
     'TORNADO_SERVE_STATIC_FILES',
+    'KEYWORDS_WEIGHT',
 )
 
 # cannot be rewrite
 __readonly__ = (
+    'KEYWORDS_WEIGHT',
     'SHOW_WARNING',
     'BGMI_PATH',
     'CONFIG_FILE_PATH',
@@ -126,6 +129,25 @@ def read_config():
     for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
         if c.has_option(DOWNLOAD_DELEGATE, i):
             globals().update({i: c.get(DOWNLOAD_DELEGATE, i)})
+
+    read_keywords_weight_section(c)
+
+
+def read_keywords_weight_section(c: configparser.ConfigParser):
+    section = 'keyword weight'
+    try:
+        KEYWORDS_WEIGHT.update(dict(c.items(section)))
+        for key, value in c.items(section):
+            try:
+                KEYWORDS_WEIGHT[key] = int(value)
+            except ValueError:
+                print(
+                    'value of keyword.{} can\'t be "{}", it must be a int, '
+                    'ignore this line in config file'.format(key, value)
+                )
+    except configparser.NoSectionError:
+        c.add_section(section)
+        write_config_parser(c)
 
 
 def print_config():
@@ -296,6 +318,8 @@ ENABLE_GLOBAL_FILTER = '1'
 
 # use tornado serving video files
 TORNADO_SERVE_STATIC_FILES = '0'
+
+KEYWORDS_WEIGHT = {}
 
 # ------------------------------ #
 # !!! Read config from file and write to globals() !!!
