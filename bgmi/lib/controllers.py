@@ -4,18 +4,17 @@ import time
 import warnings
 
 import attr
+from typing import Mapping, Dict, List
 
-from bgmi.config import MAX_PAGE, SHOW_WARNING, write_config
+from bgmi.config import KEYWORDS_WEIGHT, MAX_PAGE, SHOW_WARNING, write_config
 from bgmi.lib import models
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
-from bgmi.lib.models import (
-    Bangumi, BangumiItem, BangumiLink, DoesNotExist, Download, Followed, Subtitle, model_to_dict
-)
+from bgmi.lib.models import Bangumi, BangumiItem, BangumiLink, DoesNotExist, Download, Followed, \
+    Subtitle, model_to_dict
 from bgmi.script import ScriptRunner
-from bgmi.utils import (
-    COLOR_END, GREEN, logger, normalize_path, print_error, print_info, print_success, print_warning
-)
+from bgmi.utils import COLOR_END, GREEN, logger, normalize_path, print_error, print_info, \
+    print_success, print_warning
 
 
 @attr.s
@@ -384,6 +383,24 @@ def config(name=None, value=None):
     return r
 
 
+def title_to_weight(title: str, weight: Mapping = KEYWORDS_WEIGHT) -> int:
+    """
+    if ``KEYWORDS_WIGHTS`` is {'a':1,'b':2}
+
+    Args:
+        weight: a map from keyword to weight, all values should be int
+        title: title of
+
+    Returns:
+
+    """
+    count = 0
+    for key, value in weight.items():
+        if key in title:
+            count += value
+    return count
+
+
 def update(name, download=None, not_ignore=False):
     logger.debug('updating bangumi info with args: download: %s', download)
     result = {'status': 'info', 'message': '', 'data': {'updated': [], 'downloaded': []}}
@@ -448,7 +465,11 @@ def update(name, download=None, not_ignore=False):
         episode, all_episode_data = website.get_maximum_episode(
             bangumi=bangumi_obj, ignore_old_row=ignore, max_page=MAX_PAGE
         )
-
+        all_episode_data = sorted(
+            all_episode_data,
+            key=lambda x: title_to_weight(x['title']),
+            reverse=True,
+        )
         if (episode.get('episode') > subscribe['episode']) or (len(name) == 1 and download):
             if len(name) == 1 and download:
                 episode_range = download
@@ -549,7 +570,8 @@ def list_():
 
 
 if __name__ == '__main__':
-    ee = cal()
-    import json
-
-    print(json.dumps(ee))
+    all_episode_data = [{'title': '720'}, {'title': 'hehe'}]
+    all_episode_data = sorted(
+        all_episode_data, key=lambda x: title_to_weight(x['title']), reverse=True
+    )
+    print(all_episode_data)
