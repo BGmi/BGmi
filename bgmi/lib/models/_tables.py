@@ -242,7 +242,7 @@ class Followed(NeoDB):
     @classmethod
     def get_all_followed(cls, status=STATUS.DELETED, bangumi_status=Bangumi.STATUS.UPDATING):
         join_cond = (Bangumi.name == cls.bangumi_name)
-        d = cls.select(Bangumi.name, Bangumi.update_time, Bangumi.cover, cls, ) \
+        d = cls.select(Bangumi.name, Bangumi.update_time, Bangumi.cover, cls, cls.episode) \
             .join(Bangumi, pw.JOIN['LEFT_OUTER'], on=join_cond) \
             .where((cls.status != status) & (Bangumi.status == bangumi_status)) \
             .order_by(cls.updated_time.desc()) \
@@ -360,8 +360,8 @@ class Subtitle(NeoDB):
         source = list(data_source.keys())
         condition = list()
         for s in source:
-            condition.append((Subtitle.id.in_(data_source[s]['subtitle_group'])) &
-                             (Subtitle.data_source == s))
+            condition.append((Subtitle.id.in_(data_source[s]['subtitle_group']))
+                             & (Subtitle.data_source == s))
         if len(condition) > 1:
             tmp_c = condition[0]
             for c in condition[1:]:
@@ -448,8 +448,8 @@ class BangumiLink(NeoDB):
     @classmethod
     def try_remove_record(cls, bangumi_name_1, bangumi_name_2, status):
         f = cls.select().where(
-            cls.value.contains(bangumi_name_1) & cls.value.contains(bangumi_name_2) &
-            (cls.status == status)
+            cls.value.contains(bangumi_name_1) & cls.value.contains(bangumi_name_2)
+            & (cls.status == status)
         )
         for v in f:
             s = v.value
@@ -459,8 +459,8 @@ class BangumiLink(NeoDB):
     @classmethod
     def add_record(cls, bangumi_name_1, bangumi_name_2, status):
         f = cls.select().where(
-            cls.value.contains(bangumi_name_1) & cls.value.contains(bangumi_name_2) &
-            (cls.status == status)
+            cls.value.contains(bangumi_name_1) & cls.value.contains(bangumi_name_2)
+            & (cls.status == status)
         )
         f = list(f)
         find = False

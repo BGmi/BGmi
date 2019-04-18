@@ -73,7 +73,7 @@ class ScriptRunner:
             'name': script.bangumi_name,
             'title': '[{}][{}]'.format(script.bangumi_name, k),
             'episode': k,
-            'download': v
+            'download': v,
         } for k, v in script.get_download_url().items()]
 
     def run(self, return_=True, download=False):
@@ -84,7 +84,7 @@ class ScriptRunner:
             script_obj = script.Model().obj
 
             if not download_item:
-                print_info('Got nothing, quit script {}.'.format(script))
+                print_info('Got nothing, quit script {}.'.format(script.Model.bangumi_name))
                 continue
 
             max_episode = max(download_item, key=lambda d: d['episode'])
@@ -142,10 +142,8 @@ class ScriptBase:
             if self.bangumi_name is not None:
                 s, _ = Scripts.get_or_create(
                     bangumi_name=self.bangumi_name,
-                    defaults={
-                        'episode': 0,
-                        'status': Followed.STATUS.FOLLOWED
-                    })
+                    defaults={'episode': 0, 'status': Followed.STATUS.FOLLOWED}
+                )
                 self.obj = s
 
         def __iter__(self):
@@ -158,7 +156,9 @@ class ScriptBase:
             yield ('updated_time', self.obj.updated_time)
             yield ('subtitle_group', '')
             yield ('episode', self.obj.episode)
-            yield ('bangumi_names', [self.bangumi_name, ])
+            yield ('bangumi_names', [
+                self.bangumi_name,
+            ])
             yield ('data_source', {})
 
     @property
@@ -206,8 +206,11 @@ class ScriptBase:
         if self.source is not None:
             source = DATA_SOURCE_MAP.get(self.source, None)()
             if source is None:
-                raise Exception('Script data source is invalid, usable sources: {}'
-                                .format(', '.join(DATA_SOURCE_MAP.keys())))
+                raise Exception(
+                    'Script data source is invalid, usable sources: {}'.format(
+                        ', '.join(DATA_SOURCE_MAP.keys())
+                    )
+                )
             ret = {}
             data = source.fetch_episode_of_bangumi(**self._data)
             for i in data:
