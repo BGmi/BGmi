@@ -3,3 +3,4 @@ https://github.com/Trim21/sphinx-theme/tarball/master
 sphinxcontrib.httpdomain
 sphinxcontrib.httpexample
 sphinx-argparse
+sphinxcontrib-openapi

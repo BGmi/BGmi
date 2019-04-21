@@ -7,14 +7,10 @@ from setuptools import setup, Command, find_packages
 
 from bgmi import __version__, __author__, __email__
 
-with open('requirements.txt', 'r') as f:
-    requirements = f.readlines()
-with open('requirements-test.txt', 'r') as f:
-    test_requirements = f.readlines()
-with open('docs/requirements.txt', 'r', encoding='utf8') as f:
-    docs_requirements = f.readlines()
 
-print(requirements, test_requirements, docs_requirements)
+def read_requirements(filepath):
+    with open(filepath, 'r') as f:
+        return [x.strip() for x in f.readlines()]
 
 
 class TestCommand(Command):
@@ -65,9 +61,8 @@ setup(
     version=__version__,
     author=__author__,
     author_email=__email__,
-    install_requires=requirements,
-    tests_require=test_requirements,
-    extras_require={'doc': docs_requirements},
+    install_requires=read_requirements('requirements.txt'),
+    tests_require=read_requirements('requirements-test.txt'),
     packages=packages,
     cmdclass={'clean': clean, 'test': TestCommand}
 )
