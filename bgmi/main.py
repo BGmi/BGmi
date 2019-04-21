@@ -27,9 +27,8 @@ def signal_handler(s, h):  # pragma: no cover # pylint: disable=W0613
 signal.signal(signal.SIGINT, signal_handler)
 
 
-# main function
-def main(argv=None, program_name='bgmi'):
-    c = argparse.ArgumentParser(prog=program_name)
+def get_arg_parser():
+    c = argparse.ArgumentParser()
 
     c.add_argument(
         '--version', help='Show the version of BGmi.', action='version', version=print_version()
@@ -44,7 +43,13 @@ def main(argv=None, program_name='bgmi'):
                 tmp_sub_parser.add_argument(sub_action['dest'], **sub_action['kwargs'])
             if isinstance(sub_action['dest'], list):
                 tmp_sub_parser.add_argument(*sub_action['dest'], **sub_action['kwargs'])
+    return c
 
+
+# main function
+def main(argv=None, program_name='bgmi'):
+    c = get_arg_parser()
+    c.prog = program_name
     ret = c.parse_args(argv)
     if ret.action == 'install':
         setup()

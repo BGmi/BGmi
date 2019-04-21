@@ -8,10 +8,13 @@ from setuptools import setup, Command, find_packages
 from bgmi import __version__, __author__, __email__
 
 with open('requirements.txt', 'r') as f:
-    requirements = f.read().splitlines()
-
+    requirements = f.readlines()
 with open('requirements-test.txt', 'r') as f:
-    test_requirements = f.read().splitlines()
+    test_requirements = f.readlines()
+with open('docs/requirements.txt', 'r', encoding='utf8') as f:
+    docs_requirements = f.readlines()
+
+print(requirements, test_requirements, docs_requirements)
 
 
 class TestCommand(Command):
@@ -36,14 +39,10 @@ class TestCommand(Command):
 class clean(_clean):
     """Custom implementation of ``clean`` setuptools command."""
     CLEAN_FILES = [
-        './build', './dist',
-        './*.pyc', './*.tgz',
-        './*.egg-info', './__pycache__',
-        "./.coverage"
+        './build', './dist', './*.pyc', './*.tgz', './*.egg-info', './__pycache__', "./.coverage"
     ]
 
     def run(self):
-
         """After calling the super class implementation, this function removes
         the directories specific to scikit-build."""
 
@@ -60,7 +59,7 @@ class clean(_clean):
                     os.remove(glob_to_remove)
 
 
-packages = find_packages(exclude=('tests',))
+packages = find_packages(exclude=('tests', ))
 log.info('find package %s', packages)
 setup(
     version=__version__,
@@ -68,9 +67,7 @@ setup(
     author_email=__email__,
     install_requires=requirements,
     tests_require=test_requirements,
+    extras_require={'doc': docs_requirements},
     packages=packages,
-    cmdclass={
-        'clean': clean,
-        'test': TestCommand
-    }
+    cmdclass={'clean': clean, 'test': TestCommand}
 )

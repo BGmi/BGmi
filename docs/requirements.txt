@@ -1,0 +1,5 @@
+sphinx==2.0.1
+https://github.com/Trim21/sphinx-theme/tarball/master
+sphinxcontrib.httpdomain
+sphinxcontrib.httpexample
+sphinx-argparse
