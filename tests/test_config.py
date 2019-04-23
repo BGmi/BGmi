@@ -4,11 +4,12 @@ import configparser
 import os
 import unittest
 import unittest.mock
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
 import bgmi.config
-from bgmi.config import write_default_config, CONFIG_FILE_PATH
-from bgmi.lib.controllers import config
+from bgmi.config import CONFIG_FILE_PATH, write_default_config
+from bgmi.lib.controllers import config_
+from bgmi.lib.controllers import ControllerResult
 
 
 class base:
@@ -136,55 +137,55 @@ class WriteConfigTest(base, unittest.TestCase):
             self.assertRaises(Exception, write_default_config)
 
     def test_print_config(self):
-        r = config()
-        self.assertEqual(r['status'], 'info')
+        r = config_()
+        self.assertEqual(r['status'], ControllerResult.success)
 
     def test_print_single_config(self):
-        r = config('DANMAKU_API_URL', '233')
+        r = config_('DANMAKU_API_URL', '233')
 
-        r = config('DANMAKU_API_URL')
-        self.assertEqual(r['status'], 'info')
+        r = config_('DANMAKU_API_URL')
+        self.assertEqual(r['status'], ControllerResult.success)
         self.assertTrue(r['message'].startswith('DANMAKU_API_URL'))
         self.assertTrue(r['message'].endswith('233'))
 
     def test_readonly(self):
-        r = config('CONFIG_FILE_PATH', '/tmp/233')
+        r = config_('CONFIG_FILE_PATH', '/tmp/233')
         self.assertEqual(r['status'], 'error')
 
     def test_writable(self):
-        r = config('DANMAKU_API_URL', '233')
+        r = config_('DANMAKU_API_URL', '233')
         self.assertEqual(r['status'], 'success')
         self.assertEqual(bgmi.config.DANMAKU_API_URL, '233')
 
     def test_not_writable(self):
-        r = config('DAN_API_URL', '233')
+        r = config_('DAN_API_URL', '233')
 
     def test_wrong_config_name(self):
-        r = config('WRONG_CONFIG_NAME', '233')
+        r = config_('WRONG_CONFIG_NAME', '233')
         self.assertEqual(r['status'], 'error')
 
     # def value_data(self):
     def test_set_wrong_DOWNLOAD_DELEGATE(self):
         delegate = bgmi.config.DOWNLOAD_DELEGATE
-        r = config('DOWNLOAD_DELEGATE', 'WRONG_METHOD')
+        r = config_('DOWNLOAD_DELEGATE', 'WRONG_METHOD')
         bgmi.config.read_config()
         self.assertEqual(r['status'], 'error')
         self.assertEqual(bgmi.config.DOWNLOAD_DELEGATE, delegate)
 
     def test_DOWNLOAD_DELEGATE(self):
-        r = config('DOWNLOAD_DELEGATE', 'aria2-rpc')
+        r = config_('DOWNLOAD_DELEGATE', 'aria2-rpc')
 
     def test_DOWNLOAD_DELEGATE_VALUE(self):
-        r = config('DOWNLOAD_DELEGATE', 'aria2-rpc')
-        r = config('ARIA2_RPC_URL', 'some_place')
+        r = config_('DOWNLOAD_DELEGATE', 'aria2-rpc')
+        r = config_('ARIA2_RPC_URL', 'some_place')
         self.assertEqual(r['status'], 'success')
         self.assertEqual(r['message'], 'ARIA2_RPC_URL has been set to some_place')
         self.read()
         self.assertEqual(self.config.get('aria2-rpc', 'ARIA2_RPC_URL'), 'some_place')
 
     def test_get_DOWNLOAD_DELEGATE_VALUE(self):
-        r = config('ARIA2_RPC_URL')
-        self.assertEqual(r['status'], 'info')
+        r = config_('ARIA2_RPC_URL')
+        self.assertEqual(r['status'], ControllerResult.success)
         self.assertEqual(r['message'], 'ARIA2_RPC_URL=http://localhost:6800/rpc')
 
 
@@ -195,7 +196,7 @@ class BadConfigTest(base, unittest.TestCase):
         self.config.remove_option('bgmi', 'MAX_PAGE')
         self.write()
         with unittest.mock.patch('bgmi.config.write_default_config', unittest.mock.Mock()) as m:
-            r = config('MAX_PAGE')
+            r = config_('MAX_PAGE')
             self.assertEqual(r['status'], 'error')
             m.assert_any_call()
 
@@ -205,7 +206,7 @@ class BadConfigTest(base, unittest.TestCase):
         self.config.remove_section('bgmi')
         self.write()
         with unittest.mock.patch('bgmi.config.write_default_config', unittest.mock.Mock()) as m:
-            r = config()
+            r = config_()
             self.assertEqual(r['status'], 'error')
             m.assert_any_call()
 
@@ -218,6 +219,6 @@ class BadConfigTest(base, unittest.TestCase):
     def test_config_file_not_exist(self):
         os.remove(CONFIG_FILE_PATH)
         with unittest.mock.patch('bgmi.config.write_default_config', unittest.mock.Mock()) as m:
-            r = config()
+            r = config_()
             m.assert_any_call()
         # write_default_config()

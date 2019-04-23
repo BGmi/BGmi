@@ -2,11 +2,12 @@
 import os
 import time
 import warnings
+from typing import Dict, List, Mapping
 
 import attr
-from typing import Mapping, Dict, List
 
-from bgmi.config import KEYWORDS_WEIGHT, MAX_PAGE, SHOW_WARNING, write_config
+from bgmi.config import KEYWORDS_WEIGHT, MAX_PAGE, SHOW_WARNING, print_config, print_config_key, \
+    write_config
 from bgmi.lib import models
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
@@ -376,11 +377,14 @@ def search(keyword, count=MAX_PAGE, regex=None, dupe=False, min_episode=None, ma
         }
 
 
-def config(name=None, value=None):
-    r = write_config(name, value)
-    if name == 'ADMIN_TOKEN':
-        r['message'] = 'you need to restart your bgmi_http to make new token work'
-    return r
+def config_(name=None, value=None):
+    if not name:
+        r = print_config()
+    elif not value:
+        r = print_config_key(name)
+    else:
+        r = write_config(name, value)
+    return ControllerResult.from_dict(r)
 
 
 def title_to_weight(title: str, weight: Mapping = KEYWORDS_WEIGHT) -> int:

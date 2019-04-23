@@ -5,6 +5,7 @@ import hashlib
 import os
 import platform
 import random
+from functools import wraps
 
 import chardet
 
@@ -150,19 +151,6 @@ def read_keywords_weight_section(c: configparser.ConfigParser):
         write_config_parser(c)
 
 
-def print_config():
-    c = get_config_parser_and_read()
-    string = ''
-    string += '[bgmi]\n'
-    for i in __writeable__:
-        string += '{0}={1}\n'.format(i, c.get('bgmi', i))
-
-    string += '\n[{0}]\n'.format(DOWNLOAD_DELEGATE)
-    for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
-        string += '{0}={1}\n'.format(i, c.get(DOWNLOAD_DELEGATE, i))
-    return string
-
-
 def write_default_config():
     c = configparser.ConfigParser()
     if not c.has_section('bgmi'):
@@ -191,71 +179,96 @@ def write_default_config():
         print('[-] Error writing to config file and ignored')
 
 
-def write_config(config=None, value=None):
-    if not os.path.exists(CONFIG_FILE_PATH):
-        write_default_config()
-        return {
-            'status': 'error',
-            'message': 'Config file does not exists, writing default config file',
-            'data': [],
-        }
+def _config_decorator(func):
+    @wraps(func)
+    def wrapped(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except (configparser.NoOptionError, configparser.NoSectionError):
+            write_default_config()
+            result = {
+                'status': 'error',
+                'message': 'Error in config file, try rerun `bgmi config`',
+            }
+        except FileNotFoundError:
+            write_default_config()
+            result = {
+                'status': 'error',
+                'message': 'Config file does not exists, writing default config file',
+                'data': [],
+            }
+        return result
 
+    return wrapped
+
+
+@_config_decorator
+def print_config():
+    c = get_config_parser_and_read()
+    string = ''
+    string += '[bgmi]\n'
+    for i in __writeable__:
+        string += '{0}={1}\n'.format(i, c.get('bgmi', i))
+
+    string += '\n[{0}]\n'.format(DOWNLOAD_DELEGATE)
+    for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
+        string += '{0}={1}\n'.format(i, c.get(DOWNLOAD_DELEGATE, i))
+
+    string += '\n[{}]'.format('keyword weight')
+    for key, value in KEYWORDS_WEIGHT.items():
+        string += '{}={}\n'.format(key, value)
+
+    return {'status': 'success', 'message': string}
+
+
+@_config_decorator
+def print_config_key(config):
     c = get_config_parser_and_read()
 
-    try:
-        if config is None:
-            result = {'status': 'info', 'message': print_config()}
+    if config in __download_delegate__:
+        s = '{0}={1}'.format(config, c.get(DOWNLOAD_DELEGATE, config))
+    else:
+        s = '{0}={1}'.format(config, c.get('bgmi', config))
+    return {'status': 'success', 'message': s}
 
-        elif value is None:  # config(config, None)
-            result = {'status': 'info'}
 
-            if config in __download_delegate__:
-                result['message'] = '{0}={1}'.format(config, c.get(DOWNLOAD_DELEGATE, config))
-            else:
-                result['message'] = '{0}={1}'.format(config, c.get('bgmi', config))
+@_config_decorator
+def write_config(config, value):
+    c = get_config_parser_and_read()
 
-        else:  # config(config, Value)
-            if config in __writeable__:
-                if config == 'DOWNLOAD_DELEGATE' and value not in DOWNLOAD_DELEGATE_MAP:
-                    return {
-                        'status': 'error',
-                        'message': '{0} is not a support download_delegate'.format(value)
-                    }
-                c.set('bgmi', config, value)
-                write_config_parser(c)
-                read_config()
-                if config == 'DOWNLOAD_DELEGATE' and not c.has_section(DOWNLOAD_DELEGATE):
-                    c.add_section(DOWNLOAD_DELEGATE)
-                    for i in DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]:
-                        v = globals().get(i, '')
-                        c.set(DOWNLOAD_DELEGATE, i, v)
+    if config in __writeable__:
+        if config == 'DOWNLOAD_DELEGATE' and value not in DOWNLOAD_DELEGATE_MAP:
+            return {
+                'status': 'error',
+                'message': '{0} is not a support download_delegate'.format(value)
+            }
+        c.set('bgmi', config, value)
+        write_config_parser(c)
+        read_config()
+        if config == 'DOWNLOAD_DELEGATE' and not c.has_section(DOWNLOAD_DELEGATE):
+            c.add_section(DOWNLOAD_DELEGATE)
+            for i in DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]:
+                v = globals().get(i, '')
+                c.set(DOWNLOAD_DELEGATE, i, v)
 
-                    write_config_parser(c)
-                result = {
-                    'status': 'success',
-                    'message': '{0} has been set to {1}'.format(config, value),
-                }
-
-            elif config in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
-                c.set(DOWNLOAD_DELEGATE, config, value)
-                write_config_parser(c)
-                result = {
-                    'status': 'success',
-                    'message': '{0} has been set to {1}'.format(config, value),
-                }
-            else:
-                result = {
-                    'status': 'error',
-                    'message': '{0} does not exist or not writeable'.format(config),
-                }
-
-    except (configparser.NoOptionError, configparser.NoSectionError):
-        write_default_config()
+            write_config_parser(c)
         result = {
-            'status': 'error',
-            'message': 'Error in config file, try rerun `bgmi config`',
+            'status': 'success',
+            'message': '{0} has been set to {1}'.format(config, value),
         }
 
+    elif config in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
+        c.set(DOWNLOAD_DELEGATE, config, value)
+        write_config_parser(c)
+        result = {
+            'status': 'success',
+            'message': '{0} has been set to {1}'.format(config, value),
+        }
+    else:
+        result = {
+            'status': 'error',
+            'message': '{0} does not exist or not writeable'.format(config),
+        }
     return result
 
 
@@ -327,3 +340,7 @@ read_config()
 # ------------------------------ #
 # will be used in other other models
 __all_writable_now__ = __writeable__ + DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]
+
+if __name__ == '__main__':
+    with open('./233', 'rb') as f:
+        print(f.read())

@@ -16,6 +16,6 @@ tmp/
 .coverage
 htmlcov
 .xml
-watchdemo.yaml
+watchdemo*.yaml
 .tox
 test_dir

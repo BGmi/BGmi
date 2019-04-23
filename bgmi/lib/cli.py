@@ -15,7 +15,7 @@ from bgmi.lib.constants import ACTION_ADD, ACTION_CAL, ACTION_CONFIG, ACTION_CON
     ACTION_MARK, ACTION_SEARCH, ACTION_UNLINK, ACTION_UPDATE, DOWNLOAD_CHOICE_LIST_DICT, \
     SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, actions_and_arguments
 from bgmi.lib.constants.actions import ACTION_COMPLETE, ACTION_HISTORY, ACTIONS
-from bgmi.lib.controllers import add, config, delete, filter_, link, list_, mark, search, unlink, \
+from bgmi.lib.controllers import add, config_, delete, filter_, link, list_, mark, search, unlink, \
     update
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
@@ -50,14 +50,15 @@ def config_wrapper(ret):
                 )
                 return
 
-    result = config(ret.name, ret.value)
-    if (not ret.name) and (not ret.value):
-        print(result['message'])
-    else:
-        if ret.name == 'DB_URL' and ret.value:
-            print_info('you are editing DB_URL, please run `bgmi install` to init db')
+    result = config_(ret.name, ret.value)
+    result.print()
+    # if (not ret.name) and (not ret.value):
+    #     print(result['message'])
+    # else:
+    if ret.name == 'DB_URL' and ret.value:
+        print_info('you are editing DB_URL, please run `bgmi install` to init db')
 
-        globals()["print_{}".format(result['status'])](result['message'])
+        # globals()["print_{}".format(result['status'])](result['message'])
 
 
 def search_wrapper(ret):

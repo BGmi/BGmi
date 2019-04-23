@@ -10,11 +10,9 @@ from tornado.web import HTTPError
 
 from bgmi.config import ADMIN_TOKEN
 from bgmi.front.base import BaseHandler
-from bgmi.lib.constants import (
-    ACTION_ADD, ACTION_CAL, ACTION_CONFIG, ACTION_DELETE, ACTION_DOWNLOAD, ACTION_FILTER,
-    ACTION_MARK, ACTION_SEARCH
-)
-from bgmi.lib.controllers import add, cal, config, delete, filter_, mark, search, status_, update
+from bgmi.lib.constants import ACTION_ADD, ACTION_CAL, ACTION_DELETE, ACTION_DOWNLOAD, \
+    ACTION_FILTER, ACTION_MARK, ACTION_SEARCH
+from bgmi.lib.controllers import add, cal, delete, filter_, mark, search, status_, update
 from bgmi.lib.download import download_prepare
 
 ACTION_AUTH = 'auth'
@@ -40,7 +38,6 @@ API_MAP_POST = {
     ACTION_ADD: add,
     ACTION_DELETE: delete,
     ACTION_SEARCH: search,
-    ACTION_CONFIG: config,
     ACTION_DOWNLOAD: download_prepare,
     ACTION_AUTH: auth_,
     ACTION_MARK: mark,
@@ -50,7 +47,6 @@ API_MAP_POST = {
 
 API_MAP_GET = {
     ACTION_CAL: lambda: {'data': cal()},
-    ACTION_CONFIG: lambda: config(None, None),
 }
 
 NO_AUTH_ACTION = (ACTION_CAL, ACTION_AUTH)
