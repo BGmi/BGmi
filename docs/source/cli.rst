@@ -83,7 +83,7 @@ Delete
 
 .. option:: --clear-all
 
-    删除所有订阅的番剧.``--name`` 将会被忽略.
+    删除所有订阅的番剧. ``--name`` 将会被忽略.
     需要确认.
 
 .. option:: --batch
@@ -126,7 +126,7 @@ Filter
 
 .. option:: --regex regex
 
-    正则匹配关键词, 会作用在整个标题上,比如 ``.*720p.*``跟 ``--include 720p`` 效果相同
+    正则匹配关键词, 会作用在整个标题上,比如 ``.*720p.*`` 跟 ``--include 720p`` 效果相同
 
 .. option:: --data-source data_source
 
@@ -137,6 +137,3 @@ list
 ----
 
 输出所有订阅的番剧
-
-
-

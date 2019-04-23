@@ -9,7 +9,7 @@ Index
 index
 ~~~~~
 
-``/api/index``中为更新中的番剧.``cover`` 字段为完整的path
+``/api/index`` 中为更新中的番剧. ``cover`` 字段为完整的path
 ``player.$episode.path`` 字段需要跟 ``/bangumi`` 进行拼接,才是最终的path.
 
 比如 ``海贼王`` 第一集的实际视频文件地址应该是 ``/bangumi/海贼王/1/1.mp4``
@@ -47,7 +47,7 @@ index
         },
         {
           "update_time": "Sun",
-          "cover": "/bangumi/cover/http/localhost8092/default/http/lain.bgm.tv/pic/cover/l/92/97/975_YKuWd.jpg",
+          "cover": "/bangumi/cover/http/lain.bgm.tv/pic/cover/l/92/97/975_YKuWd.jpg",
           "updated_time": 233,
           "status": 1,
           "bangumi_name": "海贼王",
@@ -166,7 +166,7 @@ cal
             "episode": null,
             "id": 22,
             "name": "猫猫日本史 第四季",
-            "cover": "http/localhost8092/default/http/lain.bgm.tv/pic/cover/l/1d/b1/279471_VB4qr.jpg",
+            "cover": "http/lain.bgm.tv/pic/cover/l/1d/b1/279471_VB4qr.jpg",
             "subject_id": 279471,
             "update_time": "Wed",
             "has_data_source": 1
@@ -178,7 +178,7 @@ cal
             "episode": null,
             "id": 28,
             "name": "偶像活动Friends～闪耀的宝石～",
-            "cover": "http/localhost8092/default/http/lain.bgm.tv/pic/cover/l/e2/ed/272921_Wkee1.jpg",
+            "cover": "http/lain.bgm.tv/pic/cover/l/e2/ed/272921_Wkee1.jpg",
             "subject_id": 272921,
             "update_time": "Thu",
             "has_data_source": 1
@@ -190,7 +190,7 @@ cal
             "episode": 0,
             "id": 30,
             "name": "妖怪手表",
-            "cover": "http/localhost8092/default/http/lain.bgm.tv/pic/cover/l/da/bf/83124_t8vg0.jpg",
+            "cover": "http/lain.bgm.tv/pic/cover/l/da/bf/83124_t8vg0.jpg",
             "subject_id": 83124,
             "update_time": "Fri",
             "has_data_source": 1
@@ -202,7 +202,7 @@ cal
             "episode": 935,
             "id": 41,
             "name": "名侦探柯南",
-            "cover": "http/localhost8092/default/http/lain.bgm.tv/pic/cover/l/01/88/899_Q3F3X.jpg",
+            "cover": "http/lain.bgm.tv/pic/cover/l/01/88/899_Q3F3X.jpg",
             "subject_id": 899,
             "update_time": "Sat",
             "has_data_source": 1
@@ -214,7 +214,7 @@ cal
             "episode": 877,
             "id": 49,
             "name": "海贼王",
-            "cover": "http/localhost8092/default/http/lain.bgm.tv/pic/cover/l/92/97/975_YKuWd.jpg",
+            "cover": "http/lain.bgm.tv/pic/cover/l/92/97/975_YKuWd.jpg",
             "subject_id": 975,
             "update_time": "Sun",
             "has_data_source": 1
@@ -224,7 +224,7 @@ cal
             "episode": null,
             "id": 63,
             "name": "Fairy gone フェアリーゴーン",
-            "cover": "http/localhost8092/default/http/lain.bgm.tv/pic/cover/l/39/23/272475_2w799.jpg",
+            "cover": "http/lain.bgm.tv/pic/cover/l/39/23/272475_2w799.jpg",
             "subject_id": 272475,
             "update_time": "Sun",
             "has_data_source": 1
@@ -234,7 +234,7 @@ cal
             "episode": null,
             "id": 65,
             "name": "荒野的寿飞行队 外传 大空的晴风飞行队",
-            "cover": "http/localhost8092/default/http/lain.bgm.tv/pic/cover/l/ed/6c/279048_10u3T.jpg",
+            "cover": "http/lain.bgm.tv/pic/cover/l/ed/6c/279048_10u3T.jpg",
             "subject_id": 279048,
             "update_time": "Sun",
             "has_data_source": 1
@@ -279,3 +279,4 @@ cal
 
     .. class:: Followed.STATUS
 
+        Followed.STATUS
