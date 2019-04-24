@@ -1,14 +1,13 @@
 # coding=utf-8
-
-import datetime
-import json
 import re
+import json
+import datetime
 from urllib.parse import unquote
 
 import requests
 
-from bgmi.script import ScriptBase
 from bgmi.utils import print_error, parse_episode
+from bgmi.script import ScriptBase
 
 
 class Script(ScriptBase):
@@ -21,7 +20,7 @@ class Script(ScriptBase):
     def get_download_url(self):
         # fetch and return dict
         resp = requests.get('http://www.kirikiri.tv/?m=vod-play-id-4414-src-1-num-2.html').text
-        data = re.findall("mac_url=unescape\('(.*)?'\)", resp)
+        data = re.findall(r"mac_url=unescape\('(.*)?'\)", resp)
         if not data:
             print_error('No data found, maybe the script is out-of-date.', exit_=False)
             return {}

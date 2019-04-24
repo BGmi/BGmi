@@ -1,0 +1,42 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.2.1
+    hooks:
+      - id: check-merge-conflict
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-docstring-first
+      - id: mixed-line-ending
+        args: ['--fix=lf',]
+      - id: check-json
+      # check for file bigger than 500kb
+      - id: check-added-large-files
+      - id: check-yaml
+      - id: debug-statements
+      - id: double-quote-string-fixer
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 3.7.7
+    hooks:
+      - id: flake8
+
+  - repo: https://github.com/pre-commit/pre-commit
+    rev: v1.15.2
+    hooks:
+      - id: validate_manifest
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v1.16.1
+    hooks:
+      - id: pyupgrade
+        args: ['--py3-only',]
+
+  - repo: local
+    hooks:
+      - id: isort
+        name: isort
+        entry: isort
+        require_serial: true
+        language: python
+        types: [python]
+        minimum_pre_commit_version: '1.15.0'

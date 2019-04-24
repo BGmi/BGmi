@@ -1,5 +1,4 @@
 # coding=utf-8
-
 import configparser
 import hashlib
 import os
@@ -100,10 +99,11 @@ TOOLS_PATH = os.path.join(BGMI_PATH, 'tools')
 
 def get_config_parser_and_read() -> configparser.ConfigParser:
     with open(CONFIG_FILE_PATH, 'rb') as f:
-        encoding = chardet.detect(f.read()).get('encoding')
+        content = f.read()
+        encoding = chardet.detect(content).get('encoding')
 
     c = configparser.ConfigParser()
-    c.read(CONFIG_FILE_PATH, encoding)
+    c.read_string(content.decode(encoding))
     return c
 
 
@@ -208,11 +208,11 @@ def print_config():
     string = ''
     string += '[bgmi]\n'
     for i in __writeable__:
-        string += '{0}={1}\n'.format(i, c.get('bgmi', i))
+        string += '{}={}\n'.format(i, c.get('bgmi', i))
 
-    string += '\n[{0}]\n'.format(DOWNLOAD_DELEGATE)
+    string += '\n[{}]\n'.format(DOWNLOAD_DELEGATE)
     for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
-        string += '{0}={1}\n'.format(i, c.get(DOWNLOAD_DELEGATE, i))
+        string += '{}={}\n'.format(i, c.get(DOWNLOAD_DELEGATE, i))
 
     string += '\n[{}]'.format('keyword weight')
     for key, value in KEYWORDS_WEIGHT.items():
@@ -226,9 +226,9 @@ def print_config_key(config):
     c = get_config_parser_and_read()
 
     if config in __download_delegate__:
-        s = '{0}={1}'.format(config, c.get(DOWNLOAD_DELEGATE, config))
+        s = '{}={}'.format(config, c.get(DOWNLOAD_DELEGATE, config))
     else:
-        s = '{0}={1}'.format(config, c.get('bgmi', config))
+        s = '{}={}'.format(config, c.get('bgmi', config))
     return {'status': 'success', 'message': s}
 
 
@@ -239,8 +239,7 @@ def write_config(config, value):
     if config in __writeable__:
         if config == 'DOWNLOAD_DELEGATE' and value not in DOWNLOAD_DELEGATE_MAP:
             return {
-                'status': 'error',
-                'message': '{0} is not a support download_delegate'.format(value)
+                'status': 'error', 'message': '{} is not a support download_delegate'.format(value)
             }
         c.set('bgmi', config, value)
         write_config_parser(c)
@@ -254,7 +253,7 @@ def write_config(config, value):
             write_config_parser(c)
         result = {
             'status': 'success',
-            'message': '{0} has been set to {1}'.format(config, value),
+            'message': '{} has been set to {}'.format(config, value),
         }
 
     elif config in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
@@ -262,12 +261,12 @@ def write_config(config, value):
         write_config_parser(c)
         result = {
             'status': 'success',
-            'message': '{0} has been set to {1}'.format(config, value),
+            'message': '{} has been set to {}'.format(config, value),
         }
     else:
         result = {
             'status': 'error',
-            'message': '{0} does not exist or not writeable'.format(config),
+            'message': '{} does not exist or not writeable'.format(config),
         }
     return result
 
@@ -340,7 +339,3 @@ read_config()
 # ------------------------------ #
 # will be used in other other models
 __all_writable_now__ = __writeable__ + DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]
-
-if __name__ == '__main__':
-    with open('./233', 'rb') as f:
-        print(f.read())

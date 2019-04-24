@@ -1,4 +1,4 @@
-from typing import TypeVar, Type
+from typing import Type, TypeVar
 
 import peewee as pw
 from playhouse.db_url import connect
@@ -22,8 +22,7 @@ class NeoDB(pw.Model):
         o = list(cls.select().where(*q))
         if not o:
             raise cls.DoesNotExist
-        else:
-            return o[0]
+        return o[0]
 
     @classmethod
     def has_status(cls, status):

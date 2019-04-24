@@ -5,15 +5,16 @@ import re
 import time
 from collections import defaultdict
 from enum import IntEnum
-from typing import List, Dict, Union, Iterator
+from typing import Dict, Iterator, List, Union
 
 import peewee as pw
 from playhouse.shortcuts import model_to_dict
 
 import bgmi.config
 from bgmi.lib.constants import SECOND_OF_WEEK
+
 from ._db import NeoDB, db
-from ._fields import SubtitleField, BangumiNamesField
+from ._fields import BangumiNamesField, SubtitleField
 
 
 class BangumiItem(pw.Model):
@@ -335,7 +336,6 @@ class Subtitle(NeoDB):
 
     @classmethod
     def get_subtitle_of_bangumi(cls, bangumi_obj):
-        # todo
         """
         :type bangumi_obj: Union[Bangumi,dict]
         """
@@ -351,7 +351,6 @@ class Subtitle(NeoDB):
 
     @classmethod
     def get_subtitle_from_data_source_dict(cls, data_source):
-        # todo
         """
         :type data_source: dict
         :param data_source:

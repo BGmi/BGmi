@@ -9,7 +9,7 @@ from tornado.web import HTTPError
 
 from bgmi.config import SAVE_PATH
 from bgmi.front.base import BaseHandler
-from bgmi.lib.models import Download, Followed, Bangumi
+from bgmi.lib.models import Bangumi, Download, Followed
 
 
 class BangumiHandler(BaseHandler):
@@ -33,7 +33,8 @@ class BangumiHandler(BaseHandler):
                 '...\n\n'
                 'If use want to use Tornado to serve static files, please run\n'
                 '<code>`bgmi config TORNADO_SERVE_STATIC_FILES 1`</code></pre>' %
-                (SAVE_PATH, SAVE_PATH))
+                (SAVE_PATH, SAVE_PATH)
+            )
             self.finish()
 
 
@@ -69,16 +70,12 @@ class CalendarHandler(BaseHandler):
                         event.add('summary', v)
                         event.add(
                             'dtstart',
-                            datetime.datetime.now().date() +
-                            datetime.timedelta(
-                                i -
-                                1))
+                            datetime.datetime.now().date() + datetime.timedelta(i - 1),
+                        )
                         event.add(
                             'dtend',
-                            datetime.datetime.now().date() +
-                            datetime.timedelta(
-                                i -
-                                1))
+                            datetime.datetime.now().date() + datetime.timedelta(i - 1),
+                        )
                         cal.add_component(event)
         else:
             data = [bangumi for bangumi in data if bangumi['status'] == 2]

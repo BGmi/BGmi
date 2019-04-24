@@ -3,9 +3,9 @@ import os
 from distutils import log
 from distutils.command.clean import clean as _clean
 
-from setuptools import setup, Command, find_packages
+from setuptools import Command, find_packages, setup
 
-from bgmi import __version__, __author__, __email__
+from bgmi import __author__, __email__, __version__
 
 
 def read_requirements(filepath):
@@ -35,7 +35,14 @@ class TestCommand(Command):
 class clean(_clean):
     """Custom implementation of ``clean`` setuptools command."""
     CLEAN_FILES = [
-        './build', './dist', './*.pyc', './*.tgz', './*.egg-info', './__pycache__', "./.coverage"
+        '*.egg',
+        './build',
+        './dist',
+        './*.pyc',
+        './*.tgz',
+        './*.egg-info',
+        './__pycache__',
+        './.coverage',
     ]
 
     def run(self):
@@ -45,7 +52,7 @@ class clean(_clean):
         from shutil import rmtree
         from glob import glob
 
-        super(clean, self).run()
+        super().run()
         for dirs in self.CLEAN_FILES:
             for glob_to_remove in glob(dirs):
                 log.info("removing '%s'", glob_to_remove)
@@ -61,8 +68,8 @@ setup(
     version=__version__,
     author=__author__,
     author_email=__email__,
-    install_requires=read_requirements('requirements.txt'),
-    tests_require=read_requirements('requirements-test.txt'),
+    install_requires=read_requirements('requirements/prod.txt'),
+    extras_require={'mysql': read_requirements('requirements/extras/mysql.txt')},
     packages=packages,
     cmdclass={'clean': clean, 'test': TestCommand}
 )

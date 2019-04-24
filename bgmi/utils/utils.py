@@ -116,7 +116,7 @@ def get_terminal_col():  # pragma: no cover
         csbi = create_string_buffer(22)
         res = windll.kernel32.GetConsoleScreenBufferInfo(h, csbi)
         if res:
-            (_, _, _, _, _, left, _, right, _, _, _) = struct.unpack("hhhhHhhhhhh", csbi.raw)
+            (_, _, _, _, _, left, _, right, _, _, _) = struct.unpack('hhhhHhhhhhh', csbi.raw)
             sizex = right - left + 1
             # sizey = bottom - top + 1
             return sizex
@@ -193,8 +193,7 @@ def normalize_path(url):
 
     if url.startswith('/'):
         return url[1:]
-    else:
-        return url
+    return url
 
 
 def get_web_admin(method):
@@ -202,10 +201,10 @@ def get_web_admin(method):
     try:
         r = requests.get(FRONTEND_NPM_URL).json()
         version = requests.get(PACKAGE_JSON_URL).json()
-        if 'error' in version and version['reason'] == "document not found":  # pragma: no cover
+        if 'error' in version and version['reason'] == 'document not found':  # pragma: no cover
             print_error(
-                "Cnpm has not synchronized the latest version of BGmi-frontend from npm, "
-                "please try it later"
+                'Cnpm has not synchronized the latest version of BGmi-frontend from npm, '
+                'please try it later'
             )
             return
         tar_url = r['versions'][version['version']]['dist']['tarball']
@@ -280,7 +279,7 @@ def download_cover(cover_url_list):
     :return:
     """
     for url in cover_url_list:
-        dir_path, file_path = convert_cover_url_to_path(url)
+        dir_path, _ = convert_cover_url_to_path(url)
 
         if os.path.exists(dir_path):
             if not os.path.isdir(dir_path):

@@ -20,8 +20,8 @@ def init_db():
             host=database.get('host'), user=database.get('user'), password=database.get('password')
         )
         conn.cursor().execute(
-            'CREATE DATABASE IF NOT EXISTS {} default character set utf8mb4 collate utf8mb4_unicode_ci;'
-            .format(db_name)
+            'CREATE DATABASE IF NOT EXISTS {} default character set utf8mb4 '
+            'collate utf8mb4_unicode_ci;'.format(db_name)
         )
         conn.close()
 

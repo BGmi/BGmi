@@ -6,10 +6,10 @@ import os
 import time
 import traceback
 
-from bgmi.config import SCRIPT_PATH, MAX_PAGE
+from bgmi.config import MAX_PAGE, SCRIPT_PATH
 from bgmi.lib.download import download_prepare
 from bgmi.lib.models import Followed, Scripts
-from bgmi.utils import print_success, print_warning, print_info
+from bgmi.utils import print_info, print_success, print_warning
 from bgmi.website import DATA_SOURCE_MAP
 
 
@@ -38,7 +38,7 @@ class ScriptRunner:
                         # self.scripts = filter(self._check_followed, self.scripts)
                         # self.scripts = filter(self._check_bangumi, self.scripts)
 
-            cls._defined = super(ScriptRunner, cls).__new__(cls, *args, **kwargs)
+            cls._defined = super().__new__(cls, *args, **kwargs)
 
         return cls._defined
 
@@ -134,9 +134,9 @@ class ScriptBase:
         source = None
 
         # fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
-        _bangumi_id = None
-        _subtitle_list = []
-        _max_page = MAX_PAGE
+        bangumi_id = None
+        subtitle_list = []
+        max_page = MAX_PAGE
 
         def __init__(self):
             if self.bangumi_name is not None:
@@ -164,9 +164,9 @@ class ScriptBase:
     @property
     def _data(self):
         return {
-            'bangumi_id': self.Model._bangumi_id,
-            'subtitle_list': self.Model._subtitle_list,
-            'max_page': int(self.Model._max_page),
+            'bangumi_id': self.Model.bangumi_id,
+            'subtitle_list': self.Model.subtitle_list,
+            'max_page': int(self.Model.max_page),
         }
 
     @property

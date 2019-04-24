@@ -3,10 +3,10 @@
 import os
 from pprint import pformat
 
-from bgmi.config import SAVE_PATH, FRONT_STATIC_PATH
-from bgmi.front.base import BaseHandler, COVER_URL
-from bgmi.lib.models import Followed, Bangumi
-from bgmi.utils import normalize_path, logger
+from bgmi.config import FRONT_STATIC_PATH, SAVE_PATH
+from bgmi.front.base import COVER_URL, BaseHandler
+from bgmi.lib.models import Bangumi, Followed
+from bgmi.utils import logger, normalize_path
 
 
 def get_player(bangumi_name):
@@ -34,8 +34,8 @@ def get_player(bangumi_name):
             if any([bangumi.lower().endswith(x) for x in ['.mp4', '.mkv', '.webm']]):
                 video_file_path = os.path.join(base_path, bangumi)
                 video_file_path = os.path.join(
-                    os.path.dirname(video_file_path),
-                    os.path.basename(video_file_path))
+                    os.path.dirname(video_file_path), os.path.basename(video_file_path)
+                )
                 video_file_path = video_file_path.replace(os.path.sep, '/')
                 episode_list[episode] = {'path': video_file_path}
                 break
@@ -47,12 +47,14 @@ class IndexHandler(BaseHandler):
     def get(self, *args, **kwargs):
         if not os.path.exists(FRONT_STATIC_PATH):
             msg = '''<h1>Thanks for your using BGmi</h1>
-            <p>It seems you have not install BGmi Frontend, please run <code>bgmi install</code> to install.</p>
+            <p>It seems you have not install BGmi Frontend,
+             please run <code>bgmi install</code> to install.</p>
             '''
         else:
             msg = '''<h1>Thanks for your using BGmi</h1>
             <p>If use want to use Tornado to serve static files, please run
-            <code>bgmi config TORNADO_SERVE_STATIC_FILES 1</code>, and do not forget install bgmi-frontend by
+            <code>bgmi config TORNADO_SERVE_STATIC_FILES 1</code>,
+            and do not forget install bgmi-frontend by
             running <code>bgmi install</code></p>'''
 
         self.write(msg)
@@ -63,7 +65,8 @@ class BangumiListHandler(BaseHandler):
     def get(self, type_=''):
         data = Followed.get_all_followed(
             Followed.STATUS.DELETED,
-            Bangumi.STATUS.UPDATING if type_ != 'old' else Bangumi.STATUS.END)
+            Bangumi.STATUS.UPDATING if type_ != 'old' else Bangumi.STATUS.END
+        )
 
         if type_ == 'index':
             data.extend(self.patch_list)

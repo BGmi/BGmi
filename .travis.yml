@@ -17,6 +17,7 @@ cache:
     - $HOME/Library/Caches/pip
     - $HOME/Library/Caches/Homebrew
     - $HOME/choco/cache
+    - $HOME/.cache/pre-commit
 
 env:
   global:
@@ -116,15 +117,12 @@ before_install:
     fi
 
 install:
-  - mkdir -p $HOME/.cache/pip $HOME/Library/Caches/pip $HOME/Library/Caches/Homebrew $HOME/choco/cache
   - |
     if [[ "$DB" == "mysql" ]]; then
       mysql -u root -e 'CREATE DATABASE IF NOT EXISTS bgmi DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_general_ci;';
     fi
-
-  - pip install -r requirements-test.txt
+  - pip install -r requirements/dev.txt
   - pip install codecov
-  - pip install -r requirements.txt
   - python setup.py sdist
   - pip install --no-cache-dir dist/bgmi-*.tar.gz
   - if [[ "$DB" == "mysql" ]]; then pip install pymysql; fi
@@ -132,7 +130,10 @@ install:
 script:
   - python --version
   - pip freeze
-  - pycodestyle -r ./bgmi/
+  - |
+    if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then
+        pre-commit run --files `git diff --name-only HEAD HEAD~1`
+    fi
   - coverage run -a -m bgmi install --no-web
   - |
     if [[ "$DB" == "mysql" ]]; then

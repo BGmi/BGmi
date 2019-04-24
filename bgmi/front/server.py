@@ -1,7 +1,5 @@
 # encoding: utf-8
 
-import os
-
 import tornado.httpserver
 import tornado.ioloop
 import tornado.options
@@ -17,7 +15,7 @@ from bgmi.front.resources import BangumiHandler, CalendarHandler, RssHandler
 define('port', default=8888, help='listen on the port', type=int)
 define('address', default='0.0.0.0', help='binding at given address', type=str)
 
-API_ACTIONS = '%s|%s' % ('|'.join(API_MAP_GET.keys()), '|'.join(API_MAP_POST.keys()))
+API_ACTIONS = '{}|{}'.format('|'.join(API_MAP_GET.keys()), '|'.join(API_MAP_POST.keys()))
 
 
 def make_app(**kwargs):
@@ -36,11 +34,13 @@ def make_app(**kwargs):
     ]
 
     if TORNADO_SERVE_STATIC_FILES != '0':
-        handlers.extend([(r'/bangumi/(.*)', tornado.web.StaticFileHandler, {'path': SAVE_PATH}),
-                         (
-                             r'^/(.*)$', tornado.web.StaticFileHandler,
-                             {'path': FRONT_STATIC_PATH, 'default_filename': 'index.html'}
-                         )])
+        handlers.extend([
+            (r'/bangumi/(.*)', tornado.web.StaticFileHandler, {'path': SAVE_PATH}),
+            (
+                r'^/(.*)$', tornado.web.StaticFileHandler,
+                {'path': FRONT_STATIC_PATH, 'default_filename': 'index.html'}
+            ),
+        ])
     else:
         handlers.extend([
             (r'^/bangumi/?(.*)', BangumiHandler),
@@ -51,7 +51,6 @@ def make_app(**kwargs):
 
 
 def main():
-    # print(tornado.options.options.__dict__)
     tornado.options.parse_command_line()
     print('BGmi HTTP Server listening on %s:%d' % (options.address, options.port))
     http_server = tornado.httpserver.HTTPServer(make_app())
@@ -59,5 +58,5 @@ def main():
     tornado.ioloop.IOLoop.current().start()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

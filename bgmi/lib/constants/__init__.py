@@ -1,5 +1,4 @@
 # coding=utf-8
-
 import bgmi.config
 
 from . import kv
@@ -35,7 +34,7 @@ FOLLOWED_CHOICE = (FOLLOWED_ACTION_LIST, FOLLOWED_ACTION_MARK)
 SUPPORT_WEBSITE = [
     {
         'view': '萌番组 https://bangumi.moe/',
-        'id': "bangumi_moe",
+        'id': 'bangumi_moe',
     },
     {
         'view': '蜜柑计划 https://mikanani.me/',
@@ -98,7 +97,8 @@ actions_and_arguments = [
                 'dest': '--clear-all',
                 'kwargs': dict(
                     action='store_true',
-                    help='Clear all the subscriptions name will be ignored If you provide this flag.'
+                    help='Clear all the subscriptions,'
+                    ' name will be ignored If you provide this flag.'
                 ),
             },
             {
@@ -295,7 +295,7 @@ actions_and_arguments = [
             },
             {
                 'dest': '--dupe',
-                'kwargs': dict(action='store_true', help="Show duplicated episode"),
+                'kwargs': dict(action='store_true', help='Show duplicated episode'),
             },
             {
                 'dest': '--min-episode',
@@ -376,3 +376,5 @@ actions_and_arguments = [
         'help': 'List your history of following bangumi',
     },
 ]
+
+__all__ = ['kv', 'actions_and_arguments']

@@ -1,5 +1,4 @@
 # coding=utf-8
-
 import os
 import time
 from collections import defaultdict
@@ -24,7 +23,7 @@ Cn_week_map = {
     '星期三': 'Wed',
     '星期四': 'Thu',
     '星期五': 'Fri',
-    '星期六': 'Sat'
+    '星期六': 'Sat',
 }
 
 
@@ -48,16 +47,16 @@ def parser_day_bangumi(soup):
     :return: list
     :rtype: list[dict]
     """
-    li = []
-    for soup in soup.find_all('li'):
-        url = soup.select_one('a')
-        span = soup.find('span')
+    container = []
+    for tag in soup.find_all('li'):
+        url = tag.select_one('a')
+        span = tag.find('span')
         if url:
             name = url['title']
             url = url['href']
             bangumi_id = url.split('/')[-1]
-            li.append({'name': name, 'keyword': bangumi_id, 'cover': span['data-src']})
-    return li
+            container.append({'name': name, 'keyword': bangumi_id, 'cover': span['data-src']})
+    return container
 
 
 def parse_episodes_from_soup(soup: bs4.BeautifulSoup):
@@ -79,44 +78,45 @@ def parse_episodes_from_soup(soup: bs4.BeautifulSoup):
                 'subtitle_group': str(subtitle_id),
                 'title': title,
                 'episode': parse_episode(title),
-                'time': int(time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M")))
+                'time': int(time.mktime(time.strptime(time_string, '%Y/%m/%d %H:%M'))),
             })
     return subtitle_groups
 
 
+def parse_bangumi_details_page(bangumi_id):
+    if os.environ.get('DEBUG', False):  # pragma: no cover
+        print(server_root + 'Bangumi/{}'.format(bangumi_id))
+    r = requests.get(server_root + 'Home/Bangumi/{}'.format(bangumi_id)).text
+
+    soup = bs4.BeautifulSoup(r, 'html.parser')
+
+    # info
+    bangumi_info = {'status': 0}
+    left_container = soup.find('div', class_='pull-left leftbar-container')  # type:bs4.Tag
+    title = left_container.find('p', class_='bangumi-title')
+    day = title.find_next_sibling('p', class_='bangumi-info')
+    bangumi_info['update_time'] = Cn_week_map[day.text[-3:]]
+
+    subtitle_groups = parse_episodes_from_soup(soup)
+
+    ######
+    bangumi_info['subtitle_group'] = list(subtitle_groups.keys())
+    nr = list()
+    dv = soup.find('div', class_='leftbar-nav')
+    li_list = dv.ul.find_all('li')
+    for li in li_list:
+        a = li.find('a')
+        nr.append({
+            'id': a.attrs['data-anchor'][1:],
+            'name': a.text,
+        })
+
+    bangumi_info['subtitle_groups'] = nr
+    return bangumi_info
+
+
 class Mikanani(BaseWebsite):
     cover_url = server_root[:-1]
-
-    def parse_bangumi_details_page(self, bangumi_id):
-        if os.environ.get('DEBUG', False):  # pragma: no cover
-            print(server_root + 'Bangumi/{}'.format(bangumi_id))
-        r = requests.get(server_root + 'Home/Bangumi/{}'.format(bangumi_id)).text
-
-        soup = bs4.BeautifulSoup(r, 'html.parser')
-
-        # info
-        bangumi_info = {'status': 0}
-        left_container = soup.find('div', class_='pull-left leftbar-container')  # type:bs4.Tag
-        title = left_container.find('p', class_='bangumi-title')
-        day = title.find_next_sibling('p', class_='bangumi-info')
-        bangumi_info['update_time'] = Cn_week_map[day.text[-3:]]
-
-        subtitle_groups = parse_episodes_from_soup(soup)
-
-        ######
-        bangumi_info['subtitle_group'] = list(subtitle_groups.keys())
-        nr = list()
-        dv = soup.find('div', class_='leftbar-nav')
-        li_list = dv.ul.find_all('li')
-        for li in li_list:
-            a = li.find('a')
-            nr.append({
-                'id': a.attrs['data-anchor'][1:],
-                'name': a.text,
-            })
-
-        bangumi_info['subtitle_groups'] = nr
-        return bangumi_info
 
     def search_by_keyword(self, keyword, count=None):
         """
@@ -142,7 +142,7 @@ class Mikanani(BaseWebsite):
         """
 
         result = []
-        r = requests.get(server_root + "Home/Search", params={'searchstr': keyword}).text
+        r = requests.get(server_root + 'Home/Search', params={'searchstr': keyword}).text
         s = bs4.BeautifulSoup(r, 'html.parser')
         td_list = s.find_all('tr', attrs={'class': 'js-search-results-row'})  # type:List[bs4.Tag]
         for tr in td_list:
@@ -153,7 +153,7 @@ class Mikanani(BaseWebsite):
                 'name': keyword,
                 'title': title,
                 'episode': self.parse_episode(title),
-                'time': int(time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M")))
+                'time': int(time.mktime(time.strptime(time_string, '%Y/%m/%d %H:%M'))),
             })
             # print(result)
         return result
@@ -239,7 +239,7 @@ class Mikanani(BaseWebsite):
                 bangumi_list.append(obj)
 
         p = ThreadPool(4)
-        r = p.map(self.parse_bangumi_details_page, [x['keyword'] for x in bangumi_list])
+        r = p.map(parse_bangumi_details_page, [x['keyword'] for x in bangumi_list])
         p.close()
 
         for i, bangumi in enumerate(bangumi_list):
@@ -252,7 +252,7 @@ class Mikanani(BaseWebsite):
         def f(x, y):
             return x if y in x else x + [y]
 
-        subtitle_result = reduce(f, [[], ] + subtitle_result)
+        subtitle_result = reduce(f, [[]] + subtitle_result)
         subtitle_result.sort(key=lambda x: int(x['id']))
 
         return bangumi_result, subtitle_result
