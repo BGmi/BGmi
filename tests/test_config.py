@@ -1,15 +1,12 @@
-# coding=utf-8
-
 import configparser
 import os
 import unittest
 import unittest.mock
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import bgmi.config
 from bgmi.config import CONFIG_FILE_PATH, write_default_config
-from bgmi.lib.controllers import config_
-from bgmi.lib.controllers import ControllerResult
+from bgmi.lib.controllers import ControllerResult, config_
 
 
 class base:
@@ -158,7 +155,7 @@ class WriteConfigTest(base, unittest.TestCase):
         self.assertEqual(bgmi.config.DANMAKU_API_URL, '233')
 
     def test_not_writable(self):
-        r = config_('DAN_API_URL', '233')
+        config_('DAN_API_URL', '233')
 
     def test_wrong_config_name(self):
         r = config_('WRONG_CONFIG_NAME', '233')
@@ -173,7 +170,7 @@ class WriteConfigTest(base, unittest.TestCase):
         self.assertEqual(bgmi.config.DOWNLOAD_DELEGATE, delegate)
 
     def test_DOWNLOAD_DELEGATE(self):
-        r = config_('DOWNLOAD_DELEGATE', 'aria2-rpc')
+        config_('DOWNLOAD_DELEGATE', 'aria2-rpc')
 
     def test_DOWNLOAD_DELEGATE_VALUE(self):
         r = config_('DOWNLOAD_DELEGATE', 'aria2-rpc')
@@ -219,6 +216,6 @@ class BadConfigTest(base, unittest.TestCase):
     def test_config_file_not_exist(self):
         os.remove(CONFIG_FILE_PATH)
         with unittest.mock.patch('bgmi.config.write_default_config', unittest.mock.Mock()) as m:
-            r = config_()
+            config_()
             m.assert_any_call()
         # write_default_config()

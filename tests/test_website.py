@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 
-import bgmi.website
 import bgmi.utils.utils
+import bgmi.website
 
 # from bgmi.lib.fetch import website
 # from bgmi.website.base import BaseWebsite
@@ -19,12 +17,12 @@ class BasicT:
         bs, gs = self.w.fetch_bangumi_calendar_and_subtitle_group()
         b = {}
         for bangumi in bs:
-            self.assertIn("status", bangumi)
-            self.assertIn("subtitle_group", bangumi)
-            self.assertIn("name", bangumi)
-            self.assertIn("keyword", bangumi)
-            self.assertIn("update_time", bangumi)
-            self.assertIn("cover", bangumi)
+            self.assertIn('status', bangumi)
+            self.assertIn('subtitle_group', bangumi)
+            self.assertIn('name', bangumi)
+            self.assertIn('keyword', bangumi)
+            self.assertIn('update_time', bangumi)
+            self.assertIn('cover', bangumi)
             if bangumi['name'] == self.bangumi_name_1:
                 b = bangumi
 

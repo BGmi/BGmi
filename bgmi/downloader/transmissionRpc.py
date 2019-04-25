@@ -1,8 +1,7 @@
 from bgmi.config import (
-    TRANSMISSION_RPC_PORT, TRANSMISSION_RPC_URL, TRANSMISSION_RPC_USERNAME,
-    TRANSMISSION_RPC_PASSWORD
+    TRANSMISSION_RPC_PASSWORD, TRANSMISSION_RPC_PORT, TRANSMISSION_RPC_URL,
+    TRANSMISSION_RPC_USERNAME
 )
-
 from bgmi.downloader.base import BaseDownloadService
 from bgmi.utils import print_info, print_warning
 
@@ -10,7 +9,7 @@ from bgmi.utils import print_info, print_warning
 class TransmissionRPC(BaseDownloadService):
     def __init__(self, *args, **kwargs):
         self.check_delegate_bin_exist()
-        super(TransmissionRPC, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def download(self):
         try:
@@ -24,14 +23,14 @@ class TransmissionRPC(BaseDownloadService):
             client.add_torrent(self.torrent, download_dir=self.save_path)
             print_info(
                 'Add torrent into the download queue, '
-                'the file will be saved at {0}'.format(self.save_path)
+                'the file will be saved at {}'.format(self.save_path)
             )
         except ImportError:
             self.install()
 
     def check_delegate_bin_exist(self):
         try:
-            import transmission_rpc
+            import transmission_rpc  # noqa
         except ImportError:
             self.install()
 
@@ -53,7 +52,7 @@ class TransmissionRPC(BaseDownloadService):
                 password=TRANSMISSION_RPC_PASSWORD
             )
             for torrent in tc.get_torrents():
-                print_info('  * {0}: {1}'.format(torrent.status, torrent), indicator=False)
+                print_info('  * {}: {}'.format(torrent.status, torrent), indicator=False)
         except ImportError:
             cls.install()
 

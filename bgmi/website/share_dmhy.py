@@ -1,5 +1,3 @@
-# coding=utf-8
-
 import os
 import re
 import time as Time
@@ -25,12 +23,12 @@ def parse_bangumi_with_week_days(content, update_time, array_name):
 
     for bangumi_row in ret:
         bangumi = {
-            "status": 0,
-            "subtitle_group": [],
-            "name": "",
-            "keyword": "",  # bangumi id
-            "update_time": "",
-            "cover": ""
+            'status': 0,
+            'subtitle_group': [],
+            'name': '',
+            'keyword': '',  # bangumi id
+            'update_time': '',
+            'cover': ''
         }
         (cover_url, name, keyword, subtitle_raw, _) = bangumi_row
         cover = re.findall('(/images/.*)$', cover_url)[0]
@@ -153,7 +151,7 @@ class DmhySource(BaseWebsite):
                 title = td_list[2].find('a', {'target': '_blank'}).get_text(strip=True)
                 download = td_list[3].a['href']
                 episode = self.parse_episode(title)
-                time = int(Time.mktime(Time.strptime(time_string, "%Y/%m/%d %H:%M")))
+                time = int(Time.mktime(Time.strptime(time_string, '%Y/%m/%d %H:%M')))
 
                 result.append({
                     'name': name,
@@ -296,7 +294,7 @@ class DmhySource(BaseWebsite):
                 title = td_list[2].find('a', {'target': '_blank'}).get_text(strip=True)
                 download = td_list[3].a['href']
                 episode = self.parse_episode(title)
-                time = int(Time.mktime(Time.strptime(time_string, "%Y/%m/%d %H:%M")))
+                time = int(Time.mktime(Time.strptime(time_string, '%Y/%m/%d %H:%M')))
                 subtitle_group = ''
 
                 tag_list = td_list[2].find_all('span', {'class': 'tag'})

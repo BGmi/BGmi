@@ -1,20 +1,18 @@
-# coding=utf-8
-import imghdr
-import os.path
 import time
 from collections import defaultdict
-from copy import deepcopy
 from difflib import SequenceMatcher
 from itertools import chain
-from typing import Dict, List, Union
+from typing import Dict, List
 
 import requests
 from hanziconv import HanziConv
 
 from bgmi import config
 from bgmi.config import MAX_PAGE
-from bgmi.lib.models import Bangumi, BangumiItem, Followed, Subtitle, combined_bangumi, db, \
+from bgmi.lib.models import (
+    Bangumi, BangumiItem, Followed, Subtitle, combined_bangumi, db,
     get_updating_bangumi_with_data_source, model_to_dict, uncombined_bangumi
+)
 from bgmi.utils import full_to_half, print_info, print_warning, test_connection
 from bgmi.website.bangumi_moe import BangumiMoe
 from bgmi.website.mikan import Mikanani
@@ -59,12 +57,12 @@ def format_bangumi_dict(bangumi):
     """
     # return bangumi
     return {
-        "name": bangumi['name'],
-        "cover": bangumi['cover'],
-        "status": bangumi['status'],
-        "keyword": bangumi['keyword'],  # bangumi id
-        "update_time": bangumi['update_time'],
-        "subtitle_group": bangumi['subtitle_group'],
+        'name': bangumi['name'],
+        'cover': bangumi['cover'],
+        'status': bangumi['status'],
+        'keyword': bangumi['keyword'],  # bangumi id
+        'update_time': bangumi['update_time'],
+        'subtitle_group': bangumi['subtitle_group'],
     }
 
 
@@ -86,7 +84,7 @@ def get_bgm_tv_calendar() -> list:
             bangumi_tv_weekly_list.append(
                 Bangumi(
                     name=name,
-                    cover=images.get("large", images.get('common')) or '',
+                    cover=images.get('large', images.get('common')) or '',
                     status=Bangumi.STATUS.UPDATING,
                     subject_id=item['id'],
                     update_time=day['weekday']['en'].capitalize(),
@@ -264,7 +262,6 @@ class DataSource:
         :type bangumi_obj: bgmi.lib.models._tables.Bangumi
         :type max_page: int
         """
-        _id = bangumi_obj.id
         name = bangumi_obj.name
         max_page = int(max_page)
         response_data = []
@@ -372,11 +369,11 @@ def bind_bangumi_item_in_db_to_bangumi():
 
     bangumi_item_list = list(BangumiItem.get_marked_updating_bangumi())
     Bangumi.update(has_data_source=1)\
-        .where(Bangumi.id.in_([x.bangumi for x in bangumi_item_list]) &
-               (Bangumi.status == Bangumi.STATUS.UPDATING)).execute()
+        .where(Bangumi.id.in_([x.bangumi for x in bangumi_item_list])
+               & (Bangumi.status == Bangumi.STATUS.UPDATING)).execute()
     Bangumi.update(has_data_source=0) \
-        .where(Bangumi.id.not_in([x.bangumi for x in bangumi_item_list]) &
-               (Bangumi.status == Bangumi.STATUS.UPDATING)).execute()
+        .where(Bangumi.id.not_in([x.bangumi for x in bangumi_item_list])
+               & (Bangumi.status == Bangumi.STATUS.UPDATING)).execute()
 
 
 if __name__ == '__main__':

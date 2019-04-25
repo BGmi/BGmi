@@ -1,4 +1,3 @@
-# coding: utf-8
 import functools
 import traceback
 from concurrent.futures.thread import ThreadPoolExecutor
@@ -10,8 +9,10 @@ from tornado.web import HTTPError
 
 from bgmi.config import ADMIN_TOKEN
 from bgmi.front.base import BaseHandler
-from bgmi.lib.constants import ACTION_ADD, ACTION_CAL, ACTION_DELETE, ACTION_DOWNLOAD, \
-    ACTION_FILTER, ACTION_MARK, ACTION_SEARCH
+from bgmi.lib.constants import (
+    ACTION_ADD, ACTION_CAL, ACTION_DELETE, ACTION_DOWNLOAD, ACTION_FILTER, ACTION_MARK,
+    ACTION_SEARCH
+)
 from bgmi.lib.controllers import add, cal, delete, filter_, mark, search, status_, update
 from bgmi.lib.download import download_prepare
 

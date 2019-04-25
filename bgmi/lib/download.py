@@ -1,15 +1,13 @@
-# coding=utf-8
-
 import os
 import xmlrpc.client
 from functools import singledispatch
 
-from bgmi.config import SAVE_PATH, DOWNLOAD_DELEGATE
+from bgmi.config import DOWNLOAD_DELEGATE, SAVE_PATH
 from bgmi.downloader.aria2_rpc import Aria2DownloadRPC
 from bgmi.downloader.deluge import DelugeRPC
 from bgmi.downloader.transmissionRpc import TransmissionRPC
 from bgmi.lib.models import Download
-from bgmi.utils import print_error, normalize_path
+from bgmi.utils import normalize_path, print_error
 
 DOWNLOAD_DELEGATE_DICT = {
     'aria2-rpc': Aria2DownloadRPC,
@@ -18,26 +16,21 @@ DOWNLOAD_DELEGATE_DICT = {
 }
 
 
-def get_download_class(download_obj=None,
-                       save_path='',
-                       overwrite=True,
-                       instance=True):
+def get_download_class(download_obj=None, save_path='', overwrite=True, instance=True):
     if DOWNLOAD_DELEGATE not in DOWNLOAD_DELEGATE_DICT:
-        print_error('unexpected delegate {0}'.format(DOWNLOAD_DELEGATE))
+        print_error('unexpected delegate {}'.format(DOWNLOAD_DELEGATE))
 
     delegate = DOWNLOAD_DELEGATE_DICT.get(DOWNLOAD_DELEGATE)
 
     if instance:
-        delegate = delegate(download_obj=download_obj,
-                            overwrite=overwrite,
-                            save_path=save_path)
+        delegate = delegate(download_obj=download_obj, overwrite=overwrite, save_path=save_path)
 
     return delegate
 
 
 @singledispatch
 def handle_specific_exception(e):  # got an exception we don't handle
-    print_error('Error, {0}'.format(e), exit_=False)
+    print_error('Error, {}'.format(e), exit_=False)
 
 
 @handle_specific_exception.register(xmlrpc.client.Fault)
@@ -47,13 +40,13 @@ def _(e):
     if 'Unauthorized' in err_string:
         print_error('aria2-rpc, wrong secret token', exit_=False)
     else:
-        print_error('Error, {0}'.format(e), exit_=False)
+        print_error('Error, {}'.format(e), exit_=False)
 
 
 @handle_specific_exception.register(xmlrpc.client.ProtocolError)
 def _(e):
     # handle exception 2
-    print_error('can\'t connect to aria2-rpc server, {0}'.format(e), exit_=False)
+    print_error('can\'t connect to aria2-rpc server, {}'.format(e), exit_=False)
 
 
 def download_prepare(data):
@@ -71,7 +64,8 @@ def download_prepare(data):
     queue = save_to_bangumi_download_queue(data)
     for download in queue:
         save_path = os.path.join(
-            os.path.join(SAVE_PATH, normalize_path(download.name)), str(download.episode))
+            os.path.join(SAVE_PATH, normalize_path(download.name)), str(download.episode)
+        )
         if not os.path.exists(save_path):
             os.makedirs(save_path)
 
@@ -115,11 +109,13 @@ def save_to_bangumi_download_queue(data):
     """
     queue = []
     for i in data:
-        download, _ = Download.get_or_create(title=i['title'],
-                                             download=i['download'],
-                                             name=i['name'],
-                                             episode=i['episode'],
-                                             status=Download.STATUS.NOT_DOWNLOAD)
+        download, _ = Download.get_or_create(
+            title=i['title'],
+            download=i['download'],
+            name=i['name'],
+            episode=i['episode'],
+            status=Download.STATUS.NOT_DOWNLOAD
+        )
 
         queue.append(download)
 

@@ -39,11 +39,11 @@ extensions = [
     'sphinxcontrib.httpexample',
     'sphinxarg.ext',
     'sphinxcontrib.openapi',
-    "sphinx_issues",
+    'sphinx_issues',
 ]
 
 # Github repo
-issues_github_path = "BGmi/BGmi"
+issues_github_path = 'BGmi/BGmi'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

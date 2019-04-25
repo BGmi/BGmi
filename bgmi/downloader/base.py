@@ -1,9 +1,8 @@
-# coding=utf-8
 import os
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 
 from bgmi.lib.models import Download
-from bgmi.utils import print_warning, print_info, print_success
+from bgmi.utils import print_info, print_success, print_warning
 
 
 class BaseDownloadService(ABC):
@@ -27,7 +26,7 @@ class BaseDownloadService(ABC):
 
     def check_path(self):
         if not os.path.exists(self.save_path):
-            print_warning('Create dir {0}'.format(self.save_path))
+            print_warning('Create dir {}'.format(self.save_path))
             os.makedirs(self.save_path)
 
     @abstractmethod
@@ -36,17 +35,16 @@ class BaseDownloadService(ABC):
 
     def check_download(self, name):
         if not os.path.exists(self.save_path) or self.return_code != 0:
-            raise Exception(
-                'It seems the bangumi {0} not be downloaded'.format(name))
+            raise Exception('It seems the bangumi {} not be downloaded'.format(name))
 
     @staticmethod
     def download_status(status=None):
         last_status = -1
         for download_data in Download.get_all_downloads(status=status):
             latest_status = download_data['status']
-            name = '  {0}. <{1}: {2}>'.format(download_data['id'],
-                                              download_data['name'],
-                                              download_data['episode'])
+            name = '  {}. <{}: {}>'.format(
+                download_data['id'], download_data['name'], download_data['episode']
+            )
             if latest_status != last_status:
                 if latest_status == Download.STATUS.DOWNLOADING:
                     print('Downloading items:')

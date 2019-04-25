@@ -1,13 +1,12 @@
-# coding=utf-8
-import re
-import json
 import datetime
+import json
+import re
 from urllib.parse import unquote
 
 import requests
 
-from bgmi.utils import print_error, parse_episode
 from bgmi.script import ScriptBase
+from bgmi.utils import parse_episode, print_error
 
 
 class Script(ScriptBase):

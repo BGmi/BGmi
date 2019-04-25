@@ -24,8 +24,8 @@ flags:
   app:
     paths:
       - bgmi/
-      - !bgmi/front/
-      - !bgmi/downloader/
+      - '!bgmi/front/'
+      - '!bgmi/downloader/'
   downloader:
     paths:
       - bgmi/downloader/

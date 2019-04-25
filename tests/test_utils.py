@@ -1,4 +1,3 @@
-# coding=utf-8
 import json
 import os
 import os.path
@@ -7,13 +6,13 @@ import unittest.mock
 from pathlib import Path
 from types import SimpleNamespace
 from typing import List
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
 import bgmi
 import bgmi.config
 from bgmi import utils
 from bgmi.lib import constants
-from bgmi.lib.models import get_kv_storage, db
+from bgmi.lib.models import db, get_kv_storage
 from bgmi.lib.models._kv import create_kv_storage
 from bgmi.sql import init_db
 from bgmi.utils import FRONTEND_NPM_URL, PACKAGE_JSON_URL
@@ -99,11 +98,11 @@ class UtilsTest(unittest.TestCase):
 
             cover_list = {
                 x: x for x in [
-                    "https://bangumi.moe/data/images/2014/12/6dv8ukxc0odnwade3pi.jpg",
-                    "https://bangumi.moe/data/images/2014/12/6dznn2rykghikpgav2k.jpg",
-                    "https://bangumi.moe/data/images/2014/12/53o20pi40qg4izrj1hj.jpg",
-                    "https://mikanani.me/Images/Bangumi/201310/91d95f43.jpg",
-                    "233",
+                    'https://bangumi.moe/data/images/2014/12/6dv8ukxc0odnwade3pi.jpg',
+                    'https://bangumi.moe/data/images/2014/12/6dznn2rykghikpgav2k.jpg',
+                    'https://bangumi.moe/data/images/2014/12/53o20pi40qg4izrj1hj.jpg',
+                    'https://mikanani.me/Images/Bangumi/201310/91d95f43.jpg',
+                    '233',
                 ]
             }
 
@@ -124,36 +123,18 @@ class UtilsTest(unittest.TestCase):
                 FRONTEND_NPM_URL: Mock(
                     json=Mock(
                         return_value={
-                            "version": '1.2.3',
-                            'versions': {
-                                '1.2.3': {
-                                    'dist': {
-                                        'tarball': 'tarball'
-                                    }
-                                }
-                            }
+                            'version': '1.2.3',
+                            'versions': {'1.2.3': {'dist': {'tarball': 'tarball'}}}
                         }
                     )
-                ),
-                PACKAGE_JSON_URL: Mock(
-                    json=Mock(return_value={
-                        'version': '1.2.3',
-                        'dist': {
-                            'tarball': 'tarball'
-                        }
-                    })
-                ),
-                'tarball': SimpleNamespace(content='tarball content')
+                ), PACKAGE_JSON_URL: Mock(
+                    json=Mock(return_value={'version': '1.2.3', 'dist': {'tarball': 'tarball'}})
+                ), 'tarball': SimpleNamespace(content='tarball content')
             }
             m.side_effect = lambda x: request_map[x]
             utils.get_web_admin('install')
             unzip.assert_called_with(
-                'tarball content', {
-                    'version': '1.2.3',
-                    'dist': {
-                        'tarball': 'tarball'
-                    }
-                }
+                'tarball content', {'version': '1.2.3', 'dist': {'tarball': 'tarball'}}
             )
 
     def test_unzip_zipped_file(self):
@@ -161,12 +142,7 @@ class UtilsTest(unittest.TestCase):
             file_content = f.read()
         with patch('bgmi.config.FRONT_STATIC_PATH', self.test_dir):
             utils.unzip_zipped_file(
-                file_content, {
-                    'version': '1.2.3',
-                    'dist': {
-                        'tarball': 'tarball'
-                    }
-                }
+                file_content, {'version': '1.2.3', 'dist': {'tarball': 'tarball'}}
             )
             for file_path in ['index.html', 'static/js/app.js', 'package.json']:
                 self.assertTrue(os.path.exists(os.path.join(self.test_dir, file_path)))
@@ -200,29 +176,16 @@ class UtilsTest(unittest.TestCase):
                 FRONTEND_NPM_URL: Mock(
                     json=Mock(
                         return_value={
-                            "version": '1.2.3',
-                            'versions': {
-                                '1.2.3': {
-                                    'dist': {
-                                        'tarball': 'tarball'
-                                    }
-                                }
-                            }
+                            'version': '1.2.3',
+                            'versions': {'1.2.3': {'dist': {'tarball': 'tarball'}}}
                         }
                     )
                 ),
                 PACKAGE_JSON_URL: Mock(
-                    json=Mock(return_value={
-                        'version': '1.2.3',
-                        'dist': {
-                            'tarball': 'tarball'
-                        }
-                    })
+                    json=Mock(return_value={'version': '1.2.3', 'dist': {'tarball': 'tarball'}})
                 ),
                 'tarball': SimpleNamespace(content='tarball content'),
-                pypi: Mock(json=Mock(return_value={'info': {
-                    "version": ''
-                }})),
+                pypi: Mock(json=Mock(return_value={'info': {'version': ''}})),
             }
 
             def mock_get(url, *args, **kwargs):

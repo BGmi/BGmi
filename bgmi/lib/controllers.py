@@ -1,4 +1,3 @@
-# coding=utf-8
 import os
 import time
 import warnings
@@ -6,16 +5,20 @@ from typing import Mapping
 
 import attr
 
-from bgmi.config import KEYWORDS_WEIGHT, MAX_PAGE, SHOW_WARNING, print_config, print_config_key, \
-    write_config
+from bgmi.config import (
+    KEYWORDS_WEIGHT, MAX_PAGE, SHOW_WARNING, print_config, print_config_key, write_config
+)
 from bgmi.lib import models
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
-from bgmi.lib.models import Bangumi, BangumiItem, BangumiLink, DoesNotExist, Download, Followed, \
-    Subtitle, model_to_dict
+from bgmi.lib.models import (
+    Bangumi, BangumiItem, BangumiLink, DoesNotExist, Download, Followed, Subtitle, model_to_dict
+)
+from bgmi.logger import logger
 from bgmi.script import ScriptRunner
-from bgmi.utils import COLOR_END, GREEN, logger, normalize_path, print_error, print_info, \
-    print_success, print_warning
+from bgmi.utils import (
+    COLOR_END, GREEN, normalize_path, print_error, print_info, print_success, print_warning
+)
 
 
 @attr.s

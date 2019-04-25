@@ -47,7 +47,7 @@ def log_utils_function(func):
     def echo_func(*func_args, **func_kwargs):
         r = func(*func_args, **func_kwargs)
         called_with = _dict_as_called(func, func_args, func_kwargs)
-        logger.debug("util.%s %s -> `%s`", func.__name__, called_with, r)
+        logger.debug('util.%s %s -> `%s`', func.__name__, called_with, r)
         return r
 
     return echo_func

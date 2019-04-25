@@ -7,7 +7,7 @@ from bgmi.config import LOG_PATH
 def get_logger():
     log_level = os.environ.get('BGMI_LOG') or 'INFO'
     log_level = log_level.upper()
-    if log_level not in ['DEBUG', 'INFO', "WARNING", "ERROR"]:
+    if log_level not in ['DEBUG', 'INFO', 'WARNING', 'ERROR']:
         print('log level error, will use default log level info')
         log_level = 'INFO'
     _logger = logging.getLogger('BGmi')

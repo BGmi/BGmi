@@ -1,4 +1,3 @@
-# coding=utf-8
 import datetime
 import imghdr
 import itertools
@@ -10,20 +9,25 @@ from functools import wraps
 
 import bgmi.config
 import bgmi.website
-from bgmi.lib.constants import ACTION_ADD, ACTION_CAL, ACTION_CONFIG, ACTION_CONFIG_GEN, \
-    ACTION_DELETE, ACTION_DOWNLOAD, ACTION_FETCH, ACTION_FILTER, ACTION_LINK, ACTION_LIST, \
-    ACTION_MARK, ACTION_SEARCH, ACTION_UNLINK, ACTION_UPDATE, DOWNLOAD_CHOICE_LIST_DICT, \
-    SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, actions_and_arguments
+from bgmi.lib.constants import (
+    ACTION_ADD, ACTION_CAL, ACTION_CONFIG, ACTION_CONFIG_GEN, ACTION_DELETE, ACTION_DOWNLOAD,
+    ACTION_FETCH, ACTION_FILTER, ACTION_LINK, ACTION_LIST, ACTION_MARK, ACTION_SEARCH,
+    ACTION_UNLINK, ACTION_UPDATE, DOWNLOAD_CHOICE_LIST_DICT, SPACIAL_APPEND_CHARS,
+    SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, actions_and_arguments
+)
 from bgmi.lib.constants.actions import ACTION_COMPLETE, ACTION_HISTORY, ACTIONS
-from bgmi.lib.controllers import add, config_, delete, filter_, link, list_, mark, search, unlink, \
-    update
+from bgmi.lib.controllers import (
+    add, config_, delete, filter_, link, list_, mark, search, unlink, update
+)
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
 from bgmi.lib.models import Bangumi, BangumiLink, Followed
+from bgmi.logger import logger
 from bgmi.script import ScriptRunner
-from bgmi.utils import COLOR_END, GREEN, RED, YELLOW, convert_cover_url_to_path, download_cover, \
-    get_terminal_col, logger, print_error, print_info, print_success, print_warning, \
-    render_template
+from bgmi.utils import (
+    COLOR_END, GREEN, RED, YELLOW, convert_cover_url_to_path, download_cover, get_terminal_col,
+    print_error, print_info, print_success, print_warning, render_template
+)
 
 
 def action_decorator(fn):
@@ -71,7 +75,7 @@ def search_wrapper(ret):
         max_episode=ret.max_episode
     )
     if result['status'] != 'success':
-        globals()["print_{}".format(result['status'])](result['message'])
+        globals()['print_{}'.format(result['status'])](result['message'])
     data = result['data']
     for i in data:
         print_success(i['title'])
@@ -81,7 +85,7 @@ def search_wrapper(ret):
 
 def mark_wrapper(ret):
     result = mark(name=ret.name, episode=ret.episode)
-    globals()["print_{}".format(result['status'])](result['message'])
+    globals()['print_{}'.format(result['status'])](result['message'])
 
 
 def delete_wrapper(ret):
@@ -90,13 +94,13 @@ def delete_wrapper(ret):
     else:
         for bangumi_name in ret.name:
             result = delete(name=bangumi_name)
-            globals()["print_{}".format(result['status'])](result['message'])
+            globals()['print_{}'.format(result['status'])](result['message'])
 
 
 def add_wrapper(ret):
     for bangumi_name in ret.name:
         result = add(name=bangumi_name, episode=ret.episode)
-        globals()["print_{}".format(result['status'])](result['message'])
+        globals()['print_{}'.format(result['status'])](result['message'])
 
 
 def list_wrapper(ret):
@@ -127,9 +131,10 @@ def cal_wrapper(ret):
         # todo
         # for bangumi_list in weekly_list.values():
         #     for bangumi in bangumi_list:
-        #         bangumi['name'] = bangumi['name'] + ' {' + '{}' \
-        #             .format(', '.join([x[:min(1, len(x))] for x in bangumi['data_source'].keys()]) + '}')
-
+        #         bangumi['name'] = bangumi['name'] + ' {' + '{}'.format(
+        #             ', '.join([x[:min(1, len(x))] for x in bangumi['data_source'].keys()]) + '}'
+        #         )
+    #
     patch_list = runner.get_models_dict()
     for i in patch_list:
         weekly_list[i['update_time'].lower()].append(i)
@@ -179,9 +184,10 @@ def cal_wrapper(ret):
     for weekday in weekday_order:
         if weekly_list[weekday.lower()]:
             print(
-                '%s%s. %s' % (
-                    GREEN, weekday if not ret.today else 'Bangumi Schedule for Today (%s)' %
-                    weekday, COLOR_END
+                '{}{}. {}'.format(
+                    GREEN,
+                    weekday if not ret.today else 'Bangumi Schedule for Today (%s)' % weekday,
+                    COLOR_END
                 )
             )
             print_line()
@@ -207,10 +213,10 @@ def cal_wrapper(ret):
                         space_count -= bangumi['name'].count(s)
 
                 if bangumi['status'] == Followed.STATUS.FOLLOWED:
-                    bangumi['name'] = '%s%s%s' % (YELLOW, bangumi['name'], COLOR_END)
+                    bangumi['name'] = '{}{}{}'.format(YELLOW, bangumi['name'], COLOR_END)
 
                 if bangumi['status'] == Followed.STATUS.UPDATED:
-                    bangumi['name'] = '%s%s%s' % (GREEN, bangumi['name'], COLOR_END)
+                    bangumi['name'] = '{}{}{}'.format(GREEN, bangumi['name'], COLOR_END)
                 print(' ' + bangumi['name'], ' ' * space_count, end='')
 
                 if (i + 1) % row == 0 or i + 1 == len(weekly_list[weekday.lower()]):
@@ -230,7 +236,7 @@ def filter_wrapper(ret):
 
     result.print()
     if result.data:
-        print_info('Usable subtitle group: {0}'.format(result.data['subtitle_group']))
+        print_info('Usable subtitle group: {}'.format(result.data['subtitle_group']))
         print_info('Usable data source: {}'.format(result.data['data_source']))
         print()
         followed_filter_obj = Followed.get(bangumi_name=result.data['name'])
@@ -252,12 +258,17 @@ def download_manager(ret):
         # download_obj = NeoDownload.get(_id=download_id)
         # if not download_obj:
         #     print_error('Download object does not exist.')
-        # print_info('Download Object <{0} - {1}>, Status: {2}'.format(download_obj.name, download_obj.episode,
-        #                                                              download_obj.status))
+        # print_info(
+        #     'Download Object <{0} - {1}>, Status: {2}'.format(
+        #         download_obj.name,
+        #         download_obj.episode,
+        #         download_obj.status,
+        #     )
+        # )
         # download_obj.status = status
         # download_obj.save()
         print_success(
-            'Download status has been marked as {0}'.format(
+            'Download status has been marked as {}'.format(
                 DOWNLOAD_CHOICE_LIST_DICT.get(int(status))
             )
         )
@@ -273,16 +284,16 @@ def fetch_(ret):
         bangumi_obj = Bangumi.get(name=ret.name)
         Followed.get(bangumi_name=bangumi_obj.name)
     except Bangumi.DoesNotExist:
-        print_error('Bangumi {0} not exist'.format(ret.name))
+        print_error('Bangumi {} not exist'.format(ret.name))
         return
     except Followed.DoesNotExist:
-        print_error('Bangumi {0} is not followed'.format(ret.name))
+        print_error('Bangumi {} is not followed'.format(ret.name))
         return
 
     followed_filter_obj = Followed.get(bangumi_name=ret.name)
     print_filter(followed_filter_obj)
 
-    print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
+    print_info('Fetch bangumi {} ...'.format(bangumi_obj.name))
     # False if ret.not_ignore else True
     _, data = website.get_maximum_episode(bangumi_obj, ignore_old_row=not ret.not_ignore)
 
@@ -376,11 +387,11 @@ def history(ret):
 
         if date.year != 1970:
             if date.year != year:
-                print('%s%s%s' % (GREEN, str(date.year), COLOR_END))
+                print('{}{}{}'.format(GREEN, str(date.year), COLOR_END))
                 year = date.year
 
             if date.year == year and date.month != month:
-                print('  |\n  |--- %s%s%s\n  |      |' % (YELLOW, m[date.month - 1], COLOR_END))
+                print('  |\n  |--- {}{}{}\n  |      |'.format(YELLOW, m[date.month - 1], COLOR_END))
                 month = date.month
 
             print(
@@ -479,9 +490,9 @@ def print_filter(followed_filter_obj: Followed):
             return ', '.join(x)
         return 'None'
 
-    print_info('Followed subtitle group: {0}'.format(j(followed_filter_obj.subtitle)))
-    print_info('Followed data sources: {0}'.format(j(followed_filter_obj.data_source)))
-    print_info('Include keywords: {0}'.format(j(followed_filter_obj.include)))
-    print_info('Exclude keywords: {0}'.format(j(followed_filter_obj.exclude)))
-    print_info('Regular expression: {0}'.format(followed_filter_obj.regex))
+    print_info('Followed subtitle group: {}'.format(j(followed_filter_obj.subtitle)))
+    print_info('Followed data sources: {}'.format(j(followed_filter_obj.data_source)))
+    print_info('Include keywords: {}'.format(j(followed_filter_obj.include)))
+    print_info('Exclude keywords: {}'.format(j(followed_filter_obj.exclude)))
+    print_info('Regular expression: {}'.format(followed_filter_obj.regex))
     print_info('(`None` means noneffective filter)')

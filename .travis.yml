@@ -125,6 +125,7 @@ install:
   - pip install codecov
   - python setup.py sdist
   - pip install --no-cache-dir dist/bgmi-*.tar.gz
+  - python setup.py clean
   - if [[ "$DB" == "mysql" ]]; then pip install pymysql; fi
 
 script:
@@ -132,7 +133,7 @@ script:
   - pip freeze
   - |
     if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then
-        pre-commit run --files `git diff --name-only HEAD HEAD~1`
+        pre-commit run --all-files
     fi
   - coverage run -a -m bgmi install --no-web
   - |

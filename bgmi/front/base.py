@@ -53,7 +53,7 @@ class BaseHandler(tornado.web.RequestHandler):
             for i in self.patch_list:
                 i['cover'] = normalize_path(i['cover'])
 
-        super(BaseHandler, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def write_error(self, status_code, **kwargs):
         """Override to implement custom error pages.

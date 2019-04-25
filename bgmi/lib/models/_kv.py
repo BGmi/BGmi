@@ -1,6 +1,3 @@
-import functools
-
-import peewee as pw
 from playhouse import kv
 
 from ._db import db

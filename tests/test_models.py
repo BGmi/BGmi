@@ -1,23 +1,16 @@
-# coding=utf-8
-import shutil
+import json
 import time
-import os
 from os import path
-
 from unittest import TestCase
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
 import faker
 
-import bgmi.lib.models
-from bgmi import config
 from bgmi.lib import models
-from bgmi.lib.models import Subtitle, Bangumi, Followed, db, BangumiItem, Scripts, BangumiLink, Download
+from bgmi.lib.models import Bangumi, BangumiItem, Followed, Subtitle, db
 from bgmi.lib.models._kv import create_kv_storage
 from bgmi.sql import init_db
-from bgmi.main import create_dir
 from tests.base import project_dir
-import json
 
 with open(path.join(project_dir, 'tests/data/models/main_bangumi.json'), 'r', encoding='utf8') as f:
     bangumi_list = json.load(f)
@@ -144,7 +137,7 @@ class BangumiTest(Base, TestCase):
             self.assertEqual(bangumi.status, models.Bangumi.STATUS.END)
 
     def test_get_updating_bangumi(self):
-        old_bangumi = ['机动奥特曼']
+        # old_bangumi = ['机动奥特曼']
         bgm_followed = ['海贼王']
         bgm_updated = ['名侦探柯南']
 
@@ -165,11 +158,11 @@ class BangumiTest(Base, TestCase):
 
         for bangumi in b3:
             self.assertIn(bangumi['name'], [
-                "机动奥特曼",
-                "川柳少女",
-                "名侦探柯南",
-                "海贼王",
-                "汉化日记",
+                '机动奥特曼',
+                '川柳少女',
+                '名侦探柯南',
+                '海贼王',
+                '汉化日记',
             ])
 
     def test_get_all_bangumi(self):
@@ -242,17 +235,15 @@ class SubtitleTest(Base, TestCase):
         check(condition)
 
         condition.update({
-            'dmhy': {
-                "subtitle_group": ["37", "552"]
-            },
+            'dmhy': {'subtitle_group': ['37', '552']},
         })
         check(condition)
 
         condition.update({
-            "bangumi_mod": {
-                "subtitle_group": [
-                    "58fe0031e777e29f2a08175d", "567cdf0d3e4e6e4148f19bbd",
-                    "567bda4eafc701435d468b61"
+            'bangumi_mod': {
+                'subtitle_group': [
+                    '58fe0031e777e29f2a08175d', '567cdf0d3e4e6e4148f19bbd',
+                    '567bda4eafc701435d468b61'
                 ],
             }
         })

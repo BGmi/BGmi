@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import json
 import logging
 import os
@@ -8,7 +6,7 @@ import string
 
 from tornado.testing import AsyncHTTPTestCase
 
-from bgmi.config import SAVE_PATH, ADMIN_TOKEN
+from bgmi.config import ADMIN_TOKEN, SAVE_PATH
 from bgmi.front.server import make_app
 
 
@@ -44,64 +42,83 @@ class ApiTestCase(AsyncHTTPTestCase):
         self.assertIsInstance(res['data'], dict)
 
     def test_b_add(self):
-        r = self.fetch('/api/add', method='POST',
-                       headers=self.headers,
-                       body=json.dumps({
-                           'name': self.bangumi_1,
-                       }))
+        r = self.fetch(
+            '/api/add',
+            method='POST',
+            headers=self.headers,
+            body=json.dumps({
+                'name': self.bangumi_1,
+            })
+        )
         self.assertEqual(r.code, 200)
 
-        r = self.fetch('/api/add', method='POST',
-                       headers=self.headers,
-                       body=json.dumps({
-                           'name': self.bangumi_1,
-                       }))
+        r = self.fetch(
+            '/api/add',
+            method='POST',
+            headers=self.headers,
+            body=json.dumps({
+                'name': self.bangumi_1,
+            })
+        )
         self.assertEqual(r.code, 200)
         r = self.parse_response(r)
         self.assertEqual(r['status'], 'warning')
 
-        r = self.fetch('/api/add', method='POST',
-                       headers=self.headers,
-                       body=json.dumps({
-                           'name': self.bangumi_2,
-                       }))
+        r = self.fetch(
+            '/api/add',
+            method='POST',
+            headers=self.headers,
+            body=json.dumps({
+                'name': self.bangumi_2,
+            })
+        )
         self.assertEqual(r.code, 200)
 
     def test_c_delete(self):
-        r = self.fetch('/api/add', method='POST',
-                       headers=self.headers,
-                       body=json.dumps({
-                           'name': self.bangumi_2,
-                       }))
+        r = self.fetch(
+            '/api/add',
+            method='POST',
+            headers=self.headers,
+            body=json.dumps({
+                'name': self.bangumi_2,
+            })
+        )
         self.assertEqual(r.code, 200)
         r = self.parse_response(r)
         self.assertEqual(r['status'], 'warning')
 
-        r = self.fetch('/api/add', method='POST',
-                       headers=self.headers,
-                       body=json.dumps({
-                           'name': self.bangumi_2,
-                       }))
+        r = self.fetch(
+            '/api/add',
+            method='POST',
+            headers=self.headers,
+            body=json.dumps({
+                'name': self.bangumi_2,
+            })
+        )
         self.assertEqual(r.code, 200)
         r = self.parse_response(r)
         self.assertEqual(r['status'], 'warning')
 
-        r = self.fetch('/api/add', method='POST',
-                       headers=self.headers,
-                       body=json.dumps({
-                           'name': self.bangumi_2,
-                       }))
+        r = self.fetch(
+            '/api/add',
+            method='POST',
+            headers=self.headers,
+            body=json.dumps({
+                'name': self.bangumi_2,
+            })
+        )
         self.assertEqual(r.code, 200)
         r = self.parse_response(r)
         self.assertEqual(r['status'], 'warning')
 
     def test_e_mark(self):
         episode = random.randint(0, 10)
-        self.fetch('/api/mark', method='POST', headers=self.headers,
-                   body=json.dumps({
-                       "name": self.bangumi_1,
-                       "episode": episode
-                   }))
+        self.fetch(
+            '/api/mark',
+            method='POST',
+            headers=self.headers,
+            body=json.dumps({'name': self.bangumi_1, 'episode': episode})
+        )
         r = self.fetch('/api/index', method='GET')
         self.assertEqual(r.code, 200)
         res = self.parse_response(r)
@@ -118,9 +135,14 @@ class ApiTestCase(AsyncHTTPTestCase):
         exclude = random_word(5)
         regex = random_word(5)
 
-        r = self.fetch('/api/filter', method='POST', body=json.dumps({
-            'name': self.bangumi_1,
-        }), headers=self.headers)
+        r = self.fetch(
+            '/api/filter',
+            method='POST',
+            body=json.dumps({
+                'name': self.bangumi_1,
+            }),
+            headers=self.headers
+        )
 
         self.assertEqual(r.code, 200)
         res = self.parse_response(r)
@@ -132,16 +154,26 @@ class ApiTestCase(AsyncHTTPTestCase):
             subtitle_group = res['data']['subtitle_group'][:0]
         subtitle = ','.join(subtitle_group)
 
-        r = self.fetch('/api/filter', method='POST', body=json.dumps({
-            'name': self.bangumi_1,
-            'include': include,
-            'regex': regex,
-            'exclude': exclude,
-            'subtitle': subtitle,
-        }), headers=self.headers)
-        r = self.fetch('/api/filter', method='POST', body=json.dumps({
-            'name': self.bangumi_1,
-        }), headers=self.headers)
+        r = self.fetch(
+            '/api/filter',
+            method='POST',
+            body=json.dumps({
+                'name': self.bangumi_1,
+                'include': include,
+                'regex': regex,
+                'exclude': exclude,
+                'subtitle': subtitle,
+            }),
+            headers=self.headers
+        )
+        r = self.fetch(
+            '/api/filter',
+            method='POST',
+            body=json.dumps({
+                'name': self.bangumi_1,
+            }),
+            headers=self.headers
+        )
 
         res = self.parse_response(r)
 
@@ -152,11 +184,16 @@ class ApiTestCase(AsyncHTTPTestCase):
         self.assertEqual(res['data']['regex'], regex)
         self.assertEqual(res['data']['exclude'], exclude)
 
-        r = self.fetch('/api/filter', method='POST', body=json.dumps({
-            'name': self.bangumi_3,
-            'regex': '.*',
-            'subtitle': '',
-        }), headers=self.headers)
+        r = self.fetch(
+            '/api/filter',
+            method='POST',
+            body=json.dumps({
+                'name': self.bangumi_3,
+                'regex': '.*',
+                'subtitle': '',
+            }),
+            headers=self.headers
+        )
         self.assertEqual(r.code, 400)
         self.assertEqual(self.parse_response(r)['status'], 'error')
         self.assertFalse(bool(list(set(subtitle_group) - set(res['data']['followed']))))
@@ -180,11 +217,13 @@ class ApiTestCase(AsyncHTTPTestCase):
         response = self.fetch('/api/index', method='GET')
         self.assertEqual(response.code, 200)
         r = self.parse_response(response)
-        episode_list = [x for x in r['data'] if x["bangumi_name"] == self.bangumi_1]
+        episode_list = [x for x in r['data'] if x['bangumi_name'] == self.bangumi_1]
         bangumi_dict = next(iter(episode_list or []), {})
 
         self.assertIn('1', bangumi_dict['player'].keys())
-        self.assertEqual(bangumi_dict['player']['1']['path'], '/{}/1/episode1/1.mp4'.format(self.bangumi_1))
+        self.assertEqual(
+            bangumi_dict['player']['1']['path'], '/{}/1/episode1/1.mp4'.format(self.bangumi_1)
+        )
         self.assertIn('2', bangumi_dict['player'].keys())
         self.assertEqual(bangumi_dict['player']['2']['path'], '/{}/2/2.mkv'.format(self.bangumi_1))
 

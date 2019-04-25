@@ -1,12 +1,13 @@
-# coding=utf-8
 from collections import defaultdict
+
 import peewee as pw
 from playhouse.shortcuts import model_to_dict
 
-from bgmi.lib.models._tables import (BangumiItem, Bangumi, Followed, Download,
-                                     Subtitle, BangumiLink, Scripts)
+from bgmi.lib.models._tables import (
+    Bangumi, BangumiItem, BangumiLink, Download, Followed, Scripts, Subtitle
+)
+
 from ._db import db
-from ._fields import SubtitleField, BangumiNamesField, JSONField
 from ._kv import get_kv_storage
 
 DoesNotExist = pw.DoesNotExist
@@ -18,14 +19,12 @@ def order_by_weekday(data, obj=False) -> defaultdict:
         if obj:
             weekly_list[bangumi_item.update_time.lower()].append(bangumi_item)
         else:
-            weekly_list[bangumi_item['update_time'].lower()].append(
-                bangumi_item)
+            weekly_list[bangumi_item['update_time'].lower()].append(bangumi_item)
     return weekly_list
 
 
 def get_updating_bangumi_with_data_source(status=None, order=True):
-    common_cond = ((Bangumi.status == Bangumi.STATUS.UPDATING) &
-                   (Bangumi.has_data_source == 1))
+    common_cond = ((Bangumi.status == Bangumi.STATUS.UPDATING) & (Bangumi.has_data_source == 1))
 
     query = Bangumi.select(Followed.status, Followed.episode, Bangumi) \
         .join(Followed, pw.JOIN.LEFT_OUTER, on=(Bangumi.name == Followed.bangumi_name))
@@ -46,8 +45,7 @@ def get_updating_bangumi_with_data_source(status=None, order=True):
 
 
 def get_followed_bangumi():
-    common_cond = ((Bangumi.status == Bangumi.STATUS.UPDATING) &
-                   (Bangumi.has_data_source == 1))
+    common_cond = ((Bangumi.status == Bangumi.STATUS.UPDATING) & (Bangumi.has_data_source == 1))
     data = Followed.select(Followed, Bangumi, Bangumi.id) \
         .join(Bangumi, pw.JOIN.LEFT_OUTER, on=(Bangumi.name == Followed.bangumi_name),)\
         .where(common_cond).dicts()

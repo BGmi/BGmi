@@ -1,24 +1,12 @@
-# -*- coding: utf-8 -*-
-
-import os
 import unittest
-from unittest.mock import MagicMock, patch
-import sys
-
 from unittest import mock
-# from bgmi.lib.fetch import website
-from bgmi.config import ARIA2_RPC_TOKEN
-from bgmi.website import DATA_SOURCE_MAP
-from bgmi.website.base import BaseWebsite
-import bgmi.website
-from bgmi.downloader.aria2_rpc import Aria2DownloadRPC
-import bgmi.lib.download
+from unittest.mock import MagicMock
 
-from bgmi.downloader.base import BaseDownloadService
+from bgmi.downloader.aria2_rpc import Aria2DownloadRPC
+from bgmi.website.base import BaseWebsite
 
 
 class S(BaseWebsite):
-
     def __contains__(self, item):
         if item == 'd':
             return True

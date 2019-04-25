@@ -1,5 +1,3 @@
-# coding=utf-8
-
 import argparse
 import os
 import signal
@@ -8,14 +6,16 @@ import time
 import peewee
 
 from bgmi.config import BGMI_PATH
+from bgmi.lib import constants
 from bgmi.lib.cli import controllers
 from bgmi.lib.constants import actions_and_arguments
 from bgmi.lib.models import get_kv_storage
 from bgmi.lib.update import upgrade_version
 from bgmi.setup import create_dir, install_crontab
 from bgmi.sql import init_db
-from bgmi.utils import check_update, constants, get_web_admin, print_error, print_info, \
-    print_version, print_warning
+from bgmi.utils import (
+    check_update, get_web_admin, print_error, print_info, print_version, print_warning
+)
 
 
 # global Ctrl-C signal handler

@@ -1,7 +1,6 @@
-# coding=utf-8
-import requests
-from bgmi.script import ScriptBase
 import json
+
+from bgmi.script import ScriptBase
 
 
 class Script(ScriptBase):
@@ -12,12 +11,14 @@ class Script(ScriptBase):
 
     def get_download_url(self):
         # fetch and return dict
-        resp = json.loads('''{
+        resp = json.loads(
+            '''{
   "1": "http://static.ricterz.me/",
   "2": "http://static.ricterz.me/",
   "3": "http://static.ricterz.me/",
   "4": "http://static.ricterz.me/"
-}''')
+}'''
+        )
 
         ret = {}
         for k, v in resp.items():

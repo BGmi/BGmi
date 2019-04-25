@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 from unittest.mock import MagicMock, patch
 
@@ -74,7 +72,7 @@ class Aria2cTest(Basic.Test, unittest.TestCase):
         )
         instance.download()
         self.m.return_value.aria2.addUri.assert_called_once_with(
-            ARIA2_RPC_TOKEN, [self.download_obj.download], {"dir": self.save_path}
+            ARIA2_RPC_TOKEN, [self.download_obj.download], {'dir': self.save_path}
         )
 
         self.m.return_value.aria2.addUri.reset_mock()
@@ -86,7 +84,7 @@ class Aria2cTest(Basic.Test, unittest.TestCase):
         )
         instance.download()
         self.m.return_value.aria2.addUri.assert_called_once_with([self.download_obj.download],
-                                                                 {"dir": self.save_path})
+                                                                 {'dir': self.save_path})
         self.p.stop()
 
 
@@ -100,7 +98,7 @@ class TransmissionRPCTest(Basic.Test, unittest.TestCase):
 
     def test_init(self):
         mock_client = MagicMock()
-        with patch('transmission_rpc.Client', MagicMock(return_value=mock_client)) as p:
+        with patch('transmission_rpc.Client', MagicMock(return_value=mock_client)):
             rpc = bgmi.downloader.transmissionRpc.TransmissionRPC(
                 self.download_obj, self.save_path, self.overwrite
             )

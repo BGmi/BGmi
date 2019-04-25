@@ -198,7 +198,7 @@ bgmi mark "Re:CREATORS" 1
 bgmi config # 查看当前各项设置默认值.
 bgmi config KEY # 查看某项设置的默认值
 bgmi config KEY value # 修改某项设置
-# example: 
+# example:
 bgmi config ARIA2_RPC_TOKEN 'token:token233'
 ```
 
@@ -235,7 +235,7 @@ Transmission-rpc:
 Deluge-rpc:
 
 + `DELUGE_RPC_URL`: deluge rpc url
-+ `DELUGE_RPC_PASSWORD`: deluge rpc password 
++ `DELUGE_RPC_PASSWORD`: deluge rpc password
 
 ## 使用`bgmi_http`
 

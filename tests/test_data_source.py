@@ -1,19 +1,19 @@
-from unittest import mock, TestCase
+from unittest import TestCase, mock
 
 from bgmi.website import DataSource
 from bgmi.website.base import BaseWebsite
-
-w = lambda: mock.Mock(spec=BaseWebsite)
-
 # from .mock_websites import MockDateSource
 from tests.mock_websites import MockDateSource
 
 
+def w():
+    return mock.Mock(spec=BaseWebsite)
+
+
 @mock.patch('bgmi.website.DATA_SOURCE_MAP', MockDateSource)
 class TestDataSourceUtils(TestCase):
-
     def test_remove_duplicated_bangumi(self):
-        l = [{
+        duplicated_episode = [{
             'title': 'bangumi',
             'episode': 1,
         }, {
@@ -22,16 +22,15 @@ class TestDataSourceUtils(TestCase):
         }, {
             'title': 'bangumi',
             'episode': 2,
-        }, ]
-        e = DataSource.Utils.remove_duplicated_episode_bangumi(l)
+        }]
+        e = DataSource.Utils.remove_duplicated_episode_bangumi(duplicated_episode)
         self.assertEqual(len(e), 2)
-        self.assertListEqual(e, [l[0], l[-1]])
+        self.assertListEqual(e, [duplicated_episode[0], duplicated_episode[-1]])
 
 
 @mock.patch('bgmi.website.DATA_SOURCE_MAP', MockDateSource)
 # class TestDataSource(TestCase):
 class TestDataSource:
-
     def test_bangumi_calendar(self):
         DataSource().fetch()
         raise Exception

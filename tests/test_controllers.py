@@ -1,14 +1,11 @@
-# -*- coding: utf-8 -*-
-
 import unittest
-from typing import Any, Union
 from unittest import mock
 
 import bgmi.lib.controllers
 from bgmi.lib import controllers
+from bgmi.lib.controllers import ControllerResult
 from bgmi.lib.models import Bangumi, Followed
 from bgmi.website.base import BaseWebsite
-from bgmi.lib.controllers import ControllerResult
 from tests.mock_websites import MockDateSource
 from tests.test_models import Base
 
@@ -86,7 +83,7 @@ class ControllersTest(Base, unittest.TestCase):
         self.assertEqual(r['status'], 'warning')
 
     def test_search(self):
-        r = bgmi.lib.controllers.search(self.bangumi_name_1, dupe=False)
+        bgmi.lib.controllers.search(self.bangumi_name_1, dupe=False)
 
     def test_filter_name_not_exists(self):
         """
