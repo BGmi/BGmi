@@ -1,6 +1,6 @@
 sphinx==2.0.1
 https://github.com/Trim21/sphinx-theme/tarball/master
-sphinxcontrib.httpdomain
-sphinxcontrib.httpexample
-sphinx-argparse
-sphinxcontrib-openapi
+sphinxcontrib-httpdomain==1.7.0
+sphinxcontrib-httpexample==0.10.1
+sphinx-argparse==0.2.5
+sphinxcontrib-openapi==0.4.0
