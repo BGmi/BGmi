@@ -126,14 +126,14 @@ def cal_wrapper(ret):
     runner = ScriptRunner()
 
     weekly_list = website.bangumi_calendar(force_update=ret.force_update, save=save)
-    if os.environ.get('DEBUG') or ret.show_source:
-        pass
-        # todo
-        # for bangumi_list in weekly_list.values():
-        #     for bangumi in bangumi_list:
-        #         bangumi['name'] = bangumi['name'] + ' {' + '{}'.format(
-        #             ', '.join([x[:min(1, len(x))] for x in bangumi['data_source'].keys()]) + '}'
-        #         )
+    # if os.environ.get('DEBUG') or ret.show_source:
+    #     pass
+    # todo
+    # for bangumi_list in weekly_list.values():
+    #     for bangumi in bangumi_list:
+    #         bangumi['name'] = bangumi['name'] + ' {' + '{}'.format(
+    #             ', '.join([x[:min(1, len(x))] for x in bangumi['data_source'].keys()]) + '}'
+    #         )
     #
     patch_list = runner.get_models_dict()
     for i in patch_list:

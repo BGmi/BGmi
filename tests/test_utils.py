@@ -15,7 +15,8 @@ from bgmi.lib import constants
 from bgmi.lib.models import db, get_kv_storage
 from bgmi.lib.models._kv import create_kv_storage
 from bgmi.sql import init_db
-from bgmi.utils import FRONTEND_NPM_URL, PACKAGE_JSON_URL
+from bgmi.utils import utils as inner_utils
+from bgmi.utils.utils import FRONTEND_NPM_URL, PACKAGE_JSON_URL
 
 
 class UtilsTest(unittest.TestCase):
@@ -36,14 +37,14 @@ class UtilsTest(unittest.TestCase):
         os.mkdir(self.test_dir)
 
     def test_download_file(self):
-        with patch('bgmi.utils.requests.get') as m:
+        with patch('bgmi.utils.utils.requests.get') as m:
             m.return_value = Mock(content=b'mock')
             dir_path, _ = utils.convert_cover_url_to_path('https://hello world')
             try:
                 os.makedirs(dir_path)
             except OSError:
                 pass
-            utils.download_file('https://hello world')
+            inner_utils.download_file('https://hello world')
             m.assert_called_with('https://hello world')
             shutil.rmtree(dir_path)
             # os.remove(file_path)
@@ -141,7 +142,7 @@ class UtilsTest(unittest.TestCase):
         with open('./tests/data/bgmi-frontend-1.1.4.tgz', 'rb') as f:
             file_content = f.read()
         with patch('bgmi.config.FRONT_STATIC_PATH', self.test_dir):
-            utils.unzip_zipped_file(
+            inner_utils.unzip_zipped_file(
                 file_content, {'version': '1.2.3', 'dist': {'tarball': 'tarball'}}
             )
             for file_path in ['index.html', 'static/js/app.js', 'package.json']:
@@ -196,7 +197,7 @@ class UtilsTest(unittest.TestCase):
                 os.makedirs(bgmi.config.FRONT_STATIC_PATH)
             with open(bgmi.config.FRONT_STATIC_PATH + '/package.json', 'w+', encoding='utf8') as f:
                 json.dump({'version': '1.1.2'}, f)
-            utils.update(True)
+            inner_utils.update(True)
             get_web_admin.assert_any_call(method='update')
 
     @property
