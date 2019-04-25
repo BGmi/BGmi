@@ -39,4 +39,12 @@ repos:
         require_serial: true
         language: python
         types: [python]
-        minimum_pre_commit_version: '1.15.0'
+
+  - repo: local
+    hooks:
+      - id: yapf
+        name: yapf
+        entry: yapf
+        require_serial: true
+        language: python
+        types: [python]

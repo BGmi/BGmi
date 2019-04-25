@@ -653,6 +653,12 @@ windows:
 
 Then, consider remove your ``~/.bgmi`` directory.
 
+============
+Contributing
+============
+
+`contributing.md <./.github/contributing.md>`_
+
 =======
 License
 =======
