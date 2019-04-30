@@ -38,58 +38,58 @@ services:
 matrix:
   fast_finish: true
   allow_failures:
-    -   python: 'pypy3.5'
+    - python: 'pypy3.5'
 
   include:
     # todo: don't know how to install old python on osx
-    -   os: osx
-        language: generic
-        python: "3.7"
-        env: DB=sqlite
+    - os: osx
+      language: generic
+      python: "3.7"
+      env: DB=sqlite
 
-    -   os: osx
-        language: generic
-        python: "3.7"
-        env: DB=mysql
+    - os: osx
+      language: generic
+      python: "3.7"
+      env: DB=mysql
 
-    -   os: windows
-        language: sh
-        python: "3.7"
-        before_install:
-          - export TRAVIS_PYTHON_VERSION=3.7
-          - choco config set cacheLocation $HOME/choco/cache
-          - choco install python3
-          - export PATH="/c/Python37:/c/Python37/Scripts:$PATH"
-          - python -m pip install --upgrade pip wheel;
+    - os: windows
+      language: sh
+      python: "3.7"
+      before_install:
+        - export TRAVIS_PYTHON_VERSION=3.7
+        - choco config set cacheLocation $HOME/choco/cache
+        - choco install python3
+        - export PATH="/c/Python37:/c/Python37/Scripts:$PATH"
+        - python -m pip install --upgrade pip wheel;
 
-    -   os: windows
-        language: sh
-        python: "3.6"
-        before_install:
-          - export TRAVIS_PYTHON_VERSION=3.6
-          - choco config set cacheLocation $HOME/choco/cache
-          - choco install python --version 3.6.8
-          - export PATH="/c/Python36:/c/Python36/Scripts:$PATH"
-          - python -m pip install --upgrade pip wheel;
+    - os: windows
+      language: sh
+      python: "3.6"
+      before_install:
+        - export TRAVIS_PYTHON_VERSION=3.6
+        - choco config set cacheLocation $HOME/choco/cache
+        - choco install python --version 3.6.8
+        - export PATH="/c/Python36:/c/Python36/Scripts:$PATH"
+        - python -m pip install --upgrade pip wheel;
 
 
-    -   os: windows
-        language: sh
-        python: "3.5"
-        before_install:
-          - export TRAVIS_PYTHON_VERSION=3.5
-          - choco config set cacheLocation $HOME/choco/cache
-          - choco install python --version 3.5.4
-          - export PATH="/c/Python35:/c/Python35/Scripts:$PATH"
-          - python -m pip install --upgrade pip wheel;
+    - os: windows
+      language: sh
+      python: "3.5"
+      before_install:
+        - export TRAVIS_PYTHON_VERSION=3.5
+        - choco config set cacheLocation $HOME/choco/cache
+        - choco install python --version 3.5.4
+        - export PATH="/c/Python35:/c/Python35/Scripts:$PATH"
+        - python -m pip install --upgrade pip wheel;
 
-    -   python: '3.7'
-        dist: xenial
-        env: DB=sqlite
+    - python: '3.7'
+      dist: xenial
+      env: DB=sqlite
 
-    -   python: '3.7'
-        dist: xenial
-        env: DB=mysql
+    - python: '3.7'
+      dist: xenial
+      env: DB=mysql
 
 
 before_cache:
@@ -142,6 +142,8 @@ script:
       coverage run -a -m bgmi install --no-web;
     fi
 
+  - bash <(curl -s https://codecov.io/bash) -c -F command
+
   - bash tests/init_env_and_run_unit_test.sh test_website
   - bash tests/init_env_and_run_unit_test.sh test_utils
   - bash tests/init_env_and_run_unit_test.sh test_models
@@ -151,6 +153,8 @@ script:
   - bash tests/init_env_and_run_unit_test.sh test_download_delegate
   #  - UNITTEST=1 BGMI_LOG=info coverage run -a -m unittest tests.test_http_api -v
   - cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
+
+  - bash <(curl -s https://codecov.io/bash) -c -F unittests
 
   - rm -rf ~/.bgmi | true
   - coverage run -a -m bgmi install
@@ -169,24 +173,21 @@ script:
   - coverage run -a -m bgmi config
   - coverage run -a -m bgmi config ADMIN_TOKEN 233
   - coverage run -a -m bgmi config DOWNLOAD_DELEGATE 'aria2-rpc'
-
   - coverage run -a -m bgmi add $BANGUMI_1 $BANGUMI_2 $BANGUMI_3
   - coverage run -a -m bgmi update
   - coverage run -a -m bgmi delete --name $BANGUMI_3
   - coverage run -a -m bgmi delete --clear-all --batch
   - coverage run -a -m bgmi add $BANGUMI_2 --episode 1
   - coverage run -a -m bgmi fetch $BANGUMI_2
-
   - coverage run -a -m bgmi list
-
   - coverage run -a -m bgmi mark $BANGUMI_2 1
   - coverage run -a -m bgmi update $BANGUMI_2
   - coverage run -a -m bgmi filter $BANGUMI_2 --subtitle "" --exclude "MKV" --regex "720p|720P"
   - coverage run -a -m bgmi fetch $BANGUMI_2
-
   - coverage run -a -m bgmi search "海贼王" --regex-filter '.*MP4.*720P.*' --min-episode 800 --max-episode 900
-
   - eval "$(coverage run -a -m bgmi complete)"
+
+  - bash <(curl -s https://codecov.io/bash) -c -F command
 
 after_success:
   - codecov
