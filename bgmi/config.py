@@ -116,6 +116,10 @@ def write_config_parser(config_parser: configparser.ConfigParser):
         config_parser.write(f)
 
 
+def read_config_from_env():
+    pass
+
+
 def read_config():
     if not os.path.exists(CONFIG_FILE_PATH):
         write_default_config()
@@ -124,11 +128,13 @@ def read_config():
     c = get_config_parser_and_read()
     for i in __writeable__:
         if c.has_option('bgmi', i):
-            globals().update({i: c.get('bgmi', i)})
+            v = os.getenv(i) or c.get('bgmi', i)
+            globals().update({i: v})
 
     for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
         if c.has_option(DOWNLOAD_DELEGATE, i):
-            globals().update({i: c.get(DOWNLOAD_DELEGATE, i)})
+            v = os.getenv(i) or c.get(DOWNLOAD_DELEGATE, i)
+            globals().update({i: v})
 
     read_keywords_weight_section(c)
 

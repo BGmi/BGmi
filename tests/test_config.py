@@ -219,3 +219,13 @@ class BadConfigTest(base, unittest.TestCase):
             config_()
             m.assert_any_call()
         # write_default_config()
+
+    def test_read_config_from_env(self):
+        os.environ['DB_URL'] = 'db_url'
+        os.environ['ARIA2_RPC_URL'] = 'aria2_rpc_url'
+        bgmi.config.read_config()
+        self.assertEqual(bgmi.config.DB_URL, 'db_url')
+        self.assertEqual(bgmi.config.ARIA2_RPC_URL, 'aria2_rpc_url')
+        del os.environ['DB_URL']
+        del os.environ['ARIA2_RPC_URL']
+        bgmi.config.read_config()
