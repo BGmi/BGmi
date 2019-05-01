@@ -5,6 +5,6 @@ mock==2.0.0
 pre-commit==1.15.2
 pycodestyle==2.5.0
 pymysql==0.9.3
-setuptools==40.6.2
+setuptools==41.0.1
 transmission_rpc>=1.0.0, <2.0.0
 yapf==0.27.0
