@@ -1,5 +1,5 @@
 -r prod.txt
-faker==1.0.2
+faker==1.0.5
 isort[requirements]==4.3.17
 mock==2.0.0
 pre-commit==1.15.2
