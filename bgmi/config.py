@@ -87,7 +87,6 @@ BGMI_PATH = get_bgmi_path()
 if not BGMI_PATH:  # pragma: no cover
     raise SystemExit
 
-# DB_URL = os.path.join(BGMI_PATH, 'bangumi.db')
 DB_URL = 'sqlite:///{}'.format(os.path.join(BGMI_PATH, 'bangumi.db'))
 CONFIG_FILE_PATH = os.path.join(BGMI_PATH, 'bgmi.cfg')
 

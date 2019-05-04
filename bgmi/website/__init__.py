@@ -5,6 +5,7 @@ from itertools import chain
 from typing import Dict, List
 
 import requests
+import stevedore
 from hanziconv import HanziConv
 
 from bgmi import config
@@ -265,7 +266,14 @@ class DataSource:
         name = bangumi_obj.name
         max_page = int(max_page)
         response_data = []
-        available_source = list(BangumiItem.select().where(BangumiItem.bangumi == bangumi_obj.id))
+        available_source = [
+            x for x in BangumiItem.select().where(BangumiItem.bangumi == bangumi_obj.id)
+            if x.data_source not in config.DISABLED_DATA_SOURCE
+        ]  # type: List[BangumiItem]
+        bangumi_items = {}
+        for item in available_source:
+            bangumi_items[item.data_source] = item
+
         available_source_ids = [x.data_source for x in available_source]
 
         if filter_obj.data_source:
@@ -277,18 +285,22 @@ class DataSource:
             subtitle_group = Subtitle.select(Subtitle.id, Subtitle.data_source) \
                 .where(Subtitle.name.in_(filter_obj.subtitle) & Subtitle.data_source.in_(source))
 
-            condition = defaultdict(list)
+            data_source_to_subtitle_group = defaultdict(set)
 
             for subtitle in subtitle_group:
-                condition[subtitle.data_source].append(subtitle.id)
-
-            for s, subtitle_group in condition.items():
-                print(bangumi_obj.data_source)
-                print_info('Fetching {} from {}'.format(name, s))
-                response_data += DATA_SOURCE_MAP[s].fetch_episode_of_bangumi(
-                    bangumi_id=bangumi_obj.data_source[s]['keyword'],
-                    subtitle_list=subtitle_group,
-                    max_page=max_page
+                data_source_to_subtitle_group[subtitle.data_source].add(subtitle.id)
+            for item in available_source:
+                print_info('Fetching {} from {}'.format(item.name, item.data_source))
+                driver = stevedore.DriverManager(
+                    namespace='bgmi.data_source.provider',
+                    name=item.data_source,
+                    invoke_on_load=True,
+                )
+                # driver.driver
+                response_data += driver.driver.fetch_episode_of_bangumi(
+                    bangumi_id=item.keyword,
+                    subtitle_list=list(data_source_to_subtitle_group[item.data_source]),
+                    max_page=max_page,
                 )
 
         else:
