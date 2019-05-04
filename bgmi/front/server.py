@@ -35,8 +35,9 @@ def make_app(**kwargs):
         handlers.extend([
             (r'/bangumi/(.*)', tornado.web.StaticFileHandler, {'path': SAVE_PATH}),
             (
-                r'^/(.*)$', tornado.web.StaticFileHandler,
-                {'path': FRONT_STATIC_PATH, 'default_filename': 'index.html'}
+                r'^/(.*)$', tornado.web.StaticFileHandler, {
+                    'path': FRONT_STATIC_PATH, 'default_filename': 'index.html'
+                }
             ),
         ])
     else:

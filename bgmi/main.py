@@ -1,6 +1,5 @@
 import argparse
 import os
-import signal
 import time
 
 import peewee
@@ -16,15 +15,6 @@ from bgmi.sql import init_db
 from bgmi.utils import (
     check_update, get_web_admin, print_error, print_info, print_version, print_warning
 )
-
-
-# global Ctrl-C signal handler
-def signal_handler(s, h):  # pragma: no cover # pylint: disable=W0613
-
-    print_error('User aborted, quit')
-
-
-signal.signal(signal.SIGINT, signal_handler)
 
 
 def get_arg_parser():

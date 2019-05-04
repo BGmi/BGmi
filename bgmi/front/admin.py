@@ -1,3 +1,4 @@
+# pylint: disable=W0221
 import functools
 import traceback
 from concurrent.futures.thread import ThreadPoolExecutor
@@ -13,7 +14,7 @@ from bgmi.lib.constants import (
     ACTION_ADD, ACTION_CAL, ACTION_DELETE, ACTION_DOWNLOAD, ACTION_FILTER, ACTION_MARK,
     ACTION_SEARCH
 )
-from bgmi.lib.controllers import add, cal, delete, filter_, mark, search, status_, update
+from bgmi.lib.controllers import add, cal, delete_, filter_, mark, search, status_, update
 from bgmi.lib.download import download_prepare
 
 ACTION_AUTH = 'auth'
@@ -37,7 +38,7 @@ def _filter(name, subtitle=None, include=None, exclude=None, regex=None):
 
 API_MAP_POST = {
     ACTION_ADD: add,
-    ACTION_DELETE: delete,
+    ACTION_DELETE: delete_,
     ACTION_SEARCH: search,
     ACTION_DOWNLOAD: download_prepare,
     ACTION_AUTH: auth_,

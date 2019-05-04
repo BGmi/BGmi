@@ -10,7 +10,6 @@ from typing import Dict, Iterator, List, Union
 import peewee as pw
 from playhouse.shortcuts import model_to_dict
 
-import bgmi.config
 from bgmi import config
 from bgmi.lib.constants import SECOND_OF_WEEK
 
@@ -94,8 +93,8 @@ class BangumiItem(pw.Model):
         return cls.select().where(cond)
 
     @classmethod
-    def get_data_source_by_id(cls, id) -> Iterator['BangumiItem']:
-        return cls.select().where(cls.bangumi == id)
+    def get_data_source_by_id(cls, bangumi_id) -> Iterator['BangumiItem']:
+        return cls.select().where(cls.bangumi == bangumi_id)
 
 
 class Bangumi(FuzzyMixIn, NeoDB):
@@ -280,8 +279,8 @@ class Followed(NeoDB):
 
     def apply_exclude(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
         exclude = self.exclude
-        if bgmi.config.ENABLE_GLOBAL_FILTER != '0':
-            exclude += [x.strip() for x in bgmi.config.GLOBAL_FILTER.split(',')]
+        if config.ENABLE_GLOBAL_FILTER != '0':
+            exclude += [x.strip() for x in config.GLOBAL_FILTER.split(',')]
         exclude.append('合集')
 
         def f2(s):

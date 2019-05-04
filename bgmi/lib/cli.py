@@ -16,7 +16,7 @@ from bgmi.lib.constants import (
     actions_and_arguments
 )
 from bgmi.lib.constants.actions import ACTION_COMPLETE, ACTION_HISTORY, ACTIONS
-from bgmi.lib.controllers import add, config_, delete, filter_, list_, mark, search, update
+from bgmi.lib.controllers import add, config_, delete_, filter_, list_, mark, search, update
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
 from bgmi.lib.models import Bangumi, Followed
@@ -88,10 +88,10 @@ def mark_wrapper(ret):
 
 def delete_wrapper(ret):
     if ret.clear_all:
-        delete('', clear_all=ret.clear_all, batch=ret.batch)
+        delete_('', clear_all=ret.clear_all, batch=ret.batch)
     else:
         for bangumi_name in ret.name:
-            result = delete(name=bangumi_name)
+            result = delete_(name=bangumi_name)
             globals()['print_{}'.format(result['status'])](result['message'])
 
 
@@ -124,15 +124,6 @@ def cal_wrapper(ret):
     runner = ScriptRunner()
 
     weekly_list = website.bangumi_calendar(force_update=ret.force_update, save=save)
-    # if os.environ.get('DEBUG') or ret.show_source:
-    #     pass
-    # todo
-    # for bangumi_list in weekly_list.values():
-    #     for bangumi in bangumi_list:
-    #         bangumi['name'] = bangumi['name'] + ' {' + '{}'.format(
-    #             ', '.join([x[:min(1, len(x))] for x in bangumi['data_source'].keys()]) + '}'
-    #         )
-    #
     patch_list = runner.get_models_dict()
     for i in patch_list:
         weekly_list[i['update_time'].lower()].append(i)

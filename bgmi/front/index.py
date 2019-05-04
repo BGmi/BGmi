@@ -1,3 +1,4 @@
+# pylint: disable=W0221
 import os
 from pprint import pformat
 

@@ -69,15 +69,15 @@ class ControllersTest(Base, unittest.TestCase):
         self.assertEqual(r['status'], 'error', r['message'])
 
     def test_delete(self):
-        r = bgmi.lib.controllers.delete()
+        r = bgmi.lib.controllers.delete_()
         self.assertEqual(r['status'], 'warning')
-        r = bgmi.lib.controllers.delete(self.bangumi_name_1)
+        r = bgmi.lib.controllers.delete_(self.bangumi_name_1)
         self.assertEqual(r['status'], 'error', r['message'])
         # r = bgmi.lib.controllers.delete(self.bangumi_name_1)
         # self.assertEqual(r['status'], 'warning')
-        r = bgmi.lib.controllers.delete(self.bangumi_name_2)
+        r = bgmi.lib.controllers.delete_(self.bangumi_name_2)
         self.assertEqual(r['status'], 'warning', r['message'])
-        r = bgmi.lib.controllers.delete(clear_all=True, batch=True)
+        r = bgmi.lib.controllers.delete_(clear_all=True, batch=True)
         self.assertEqual(r['status'], 'warning')
 
     def test_search(self):

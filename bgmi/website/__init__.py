@@ -17,7 +17,7 @@ from bgmi.lib.models import (
     Bangumi, BangumiItem, Followed, Subtitle, db, get_updating_bangumi_with_data_source,
     model_to_dict
 )
-from bgmi.utils import full_to_half, print_info, print_warning, test_connection
+from bgmi.utils import full_to_half, parallel, print_info, print_warning, test_connection
 from bgmi.website.base import BaseWebsite
 
 THRESHOLD = 60
@@ -265,13 +265,13 @@ class DataSource:
             return ep_info, [set_name(x) for x in data]
         return {'episode': 0}, []
 
-    def fetch_episode(self, filter_obj: Followed = None, bangumi_obj=None, max_page=int(MAX_PAGE)):
+    @staticmethod
+    def fetch_episode(filter_obj: Followed = None, bangumi_obj=None, max_page=int(MAX_PAGE)):
         """
         :type filter_obj: bgmi.lib.models._tables.Followed
         :type bangumi_obj: bgmi.lib.models._tables.Bangumi
         :type max_page: int
         """
-        name = bangumi_obj.name
         max_page = int(max_page)
         response_data = []
         available_source = [
@@ -308,12 +308,12 @@ class DataSource:
 
         else:
             for source in available_source:
-                print_info('Fetching {} from {}'.format(name, source.data_source))
+                print_info('Fetching {} from {}'.format(bangumi_obj.name, source.data_source))
                 response_data += get_provider(
                     source.data_source
                 ).fetch_episode_of_bangumi(bangumi_id=source.keyword, max_page=max_page)
         for episode in response_data:
-            episode['name'] = name
+            episode['name'] = bangumi_obj.name
 
         return filter_obj.apply_keywords_filter_on_list_of_episode(response_data)
 
@@ -359,7 +359,11 @@ class DataSource:
         :return: list of episode search result
         :rtype: list[dict]
         """
-        return sum([s.search_by_keyword(keyword, count) for _, s in get_all_provider()], [])
+
+        def f(_, source):
+            return source.search_by_keyword(keyword, count)
+
+        return sum(parallel(f, get_all_provider()), [])
 
 
 def find_most_similar_index(container, name):

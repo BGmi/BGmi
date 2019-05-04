@@ -94,6 +94,14 @@ FETCH_EPISODE = (
 )
 
 
+def get_real_episode(episode_list):
+    episode_list = map(int, episode_list)
+    real = min(episode_list)
+    if real > 1900:
+        return 0
+    return real
+
+
 @log_utils_function
 def parse_episode(episode_title):
     """
@@ -105,13 +113,6 @@ def parse_episode(episode_title):
     :rtype: int
     """
     spare = None
-
-    def get_real_episode(episode_list):
-        episode_list = map(int, episode_list)
-        real = min(episode_list)
-        if real > 1900:
-            return 0
-        return real
 
     # check if range episode, return 0
     for regexp in [FETCH_EPISODE_RANGE_ALL_ZH, FETCH_EPISODE_RANGE, FETCH_EPISODE_RANGE_ZH]:

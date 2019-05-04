@@ -1,7 +1,9 @@
 import glob
 import gzip
+import inspect
 import json
 import os
+import signal
 import struct
 import subprocess
 import tarfile
@@ -10,6 +12,7 @@ from io import BytesIO
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from shutil import move, rmtree
+from threading import Lock
 from typing import TextIO, Union
 
 import requests
@@ -33,39 +36,45 @@ else:
 FRONTEND_NPM_URL = 'https://{}/bgmi-frontend/'.format(NPM_REGISTER_DOMAIN)
 PACKAGE_JSON_URL = 'https://{}/bgmi-frontend/{}'.format(NPM_REGISTER_DOMAIN, __admin_version__)
 
+_lock = Lock()
+
 
 @disable_in_test
 @_indicator
 @colorize
 def print_info(message, indicator=True):
-    logger.info(message)
-    print(message)
+    with _lock:
+        logger.info(message)
+        print(message)
 
 
 @disable_in_test
 @_indicator
 @colorize
-def print_success(message, indicator=True):
-    logger.info(message)
-    print(message)
+def print_success(message, indicator=True, **kwargs):
+    with _lock:
+        logger.info(message)
+        print(message, **kwargs)
 
 
 @disable_in_test
 @_indicator
 @colorize
-def print_warning(message, indicator=True):
-    logger.warning(message)
-    print(message)
+def print_warning(message, indicator=True, **kwargs):
+    with _lock:
+        logger.warning(message)
+        print(message, **kwargs)
 
 
 @disable_in_test
 @_indicator
 @colorize
-def print_error(message, exit_=True, indicator=True):
-    logger.error(message)
-    print(message)
-    if exit_:
-        exit(1)
+def print_error(message, exit_=True, indicator=True, **kwargs):
+    with _lock:
+        logger.error(message)
+        print(message, **kwargs)
+        if exit_:
+            exit(1)
 
 
 def print_version():
@@ -120,8 +129,6 @@ def get_terminal_col():  # pragma: no cover
             sizex = right - left + 1
             # sizey = bottom - top + 1
             return sizex
-        import subprocess
-
         cols = int(subprocess.check_output('tput cols'))
         return cols
     except BaseException:
@@ -288,9 +295,7 @@ def download_cover(cover_url_list):
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
 
-    p = ThreadPool(4)
-    p.map(download_file, cover_url_list)
-    p.close()
+    parallel(download_file, cover_url_list)
 
 
 def full_to_half(s):
@@ -339,3 +344,25 @@ def render_template(path_or_file: Union[str, Path, TextIO], ctx: dict = None, **
             content = f.read()
     template_obj = template.Template(content, autoescape='')
     return template_obj.generate(**(ctx or kwargs)).decode('utf-8')
+
+
+def parallel(func, args):
+    with ThreadPool(4) as pool:
+        try:
+            sign = inspect.signature(func)
+            if len(sign.parameters) == 1:
+                res = pool.starmap_async(func, ((x, ) for x in args))
+            else:
+                res = pool.starmap_async(func, args)
+            return res.get()
+        except KeyboardInterrupt:
+            signal_handler(None, None)
+
+
+# global Ctrl-C signal handler
+def signal_handler(signal, frame):  # pragma: no cover # pylint: disable=W0613
+
+    print_error('User aborted, quit')
+
+
+signal.signal(signal.SIGINT, signal_handler)
