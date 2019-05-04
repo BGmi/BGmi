@@ -106,27 +106,29 @@ class BangumiTest(Base, TestCase):
         name_updating = []
         for i in range(5):
             name = self.faker.name()
-            Bangumi.create(
+            bangumi_obj = Bangumi.create(
                 name=name,
                 keyword=name,
                 cover=name,
                 update_time='mon',
                 status=Bangumi.STATUS.UPDATING
             )
-            Followed.create(bangumi_name=name, updated_time=now + i)
+            Followed.create(bangumi_id=bangumi_obj.id, updated_time=now + i)
             name_updating.append(name)
 
         name_end = []
         for i in range(5):
             name = self.faker.name()
-            Bangumi.create(
+            bangumi_obj = Bangumi.create(
                 name=name,
                 keyword=name,
                 cover=name,
                 update_time='mon',
                 status=models.Bangumi.STATUS.UPDATING
             )
-            Followed.create(bangumi_name=name, updated_time=now - 2 * 2 * 7 * 24 * 3600 - 200)
+            Followed.create(
+                bangumi_id=bangumi_obj.id, updated_time=now - 2 * 2 * 7 * 24 * 3600 - 200
+            )
             name_end.append(name)
 
         Bangumi.delete_all()
@@ -178,8 +180,7 @@ class BangumiTest(Base, TestCase):
 
 class FollowedTest(Base, TestCase):
     def test_delete_followed(self):
-        name = self.faker.name()
-        Followed.create(bangumi_name=name)
+        Followed.create(bangumi_id=233)
         with patch('builtins.input', Mock(return_value='n')) as m:
             Followed.delete_followed(batch=False)
             m.assert_any_call('[+] are you sure want to CLEAR ALL THE BANGUMI? (y/N): ')

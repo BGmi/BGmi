@@ -23,7 +23,7 @@ class ControllersTest(Base, unittest.TestCase):
     bangumi_name_2 = '海贼王'  # followed bangumi
 
     def get_followed_obj(self):
-        return Followed.fuzzy_get(bangumi_name=self.bangumi_name_2)
+        return Followed.get_by_name(bangumi_name=self.bangumi_name_2)
 
     def test_cal(self):
         r = bgmi.lib.controllers.cal()
@@ -42,21 +42,21 @@ class ControllersTest(Base, unittest.TestCase):
         r = bgmi.lib.controllers.add(self.bangumi_name_1, 0)
         self.assertEqual(r['status'], 'success')
 
-        f = Followed.get(bangumi_name=self.bangumi_name_1)  # type: Followed
+        f = Followed.get_by_name(bangumi_name=self.bangumi_name_1)  # type: Followed
         self.assertEqual(f.status, Followed.STATUS.FOLLOWED)
 
     def test_add_dupe_warning(self):
         r = bgmi.lib.controllers.add(self.bangumi_name_2, 0)
         self.assertEqual(r['status'], 'warning')
 
-        f = Followed.get(bangumi_name=self.bangumi_name_2)  # type: Followed
+        f = Followed.get_by_name(bangumi_name=self.bangumi_name_2)  # type: Followed
         self.assertEqual(f.status, Followed.STATUS.FOLLOWED)
 
     def test_add_with_episode(self):
 
         r = bgmi.lib.controllers.add(self.bangumi_name_1, episode=4)
         self.assertEqual(r['status'], 'success')
-        f = Followed.get(bangumi_name=self.bangumi_name_1)  # type: Followed
+        f = Followed.get_by_name(bangumi_name=self.bangumi_name_1)  # type: Followed
         self.assertEqual(f.status, Followed.STATUS.FOLLOWED)
         self.assertEqual(f.episode, 4)
 
@@ -150,7 +150,7 @@ class ControllersTest(Base, unittest.TestCase):
         self.assertEqual(result.status, ControllerResult.success)
         self.assertEqual(result.data['followed'], [self.valid_subtitle])
 
-        followed_obj = Followed.fuzzy_get(bangumi_name=self.bangumi_name_2)
+        followed_obj = Followed.get_by_name(bangumi_name=self.bangumi_name_2)
         self.assertEqual(followed_obj.subtitle, [self.valid_subtitle])
 
         result = controllers.filter_(self.bangumi_name_2)
@@ -167,7 +167,7 @@ class ControllersTest(Base, unittest.TestCase):
         )
         self.assertEqual(result.status, ControllerResult.error, result.message)
 
-        followed_obj = Followed.fuzzy_get(bangumi_name=self.bangumi_name_2)
+        followed_obj = Followed.get_by_name(bangumi_name=self.bangumi_name_2)
         self.assertEqual(followed_obj.data_source, [])
 
         result = controllers.filter_(self.bangumi_name_2)
@@ -189,7 +189,7 @@ class ControllersTest(Base, unittest.TestCase):
             result.message,
         )
 
-        followed_obj = Followed.fuzzy_get(bangumi_name=self.bangumi_name_2)
+        followed_obj = Followed.get_by_name(bangumi_name=self.bangumi_name_2)
         self.assertEqual(followed_obj.data_source, [self.valid_data_source])
 
         result = controllers.filter_(self.bangumi_name_2)

@@ -27,7 +27,7 @@ def get_updating_bangumi_with_data_source(status=None, order=True):
     common_cond = ((Bangumi.status == Bangumi.STATUS.UPDATING) & (Bangumi.has_data_source == 1))
 
     query = Bangumi.select(Followed.status, Followed.episode, Bangumi) \
-        .join(Followed, pw.JOIN.LEFT_OUTER, on=(Bangumi.name == Followed.bangumi_name))
+        .join(Followed, pw.JOIN.LEFT_OUTER, on=(Bangumi.id == Followed.bangumi_id))
 
     if status is None:
         data = query.where(common_cond)
@@ -47,7 +47,7 @@ def get_updating_bangumi_with_data_source(status=None, order=True):
 def get_followed_bangumi():
     common_cond = ((Bangumi.status == Bangumi.STATUS.UPDATING) & (Bangumi.has_data_source == 1))
     data = Followed.select(Followed, Bangumi, Bangumi.id) \
-        .join(Bangumi, pw.JOIN.LEFT_OUTER, on=(Bangumi.name == Followed.bangumi_name),)\
+        .join(Bangumi, pw.JOIN.LEFT_OUTER, on=(Bangumi.id == Followed.bangumi_id))\
         .where(common_cond).dicts()
     weekly_list = order_by_weekday(data)
     return weekly_list

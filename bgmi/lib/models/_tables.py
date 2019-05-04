@@ -13,7 +13,7 @@ from playhouse.shortcuts import model_to_dict
 import bgmi.config
 from bgmi.lib.constants import SECOND_OF_WEEK
 
-from ._db import NeoDB, db
+from ._db import FuzzyMixIn, NeoDB, db
 from ._fields import BangumiNamesField, SubtitleField
 
 
@@ -97,7 +97,7 @@ class BangumiItem(pw.Model):
         return cls.select().where(cls.bangumi == id)
 
 
-class Bangumi(NeoDB):
+class Bangumi(FuzzyMixIn, NeoDB):
     """
     bangumi mainline table
 
@@ -129,17 +129,20 @@ class Bangumi(NeoDB):
             Followed.updated_time > (int(time.time()) - 2 * SECOND_OF_WEEK)
         )  # type: List[Followed]
         if os.getenv('DEBUG'):  # pragma: no cover
-            print('ignore updating bangumi', [x.bangumi_name for x in un_updated_bangumi])
+            print(
+                'ignore updating bangumi',
+                [cls.get(id=x.bangumi_id).name for x in un_updated_bangumi]
+            )
 
         cls.update(status=cls.STATUS.END) \
-            .where(cls.name.not_in([x.bangumi_name for x in un_updated_bangumi])) \
+            .where(cls.id.not_in([x.bangumi_id for x in un_updated_bangumi])) \
             .execute()  # do not mark updating bangumi as Bangumi.STATUS.END
 
     @classmethod
     def get_updating_bangumi(cls, status=None, order=True, obj=False) -> Dict:
         base_cond = (cls.status == cls.STATUS.UPDATING)
         query = cls.select(Followed.status, Followed.episode, cls, ) \
-            .join(Followed, pw.JOIN['LEFT_OUTER'], on=(cls.name == Followed.bangumi_name))
+            .join(Followed, pw.JOIN['LEFT_OUTER'], on=(cls.id == Followed.bangumi_id))
 
         if status is None:
             data = query.where(base_cond)
@@ -210,7 +213,9 @@ class Followed(NeoDB):
     """
     Followed bangumi and filter condition
     """
-    bangumi_name = pw.CharField(unique=True, primary_key=True)
+    bangumi_id = pw.IntegerField(unique=True, primary_key=True)
+    # bangumi = pw.ForeignKeyField(Bangumi, backref='followed', unique=True)  # type: Bangumi
+    # bangumi_name = pw.CharField(unique=True, primary_key=True)
     episode = pw.IntegerField(null=True, default=0)
     status = pw.IntegerField(null=True)
     updated_time = pw.IntegerField(null=True)
@@ -239,12 +244,21 @@ class Followed(NeoDB):
 
     @classmethod
     def get_all_followed(cls, status=STATUS.DELETED, bangumi_status=Bangumi.STATUS.UPDATING):
-        join_cond = (Bangumi.name == cls.bangumi_name)
-        d = cls.select(Bangumi.name, Bangumi.update_time, Bangumi.cover, cls, cls.episode) \
-            .join(Bangumi, pw.JOIN['LEFT_OUTER'], on=join_cond) \
-            .where((cls.status != status) & (Bangumi.status == bangumi_status)) \
-            .order_by(cls.updated_time.desc()) \
-            .dicts()
+        join_cond = (Bangumi.id == cls.bangumi_id)
+        d = cls.select(
+            Bangumi.name,
+            Bangumi.update_time,
+            Bangumi.cover,
+            cls,
+            cls.episode,
+            Bangumi.name.alias('bangumi_name'),
+        ).join(
+            Bangumi,
+            pw.JOIN['LEFT_OUTER'],
+            on=join_cond,
+        ).where((cls.status != status) & (Bangumi.status == bangumi_status)).order_by(
+            cls.updated_time.desc()
+        ).dicts()
 
         return list(d)
 
@@ -288,6 +302,10 @@ class Followed(NeoDB):
                     raise exc
                 return episode_list
         return episode_list
+
+    @classmethod
+    def get_by_name(cls, bangumi_name):
+        return cls.get(bangumi_id=Bangumi.get(name=bangumi_name).id)
 
 
 class Download(NeoDB):

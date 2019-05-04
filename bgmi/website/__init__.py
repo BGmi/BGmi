@@ -97,7 +97,6 @@ def get_bgm_tv_calendar() -> list:
             # day['items'][index] = \
             bangumi_tv_weekly_list.append(
                 Bangumi(
-                    id=item['id'],
                     name=html.unescape(name),
                     cover=images.get('large', images.get('common')) or '',
                     status=Bangumi.STATUS.UPDATING,
@@ -247,7 +246,7 @@ class DataSource:
         :type bangumi: bgmi.lib.models._tables.Bangumi
         """
         followed_filter_obj, _ = Followed.get_or_create(
-            bangumi_name=bangumi.name
+            bangumi_id=bangumi.id
         )  # type : (Filter, bool)
 
         data = [

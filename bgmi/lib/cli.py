@@ -239,7 +239,7 @@ def filter_wrapper(ret):
         print_info('Usable subtitle group: {}'.format(result.data['subtitle_group']))
         print_info('Usable data source: {}'.format(result.data['data_source']))
         print()
-        followed_filter_obj = Followed.get(bangumi_name=result.data['name'])
+        followed_filter_obj = result.data['obj']
         print_filter(followed_filter_obj)
     return result.data
 
@@ -282,7 +282,7 @@ def download_manager(ret):
 def fetch_(ret):
     try:
         bangumi_obj = Bangumi.get(name=ret.name)
-        Followed.get(bangumi_name=bangumi_obj.name)
+        Followed.get(bangumi_id=bangumi_obj.id)
     except Bangumi.DoesNotExist:
         print_error('Bangumi {} not exist'.format(ret.name))
         return
@@ -290,7 +290,7 @@ def fetch_(ret):
         print_error('Bangumi {} is not followed'.format(ret.name))
         return
 
-    followed_filter_obj = Followed.get(bangumi_name=ret.name)
+    followed_filter_obj = Followed.get(bangumi_id=bangumi_obj.id)
     print_filter(followed_filter_obj)
 
     print_info('Fetch bangumi {} ...'.format(bangumi_obj.name))

@@ -15,6 +15,12 @@ class NeoDB(pw.Model):
         database = db
 
     @classmethod
+    def has_status(cls, status):
+        print(status in list(map(int, cls.STATUS)))
+
+
+class FuzzyMixIn:
+    @classmethod
     def fuzzy_get(cls: Type[T], **filters) -> 'T':
         q = []
         for key, value in filters.items():
@@ -23,7 +29,3 @@ class NeoDB(pw.Model):
         if not o:
             raise cls.DoesNotExist
         return o[0]
-
-    @classmethod
-    def has_status(cls, status):
-        print(status in list(map(int, cls.STATUS)))
