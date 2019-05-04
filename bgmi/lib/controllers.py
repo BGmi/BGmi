@@ -446,6 +446,7 @@ def update(name, download=None, not_ignore=False):
             try:
                 f = Followed.get_by_name(bangumi_name=i)
                 f = model_to_dict(f)
+                f['bangumi_name'] = i
                 updated_bangumi_obj.append(f)
             except DoesNotExist:
                 print_error('{} is not a followed bangumi'.format(i))
