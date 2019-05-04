@@ -22,6 +22,18 @@
 
     输出warning
 
+设置任意writable的config
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+所有当前可写的配置项都可以通过环境变量来设置。方法为在对应配置项的名字前加 ``BGMI_``。
+例如，设置环境变量 ``BGMI_LOG_LEVEL`` 的值为 ``warning``。
+这会把 ``bgmi.config.LOG_LEVEL`` 的值设置为 ``warning``，并且覆盖配置文件中的设置。
+
+方便在docker中设置bgmi。
+
+
+
+
 通过命令或者直接修改配置文件
 -------------------------
 
@@ -49,6 +61,10 @@
 
     番剧保存的文件夹, 默认为 :py:data:`BGMI_PATH`/bangumi ,
     所有的番剧都会保存在这个文件夹内.
+
+.. py:data:: LOG_LEVEL
+
+    日志等级，应该为 ``debug``，``info``，``warning``，``error``
 
 .. py:data:: DOWNLOAD_DELEGATE
 
