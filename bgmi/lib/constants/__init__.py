@@ -1,6 +1,6 @@
 import bgmi.config
 
-from . import kv, namespace
+from . import kv
 from .actions import (
     ACTION_ADD, ACTION_CAL, ACTION_COMPLETE, ACTION_CONFIG, ACTION_CONFIG_GEN, ACTION_DELETE,
     ACTION_DOWNLOAD, ACTION_FETCH, ACTION_FILTER, ACTION_LIST, ACTION_MARK, ACTION_SEARCH,
@@ -362,4 +362,10 @@ actions_and_arguments = [
     },
 ]
 
-__all__ = ['kv', 'actions_and_arguments', 'namespace']
+
+class NameSpace:
+    data_source_provider = 'bgmi.data_source.provider'
+    download_delegate = 'bgmi.downloader.delegate'
+
+
+__all__ = ['kv', 'actions_and_arguments', 'NameSpace']

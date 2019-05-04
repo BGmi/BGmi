@@ -12,7 +12,7 @@ from hanziconv import HanziConv
 
 from bgmi import config
 from bgmi.config import MAX_PAGE
-from bgmi.lib.constants.namespace import PROVIDER_NAME_SPACE
+from bgmi.lib.constants import NameSpace
 from bgmi.lib.models import (
     Bangumi, BangumiItem, Followed, Subtitle, db, get_updating_bangumi_with_data_source,
     model_to_dict
@@ -26,7 +26,7 @@ THRESHOLD = 60
 @lru_cache(20)
 def get_provider(source) -> BaseWebsite:
     return stevedore.DriverManager(
-        namespace=PROVIDER_NAME_SPACE,
+        namespace=NameSpace.data_source_provider,
         name=source,
         invoke_on_load=True,
     ).driver
@@ -34,7 +34,7 @@ def get_provider(source) -> BaseWebsite:
 
 def get_all_provider() -> Iterator[Dict[str, BaseWebsite]]:
     mgr = stevedore.ExtensionManager(
-        namespace=PROVIDER_NAME_SPACE,
+        namespace=NameSpace.data_source_provider,
         invoke_on_load=True,
     )
     yield from [(source_id, ext.obj) for (source_id, ext) in mgr.items()]

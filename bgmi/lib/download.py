@@ -2,30 +2,23 @@ import os
 import xmlrpc.client
 from functools import singledispatch
 
+import stevedore
+import stevedore.exception
+
 from bgmi.config import DOWNLOAD_DELEGATE, SAVE_PATH
-from bgmi.downloader.aria2_rpc import Aria2DownloadRPC
-from bgmi.downloader.deluge import DelugeRPC
-from bgmi.downloader.transmissionRpc import TransmissionRPC
+from bgmi.lib.constants import NameSpace
 from bgmi.lib.models import Download
 from bgmi.utils import normalize_path, print_error
 
-DOWNLOAD_DELEGATE_DICT = {
-    'aria2-rpc': Aria2DownloadRPC,
-    'transmission-rpc': TransmissionRPC,
-    'deluge-rpc': DelugeRPC,
-}
-
 
 def get_download_class(download_obj=None, save_path='', overwrite=True, instance=True):
-    if DOWNLOAD_DELEGATE not in DOWNLOAD_DELEGATE_DICT:
+    try:
+        cls = stevedore.DriverManager(NameSpace.download_delegate, DOWNLOAD_DELEGATE).driver
+        if instance:
+            return cls(download_obj=download_obj, overwrite=overwrite, save_path=save_path)
+        return cls
+    except stevedore.exception.NoMatches:
         print_error('unexpected delegate {}'.format(DOWNLOAD_DELEGATE))
-
-    delegate = DOWNLOAD_DELEGATE_DICT.get(DOWNLOAD_DELEGATE)
-
-    if instance:
-        delegate = delegate(download_obj=download_obj, overwrite=overwrite, save_path=save_path)
-
-    return delegate
 
 
 @singledispatch

@@ -117,10 +117,6 @@ def write_config_parser(config_parser: configparser.ConfigParser):
         config_parser.write(f)
 
 
-def read_config_from_env():
-    pass
-
-
 def read_config():
     if not os.path.exists(CONFIG_FILE_PATH):
         write_default_config()
