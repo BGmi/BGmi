@@ -264,7 +264,7 @@ def download_manager(ret):
     else:
         status = ret.status
         status = int(status) if status is not None else None
-        delegate = get_download_class(instance=False)
+        delegate = get_download_class()
         delegate.download_status(status=status)
 
 

@@ -1,21 +1,21 @@
 import os
 import xmlrpc.client
 from functools import singledispatch
+from typing import Type
 
 import stevedore
 import stevedore.exception
 
 from bgmi.config import DOWNLOAD_DELEGATE, SAVE_PATH
+from bgmi.downloader.base import BaseDownloadService
 from bgmi.lib.constants import NameSpace
 from bgmi.lib.models import Download
 from bgmi.utils import normalize_path, print_error
 
 
-def get_download_class(download_obj=None, save_path='', overwrite=True, instance=True):
+def get_download_class() -> Type[BaseDownloadService]:
     try:
         cls = stevedore.DriverManager(NameSpace.download_delegate, DOWNLOAD_DELEGATE).driver
-        if instance:
-            return cls(download_obj=download_obj, overwrite=overwrite, save_path=save_path)
         return cls
     except stevedore.exception.NoMatches:
         print_error('unexpected delegate {}'.format(DOWNLOAD_DELEGATE))
@@ -68,7 +68,10 @@ def download_prepare(data):
 
         try:
             # start download
-            download_class = get_download_class(download_obj=download, save_path=save_path)
+            download_class = get_download_class()
+            download_class = download_class(
+                download_obj=download, overwrite=True, save_path=save_path
+            )
             download_class.download()
             download_class.check_download(download.name)
 

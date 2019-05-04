@@ -2,8 +2,7 @@ import os
 
 from bgmi import __version__
 from bgmi.config import (
-    BGMI_PATH, DOWNLOAD_DELEGATE, FRONT_STATIC_PATH, IS_WINDOWS, SAVE_PATH, SCRIPT_PATH, TMP_PATH,
-    TOOLS_PATH
+    BGMI_PATH, FRONT_STATIC_PATH, IS_WINDOWS, SAVE_PATH, SCRIPT_PATH, TMP_PATH, TOOLS_PATH
 )
 from bgmi.lib import constants
 from bgmi.lib.download import get_download_class
@@ -48,4 +47,4 @@ def create_dir():
 
 
 def install():
-    get_download_class(DOWNLOAD_DELEGATE, instance=False).install()
+    get_download_class().install()

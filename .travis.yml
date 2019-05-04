@@ -34,6 +34,7 @@ env:
 
 services:
   - mysql
+  - docker
 
 matrix:
   fast_finish: true
@@ -91,6 +92,26 @@ matrix:
       dist: xenial
       env: DB=mysql
 
+    - python: '3.6'
+      os: linux
+      env:
+        - DOWNLOADER=aria2-rpc
+      script:
+        - bash .ci/tests/aria2.bash
+
+    - python: '3.6'
+      os: linux
+      env:
+        - DOWNLOADER=deluge-rpc
+      script:
+        - bash .ci/tests/delute.bash
+
+    - python: '3.6'
+      os: linux
+      env:
+        - DOWNLOADER=transmission-rpc
+      script:
+        - bash .ci/tests/transmission.bash
 
 before_cache:
   - rm -f $HOME/.cache/pip/log/debug.log | true
@@ -125,7 +146,8 @@ install:
   - pip install codecov
   - python setup.py sdist
   - pip install --no-cache-dir dist/bgmi-*.tar.gz
-  - python setup.py clean
+  - pip uninstall bgmi -y
+  - pip install -e .
   - if [[ "$DB" == "mysql" ]]; then pip install pymysql; fi
 
 script:
