@@ -12,7 +12,7 @@ from bgmi.lib import models
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
 from bgmi.lib.models import (
-    Bangumi, BangumiItem, BangumiLink, DoesNotExist, Download, Followed, Subtitle, model_to_dict
+    Bangumi, BangumiItem, DoesNotExist, Download, Followed, Subtitle, model_to_dict
 )
 from bgmi.logger import logger
 from bgmi.script import ScriptRunner
@@ -531,16 +531,6 @@ def status_(name, status=Followed.STATUS.DELETED):
     followed_obj.save()
     result['message'] = 'Followed<{}> has been marked as status {}'.format(name, status)
     return result
-
-
-def unlink(*bangumi_names):
-    Bangumi.delete().where(Bangumi.name.in_(bangumi_names)).execute()
-    BangumiLink.unlink(*bangumi_names)
-
-
-def link(*bangumi_names):
-    Bangumi.delete().where(Bangumi.name.in_(bangumi_names)).execute()
-    BangumiLink.link(*bangumi_names)
 
 
 def list_():

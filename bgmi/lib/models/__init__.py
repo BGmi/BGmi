@@ -3,9 +3,7 @@ from collections import defaultdict
 import peewee as pw
 from playhouse.shortcuts import model_to_dict
 
-from bgmi.lib.models._tables import (
-    Bangumi, BangumiItem, BangumiLink, Download, Followed, Scripts, Subtitle
-)
+from bgmi.lib.models._tables import Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle
 
 from ._db import db
 from ._kv import get_kv_storage
@@ -60,23 +58,15 @@ def recreate_source_relatively_table():
     return True
 
 
-bangumi_links = BangumiLink.get_all()
-
-combined_bangumi = bangumi_links[BangumiLink.STATUS.link]
-uncombined_bangumi = bangumi_links[BangumiLink.STATUS.unlink]
-
 __all__ = [
     'db',
     'get_kv_storage',
-    'combined_bangumi',
-    'uncombined_bangumi',
     'BangumiItem',
     'Bangumi',
     'Followed',
     'Download',
     'Scripts',
     'Subtitle',
-    'BangumiLink',  # tables
     'DoesNotExist',
     'get_updating_bangumi_with_data_source',
     'model_to_dict',

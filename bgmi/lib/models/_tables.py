@@ -11,10 +11,11 @@ import peewee as pw
 from playhouse.shortcuts import model_to_dict
 
 import bgmi.config
+from bgmi import config
 from bgmi.lib.constants import SECOND_OF_WEEK
 
 from ._db import FuzzyMixIn, NeoDB, db
-from ._fields import BangumiNamesField, SubtitleField
+from ._fields import SubtitleField
 
 
 class BangumiItem(pw.Model):
@@ -305,6 +306,9 @@ class Followed(NeoDB):
 
     @classmethod
     def get_by_name(cls, bangumi_name):
+        if config.SHOW_WARNING:
+            import warnings
+            warnings.warn('should use Followed.get(id=bangumi_obj.id) instead of get by name')
         return cls.get(bangumi_id=Bangumi.get(name=bangumi_name).id)
 
 
@@ -412,91 +416,6 @@ class Subtitle(NeoDB):
     @classmethod
     def get_subtitle_by_id(cls, subtitle_id_list: List[str]) -> 'pw.ModelSelect':
         return cls.select().where(cls.id.in_(subtitle_id_list))
-
-
-class BangumiLink(NeoDB):
-    value = BangumiNamesField()
-    status = pw.IntegerField()
-
-    class STATUS:
-        link = 1
-        unlink = 0
-
-    @classmethod
-    def get_all(cls):
-        """
-        :rtype: Dict[int, List[set]]
-        :return:
-        """
-        try:
-            link = []
-            unlink = []
-
-            for b in cls.select():
-                if b.status == cls.STATUS.link:
-                    link.append(b.value)
-                if b.status == cls.STATUS.unlink:
-                    unlink.append(b.value)
-            return {
-                cls.STATUS.link: link,
-                cls.STATUS.unlink: unlink,
-            }
-
-        except BaseException:
-            return {cls.STATUS.link: [], cls.STATUS.unlink: []}
-
-    @classmethod
-    def get_linked_bangumi_list(cls):
-        try:
-            return list(map(lambda x: x.value, cls.select().where(cls.status == cls.STATUS.link)))
-        except BaseException:
-            return []
-
-    @classmethod
-    def get_unlinked_bangumi_list(cls):
-        try:
-            return list(map(lambda x: x.value, cls.select().where(cls.status == cls.STATUS.unlink)))
-        except BaseException:
-            return []
-
-    @classmethod
-    def try_remove_record(cls, bangumi_name_1, bangumi_name_2, status):
-        f = cls.select().where(
-            cls.value.contains(bangumi_name_1) & cls.value.contains(bangumi_name_2)
-            & (cls.status == status)
-        )
-        for v in f:
-            s = v.value
-            if s == {bangumi_name_2, bangumi_name_1}:
-                v.delete_instance()
-
-    @classmethod
-    def add_record(cls, bangumi_name_1, bangumi_name_2, status):
-        f = cls.select().where(
-            cls.value.contains(bangumi_name_1) & cls.value.contains(bangumi_name_2)
-            & (cls.status == status)
-        )
-        f = list(f)
-        find = False
-        for v in f:
-            s = v.value
-            if s == {bangumi_name_2, bangumi_name_1}:
-                find = True
-        if not find:
-            cls.create(value={bangumi_name_1, bangumi_name_2}, status=status)
-
-    @classmethod
-    def link(cls, bangumi_name_1, bangumi_name_2):
-        cls.try_remove_record(bangumi_name_1, bangumi_name_2, cls.STATUS.unlink)
-        cls.add_record(bangumi_name_1, bangumi_name_2, cls.STATUS.link)
-
-    @classmethod
-    def unlink(cls, bangumi_name_1, bangumi_name_2):
-        cls.try_remove_record(bangumi_name_1, bangumi_name_2, cls.STATUS.link)
-        cls.add_record(bangumi_name_1, bangumi_name_2, cls.STATUS.unlink)
-
-    def __repr__(self):
-        return '<BangumiLink: {} {} {}>'.format(self.id, self.value, self.status)
 
 
 class Scripts(NeoDB):

@@ -14,8 +14,8 @@ from bgmi import config
 from bgmi.config import MAX_PAGE
 from bgmi.lib.constants.namespace import PROVIDER_NAME_SPACE
 from bgmi.lib.models import (
-    Bangumi, BangumiItem, Followed, Subtitle, combined_bangumi, db,
-    get_updating_bangumi_with_data_source, model_to_dict, uncombined_bangumi
+    Bangumi, BangumiItem, Followed, Subtitle, db, get_updating_bangumi_with_data_source,
+    model_to_dict
 )
 from bgmi.utils import full_to_half, print_info, print_warning, test_connection
 from bgmi.website.base import BaseWebsite
@@ -41,13 +41,6 @@ def get_all_provider() -> Iterator[Dict[str, BaseWebsite]]:
 
 
 def similarity_of_two_name(name1: str, name2: str):
-    for s in combined_bangumi:
-        if name1 in s and name2 in s:
-            return 100
-    for s in uncombined_bangumi:
-        if name1 in s and name2 in s:
-            return 0
-
     name1 = HanziConv.toSimplified(name1)
     name2 = HanziConv.toSimplified(name2)
     name1 = full_to_half(name1)

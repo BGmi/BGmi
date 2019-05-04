@@ -3,8 +3,8 @@ import bgmi.config
 from . import kv, namespace
 from .actions import (
     ACTION_ADD, ACTION_CAL, ACTION_COMPLETE, ACTION_CONFIG, ACTION_CONFIG_GEN, ACTION_DELETE,
-    ACTION_DOWNLOAD, ACTION_FETCH, ACTION_FILTER, ACTION_LINK, ACTION_LIST, ACTION_MARK,
-    ACTION_SEARCH, ACTION_UNLINK, ACTION_UPDATE
+    ACTION_DOWNLOAD, ACTION_FETCH, ACTION_FILTER, ACTION_LIST, ACTION_MARK, ACTION_SEARCH,
+    ACTION_UPDATE
 )
 
 SECOND_OF_WEEK = 7 * 24 * 3600
@@ -335,22 +335,6 @@ actions_and_arguments = [
                 'kwargs': dict(metavar='server_name', help='nginx server name'),
             },
         ],
-    },
-    {
-        'action': ACTION_LINK,
-        'help': 'Combine two bangumi which not auto combined by bgmi',
-        'arguments': [{
-            'dest': 'bangumi_names',
-            'kwargs': dict(nargs='*'),
-        }],
-    },
-    {
-        'action': ACTION_UNLINK,
-        'help': 'Uncombine two bangumi which auto combined by bgmi',
-        'arguments': [{
-            'dest': 'bangumi_names',
-            'kwargs': dict(nargs='*'),
-        }],
     },
     {
         'action': ACTION_COMPLETE,

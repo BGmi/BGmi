@@ -11,17 +11,15 @@ import bgmi.config
 import bgmi.website
 from bgmi.lib.constants import (
     ACTION_ADD, ACTION_CAL, ACTION_CONFIG, ACTION_CONFIG_GEN, ACTION_DELETE, ACTION_DOWNLOAD,
-    ACTION_FETCH, ACTION_FILTER, ACTION_LINK, ACTION_LIST, ACTION_MARK, ACTION_SEARCH,
-    ACTION_UNLINK, ACTION_UPDATE, DOWNLOAD_CHOICE_LIST_DICT, SPACIAL_APPEND_CHARS,
-    SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE, actions_and_arguments
+    ACTION_FETCH, ACTION_FILTER, ACTION_LIST, ACTION_MARK, ACTION_SEARCH, ACTION_UPDATE,
+    DOWNLOAD_CHOICE_LIST_DICT, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE,
+    actions_and_arguments
 )
 from bgmi.lib.constants.actions import ACTION_COMPLETE, ACTION_HISTORY, ACTIONS
-from bgmi.lib.controllers import (
-    add, config_, delete, filter_, link, list_, mark, search, unlink, update
-)
+from bgmi.lib.controllers import add, config_, delete, filter_, list_, mark, search, update
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
-from bgmi.lib.models import Bangumi, BangumiLink, Followed
+from bgmi.lib.models import Bangumi, Followed
 from bgmi.logger import logger
 from bgmi.script import ScriptRunner
 from bgmi.utils import (
@@ -440,22 +438,6 @@ def config_gen(ret):
         print(template_with_content)
 
 
-def link_wrapper(ret):
-    if ret.bangumi_names:
-        link(*ret.bangumi_names)
-    print_info('linked bangumi:')
-    for l in BangumiLink.getLinkedBangumis():
-        print_info('- {} {}'.format(*l))
-
-
-def unlink_wrapper(ret):
-    if ret.bangumi_names:
-        unlink(*ret.bangumi_names)
-    print_info('unlinked bangumi:')
-    for l in BangumiLink.getUnlinkedBangumis():
-        print_info('- {} {}'.format(*l))
-
-
 CONTROLLERS_DICT = {
     ACTION_ADD: add_wrapper,
     ACTION_CAL: cal_wrapper,
@@ -468,11 +450,9 @@ CONTROLLERS_DICT = {
     ACTION_FILTER: filter_wrapper,
     ACTION_HISTORY: history,
     ACTION_LIST: list_wrapper,
-    ACTION_LINK: link_wrapper,
     ACTION_MARK: mark_wrapper,
     ACTION_SEARCH: search_wrapper,
     ACTION_UPDATE: update_wrapper,
-    ACTION_UNLINK: unlink_wrapper,
 }
 
 
