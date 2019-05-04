@@ -254,7 +254,12 @@ class DataSource:
 
         if data:
             bangumi = max(data, key=lambda _i: _i['episode'])
-            return bangumi, data
+
+            def set_name(item):
+                item['name'] = bangumi.name
+                return item
+
+            return bangumi, [set_name(x) for x in data]
         return {'episode': 0}, []
 
     def fetch_episode(self, filter_obj: Followed = None, bangumi_obj=None, max_page=int(MAX_PAGE)):
