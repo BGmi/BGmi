@@ -1,6 +1,6 @@
 [
   {
-    "bangumi_name": "海贼王",
+    "bangumi_id": 49,
     "episode": 0,
     "status": 1,
     "updated_time": null,
@@ -11,7 +11,7 @@
     "regex": ""
   },
   {
-    "bangumi_name": "名侦探柯南",
+    "bangumi_id": 41,
     "episode": 0,
     "status": 2,
     "updated_time": null,
