@@ -11,8 +11,7 @@ from bgmi.utils import normalize_path
 def get_player(bangumi_name):
     episode_list = {}
     # new path
-    if os.path.exists(os.path.join(SAVE_PATH, normalize_path(bangumi_name))):
-        bangumi_name = normalize_path(bangumi_name)
+    bangumi_name = normalize_path(bangumi_name)
     bangumi_path = os.path.join(SAVE_PATH, bangumi_name)
     path_walk = os.walk(bangumi_path)
 

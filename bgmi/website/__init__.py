@@ -1,8 +1,10 @@
+import html
 import time
 from collections import defaultdict
 from difflib import SequenceMatcher
+from functools import lru_cache
 from itertools import chain
-from typing import Dict, List
+from typing import Dict, Iterator, List
 
 import requests
 import stevedore
@@ -10,21 +12,32 @@ from hanziconv import HanziConv
 
 from bgmi import config
 from bgmi.config import MAX_PAGE
+from bgmi.lib.constants.namespace import PROVIDER_NAME_SPACE
 from bgmi.lib.models import (
     Bangumi, BangumiItem, Followed, Subtitle, combined_bangumi, db,
     get_updating_bangumi_with_data_source, model_to_dict, uncombined_bangumi
 )
 from bgmi.utils import full_to_half, print_info, print_warning, test_connection
-from bgmi.website.bangumi_moe import BangumiMoe
-from bgmi.website.mikan import Mikanani
-from bgmi.website.share_dmhy import DmhySource
+from bgmi.website.base import BaseWebsite
 
 THRESHOLD = 60
-DATA_SOURCE_MAP = {
-    'mikan_project': Mikanani(),
-    'bangumi_moe': BangumiMoe(),
-    'dmhy': DmhySource(),
-}
+
+
+@lru_cache(20)
+def get_provider(source) -> BaseWebsite:
+    return stevedore.DriverManager(
+        namespace=PROVIDER_NAME_SPACE,
+        name=source,
+        invoke_on_load=True,
+    ).driver
+
+
+def get_all_provider() -> Iterator[Dict[str, BaseWebsite]]:
+    mgr = stevedore.ExtensionManager(
+        namespace=PROVIDER_NAME_SPACE,
+        invoke_on_load=True,
+    )
+    yield from [(source_id, ext.obj) for (source_id, ext) in mgr.items()]
 
 
 def similarity_of_two_name(name1: str, name2: str):
@@ -84,7 +97,8 @@ def get_bgm_tv_calendar() -> list:
             # day['items'][index] = \
             bangumi_tv_weekly_list.append(
                 Bangumi(
-                    name=name,
+                    id=item['id'],
+                    name=html.unescape(name),
                     cover=images.get('large', images.get('common')) or '',
                     status=Bangumi.STATUS.UPDATING,
                     subject_id=item['id'],
@@ -99,7 +113,7 @@ def init_data() -> (Dict[str, list], Dict[str, list]):
     bangumi = {}  # type: Dict[str, List[BangumiItem]]
     subtitle = {}
 
-    for data_source_id, data_source in DATA_SOURCE_MAP.items():
+    for data_source_id, data_source in get_all_provider():
         if data_source_id in config.DISABLED_DATA_SOURCE:
             continue
         print_info('Fetching {}'.format(data_source_id))
@@ -162,18 +176,15 @@ class DataSource:
         # :type data: dict
         """
         b, obj_created = Bangumi.get_or_create(
-            name=data.name, defaults=model_to_dict(data, recurse=True)
+            subject_id=data.subject_id, defaults=model_to_dict(data, recurse=True)
         )  # type: (Bangumi, bool)
         if not obj_created:
             if b != data:
+                b.name = data.name
                 b.cover = data.cover
                 b.status = data.status
-                b.subject_id = data.subject_id
                 b.update_time = data.update_time
-                b.data_source = data.data_source
                 b.save()
-
-        # data.save()
 
     @staticmethod
     def save_data_bangumi_item(data: BangumiItem):
@@ -253,13 +264,13 @@ class DataSource:
             ]  # three month
 
         if data:
-            bangumi = max(data, key=lambda _i: _i['episode'])
+            ep_info = max(data, key=lambda _i: _i['episode'])
 
             def set_name(item):
                 item['name'] = bangumi.name
                 return item
 
-            return bangumi, [set_name(x) for x in data]
+            return ep_info, [set_name(x) for x in data]
         return {'episode': 0}, []
 
     def fetch_episode(self, filter_obj: Followed = None, bangumi_obj=None, max_page=int(MAX_PAGE)):
@@ -296,13 +307,8 @@ class DataSource:
                 data_source_to_subtitle_group[subtitle.data_source].add(subtitle.id)
             for item in available_source:
                 print_info('Fetching {} from {}'.format(item.name, item.data_source))
-                driver = stevedore.DriverManager(
-                    namespace='bgmi.data_source.provider',
-                    name=item.data_source,
-                    invoke_on_load=True,
-                )
                 # driver.driver
-                response_data += driver.driver.fetch_episode_of_bangumi(
+                response_data += get_provider(item.data_source).fetch_episode_of_bangumi(
                     bangumi_id=item.keyword,
                     subtitle_list=list(data_source_to_subtitle_group[item.data_source]),
                     max_page=max_page,
@@ -311,9 +317,9 @@ class DataSource:
         else:
             for source in available_source:
                 print_info('Fetching {} from {}'.format(name, source.data_source))
-                response_data += DATA_SOURCE_MAP[source.data_source].fetch_episode_of_bangumi(
-                    bangumi_id=source.keyword, max_page=max_page
-                )
+                response_data += get_provider(
+                    source.data_source
+                ).fetch_episode_of_bangumi(bangumi_id=source.keyword, max_page=max_page)
         for episode in response_data:
             episode['name'] = name
 
@@ -361,7 +367,7 @@ class DataSource:
         :return: list of episode search result
         :rtype: list[dict]
         """
-        return sum([s.search_by_keyword(keyword, count) for i, s in DATA_SOURCE_MAP.items()], [])
+        return sum([s.search_by_keyword(keyword, count) for _, s in get_all_provider()], [])
 
 
 def find_most_similar_index(container, name):

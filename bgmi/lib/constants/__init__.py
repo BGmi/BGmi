@@ -1,6 +1,6 @@
 import bgmi.config
 
-from . import kv
+from . import kv, namespace
 from .actions import (
     ACTION_ADD, ACTION_CAL, ACTION_COMPLETE, ACTION_CONFIG, ACTION_CONFIG_GEN, ACTION_DELETE,
     ACTION_DOWNLOAD, ACTION_FETCH, ACTION_FILTER, ACTION_LINK, ACTION_LIST, ACTION_MARK,
@@ -378,4 +378,4 @@ actions_and_arguments = [
     },
 ]
 
-__all__ = ['kv', 'actions_and_arguments']
+__all__ = ['kv', 'actions_and_arguments', 'namespace']

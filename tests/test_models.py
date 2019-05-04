@@ -44,6 +44,7 @@ class Base:
 
     def setUp(self):
         init_db()
+        # Followed.drop_table()
         Bangumi.delete().where(True).execute()
         Followed.delete().where(True).execute()
         BangumiItem.delete().where(True).execute()

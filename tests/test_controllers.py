@@ -6,7 +6,6 @@ from bgmi.lib import controllers
 from bgmi.lib.controllers import ControllerResult
 from bgmi.lib.models import Bangumi, Followed
 from bgmi.website.base import BaseWebsite
-from tests.mock_websites import MockDateSource
 from tests.test_models import Base
 
 
@@ -14,7 +13,6 @@ def w():
     return mock.Mock(spec=BaseWebsite)
 
 
-@mock.patch('bgmi.website.DATA_SOURCE_MAP', MockDateSource)
 class ControllersTest(Base, unittest.TestCase):
     """
     at the beginning of each test,

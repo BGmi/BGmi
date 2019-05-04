@@ -1,7 +1,7 @@
 import json
 from unittest import mock
 
-from bgmi.website import DATA_SOURCE_MAP
+from bgmi.website import get_all_provider
 from bgmi.website.base import BaseWebsite
 
 
@@ -10,7 +10,7 @@ def w():
 
 
 def fetch_data():
-    for key, value in DATA_SOURCE_MAP.items():
+    for key, value in get_all_provider():
         with open(
             './data/website/{}.fetch_bangumi_calendar_and_subtitle_group.json'.format(key),
             'w+',
@@ -70,4 +70,4 @@ class W(BaseWebsite):
         return episode_list
 
 
-MockDateSource = {key: W(website_id=key) for key in DATA_SOURCE_MAP}
+MockDateSource = {key: W(website_id=key) for key in get_all_provider()}

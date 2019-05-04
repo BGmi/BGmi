@@ -1,10 +1,9 @@
 import unittest
 
-import bgmi.utils.utils
 import bgmi.website
-
-# from bgmi.lib.fetch import website
-# from bgmi.website.base import BaseWebsite
+import bgmi.website.bangumi_moe
+import bgmi.website.mikan
+import bgmi.website.share_dmhy
 
 
 class BasicT:
@@ -55,16 +54,16 @@ class BasicT:
 class MikanProjectTest(BasicT, unittest.TestCase):
     bangumi_name_1 = '名侦探柯南'
     bangumi_name_2 = '海贼王'
-    w = bgmi.website.Mikanani()
+    w = bgmi.website.mikan.Mikanani()
 
 
 class DmhyTest(BasicT, unittest.TestCase):
     bangumi_name_1 = '名偵探柯南'
     bangumi_name_2 = '海賊王'
-    w = bgmi.website.DmhySource()
+    w = bgmi.website.share_dmhy.DmhySource()
 
 
 class BangumiMoeTest(BasicT, unittest.TestCase):
     bangumi_name_1 = '名侦探柯南'
     bangumi_name_2 = '海贼王'
-    w = bgmi.website.BangumiMoe()
+    w = bgmi.website.bangumi_moe.BangumiMoe()

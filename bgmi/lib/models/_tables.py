@@ -197,13 +197,10 @@ class Bangumi(NeoDB):
         return {key: model_to_dict(value) for key, value in dict(field).items()}
 
     def __eq__(self, data):
-        return self.cover == data.cover \
-            and self.status == data.status \
-            and self.subject_id == data.subject_id \
-            and self.update_time == data.update_time
-        # and self.to_d(self.data_source) == self.to_d(data.data_source)
-        # and self.subject_name == data.subject_name \
-        # and not set(set(self.bangumi_names) - set(data.bangumi_names)) \
+        return self.cover == data.cover and \
+            self.name == data.name and \
+            self.status == data.status and \
+            self.update_time == data.update_time
 
     def __hash__(self):
         return int(hashlib.sha1(self.name.encode()).hexdigest(), 16) % (10**8)
