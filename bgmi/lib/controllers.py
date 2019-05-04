@@ -444,7 +444,7 @@ def update(name, download=None, not_ignore=False):
         updated_bangumi_obj = []
         for i in name:
             try:
-                f = Followed.get(bangumi_name=i)
+                f = Followed.get_by_name(bangumi_name=i)
                 f = model_to_dict(f)
                 updated_bangumi_obj.append(f)
             except DoesNotExist:
