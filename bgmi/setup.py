@@ -33,7 +33,7 @@ def create_dir():
     path_to_create = (BGMI_PATH, SAVE_PATH, TMP_PATH, SCRIPT_PATH, TOOLS_PATH, FRONT_STATIC_PATH)
 
     if not os.environ.get('HOME', os.environ.get('USERPROFILE', None)):
-        print_warning('$HOME not set, use \'/tmp/\'')
+        print_warning('$HOME and $BGMI_PATH not set, use a tmp dir ' + BGMI_PATH)
 
     # bgmi home dir
     try:

@@ -1,11 +1,11 @@
 import logging
 import os
 
-from bgmi.config import LOG_PATH
+from bgmi import config
 
 
 def get_logger():
-    log_level = os.environ.get('BGMI_LOG') or 'INFO'
+    log_level = config.LOG_LEVEL
     log_level = log_level.upper()
     if log_level not in ['DEBUG', 'INFO', 'WARNING', 'ERROR']:
         print('log level error, will use default log level info')
@@ -13,7 +13,7 @@ def get_logger():
     _logger = logging.getLogger('BGmi')
     try:
         if not os.getenv('UNITTEST'):
-            h = logging.FileHandler(LOG_PATH, 'a+', 'utf-8')
+            h = logging.FileHandler(config.LOG_PATH, 'a+', 'utf-8')
             fmt = logging.Formatter(logging.BASIC_FORMAT)
             h.setFormatter(fmt)
             _logger.addHandler(h)

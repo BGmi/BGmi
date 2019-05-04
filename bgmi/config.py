@@ -3,6 +3,7 @@ import hashlib
 import os
 import platform
 import random
+import tempfile
 from functools import wraps
 
 import chardet
@@ -36,6 +37,7 @@ __all__ = (
     'DB_URL',
     'MAX_PAGE',
     'TMP_PATH',
+    'LOG_LEVEL',
     'DANMAKU_API_URL',
     'DISABLED_DATA_SOURCE',
     'LANG',
@@ -77,7 +79,7 @@ def get_bgmi_path():
         if IS_WINDOWS:
             _BGMI_PATH = os.path.join(os.environ.get('USERPROFILE', None), '.bgmi')
         else:
-            _BGMI_PATH = os.path.join(os.environ.get('HOME', '/tmp'), '.bgmi')
+            _BGMI_PATH = os.path.join(os.environ.get('HOME', tempfile.mkdtemp()), '.bgmi')
     else:  # pragma: no cover
         _BGMI_PATH = os.environ.get('BGMI_PATH')
     return _BGMI_PATH
@@ -127,12 +129,12 @@ def read_config():
     c = get_config_parser_and_read()
     for i in __writeable__:
         if c.has_option('bgmi', i):
-            v = os.getenv(i) or c.get('bgmi', i)
+            v = os.getenv('BGMI_' + i) or c.get('bgmi', i)
             globals().update({i: v})
 
     for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
         if c.has_option(DOWNLOAD_DELEGATE, i):
-            v = os.getenv(i) or c.get(DOWNLOAD_DELEGATE, i)
+            v = os.getenv('BGMI_' + i) or c.get(DOWNLOAD_DELEGATE, i)
             globals().update({i: v})
 
     read_keywords_weight_section(c)
@@ -297,6 +299,7 @@ TMP_PATH = os.path.join(BGMI_PATH, 'tmp')
 # log path
 LOG_PATH = os.path.join(TMP_PATH, 'bgmi.log')
 
+LOG_LEVEL = 'info'
 # Download delegate
 DOWNLOAD_DELEGATE = 'aria2-rpc'
 

@@ -152,6 +152,7 @@ def parse_episode(episode_title):
             if match and match[0].isdigit():
                 match = int(match[0])
                 if match > 1000:
+                    logger.debug('match from last loop')
                     spare = match
                 else:
                     logger.debug('match %s %s %s', i, regexp, match)
