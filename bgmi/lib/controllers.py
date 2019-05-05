@@ -474,8 +474,10 @@ def update(name, download=None, not_ignore=False):
     for i in Followed.get_all_followed():
         ids = []
         if i['updated_time'] and int(i['updated_time'] + 60 * 60 * 24) < now:
-            ids.append(i['id'])
-        Followed.update(status=Followed.STATUS.FOLLOWED).where(Followed.id.in_(ids)).execute()
+            ids.append(i['bangumi_id'])
+        Followed.update(status=Followed.STATUS.FOLLOWED).where(
+            Followed.bangumi_id.in_(ids)
+        ).execute()
 
     for script in ScriptRunner().scripts:
         obj = script.Model().obj
