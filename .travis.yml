@@ -23,10 +23,7 @@ env:
   global:
     - PYTHONIOENCODING=utf-8
     - TRAVIS_CI=TRAVIS_CI
-    - BGMI_LOG=debug
-    - BANGUMI_1=名侦探柯南
-    - BANGUMI_2=妖怪手表
-    - BANGUMI_3=海贼王
+
   # make matrix
   matrix:
     - DB=sqlite
@@ -42,20 +39,25 @@ matrix:
     - python: 'pypy3.5'
 
   include:
-    # todo: don't know how to install old python on osx
     - os: osx
+      name: 'test python3.6 on MacOS'
       language: generic
-      python: "3.7"
-      env: DB=sqlite
+      python: "3.6"
+      env:
+        - TRAVIS_PYTHON_VERSION=3.6
 
     - os: osx
+      name: 'test python3.7 on MacOS'
       language: generic
       python: "3.7"
-      env: DB=mysql
+      env:
+        - TRAVIS_PYTHON_VERSION=3.7
+
 
     - os: windows
       language: sh
       python: "3.7"
+      name: 'test python3.7 on Windows'
       before_install:
         - export TRAVIS_PYTHON_VERSION=3.7
         - choco config set cacheLocation $HOME/choco/cache
@@ -66,22 +68,12 @@ matrix:
     - os: windows
       language: sh
       python: "3.6"
+      name: 'test python3.6 on Windows'
       before_install:
         - export TRAVIS_PYTHON_VERSION=3.6
         - choco config set cacheLocation $HOME/choco/cache
         - choco install python --version 3.6.8
         - export PATH="/c/Python36:/c/Python36/Scripts:$PATH"
-        - python -m pip install --upgrade pip wheel;
-
-
-    - os: windows
-      language: sh
-      python: "3.5"
-      before_install:
-        - export TRAVIS_PYTHON_VERSION=3.5
-        - choco config set cacheLocation $HOME/choco/cache
-        - choco install python --version 3.5.4
-        - export PATH="/c/Python35:/c/Python35/Scripts:$PATH"
         - python -m pip install --upgrade pip wheel;
 
     - python: '3.7'
@@ -94,6 +86,7 @@ matrix:
 
     - python: '3.6'
       os: linux
+      name: 'Downloader aria2-rpc'
       env:
         - DOWNLOADER=aria2-rpc
       script:
@@ -101,6 +94,7 @@ matrix:
 
     - python: '3.6'
       os: linux
+      name: 'Downloader deluge-rpc'
       env:
         - DOWNLOADER=deluge-rpc
       script:
@@ -108,6 +102,7 @@ matrix:
 
     - python: '3.6'
       os: linux
+      name: 'Downloader deluge-rpc'
       env:
         - DOWNLOADER=transmission-rpc
       script:
@@ -115,108 +110,33 @@ matrix:
 
     - python: '3.6'
       os: linux
+      name: 'Build docs'
       script:
         - pip install -r docs/requirements.txt
         - cd docs
         - make html
 
+    - python: '3.6'
+      os: linux
+      name: 'Code Style'
+      script:
+        - pre-commit run --all-files
+
 before_cache:
-  - rm -f $HOME/.cache/pip/log/debug.log | true
-  - |
-    if [[ $TRAVIS_OS_NAME == "osx" ]]; then
-      brew cleanup
-    fi
+  - rm -f $HOME/.cache/pip/log/debug.log
+
 before_install:
   - |
     if [[ $TRAVIS_OS_NAME == "osx" ]]; then
-      export TRAVIS_PYTHON_VERSION=3.7;
-      brew update;
-      brew uninstall --ignore-dependencies numpy gdal postgis;
-      brew upgrade python3;
-      python3 -m pip install virtualenv;
-      virtualenv venv -p python3;
-      source venv/bin/activate;
-      if [[ "$DB" == "mysql" ]]; then
-        brew install mysql@5.7;
-        brew services start mysql@5.7;
-        brew link mysql@5.7 --force;
-        mysql -V;
-      fi
+      bash .ci/install_python_on_osx.bash
+      source $HOME/venv/bin/activate
     fi
 
 install:
-  - |
-    if [[ "$DB" == "mysql" ]]; then
-      mysql -u root -e 'CREATE DATABASE IF NOT EXISTS bgmi DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_general_ci;';
-    fi
-  - pip install -r requirements/dev.txt
-  - pip install codecov
-  - python setup.py sdist
-  - pip install --no-cache-dir dist/bgmi-*.tar.gz
-  - pip uninstall bgmi -y
-  - pip install -e .
-  - if [[ "$DB" == "mysql" ]]; then pip install pymysql; fi
+  - bash ./.ci/install.bash
 
 script:
-  - python --version
-  - pip freeze
-  - |
-    if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then
-        pre-commit run --all-files
-    fi
-  - coverage run -a -m bgmi install --no-web
-  - |
-    if [[ "$DB" == "mysql" ]]; then
-      bgmi config DB_URL 'mysql+pool://root:@127.0.0.1:3306/bgmi?charset=utf8mb4';
-      coverage run -a -m bgmi install --no-web;
-    fi
-
-  - bash <(curl -s https://codecov.io/bash) -c -F command
-
-  - bash tests/init_env_and_run_unit_test.sh test_website
-  - bash tests/init_env_and_run_unit_test.sh test_utils
-  - bash tests/init_env_and_run_unit_test.sh test_models
-#  - bash tests/init_env_and_run_unit_test.sh test_data_source
-  - bash tests/init_env_and_run_unit_test.sh test_controllers
-  - bash tests/init_env_and_run_unit_test.sh test_config
-  - bash tests/init_env_and_run_unit_test.sh test_download_delegate
-  #  - UNITTEST=1 BGMI_LOG=info coverage run -a -m unittest tests.test_http_api -v
-  - cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
-
-  - bash <(curl -s https://codecov.io/bash) -c -F unittests
-
-  - rm -rf ~/.bgmi | true
-  - coverage run -a -m bgmi install
-  - cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
-
-  - |
-    if [[ "$DB" == "mysql" ]]; then
-      bgmi config DB_URL 'mysql+pool://root:@127.0.0.1:3306/bgmi?charset=utf8mb4';
-      bgmi install --no-web;
-    fi
-
-  - bgmi -h
-  - coverage run -a -m bgmi gen nginx.conf --server-name _
-  - coverage run -a -m bgmi cal -f
-  - coverage run -a -m bgmi cal
-  - coverage run -a -m bgmi config
-  - coverage run -a -m bgmi config ADMIN_TOKEN 233
-  - coverage run -a -m bgmi config DOWNLOAD_DELEGATE 'aria2-rpc'
-  - coverage run -a -m bgmi add $BANGUMI_1 $BANGUMI_2 $BANGUMI_3
-  - coverage run -a -m bgmi update
-  - coverage run -a -m bgmi delete --name $BANGUMI_3
-  - coverage run -a -m bgmi delete --clear-all --batch
-  - coverage run -a -m bgmi add $BANGUMI_2 --episode 1
-  - coverage run -a -m bgmi fetch $BANGUMI_2
-  - coverage run -a -m bgmi list
-  - coverage run -a -m bgmi mark $BANGUMI_2 1
-  - coverage run -a -m bgmi update $BANGUMI_2
-  - coverage run -a -m bgmi filter $BANGUMI_2 --subtitle "" --exclude "MKV" --regex "720p|720P"
-  - coverage run -a -m bgmi fetch $BANGUMI_2
-  - coverage run -a -m bgmi search "海贼王" --regex-filter '.*MP4.*720P.*' --min-episode 800 --max-episode 900
-  - eval "$(coverage run -a -m bgmi complete)"
-
-  - bash <(curl -s https://codecov.io/bash) -c -F command
+  - bash ./.ci/script.bash
 
 after_success:
   - codecov
