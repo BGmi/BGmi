@@ -113,6 +113,13 @@ matrix:
       script:
         - bash .ci/tests/transmission.bash
 
+    - python: '3.6'
+      os: linux
+      script:
+        - pip install -r docs/requirements.txt
+        - cd docs
+        - make html
+
 before_cache:
   - rm -f $HOME/.cache/pip/log/debug.log | true
   - |
