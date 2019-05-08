@@ -53,28 +53,19 @@ matrix:
       env:
         - TRAVIS_PYTHON_VERSION=3.7
 
+    - os: windows
+      language: sh
+      python: "3.6"
+      name: 'test python3.6 on Windows'
+      env:
+        - TRAVIS_PYTHON_VERSION=3.6
 
     - os: windows
       language: sh
       python: "3.7"
       name: 'test python3.7 on Windows'
-      before_install:
-        - export TRAVIS_PYTHON_VERSION=3.7
-        - choco config set cacheLocation $HOME/choco/cache
-        - choco install python3
-        - export PATH="/c/Python37:/c/Python37/Scripts:$PATH"
-        - python -m pip install --upgrade pip wheel;
-
-    - os: windows
-      language: sh
-      python: "3.6"
-      name: 'test python3.6 on Windows'
-      before_install:
-        - export TRAVIS_PYTHON_VERSION=3.6
-        - choco config set cacheLocation $HOME/choco/cache
-        - choco install python --version 3.6.8
-        - export PATH="/c/Python36:/c/Python36/Scripts:$PATH"
-        - python -m pip install --upgrade pip wheel;
+      env:
+        - TRAVIS_PYTHON_VERSION=3.7
 
     - python: '3.7'
       dist: xenial
@@ -130,6 +121,22 @@ before_install:
     if [[ $TRAVIS_OS_NAME == "osx" ]]; then
       bash .ci/install_python_on_osx.bash
       source $HOME/venv/bin/activate
+    fi
+  - |
+    if [[ $TRAVIS_OS_NAME == "windows" ]]; then
+      choco config set cacheLocation $HOME/choco/cache
+
+      if [[ $TRAVIS_PYTHON_VERSION == "3.7" ]];then
+        choco install python --version 3.7.3
+      elif [[ $TRAVIS_PYTHON_VERSION == '3.6' ]];then
+        choco install python --version 3.6.8
+      else
+        travis_terminate
+      fi
+
+      v=$TRAVIS_PYTHON_VERSION
+      export PATH="/c/Python${v/./}:/c/Python${v/./}/Scripts:$PATH"
+      python -m pip install --upgrade pip wheel;
     fi
 
 install:
