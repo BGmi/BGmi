@@ -11,6 +11,9 @@ from bgmi.utils import exec_command, print_error, print_info, print_success, pri
 
 
 def install_crontab():
+    if os.getenv('BGMI_IN_DOCKER'):
+        print_warning('env BGMI_IN_DOCKER exists, skip install crontab')
+        return
     print_info('Installing crontab job')
     if IS_WINDOWS:
         base = os.path.join(os.path.dirname(__file__), 'others\\windows\\cron')

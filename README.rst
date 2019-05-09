@@ -79,14 +79,6 @@ Or:
 
     pip install bgmi[mysql] # will use pymysql as driver
 
-Or use docker:
-
-.. code-block:: bash
-
-    docker pull ricterz/bgmi:3
-    # add this to your bashrc to avoid alias this every times
-    alias bgmi='docker run -v $HOME/.bgmi:$HOME/.bgmi ricterz/bgmi'
-
 Init BGmi database and install BGmi web interface:
 
 .. code-block:: bash
@@ -116,26 +108,27 @@ Build Docker:
 
     git clone https://github.com/BGmi/BGmi
     cd BGmi
+    # dev branch not working now
+    git checkout dev
     docker build -t bgmi .
+
+    alias bgmi='docker run -e BGMI_PATH=$HOME/.bgmi -v $HOME/.bgmi:$HOME/.bgmi --net host bgmi'
+    alias bgmi_http='docker run -p 127.0.0.1:8888:8888 -e BGMI_PATH=$HOME/.bgmi -v $HOME/.bgmi:$HOME/.bgmi --net host bgmi'
+    # bootstrap bgmi
+    bgmi install
     # start bgmi http server in back ground
-    docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi bgmi
-    alias bgmi='docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi bgmi'
+    bgmi_http
 
-Or pull from docker register:
 
-.. code-block:: bash
-
-    docker pull ricterz/bgmi
-    # start bgmi http server in back ground
-    docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi ricterz/bgmi
-    alias bgmi='docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi ricterz/bgmi'
+Make sure that docker env ``BGMI_PATH`` in docker is same as the path on host.
+Because bgmi will tell downloader to download file in ``$BGMI_PATH/bangumi``.
+So it must be same inside or outside the docker
 
 Then use docker image as same as bgmi installed with pip:
 
 .. code-block:: bash
 
-    bgmi install
-    bgmi cal
+    bgmi cal --download-cover
 
 =============
 Usage of bgmi

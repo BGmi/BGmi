@@ -208,9 +208,6 @@ class DataSource:
 
         :param save: set true to enable save bangumi data to database
         :type save: bool
-
-        :param cover: list of cover url (of scripts) want to download
-        :type cover: bool
         """
         if force_update and not test_connection():
             force_update = False

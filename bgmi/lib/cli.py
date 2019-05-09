@@ -15,7 +15,7 @@ from bgmi.lib.constants import (
     DOWNLOAD_CHOICE_LIST_DICT, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE,
     actions_and_arguments
 )
-from bgmi.lib.constants.actions import ACTION_COMPLETE, ACTION_HISTORY, ACTIONS
+from bgmi.lib.constants.actions import ACTION_COMPLETE, ACTION_HISTORY, ACTION_SERVE, ACTIONS
 from bgmi.lib.controllers import add, config_, delete_, filter_, list_, mark, search, update
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
@@ -429,6 +429,11 @@ def config_gen(ret):
         print(template_with_content)
 
 
+def serve(ret):
+    from bgmi.front.server import main
+    main()
+
+
 CONTROLLERS_DICT = {
     ACTION_ADD: add_wrapper,
     ACTION_CAL: cal_wrapper,
@@ -444,6 +449,7 @@ CONTROLLERS_DICT = {
     ACTION_MARK: mark_wrapper,
     ACTION_SEARCH: search_wrapper,
     ACTION_UPDATE: update_wrapper,
+    ACTION_SERVE: serve,
 }
 
 

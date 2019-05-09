@@ -113,6 +113,15 @@ matrix:
       script:
         - pre-commit run --all-files
 
+    - os: linux
+      name: Test build and run docker
+      before_install: false
+      install: false
+      script:
+        - docker build -t bgmi .
+        - docker run -v $HOME/.bgmi:/bgmi --net host bgmi install
+        - ls $HOME/.bgmi
+
 before_cache:
   - rm -f $HOME/.cache/pip/log/debug.log
 

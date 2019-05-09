@@ -4,7 +4,7 @@ from . import kv
 from .actions import (
     ACTION_ADD, ACTION_CAL, ACTION_COMPLETE, ACTION_CONFIG, ACTION_CONFIG_GEN, ACTION_DELETE,
     ACTION_DOWNLOAD, ACTION_FETCH, ACTION_FILTER, ACTION_LIST, ACTION_MARK, ACTION_SEARCH,
-    ACTION_UPDATE
+    ACTION_SERVE, ACTION_UPDATE
 )
 
 SECOND_OF_WEEK = 7 * 24 * 3600
@@ -341,6 +341,20 @@ actions_and_arguments = [
         'help': 'Gen completion, `eval "$(bgmi complete)"` or `eval "$(bgmi complete|dos2unix)"`',
     },
     {
+        'action': ACTION_SERVE,
+        'help': 'Run bgmi front server',
+        'arguments': [
+            {
+                'dest': '--host',
+                'kwargs': dict(),
+            },
+            {
+                'dest': '--port',
+                'kwargs': dict(type=int, ),
+            },
+        ],
+    },
+    {
         'action': 'install',
         'help': 'Install BGmi front / admin / download delegate',
         'arguments': [
@@ -349,6 +363,10 @@ actions_and_arguments = [
                 'kwargs': dict(
                     action='store_false', dest='install_web', help='Download web static file.'
                 ),
+            },
+            {
+                'dest': '--no-cron',
+                'kwargs': dict(action='store_false', dest='install_cron', help='Install crontab.'),
             },
         ],
     },
@@ -368,4 +386,9 @@ class NameSpace:
     download_delegate = 'bgmi.downloader.delegate'
 
 
-__all__ = ['kv', 'actions_and_arguments', 'NameSpace']
+__all__ = (
+    'kv', 'actions_and_arguments', 'NameSpace', 'ACTION_ADD', 'ACTION_CAL', 'ACTION_CONFIG',
+    'ACTION_CONFIG_GEN', 'ACTION_DELETE', 'ACTION_DOWNLOAD', 'ACTION_FETCH', 'ACTION_FILTER',
+    'ACTION_LIST', 'ACTION_MARK', 'ACTION_SEARCH', 'ACTION_UPDATE', 'DOWNLOAD_CHOICE_LIST_DICT',
+    'SPACIAL_APPEND_CHARS', 'SPACIAL_REMOVE_CHARS', 'SUPPORT_WEBSITE', 'SECOND_OF_WEEK'
+)

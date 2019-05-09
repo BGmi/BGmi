@@ -42,15 +42,26 @@ def main(argv=None, program_name='bgmi'):
     c.prog = program_name
     ret = c.parse_args(argv)
     if ret.action == 'install':
+        print('Installing bgmi')
         setup()
+        init_db()
+
         import bgmi.setup
         bgmi.setup.install()
+        get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = int(time.time())
         if ret.install_web:
             get_web_admin(method='install')
         else:
             print_info('skip downloading web static files')
-        init_db()
-        get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = int(time.time())
+        if os.getenv('BGMI_IN_DOCKER'):
+            print_warning('Seems you are using bgmi in docker')
+            print_warning(
+                'add '
+                '`alias bgmi="docker run -v $HOME/.bgmi:/bgmi --net host  bgmi" `'
+                ' in your bashrc\n'
+                'and you need to add bgmi to crontab by your self'
+            )
+        # get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = int(time.time())
     elif ret.action == 'upgrade':
         create_dir()
         upgrade_version()

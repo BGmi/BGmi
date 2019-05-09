@@ -282,7 +282,7 @@ bgmi gen nginx.conf --server-name bgmi.whatever.com
 
 你也可以手动写一份nginx配置, 来满足你的更多需求(比如启用https), 这是一份例子
 
-```bash
+```conf
 server {
     listen 80;
     server_name bgmi;
@@ -369,18 +369,14 @@ Example:
 import re
 import json
 import requests
-import urllib
+import urllib.parse
 
 from bgmi.utils import parse_episode
 from bgmi.script import ScriptBase
 from bgmi.utils import print_error
-from bgmi.config import IS_PYTHON3
 
 
-if IS_PYTHON3:
-    unquote = urllib.parse.unquote
-else:
-    unquote = urllib.unquote
+unquote = urllib.parse.unquote
 
 
 class Script(ScriptBase):
@@ -523,7 +519,7 @@ if __name__ == '__main__':
 每个方法具体的意义和返回值格式请参照每个方法对应的注释
 
 ```python
-class DataSource(bgmi.website.base.BaseWebsite)
+class DataSource(bgmi.website.base.BaseWebsite):
     cover_url=''
 
     def search_by_keyword(self, keyword, count):
