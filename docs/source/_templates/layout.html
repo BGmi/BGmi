@@ -2,3 +2,11 @@
 {% block extrahead %}
     <link href="{{ pathto("_static/style.css", True) }}" rel="stylesheet" type="text/css">
 {% endblock %}
+{%- block footer %}
+    {{ super() }}
+    <script>
+        $(document).ready(function () {
+            $("a[href^='http']").attr('target', '_blank');
+        });
+    </script>
+{% endblock %}

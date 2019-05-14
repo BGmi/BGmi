@@ -7,7 +7,9 @@ from bgmi.utils import normalize_path, parse_episode
 
 class BaseWebsite(ABC):
     cover_url = ''
-    source_id = ''
+    """
+    cover url base. bangumi cover url will be
+    """
     parse_episode = staticmethod(parse_episode)
 
     def get_bangumi_calendar_and_subtitle_group(self):
@@ -28,9 +30,13 @@ class BaseWebsite(ABC):
         return a list of all bangumi and a list of all subtitle group
 
         list of bangumi dict:
-        update time should be one of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-        example:
-        ```
+        update time should be one of ``['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']``
+        (``bgmi.lib.models._tables.Bangumi.week``)
+
+        final cover url will be ``self.cover_url + item['cover']``
+
+        .. code-block:: python
+
             [
                 {
                     "status": 0,
@@ -44,18 +50,17 @@ class BaseWebsite(ABC):
                     "cover": "data/images/cover1.jpg"
                 },
             ]
-        ```
 
         list of subtitle group dict:
-        example:
-        ```
+
+        .. code-block:: python
+
             [
                 {
                     'id': '233',
                     'name': 'bgmi字幕组'
                 }
             ]
-        ```
 
 
         :return: list of bangumi, list of subtitile group
@@ -70,7 +75,8 @@ class BaseWebsite(ABC):
         """
         get all episode by bangumi id
         example
-        ```
+
+        .. code-block:: python
             [
                 {
                     "download": "magnet:?xt=urn:btih:e43b3b6b53dd9fd6af1199e112d3c7ff15cab82c",
@@ -80,7 +86,6 @@ class BaseWebsite(ABC):
                     "time": 1503301292
                 },
             ]
-        ```
 
         :param bangumi_id: bangumi_id
         :param subtitle_list: list of subtitle group
@@ -95,9 +100,12 @@ class BaseWebsite(ABC):
     @abstractmethod
     def search_by_keyword(self, keyword, count=None):
         """
-        return a list of dict with at least 4 key: download, name, title, episode
-        example:
-        ```
+        search torrent by arguments.
+        return a list of dict with at least 4 key: download, name, title, episode.
+        Other keys are omitted.
+
+        .. code-block:: python
+
             [
                 {
                     'name':"路人女主的养成方法",
@@ -106,7 +114,7 @@ class BaseWebsite(ABC):
                     'episode': 12
                 },
             ]
-        ```
+
         :param keyword: search key word
         :type keyword: str
         :param count: how many page to fetch from website

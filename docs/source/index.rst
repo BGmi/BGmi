@@ -19,10 +19,11 @@ Feature
 + 关键词, 字幕组或者正则过滤器
 + Windows和Linux系统支持
 
-
 .. toctree::
 
     config
     cli
     controllers
     http_api
+    plugins
+    data_source_base

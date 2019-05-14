@@ -2,16 +2,11 @@
 ========
 
 设定环境变量
------------
+-------------
 
 .. py:data:: BGMI_PATH
 
    所有持久化的数据, 比如配置文件 ``bgmi.cfg`` 数据库 ``bangumi.db``.
-
-.. py:data:: BGMI_LOG
-
-    日志等级, 可以设置为 ``debug`` , ``info`` (默认), ``warning``, ``error`` .
-    日志文件会保存在 :py:data:`TMP_PATH` ``/bgmi.log``
 
 .. py:data:: DEBUG
 
@@ -35,7 +30,7 @@
 
 
 通过命令或者直接修改配置文件
--------------------------
+----------------------------
 
 显示当前设置
 
@@ -73,7 +68,7 @@
 .. py:data:: DB_URL
 
     参照
-    `peewee#database-url <https://docs.peewee-orm.com/en/latest/peewee/playhouse.html#database-url>`_,
+    `peewee#database-url <https://peewee.readthedocs.io/en/latest/peewee/playhouse.html#database-url>`_,
     默认会使用sqlite
 
 .. py:data:: MAX_PAGE
@@ -147,11 +142,10 @@ example:
 第三个种子权重最高, 所以会下载第三个种子.
 
 各种下载方法相关的设置
---------------------
+-----------------------
 
 Aria2-rpc
 ~~~~~~~~~
-
 
 .. py:data:: ARIA2_RPC_URL
 
