@@ -10,9 +10,6 @@ from bgmi.front.admin import API_MAP_GET, API_MAP_POST, AdminApiHandler, UpdateH
 from bgmi.front.index import BangumiListHandler, IndexHandler
 from bgmi.front.resources import BangumiHandler, CalendarHandler, RssHandler
 
-define('port', default=8888, help='listen on the port', type=int)
-define('address', default='0.0.0.0', help='binding at given address', type=str)
-
 API_ACTIONS = '{}|{}'.format('|'.join(API_MAP_GET.keys()), '|'.join(API_MAP_POST.keys()))
 
 
@@ -50,6 +47,8 @@ def make_app(**kwargs):
 
 
 def main():
+    define('port', default=8888, help='listen on the port', type=int)
+    define('address', default='0.0.0.0', help='binding at given address', type=str)
     tornado.options.parse_command_line()
     print('BGmi HTTP Server listening on %s:%d' % (options.address, options.port))
     http_server = tornado.httpserver.HTTPServer(make_app())

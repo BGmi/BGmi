@@ -1,6 +1,5 @@
 import unittest
 
-import bgmi.website
 import bgmi.website.bangumi_moe
 import bgmi.website.mikan
 import bgmi.website.share_dmhy

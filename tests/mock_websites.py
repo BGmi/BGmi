@@ -32,7 +32,6 @@ class W(BaseWebsite):
 
     def __init__(self, website_id):
         self.website_id = website_id
-        pass
 
     def fetch_bangumi_calendar_and_subtitle_group(self):
         with open(

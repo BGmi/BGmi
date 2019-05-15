@@ -51,7 +51,6 @@ def parse_bangumi_with_week_days(content, update_time, array_name):
             })
 
             bangumi['subtitle_group'].append(subtitle_group_id)
-            pass
 
         bangumi['name'] = name
         bangumi['update_time'] = update_time
@@ -164,7 +163,6 @@ class DmhySource(BaseWebsite):
             (b_list, s_list) = parse_bangumi_with_week_days(r, update_time, array_name)
             bangumi_list.extend(b_list)
             subtitle_list.extend(s_list)
-            pass
 
         # fetch subtitle
         url = base_url + '/team/navigate/'

@@ -37,7 +37,6 @@ class Aria2cTest(unittest.TestCase):
         :param data:
         :return:
         """
-        pass
 
     def test_save_to_bangumi_download_queue(self):
         """
@@ -51,4 +50,3 @@ class Aria2cTest(unittest.TestCase):
         :param data:
         :return:
         """
-        pass

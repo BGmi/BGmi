@@ -20,6 +20,8 @@ from bgmi.lib.models import (
 from bgmi.utils import full_to_half, parallel, print_info, print_warning, test_connection
 from bgmi.website.base import BaseWebsite
 
+from . import bangumi_moe, base, mikan, share_dmhy
+
 THRESHOLD = 60
 
 
@@ -392,6 +394,4 @@ def bind_bangumi_item_in_db_to_bangumi():
                & (Bangumi.status == Bangumi.STATUS.UPDATING)).execute()
 
 
-if __name__ == '__main__':
-    website = DataSource()
-    website.fetch()
+__all__ = ['mikan', 'bangumi_moe', 'share_dmhy', 'base', 'DataSource']

@@ -61,6 +61,11 @@
 
     日志等级，应该为 ``debug``，``info``，``warning``，``error``
 
+.. warning::
+
+    ``BGmi`` 使用logger同时向stdout和文件输出信息，
+    这个设置只能设置输出到文件的日志等级，要禁用控制台输出可以设置环境变量 ``UNITTEST=1``。
+
 .. py:data:: DOWNLOAD_DELEGATE
 
     下载工具, 使用 ``aria2-rpc`` ,  ``transmission-rpc`` 或者 ``deluge-rpc``.

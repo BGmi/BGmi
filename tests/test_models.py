@@ -198,7 +198,6 @@ class SubtitleTest(Base, TestCase):
         todo: need to fix this
         :type bangumi_obj: Bangumi
         """
-        pass
         r = [{'123': '456'}]
 
         class B(Bangumi):

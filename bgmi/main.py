@@ -83,7 +83,3 @@ def setup():
 
     create_dir()
     install_crontab()
-
-
-if __name__ == '__main__':
-    main()

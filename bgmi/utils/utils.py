@@ -12,7 +12,6 @@ from io import BytesIO
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from shutil import move, rmtree
-from threading import Lock
 from typing import TextIO, Union
 
 import requests
@@ -36,45 +35,35 @@ else:
 FRONTEND_NPM_URL = 'https://{}/bgmi-frontend/'.format(NPM_REGISTER_DOMAIN)
 PACKAGE_JSON_URL = 'https://{}/bgmi-frontend/{}'.format(NPM_REGISTER_DOMAIN, __admin_version__)
 
-_lock = Lock()
-
 
 @disable_in_test
 @_indicator
 @colorize
 def print_info(message, indicator=True):
-    with _lock:
-        logger.info(message)
-        print(message)
+    logger.info(message)
 
 
 @disable_in_test
 @_indicator
 @colorize
 def print_success(message, indicator=True, **kwargs):
-    with _lock:
-        logger.info(message)
-        print(message, **kwargs)
+    logger.info(message)
 
 
 @disable_in_test
 @_indicator
 @colorize
 def print_warning(message, indicator=True, **kwargs):
-    with _lock:
-        logger.warning(message)
-        print(message, **kwargs)
+    logger.warning(message)
 
 
 @disable_in_test
 @_indicator
 @colorize
 def print_error(message, exit_=True, indicator=True, **kwargs):
-    with _lock:
-        logger.error(message)
-        print(message, **kwargs)
-        if exit_:
-            exit(1)
+    logger.error(message)
+    if exit_:
+        exit(1)
 
 
 def print_version():
@@ -111,7 +100,7 @@ def get_terminal_col():  # pragma: no cover
         import termios
 
         _, col, _, _ = struct.unpack(
-            str('HHHH'), fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack(str('HHHH'), 0, 0, 0, 0))
+            'HHHH', fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0, 0))
         )
 
         return col

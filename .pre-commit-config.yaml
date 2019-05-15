@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.2.1
+    rev: v2.2.3
     hooks:
       - id: check-merge-conflict
       - id: trailing-whitespace
@@ -21,6 +21,7 @@ repos:
       - id: double-quote-string-fixer
       - id: fix-encoding-pragma
         args: [--remove]
+
   - repo: https://github.com/pycqa/flake8
     rev: 3.7.7
     hooks:
@@ -31,14 +32,25 @@ repos:
     hooks:
       - id: validate_manifest
 
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v1.16.1
-    hooks:
-      - id: pyupgrade
-        args: ['--py3-only',]
-
   - repo: local
     hooks:
+
+      - id: autoflake
+        name: autoflake
+        entry: autoflake
+        require_serial: true
+        language: python
+        types: [python]
+        args: ['--in-place', '--remove-unused-variables', '--remove-all-unused-imports']
+
+      - id: pyupgrade
+        name: pyupgrade
+        entry: pyupgrade
+        require_serial: true
+        language: python
+        types: [python]
+        args: ['--py3-only']
+
       - id: isort
         name: isort
         entry: isort
@@ -46,8 +58,6 @@ repos:
         language: python
         types: [python]
 
-  - repo: local
-    hooks:
       - id: yapf
         name: yapf
         entry: yapf -i
