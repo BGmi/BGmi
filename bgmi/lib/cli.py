@@ -54,13 +54,8 @@ def config_wrapper(ret):
 
     result = config_(ret.name, ret.value)
     result.print()
-    # if (not ret.name) and (not ret.value):
-    #     print(result['message'])
-    # else:
     if ret.name == 'DB_URL' and ret.value:
         print_info('you are editing DB_URL, please run `bgmi install` to init db')
-
-        # globals()["print_{}".format(result['status'])](result['message'])
 
 
 def search_wrapper(ret):
@@ -222,7 +217,6 @@ def filter_wrapper(ret):
         exclude=ret.exclude,
         regex=ret.regex
     )
-    print(result)
     result.print()
     if result.data:
         print_info('Usable subtitle group: {}'.format(result.data['subtitle_group']))
