@@ -76,6 +76,11 @@
     `peewee#database-url <https://peewee.readthedocs.io/en/latest/peewee/playhouse.html#database-url>`_,
     默认会使用sqlite
 
+.. warning::
+
+    使用mysql的时候，会报warning ``(1300, "Invalid utf8mb4 character string: '800495'")``
+    这是一个上游的bug，并且不知道什么时候才会被修复 :issue:`PyMySQL/PyMySQL#644`
+
 .. py:data:: MAX_PAGE
 
     当抓取数据源的时候最大的抓取页数

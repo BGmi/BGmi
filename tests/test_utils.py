@@ -133,7 +133,7 @@ class UtilsTest(unittest.TestCase):
                 ), 'tarball': SimpleNamespace(content='tarball content')
             }
             m.side_effect = lambda x: request_map[x]
-            utils.get_web_admin('install')
+            utils.get_web_admin()
             unzip.assert_called_with(
                 'tarball content', {'version': '1.2.3', 'dist': {'tarball': 'tarball'}}
             )

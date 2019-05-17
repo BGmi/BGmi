@@ -14,7 +14,6 @@ from bgmi import config
 from bgmi.lib.constants import SECOND_OF_WEEK
 
 from ._db import FuzzyMixIn, NeoDB, db
-from ._fields import SubtitleField
 
 
 class BangumiItem(pw.Model):
@@ -38,7 +37,7 @@ class BangumiItem(pw.Model):
     cover = pw.CharField()  # type: str
     status = pw.IntegerField()  # type: int
     update_time = pw.FixedCharField(5, null=False)  # type: str
-    subtitle_group = SubtitleField()  # type: List[str]
+    subtitle_group = pw.TextField()  # type: str
     keyword = pw.CharField()  # type: str
     data_source = pw.FixedCharField(max_length=30)  # type: str
     # foreign key
@@ -52,8 +51,8 @@ class BangumiItem(pw.Model):
         return getattr(self, item)
 
     def __init__(self, *args, **kwargs):
-        if isinstance(kwargs.get('subtitle_group'), str):
-            kwargs['subtitle_group'] = [x.strip() for x in kwargs['subtitle_group'].split(',')]
+        if isinstance(kwargs.get('subtitle_group'), list):
+            kwargs['subtitle_group'] = ', '.join(kwargs.get('subtitle_group'))
         super().__init__(*args, **kwargs)
         update_time = kwargs.get('update_time', '').title()
         if update_time and update_time not in Bangumi.week:
@@ -221,10 +220,10 @@ class Followed(NeoDB):
     updated_time = pw.IntegerField(null=True)
 
     # followed filter
-    data_source = SubtitleField(default=[])  # type:List
-    subtitle = SubtitleField(default=[])  # type:List
-    include = SubtitleField(default=[])  # type:List
-    exclude = SubtitleField(default=[])  # type:List
+    data_source = pw.TextField(default='')  # type:str
+    subtitle = pw.TextField(default='')  # type:str
+    include = pw.TextField(default='')  # type:str
+    exclude = pw.TextField(default='')  # type: str
     regex = pw.CharField(null=False, default='')  # type: str
 
     class STATUS(IntEnum):
@@ -272,15 +271,15 @@ class Followed(NeoDB):
         if self.include:
 
             def f1(s):
-                return all(map(lambda t: t in s['title'], self.include))
+                return all(map(lambda t: t in s['title'], split_str_to_list(self.include)))
 
             episode_list = list(filter(f1, episode_list))
         return episode_list
 
     def apply_exclude(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
-        exclude = self.exclude
+        exclude = split_str_to_list(self.exclude)
         if config.ENABLE_GLOBAL_FILTER != '0':
-            exclude += [x.strip() for x in config.GLOBAL_FILTER.split(',')]
+            exclude += split_str_to_list(config.GLOBAL_FILTER)
         exclude.append('合集')
 
         def f2(s):
@@ -309,6 +308,10 @@ class Followed(NeoDB):
             import warnings
             warnings.warn('should use Followed.get(id=bangumi_obj.id) instead of get by name')
         return cls.get(bangumi_id=Bangumi.get(name=bangumi_name).id)
+
+
+def split_str_to_list(s: str) -> List[str]:
+    return [x.strip() for x in s.split(',')]
 
 
 class Download(NeoDB):
@@ -377,7 +380,7 @@ class Subtitle(NeoDB):
         source = list(data_source.keys())
         condition = list()
         for s in source:
-            condition.append((Subtitle.id.in_(data_source[s]['subtitle_group']))
+            condition.append((Subtitle.id.in_(split_str_to_list(data_source[s]['subtitle_group'])))
                              & (Subtitle.data_source == s))
         if len(condition) > 1:
             tmp_c = condition[0]

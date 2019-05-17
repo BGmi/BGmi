@@ -14,6 +14,7 @@ import chardet
 # platform
 IS_WINDOWS = platform.system() == 'Windows'
 SHOW_WARNING = bool(os.getenv('DEV') or os.getenv('DEBUG'))
+SOURCE_ROOT = os.path.dirname(__file__)
 
 # ------- Read-Only End -------- #
 
@@ -38,6 +39,7 @@ __all__ = (
     'MAX_PAGE',
     'TMP_PATH',
     'LOG_LEVEL',
+    'SOURCE_ROOT',
     'DANMAKU_API_URL',
     'DISABLED_DATA_SOURCE',
     'LANG',
@@ -55,6 +57,7 @@ __readonly__ = (
     'KEYWORDS_WEIGHT',
     'SHOW_WARNING',
     'BGMI_PATH',
+    'SOURCE_ROOT',
     'CONFIG_FILE_PATH',
     'TOOLS_PATH',
     'SCRIPT_PATH',

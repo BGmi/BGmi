@@ -1,20 +1,14 @@
 import argparse
 import os
-import time
 
 import peewee
 
-from bgmi.config import BGMI_PATH
-from bgmi.lib import constants
+import bgmi
+import bgmi.setup
 from bgmi.lib.cli import controllers
 from bgmi.lib.constants import actions_and_arguments
-from bgmi.lib.models import get_kv_storage
 from bgmi.lib.update import upgrade_version
-from bgmi.setup import create_dir, install_crontab
-from bgmi.sql import init_db
-from bgmi.utils import (
-    check_update, get_web_admin, print_error, print_info, print_version, print_warning
-)
+from bgmi.utils import check_update, print_error, print_version
 
 
 def get_arg_parser():
@@ -41,31 +35,15 @@ def main(argv=None, program_name='bgmi'):
     c = get_arg_parser()
     c.prog = program_name
     ret = c.parse_args(argv)
-    if ret.action == 'install':
-        print('Installing bgmi')
-        setup()
-        init_db()
 
-        import bgmi.setup
-        bgmi.setup.install()
-        get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = int(time.time())
-        if ret.install_web:
-            get_web_admin(method='install')
-        else:
-            print_info('skip downloading web static files')
-        if os.getenv('BGMI_IN_DOCKER'):
-            print_warning('Seems you are using bgmi in docker')
-            print_warning(
-                'add '
-                '`alias bgmi="docker run -v $HOME/.bgmi:/bgmi --net host  bgmi" `'
-                ' in your bashrc\n'
-                'and you need to add bgmi to crontab by your self'
-            )
-        # get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = int(time.time())
+    if ret.action == 'install':
+        bgmi.setup.install(ret)
+
     elif ret.action == 'upgrade':
-        create_dir()
+        bgmi.setup.create_dir()
         upgrade_version()
         check_update(mark=False)
+
     else:
         try:
             check_update()
@@ -75,11 +53,3 @@ def main(argv=None, program_name='bgmi'):
             print_error('call `bgmi install` to install bgmi')
 
         controllers(ret)
-
-
-def setup():
-    if not os.path.exists(BGMI_PATH):
-        print_warning('BGMI_PATH %s does not exist, installing' % BGMI_PATH)
-
-    create_dir()
-    install_crontab()

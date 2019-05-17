@@ -1,3 +1,4 @@
 from bgmi.main import main
 
-main(program_name='python -m bgmi')
+if __name__ == '__main__':
+    main(program_name='python -m bgmi')

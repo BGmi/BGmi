@@ -273,10 +273,14 @@ class DataSource:
         """
         max_page = int(max_page)
         response_data = []
-        available_source = [
-            x for x in BangumiItem.select().where(BangumiItem.bangumi == bangumi_obj.id)
-            if x.data_source not in config.DISABLED_DATA_SOURCE
-        ]  # type: List[BangumiItem]
+
+        available_source = []
+        for x in BangumiItem.select().where(BangumiItem.bangumi == bangumi_obj.id):
+            if x.data_source not in config.DISABLED_DATA_SOURCE and (
+                not filter_obj.data_source or x.data_source in filter_obj.data_source
+            ):
+                available_source.append(x)
+
         bangumi_items = {}
         for item in available_source:
             bangumi_items[item.data_source] = item

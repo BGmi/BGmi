@@ -222,7 +222,7 @@ def filter_wrapper(ret):
         exclude=ret.exclude,
         regex=ret.regex
     )
-
+    print(result)
     result.print()
     if result.data:
         print_info('Usable subtitle group: {}'.format(result.data['subtitle_group']))
@@ -463,13 +463,11 @@ def controllers(ret):
 
 def print_filter(followed_filter_obj: Followed):
     def j(x):
-        if x:
-            return ', '.join(x)
-        return 'None'
+        return x or 'None'
 
     print_info('Followed subtitle group: {}'.format(j(followed_filter_obj.subtitle)))
     print_info('Followed data sources: {}'.format(j(followed_filter_obj.data_source)))
     print_info('Include keywords: {}'.format(j(followed_filter_obj.include)))
     print_info('Exclude keywords: {}'.format(j(followed_filter_obj.exclude)))
-    print_info('Regular expression: {}'.format(followed_filter_obj.regex))
+    print_info('Regular expression: {}'.format(j(followed_filter_obj.regex)))
     print_info('(`None` means noneffective filter)')

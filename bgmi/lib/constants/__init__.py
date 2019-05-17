@@ -122,28 +122,35 @@ actions_and_arguments = [
             },
             {
                 'dest': '--subtitle',
-                'kwargs': dict(metavar='subtitle', help='Subtitle group name, split by ",".'),
+                'kwargs': dict(
+                    metavar='subtitle', default='', help='Subtitle group name, split by ",".'
+                ),
             },
             {
                 'dest': '--include',
                 'kwargs': dict(
-                    metavar='include', help='Filter by keywords which in the title, split by ",".'
+                    metavar='include',
+                    default='',
+                    help='Filter by keywords which in the title, split by ",".'
                 ),
             },
             {
                 'dest': '--exclude',
                 'kwargs': dict(
                     metavar='exclude',
+                    default='',
                     help='Filter by keywords which not int the title, split by ",".'
                 ),
             },
             {
                 'dest': '--regex',
-                'kwargs': dict(metavar='regex', help='Filter by regular expression'),
+                'kwargs': dict(metavar='regex', default='', help='Filter by regular expression'),
             },
             {
                 'dest': '--data-source',
-                'kwargs': dict(metavar='data_source', help='Data source enabled, split by ","'),
+                'kwargs': dict(
+                    metavar='data_source', default='', help='Data source enabled, split by ","'
+                ),
             },
         ],
     },

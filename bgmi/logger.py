@@ -1,30 +1,49 @@
-import logging
 import os
 import sys
+from logging import (
+    BASIC_FORMAT, DEBUG, INFO, FileHandler, Formatter, StreamHandler, getLevelName, getLogger
+)
 
 from bgmi import config
 
 
 def get_logger():
+    # set up logging to file
+    # logging.basicConfig(
+    #     level=logging.INFO,
+    #     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+    #     datefmt='%m-%d %H:%M',
+    #     filename=tempfile.gettempdir() + '/log',
+    #     filemode='w'
+    # )
+    # basicConfig(format='%(message)s', level=INFO)
     log_level = config.LOG_LEVEL
     log_level = log_level.upper()
     if log_level not in ['DEBUG', 'INFO', 'WARNING', 'ERROR']:
         print('log level invalid, will use default log level info')
         log_level = 'INFO'
-    _logger = logging.getLogger('bgmi')
-    if not os.getenv('UNITTEST'):
-        _logger.addHandler(logging.StreamHandler(sys.stdout))
+
+    _logger = getLogger('bgmi')
+    _logger.setLevel(DEBUG)
+
+    stdout = StreamHandler(sys.stdout)
+    stdout.setFormatter(Formatter('%(message)s'))
+    if os.getenv('DEBUG'):
+        stdout.setLevel(DEBUG)
+    else:
+        stdout.setLevel(INFO)
+    _logger.addHandler(stdout)
+
     try:
-        h = logging.FileHandler(config.LOG_PATH, 'a+', 'utf-8')
-        h.setFormatter(logging.Formatter(logging.BASIC_FORMAT))
-        h.setLevel(logging.getLevelName(log_level))
+        h = FileHandler(config.LOG_PATH, 'a+', 'utf-8')
+        h.setFormatter(Formatter(BASIC_FORMAT))
+        h.setLevel(getLevelName(log_level))
         _logger.addHandler(h)
         if log_level == 'DEBUG':
-            orm_logger = logging.getLogger('peewee')
-            orm_logger.setLevel(logging.DEBUG)
+            orm_logger = getLogger('peewee')
+            orm_logger.setLevel(DEBUG)
             orm_logger.addHandler(h)
-    except IOError as e:
-        print(e)
+    except IOError:
         _logger.info("Can't create log file, log to file is disabled.")
 
     return _logger

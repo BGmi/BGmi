@@ -62,6 +62,7 @@ def print_warning(message, indicator=True, **kwargs):
 @colorize
 def print_error(message, exit_=True, indicator=True, **kwargs):
     logger.error(message)
+
     if exit_:
         exit(1)
 
@@ -152,7 +153,7 @@ def update(mark=True):
             with open(os.path.join(config.FRONT_STATIC_PATH, 'package.json'), 'r') as f:
                 local_version = json.loads(f.read())['version']
             if _parse_version(admin_version) > _parse_version(local_version):
-                get_web_admin(method='update')
+                get_web_admin()
         else:
             print_info("Use 'bgmi install' to install BGmi frontend / download delegate")
         if not mark:
@@ -166,10 +167,10 @@ def update(mark=True):
 
 @log_utils_function
 def check_update(mark=True):
-    data = get_kv_storage().get(constants.kv.LAST_CHECK_UPDATE_TIME, 0)
-    if time.time() - data > SECOND_OF_WEEK:
-        get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = int(time.time())
-        return update(mark)
+    date = get_kv_storage().get(constants.kv.LAST_CHECK_UPDATE_TIME, '0')
+    if time.time() - int(date) > SECOND_OF_WEEK:
+        update(mark)
+        get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = str(int(time.time()))
 
 
 @log_utils_function
@@ -192,8 +193,8 @@ def normalize_path(url):
     return url
 
 
-def get_web_admin(method):
-    print_info('{}ing BGmi frontend'.format(method.title()))
+def get_web_admin():
+    print_info('Fetching BGmi frontend')
     try:
         r = requests.get(FRONTEND_NPM_URL).json()
         version = requests.get(PACKAGE_JSON_URL).json()
@@ -202,17 +203,14 @@ def get_web_admin(method):
                 'Cnpm has not synchronized the latest version of BGmi-frontend from npm, '
                 'please try it later'
             )
-            return
         tar_url = r['versions'][version['version']]['dist']['tarball']
         r = requests.get(tar_url)
+        unzip_zipped_file(r.content, version)
+        print_success('Web admin page install successfully. version: {}'.format(version['version']))
     except requests.exceptions.ConnectionError:
-        print_warning('failed to download web admin')
-        return
+        print_error('failed to download web admin')
     except json.JSONDecodeError:
-        print_warning('failed to download web admin')
-        return
-    unzip_zipped_file(r.content, version)
-    print_success('Web admin page {} successfully. version: {}'.format(method, version['version']))
+        print_error('failed to download web admin')
 
 
 def unzip_zipped_file(file_content, front_version):

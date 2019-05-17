@@ -12,6 +12,7 @@ from bgmi.lib.fetch import website
 from bgmi.lib.models import (
     Bangumi, BangumiItem, DoesNotExist, Download, Followed, Subtitle, model_to_dict
 )
+from bgmi.lib.models._tables import split_str_to_list
 from bgmi.logger import logger
 from bgmi.script import ScriptRunner
 from bgmi.utils import (
@@ -151,64 +152,49 @@ def filter_(
         if x.data_source not in config.DISABLED_DATA_SOURCE
     ]
 
-    if subtitle_input is not None:
-        if subtitle_input == '':
-            followed_filter_obj.subtitle = None
-        else:
-            subtitle_input = [s.strip() for s in subtitle_input.split(',')]
-            valid_subtitle_name_list = [x['name'] for x in subtitle_list]
-            for subtitle_name in subtitle_input:
-                try:
-                    Subtitle.get(name=subtitle_name)
-                except Subtitle.DoesNotExist:
-                    return ControllerResult.new_error(
-                        '{} is not a available subtitle_group'.format(subtitle_name),
-                        data={
-                            'name': bangumi_obj.name,
-                            'data_source': valid_data_source_list,
-                            'subtitle_group': list({x['name'] for x in subtitle_list}),
-                        }
-                    )
-                if subtitle_name not in valid_subtitle_name_list:
-                    return ControllerResult.new_error(
-                        '{} is not a available subtitle'.format(subtitle_name),
-                        data={
-                            'name': bangumi_obj.name,
-                            'data_source': valid_data_source_list,
-                            'subtitle_group': list({x['name'] for x in subtitle_list}),
-                        }
-                    )
-            followed_filter_obj.subtitle = subtitle_input
+    if subtitle_input:
+        subtitle_input = split_str_to_list(subtitle_input)
+        valid_subtitle_name_list = [x['name'] for x in subtitle_list]
+        for subtitle_name in subtitle_input:
+            try:
+                Subtitle.get(name=subtitle_name)
+            except Subtitle.DoesNotExist:
+                return ControllerResult.new_error(
+                    '{} is not a available subtitle_group'.format(subtitle_name),
+                    data={
+                        'name': bangumi_obj.name,
+                        'data_source': valid_data_source_list,
+                        'subtitle_group': list({x['name'] for x in subtitle_list}),
+                    }
+                )
+            if subtitle_name not in valid_subtitle_name_list:
+                return ControllerResult.new_error(
+                    '{} is not a available subtitle'.format(subtitle_name),
+                    data={
+                        'name': bangumi_obj.name,
+                        'data_source': valid_data_source_list,
+                        'subtitle_group': list({x['name'] for x in subtitle_list}),
+                    }
+                )
+        followed_filter_obj.subtitle = ','.join(subtitle_input)
 
-    if data_source_input is not None:
-        if data_source_input == '':
-            followed_filter_obj.data_source = None
-        else:
-            data_source_input = [s.strip() for s in data_source_input.split(',')]
-            for data_source in data_source_input:
-                if data_source not in valid_data_source_list:
-                    return ControllerResult.new_error(
-                        '{} is not a available data source'.format(data_source)
-                    )
-            followed_filter_obj.data_source = data_source_input
+    if data_source_input:
+        data_source_input = split_str_to_list(data_source_input)
+        for data_source in data_source_input:
+            if data_source not in valid_data_source_list:
+                return ControllerResult.new_error(
+                    '{} is not a available data source'.format(data_source)
+                )
+        followed_filter_obj.data_source = ','.join(data_source_input)
 
-    if include is not None:
-        if not include:
-            followed_filter_obj.include = None
-        else:
-            followed_filter_obj.include = [s.strip() for s in include.split(',')]
+    if include:
+        followed_filter_obj.include = include
 
-    if exclude is not None:
-        if not exclude:
-            followed_filter_obj.exclude = None
-        else:
-            followed_filter_obj.exclude = [s.strip() for s in exclude.split(',')]
+    if exclude:
+        followed_filter_obj.exclude = exclude
 
-    if regex is not None:
-        if not regex:
-            followed_filter_obj.regex = ''
-        else:
-            followed_filter_obj.regex = regex
+    if regex:
+        followed_filter_obj.regex = regex
 
     followed_filter_obj.save()
 
