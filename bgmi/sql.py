@@ -1,11 +1,13 @@
+import logging
 import sqlite3
+from os import path
 
 import peewee
+from peewee_migrate import Router
 from playhouse import db_url
 
 from bgmi import config
-from bgmi.lib.models import Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle
-from bgmi.utils import print_error
+from bgmi.utils import print_error, print_info
 
 
 def init_db():
@@ -22,9 +24,8 @@ def init_db():
                 password=database.get('passwd'),
             )
         except peewee.InternalError as e:
-            print(e.args)
+            print_error(e)
             exit()
-            # (1049, "Unknown database 'bgmi'")
         with conn.cursor() as cur:
             cur.execute(
                 'CREATE DATABASE IF NOT EXISTS {} default character set utf8mb4 '
@@ -39,14 +40,12 @@ def init_db():
         print_error('unsupported database, now only support sqlite and mysql')
         return
     db = db_url.connect(config.DB_URL)
-    db.create_tables([
-        Bangumi,
-        Followed,
-        Download,
-        Subtitle,
-        BangumiItem,
-        Scripts,
-    ])
+    print_info('Initializing DataBase Tables')
+    router = Router(
+        db, migrate_dir=path.join(config.SOURCE_ROOT, 'lib/models/migrations'), ignore=['neodb']
+    )
+    router.logger.setLevel(logging.WARNING)
+    router.run()
 
 
 if __name__ == '__main__':

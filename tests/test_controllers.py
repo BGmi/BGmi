@@ -148,13 +148,13 @@ class ControllersTest(Base, unittest.TestCase):
     def test_filter_add_right_subtitle(self):
         result = controllers.filter_(name=self.bangumi_name_2, subtitle_input=self.valid_subtitle)
         self.assertEqual(result.status, ControllerResult.success)
-        self.assertEqual(result.data['followed'], [self.valid_subtitle])
+        self.assertEqual(result.data['followed'], self.valid_subtitle)
 
         followed_obj = Followed.get_by_name(bangumi_name=self.bangumi_name_2)
-        self.assertEqual(followed_obj.subtitle, [self.valid_subtitle])
+        self.assertEqual(followed_obj.subtitle, self.valid_subtitle)
 
         result = controllers.filter_(self.bangumi_name_2)
-        self.assertEqual(result.data['followed'], [self.valid_subtitle])
+        self.assertEqual(result.data['followed'], self.valid_subtitle)
 
     valid_data_source = 'mikan_project'
     invalid_data_source = 'dmhy'
@@ -168,12 +168,12 @@ class ControllersTest(Base, unittest.TestCase):
         self.assertEqual(result.status, ControllerResult.error, result.message)
 
         followed_obj = Followed.get_by_name(bangumi_name=self.bangumi_name_2)
-        self.assertEqual(followed_obj.data_source, [])
+        self.assertEqual(followed_obj.data_source, '')
 
         result = controllers.filter_(self.bangumi_name_2)
         self.assertEqual(
             result.data['followed_data_source'],
-            [],
+            '',
             result.message,
         )
 
@@ -185,17 +185,17 @@ class ControllersTest(Base, unittest.TestCase):
         self.assertEqual(result.status, ControllerResult.success, result.message)
         self.assertEqual(
             result.data['followed_data_source'],
-            [self.valid_data_source],
+            self.valid_data_source,
             result.message,
         )
 
         followed_obj = Followed.get_by_name(bangumi_name=self.bangumi_name_2)
-        self.assertEqual(followed_obj.data_source, [self.valid_data_source])
+        self.assertEqual(followed_obj.data_source, self.valid_data_source)
 
         result = controllers.filter_(self.bangumi_name_2)
         self.assertEqual(
             result.data['followed_data_source'],
-            [self.valid_data_source],
+            self.valid_data_source,
             result.message,
         )
 
@@ -211,9 +211,9 @@ class ControllersTest(Base, unittest.TestCase):
             ControllerResult.success,
             'include value {}'.format(value),
         )
-        self.assertEqual(result.data['include'], v)
+        self.assertEqual(result.data['include'], value)
         followed_obj = self.get_followed_obj()
-        self.assertEqual(followed_obj.include, v, 'include value should be parsed saved')
+        self.assertEqual(followed_obj.include, value, 'include value should be parsed saved')
 
     def test_data_exclude_with_space(self):
         v = ['1', '2', '3', '4', '5']
@@ -223,9 +223,9 @@ class ControllersTest(Base, unittest.TestCase):
             exclude=value,
         )
         self.assertEqual(result.status, ControllerResult.success, value)
-        self.assertEqual(result.data['exclude'], v)
+        self.assertEqual(result.data['exclude'], value)
         followed_obj = self.get_followed_obj()
-        self.assertEqual(followed_obj.exclude, v, 'exclude value should be parsed and saved')
+        self.assertEqual(followed_obj.exclude, value, 'exclude value should be parsed and saved')
 
     def test_data_regex(self):
         value = r'1 2\ 23 \\1233123'
@@ -244,8 +244,8 @@ class ControllersTest(Base, unittest.TestCase):
 
     def test_data_include_set_none(self):
         result = controllers.filter_(self.bangumi_name_2, include='')
-        self.assertEqual(result.data['include'], None)
+        self.assertEqual(result.data['include'], '')
 
     def test_data_exclude_set_none(self):
         result = controllers.filter_(self.bangumi_name_2, exclude='')
-        self.assertEqual(result.data['exclude'], None)
+        self.assertEqual(result.data['exclude'], '')

@@ -2,14 +2,19 @@ import argparse
 
 from peewee_migrate import Router
 
-from bgmi.lib.models import db
+from bgmi.lib.models import Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle, db
 
 
 def get_parser():
     r = argparse.ArgumentParser()
     sub_parser = r.add_subparsers(dest='action')
     sub_parser.add_parser('migrate', help='create a migration').add_argument('name')
+    sub_parser.add_parser('create_tables', help='create tables manually')
     return r
+
+
+def create_tables():
+    db.create_tables([Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle])
 
 
 def main():
@@ -17,6 +22,8 @@ def main():
     ret = parser.parse_args()
     if ret.action == migrate.__qualname__:
         migrate(ret.name)
+    elif ret.action == create_tables.__qualname__:
+        create_tables()
 
 
 def migrate(name):

@@ -12,9 +12,10 @@ import bgmi
 import bgmi.config
 from bgmi import utils
 from bgmi.lib import constants
-from bgmi.lib.models import db, get_kv_storage
+from bgmi.lib.models import (
+    Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle, db, get_kv_storage
+)
 from bgmi.lib.models._kv import create_kv_storage
-from bgmi.sql import init_db
 from bgmi.utils import utils as inner_utils
 from bgmi.utils.utils import FRONTEND_NPM_URL, PACKAGE_JSON_URL
 
@@ -23,7 +24,7 @@ class UtilsTest(unittest.TestCase):
     test_dir = './test_dir'
 
     def setUp(self):
-        init_db()
+        db.create_tables([Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle])
         create_kv_storage()
         db.close()
 
@@ -154,19 +155,19 @@ class UtilsTest(unittest.TestCase):
         with patch('bgmi.utils.utils.time.time') as time:
             time.return_value = 12345
             with patch('bgmi.utils.utils.update') as update:
-                get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = time.return_value
+                get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = str(time.return_value)
                 utils.check_update()
                 update.assert_not_called()
-                self.assertEqual(get_kv_storage().get(constants.kv.LAST_CHECK_UPDATE_TIME), 12345)
+                self.assertEqual(get_kv_storage().get(constants.kv.LAST_CHECK_UPDATE_TIME), '12345')
 
             time.return_value = 12345 + 30 * 30 * 24 * 3600
             with patch('bgmi.utils.utils.update') as update:
-                get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = 12345
+                get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = '12345'
                 utils.check_update()
                 update.assert_called_once_with(True)
                 self.assertEqual(
                     get_kv_storage().get(constants.kv.LAST_CHECK_UPDATE_TIME),
-                    12345 + 30 * 30 * 24 * 3600
+                    str(12345 + 30 * 30 * 24 * 3600)
                 )
 
     def test_update(self):
@@ -198,7 +199,7 @@ class UtilsTest(unittest.TestCase):
             with open(bgmi.config.FRONT_STATIC_PATH + '/package.json', 'w+', encoding='utf8') as f:
                 json.dump({'version': '1.1.2'}, f)
             inner_utils.update(True)
-            get_web_admin.assert_any_call(method='update')
+            get_web_admin.assert_any_call()
 
     @property
     def template_path(self) -> str:

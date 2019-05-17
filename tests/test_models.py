@@ -7,9 +7,8 @@ from unittest.mock import Mock, patch
 import faker
 
 from bgmi.lib import models
-from bgmi.lib.models import Bangumi, BangumiItem, Followed, Subtitle, db
+from bgmi.lib.models import Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle, db
 from bgmi.lib.models._kv import create_kv_storage
-from bgmi.sql import init_db
 from tests.base import project_dir
 
 with open(path.join(project_dir, 'tests/data/models/main_bangumi.json'), 'r', encoding='utf8') as f:
@@ -22,8 +21,6 @@ with open(
     path.join(project_dir, 'tests/data/models/main_bangumi_item.json'), 'r', encoding='utf8'
 ) as f:
     bangumi_item_list = json.load(f)
-    for item in bangumi_item_list:
-        item['subtitle_group'] = [x.strip() for x in item['subtitle_group'].split(',')]
 
 with open(path.join(project_dir, 'tests/data/models/subtitle.json'), 'r', encoding='utf8') as f:
     subtitle_group = json.load(f)
@@ -43,13 +40,12 @@ class Base:
     faker = faker.Faker()
 
     def setUp(self):
-        init_db()
-        # Followed.drop_table()
+        db.create_tables([Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle])
         Bangumi.delete().where(True).execute()
         Followed.delete().where(True).execute()
         BangumiItem.delete().where(True).execute()
         Subtitle.delete().where(True).execute()
-        init_db()
+        # db.create_tables([Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle])
         create_kv_storage()
         Bangumi.insert_many(bangumi_list).execute()
         BangumiItem.insert_many(bangumi_item_list).execute()
@@ -232,20 +228,20 @@ class SubtitleTest(Base, TestCase):
                     subtitle['id'], data_source[subtitle['data_source']]['subtitle_group']
                 )
 
-        condition = {'mikan_project': {'subtitle_group': ['1', '2', '6', '7', '9']}}
+        condition = {'mikan_project': {'subtitle_group': ','.join(['1', '2', '6', '7', '9'])}}
         check(condition)
 
         condition.update({
-            'dmhy': {'subtitle_group': ['37', '552']},
+            'dmhy': {'subtitle_group': ','.join(['37', '552'])},
         })
         check(condition)
 
         condition.update({
             'bangumi_mod': {
-                'subtitle_group': [
+                'subtitle_group': ','.join([
                     '58fe0031e777e29f2a08175d', '567cdf0d3e4e6e4148f19bbd',
                     '567bda4eafc701435d468b61'
-                ],
+                ]),
             }
         })
         check(condition)

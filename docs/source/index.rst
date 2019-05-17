@@ -27,3 +27,4 @@ Feature
     http_api
     plugins
     data_source_base
+    development

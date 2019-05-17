@@ -15,6 +15,9 @@ from bgmi.lib.constants import SECOND_OF_WEEK
 
 from ._db import FuzzyMixIn, NeoDB, db
 
+BANGUMI_NAME_MAX_LENGTH = 255
+DATA_SOURCE_ID_MAX_LENGTH = 30
+
 
 class BangumiItem(pw.Model):
     """
@@ -33,13 +36,13 @@ class BangumiItem(pw.Model):
         # primary_key = pw.CompositeKey('keyword', 'data_source')
 
     id = pw.AutoField(primary_key=True)
-    name = pw.CharField()  # type: str
+    name = pw.CharField(max_length=BANGUMI_NAME_MAX_LENGTH)  # type: str
     cover = pw.CharField()  # type: str
     status = pw.IntegerField()  # type: int
     update_time = pw.FixedCharField(5, null=False)  # type: str
     subtitle_group = pw.TextField()  # type: str
     keyword = pw.CharField()  # type: str
-    data_source = pw.FixedCharField(max_length=30)  # type: str
+    data_source = pw.FixedCharField(max_length=DATA_SOURCE_ID_MAX_LENGTH)  # type: str
     # foreign key
     bangumi = pw.IntegerField(default=0)
 
@@ -51,8 +54,6 @@ class BangumiItem(pw.Model):
         return getattr(self, item)
 
     def __init__(self, *args, **kwargs):
-        if isinstance(kwargs.get('subtitle_group'), list):
-            kwargs['subtitle_group'] = ', '.join(kwargs.get('subtitle_group'))
         super().__init__(*args, **kwargs)
         update_time = kwargs.get('update_time', '').title()
         if update_time and update_time not in Bangumi.week:
@@ -212,7 +213,7 @@ class Followed(NeoDB):
     """
     Followed bangumi and filter condition
     """
-    bangumi_id = pw.IntegerField(unique=True, primary_key=True)
+    bangumi_id = pw.IntegerField(primary_key=True)
     # bangumi = pw.ForeignKeyField(Bangumi, backref='followed', unique=True)  # type: Bangumi
     # bangumi_name = pw.CharField(unique=True, primary_key=True)
     episode = pw.IntegerField(null=True, default=0)
@@ -220,10 +221,10 @@ class Followed(NeoDB):
     updated_time = pw.IntegerField(null=True)
 
     # followed filter
-    data_source = pw.TextField(default='')  # type:str
-    subtitle = pw.TextField(default='')  # type:str
-    include = pw.TextField(default='')  # type:str
-    exclude = pw.TextField(default='')  # type: str
+    data_source = pw.FixedCharField(default='')  # type:str
+    subtitle = pw.CharField(default='')  # type:str
+    include = pw.CharField(default='')  # type:str
+    exclude = pw.CharField(default='')  # type: str
     regex = pw.CharField(null=False, default='')  # type: str
 
     class STATUS(IntEnum):
@@ -345,7 +346,9 @@ class Download(NeoDB):
 class Subtitle(NeoDB):
     id = pw.CharField()
     name = pw.CharField()
-    data_source = pw.CharField()
+    data_source = pw.CharField(max_length=DATA_SOURCE_ID_MAX_LENGTH)
+
+    # data_source = pw.CharField(max_length=255)
 
     class Meta:
         database = db
@@ -353,7 +356,6 @@ class Subtitle(NeoDB):
             # create a unique on from/to/date
             (('id', 'data_source'), True),
         )
-        primary_key = pw.CompositeKey('id', 'data_source')
 
     @classmethod
     def get_subtitle_of_bangumi(cls, bangumi_obj):
@@ -421,7 +423,7 @@ class Subtitle(NeoDB):
 
 
 class Scripts(NeoDB):
-    bangumi_name = pw.CharField(null=False, unique=True)
+    bangumi_name = pw.CharField(max_length=BANGUMI_NAME_MAX_LENGTH, unique=True)
     episode = pw.IntegerField(default=0)
     status = pw.IntegerField(default=0)
     updated_time = pw.IntegerField(default=0)
