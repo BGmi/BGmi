@@ -8,15 +8,6 @@ from bgmi import config
 
 
 def get_logger():
-    # set up logging to file
-    # logging.basicConfig(
-    #     level=logging.INFO,
-    #     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-    #     datefmt='%m-%d %H:%M',
-    #     filename=tempfile.gettempdir() + '/log',
-    #     filemode='w'
-    # )
-    # basicConfig(format='%(message)s', level=INFO)
     log_level = config.LOG_LEVEL
     log_level = log_level.upper()
     if log_level not in ['DEBUG', 'INFO', 'WARNING', 'ERROR']:

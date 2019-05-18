@@ -7,24 +7,29 @@ import string
 import sys
 from functools import wraps
 
+import click
+import peewee
+
 import bgmi.config
+import bgmi.setup
 import bgmi.website
+from bgmi import config
+from bgmi.lib import constants, controllers
 from bgmi.lib.constants import (
-    ACTION_ADD, ACTION_CAL, ACTION_CONFIG, ACTION_CONFIG_GEN, ACTION_DELETE, ACTION_DOWNLOAD,
-    ACTION_FETCH, ACTION_FILTER, ACTION_LIST, ACTION_MARK, ACTION_SEARCH, ACTION_UPDATE,
     DOWNLOAD_CHOICE_LIST_DICT, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE,
     actions_and_arguments
 )
-from bgmi.lib.constants.actions import ACTION_COMPLETE, ACTION_HISTORY, ACTION_SERVE, ACTIONS
-from bgmi.lib.controllers import add, config_, delete_, filter_, list_, mark, search, update
+from bgmi.lib.constants.actions import ACTIONS
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
-from bgmi.lib.models import Bangumi, Followed
-from bgmi.logger import logger
+from bgmi.lib.models import Bangumi, Followed, get_kv_storage
+from bgmi.lib.update import upgrade_version
 from bgmi.script import ScriptRunner
+from bgmi.sql import init_db
 from bgmi.utils import (
-    COLOR_END, GREEN, RED, YELLOW, convert_cover_url_to_path, download_cover, get_terminal_col,
-    print_error, print_info, print_success, print_warning, render_template
+    COLOR_END, GREEN, RED, YELLOW, check_update, convert_cover_url_to_path, download_cover,
+    get_terminal_col, get_web_admin, print_error, print_info, print_success, print_warning,
+    render_template
 )
 
 
@@ -36,9 +41,92 @@ def action_decorator(fn):
     return wrapped
 
 
-def config_wrapper(ret):
-    name = ret.name
-    value = ret.value
+class GroupWithCommandOptions(click.Group):
+    """ Allow application of options to group with multi command """
+
+    def add_command(self, cmd, name=None):
+        """ Hook the added command and put the group options on the command """
+        click.Group.add_command(self, cmd, name=name)
+
+        # add the group parameters to the command
+        for param in self.params:
+            cmd.params.append(param)
+
+        # hook the command's invoke with our own
+        cmd.invoke = self.build_command_invoke(cmd.invoke)
+        self.invoke_without_command = True
+
+    def build_command_invoke(self, original_invoke):
+        def command_invoke(ctx):
+            """ insert invocation of group function """
+
+            # separate the group parameters
+            ctx.obj = dict(_params=dict())
+            for param in self.params:
+                name = param.name
+                ctx.obj['_params'][name] = ctx.params[name]
+                del ctx.params[name]
+
+            # call the group function with its parameters
+            params = ctx.params
+            ctx.params = ctx.obj['_params']
+            self.invoke(ctx)
+            ctx.params = params
+
+            # now call (invoke) the original command
+            original_invoke(ctx)
+
+        return command_invoke
+
+
+@click.group()
+def meta_cli():
+    print('meta command')
+
+
+@meta_cli.command()
+@click.option('--no-web', default=False, show_default=True, type=bool, flag_value=True)
+def install(no_web: bool = False):
+    if not os.path.exists(config.BGMI_PATH):
+        print_warning('BGMI_PATH %s does not exist, installing' % config.BGMI_PATH)
+
+    bgmi.setup.create_dir()
+    bgmi.setup.install_crontab()
+    init_db()
+
+    get_download_class().install()
+
+    if constants.kv.OLD_VERSION not in get_kv_storage():
+        get_kv_storage()[constants.kv.OLD_VERSION] = bgmi.__version__
+    if not no_web:
+        get_web_admin()
+    else:
+        print_info('skip downloading web static files')
+
+
+@meta_cli.command()
+def upgrade():
+    bgmi.setup.create_dir()
+    upgrade_version()
+    check_update(mark=False)
+
+
+@click.group(cls=GroupWithCommandOptions)
+def normal_cli():
+    try:
+        check_update()
+    except peewee.OperationalError:
+        if os.getenv('DEBUG'):
+            raise
+        print_error('call `bgmi install` to install bgmi')
+
+
+@normal_cli.command('config')
+@click.argument('name', required=False)
+@click.argument('value', required=False)
+def config_wrapper(name=None, value=None):
+    # name = ret.name
+    # value = ret.value
     if name == 'DB_URL':
         if value:
             from playhouse.db_url import schemes
@@ -52,52 +140,85 @@ def config_wrapper(ret):
                 )
                 return
 
-    result = config_(ret.name, ret.value)
-    result.print()
-    if ret.name == 'DB_URL' and ret.value:
+    result = controllers.config_(name, value)
+    result.print(indicator=False)
+    if name == 'DB_URL' and value:
         print_info('you are editing DB_URL, please run `bgmi install` to init db')
 
 
-def search_wrapper(ret):
-    result = search(
-        keyword=ret.keyword,
-        count=ret.count,
-        regex=ret.regex_filter,
-        dupe=ret.dupe,
-        min_episode=ret.min_episode,
-        max_episode=ret.max_episode
+@normal_cli.command('search')
+@click.argument('keyword')
+@click.option('--count', type=int, default=int(config.MAX_PAGE), show_default=True)
+@click.option('--regex-filter', type=str, show_default=True)
+@click.option('--dupe', type=bool, flag_value=True, show_default=True)
+@click.option('--min-episode', type=int)
+@click.option('--max-episode', type=int)
+@click.option('--download', type=bool, show_default=True, flag_value=True)
+def search_wrapper(
+    keyword: str,
+    count: int,
+    regex_filter: str = None,
+    dupe: bool = False,
+    min_episode: int = None,
+    max_episode: int = None,
+    download: bool = False,
+):
+    print(
+        dict(
+            keyword=keyword,
+            count=count,
+            regex=regex_filter,
+            dupe=dupe,
+            min_episode=min_episode,
+            max_episode=max_episode
+        )
+    )
+    exit()
+    result = controllers.search(
+        keyword=keyword,
+        count=count,
+        regex=regex_filter,
+        dupe=dupe,
+        min_episode=min_episode,
+        max_episode=max_episode
     )
     if result['status'] != 'success':
         globals()['print_{}'.format(result['status'])](result['message'])
     data = result['data']
     for i in data:
         print_success(i['title'])
-    if ret.download:
+    if download:
         download_prepare(data)
 
 
-def mark_wrapper(ret):
-    result = mark(name=ret.name, episode=ret.episode)
+@normal_cli.command()
+@click.argument('name', type=str)
+@click.argument('episode', type=int)
+def mark(name, episode):
+    result = controllers.mark(name=name, episode=episode)
     globals()['print_{}'.format(result['status'])](result['message'])
 
 
-def delete_wrapper(ret):
+def delete(ret):
     if ret.clear_all:
-        delete_('', clear_all=ret.clear_all, batch=ret.batch)
+        controllers.delete_('', clear_all=ret.clear_all, batch=ret.batch)
     else:
         for bangumi_name in ret.name:
-            result = delete_(name=bangumi_name)
+            result = controllers.delete_(name=bangumi_name)
             globals()['print_{}'.format(result['status'])](result['message'])
 
 
-def add_wrapper(ret):
-    for bangumi_name in ret.name:
-        result = add(name=bangumi_name, episode=ret.episode)
+@normal_cli.command()
+@click.argument('names', nargs=-1)
+@click.option('--episode', type=int)
+def add(names, episode=None):
+    for bangumi_name in names:
+        result = controllers.add(name=bangumi_name, episode=episode)
         globals()['print_{}'.format(result['status'])](result['message'])
 
 
 def list_wrapper(ret):
-    result = list_()
+    result = controllers.list_()
     print(result['message'])
 
 
@@ -114,6 +235,10 @@ def cover_has_downloaded(url: str) -> bool:
     return os.path.exists(file_path) and imghdr.what(file_path)
 
 
+@click.command('cal')
+@click.option('--force-update', '-f', help='force update when showing calendar')
+@click.option('--no-save', help='not save to db')
+@click.option('--download-cover', help='download cover')
 def cal_wrapper(ret):
     save = not ret.no_save
     runner = ScriptRunner()
@@ -209,7 +334,7 @@ def cal_wrapper(ret):
 
 
 def filter_wrapper(ret):
-    result = filter_(
+    result = controllers.filter_(
         name=ret.name,
         data_source_input=ret.data_source,
         subtitle_input=ret.subtitle,
@@ -228,7 +353,7 @@ def filter_wrapper(ret):
 
 
 def update_wrapper(ret):
-    update(name=ret.name, download=ret.download, not_ignore=ret.not_ignore)
+    controllers.update(name=ret.name, download=ret.download, not_ignore=ret.not_ignore)
 
 
 def download_manager(ret):
@@ -428,33 +553,6 @@ def serve(ret):
     main()
 
 
-CONTROLLERS_DICT = {
-    ACTION_ADD: add_wrapper,
-    ACTION_CAL: cal_wrapper,
-    ACTION_CONFIG: config_wrapper,
-    ACTION_CONFIG_GEN: config_gen,
-    ACTION_COMPLETE: complete,
-    ACTION_DOWNLOAD: download_manager,
-    ACTION_DELETE: delete_wrapper,
-    ACTION_FETCH: fetch_,
-    ACTION_FILTER: filter_wrapper,
-    ACTION_HISTORY: history,
-    ACTION_LIST: list_wrapper,
-    ACTION_MARK: mark_wrapper,
-    ACTION_SEARCH: search_wrapper,
-    ACTION_UPDATE: update_wrapper,
-    ACTION_SERVE: serve,
-}
-
-
-def controllers(ret):
-    logger.debug(ret)
-    func = CONTROLLERS_DICT.get(ret.action, None)
-    if not callable(func):
-        return
-    return func(ret)
-
-
 def print_filter(followed_filter_obj: Followed):
     def j(x):
         return x or 'None'
@@ -465,3 +563,6 @@ def print_filter(followed_filter_obj: Followed):
     print_info('Exclude keywords: {}'.format(j(followed_filter_obj.exclude)))
     print_info('Regular expression: {}'.format(j(followed_filter_obj.regex)))
     print_info('(`None` means noneffective filter)')
+
+
+cli = click.CommandCollection(sources=[meta_cli, normal_cli], invoke_without_command=True)

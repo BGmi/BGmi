@@ -1,9 +1,23 @@
 Command Line Interface
 ======================
 
-
 简介
 ----
+
+Cli 基于 `click <https://click.palletsprojects.com/en/7.x/>`_, 由 ``click`` 提供bash和zsh的自动补全。
+
+激活自动补全：
+
+添加到.bashrc中
+
+.. code-block:: bash
+
+    eval "$(_BGMI_COMPLETE=source bgmi)"
+
+.. code-block:: zsh
+
+    eval "$(_BGMI_COMPLETE=source_zsh bgmi)"
+
 
 bgmi的命令由一系列 ``action`` 组成.
 

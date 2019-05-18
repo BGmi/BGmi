@@ -77,9 +77,9 @@ class ControllerResult:
         error: print_error,
     }
 
-    def print(self):
+    def print(self, indicator=False):
         if self.message:
-            self.print_map.get(self.status, print)(self.message)
+            self.print_map.get(self.status, print)(self.message, indicator=indicator)
 
 
 def add(name, episode=None):
