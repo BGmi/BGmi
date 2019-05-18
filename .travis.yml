@@ -93,7 +93,7 @@ matrix:
 
     - python: '3.6'
       os: linux
-      name: 'Downloader deluge-rpc'
+      name: 'Downloader transmission-rpc'
       env:
         - DOWNLOADER=transmission-rpc
       script:
