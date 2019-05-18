@@ -15,10 +15,7 @@ import bgmi.setup
 import bgmi.website
 from bgmi import config
 from bgmi.lib import constants, controllers
-from bgmi.lib.constants import (
-    DOWNLOAD_CHOICE_LIST_DICT, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE,
-    actions_and_arguments
-)
+from bgmi.lib.constants import DOWNLOAD_CHOICE_LIST_DICT, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS
 from bgmi.lib.constants.actions import ACTIONS
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
@@ -84,17 +81,25 @@ def meta_cli():
     print('meta command')
 
 
-@meta_cli.command()
-@click.option('--no-web', default=False, show_default=True, type=bool, flag_value=True)
+@meta_cli.command(help='Install BGmi front / download delegate and initialize database')
+@click.option(
+    '--no-web',
+    default=False,
+    show_default=True,
+    type=bool,
+    flag_value=True,
+    help='Don\'t download web static file.'
+)
 def install(no_web: bool = False):
+    """
+    install bangumi on your local
+    """
     if not os.path.exists(config.BGMI_PATH):
         print_warning('BGMI_PATH %s does not exist, installing' % config.BGMI_PATH)
 
     bgmi.setup.create_dir()
     bgmi.setup.install_crontab()
     init_db()
-
-    get_download_class().install()
 
     if constants.kv.OLD_VERSION not in get_kv_storage():
         get_kv_storage()[constants.kv.OLD_VERSION] = bgmi.__version__
@@ -104,7 +109,7 @@ def install(no_web: bool = False):
         print_info('skip downloading web static files')
 
 
-@meta_cli.command()
+@meta_cli.command(help='Migrate from old version.')
 def upgrade():
     bgmi.setup.create_dir()
     upgrade_version()
@@ -121,12 +126,10 @@ def normal_cli():
         print_error('call `bgmi install` to install bgmi')
 
 
-@normal_cli.command('config')
+@normal_cli.command('config', help='Config BGmi')
 @click.argument('name', required=False)
 @click.argument('value', required=False)
 def config_wrapper(name=None, value=None):
-    # name = ret.name
-    # value = ret.value
     if name == 'DB_URL':
         if value:
             from playhouse.db_url import schemes
@@ -146,14 +149,26 @@ def config_wrapper(name=None, value=None):
         print_info('you are editing DB_URL, please run `bgmi install` to init db')
 
 
-@normal_cli.command('search')
+@normal_cli.command('search', help='Search torrents from data source by keyword')
 @click.argument('keyword')
-@click.option('--count', type=int, default=int(config.MAX_PAGE), show_default=True)
-@click.option('--regex-filter', type=str, show_default=True)
-@click.option('--dupe', type=bool, flag_value=True, show_default=True)
-@click.option('--min-episode', type=int)
-@click.option('--max-episode', type=int)
-@click.option('--download', type=bool, show_default=True, flag_value=True)
+@click.option(
+    '--count',
+    type=int,
+    default=int(config.MAX_PAGE),
+    show_default=True,
+    help='The max page count of search result.'
+)
+@click.option(
+    '--regex-filter', type=str, show_default=True, help='Regular expression filter of title.'
+)
+@click.option(
+    '--dupe', type=bool, flag_value=True, show_default=True, help='Download search result.'
+)
+@click.option('--min-episode', type=int, show_default=True, help='Minimum episode filter of title.')
+@click.option('--max-episode', type=int, show_default=True, help='Maximum episode filter of title.')
+@click.option(
+    '--download', type=bool, show_default=True, flag_value=True, help='Show duplicated episode'
+)
 def search_wrapper(
     keyword: str,
     count: int,
@@ -163,17 +178,6 @@ def search_wrapper(
     max_episode: int = None,
     download: bool = False,
 ):
-    print(
-        dict(
-            keyword=keyword,
-            count=count,
-            regex=regex_filter,
-            dupe=dupe,
-            min_episode=min_episode,
-            max_episode=max_episode
-        )
-    )
-    exit()
     result = controllers.search(
         keyword=keyword,
         count=count,
@@ -191,11 +195,11 @@ def search_wrapper(
         download_prepare(data)
 
 
-@normal_cli.command()
-@click.argument('name', type=str)
+@normal_cli.command(help='Mark bangumi episode.')
+@click.argument('bangumi_name', type=str)
 @click.argument('episode', type=int)
-def mark(name, episode):
-    result = controllers.mark(name=name, episode=episode)
+def mark(bangumi_name, episode):
+    result = controllers.mark(name=bangumi_name, episode=episode)
     globals()['print_{}'.format(result['status'])](result['message'])
 
 
@@ -210,14 +214,18 @@ def delete(ret):
 
 @normal_cli.command()
 @click.argument('names', nargs=-1)
-@click.option('--episode', type=int)
+@click.option('--episode', type=int, help='mark bangumi as specified episode.')
 def add(names, episode=None):
+    """
+    Subscribe bangumi or baugumis
+    """
     for bangumi_name in names:
         result = controllers.add(name=bangumi_name, episode=episode)
         globals()['print_{}'.format(result['status'])](result['message'])
 
 
-def list_wrapper(ret):
+@normal_cli.command('list', help='List subscribed bangumi.')
+def list_wrapper():
     result = controllers.list_()
     print(result['message'])
 
@@ -409,57 +417,6 @@ def fetch_(ret):
         print_warning('Nothing.')
     for i in data:
         print_success(i['title'])
-
-
-def complete(ret):
-    # coding=utf-8
-    """`eval "$(bgmi complete)"` to complete bgmi in bash"""
-    updating_bangumi_names = [x['name'] for x in Bangumi.get_updating_bangumi(order=False)]
-
-    all_config = bgmi.config.__writeable__
-
-    actions_and_opts = {}
-    helper = {}
-    for action_dict in actions_and_arguments:
-        actions_and_opts[action_dict['action']] = []
-        for arg in action_dict.get('arguments', []):
-            if isinstance(arg['dest'], str) and arg['dest'].startswith('-'):
-                actions_and_opts[action_dict['action']].append(arg)
-            elif isinstance(arg['dest'], list):
-                actions_and_opts[action_dict['action']].append(arg)
-        helper[action_dict['action']] = action_dict.get('help', '')
-
-    if 'bash' in os.getenv('SHELL').lower():  # bash
-        template_file_path = os.path.join(
-            os.path.dirname(__file__), '..', 'others', '_bgmi_completion_bash.sh'
-        )
-
-    elif 'zsh' in os.getenv('SHELL').lower():  # zsh
-        template_file_path = os.path.join(
-            os.path.dirname(__file__), '..', 'others', '_bgmi_completion_zsh.sh'
-        )
-
-    else:
-        print('unsupported shell {}'.format(os.getenv('SHELL').lower()), file=sys.stderr)
-        return
-
-    template_with_content = render_template(
-        template_file_path,
-        ctx=dict(
-            actions=ACTIONS,
-            bangumi=updating_bangumi_names,
-            config=all_config,
-            actions_and_opts=actions_and_opts,
-            source=[x['id'] for x in SUPPORT_WEBSITE],
-            helper=helper,
-            isinstance=isinstance,
-            string_types=str
-        )
-    )
-    if os.environ.get('DEBUG', False):  # pragma: no cover
-        with open('./_bgmi', 'w+', encoding='utf8') as template_file:
-            template_file.write(template_with_content)
-    print(template_with_content)
 
 
 def history(ret):

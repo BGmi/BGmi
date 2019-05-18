@@ -1,10 +1,8 @@
-import bgmi.config
-
 from . import kv
 from .actions import (
-    ACTION_ADD, ACTION_CAL, ACTION_COMPLETE, ACTION_CONFIG, ACTION_CONFIG_GEN, ACTION_DELETE,
-    ACTION_DOWNLOAD, ACTION_FETCH, ACTION_FILTER, ACTION_LIST, ACTION_MARK, ACTION_SEARCH,
-    ACTION_SERVE, ACTION_UPDATE
+    ACTION_ADD, ACTION_CAL, ACTION_CONFIG, ACTION_CONFIG_GEN, ACTION_DELETE, ACTION_DOWNLOAD,
+    ACTION_FETCH, ACTION_FILTER, ACTION_LIST, ACTION_MARK, ACTION_SEARCH, ACTION_SERVE,
+    ACTION_UPDATE
 )
 
 SECOND_OF_WEEK = 7 * 24 * 3600
@@ -62,31 +60,6 @@ COMMON_EXCLUDE_KEYWORD = UNSUPPORTED_VIDEO_CODING
 # There should be no `'` in any help message
 actions_and_arguments = [
     {
-        'action': ACTION_ADD,
-        'help': 'Subscribe bangumi.',
-        'arguments': [
-            {
-                'dest': 'name',
-                'kwargs': dict(metavar='name', nargs='+', help='Bangumi name'),
-            },
-            {
-                'dest': '--episode',
-                'kwargs': dict(
-                    metavar='episode',
-                    help='Add bangumi and mark it as specified episode.',
-                    type=int,
-                ),
-            },
-            {
-                'dest': '--not-ignore',
-                'kwargs': dict(
-                    action='store_true',
-                    help='Do not ignore the old bangumi detail rows (3 month ago).',
-                ),
-            },
-        ],
-    },
-    {
         'action': ACTION_DELETE,
         'help': 'Unsubscribe bangumi.',
         'arguments': [
@@ -107,10 +80,6 @@ actions_and_arguments = [
                 'kwargs': dict(action='store_true', help='No confirmation.'),
             },
         ],
-    },
-    {
-        'action': ACTION_LIST,
-        'help': 'List subscribed bangumi.',
     },
     {
         'action': ACTION_FILTER,
@@ -210,36 +179,6 @@ actions_and_arguments = [
         ],
     },
     {
-        'action': ACTION_CONFIG,
-        'help': 'Config BGmi.',
-        'arguments': [
-            {
-                'dest': 'name',
-                'kwargs': dict(
-                    nargs='?',
-                    help='Config name',
-                    type=lambda s: s.upper(),
-                    choices=bgmi.config.__all_writable_now__
-                ),
-            },
-            {'dest': 'value', 'kwargs': dict(nargs='?', help='Config value')},
-        ],
-    },
-    {
-        'action': ACTION_MARK,
-        'help': 'Mark bangumi episode.',
-        'arguments': [
-            {
-                'dest': 'name',
-                'kwargs': dict(help='Bangumi name'),
-            },
-            {
-                'dest': 'episode',
-                'kwargs': dict(help='Bangumi episode', type=int),
-            },
-        ],
-    },
-    {
         'action': ACTION_DOWNLOAD,
         'help': 'Download manager.',
         'arguments': [
@@ -282,48 +221,6 @@ actions_and_arguments = [
         ],
     },
     {
-        'action': ACTION_SEARCH,
-        'help': 'Search torrents from data source by keyword',
-        'arguments': [
-            {
-                'dest': 'keyword',
-                'kwargs': dict(help='Search keyword', ),
-            },
-            {
-                'dest': '--count',
-                'kwargs': dict(type=int, help='The max page count of search result.'),
-            },
-            {
-                'dest': '--regex-filter',
-                'kwargs': dict(help='Regular expression filter of title.'),
-            },
-            {
-                'dest': '--download',
-                'kwargs': dict(action='store_true', help='Download search result.'),
-            },
-            {
-                'dest': '--dupe',
-                'kwargs': dict(action='store_true', help='Show duplicated episode'),
-            },
-            {
-                'dest': '--min-episode',
-                'kwargs': dict(
-                    metavar='min_episode',
-                    type=int,
-                    help='Minimum episode filter of title.',
-                ),
-            },
-            {
-                'dest': '--max-episode',
-                'kwargs': dict(
-                    metavar='max_episode',
-                    type=int,
-                    help='Maximum episode filter of title.',
-                ),
-            },
-        ],
-    },
-    {
         'action': ACTION_CONFIG_GEN,
         'help': 'Generate config for nginx',
         'arguments': [
@@ -344,10 +241,6 @@ actions_and_arguments = [
         ],
     },
     {
-        'action': ACTION_COMPLETE,
-        'help': 'Gen completion, `eval "$(bgmi complete)"` or `eval "$(bgmi complete|dos2unix)"`',
-    },
-    {
         'action': ACTION_SERVE,
         'help': 'Run bgmi front server',
         'arguments': [
@@ -360,26 +253,6 @@ actions_and_arguments = [
                 'kwargs': dict(type=int, ),
             },
         ],
-    },
-    {
-        'action': 'install',
-        'help': 'Install BGmi front / admin / download delegate',
-        'arguments': [
-            {
-                'dest': '--no-web',
-                'kwargs': dict(
-                    action='store_false', dest='install_web', help='Download web static file.'
-                ),
-            },
-            {
-                'dest': '--no-cron',
-                'kwargs': dict(action='store_false', dest='install_cron', help='Install crontab.'),
-            },
-        ],
-    },
-    {
-        'action': 'upgrade',
-        'help': 'Check update.',
     },
     {
         'action': 'history',
