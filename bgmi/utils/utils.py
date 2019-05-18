@@ -46,21 +46,21 @@ def print_info(message, indicator=True):
 @disable_in_test
 @_indicator
 @colorize
-def print_success(message, indicator=True, **kwargs):
+def print_success(message, indicator=True):
     logger.info(message)
 
 
 @disable_in_test
 @_indicator
 @colorize
-def print_warning(message, indicator=True, **kwargs):
+def print_warning(message, indicator=True):
     logger.warning(message)
 
 
 @disable_in_test
 @_indicator
 @colorize
-def print_error(message, exit_=True, indicator=True, **kwargs):
+def print_error(message, exit_=True, indicator=True):
     logger.error(message)
 
     if exit_:

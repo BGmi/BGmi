@@ -10,7 +10,6 @@ from functools import wraps
 import click
 import peewee
 
-import bgmi.config
 import bgmi.setup
 import bgmi.website
 from bgmi import config
@@ -419,7 +418,8 @@ def fetch_(ret):
         print_success(i['title'])
 
 
-def history(ret):
+@normal_cli.command(help='List your history of following bangumi')
+def history():
     m = (
         'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',
         'October', 'November', 'December'
@@ -479,8 +479,8 @@ def config_gen(ret):
             actions=ACTIONS,
             server_name=ret.server_name,
             os_sep=os.sep,
-            front_static_path=bgmi.config.FRONT_STATIC_PATH,
-            save_path=bgmi.config.SAVE_PATH
+            front_static_path=config.FRONT_STATIC_PATH,
+            save_path=config.SAVE_PATH
         )
         print(template_with_content)
         if no_server_name:
@@ -499,13 +499,20 @@ def config_gen(ret):
         template_with_content = render_template(
             template_file_path,
             server_name=ret.server_name,
-            front_static_path=bgmi.config.FRONT_STATIC_PATH,
-            save_path=bgmi.config.SAVE_PATH
+            front_static_path=config.FRONT_STATIC_PATH,
+            save_path=config.SAVE_PATH
         )
         print(template_with_content)
 
 
-def serve(ret):
+@normal_cli.command(
+    help='Run bgmi front server',
+    context_settings={
+        'ignore_unknown_options': True,
+        'allow_extra_args': True,
+    },
+)
+def serve():
     from bgmi.front.server import main
     main()
 

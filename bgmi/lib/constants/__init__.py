@@ -1,7 +1,6 @@
 from . import kv
 from .actions import (
-    ACTION_ADD, ACTION_CAL, ACTION_CONFIG, ACTION_CONFIG_GEN, ACTION_DELETE, ACTION_DOWNLOAD,
-    ACTION_FETCH, ACTION_FILTER, ACTION_LIST, ACTION_MARK, ACTION_SEARCH, ACTION_SERVE,
+    ACTION_CAL, ACTION_CONFIG_GEN, ACTION_DELETE, ACTION_DOWNLOAD, ACTION_FETCH, ACTION_FILTER,
     ACTION_UPDATE
 )
 
@@ -30,20 +29,6 @@ DOWNLOAD_CHOICE = (
 FOLLOWED_ACTION_LIST = 'list'
 FOLLOWED_ACTION_MARK = 'mark'
 FOLLOWED_CHOICE = (FOLLOWED_ACTION_LIST, FOLLOWED_ACTION_MARK)
-SUPPORT_WEBSITE = [
-    {
-        'view': '萌番组 https://bangumi.moe/',
-        'id': 'bangumi_moe',
-    },
-    {
-        'view': '蜜柑计划 https://mikanani.me/',
-        'id': 'mikan_project',
-    },
-    {
-        'view': '动漫花园 http://share.dmhy.org/',
-        'id': 'dmhy',
-    },
-]
 STATUS_SUCCESS = 'success'
 STATUS_WARNING = 'warning'
 STATUS_ERROR = 'error'
@@ -240,24 +225,6 @@ actions_and_arguments = [
             },
         ],
     },
-    {
-        'action': ACTION_SERVE,
-        'help': 'Run bgmi front server',
-        'arguments': [
-            {
-                'dest': '--host',
-                'kwargs': dict(),
-            },
-            {
-                'dest': '--port',
-                'kwargs': dict(type=int, ),
-            },
-        ],
-    },
-    {
-        'action': 'history',
-        'help': 'List your history of following bangumi',
-    },
 ]
 
 
@@ -267,8 +234,6 @@ class NameSpace:
 
 
 __all__ = (
-    'kv', 'actions_and_arguments', 'NameSpace', 'ACTION_ADD', 'ACTION_CAL', 'ACTION_CONFIG',
-    'ACTION_CONFIG_GEN', 'ACTION_DELETE', 'ACTION_DOWNLOAD', 'ACTION_FETCH', 'ACTION_FILTER',
-    'ACTION_LIST', 'ACTION_MARK', 'ACTION_SEARCH', 'ACTION_UPDATE', 'DOWNLOAD_CHOICE_LIST_DICT',
-    'SPACIAL_APPEND_CHARS', 'SPACIAL_REMOVE_CHARS', 'SUPPORT_WEBSITE', 'SECOND_OF_WEEK'
+    'kv', 'actions_and_arguments', 'NameSpace', 'SPACIAL_APPEND_CHARS', 'SPACIAL_REMOVE_CHARS',
+    'SECOND_OF_WEEK'
 )

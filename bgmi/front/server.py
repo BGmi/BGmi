@@ -1,3 +1,5 @@
+import sys
+
 import tornado.httpserver
 import tornado.ioloop
 import tornado.options
@@ -49,7 +51,7 @@ def make_app(**kwargs):
 def main():
     define('port', default=8888, help='listen on the port', type=int)
     define('address', default='0.0.0.0', help='binding at given address', type=str)
-    tornado.options.parse_command_line()
+    tornado.options.parse_command_line(sys.argv[1:])
     print('BGmi HTTP Server listening on %s:%d' % (options.address, options.port))
     http_server = tornado.httpserver.HTTPServer(make_app())
     http_server.listen(options.port, address=options.address)
