@@ -114,6 +114,8 @@ def write_config_parser(config_parser: configparser.ConfigParser):
     try:
         with open(CONFIG_FILE_PATH, 'rb+') as f:
             encoding = chardet.detect(f.read()).get('encoding')
+            if encoding == 'ascii':
+                encoding = 'utf-8'
     except IOError:
         encoding = None
     with open(CONFIG_FILE_PATH, 'w+', encoding=encoding) as f:
