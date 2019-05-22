@@ -551,13 +551,11 @@ def print_filter(followed_filter_obj: Followed):
 
 
 def print_version():
-    print(
-        '''BGmi %sver. %s%s built by %sRicterZ%s with ❤️
+    return '''BGmi %sver. %s%s built by %sRicterZ%s with ❤️
 
 Github: https://github.com/BGmi/BGmi
 Email: ricterzheng@gmail.com
 Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END)
-    )
 
 
 @click.command(

@@ -42,7 +42,7 @@ rm -rf ~/.bgmi | true
 coverage run -a -m bgmi install
 cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
 
-bgmi -h
+bgmi --help
 coverage run -a -m bgmi gen nginx.conf --server-name _
 coverage run -a -m bgmi cal -f
 coverage run -a -m bgmi cal
