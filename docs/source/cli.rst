@@ -25,13 +25,6 @@ bgmi的命令由一系列 ``action`` 组成.
 
     bgmi ${action} --args
 
-..
-    .. argparse::
-       :module: bgmi.main
-       :func: get_arg_parser
-       :prog: bgmi
-
-
 Cal
 ---
 
@@ -63,7 +56,7 @@ Add
 
 .. code-block:: bash
 
-    bgmi add [--episode episode] [--not-ignore] name [name ...]
+    bgmi add name [name ...] [--episode episode] [--not-ignore]
 
 .. program:: add
 
@@ -113,10 +106,10 @@ Filter
 
 .. code-block:: bash
 
-    bgmi filter [-h] [--subtitle subtitle] [--include include]
-                     [--exclude exclude] [--regex regex]
-                     [--data-source data_source]
-                     name
+    bgmi filter name [--subtitle subtitle] [--include include]
+                 [--exclude exclude] [--regex regex]
+                 [--data-source data_source]
+
 
 
 .. program:: filter
@@ -145,6 +138,33 @@ Filter
 .. option:: --data-source data_source
 
     从哪些数据源下载, 为空的话会从所有的数据源下载
+
+
+Update
+-------
+
+.. code-block:: bash
+
+    bgmi update [BANGUMI_NAMES ...] [-d/--download] [--not-ignore]
+
+.. program:: update
+
+.. option:: BANGUMI_NAMES
+
+    要更新的番剧名，留空则更新全部订阅番剧
+
+.. option:: -d --download
+
+    是否同时下载番剧
+
+
+.. warning::
+
+    与2.x版本不同，不能在参数后面指定要更新的集数 :issue:`pallets/click#484`
+
+.. option:: --not-ignore
+
+    是否忽略三个月之前发布的旧种子
 
 
 list

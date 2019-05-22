@@ -1,13 +1,14 @@
 import os
 import sys
 from logging import (
-    BASIC_FORMAT, DEBUG, INFO, FileHandler, Formatter, StreamHandler, getLevelName, getLogger
+    BASIC_FORMAT, DEBUG, INFO, FileHandler, Formatter, Logger, StreamHandler, getLevelName,
+    getLogger
 )
 
 from bgmi import config
 
 
-def get_logger():
+def get_logger() -> Logger:
     log_level = config.LOG_LEVEL
     log_level = log_level.upper()
     if log_level not in ['DEBUG', 'INFO', 'WARNING', 'ERROR']:

@@ -10,7 +10,7 @@ from bgmi import config
 from bgmi.utils import print_error, print_info
 
 
-def init_db():
+def init_db() -> None:
     # bangumi.db
     database = db_url.parse(config.DB_URL)
     db_name = database['database']

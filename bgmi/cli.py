@@ -11,6 +11,7 @@ import click
 import peewee
 
 import bgmi.setup
+import bgmi.utils
 import bgmi.website
 from bgmi import config
 from bgmi.lib import constants, controllers
@@ -23,9 +24,8 @@ from bgmi.lib.update import upgrade_version
 from bgmi.script import ScriptRunner
 from bgmi.sql import init_db
 from bgmi.utils import (
-    COLOR_END, GREEN, RED, YELLOW, check_update, convert_cover_url_to_path, download_cover,
-    get_terminal_col, get_web_admin, print_error, print_info, print_success, print_warning,
-    render_template
+    COLOR_END, GREEN, RED, YELLOW, check_update, convert_cover_url_to_path, get_terminal_col,
+    get_web_admin, print_error, print_info, print_success, print_warning, render_template
 )
 
 
@@ -202,13 +202,15 @@ def mark(bangumi_name, episode):
     globals()['print_{}'.format(result['status'])](result['message'])
 
 
-def delete(ret):
-    if ret.clear_all:
-        controllers.delete_('', clear_all=ret.clear_all, batch=ret.batch)
-    else:
-        for bangumi_name in ret.name:
-            result = controllers.delete_(name=bangumi_name)
-            globals()['print_{}'.format(result['status'])](result['message'])
+@normal_cli.command()
+@click.argument('bangumi_names', nargs=-1, required=True)
+def delete(bangumi_names):
+    # if ret.clear_all:
+    #     controllers.delete_('', clear_all=ret.clear_all, batch=ret.batch)
+    # else:
+    for bangumi_name in bangumi_names:
+        result = controllers.delete_(name=bangumi_name)
+        globals()['print_{}'.format(result['status'])](result['message'])
 
 
 @normal_cli.command()
@@ -242,21 +244,24 @@ def cover_has_downloaded(url: str) -> bool:
     return os.path.exists(file_path) and imghdr.what(file_path)
 
 
-@click.command('cal')
-@click.option('--force-update', '-f', help='force update when showing calendar')
-@click.option('--no-save', help='not save to db')
-@click.option('--download-cover', help='download cover')
-def cal_wrapper(ret):
-    save = not ret.no_save
+@normal_cli.command(help='Print bangumi calendar.')
+@click.option(
+    '--force-update', '-f', is_flag=True, help='Get the newest bangumi calendar from bgm.tv.'
+)
+@click.option('--no-save', is_flag=True, help='Do not save the bangumi data when force update.')
+@click.option('--download-cover', is_flag=True, help='Download the cover to local')
+@click.option('--today', is_flag=True, help='Show bangumi calendar for today.')
+def cal(force_update, no_save, download_cover, today):
+    save = not no_save
     runner = ScriptRunner()
 
-    weekly_list = website.bangumi_calendar(force_update=ret.force_update, save=save)
+    weekly_list = website.bangumi_calendar(force_update=force_update, save=save)
     patch_list = runner.get_models_dict()
     for i in patch_list:
         weekly_list[i['update_time'].lower()].append(i)
 
     # download cover to local
-    if ret.download_cover:
+    if download_cover:
         cover_to_be_download = [
             x for x in runner.get_download_cover() if not cover_has_downloaded(x)
         ]
@@ -268,13 +273,13 @@ def cal_wrapper(ret):
 
         if cover_to_be_download:
             print_info('Updating cover ...')
-            download_cover(cover_to_be_download)
+            bgmi.utils.download_cover(cover_to_be_download)
 
     def shift(seq, n):
         n %= len(seq)
         return seq[n:] + seq[:n]
 
-    if ret.today:
+    if today:
         weekday_order = (Bangumi.week[datetime.datetime.today().weekday()], )
     else:
         weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
@@ -301,8 +306,7 @@ def cal_wrapper(ret):
         if weekly_list[weekday.lower()]:
             print(
                 '{}{}. {}'.format(
-                    GREEN,
-                    weekday if not ret.today else 'Bangumi Schedule for Today (%s)' % weekday,
+                    GREEN, weekday if not today else 'Bangumi Schedule for Today (%s)' % weekday,
                     COLOR_END
                 )
             )
@@ -340,14 +344,21 @@ def cal_wrapper(ret):
             print()
 
 
-def filter_wrapper(ret):
+@normal_cli.command('filter')
+@click.argument('name')
+@click.option('--data-source')
+@click.option('--subtitle')
+@click.option('--include')
+@click.option('--exclude')
+@click.option('--regex')
+def filter_wrapper(name, data_source, subtitle, include, exclude, regex):
     result = controllers.filter_(
-        name=ret.name,
-        data_source_input=ret.data_source,
-        subtitle_input=ret.subtitle,
-        include=ret.include,
-        exclude=ret.exclude,
-        regex=ret.regex
+        name=name,
+        data_source_input=data_source,
+        subtitle_input=subtitle,
+        include=include,
+        exclude=exclude,
+        regex=regex
     )
     result.print()
     if result.data:
@@ -359,8 +370,16 @@ def filter_wrapper(ret):
     return result.data
 
 
-def update_wrapper(ret):
-    controllers.update(name=ret.name, download=ret.download, not_ignore=ret.not_ignore)
+@normal_cli.command()
+@click.argument('bangumi_names', nargs=-1)
+@click.option('-d', '--download', is_flag=True, help='Download bangumi when updated.')
+@click.option(
+    '--not-ignore',
+    is_flag=True,
+    help='Do not ignore the old bangumi detail rows (3 month ago).',
+)
+def update(bangumi_names, download, not_ignore):
+    controllers.update(name=bangumi_names, download=download, not_ignore=not_ignore)
 
 
 def download_manager(ret):
@@ -394,23 +413,25 @@ def download_manager(ret):
         delegate.download_status(status=status)
 
 
-def fetch_(ret):
+@normal_cli.command(help='Fetch bangumi.')
+@click.argument('name')
+@click.option('--not-ignore', is_flag=True)
+def fetch(name, not_ignore):
     try:
-        bangumi_obj = Bangumi.get(name=ret.name)
+        bangumi_obj = Bangumi.get(name=name)
         Followed.get(bangumi_id=bangumi_obj.id)
     except Bangumi.DoesNotExist:
-        print_error('Bangumi {} not exist'.format(ret.name))
+        print_error('Bangumi {} not exist'.format(name))
         return
     except Followed.DoesNotExist:
-        print_error('Bangumi {} is not followed'.format(ret.name))
+        print_error('Bangumi {} is not followed'.format(name))
         return
 
     followed_filter_obj = Followed.get(bangumi_id=bangumi_obj.id)
     print_filter(followed_filter_obj)
 
     print_info('Fetch bangumi {} ...'.format(bangumi_obj.name))
-    # False if ret.not_ignore else True
-    _, data = website.get_maximum_episode(bangumi_obj, ignore_old_row=not ret.not_ignore)
+    _, data = website.get_maximum_episode(bangumi_obj, ignore_old_row=not not_ignore)
 
     if not data:
         print_warning('Nothing.')
@@ -465,40 +486,40 @@ def history():
             )
 
 
-def config_gen(ret):
-    template_file_path = os.path.join(os.path.dirname(__file__), '..', 'others', ret.config)
+@meta_cli.command('gen', help='Generate config for nginx')
+@click.argument('config_name', type=click.Choice(['nginx.conf', 'bgmi_http.service', 'caddyfile']))
+@click.option('--server-name', default=None)
+def config_gen(config_name, server_name):
+    template_file_path = os.path.join(os.path.dirname(__file__), 'others', config_name)
 
-    if ret.config == 'nginx.conf':
-        no_server_name = False
-        if not ret.server_name:
-            no_server_name = True
-            ret.server_name = '_'
+    if config_name == 'nginx.conf':
+        if not server_name:
+            server_name = '_'
 
         template_with_content = render_template(
             template_file_path,
             actions=ACTIONS,
-            server_name=ret.server_name,
+            server_name=server_name,
             os_sep=os.sep,
             front_static_path=config.FRONT_STATIC_PATH,
             save_path=config.SAVE_PATH
         )
         print(template_with_content)
-        if no_server_name:
-            print('# not giving a server name, take `_` as default server name')
-            print('# usage: `bgmi gen nginx.conf --server-name bgmi.my-website.com`')
-    elif ret.config == 'bgmi_http.service':
+
+    elif config_name == 'bgmi_http.service':
         user = os.environ.get('USER', os.environ.get('USERNAME'))
         template_with_content = render_template(
             template_file_path, python_path=sys.executable, user=user
         )
         print(template_with_content)
-    elif ret.config == 'caddyfile':
-        if not ret.server_name:
-            ret.server_name = 'localhost'
+
+    elif config_name == 'caddyfile':
+        if not server_name:
+            server_name = 'localhost'
 
         template_with_content = render_template(
             template_file_path,
-            server_name=ret.server_name,
+            server_name=server_name,
             front_static_path=config.FRONT_STATIC_PATH,
             save_path=config.SAVE_PATH
         )

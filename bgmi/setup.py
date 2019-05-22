@@ -6,7 +6,7 @@ from bgmi.config import (
 from bgmi.utils import exec_command, print_error, print_info, print_success, print_warning
 
 
-def install_crontab():
+def install_crontab() -> None:
     if os.getenv('BGMI_IN_DOCKER'):
         print_warning('env BGMI_IN_DOCKER exists, skip install crontab')
         return
@@ -27,7 +27,7 @@ def install_crontab():
         exec_command("bash '%s'" % path)
 
 
-def create_dir():
+def create_dir() -> None:
     path_to_create = (BGMI_PATH, SAVE_PATH, TMP_PATH, SCRIPT_PATH, TOOLS_PATH, FRONT_STATIC_PATH)
 
     if not os.environ.get('HOME', os.environ.get('USERPROFILE', None)):
