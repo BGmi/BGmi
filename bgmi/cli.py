@@ -203,14 +203,13 @@ def mark(bangumi_name, episode):
 
 
 @normal_cli.command()
-@click.argument('bangumi_names', nargs=-1, required=True)
-def delete(bangumi_names):
+@click.option('--name', required=True)
+def delete(name):
     # if ret.clear_all:
     #     controllers.delete_('', clear_all=ret.clear_all, batch=ret.batch)
     # else:
-    for bangumi_name in bangumi_names:
-        result = controllers.delete_(name=bangumi_name)
-        globals()['print_{}'.format(result['status'])](result['message'])
+    result = controllers.delete_(name=name)
+    globals()['print_{}'.format(result['status'])](result['message'])
 
 
 @normal_cli.command()
