@@ -80,17 +80,6 @@ def meta_cli():
     print('meta command')
 
 
-def print_version(ctx, param, value):
-    print(
-        '''BGmi %sver. %s%s built by %sRicterZ%s with ❤️
-
-Github: https://github.com/BGmi/BGmi
-Email: ricterzheng@gmail.com
-Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END)
-    )
-    exit()
-
-
 @meta_cli.command(help='Install BGmi front / download delegate and initialize database')
 @click.option(
     '--no-web',
@@ -561,9 +550,19 @@ def print_filter(followed_filter_obj: Followed):
     print_info('(`None` means noneffective filter)')
 
 
+def print_version():
+    print(
+        '''BGmi %sver. %s%s built by %sRicterZ%s with ❤️
+
+Github: https://github.com/BGmi/BGmi
+Email: ricterzheng@gmail.com
+Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END)
+    )
+
+
 @click.command(
     cls=click.CommandCollection, sources=[meta_cli, normal_cli], invoke_without_command=True
 )
-@click.option('--version', callback=print_version, is_flag=True, expose_value=False, is_eager=True)
+@click.version_option(print_version())
 def cli():
     pass
