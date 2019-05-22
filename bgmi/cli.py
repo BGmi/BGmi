@@ -13,7 +13,7 @@ import peewee
 import bgmi.setup
 import bgmi.utils
 import bgmi.website
-from bgmi import config
+from bgmi import __version__, config
 from bgmi.lib import constants, controllers
 from bgmi.lib.constants import DOWNLOAD_CHOICE_LIST_DICT, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS
 from bgmi.lib.constants.actions import ACTIONS
@@ -78,6 +78,17 @@ class GroupWithCommandOptions(click.Group):
 @click.group()
 def meta_cli():
     print('meta command')
+
+
+def print_version(ctx, param, value):
+    print(
+        '''BGmi %sver. %s%s built by %sRicterZ%s with ❤️
+
+Github: https://github.com/BGmi/BGmi
+Email: ricterzheng@gmail.com
+Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END)
+    )
+    exit()
 
 
 @meta_cli.command(help='Install BGmi front / download delegate and initialize database')
@@ -550,4 +561,9 @@ def print_filter(followed_filter_obj: Followed):
     print_info('(`None` means noneffective filter)')
 
 
-cli = click.CommandCollection(sources=[meta_cli, normal_cli], invoke_without_command=True)
+@click.command(
+    cls=click.CommandCollection, sources=[meta_cli, normal_cli], invoke_without_command=True
+)
+@click.option('--version', callback=print_version, is_flag=True, expose_value=False, is_eager=True)
+def cli():
+    pass
