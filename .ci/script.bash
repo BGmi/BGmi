@@ -51,8 +51,7 @@ coverage run -a -m bgmi config ADMIN_TOKEN 233
 coverage run -a -m bgmi config DOWNLOAD_DELEGATE 'aria2-rpc'
 coverage run -a -m bgmi add ${BANGUMI_1} ${BANGUMI_2} ${BANGUMI_3}
 coverage run -a -m bgmi update
-coverage run -a -m bgmi delete --name ${BANGUMI_3}
-coverage run -a -m bgmi delete --clear-all --batch
+coverage run -a -m bgmi delete ${BANGUMI_3} ${BANGUMI_2} ${BANGUMI_1}
 coverage run -a -m bgmi add ${BANGUMI_2} --episode 1
 coverage run -a -m bgmi fetch ${BANGUMI_2}
 coverage run -a -m bgmi list
