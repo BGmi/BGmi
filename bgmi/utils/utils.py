@@ -22,9 +22,7 @@ from bgmi.lib import constants
 from bgmi.lib.models import get_kv_storage
 from bgmi.logger import logger
 
-from ._decorator import (
-    COLOR_END, GREEN, YELLOW, _indicator, colorize, disable_in_test, log_utils_function
-)
+from ._decorator import COLOR_END, GREEN, _indicator, colorize, disable_in_test, log_utils_function
 
 SECOND_OF_WEEK = 7 * 24 * 3600
 
@@ -46,33 +44,25 @@ def print_info(message, indicator=True):
 @disable_in_test
 @_indicator
 @colorize
-def print_success(message, indicator=True, **kwargs):
+def print_success(message, indicator=True):
     logger.info(message)
 
 
 @disable_in_test
 @_indicator
 @colorize
-def print_warning(message, indicator=True, **kwargs):
+def print_warning(message, indicator=True):
     logger.warning(message)
 
 
 @disable_in_test
 @_indicator
 @colorize
-def print_error(message, exit_=True, indicator=True, **kwargs):
+def print_error(message, exit_=True, indicator=True):
     logger.error(message)
 
     if exit_:
         exit(1)
-
-
-def print_version():
-    return '''BGmi %sver. %s%s built by %sRicterZ%s with ❤️
-
-Github: https://github.com/BGmi/BGmi
-Email: ricterzheng@gmail.com
-Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END)
 
 
 @log_utils_function

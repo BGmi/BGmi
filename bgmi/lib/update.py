@@ -2,7 +2,7 @@ import os
 
 from playhouse import db_url
 
-from bgmi import __version__
+from bgmi import __version__, config
 from bgmi.config import BGMI_PATH, DB_URL, write_default_config
 from bgmi.lib import constants
 from bgmi.lib.models import db, get_kv_storage
@@ -41,7 +41,8 @@ def upgrade_version():
         if c.lower().startswith('y'):
             db.close()
             os.remove(os.path.join(BGMI_PATH, 'bangumi.db'))
-            remove_old_windows_cron()
+            if config.IS_WINDOWS:
+                remove_old_windows_cron()
             install_crontab()
             init_db()
             write_default_config()
@@ -54,4 +55,7 @@ def upgrade_version():
 def remove_old_windows_cron():
     result = exec_command('schtasks /Delete /TN "bgmi updater" /F')
     if result:
-        print_error("can't delete schedule task named 'bgmi updater', please delete it manually")
+        print_error(
+            "can't delete schedule task named 'bgmi updater', please delete it manually",
+            exit_=False
+        )

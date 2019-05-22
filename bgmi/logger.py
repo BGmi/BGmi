@@ -1,22 +1,14 @@
 import os
 import sys
 from logging import (
-    BASIC_FORMAT, DEBUG, INFO, FileHandler, Formatter, StreamHandler, getLevelName, getLogger
+    BASIC_FORMAT, DEBUG, INFO, FileHandler, Formatter, Logger, StreamHandler, getLevelName,
+    getLogger
 )
 
 from bgmi import config
 
 
-def get_logger():
-    # set up logging to file
-    # logging.basicConfig(
-    #     level=logging.INFO,
-    #     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-    #     datefmt='%m-%d %H:%M',
-    #     filename=tempfile.gettempdir() + '/log',
-    #     filemode='w'
-    # )
-    # basicConfig(format='%(message)s', level=INFO)
+def get_logger() -> Logger:
     log_level = config.LOG_LEVEL
     log_level = log_level.upper()
     if log_level not in ['DEBUG', 'INFO', 'WARNING', 'ERROR']:

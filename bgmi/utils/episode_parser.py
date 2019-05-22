@@ -103,7 +103,7 @@ def get_real_episode(episode_list):
 
 
 @log_utils_function
-def parse_episode(episode_title):
+def parse_episode(episode_title):  # pylint: disable=R0911,R0912
     """
     parse episode from title
 

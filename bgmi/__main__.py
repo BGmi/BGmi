@@ -1,4 +1,4 @@
-from bgmi.main import main
+from bgmi.cli import cli
 
 if __name__ == '__main__':
-    main(program_name='python -m bgmi')
+    cli()

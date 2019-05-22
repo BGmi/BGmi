@@ -4,6 +4,7 @@ import imp
 import os
 import time
 import traceback
+from typing import List
 
 import stevedore.exception
 
@@ -44,7 +45,7 @@ class ScriptRunner:
         return cls._defined
 
     @classmethod
-    def check(cls, script):
+    def check(cls, script) -> bool:
         condition = [
             lambda: script.Model().due_date > datetime.datetime.now(),
         ]
@@ -60,16 +61,16 @@ class ScriptRunner:
 
         return True
 
-    def get_model(self, name):
+    def get_model(self, name: str) -> Scripts:
         for script in self.scripts:
             if script.Model.bangumi_name == name:
                 return script.Model().obj
 
-    def get_models_dict(self):
+    def get_models_dict(self) -> List[dict]:
         return [dict(script.Model()) for script in self.scripts if script.bangumi_name is not None]
 
     @staticmethod
-    def make_dict(script):
+    def make_dict(script) -> List[dict]:
         return [{
             'name': script.bangumi_name,
             'title': '[{}][{}]'.format(script.bangumi_name, k),
@@ -77,7 +78,7 @@ class ScriptRunner:
             'download': v,
         } for k, v in script.get_download_url().items()]
 
-    def run(self, return_=True, download=False):
+    def run(self, return_=True, download=False) -> List[dict]:
         for script in self.scripts:
             print_info('fetching {} ...'.format(script.bangumi_name))
             download_item = self.make_dict(script)
@@ -117,7 +118,7 @@ class ScriptRunner:
 
         return self.download_queue
 
-    def get_download_cover(self):
+    def get_download_cover(self) -> List[dict]:
         return [script['cover'] for script in self.get_models_dict()]
 
 
@@ -136,7 +137,7 @@ class ScriptBase:
 
         # fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
         bangumi_id = None
-        subtitle_list = []
+        subtitle_list = []  # type: list
         max_page = MAX_PAGE
 
         def __init__(self):
@@ -163,7 +164,7 @@ class ScriptBase:
             yield ('data_source', {})
 
     @property
-    def _data(self):
+    def _data(self) -> dict:
         return {
             'bangumi_id': self.Model.bangumi_id,
             'subtitle_list': self.Model.subtitle_list,
@@ -171,7 +172,7 @@ class ScriptBase:
         }
 
     @property
-    def source(self):
+    def source(self) -> str:
         return self.Model.source
 
     @property

@@ -77,9 +77,9 @@ class ControllerResult:
         error: print_error,
     }
 
-    def print(self):
+    def print(self, indicator=False):
         if self.message:
-            self.print_map.get(self.status, print)(self.message)
+            self.print_map.get(self.status, print)(self.message, indicator=indicator)
 
 
 def add(name, episode=None):
@@ -241,6 +241,9 @@ def delete_(name='', clear_all=False, batch=False):
             followed.save()
             result['status'] = 'warning'
             result['message'] = 'Bangumi {} has been deleted'.format(name)
+        except Bangumi.DoesNotExist:
+            result['status'] = 'error'
+            result['message'] = 'Bangumi {} does not exist'.format(name)
         except Followed.DoesNotExist:
             result['status'] = 'error'
             result['message'] = 'Bangumi %s does not exist' % name
