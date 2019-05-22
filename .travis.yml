@@ -1,10 +1,7 @@
 language: python
 
 python:
-  - "3.4"
-  - "3.5"
   - "3.6"
-  - "pypy3.5"
 
 os: linux
 
@@ -23,7 +20,9 @@ env:
   global:
     - PYTHONIOENCODING=utf-8
     - TRAVIS_CI=TRAVIS_CI
-
+    - BANGUMI_1=名侦探柯南
+    - BANGUMI_2=妖怪手表
+    - BANGUMI_3=海贼王
   # make matrix
   matrix:
     - DB=sqlite
@@ -35,8 +34,6 @@ services:
 
 matrix:
   fast_finish: true
-  allow_failures:
-    - python: 'pypy3.5'
 
   include:
     - os: osx
@@ -122,6 +119,16 @@ matrix:
         - docker run -v $HOME/.bgmi:/bgmi --net host bgmi install
         - ls $HOME/.bgmi
 
+    - os: linux
+      name: Build binary and test
+      python: '3.6'
+      before_install: false
+      script:
+        - bash .ci/build.sh
+        - alias bgmi="./dist/bgmi"
+        - bash ./.ci/command_test.bash
+
+
 before_cache:
   - rm -f $HOME/.cache/pip/log/debug.log
 
@@ -152,7 +159,10 @@ install:
   - bash ./.ci/install.bash
 
 script:
-  - bash ./.ci/script.bash
+  - alias bgmi="coverage run -a -m bgmi"
+  - bash ./.ci/unittest.bash
+  - bash <(curl -s https://codecov.io/bash) -c -F command > /dev/null
+
 
 after_success:
   - codecov
