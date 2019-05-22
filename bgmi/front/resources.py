@@ -3,6 +3,8 @@ import os
 from collections import defaultdict
 
 from icalendar import Calendar, Event
+from tornado import gen
+from tornado.ioloop import IOLoop
 from tornado.web import HTTPError
 
 from bgmi.config import SAVE_PATH
@@ -37,21 +39,27 @@ class BangumiHandler(BaseHandler):
 
 
 class RssHandler(BaseHandler):
+    @gen.coroutine
     def get(self):  # pylint: disable=W0221
-        data = Download.get_all_downloads()
+        data = yield from IOLoop.current().run_in_executor(None, Download.get_all_downloads, None)
         self.set_header('Content-Type', 'text/xml')
         self.render('templates/download.xml', data=data)
 
 
 class CalendarHandler(BaseHandler):
+    @gen.coroutine
     def get(self):  # pylint: disable=W0221
         type_ = self.get_argument('type', 0)
 
         cal = Calendar()
-        cal.add('prodid', '-//BGmi Followed Bangumi Calendar//bangumi.ricterz.me//')
+        cal.add('prodid', '-//BGmi Followed Bangumi Calendar//')
         cal.add('version', '2.0')
+        cal.add('name', 'Bangumi Calendar')
+        cal.add('X-WR-CALNAM', 'Bangumi Calendar')
+        cal.add('description', 'Followed Bangumi Calendar')
+        cal.add('X-WR-CALDESC', 'Followed Bangumi Calendar')
 
-        data = Followed.get_all_followed()
+        data = yield IOLoop.current().run_in_executor(None, Followed.get_all_followed, None)
         data.extend(self.patch_list)
 
         if type_ == 0:
@@ -84,11 +92,12 @@ class CalendarHandler(BaseHandler):
                 event.add('dtend', datetime.datetime.now().date())
                 cal.add_component(event)
 
-        cal.add('name', 'Bangumi Calendar')
-        cal.add('X-WR-CALNAM', 'Bangumi Calendar')
-        cal.add('description', 'Followed Bangumi Calendar')
-        cal.add('X-WR-CALDESC', 'Followed Bangumi Calendar')
-
+        if 'mozilla' not in self.request.headers.get('User-Agent', '').lower():
+            # not browser, return icalendar
+            self.set_header('content-type', 'text/calendar; charset=utf-8')
+        else:
+            # browser, show raw content
+            self.set_header('content-type', 'text/plain; charset=utf-8')
         self.write(cal.to_ical())
         self.finish()
 

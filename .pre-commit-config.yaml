@@ -27,11 +27,6 @@ repos:
     hooks:
       - id: flake8
 
-  - repo: https://github.com/pre-commit/pre-commit
-    rev: v1.16.1
-    hooks:
-      - id: validate_manifest
-
   - repo: https://github.com/Trim21/find-trailing-comma
     rev: v0.0.1
     hooks:
@@ -39,7 +34,6 @@ repos:
 
   - repo: local
     hooks:
-
       - id: autoflake
         name: autoflake
         entry: autoflake

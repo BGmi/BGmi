@@ -172,7 +172,7 @@ Unsubscribe bangumi:
 
 .. code-block:: bash
 
-    bgmi delete --name "Re:CREATORS"
+    bgmi delete "Re:CREATORS"
 
 
 Update bangumi database which locates at ~/.bgmi/bangumi.db acquiescently:

@@ -10,7 +10,7 @@ from tornado.web import HTTPError
 
 from bgmi.config import ADMIN_TOKEN
 from bgmi.front.base import BaseHandler
-from bgmi.lib.constants import (
+from bgmi.lib.constants.actions import (
     ACTION_ADD, ACTION_CAL, ACTION_DELETE, ACTION_DOWNLOAD, ACTION_FILTER, ACTION_MARK,
     ACTION_SEARCH
 )

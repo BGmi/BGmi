@@ -2,6 +2,9 @@
 import os
 from pprint import pformat
 
+from tornado import gen
+from tornado.ioloop import IOLoop
+
 from bgmi.config import FRONT_STATIC_PATH, SAVE_PATH
 from bgmi.front.base import COVER_URL, BaseHandler
 from bgmi.lib.models import Bangumi, Followed
@@ -61,6 +64,7 @@ class IndexHandler(BaseHandler):
 
 
 class BangumiListHandler(BaseHandler):
+    @gen.coroutine
     def get(self, type_=''):
         data = Followed.get_all_followed(
             Followed.STATUS.DELETED,
@@ -77,7 +81,9 @@ class BangumiListHandler(BaseHandler):
         data.reverse()
 
         for item in data:
-            item['player'] = get_player(item['bangumi_name'])
+            item['player'] = yield IOLoop.current().run_in_executor(
+                None, get_player, item['bangumi_name']
+            )
 
         self.write(self.jsonify(data))
         self.finish()
