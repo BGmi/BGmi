@@ -278,7 +278,10 @@ class Followed(NeoDB):
         return episode_list
 
     def apply_exclude(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
-        exclude = split_str_to_list(self.exclude)
+        if self.exclude:
+            exclude = split_str_to_list(self.exclude)
+        else:
+            exclude = []
         if config.ENABLE_GLOBAL_FILTER != '0':
             exclude += split_str_to_list(config.GLOBAL_FILTER)
         exclude.append('合集')

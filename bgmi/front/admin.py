@@ -4,6 +4,7 @@ import traceback
 from concurrent.futures.thread import ThreadPoolExecutor
 from threading import Lock
 
+from playhouse.shortcuts import model_to_dict
 from tornado.concurrent import run_on_executor
 from tornado.ioloop import IOLoop
 from tornado.web import HTTPError
@@ -27,13 +28,13 @@ def auth_(token=''):
 
 def _filter(name, subtitle=None, include=None, exclude=None, regex=None):
     result = filter_(name, subtitle_input=subtitle, include=include, exclude=exclude, regex=regex)
-    if 'data' in result:
-        data = result['data']
-        result['data'].update({
-            'include': ', '.join(data['include'] or []),
-            'exclude': ', '.join(data['exclude'] or []),
-        })
-    return result
+    data = result.data
+    data.update({
+        'include': ', '.join(data['include'] or []),
+        'exclude': ', '.join(data['exclude'] or []),
+    })
+    data['obj'] = model_to_dict(data['obj'])
+    return {'status': result.status, 'data': result.data}
 
 
 API_MAP_POST = {

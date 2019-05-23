@@ -246,4 +246,9 @@ class ApiTestCase(AsyncHTTPTestCase):
 
     @classmethod
     def setUpClass(cls):
+        logging.getLogger('').setLevel(logging.ERROR)
         logging.getLogger('tornado.access').setLevel(logging.ERROR)
+        logging.getLogger('tornado.application').setLevel(logging.ERROR)
+        logging.getLogger('tornado.general').setLevel(logging.ERROR)
+        import bgmi.logger
+        bgmi.logger.logger.setLevel(logging.ERROR)

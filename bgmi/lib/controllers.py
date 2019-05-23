@@ -475,11 +475,6 @@ def update(name, download=None, not_ignore=False):
             obj.save()
 
     print_info('updating subscriptions ...')
-    if download:
-        if not name:
-            print_warning('No specified bangumi, ignore `--download` option')
-        if len(name) > 1:
-            print_warning('Multiple specified bangumi, ignore `--download` option')
 
     if not name:
         updated_bangumi_obj = Followed.get_all_followed()
