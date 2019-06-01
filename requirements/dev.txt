@@ -8,6 +8,6 @@ pycodestyle==2.5.0
 pymysql==0.9.3
 transmission_rpc>=1.0.0, <2.0.0
 yapf==0.27.0
-livereload==2.6.0
+livereload==2.6.1
 pyupgrade==1.17.0
 autoflake==1.3
