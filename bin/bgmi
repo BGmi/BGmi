@@ -1,3 +1,0 @@
-from bgmi.cli import cli
-
-cli()
