@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
+set -x
 
 rm -rf ~/.bgmi | true
 bgmi install
 cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
 
-bgmi -h
+bgmi --help
 bgmi gen nginx.conf --server-name _
 bgmi cal -f
 bgmi cal
@@ -14,8 +15,8 @@ bgmi config DOWNLOAD_DELEGATE 'aria2-rpc'
 bgmi config GLOBAL_FILTER 'Leopard-Raws, hevc, x265, c-a Raws, 外挂'
 bgmi add ${BANGUMI_1} ${BANGUMI_2} ${BANGUMI_3}
 bgmi update
-bgmi delete --name ${BANGUMI_3}
-bgmi delete --clear-all --batch
+bgmi delete ${BANGUMI_3}
+bgmi add ${BANGUMI_1} ${BANGUMI_2}
 bgmi add ${BANGUMI_2} --episode 1
 bgmi fetch ${BANGUMI_2}
 bgmi list
