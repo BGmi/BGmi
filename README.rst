@@ -54,7 +54,7 @@ Feature
 Installation
 ============
 
-Attention: If you are using Python 2.x, please install a version prior to 2.1.0.
+Attention: If you are using Python<3.6, please download a binary release with python3.6 interpreter
 
 For **Mac OS X / Linux / Windows**:
 

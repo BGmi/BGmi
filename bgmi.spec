@@ -28,7 +28,7 @@ for package, files in package_imports:
     proot = os.path.dirname(importlib.import_module(package).__file__)
     datas.extend((os.path.join(proot, f), package) for f in files)
 
-a = Analysis(['bin/bgmi'],
+a = Analysis(['bgmi/__main__.py'],
              pathex=['.'],
              hiddenimports=[],
              hookspath=None,
