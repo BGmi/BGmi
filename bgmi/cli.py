@@ -9,6 +9,7 @@ from functools import wraps
 
 import click
 import peewee
+import requests
 
 import bgmi.setup
 import bgmi.utils
@@ -17,16 +18,21 @@ from bgmi import __version__, config
 from bgmi.lib import constants, controllers
 from bgmi.lib.constants import DOWNLOAD_CHOICE_LIST_DICT, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS
 from bgmi.lib.constants.actions import ACTIONS
-from bgmi.lib.db_models import Bangumi, Followed, get_kv_storage
+from bgmi.lib.db_models import (
+    Bangumi, BangumiItem, Followed, get_kv_storage, get_non_bind_bangumi_item
+)
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
 from bgmi.lib.update import upgrade_version
 from bgmi.script import ScriptRunner
 from bgmi.sql import init_db
 from bgmi.utils import (
-    COLOR_END, GREEN, RED, YELLOW, check_update, convert_cover_url_to_path, get_terminal_col,
+    COLOR_END, GREEN, RED, WHITE, YELLOW, check_update, convert_cover_url_to_path, get_terminal_col,
     get_web_admin, print_error, print_info, print_success, print_warning, render_template
 )
+from bgmi.website import get_all_provider
+
+from .website import get_provider
 
 
 def action_decorator(fn):
@@ -251,11 +257,12 @@ def cover_has_downloaded(url: str) -> bool:
 @click.option('--no-save', is_flag=True, help='Do not save the bangumi data when force update.')
 @click.option('--download-cover', is_flag=True, help='Download the cover to local')
 @click.option('--today', is_flag=True, help='Show bangumi calendar for today.')
-def cal(force_update, no_save, download_cover, today):
+@click.option('--detail', is_flag=True, help='Show bangumi with data source bangumi item.')
+def cal(force_update, no_save, download_cover, today, detail):
     save = not no_save
     runner = ScriptRunner()
 
-    weekly_list = website.bangumi_calendar(force_update=force_update, save=save)
+    weekly_list = website.bangumi_calendar(force_update=force_update, save=save, detail=detail)
     patch_list = runner.get_models_dict()
     for i in patch_list:
         weekly_list[i['update_time'].lower()].append(i)
@@ -295,7 +302,10 @@ def cal(force_update, no_save, download_cover, today):
         print_warning('terminal window is too small.')
         env_columns = col
 
-    row = int(env_columns / col if env_columns / col <= 3 else 3)
+    if detail:
+        row = 1
+    else:
+        row = int(env_columns / col if env_columns / col <= 3 else 3)
 
     def print_line():
         num = col - 3
@@ -306,8 +316,9 @@ def cal(force_update, no_save, download_cover, today):
         if weekly_list[weekday.lower()]:
             print(
                 '{}{}. {}'.format(
-                    GREEN, weekday if not today else 'Bangumi Schedule for Today (%s)' % weekday,
-                    COLOR_END
+                    GREEN,
+                    weekday if not today else f'Bangumi Schedule for Today ({weekday})',
+                    COLOR_END,
                 )
             )
             print_line()
@@ -316,11 +327,10 @@ def cal(force_update, no_save, download_cover, today):
                     Followed.STATUS.UPDATED,
                     Followed.STATUS.FOLLOWED,
                 ) and 'episode' in bangumi:
-                    bangumi['name'] = '%s(%d)' % (bangumi['name'], bangumi['episode'])
+                    bangumi['name'] = '{}({:d})'.format(bangumi['name'], bangumi['episode'])
 
-                half = len(re.findall('[%s]' % string.printable, bangumi['name']))
+                half = len(re.findall(f'[{string.printable}]', bangumi['name']))
                 full = (len(bangumi['name']) - half)
-                # print(full, " ", half, "'", bangumi['name'], "'", sep='', end=' ')
 
                 space_count = col - 2 - (full * 2 + half)
 
@@ -334,14 +344,48 @@ def cal(force_update, no_save, download_cover, today):
 
                 if bangumi['status'] == Followed.STATUS.FOLLOWED:
                     bangumi['name'] = '{}{}{}'.format(YELLOW, bangumi['name'], COLOR_END)
-
-                if bangumi['status'] == Followed.STATUS.UPDATED:
+                elif bangumi['status'] == Followed.STATUS.UPDATED:
                     bangumi['name'] = '{}{}{}'.format(GREEN, bangumi['name'], COLOR_END)
-                print(' ' + bangumi['name'], ' ' * space_count, end='')
-
+                else:
+                    bangumi['name'] = '{}{}{}'.format(WHITE, bangumi['name'], COLOR_END)
+                if detail:
+                    print(' ' + bangumi['name'], end=' ')
+                else:
+                    print(' ' + bangumi['name'], ' ' * space_count, end='')
+                if detail:
+                    if bangumi.get('source'):
+                        print(' { ', end='')
+                    for key, item in bangumi.get('source', {}).items():
+                        print(f'{key} "{item["name"]}"', end=', ', sep='')
+                    if bangumi.get('source'):
+                        print(' }')
                 if (i + 1) % row == 0 or i + 1 == len(weekly_list[weekday.lower()]):
                     print()
             print()
+
+
+@normal_cli.command(help='show all bangumi item of data source are not bangumi')
+def show_bangumi_items():
+    for item in get_non_bind_bangumi_item():
+        print(f'{GREEN}[+] {item.data_source} {item.name}{COLOR_END}')
+
+
+@normal_cli.command(help='add a bangumi from bgm.tv')
+@click.argument('subject-id')
+def add_bangumi(subject_id):
+    r = requests.get(f'https://api.bgm.tv/subject/{subject_id}')
+    res = r.json()
+    if res.get('code'):
+        print_error('bgm.tv api server error response', exit_=False)
+        print_error(r.text)
+    if res.get('name_cn'):
+        res['name'] = res['name_cn']
+    obj, created = Bangumi.get_or_create(subject_id=res['id'], defaults=res)  # type: (Bangumi,bool)
+    if created:
+        print_success(f'create bangumi {res["name_cn"]}')
+    else:
+        print_success(f'bangumi has existed, update bangumi info')
+    bgmi.website.bind_bangumi_item_in_db_to_bangumi()
 
 
 @normal_cli.command('filter')
@@ -380,6 +424,61 @@ def filter_wrapper(name, data_source, subtitle, include, exclude, regex):
 )
 def update(bangumi_names, download, not_ignore):
     controllers.update(name=bangumi_names, download=download, not_ignore=not_ignore)
+
+
+@normal_cli.command()
+@click.argument('bangumi_name')
+def show_bangumi_info(bangumi_name):
+    r = controllers.get_bangumi_source(bangumi_name)
+    if r.status != r.success:
+        r.print()
+    else:
+        for item in r.data:
+            print('{} {}'.format(get_provider(item.data_source).name, item.name))
+
+
+@normal_cli.command()
+@click.argument('item_source')
+@click.argument('item_name')
+@click.argument('bangumi_name')
+def set_item(item_source, item_name, bangumi_name):
+    all_data_source = dict(get_all_provider())
+    if item_source not in all_data_source:
+        print_error(
+            '{} is not a valid data source id, must be one of {}'.format(
+                item_source, all_data_source.keys()
+            )
+        )
+    try:
+        controllers.set_bangumi_item(item_name, item_source, bangumi_name)
+    except Bangumi.DoesNotExist:
+        print_error(f"bangumi {bangumi_name} doesn't exists")
+    except BangumiItem.DoesNotExist:
+        print_error(
+            "bangumi item {} doesn't exists in data source".format(
+                bangumi_name,
+                get_provider(item_source).name
+            )
+        )
+
+
+@normal_cli.command()
+@click.argument('item_source')
+@click.argument('item_name')
+def unset_item(item_source, item_name):
+    all_data_source = dict(get_all_provider())
+    if item_source not in all_data_source:
+        print_error(
+            '{} is not a valid data source id, must be one of {}'.format(
+                item_source, all_data_source.keys()
+            )
+        )
+    try:
+        controllers.set_bangumi_id_for_bangumi_item(item_name, item_source, -1)
+    except BangumiItem.DoesNotExist:
+        print_warning(
+            "bangumi item {} doesn't exists in data source".format(get_provider(item_source).name)
+        )
 
 
 def download_manager(ret):

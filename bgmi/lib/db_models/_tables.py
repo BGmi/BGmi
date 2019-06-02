@@ -44,7 +44,7 @@ class BangumiItem(pw.Model):
     keyword = pw.CharField()  # type: str
     data_source = pw.FixedCharField(max_length=DATA_SOURCE_ID_MAX_LENGTH)  # type: str
     # foreign key
-    bangumi = pw.IntegerField(default=0)
+    bangumi_id = pw.IntegerField(default=0)
 
     class STATUS(IntEnum):
         UPDATING = 0
@@ -82,19 +82,19 @@ class BangumiItem(pw.Model):
 
     @classmethod
     def get_unmarked_updating_bangumi(cls) -> Iterator['BangumiItem']:
-        cond = (cls.bangumi == cls.bangumi.default) & \
+        cond = (cls.bangumi_id == cls.bangumi_id.default) & \
                (cls.status == cls.STATUS.UPDATING)
         return cls.select().where(cond)
 
     @classmethod
     def get_marked_updating_bangumi(cls) -> Iterator['BangumiItem']:
-        cond = (cls.bangumi != cls.bangumi.default) \
+        cond = (cls.bangumi_id != cls.bangumi_id.default) \
             & (cls.status == cls.STATUS.UPDATING)
         return cls.select().where(cond)
 
     @classmethod
     def get_data_source_by_id(cls, bangumi_id) -> Iterator['BangumiItem']:
-        return cls.select().where(cls.bangumi == bangumi_id)
+        return cls.select().where(cls.bangumi_id == bangumi_id)
 
 
 class Bangumi(FuzzyMixIn, NeoDB):
@@ -367,9 +367,9 @@ class Subtitle(NeoDB):
         :type bangumi_obj: Union[Bangumi,dict]
         """
         if isinstance(bangumi_obj, dict):
-            items = BangumiItem.select().where(BangumiItem.bangumi == bangumi_obj['id']).dicts()
+            items = BangumiItem.select().where(BangumiItem.bangumi_id == bangumi_obj['id']).dicts()
         else:
-            items = BangumiItem.select().where(BangumiItem.bangumi == bangumi_obj.id).dicts()
+            items = BangumiItem.select().where(BangumiItem.bangumi_id == bangumi_obj.id).dicts()
 
         data_source_dict = {}
         for item in items:

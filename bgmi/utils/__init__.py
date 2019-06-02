@@ -1,4 +1,4 @@
-from ._decorator import COLOR_END, GREEN, RED, YELLOW
+from ._decorator import COLOR_END, GREEN, GREY, RED, WHITE, YELLOW
 from .episode_parser import chinese_to_arabic, parse_episode
 from .utils import (
     check_update, convert_cover_url_to_path, download_cover, exec_command, full_to_half,
@@ -9,7 +9,9 @@ from .utils import (
 __all__ = [
     'COLOR_END',
     'GREEN',
+    'GREY',
     'RED',
+    'WHITE',
     'YELLOW',
     'parallel',
     'chinese_to_arabic',

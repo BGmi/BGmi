@@ -1,4 +1,5 @@
 from collections import defaultdict
+from typing import List
 
 import peewee as pw
 from playhouse.shortcuts import model_to_dict
@@ -21,7 +22,7 @@ def order_by_weekday(data, obj=False) -> defaultdict:
     return weekly_list
 
 
-def get_updating_bangumi_with_data_source(status=None, order=True):
+def get_updating_bangumi_with_out_data_source(status=None, order=True):
     common_cond = ((Bangumi.status == Bangumi.STATUS.UPDATING) & (Bangumi.has_data_source == 1))
 
     query = Bangumi.select(Followed.status, Followed.episode, Bangumi) \
@@ -40,6 +41,34 @@ def get_updating_bangumi_with_data_source(status=None, order=True):
         weekly_list = list(data)
 
     return weekly_list
+
+
+def get_updating_bangumi_with_data_source(status=None, order=True):
+    data = get_updating_bangumi_with_out_data_source(status, order=False)
+
+    items: List[BangumiItem] = BangumiItem.select().where(
+        BangumiItem.bangumi_id.in_([x['id'] for x in data if x['has_data_source']])
+    )
+    for item in items:
+        for bangumi in data:
+            if item.bangumi_id == bangumi['id']:
+                if 'source' not in bangumi:
+                    bangumi['source'] = {}
+                bangumi['source'][item.data_source] = model_to_dict(item)
+
+    if order:
+        weekly_list = order_by_weekday(data)
+    else:
+        weekly_list = list(data)
+
+    return weekly_list
+
+
+def get_non_bind_bangumi_item() -> List[BangumiItem]:
+    items: List[BangumiItem] = BangumiItem.select(
+    ).where(((BangumiItem.bangumi_id == 0) | (BangumiItem.bangumi_id == -1))
+            & (BangumiItem.status == BangumiItem.STATUS.UPDATING))
+    return items
 
 
 def get_followed_bangumi():
@@ -68,7 +97,9 @@ __all__ = [
     'Scripts',
     'Subtitle',
     'DoesNotExist',
+    'get_updating_bangumi_with_out_data_source',
     'get_updating_bangumi_with_data_source',
+    'get_non_bind_bangumi_item',
     'model_to_dict',
 ]
 if __name__ == '__main__':  # pragma:no cover

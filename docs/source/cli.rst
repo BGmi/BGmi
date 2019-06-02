@@ -48,6 +48,10 @@ Cal
 
     在强制更新番剧的时候不保存的数据库中.
 
+.. option:: --detail
+
+    显示番剧详情。会输出番剧对应数据源条目
+
 Add
 ---
 
@@ -171,3 +175,83 @@ list
 ----
 
 输出所有订阅的番剧
+
+
+.. warning::
+
+    下面三个命令一般不会用到，如果发现下载的番剧内容跟名字不能对应，
+    用下面的命令来确定对应的数据源条目跟番剧条目是否对应。
+
+set-item
+--------
+
+如果出现数据源条目没有匹配到正确的番剧条目或者匹配错误的情况下，
+使用这个命令来设置正确的番剧条目
+
+.. code-block:: bash
+
+    bgmi set-item source_id item_name bangumi_name
+
+.. program:: set-item
+
+.. option:: source_id
+
+
+.. option:: item_name
+
+
+.. note::
+
+    source_id 和 item_name会，会在 ``bgmi cal --detail`` 中显示
+
+.. option:: bangumi_name
+
+    番剧名
+
+
+
+unset-item
+--------
+
+如果出现数据源条目没有匹配到正确的番剧条目，且没有
+使用这个命令来设置正确的番剧条目
+
+.. code-block:: bash
+
+    bgmi unset-item source_id item_name
+
+.. program:: set-item
+
+.. option:: source_id
+
+.. option:: item_name
+
+.. note::
+
+    source_id 和 item_name会，会在 ``bgmi cal --detail`` 中显示
+
+
+show-bangumi-items
+--------
+
+打印所有没有对应番剧的数据源条目
+
+add-bangumi
+-----------
+
+如果番组计划的日历漏了某条番剧，可以用这个命令来手动添加
+
+
+.. code-block:: bash
+
+    bgmi add-bangumi subject-id
+
+.. program:: set-item
+
+.. option:: subject_id
+
+    对应番剧在bgm.tv的条目id
+
+    比如为了添加 `JOJO的奇妙冒险 黄金之风 /subject/235128 <https://bgm.tv/subject/235128>`_
+
+    应该调用 ``bgmi add-bangumi 235128``

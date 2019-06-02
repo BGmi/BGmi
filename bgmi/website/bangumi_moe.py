@@ -64,6 +64,7 @@ def parser_bangumi(data):
 
 
 class BangumiMoe(BaseWebsite):
+    name = 'Bangumi.Moe'
     cover_url = COVER_URL
 
     def fetch_episode_of_bangumi(self, bangumi_id, max_page, subtitle_list=None):

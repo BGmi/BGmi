@@ -95,6 +95,7 @@ def unique_subtitle_list(raw_list):
 
 
 class DmhySource(BaseWebsite):
+    name = '动漫花园'
     cover_url = config.SHARE_DMHY_URL
 
     def search_by_keyword(self, keyword, count=None):

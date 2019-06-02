@@ -113,6 +113,7 @@ def parse_bangumi_details_page(bangumi_id):
 
 
 class Mikanani(BaseWebsite):
+    name = '蜜柑计划'
     cover_url = server_root[:-1]
 
     def search_by_keyword(self, keyword, count=None):

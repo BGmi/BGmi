@@ -67,12 +67,16 @@ def disable_in_test(func):
 GREEN = ''
 YELLOW = ''
 RED = ''
+GREY = ''
+WHITE = ''
 COLOR_END = ''
 
 if not sys.platform.startswith('win') or os.getenv('SHELL'):
     GREEN = '\033[1;32m'
     YELLOW = '\033[1;33m'
     RED = '\033[1;31m'
+    WHITE = '\033[1;37m'
+    GREY = '\033[0m'
     COLOR_END = '\033[0m'
 
 color_map = {

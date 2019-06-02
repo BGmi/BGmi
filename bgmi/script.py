@@ -118,7 +118,7 @@ class ScriptRunner:
 
         return self.download_queue
 
-    def get_download_cover(self) -> List[dict]:
+    def get_download_cover(self) -> List[str]:
         return [script['cover'] for script in self.get_models_dict()]
 
 

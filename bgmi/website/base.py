@@ -23,6 +23,15 @@ class BaseWebsite(ABC):
         ]
         return bangumi_result, subtitile_result
 
+    @property
+    @abstractmethod
+    def name(self):
+        """
+        return bangumi source name
+
+        :rtype: str
+        """
+
     @abstractmethod
     def fetch_bangumi_calendar_and_subtitle_group(self):  # pragma: no cover
         """

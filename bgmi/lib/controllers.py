@@ -4,6 +4,7 @@ from operator import itemgetter
 from typing import Mapping
 
 import attr
+import peewee as pw
 
 from bgmi import config
 from bgmi.lib import db_models
@@ -564,3 +565,23 @@ def list_():
 
     result.message = message
     return result
+
+
+def get_bangumi_source(name):
+    try:
+        bangumi = Bangumi.get(name=name)
+    except pw.DoesNotExist:
+        return ControllerResult.new_error('bangumi {} not exists'.format(name))
+    bangumi_items = BangumiItem.select().where(BangumiItem.bangumi_id == bangumi.id)
+    return ControllerResult(data=list(bangumi_items))
+
+
+def set_bangumi_item(item_name, item_source, bangumi_name):
+    bangumi = Bangumi.get(name=bangumi_name)
+    return set_bangumi_id_for_bangumi_item(item_name, item_source, bangumi.id)
+
+
+def set_bangumi_id_for_bangumi_item(item_name, item_source, bangumi_id):
+    bangumi_item: BangumiItem = BangumiItem.get(name=item_name, data_source=item_source)
+    bangumi_item.bangumi_id = bangumi_id
+    bangumi_item.save()

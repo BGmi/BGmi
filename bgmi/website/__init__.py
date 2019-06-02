@@ -1,4 +1,5 @@
 import html
+import ssl
 import time
 from collections import defaultdict
 from difflib import SequenceMatcher
@@ -15,7 +16,7 @@ from bgmi.config import MAX_PAGE
 from bgmi.lib.constants import NameSpace
 from bgmi.lib.db_models import (
     Bangumi, BangumiItem, Followed, Subtitle, db, get_updating_bangumi_with_data_source,
-    model_to_dict
+    get_updating_bangumi_with_out_data_source, model_to_dict
 )
 from bgmi.utils import full_to_half, parallel, print_info, print_warning, test_connection
 from bgmi.website.base import BaseWebsite
@@ -26,12 +27,17 @@ THRESHOLD = 60
 MAX_PAGE = int(MAX_PAGE)
 
 
+def _raise(_1, _2, c):
+    raise c
+
+
 @lru_cache(20)
 def get_provider(source) -> BaseWebsite:
     return stevedore.DriverManager(
         namespace=NameSpace.data_source_provider,
         name=source,
         invoke_on_load=True,
+        on_load_failure_callback=_raise,
     ).driver
 
 
@@ -39,6 +45,7 @@ def get_all_provider() -> Iterator[Dict[str, BaseWebsite]]:
     mgr = stevedore.ExtensionManager(
         namespace=NameSpace.data_source_provider,
         invoke_on_load=True,
+        on_load_failure_callback=_raise,
     )
     yield from [(source_id, ext.obj) for (source_id, ext) in mgr.items()]
 
@@ -119,6 +126,8 @@ def init_data() -> (Dict[str, list], Dict[str, list]):
                 b.data_source = data_source_id
         except requests.ConnectionError:
             print_warning(f'Fetch {data_source_id} failure')
+        except ssl.SSLError:
+            print_warning(f'Fetch {data_source_id} failure')
     return bangumi, subtitle
 
 
@@ -157,7 +166,7 @@ class DataSource:
 
         bind_bangumi_item_in_db_to_bangumi()
 
-        bangumi_result = get_updating_bangumi_with_data_source(order=group_by_weekday)
+        bangumi_result = get_updating_bangumi_with_out_data_source(order=group_by_weekday)
         if not bangumi_result:
             print('no result return None')
             return defaultdict(list)
@@ -203,7 +212,7 @@ class DataSource:
 
         # data.save()
 
-    def bangumi_calendar(self, force_update=False, save=True):
+    def bangumi_calendar(self, force_update=False, save=True, detail=False):
         """
 
         :param force_update:
@@ -220,7 +229,10 @@ class DataSource:
             print_info('Fetching bangumi info ...')
             weekly_list = self.fetch(save=save)
         else:
-            weekly_list = get_updating_bangumi_with_data_source()
+            if detail:
+                weekly_list = get_updating_bangumi_with_data_source()
+            else:
+                weekly_list = get_updating_bangumi_with_out_data_source()
 
         if not weekly_list:
             print_warning('Warning: no bangumi schedule, fetching ...')
@@ -276,7 +288,7 @@ class DataSource:
         response_data = []
 
         available_source = []
-        for x in BangumiItem.select().where(BangumiItem.bangumi == bangumi_obj.id):
+        for x in BangumiItem.select().where(BangumiItem.bangumi_id == bangumi_obj.id):
             if x.data_source not in config.DISABLED_DATA_SOURCE and (
                 not filter_obj.data_source or x.data_source in filter_obj.data_source
             ):
@@ -385,18 +397,21 @@ def bind_bangumi_item_in_db_to_bangumi():
     for bangumi in bangumi_item_list:
         value, index = find_most_similar_index(bangumi_list, bangumi.name)
         if value > THRESHOLD:
-            bangumi.bangumi = bangumi_list[index].id
+            bangumi.bangumi_id = bangumi_list[index].id
             bangumi_list[index].has_data_source = 1
             bangumi_list[index].save()
             bangumi.save()
 
     bangumi_item_list = list(BangumiItem.get_marked_updating_bangumi())
     Bangumi.update(has_data_source=1)\
-        .where(Bangumi.id.in_([x.bangumi for x in bangumi_item_list])
+        .where(Bangumi.id.in_([x.bangumi_id for x in bangumi_item_list])
                & (Bangumi.status == Bangumi.STATUS.UPDATING)).execute()
     Bangumi.update(has_data_source=0) \
-        .where(Bangumi.id.not_in([x.bangumi for x in bangumi_item_list])
+        .where(Bangumi.id.not_in([x.bangumi_id for x in bangumi_item_list])
                & (Bangumi.status == Bangumi.STATUS.UPDATING)).execute()
+    bangumi_item_list = list(BangumiItem.get_unmarked_updating_bangumi())
 
 
-__all__ = ['mikan', 'bangumi_moe', 'share_dmhy', 'base', 'DataSource']
+__all__ = [
+    'mikan', 'bangumi_moe', 'share_dmhy', 'base', 'DataSource', 'bind_bangumi_item_in_db_to_bangumi'
+]

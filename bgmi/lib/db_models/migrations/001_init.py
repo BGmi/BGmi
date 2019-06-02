@@ -52,7 +52,7 @@ def migrate(migrator, database, fake=False, **kwargs):
         subtitle_group = pw.TextField()
         keyword = pw.CharField(max_length=255)
         data_source = pw.FixedCharField()
-        bangumi = pw.IntegerField(default=0)
+        bangumi_id = pw.IntegerField(default=0)
 
         class Meta:
             table_name = 'bangumi_item'
