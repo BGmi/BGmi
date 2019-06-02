@@ -123,11 +123,19 @@ matrix:
       name: Build binary and test
       python: '3.6'
       before_install: false
+      install: pip install -q -r requirements/dev.txt
       script:
         - bash .ci/build.sh
-        - alias bgmi="./dist/bgmi"
+        - export PATH="$PWD/dist/binary:$PATH"
         - bash ./.ci/command_test.bash
-
+      deploy:
+        provider: releases
+        api_key:
+          secure: cl37DzXEMzmReAPExjOz4KbcqtShoLbrb/444M5TaJmNsU5WWWnz1EGbMkaVZtvbIIeK5Q4kUDOND/J0V+ZMnlQp7lnluMBaW0//alQSud0wAAyN+zGcLNAt/FAF9+m5HQFmh4Vejc6i2vxMHvbFReu5MsymE5qzHkUE2F7M6p+3VYbtc+BizL6Rzzq3HiprbxrblAHIFZptkUlEHbfqQgHc+BTXbRqQ3gifvNiXjP9uUJOoWPTOPMlzVb2g/Z8k/9Lo8DQhczvS5zhPgPwP0ejwMGobCLW4RnbEp/THMK3P6vm3NhG1m9jmzcrm7ofCXsXV4Kzr3IsGiMia4ejUq0IYG0d3arjW4Im8LEsmTgVIvMTSDeamFC1Vl0tibu41VFKFOz8osUXZvol4xythlUDm1IpKNPV6HDr3yN9OkA303ibXMPNS+uPJSyjzQe0b8Yl4zW0OV4n0NUEXEesp3AFaTtidiChUg3Vm4bVJvfzTi3Pbb2JRt2H1IPUwPoywoNkQD9rrwcuEb/RdBlbzxysb8UUBD/FE+oxln9zvnvM6dNzEqq12D4fuGZntlxumZNdbRh3DVp2RjNgct5DpS+KGUVMBYH3qLXg1ikRVqLpruDD921GhJfAwPWwHCaVKhhwLDciMakNYgUHwq+SxUyQvBtP4B5knMxRzhFFKHWk=
+        file: dist/binary/*
+        on:
+          repo: BGmi/BGmi
+          tags: true
 
 before_cache:
   - rm -f $HOME/.cache/pip/log/debug.log
