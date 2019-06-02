@@ -11,3 +11,4 @@ yapf==0.27.0
 livereload==2.6.1
 pyupgrade==1.17.1
 autoflake==1.3
+flake8==3.7.7
