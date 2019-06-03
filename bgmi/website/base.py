@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 
-from bgmi.config import MAX_PAGE
 from bgmi.lib.models import BangumiItem
 from bgmi.utils import normalize_path, parse_episode
 
@@ -70,7 +69,7 @@ class BaseWebsite(ABC):
 
     @abstractmethod
     def fetch_episode_of_bangumi(
-        self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE
+        self, bangumi_id, max_page, subtitle_list=None
     ):  # pragma: no cover
         """
         get all episode by bangumi id

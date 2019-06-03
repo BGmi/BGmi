@@ -57,7 +57,7 @@ class GroupWithCommandOptions(click.Group):
             """ insert invocation of group function """
 
             # separate the group parameters
-            ctx.obj = dict(_params=dict())
+            ctx.obj = {'_params': {}}
             for param in self.params:
                 name = param.name
                 ctx.obj['_params'][name] = ctx.params[name]

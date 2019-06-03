@@ -23,6 +23,7 @@ from bgmi.website.base import BaseWebsite
 from . import bangumi_moe, base, mikan, share_dmhy
 
 THRESHOLD = 60
+MAX_PAGE = int(MAX_PAGE)
 
 
 @lru_cache(20)
@@ -78,7 +79,7 @@ def format_bangumi_dict(bangumi):
 def get_bgm_tv_calendar() -> list:
     r = requests.get('https://api.bgm.tv/calendar')
     r = r.json()
-    bangumi_tv_weekly_list = list()
+    bangumi_tv_weekly_list = []
 
     for day in r:
         for item in day['items']:
@@ -227,7 +228,7 @@ class DataSource:
 
         return weekly_list
 
-    def get_maximum_episode(self, bangumi, ignore_old_row=True, max_page=int(MAX_PAGE)):
+    def get_maximum_episode(self, bangumi, ignore_old_row=True, max_page=MAX_PAGE):
         """
 
         :type max_page: str
@@ -265,7 +266,7 @@ class DataSource:
         return {'episode': 0}, []
 
     @staticmethod
-    def fetch_episode(filter_obj: Followed = None, bangumi_obj=None, max_page=int(MAX_PAGE)):
+    def fetch_episode(filter_obj: Followed = None, bangumi_obj=None, max_page=MAX_PAGE):
         """
         :type filter_obj: bgmi.lib.models._tables.Followed
         :type bangumi_obj: bgmi.lib.models._tables.Bangumi

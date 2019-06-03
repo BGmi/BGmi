@@ -7,7 +7,6 @@ from typing import List
 import bs4
 import requests
 
-from bgmi.config import MAX_PAGE
 from bgmi.utils import parallel, parse_episode
 from bgmi.website.base import BaseWebsite
 
@@ -99,7 +98,7 @@ def parse_bangumi_details_page(bangumi_id):
 
     ######
     bangumi_info['subtitle_group'] = list(subtitle_groups.keys())
-    nr = list()
+    nr = []
     dv = soup.find('div', class_='leftbar-nav')
     li_list = dv.ul.find_all('li')
     for li in li_list:
@@ -134,7 +133,7 @@ class Mikanani(BaseWebsite):
             # print(result)
         return result
 
-    def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
+    def fetch_episode_of_bangumi(self, bangumi_id, max_page, subtitle_list=None):
         if os.environ.get('DEBUG', False):  # pragma: no cover
             print(server_root + 'Bangumi/{}'.format(bangumi_id))
         r = requests.get(server_root + 'Home/Bangumi/{}'.format(bangumi_id)).text
@@ -147,7 +146,7 @@ class Mikanani(BaseWebsite):
     def fetch_bangumi_calendar_and_subtitle_group(self):
         bangumi_result = []
         subtitle_result = []
-        bangumi_list = list()
+        bangumi_list = []
         for index, day in enumerate(get_weekly_bangumi()):
             if not day:
                 print(index)

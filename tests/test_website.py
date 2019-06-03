@@ -28,7 +28,7 @@ class BasicT:
             self.assertIn('id', subtitle_group)
             self.assertIn('name', subtitle_group)
         self.assertTrue(bool(b))
-        es = self.w.fetch_episode_of_bangumi(b['keyword'])
+        es = self.w.fetch_episode_of_bangumi(b['keyword'], 3)
         for episode in es:
             self.assertIn('download', episode)
             self.assertIn('subtitle_group', episode)

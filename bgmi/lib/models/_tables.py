@@ -141,8 +141,9 @@ class Bangumi(FuzzyMixIn, NeoDB):
     @classmethod
     def get_updating_bangumi(cls, status=None, order=True, obj=False) -> Dict:
         base_cond = (cls.status == cls.STATUS.UPDATING)
-        query = cls.select(Followed.status, Followed.episode, cls, ) \
-            .join(Followed, pw.JOIN['LEFT_OUTER'], on=(cls.id == Followed.bangumi_id))
+        query = cls.select(Followed.status, Followed.episode, cls).join(
+            Followed, pw.JOIN['LEFT_OUTER'], on=(cls.id == Followed.bangumi_id)
+        )
 
         if status is None:
             data = query.where(base_cond)
@@ -383,7 +384,7 @@ class Subtitle(NeoDB):
         :return:
         """
         source = list(data_source.keys())
-        condition = list()
+        condition = []
         for s in source:
             condition.append((Subtitle.id.in_(split_str_to_list(data_source[s]['subtitle_group'])))
                              & (Subtitle.data_source == s))

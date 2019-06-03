@@ -35,6 +35,7 @@ repos:
         require_serial: false
         language: python
         types: [python]
+        args: ['--config=setup.cfg']
 
       - id: autoflake
         name: autoflake

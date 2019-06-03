@@ -28,7 +28,7 @@ with open(path.join(project_dir, 'tests/data/models/subtitle.json'), 'r', encodi
         for subtitle in value:
             subtitle['data_source'] = key
 subtitle_list = []
-for key, value in subtitle_group.items():
+for _, value in subtitle_group.items():
     subtitle_list += value
 
 # with open(path.join(project_dir, 'tests/data/models/main_subtitle.json'),
@@ -113,7 +113,7 @@ class BangumiTest(Base, TestCase):
             name_updating.append(name)
 
         name_end = []
-        for i in range(5):
+        for _ in range(5):
             name = self.faker.name()
             bangumi_obj = Bangumi.create(
                 name=name,
@@ -151,7 +151,7 @@ class BangumiTest(Base, TestCase):
 
         for key, value in b2.items():
             self.assertIn(key.title(), Bangumi.week)
-            self.assertFalse(list())
+            self.assertFalse([])
             for v in value:  #
                 self.assertIn(v['name'], bgm_updated)
 

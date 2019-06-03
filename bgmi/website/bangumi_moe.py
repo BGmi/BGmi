@@ -4,7 +4,7 @@ import time
 
 import requests
 
-from bgmi.config import BANGUMI_MOE_URL, LANG, MAX_PAGE
+from bgmi.config import BANGUMI_MOE_URL, LANG
 from bgmi.lib.models import Bangumi
 from bgmi.website.base import BaseWebsite
 
@@ -66,7 +66,7 @@ def parser_bangumi(data):
 class BangumiMoe(BaseWebsite):
     cover_url = COVER_URL
 
-    def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
+    def fetch_episode_of_bangumi(self, bangumi_id, max_page, subtitle_list=None):
         max_page = int(max_page)
         response_data = []
         ret = []

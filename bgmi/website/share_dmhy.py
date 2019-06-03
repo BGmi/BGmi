@@ -6,12 +6,12 @@ import urllib.parse
 import requests
 from bs4 import BeautifulSoup
 
-from bgmi.config import MAX_PAGE, SHARE_DMHY_URL
+from bgmi import config
 from bgmi.website.base import BaseWebsite
 
 unquote = urllib.parse.unquote
 
-base_url = SHARE_DMHY_URL
+base_url = config.SHARE_DMHY_URL
 
 
 def parse_bangumi_with_week_days(content, update_time, array_name):
@@ -95,7 +95,7 @@ def unique_subtitle_list(raw_list):
 
 
 class DmhySource(BaseWebsite):
-    cover_url = SHARE_DMHY_URL
+    cover_url = config.SHARE_DMHY_URL
 
     def search_by_keyword(self, keyword, count=None):
         if count is None:
@@ -179,7 +179,7 @@ class DmhySource(BaseWebsite):
 
         return (bangumi_list, subtitle_list)
 
-    def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=int(MAX_PAGE)):
+    def fetch_episode_of_bangumi(self, bangumi_id, max_page, subtitle_list=None):
         result = []
         keyword = bangumi_id
         search_url = base_url + '/topics/list/'

@@ -65,7 +65,7 @@ __readonly__ = (
 )
 
 # writeable
-__writeable__ = tuple([i for i in __all__ if i not in __readonly__])
+__writeable__ = tuple(i for i in __all__ if i not in __readonly__)
 
 # the real __all__
 __all__ = __all__ + __download_delegate__ + __readonly__

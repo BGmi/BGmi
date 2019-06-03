@@ -118,7 +118,7 @@ class UpdateHandler(BaseHandler):
             self.finish(self.jsonify(message='previous updating has not finish'))
 
     @run_on_executor
-    def hard_task(self, ):
+    def hard_task(self):
         data = self.get_json()
 
         name = data.get('name', '')

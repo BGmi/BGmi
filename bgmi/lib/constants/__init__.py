@@ -47,22 +47,20 @@ actions_and_arguments = [
         'arguments': [
             {
                 'dest': '--list',
-                'kwargs': dict(help='List download queue.', action='store_true'),
+                'kwargs': {'help': 'List download queue.', 'action': 'store_true'},
             },
             {
                 'dest': '--mark',
-                'kwargs': dict(
-                    help='Mark download status with a specific id.', dest='id', type=int
-                ),
+                'kwargs': {
+                    'help': 'Mark download status with a specific id.', 'dest': 'id', 'type': int
+                },
             },
             {
                 'dest': '--status',
-                'kwargs': dict(
-                    type=int,
-                    help='Download items status (0: not download, 1: '
-                    'downloading, 2: already downloaded).',
-                    choices=[0, 1, 2],
-                ),
+                'kwargs': {
+                    'type': int, 'help': 'Download items status (0: not download, 1: '
+                    'downloading, 2: already downloaded).', 'choices': [0, 1, 2]
+                },
             },
         ],
     },

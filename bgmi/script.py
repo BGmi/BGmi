@@ -27,7 +27,7 @@ class ScriptRunner:
             for i in script_files:
                 try:
                     s = imp.load_source('script', os.path.join(SCRIPT_PATH, i))
-                    script_class = getattr(s, 'Script')()
+                    script_class = s.Script()
 
                     if cls.check(script_class):
                         cls.scripts.append(script_class)

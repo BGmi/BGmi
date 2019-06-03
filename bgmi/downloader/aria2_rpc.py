@@ -52,7 +52,7 @@ class Aria2DownloadRPC(BaseDownloadService):
         url[2] = ARIA2_RPC_TOKEN + '@' + url[2]
         url = '/'.join(url)
         s = PatchedServerProxy(url)
-        r = s.aria2.getVersion(ARIA2_RPC_TOKEN, )
+        r = s.aria2.getVersion(ARIA2_RPC_TOKEN)
         version = r['version']
         if version:
             Aria2DownloadRPC.old_version = version < '1.18.4'
