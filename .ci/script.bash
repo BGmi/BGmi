@@ -2,9 +2,6 @@
 
 set -ex
 
-BANGUMI_1=名侦探柯南
-BANGUMI_2=妖怪手表
-BANGUMI_3=海贼王
 
 python --version
 pip freeze
@@ -38,5 +35,6 @@ cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
 
 bash <(curl -s https://codecov.io/bash) -c -F unittests > /dev/null
 
-bash ./.ci/command_test.bash
+chmod +x .ci/command_test.bash
+./.ci/command_test.bash
 bash <(curl -s https://codecov.io/bash) -c -F command > /dev/null

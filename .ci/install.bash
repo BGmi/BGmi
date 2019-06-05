@@ -5,7 +5,7 @@ set -ex
 python --version
 pip --version
 
-pip install -q -r requirements/dev.txt
+pip install -r requirements/dev.txt
 pip install -q codecov
 pip install -e .
 
