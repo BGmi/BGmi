@@ -21,9 +21,6 @@ env:
   global:
     - PYTHONIOENCODING=utf-8
     - TRAVIS_CI=TRAVIS_CI
-    - BANGUMI_1=名侦探柯南
-    - BANGUMI_2=妖怪手表
-    - BANGUMI_3=海贼王
   # make matrix
   matrix:
     - DB=sqlite
@@ -149,6 +146,7 @@ before_install:
     fi
   - |
     if [[ $TRAVIS_OS_NAME == "windows" ]]; then
+      LANG='C.UTF-8'
       choco config set cacheLocation $HOME/choco/cache
 
       if [[ $TRAVIS_PYTHON_VERSION == "3.7" ]];then
