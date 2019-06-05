@@ -43,12 +43,12 @@ matrix:
       env:
         - TRAVIS_PYTHON_VERSION=3.6
 
-    - os: osx
-      name: 'test python3.7 on MacOS'
-      language: generic
-      python: "3.7"
-      env:
-        - TRAVIS_PYTHON_VERSION=3.7
+#    - os: osx
+#      name: 'test python3.7 on MacOS'
+#      language: generic
+#      python: "3.7"
+#      env:
+#        - TRAVIS_PYTHON_VERSION=3.7
 
     - os: windows
       language: sh
@@ -57,20 +57,20 @@ matrix:
       env:
         - TRAVIS_PYTHON_VERSION=3.6
 
-    - os: windows
-      language: sh
-      python: "3.7"
-      name: 'test python3.7 on Windows'
-      env:
-        - TRAVIS_PYTHON_VERSION=3.7
+#    - os: windows
+#      language: sh
+#      python: "3.7"
+#      name: 'test python3.7 on Windows'
+#      env:
+#        - TRAVIS_PYTHON_VERSION=3.7
 
-    - python: '3.7'
-      dist: xenial
-      env: DB=sqlite
-
-    - python: '3.7'
-      dist: xenial
-      env: DB=mysql
+#    - python: '3.7'
+#      dist: xenial
+#      env: DB=sqlite
+#
+#    - python: '3.7'
+#      dist: xenial
+#      env: DB=mysql
 
     - python: '3.6'
       os: linux
@@ -168,9 +168,7 @@ install:
 
 script:
   - alias bgmi="coverage run -a -m bgmi"
-  - bash ./.ci/unittest.bash
-  - bash <(curl -s https://codecov.io/bash) -c -F command > /dev/null
-
+  - bash .ci/script.bash
 
 after_success:
   - codecov
