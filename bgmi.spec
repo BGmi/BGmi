@@ -5,11 +5,13 @@ from PyInstaller.building.build_main import Analysis
 import os
 import os.path
 import importlib
+import glob
 
 bindata_dir = [
     'bgmi/front/templates',
     'bgmi/others',
     'bgmi/lib/models/migrations',
+    'bgmi.egg-info'
 ]
 
 
@@ -35,6 +37,9 @@ a = Analysis(['bgmi/__main__.py'],
              datas=datas,
              runtime_hooks=None,
              cipher=block_cipher)
+
+# for pkg in a.pure:
+#     print(pkg)
 
 pyz = PYZ(a.pure, cipher=block_cipher)
 

@@ -127,7 +127,7 @@ matrix:
       script:
         - bash .ci/build.sh
         - export PATH="$PWD/dist/binary:$PATH"
-        - bash ./.ci/command_test.bash
+        - bash .ci/command_test.bash
       deploy:
         provider: releases
         api_key:
