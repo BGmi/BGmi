@@ -25,4 +25,3 @@ bgmi update ${BANGUMI_2}
 bgmi filter ${BANGUMI_2} --subtitle "" --exclude "MKV" --regex "720p|720P"
 bgmi fetch ${BANGUMI_2}
 bgmi search "海贼王" --regex-filter '.*MP4.*720P.*' --min-episode 800 --max-episode 900
-eval "$(bgmi complete)"
