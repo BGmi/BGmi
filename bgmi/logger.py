@@ -14,9 +14,8 @@ def get_logger() -> Logger:
     if log_level not in ['DEBUG', 'INFO', 'WARNING', 'ERROR']:
         print('log level invalid, will use default log level info')
         log_level = 'INFO'
-
     _logger = getLogger('bgmi')
-    _logger.setLevel(DEBUG)
+    _logger.setLevel(log_level)
 
     stdout = StreamHandler(sys.stdout)
     stdout.setFormatter(Formatter('%(message)s'))
