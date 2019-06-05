@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
-pyinstaller bgmi.spec --distpath ./dist/binary/
+set -ex
 
-./dist/binary/bgmi --help # || cat build/bgmi/warn-bgmi.txt
+pip install -e .
+pyinstaller bgmi.spec --distpath ./dist/binary/
+pip uninstall -y bgmi
