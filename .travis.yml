@@ -11,6 +11,7 @@ cache:
   pip: true
   directories:
     - $HOME/.cache/pip
+    - $HOME/AppData/Local/pip/Cache
     - $HOME/Library/Caches/pip
     - $HOME/Library/Caches/Homebrew
     - $HOME/choco/cache
