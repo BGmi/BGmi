@@ -10,7 +10,9 @@ dist: xenial
 cache:
   pip: true
   directories:
+    - /c/python36
     - $HOME/.cache/pip
+    - $HOME/AppData/Local/pip/Cache
     - $HOME/Library/Caches/pip
     - $HOME/Library/Caches/Homebrew
     - $HOME/choco/cache
@@ -19,10 +21,8 @@ cache:
 env:
   global:
     - PYTHONIOENCODING=utf-8
+    - PYTHONUTF8=1
     - TRAVIS_CI=TRAVIS_CI
-    - BANGUMI_1=名侦探柯南
-    - BANGUMI_2=妖怪手表
-    - BANGUMI_3=海贼王
   # make matrix
   matrix:
     - DB=sqlite
@@ -127,7 +127,15 @@ matrix:
       script:
         - bash .ci/build.sh
         - export PATH="$PWD/dist/binary:$PATH"
-        - bash .ci/command_test.bash
+        - rm -rf ~/.bgmi | true
+        - bgmi install
+        - cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
+        - bgmi --help
+        - bgmi gen nginx.conf --server-name _
+        - bgmi cal -f
+        - bgmi cal
+        - bgmi config ADMIN_TOKEN 233
+
       deploy:
         provider: releases
         api_key:
@@ -148,27 +156,33 @@ before_install:
     fi
   - |
     if [[ $TRAVIS_OS_NAME == "windows" ]]; then
-      choco config set cacheLocation $HOME/choco/cache
+      if [ -z "$(ls -A /c/Python36)" ]; then
 
-      if [[ $TRAVIS_PYTHON_VERSION == "3.7" ]];then
-        choco install python --version 3.7.3
-      elif [[ $TRAVIS_PYTHON_VERSION == '3.6' ]];then
-        choco install python --version 3.6.8
-      else
-        travis_terminate
+        choco config set cacheLocation $HOME/choco/cache
+
+        if [[ $TRAVIS_PYTHON_VERSION == "3.7" ]];then
+          choco install python --version 3.7.3
+        elif [[ $TRAVIS_PYTHON_VERSION == '3.6' ]];then
+          choco install python --version 3.6.8
+        else
+          travis_terminate
+        fi
       fi
 
+      export LANG=en_US.UTF-8
       v=$TRAVIS_PYTHON_VERSION
       export PATH="/c/Python${v/./}:/c/Python${v/./}/Scripts:$PATH"
       python -m pip install --upgrade pip wheel;
     fi
 
 install:
-  - bash ./.ci/install.bash
+  - chmod +x .ci/install.bash
+  - ./.ci/install.bash
 
 script:
   - alias bgmi="coverage run -a -m bgmi"
-  - bash .ci/script.bash
+  - chmod +x .ci/script.bash
+  - .ci/script.bash
 
 after_success:
   - codecov
