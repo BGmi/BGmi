@@ -23,7 +23,7 @@ class ScriptRunner:
     def __new__(cls, *args, **kwargs):
         if cls._defined is None:
 
-            script_files = glob.glob('{}{}*.py'.format(SCRIPT_PATH, os.path.sep))
+            script_files = glob.glob(f'{SCRIPT_PATH}{os.path.sep}*.py')
             for i in script_files:
                 try:
                     s = imp.load_source('script', os.path.join(SCRIPT_PATH, i))
@@ -31,10 +31,10 @@ class ScriptRunner:
 
                     if cls.check(script_class):
                         cls.scripts.append(script_class)
-                        print_info('Load script {} successfully.'.format(i))
+                        print_info(f'Load script {i} successfully.')
 
                 except SyntaxError:
-                    print_warning('Load script {} failed, ignored'.format(i))
+                    print_warning(f'Load script {i} failed, ignored')
                     if os.getenv('DEBUG_SCRIPT'):  # pragma: no cover
                         traceback.print_exc()
                         # self.scripts = filter(self._check_followed, self.scripts)
@@ -73,20 +73,20 @@ class ScriptRunner:
     def make_dict(script) -> List[dict]:
         return [{
             'name': script.bangumi_name,
-            'title': '[{}][{}]'.format(script.bangumi_name, k),
+            'title': f'[{script.bangumi_name}][{k}]',
             'episode': k,
             'download': v,
         } for k, v in script.get_download_url().items()]
 
     def run(self, return_=True, download=False) -> List[dict]:
         for script in self.scripts:
-            print_info('fetching {} ...'.format(script.bangumi_name))
+            print_info(f'fetching {script.bangumi_name} ...')
             download_item = self.make_dict(script)
 
             script_obj = script.Model().obj
 
             if not download_item:
-                print_info('Got nothing, quit script {}.'.format(script.Model.bangumi_name))
+                print_info(f'Got nothing, quit script {script.Model.bangumi_name}.')
                 continue
 
             max_episode = max(download_item, key=lambda d: d['episode'])
@@ -96,7 +96,7 @@ class ScriptRunner:
             if episode <= script_obj.episode:
                 continue
 
-            print_success('{} updated, episode: {}'.format(script.bangumi_name, episode))
+            print_success(f'{script.bangumi_name} updated, episode: {episode}')
             script_obj.episode = episode
             script_obj.status = Followed.STATUS.UPDATED
             script_obj.updated_time = int(time.time())
@@ -113,7 +113,7 @@ class ScriptRunner:
                 continue
 
             if download:
-                print_success('Start downloading of {}'.format(script))
+                print_success(f'Start downloading of {script}')
                 download_prepare(download_queue)
 
         return self.download_queue

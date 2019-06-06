@@ -26,7 +26,7 @@ class BaseDownloadService(ABC):
 
     def check_path(self):
         if not os.path.exists(self.save_path):
-            print_warning('Create dir {}'.format(self.save_path))
+            print_warning(f'Create dir {self.save_path}')
             os.makedirs(self.save_path)
 
     @abstractmethod
@@ -35,7 +35,7 @@ class BaseDownloadService(ABC):
 
     def check_download(self, name):
         if not os.path.exists(self.save_path) or self.return_code != 0:
-            raise Exception('It seems the bangumi {} not be downloaded'.format(name))
+            raise Exception(f'It seems the bangumi {name} not be downloaded')
 
     @staticmethod
     def download_status(status=None):

@@ -93,21 +93,21 @@ class ControllersTest(Base, unittest.TestCase):
         self.assertEqual(
             result.status,
             ControllerResult.error,
-            'non existed bangumi should return {}'.format(ControllerResult.error),
+            f'non existed bangumi should return {ControllerResult.error}',
         )
 
         result = controllers.filter_(name=self.bangumi_name_1)
         self.assertEqual(
             result.status,
             ControllerResult.error,
-            'non followed bangumi should return {}'.format(ControllerResult.error),
+            f'non followed bangumi should return {ControllerResult.error}',
         )
 
         result = controllers.filter_(name=self.bangumi_name_2)
         self.assertEqual(
             result.status,
             ControllerResult.success,
-            'non followed bangumi should return {}'.format(ControllerResult.success),
+            f'non followed bangumi should return {ControllerResult.success}',
         )
 
     valid_subtitle = 'OPFans枫雪动漫'
@@ -127,7 +127,7 @@ class ControllersTest(Base, unittest.TestCase):
         self.assertEqual(
             result.status,
             ControllerResult.error,
-            'unavailable subtitle_group should return {}'.format(ControllerResult.error),
+            f'unavailable subtitle_group should return {ControllerResult.error}',
         )
 
         result = controllers.filter_(self.bangumi_name_2)
@@ -139,7 +139,7 @@ class ControllersTest(Base, unittest.TestCase):
         self.assertEqual(
             result.status,
             ControllerResult.error,
-            'unavailable subtitle_group should return {}'.format(ControllerResult.error),
+            f'unavailable subtitle_group should return {ControllerResult.error}',
         )
 
         result = controllers.filter_(self.bangumi_name_2)
@@ -209,7 +209,7 @@ class ControllersTest(Base, unittest.TestCase):
         self.assertEqual(
             result.status,
             ControllerResult.success,
-            'include value {}'.format(value),
+            f'include value {value}',
         )
         self.assertEqual(result.data['include'], value)
         followed_obj = self.get_followed_obj()

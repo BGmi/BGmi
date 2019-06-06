@@ -18,12 +18,12 @@ def get_download_class() -> Type[BaseDownloadService]:
         cls = stevedore.DriverManager(NameSpace.download_delegate, DOWNLOAD_DELEGATE).driver
         return cls
     except stevedore.exception.NoMatches:
-        print_error('unexpected delegate {}'.format(DOWNLOAD_DELEGATE))
+        print_error(f'unexpected delegate {DOWNLOAD_DELEGATE}')
 
 
 @singledispatch
 def handle_specific_exception(e):  # got an exception we don't handle
-    print_error('Error, {}'.format(e), exit_=False)
+    print_error(f'Error, {e}', exit_=False)
 
 
 @handle_specific_exception.register(xmlrpc.client.Fault)
@@ -33,13 +33,13 @@ def _(e):
     if 'Unauthorized' in err_string:
         print_error('aria2-rpc, wrong secret token', exit_=False)
     else:
-        print_error('Error, {}'.format(e), exit_=False)
+        print_error(f'Error, {e}', exit_=False)
 
 
 @handle_specific_exception.register(xmlrpc.client.ProtocolError)
 def _(e):
     # handle exception 2
-    print_error('can\'t connect to aria2-rpc server, {}'.format(e), exit_=False)
+    print_error(f'can\'t connect to aria2-rpc server, {e}', exit_=False)
 
 
 def download_prepare(data):

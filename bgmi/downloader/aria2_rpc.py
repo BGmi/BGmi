@@ -94,7 +94,7 @@ class Aria2DownloadRPC(BaseDownloadService):
                     data = server.aria2[method](ARIA2_RPC_TOKEN, *params)
 
                 if data:
-                    print_warning('RPC {}:'.format(method), indicator=False)
+                    print_warning(f'RPC {method}:', indicator=False)
 
                 for row in data:
                     print_success('- {}'.format(row['dir']), indicator=False)

@@ -82,8 +82,8 @@ def parse_episodes_from_soup(soup: bs4.BeautifulSoup):
 
 def parse_bangumi_details_page(bangumi_id):
     if os.environ.get('DEBUG', False):  # pragma: no cover
-        print(server_root + 'Bangumi/{}'.format(bangumi_id))
-    r = requests.get(server_root + 'Home/Bangumi/{}'.format(bangumi_id)).text
+        print(server_root + f'Bangumi/{bangumi_id}')
+    r = requests.get(server_root + f'Home/Bangumi/{bangumi_id}').text
 
     soup = bs4.BeautifulSoup(r, 'html.parser')
 
@@ -135,8 +135,8 @@ class Mikanani(BaseWebsite):
 
     def fetch_episode_of_bangumi(self, bangumi_id, max_page, subtitle_list=None):
         if os.environ.get('DEBUG', False):  # pragma: no cover
-            print(server_root + 'Bangumi/{}'.format(bangumi_id))
-        r = requests.get(server_root + 'Home/Bangumi/{}'.format(bangumi_id)).text
+            print(server_root + f'Bangumi/{bangumi_id}')
+        r = requests.get(server_root + f'Home/Bangumi/{bangumi_id}').text
 
         soup = bs4.BeautifulSoup(r, 'html.parser')
         episode = parse_episodes_from_soup(soup)

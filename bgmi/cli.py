@@ -199,7 +199,7 @@ def search_wrapper(
 @click.argument('episode', type=int)
 def mark(bangumi_name, episode):
     result = controllers.mark(name=bangumi_name, episode=episode)
-    globals()['print_{}'.format(result['status'])](result['message'])
+    globals()[f'print_{result["status"]}'](result['message'])
 
 
 @normal_cli.command()
@@ -210,7 +210,7 @@ def delete(bangumi_names):
     # else:
     for name in bangumi_names:
         result = controllers.delete_(name=name)
-        globals()['print_{}'.format(result['status'])](result['message'])
+        globals()[f'print_{result["status"]}'](result['message'])
 
 
 @normal_cli.command()
@@ -222,7 +222,7 @@ def add(names, episode=None):
     """
     for bangumi_name in names:
         result = controllers.add(name=bangumi_name, episode=episode)
-        globals()['print_{}'.format(result['status'])](result['message'])
+        globals()[f'print_{result["status"]}'](result['message'])
 
 
 @normal_cli.command('list', help='List subscribed bangumi.')
@@ -421,16 +421,16 @@ def fetch(name, not_ignore):
         bangumi_obj = Bangumi.get(name=name)
         Followed.get(bangumi_id=bangumi_obj.id)
     except Bangumi.DoesNotExist:
-        print_error('Bangumi {} not exist'.format(name))
+        print_error(f'Bangumi {name} not exist')
         return
     except Followed.DoesNotExist:
-        print_error('Bangumi {} is not followed'.format(name))
+        print_error(f'Bangumi {name} is not followed')
         return
 
     followed_filter_obj = Followed.get(bangumi_id=bangumi_obj.id)
     print_filter(followed_filter_obj)
 
-    print_info('Fetch bangumi {} ...'.format(bangumi_obj.name))
+    print_info(f'Fetch bangumi {bangumi_obj.name} ...')
     _, data = website.get_maximum_episode(bangumi_obj, ignore_old_row=not not_ignore)
 
     if not data:

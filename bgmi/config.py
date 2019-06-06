@@ -92,7 +92,7 @@ BGMI_PATH = get_bgmi_path()
 if not BGMI_PATH:  # pragma: no cover
     raise SystemExit
 
-DB_URL = 'sqlite:///{}'.format(os.path.join(BGMI_PATH, 'bangumi.db'))
+DB_URL = f'sqlite:///{os.path.join(BGMI_PATH, "bangumi.db")}'
 CONFIG_FILE_PATH = os.path.join(BGMI_PATH, 'bgmi.cfg')
 
 # SCRIPT_DB_URL = 'sqlite:///{}'.format(os.path.join(BGMI_PATH, 'script.db'))
@@ -150,8 +150,8 @@ def read_keywords_weight_section(c: configparser.ConfigParser):
                 KEYWORDS_WEIGHT[key] = int(value)
             except ValueError:
                 print(
-                    'value of keyword.{} can\'t be "{}", it must be a int, '
-                    'ignore this line in config file'.format(key, value)
+                    f'value of keyword.{key} can\'t be "{value}",'
+                    ' it must be a int, ignore this line in config file'
                 )
     except configparser.NoSectionError:
         c.add_section(section)
@@ -217,13 +217,13 @@ def print_config():
     for i in __writeable__:
         string += '{}={}\n'.format(i, c.get('bgmi', i))
 
-    string += '\n[{}]\n'.format(DOWNLOAD_DELEGATE)
+    string += f'\n[{DOWNLOAD_DELEGATE}]\n'
     for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
         string += '{}={}\n'.format(i, c.get(DOWNLOAD_DELEGATE, i))
 
     string += '\n[{}]'.format('keyword weight')
     for key, value in KEYWORDS_WEIGHT.items():
-        string += '{}={}\n'.format(key, value)
+        string += f'{key}={value}\n'
 
     return {'status': 'success', 'message': string}
 
@@ -245,9 +245,7 @@ def write_config(config, value):
 
     if config in __writeable__:
         if config == 'DOWNLOAD_DELEGATE' and value not in DOWNLOAD_DELEGATE_MAP:
-            return {
-                'status': 'error', 'message': '{} is not a support download_delegate'.format(value)
-            }
+            return {'status': 'error', 'message': f'{value} is not a support download_delegate'}
         c.set('bgmi', config, value)
         write_config_parser(c)
         read_config()
@@ -260,7 +258,7 @@ def write_config(config, value):
             write_config_parser(c)
         result = {
             'status': 'success',
-            'message': '{} has been set to {}'.format(config, value),
+            'message': f'{config} has been set to {value}',
         }
 
     elif config in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
@@ -268,12 +266,12 @@ def write_config(config, value):
         write_config_parser(c)
         result = {
             'status': 'success',
-            'message': '{} has been set to {}'.format(config, value),
+            'message': f'{config} has been set to {value}',
         }
     else:
         result = {
             'status': 'error',
-            'message': '{} does not exist or not writeable'.format(config),
+            'message': f'{config} does not exist or not writeable',
         }
     return result
 

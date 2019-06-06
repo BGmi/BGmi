@@ -221,11 +221,9 @@ class ApiTestCase(AsyncHTTPTestCase):
         bangumi_dict = next(iter(episode_list or []), {})
 
         self.assertIn('1', bangumi_dict['player'].keys())
-        self.assertEqual(
-            bangumi_dict['player']['1']['path'], '/{}/1/episode1/1.mp4'.format(self.bangumi_1)
-        )
+        self.assertEqual(bangumi_dict['player']['1']['path'], f'/{self.bangumi_1}/1/episode1/1.mp4')
         self.assertIn('2', bangumi_dict['player'].keys())
-        self.assertEqual(bangumi_dict['player']['2']['path'], '/{}/2/2.mkv'.format(self.bangumi_1))
+        self.assertEqual(bangumi_dict['player']['2']['path'], f'/{self.bangumi_1}/2/2.mkv')
 
     def test_resource_ics(self):
         r = self.fetch('/resource/feed.xml')

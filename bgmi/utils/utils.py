@@ -30,8 +30,8 @@ if os.environ.get('TRAVIS_CI', False):
     NPM_REGISTER_DOMAIN = 'registry.npmjs.com'
 else:
     NPM_REGISTER_DOMAIN = 'registry.npm.taobao.org'
-FRONTEND_NPM_URL = 'https://{}/bgmi-frontend/'.format(NPM_REGISTER_DOMAIN)
-PACKAGE_JSON_URL = 'https://{}/bgmi-frontend/{}'.format(NPM_REGISTER_DOMAIN, __admin_version__)
+FRONTEND_NPM_URL = f'https://{NPM_REGISTER_DOMAIN}/bgmi-frontend/'
+PACKAGE_JSON_URL = f'https://{NPM_REGISTER_DOMAIN}/bgmi-frontend/{__admin_version__}'
 
 
 @disable_in_test
@@ -245,7 +245,7 @@ def convert_cover_url_to_path(cover_url):
 @log_utils_function
 def download_file(url):
     if url.startswith('https://') or url.startswith('http://'):
-        print_info('Download: {}'.format(url))
+        print_info(f'Download: {url}')
         r = requests.get(url)
 
         _, file_path = convert_cover_url_to_path(url)

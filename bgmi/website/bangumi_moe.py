@@ -12,12 +12,12 @@ from bgmi.website.base import BaseWebsite
 BANGUMI_TAG = '549ef207fe682f7549f1ea90'
 
 __split = '/' if not BANGUMI_MOE_URL.endswith('/') else ''
-FETCH_URL = '{}{}api/bangumi/current'.format(BANGUMI_MOE_URL, __split)
-TEAM_URL = '{}{}api/team/working'.format(BANGUMI_MOE_URL, __split)
-NAME_URL = '{}{}api/tag/fetch'.format(BANGUMI_MOE_URL, __split)
-DETAIL_URL = '{}{}api/torrent/search'.format(BANGUMI_MOE_URL, __split)
-SEARCH_URL = '{}{}api/v2/torrent/search'.format(BANGUMI_MOE_URL, __split)
-TORRENT_URL = '{}{}download/torrent/'.format(BANGUMI_MOE_URL, __split)
+FETCH_URL = f'{BANGUMI_MOE_URL}{__split}api/bangumi/current'
+TEAM_URL = f'{BANGUMI_MOE_URL}{__split}api/team/working'
+NAME_URL = f'{BANGUMI_MOE_URL}{__split}api/tag/fetch'
+DETAIL_URL = f'{BANGUMI_MOE_URL}{__split}api/torrent/search'
+SEARCH_URL = f'{BANGUMI_MOE_URL}{__split}api/v2/torrent/search'
+TORRENT_URL = f'{BANGUMI_MOE_URL}{__split}download/torrent/'
 COVER_URL = 'https://bangumi.moe/'
 
 

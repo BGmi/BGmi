@@ -111,14 +111,14 @@ def init_data() -> (Dict[str, list], Dict[str, list]):
     for data_source_id, data_source in get_all_provider():
         if data_source_id in config.DISABLED_DATA_SOURCE:
             continue
-        print_info('Fetching {}'.format(data_source_id))
+        print_info(f'Fetching {data_source_id}')
         try:
             bangumi[data_source_id], subtitle[data_source_id] =\
                 data_source.get_bangumi_calendar_and_subtitle_group()
             for b in bangumi[data_source_id]:
                 b.data_source = data_source_id
         except requests.ConnectionError:
-            print_warning('Fetch {} failure'.format(data_source_id))
+            print_warning(f'Fetch {data_source_id} failure')
     return bangumi, subtitle
 
 
@@ -302,7 +302,7 @@ class DataSource:
             for subtitle in subtitle_group:
                 data_source_to_subtitle_group[subtitle.data_source].add(subtitle.id)
             for item in available_source:
-                print_info('Fetching {} from {}'.format(item.name, item.data_source))
+                print_info(f'Fetching {item.name} from {item.data_source}')
                 # driver.driver
                 response_data += get_provider(item.data_source).fetch_episode_of_bangumi(
                     bangumi_id=item.keyword,
@@ -312,7 +312,7 @@ class DataSource:
 
         else:
             for source in available_source:
-                print_info('Fetching {} from {}'.format(bangumi_obj.name, source.data_source))
+                print_info(f'Fetching {bangumi_obj.name} from {source.data_source}')
                 response_data += get_provider(
                     source.data_source
                 ).fetch_episode_of_bangumi(bangumi_id=source.keyword, max_page=max_page)

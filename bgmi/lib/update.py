@@ -15,14 +15,14 @@ OLD = os.path.join(BGMI_PATH, 'old')
 
 def exec_sql(sql, connect_url=DB_URL):
     try:
-        print_info('connecting to {}'.format(connect_url))
+        print_info(f'connecting to {connect_url}')
         conn = db_url.connect(connect_url)
-        print_info('Execute {}'.format(sql))
+        print_info(f'Execute {sql}')
         conn.execute(sql)
         conn.commit()
         conn.close()
     except Exception as e:  # pragma: no cover
-        print_error('Execute SQL statement failed, {}'.format(e), exit_=False)
+        print_error(f'Execute SQL statement failed, {e}', exit_=False)
 
 
 def upgrade_version():

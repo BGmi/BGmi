@@ -53,7 +53,7 @@ repos:
         require_serial: true
         language: python
         types: [python]
-        args: ['--py3-only']
+        args: ['--py36-plus']
 
       - id: isort
         name: isort

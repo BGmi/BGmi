@@ -61,7 +61,7 @@ class BangumiItem(pw.Model):
         self.update_time = update_time
 
     def __str__(self):
-        return '<BangumiItem name={}>'.format(self.name)
+        return f'<BangumiItem name={self.name}>'
 
     def __repr__(self):
         return self.__str__()

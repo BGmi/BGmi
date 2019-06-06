@@ -12,7 +12,7 @@ def w():
 def fetch_data():
     for key, value in get_all_provider():
         with open(
-            './data/website/{}.fetch_bangumi_calendar_and_subtitle_group.json'.format(key),
+            f'./data/website/{key}.fetch_bangumi_calendar_and_subtitle_group.json',
             'w+',
             encoding='utf8'
         ) as f:
@@ -23,7 +23,7 @@ def fetch_data():
         obj = {}
         for bangumi in value.get_bangumi_calendar_and_subtitle_group()[0]:
             obj[bangumi.keyword] = value.fetch_episode_of_bangumi(bangumi.keyword, max_page=1)[:3]
-        with open('./data/website/{}.bangumi-episode.json'.format(key), 'w+', encoding='utf8') as f:
+        with open(f'./data/website/{key}.bangumi-episode.json', 'w+', encoding='utf8') as f:
             json.dump(obj, f, indent=2, ensure_ascii=False)
 
 
@@ -45,9 +45,7 @@ class W(BaseWebsite):
 
     def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=1):
         with open(
-            './tests/data/website/{}.bangumi-episode.json'.format(self.website_id),
-            'r',
-            encoding='utf8'
+            f'./tests/data/website/{self.website_id}.bangumi-episode.json', 'r', encoding='utf8'
         ) as f:
             return json.load(f).get(bangumi_id, [])
 
@@ -55,9 +53,7 @@ class W(BaseWebsite):
         episode_list = []
 
         with open(
-            './tests/data/website/{}.bangumi-episode.json'.format(self.website_id),
-            'r',
-            encoding='utf8'
+            f'./tests/data/website/{self.website_id}.bangumi-episode.json', 'r', encoding='utf8'
         ) as f:
             b = json.load(f)
 
