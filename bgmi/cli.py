@@ -17,9 +17,9 @@ from bgmi import __version__, config
 from bgmi.lib import constants, controllers
 from bgmi.lib.constants import DOWNLOAD_CHOICE_LIST_DICT, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS
 from bgmi.lib.constants.actions import ACTIONS
+from bgmi.lib.db_models import Bangumi, Followed, get_kv_storage
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
-from bgmi.lib.models import Bangumi, Followed, get_kv_storage
 from bgmi.lib.update import upgrade_version
 from bgmi.script import ScriptRunner
 from bgmi.sql import init_db

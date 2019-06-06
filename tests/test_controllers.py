@@ -4,9 +4,9 @@ from unittest import mock
 import bgmi.lib.controllers
 from bgmi.lib import controllers
 from bgmi.lib.controllers import ControllerResult
-from bgmi.lib.models import Bangumi, Followed
+from bgmi.lib.db_models import Bangumi, Followed
 from bgmi.website.base import BaseWebsite
-from tests.test_models import Base
+from tests.test_db_models import Base
 
 
 def w():

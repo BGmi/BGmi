@@ -2,7 +2,7 @@ import argparse
 
 from peewee_migrate import Router
 
-from bgmi.lib.models import Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle, db
+from bgmi.lib.db_models import Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle, db
 
 
 def get_parser():
@@ -27,7 +27,7 @@ def main():
 
 
 def migrate(name):
-    router = Router(db, migrate_dir='bgmi/lib/models/migrations', ignore=['neodb'])
+    router = Router(db, migrate_dir='bgmi/lib/db_models/migrations', ignore=['neodb'])
 
     router.create(name, auto=True)
 

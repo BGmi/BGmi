@@ -19,7 +19,7 @@ from tornado import template
 
 from bgmi import __admin_version__, __version__, config
 from bgmi.lib import constants
-from bgmi.lib.models import get_kv_storage
+from bgmi.lib.db_models import get_kv_storage
 from bgmi.logger import logger
 
 from ._decorator import COLOR_END, GREEN, _indicator, colorize, disable_in_test, log_utils_function

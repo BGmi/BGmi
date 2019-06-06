@@ -2,7 +2,7 @@ from xmlrpc.client import ServerProxy, _Method
 
 from bgmi.config import ARIA2_RPC_TOKEN, ARIA2_RPC_URL
 from bgmi.downloader.base import BaseDownloadService
-from bgmi.lib.models import Download
+from bgmi.lib.db_models import Download
 from bgmi.utils import print_error, print_info, print_success, print_warning
 
 

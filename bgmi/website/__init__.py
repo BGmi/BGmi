@@ -13,7 +13,7 @@ from hanziconv import HanziConv
 from bgmi import config
 from bgmi.config import MAX_PAGE
 from bgmi.lib.constants import NameSpace
-from bgmi.lib.models import (
+from bgmi.lib.db_models import (
     Bangumi, BangumiItem, Followed, Subtitle, db, get_updating_bangumi_with_data_source,
     model_to_dict
 )
@@ -236,7 +236,7 @@ class DataSource:
         :type bangumi: object
         :type ignore_old_row: bool
         :param ignore_old_row:
-        :type bangumi: bgmi.lib.models._tables.Bangumi
+        :type bangumi: bgmi.lib.db_models._tables.Bangumi
         """
         followed_filter_obj, _ = Followed.get_or_create(
             bangumi_id=bangumi.id
@@ -268,8 +268,8 @@ class DataSource:
     @staticmethod
     def fetch_episode(filter_obj: Followed = None, bangumi_obj=None, max_page=MAX_PAGE):
         """
-        :type filter_obj: bgmi.lib.models._tables.Followed
-        :type bangumi_obj: bgmi.lib.models._tables.Bangumi
+        :type filter_obj: bgmi.lib.db_models._tables.Followed
+        :type bangumi_obj: bgmi.lib.db_models._tables.Bangumi
         :type max_page: int
         """
         max_page = int(max_page)

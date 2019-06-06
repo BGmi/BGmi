@@ -5,7 +5,7 @@ from playhouse import db_url
 from bgmi import __version__, config
 from bgmi.config import BGMI_PATH, DB_URL, write_default_config
 from bgmi.lib import constants
-from bgmi.lib.models import db, get_kv_storage
+from bgmi.lib.db_models import db, get_kv_storage
 from bgmi.setup import install_crontab
 from bgmi.sql import init_db
 from bgmi.utils import exec_command, print_error, print_info, print_warning

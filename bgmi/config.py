@@ -343,5 +343,5 @@ KEYWORDS_WEIGHT = {}
 # !!! Read config from file and write to globals() !!!
 read_config()
 # ------------------------------ #
-# will be used in other other models
+# will be used in other other db_models
 __all_writable_now__ = __writeable__ + DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]

@@ -9,7 +9,7 @@ from bgmi.downloader.aria2_rpc import Aria2DownloadRPC
 from bgmi.downloader.base import BaseDownloadService
 from bgmi.downloader.deluge import DelugeRPC
 from bgmi.downloader.transmissionRpc import TransmissionRPC
-from bgmi.lib.models import Download
+from bgmi.lib.db_models import Download
 
 
 class Basic:

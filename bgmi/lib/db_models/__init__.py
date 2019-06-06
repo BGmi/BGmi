@@ -3,7 +3,7 @@ from collections import defaultdict
 import peewee as pw
 from playhouse.shortcuts import model_to_dict
 
-from bgmi.lib.models._tables import Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle
+from bgmi.lib.db_models._tables import Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle
 
 from ._db import db
 from ._kv import get_kv_storage

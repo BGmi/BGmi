@@ -9,8 +9,8 @@ from typing import List
 import stevedore.exception
 
 from bgmi.config import MAX_PAGE, SCRIPT_PATH
+from bgmi.lib.db_models import Followed, Scripts
 from bgmi.lib.download import download_prepare
-from bgmi.lib.models import Followed, Scripts
 from bgmi.utils import print_info, print_success, print_warning
 from bgmi.website import get_all_provider, get_provider
 

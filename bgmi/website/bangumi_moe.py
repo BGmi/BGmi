@@ -5,7 +5,7 @@ import time
 import requests
 
 from bgmi.config import BANGUMI_MOE_URL, LANG
-from bgmi.lib.models import Bangumi
+from bgmi.lib.db_models import Bangumi
 from bgmi.website.base import BaseWebsite
 
 # tag of bangumi on bangumi.moe

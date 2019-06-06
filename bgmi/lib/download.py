@@ -9,7 +9,7 @@ import stevedore.exception
 from bgmi.config import DOWNLOAD_DELEGATE, SAVE_PATH
 from bgmi.downloader.base import BaseDownloadService
 from bgmi.lib.constants import NameSpace
-from bgmi.lib.models import Download
+from bgmi.lib.db_models import Download
 from bgmi.utils import normalize_path, print_error
 
 

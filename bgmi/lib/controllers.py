@@ -6,13 +6,13 @@ from typing import Mapping
 import attr
 
 from bgmi import config
-from bgmi.lib import models
-from bgmi.lib.download import download_prepare
-from bgmi.lib.fetch import website
-from bgmi.lib.models import (
+from bgmi.lib import db_models
+from bgmi.lib.db_models import (
     Bangumi, BangumiItem, DoesNotExist, Download, Followed, Subtitle, model_to_dict
 )
-from bgmi.lib.models._tables import split_str_to_list
+from bgmi.lib.db_models._tables import split_str_to_list
+from bgmi.lib.download import download_prepare
+from bgmi.lib.fetch import website
 from bgmi.logger import logger
 from bgmi.script import ScriptRunner
 from bgmi.utils import (
@@ -532,7 +532,7 @@ def status_(name, status=Followed.STATUS.DELETED):
 def list_():
     result = ControllerResult()
     weekday_order = Bangumi.week
-    followed_bangumi = models.get_followed_bangumi()
+    followed_bangumi = db_models.get_followed_bangumi()
     script_bangumi = ScriptRunner().get_models_dict()
 
     if not followed_bangumi and not script_bangumi:

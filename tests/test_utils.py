@@ -12,10 +12,10 @@ import bgmi
 import bgmi.config
 from bgmi import utils
 from bgmi.lib import constants
-from bgmi.lib.models import (
+from bgmi.lib.db_models import (
     Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle, db, get_kv_storage
 )
-from bgmi.lib.models._kv import create_kv_storage
+from bgmi.lib.db_models._kv import create_kv_storage
 from bgmi.utils import utils as inner_utils
 from bgmi.utils.utils import FRONTEND_NPM_URL, PACKAGE_JSON_URL
 

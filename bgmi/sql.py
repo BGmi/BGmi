@@ -42,7 +42,7 @@ def init_db() -> None:
     db = db_url.connect(config.DB_URL)
     print_info('Initializing DataBase Tables')
     router = Router(
-        db, migrate_dir=path.join(config.SOURCE_ROOT, 'lib/models/migrations'), ignore=['neodb']
+        db, migrate_dir=path.join(config.SOURCE_ROOT, 'lib/db_models/migrations'), ignore=['neodb']
     )
     router.logger.setLevel(logging.WARNING)
     router.run()

@@ -1,7 +1,7 @@
 import os
 from abc import ABC, abstractmethod
 
-from bgmi.lib.models import Download
+from bgmi.lib.db_models import Download
 from bgmi.utils import print_info, print_success, print_warning
 
 

@@ -14,7 +14,7 @@ bgmi install --no-web;
 bash <(curl -s https://codecov.io/bash) -c -F command > /dev/null
 
 bash tests/init_env_and_run_unit_test.sh test_utils
-bash tests/init_env_and_run_unit_test.sh test_models
+bash tests/init_env_and_run_unit_test.sh test_db_models
 
 if [[ "$DB" == "mysql" ]]; then
   exit

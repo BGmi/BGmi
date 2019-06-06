@@ -6,23 +6,24 @@ from unittest.mock import Mock, patch
 
 import faker
 
-from bgmi.lib import models
-from bgmi.lib.models import Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle, db
-from bgmi.lib.models._kv import create_kv_storage
+from bgmi.lib import db_models
+from bgmi.lib.db_models import Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle, db
 from tests.base import project_dir
 
-with open(path.join(project_dir, 'tests/data/models/main_bangumi.json'), 'r', encoding='utf8') as f:
+with open(
+    path.join(project_dir, 'tests/data/db_models/main_bangumi.json'), 'r', encoding='utf8'
+) as f:
     bangumi_list = json.load(f)
 with open(
-    path.join(project_dir, 'tests/data/models/main_followed.json'), 'r', encoding='utf8'
+    path.join(project_dir, 'tests/data/db_models/main_followed.json'), 'r', encoding='utf8'
 ) as f:
     followed_list = json.load(f)
 with open(
-    path.join(project_dir, 'tests/data/models/main_bangumi_item.json'), 'r', encoding='utf8'
+    path.join(project_dir, 'tests/data/db_models/main_bangumi_item.json'), 'r', encoding='utf8'
 ) as f:
     bangumi_item_list = json.load(f)
 
-with open(path.join(project_dir, 'tests/data/models/subtitle.json'), 'r', encoding='utf8') as f:
+with open(path.join(project_dir, 'tests/data/db_models/subtitle.json'), 'r', encoding='utf8') as f:
     subtitle_group = json.load(f)
     for key, value in subtitle_group.items():
         for subtitle in value:
@@ -31,7 +32,7 @@ subtitle_list = []
 for _, value in subtitle_group.items():
     subtitle_list += value
 
-# with open(path.join(project_dir, 'tests/data/models/main_subtitle.json'),
+# with open(path.join(project_dir, 'tests/data/db_models/main_subtitle.json'),
 #           'r', encoding='utf8') as f:
 #     subtitle_list = json.load(f)
 
@@ -46,7 +47,6 @@ class Base:
         BangumiItem.delete().where(True).execute()
         Subtitle.delete().where(True).execute()
         # db.create_tables([Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle])
-        create_kv_storage()
         Bangumi.insert_many(bangumi_list).execute()
         BangumiItem.insert_many(bangumi_item_list).execute()
         Subtitle.insert_many(subtitle_list).execute()
@@ -120,7 +120,7 @@ class BangumiTest(Base, TestCase):
                 keyword=name,
                 cover=name,
                 update_time='mon',
-                status=models.Bangumi.STATUS.UPDATING
+                status=db_models.Bangumi.STATUS.UPDATING
             )
             Followed.create(
                 bangumi_id=bangumi_obj.id, updated_time=now - 2 * 2 * 7 * 24 * 3600 - 200
@@ -130,10 +130,10 @@ class BangumiTest(Base, TestCase):
         Bangumi.delete_all()
 
         for bangumi in Bangumi.select().where(Bangumi.name.in_(name_updating)):
-            self.assertEqual(bangumi.status, models.Bangumi.STATUS.UPDATING)
+            self.assertEqual(bangumi.status, db_models.Bangumi.STATUS.UPDATING)
 
         for bangumi in Bangumi.select().where(Bangumi.name.in_(name_end)):
-            self.assertEqual(bangumi.status, models.Bangumi.STATUS.END)
+            self.assertEqual(bangumi.status, db_models.Bangumi.STATUS.END)
 
     def test_get_updating_bangumi(self):
         # old_bangumi = ['机动奥特曼']
@@ -200,7 +200,7 @@ class SubtitleTest(Base, TestCase):
             data_source = {'dmhy': {}}
 
         with patch(
-            'bgmi.lib.models.Subtitle.get_subtitle_from_data_source_dict', Mock(return_value=r)
+            'bgmi.lib.db_models.Subtitle.get_subtitle_from_data_source_dict', Mock(return_value=r)
         ) as m:
             Subtitle.get_subtitle_of_bangumi(B())
             m.assert_called_with({})

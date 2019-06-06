@@ -7,7 +7,7 @@ from tornado.ioloop import IOLoop
 
 from bgmi.config import FRONT_STATIC_PATH, SAVE_PATH
 from bgmi.front.base import COVER_URL, BaseHandler
-from bgmi.lib.models import Bangumi, Followed
+from bgmi.lib.db_models import Bangumi, Followed
 from bgmi.logger import logger
 from bgmi.utils import normalize_path
 

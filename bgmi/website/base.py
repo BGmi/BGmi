@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from bgmi.lib.models import BangumiItem
+from bgmi.lib.db_models import BangumiItem
 from bgmi.utils import normalize_path, parse_episode
 
 
@@ -30,7 +30,7 @@ class BaseWebsite(ABC):
 
         list of bangumi dict:
         update time should be one of ``['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']``
-        (``bgmi.lib.models._tables.Bangumi.week``)
+        (``bgmi.lib.db_models._tables.Bangumi.week``)
 
         final cover url will be ``self.cover_url + item['cover']``
 

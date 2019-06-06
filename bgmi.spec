@@ -10,7 +10,7 @@ import glob
 bindata_dir = [
     'bgmi/front/templates',
     'bgmi/others',
-    'bgmi/lib/models/migrations',
+    'bgmi/lib/db_models/migrations',
     'bgmi.egg-info'
 ]
 
