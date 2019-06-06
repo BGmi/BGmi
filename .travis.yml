@@ -32,10 +32,14 @@ services:
   - mysql
   - docker
 
-matrix:
-  fast_finish: true
+stages:
+  - test
+  - name: deploy
+    if: branch = master
 
+jobs:
   include:
+    - stage: test
     - os: osx
       name: 'test python3.6 on MacOS'
       language: generic
@@ -43,34 +47,12 @@ matrix:
       env:
         - TRAVIS_PYTHON_VERSION=3.6
 
-#    - os: osx
-#      name: 'test python3.7 on MacOS'
-#      language: generic
-#      python: "3.7"
-#      env:
-#        - TRAVIS_PYTHON_VERSION=3.7
-
     - os: windows
       language: sh
       python: "3.6"
       name: 'test python3.6 on Windows'
       env:
         - TRAVIS_PYTHON_VERSION=3.6
-
-#    - os: windows
-#      language: sh
-#      python: "3.7"
-#      name: 'test python3.7 on Windows'
-#      env:
-#        - TRAVIS_PYTHON_VERSION=3.7
-
-#    - python: '3.7'
-#      dist: xenial
-#      env: DB=sqlite
-#
-#    - python: '3.7'
-#      dist: xenial
-#      env: DB=mysql
 
     - python: '3.6'
       os: linux
@@ -127,25 +109,56 @@ matrix:
       script:
         - bash .ci/build.sh
         - export PATH="$PWD/dist/binary:$PATH"
-        - rm -rf ~/.bgmi | true
-        - bgmi install
-        - cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
-        - bgmi --help
-        - bgmi gen nginx.conf --server-name _
-        - bgmi cal -f
-        - bgmi cal
-        - bgmi config ADMIN_TOKEN 233
+        - |
+          BANGUMI_1=名侦探柯南
+          BANGUMI_2=妖怪手表
+          BANGUMI_3=海贼王
+
+          rm -rf ~/.bgmi | true
+          bgmi install
+          cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
+          bgmi --help
+          bgmi gen nginx.conf --server-name _
+          bgmi cal -f
+          bgmi cal
+          bgmi config ADMIN_TOKEN 233
+          bgmi config DOWNLOAD_DELEGATE 'aria2-rpc'
+          bgmi config GLOBAL_FILTER 'Leopard-Raws, hevc, x265, c-a Raws, 外挂'
+          bgmi config
+          bgmi add ${BANGUMI_1} ${BANGUMI_2} ${BANGUMI_3}
+          bgmi update
+          bgmi delete ${BANGUMI_3}
+          bgmi add ${BANGUMI_1} ${BANGUMI_2}
+          bgmi add ${BANGUMI_2} --episode 1
+          bgmi fetch ${BANGUMI_2}
+          bgmi list
+          bgmi mark ${BANGUMI_2} 1
+          bgmi update ${BANGUMI_2}
+          bgmi filter ${BANGUMI_2} --subtitle "" --exclude "MKV" --regex "720p|720P"
+          bgmi fetch ${BANGUMI_2}
+          bgmi search "海贼王" --regex-filter '.*MP4.*720P.*' --min-episode 800 --max-episode 900
+
+
+    - stage: deploy
+      os: linux
+      name: deploy binary
+      python: '3.6'
+      before_install: false
+      install: pip install -q -r requirements/dev.txt
+      script:
+       - bash .ci/build.sh
 
       deploy:
-        - skip_cleanup: true
-          provider: releases
-          api_key: ${GITHUB_OAUTH_TOKEN}
-          file_glob: true
-          file: ./dist/binary/*
-          name: ${TRAVIS_TAG}
-          on:
-            tags: true
-            branch: master
+       - skip_cleanup: true
+         provider: releases
+         api_key: ${GITHUB_OAUTH_TOKEN}
+         file_glob: true
+         file: ./dist/binary/*
+         name: ${TRAVIS_TAG}
+         on:
+           tags: true
+           branch: master
+
 
 before_cache:
   - rm -f $HOME/.cache/pip/log/debug.log
@@ -182,9 +195,8 @@ install:
   - ./.ci/install.bash
 
 script:
-  - alias bgmi="coverage run -a -m bgmi"
-  - chmod +x .ci/script.bash
-  - .ci/script.bash
+  - bash .ci/script.bash
+
 
 after_success:
   - codecov
