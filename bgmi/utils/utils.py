@@ -157,10 +157,10 @@ def update(mark=True):
 
 @log_utils_function
 def check_update(mark=True):
-    date = get_kv_storage().get(constants.kv.LAST_CHECK_UPDATE_TIME, '0')
-    if time.time() - int(date) > SECOND_OF_WEEK:
+    date = get_kv_storage().get(constants.kv.LAST_CHECK_UPDATE_TIME, 0)
+    if time.time() - date > SECOND_OF_WEEK:
         update(mark)
-        get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = str(int(time.time()))
+        get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = int(time.time())
 
 
 @log_utils_function

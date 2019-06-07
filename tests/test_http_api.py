@@ -8,6 +8,7 @@ from tornado.testing import AsyncHTTPTestCase
 
 from bgmi.config import ADMIN_TOKEN, SAVE_PATH
 from bgmi.front.server import make_app
+from tests.test_db_models import Base
 
 
 def random_word(length):
@@ -15,7 +16,7 @@ def random_word(length):
     return ''.join(random.choice(letters) for i in range(length))
 
 
-class ApiTestCase(AsyncHTTPTestCase):
+class ApiTestCase(AsyncHTTPTestCase, Base):
     headers = {'BGmi-Token': ADMIN_TOKEN, 'Content-Type': 'application/json'}
     bangumi_1 = os.environ.get('BANGUMI_1')
     bangumi_2 = os.environ.get('BANGUMI_2')
@@ -247,5 +248,3 @@ class ApiTestCase(AsyncHTTPTestCase):
         logging.getLogger('tornado.access').setLevel(logging.ERROR)
         logging.getLogger('tornado.application').setLevel(logging.ERROR)
         logging.getLogger('tornado.general').setLevel(logging.ERROR)
-        import bgmi.logger
-        bgmi.logger.logger.setLevel(logging.ERROR)

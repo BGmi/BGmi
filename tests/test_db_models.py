@@ -64,14 +64,6 @@ class Base:
     #         Scripts,
     #     ])
 
-    @staticmethod
-    def setUpClass():
-        pass
-
-    @staticmethod
-    def tearDownClass():
-        pass
-
 
 class BangumiTest(Base, TestCase):
     week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')

@@ -30,7 +30,7 @@ def _filter(name, subtitle=None, include=None, exclude=None, regex=None):
     result = filter_(name, subtitle_input=subtitle, include=include, exclude=exclude, regex=regex)
     data = result.data
     data.update({
-        'include': ', '.join(data['include'] or []),
+        'include': ', '.join(data.get(['include'], [])),
         'exclude': ', '.join(data['exclude'] or []),
     })
     data['obj'] = model_to_dict(data['obj'])

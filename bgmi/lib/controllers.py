@@ -571,7 +571,7 @@ def get_bangumi_source(name):
     try:
         bangumi = Bangumi.get(name=name)
     except pw.DoesNotExist:
-        return ControllerResult.new_error('bangumi {} not exists'.format(name))
+        return ControllerResult.new_error(f'bangumi {name} not exists')
     bangumi_items = BangumiItem.select().where(BangumiItem.bangumi_id == bangumi.id)
     return ControllerResult(data=list(bangumi_items))
 

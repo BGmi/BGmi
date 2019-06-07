@@ -57,7 +57,6 @@ class ReadConfigTest(base, unittest.TestCase):
 bangumi_moe_url = https://bangumi.moe
 save_path = /tmp/bangumi
 download_delegate = aria2-rpc
-db_url = sqlite:///:memory:
 max_page = 3
 tmp_path = /tmp/bgmi/tmp
 danmaku_api_url =
@@ -84,7 +83,6 @@ aria2_rpc_token = token:
 bangumi_moe_url = https://bangumi.moe
 save_path = /tmp/bangumi
 download_delegate = aria2-rpc
-db_url = sqlite:///:memory:
 max_page = 3
 tmp_path = /tmp/bgmi/tmp
 danmaku_api_url =

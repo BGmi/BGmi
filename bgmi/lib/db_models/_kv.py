@@ -1,22 +1,14 @@
 import functools
+from os import path
 
 import peewee as pw
-from playhouse import kv
+from playhouse.kv import KeyValue
 
-from ._db import db
-
-
-class KV(kv.KeyValue):
-    def __setitem__(self, expr, value):
-        if not isinstance(value, str):
-            raise ValueError("kv's item must be str")
-        super().__setitem__(expr, value)
+from bgmi import config
 
 
 def create_kv_storage():
-    instance = KV(database=db, value_field=pw.TextField())
-    instance.create_model().create_table()
-    return instance
+    return KeyValue(database=pw.SqliteDatabase(path.join(config.BGMI_PATH, 'kv.db')))
 
 
 def _kv_storage_decorator(func):
@@ -32,5 +24,5 @@ def _kv_storage_decorator(func):
 
 
 @_kv_storage_decorator
-def get_kv_storage() -> kv.KeyValue:
-    return KV(database=db, value_field=pw.TextField())
+def get_kv_storage():
+    return create_kv_storage()

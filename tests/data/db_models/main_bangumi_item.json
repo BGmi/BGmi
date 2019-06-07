@@ -8,7 +8,7 @@
     "subtitle_group": "10, 161, 93, 202, 22, 466, 387, 305, 169, 373, 7, 38, 21, 97, 25, 81, 151, 14, 65, 85, 9, 57, 52",
     "keyword": "227",
     "data_source": "mikan_project",
-    "bangumi": 41
+    "bangumi_id": 41
   },
   {
     "id": 2,
@@ -19,7 +19,7 @@
     "subtitle_group": "9, 202, 1, 38, 22",
     "keyword": "228",
     "data_source": "mikan_project",
-    "bangumi": 49
+    "bangumi_id": 49
   },
   {
     "id": 12,
@@ -30,7 +30,7 @@
     "subtitle_group": "59af67e5d04829c1623b0e51, 5492ecbc2a934ba5288acb20",
     "keyword": "548fe27ef892774b140ac6e8",
     "data_source": "bangumi_moe",
-    "bangumi": 41
+    "bangumi_id": 41
   },
   {
     "id": 13,
@@ -41,7 +41,7 @@
     "subtitle_group": "59030031e777e29f2a081ba1, 59058a79e777e29f2a081e10, 55a3ddfab85ffe43596230d5",
     "keyword": "548ef7225af0fb402813b57b",
     "data_source": "bangumi_moe",
-    "bangumi": 49
+    "bangumi_id": 49
   },
   {
     "id": 53,
@@ -52,7 +52,7 @@
     "subtitle_group": "490, 88",
     "keyword": "Youkai+Watch",
     "data_source": "dmhy",
-    "bangumi": 30
+    "bangumi_id": 30
   },
   {
     "id": 69,
@@ -63,7 +63,7 @@
     "subtitle_group": "710, 720, 619, 47, 303, 283, 468, 225",
     "keyword": "%E9%AD%94%E6%B3%95%E7%A6%81%E4%B9%A6%E7%9B%AE%E5%BD%95",
     "data_source": "dmhy",
-    "bangumi": 0
+    "bangumi_id": 0
   },
   {
     "id": 70,
@@ -74,7 +74,7 @@
     "subtitle_group": "117",
     "keyword": "%E7%81%AB+%E7%9B%B8%E6%89%91",
     "data_source": "dmhy",
-    "bangumi": 0
+    "bangumi_id": 0
   },
   {
     "id": 71,
@@ -85,7 +85,7 @@
     "subtitle_group": "241, 75, 380, 299, 359, 412, 506, 454, 576",
     "keyword": "%E6%9F%AF%E5%8D%97",
     "data_source": "dmhy",
-    "bangumi": 41
+    "bangumi_id": 41
   },
   {
     "id": 72,
@@ -96,7 +96,7 @@
     "subtitle_group": "58, 407, 657",
     "keyword": "%E6%9C%83%E5%A4%A7",
     "data_source": "dmhy",
-    "bangumi": 0
+    "bangumi_id": 0
   },
   {
     "id": 73,
@@ -107,7 +107,7 @@
     "subtitle_group": "710",
     "keyword": "%E7%BB%9D%E9%A1%B6",
     "data_source": "dmhy",
-    "bangumi": 0
+    "bangumi_id": 0
   },
   {
     "id": 74,
@@ -118,7 +118,7 @@
     "subtitle_group": "619, 720",
     "keyword": "%E5%AE%B6%E6%9C%89%E5%A5%B3%E5%8F%8B",
     "data_source": "dmhy",
-    "bangumi": 0
+    "bangumi_id": 0
   },
   {
     "id": 75,
@@ -129,7 +129,7 @@
     "subtitle_group": "151, 185",
     "keyword": "%E9%BB%84%E9%87%91+%E4%B9%8B%E9%A3%8E",
     "data_source": "dmhy",
-    "bangumi": 0
+    "bangumi_id": 0
   },
   {
     "id": 76,
@@ -140,7 +140,7 @@
     "subtitle_group": "720, 663",
     "keyword": "%E5%B0%91%E5%A5%B3+%E6%98%8E%E6%97%A5%E9%A6%99",
     "data_source": "dmhy",
-    "bangumi": 0
+    "bangumi_id": 0
   },
   {
     "id": 77,
@@ -151,7 +151,7 @@
     "subtitle_group": "710",
     "keyword": "%E7%99%BE%E6%85%95",
     "data_source": "dmhy",
-    "bangumi": 0
+    "bangumi_id": 0
   },
   {
     "id": 78,
@@ -162,6 +162,6 @@
     "subtitle_group": "303, 627",
     "keyword": "%E6%80%AA%E5%BA%B5",
     "data_source": "dmhy",
-    "bangumi": 0
+    "bangumi_id": 0
   }
 ]

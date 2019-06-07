@@ -24,6 +24,8 @@ class UtilsTest(unittest.TestCase):
     test_dir = './test_dir'
 
     def setUp(self):
+        if db.is_closed():
+            db.connect()
         db.create_tables([Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle])
         create_kv_storage()
         db.close()
@@ -155,19 +157,19 @@ class UtilsTest(unittest.TestCase):
         with patch('bgmi.utils.utils.time.time') as time:
             time.return_value = 12345
             with patch('bgmi.utils.utils.update') as update:
-                get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = str(time.return_value)
+                get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = time.return_value
                 utils.check_update()
                 update.assert_not_called()
-                self.assertEqual(get_kv_storage().get(constants.kv.LAST_CHECK_UPDATE_TIME), '12345')
+                self.assertEqual(get_kv_storage().get(constants.kv.LAST_CHECK_UPDATE_TIME), 12345)
 
             time.return_value = 12345 + 30 * 30 * 24 * 3600
             with patch('bgmi.utils.utils.update') as update:
-                get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = '12345'
+                get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = 12345
                 utils.check_update()
                 update.assert_called_once_with(True)
                 self.assertEqual(
                     get_kv_storage().get(constants.kv.LAST_CHECK_UPDATE_TIME),
-                    str(12345 + 30 * 30 * 24 * 3600)
+                    12345 + 30 * 30 * 24 * 3600
                 )
 
     def test_update(self):

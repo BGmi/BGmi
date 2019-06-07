@@ -44,7 +44,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def __init__(self, *args, **kwargs):
         if self.latest_version is None:
-            self.latest_version = get_kv_storage().get(constants.kv.LATEST_VERSION, None)
+            self.latest_version = get_kv_storage().get(constants.kv.LATEST_VERSION)
 
         if self.patch_list is None:
             runner = ScriptRunner()
