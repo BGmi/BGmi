@@ -54,7 +54,7 @@ def get_updating_bangumi_with_data_source(status=None, order=True):
             if item.bangumi_id == bangumi['id']:
                 if 'source' not in bangumi:
                     bangumi['source'] = {}
-                bangumi['source'][item.data_source] = model_to_dict(item)
+                bangumi['source'][item.data_source_id] = model_to_dict(item)
 
     if order:
         weekly_list = order_by_weekday(data)

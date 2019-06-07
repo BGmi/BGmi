@@ -13,6 +13,8 @@ unquote = urllib.parse.unquote
 
 base_url = config.SHARE_DMHY_URL
 
+cover_url = config.SHARE_DMHY_URL
+
 
 def parse_bangumi_with_week_days(content, update_time, array_name):
     r = re.compile(array_name + r'\.push\(\[\'(.*?)\',\'(.*?)\',\'(.*?)\',\'(.*?)\',\'(.*?)\'\]\)')
@@ -55,7 +57,7 @@ def parse_bangumi_with_week_days(content, update_time, array_name):
         bangumi['name'] = name
         bangumi['update_time'] = update_time
         bangumi['keyword'] = keyword
-        bangumi['cover'] = cover
+        bangumi['cover'] = cover_url + cover
 
         # append to bangumi_list
         bangumi_list.append(bangumi)
@@ -96,7 +98,7 @@ def unique_subtitle_list(raw_list):
 
 class DmhySource(BaseWebsite):
     name = '动漫花园'
-    cover_url = config.SHARE_DMHY_URL
+    data_source_id = 'dmhy'
 
     def search_by_keyword(self, keyword, count=None):
         if count is None:

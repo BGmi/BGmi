@@ -1,13 +1,14 @@
 import os
 import xmlrpc.client
 from functools import singledispatch
-from typing import Type
+from typing import List, Type
 
 import stevedore
 import stevedore.exception
 
 from bgmi.config import DOWNLOAD_DELEGATE, SAVE_PATH
 from bgmi.downloader.base import BaseDownloadService
+from bgmi.lib import models
 from bgmi.lib.constants import NameSpace
 from bgmi.lib.db_models import Download
 from bgmi.utils import normalize_path, print_error
@@ -42,19 +43,8 @@ def _(e):
     print_error(f'can\'t connect to aria2-rpc server, {e}', exit_=False)
 
 
-def download_prepare(data):
-    """
-    list[dict]
-    dict[
-    name:str, keyword you use when search
-    title:str, title of episode
-    episode:int, episode of bangumi
-    download:str, link to download
-    ]
-    :param data:
-    :return:
-    """
-    queue = save_to_bangumi_download_queue(data)
+def download_prepare(name, data: List[models.Episode]):
+    queue = save_to_bangumi_download_queue(name, data)
     for download in queue:
         save_path = os.path.join(
             os.path.join(SAVE_PATH, normalize_path(download.name)), str(download.episode)
@@ -91,25 +81,14 @@ def download_prepare(data):
                 raise e
 
 
-def save_to_bangumi_download_queue(data):
-    """
-    list[dict]
-    dict:{
-    name;str, keyword you use when search
-    title:str, title of episode
-    episode:int, episode of bangumi
-    download:str, link to download
-    }
-    :param data:
-    :return:
-    """
+def save_to_bangumi_download_queue(name, data: List[models.Episode]):
     queue = []
     for i in data:
         download, _ = Download.get_or_create(
-            title=i['title'],
-            download=i['download'],
-            name=i['name'],
-            episode=i['episode'],
+            title=i.title,
+            download=i.download,
+            name=name,
+            episode=i.episode,
             status=Download.STATUS.NOT_DOWNLOAD
         )
 

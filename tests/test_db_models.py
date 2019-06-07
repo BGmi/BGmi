@@ -27,7 +27,7 @@ with open(path.join(project_dir, 'tests/data/db_models/subtitle.json'), 'r', enc
     subtitle_group = json.load(f)
     for key, value in subtitle_group.items():
         for subtitle in value:
-            subtitle['data_source'] = key
+            subtitle['data_source_id'] = key
 subtitle_list = []
 for _, value in subtitle_group.items():
     subtitle_list += value
@@ -70,11 +70,11 @@ class BangumiTest(Base, TestCase):
 
     def test__init__(self, **kwargs):
         self.assertRaises(ValueError, lambda: Bangumi(update_time='wrong'))
-        query = {'update_time': 'wed', 'subtitle_group': ['1', '2', '3']}
+        query = {'update_time': 'wed', 'subtitle_group_id': ['1', '2', '3']}
         b = Bangumi(**query)
         self.assertEqual(b.update_time, 'Wed')
         self.assertIn(b.update_time, b.week)
-        self.assertEqual(b.subtitle_group, ['1', '2', '3'])
+        self.assertEqual(b.subtitle_group_id, ['1', '2', '3'])
 
     """
     class Bangumi(NeoDB):
@@ -199,8 +199,8 @@ class SubtitleTest(Base, TestCase):
 
     def test_get_subtitle_from_data_source_dict(self):
         """
-        :type data_source: dict
-        :param data_source:
+        :type data_source_id: dict
+        :param data_source_id:
         :return:
         """
 
@@ -210,14 +210,15 @@ class SubtitleTest(Base, TestCase):
             # All subtitles meet the requirement
             for subtitle in subtitle_list:
                 for key, value in data_source.items():
-                    if key == subtitle['data_source'] and subtitle['id'] in value['subtitle_group']:
+                    if key == subtitle['data_source_id'] and subtitle['id'
+                                                                      ] in value['subtitle_group']:
                         self.assertIn(subtitle, s)
 
             # No extra subtitle returned
             for subtitle in s:
-                self.assertIn(subtitle, subtitle_group[subtitle['data_source']])
+                self.assertIn(subtitle, subtitle_group[subtitle['data_source_id']])
                 self.assertIn(
-                    subtitle['id'], data_source[subtitle['data_source']]['subtitle_group']
+                    subtitle['id'], data_source[subtitle['data_source_id']]['subtitle_group']
                 )
 
         condition = {'mikan_project': {'subtitle_group': ','.join(['1', '2', '6', '7', '9'])}}

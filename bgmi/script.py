@@ -4,13 +4,14 @@ import imp
 import os
 import time
 import traceback
-from typing import List
+from collections import defaultdict
+from typing import Dict, List
 
 import stevedore.exception
 
 from bgmi.config import MAX_PAGE, SCRIPT_PATH
+from bgmi.lib import models
 from bgmi.lib.db_models import Followed, Scripts
-from bgmi.lib.download import download_prepare
 from bgmi.utils import print_info, print_success, print_warning
 from bgmi.website import get_all_provider, get_provider
 
@@ -78,7 +79,8 @@ class ScriptRunner:
             'download': v,
         } for k, v in script.get_download_url().items()]
 
-    def run(self, return_=True, download=False) -> List[dict]:
+    def run(self, return_=True) -> Dict[str, List[models.Episode]]:
+        container = defaultdict(list)
         for script in self.scripts:
             print_info(f'fetching {script.bangumi_name} ...')
             download_item = self.make_dict(script)
@@ -106,17 +108,13 @@ class ScriptRunner:
             for i in episode_range:
                 for e in download_item:
                     if i == e['episode']:
-                        download_queue.append(e)
+                        download_queue.append(models.Episode.parse_obj(e))
 
             if return_:
-                self.download_queue.extend(download_queue)
+                container[script.bangumi_name] = download_queue
                 continue
 
-            if download:
-                print_success(f'Start downloading of {script}')
-                download_prepare(download_queue)
-
-        return self.download_queue
+        return container
 
     def get_download_cover(self) -> List[str]:
         return [script['cover'] for script in self.get_models_dict()]
@@ -161,7 +159,7 @@ class ScriptBase:
             yield ('bangumi_names', [
                 self.bangumi_name,
             ])
-            yield ('data_source', {})
+            yield ('data_source_id', {})
 
     @property
     def _data(self) -> dict:

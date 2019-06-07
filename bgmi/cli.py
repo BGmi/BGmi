@@ -195,9 +195,9 @@ def search_wrapper(
         globals()['print_{}'.format(result['status'])](result['message'])
     data = result['data']
     for i in data:
-        print_success(i['title'])
+        print_success(i.title)
     if download:
-        download_prepare(data)
+        download_prepare(keyword, data)
 
 
 @normal_cli.command(help='Mark bangumi episode.')
@@ -330,7 +330,7 @@ def cal(force_update, no_save, download_cover, today, detail):
                 ) and 'episode' in bangumi:
                     bangumi['name'] = '{}({:d})'.format(bangumi['name'], bangumi['episode'])
 
-                half = len(re.findall(f'[{string.printable}]', bangumi['name']))
+                half = len(re.findall(f'[{string.printable}○]', bangumi['name']))
                 full = (len(bangumi['name']) - half)
 
                 space_count = col - 2 - (full * 2 + half)
@@ -368,7 +368,7 @@ def cal(force_update, no_save, download_cover, today, detail):
 @normal_cli.command(help='show all bangumi item of data source are not bangumi')
 def show_bangumi_items():
     for item in get_non_bind_bangumi_item():
-        print(f'{GREEN}[+] {item.data_source} {item.name}{COLOR_END}')
+        print(f'{GREEN}[+] {item.data_source_id} {item.name}{COLOR_END}')
 
 
 @normal_cli.command(help='add a bangumi from bgm.tv')
@@ -408,7 +408,7 @@ def filter_wrapper(name, data_source, subtitle, include, exclude, regex):
     result.print()
     if result.data:
         print_info('Usable subtitle group: {}'.format(result.data['subtitle_group']))
-        print_info('Usable data source: {}'.format(result.data['data_source']))
+        print_info('Usable data source: {}'.format(result.data['data_source_id']))
         print()
         followed_filter_obj = result.data['obj']
         print_filter(followed_filter_obj)
@@ -536,7 +536,7 @@ def fetch(name, not_ignore):
     if not data:
         print_warning('Nothing.')
     for i in data:
-        print_success(i['title'])
+        print_success(i.title)
 
 
 @normal_cli.command(help='List your history of following bangumi')

@@ -118,7 +118,7 @@ class ControllersTest(Base, unittest.TestCase):
         """
         {
             'name': '海贼王',
-            'data_source': ['mikan_project', 'bangumi_moe', 'dmhy'],
+            'data_source_id': ['mikan_project', 'bangumi_moe', 'dmhy'],
             'subtitle_group': ['OPFans枫雪动漫', '天空树双语字幕组', 'Dymy字幕组']
         }
         """

@@ -8,9 +8,7 @@ import peewee as pw
 
 from bgmi import config
 from bgmi.lib import db_models
-from bgmi.lib.db_models import (
-    Bangumi, BangumiItem, DoesNotExist, Download, Followed, Subtitle, model_to_dict
-)
+from bgmi.lib.db_models import Bangumi, BangumiItem, DoesNotExist, Followed, Subtitle, model_to_dict
 from bgmi.lib.db_models._tables import split_str_to_list
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
@@ -20,6 +18,7 @@ from bgmi.utils import (
     COLOR_END, GREEN, normalize_path, parallel, print_error, print_info, print_success,
     print_warning
 )
+from bgmi.utils.followed_filter import apply_regex
 
 
 @attr.s
@@ -148,9 +147,9 @@ def filter_(
         if x['name'] not in config.DISABLED_DATA_SOURCE
     ]
     valid_data_source_list = [
-        x.data_source
-        for x in BangumiItem.get_data_source_by_id(bangumi_obj.id)
-        if x.data_source not in config.DISABLED_DATA_SOURCE
+        x.data_source_id
+        for x in BangumiItem.select_by_bangumi_id(bangumi_obj.id)
+        if x.data_source_id not in config.DISABLED_DATA_SOURCE
     ]
 
     if subtitle_input:
@@ -164,7 +163,7 @@ def filter_(
                     f'{subtitle_name} is not a available subtitle_group',
                     data={
                         'name': bangumi_obj.name,
-                        'data_source': valid_data_source_list,
+                        'data_source_id': valid_data_source_list,
                         'subtitle_group': list({x['name'] for x in subtitle_list}),
                     }
                 )
@@ -173,7 +172,7 @@ def filter_(
                     f'{subtitle_name} is not a available subtitle',
                     data={
                         'name': bangumi_obj.name,
-                        'data_source': valid_data_source_list,
+                        'data_source_id': valid_data_source_list,
                         'subtitle_group': list({x['name'] for x in subtitle_list}),
                     }
                 )
@@ -200,7 +199,7 @@ def filter_(
     result.data = {
         'obj': followed_filter_obj,
         'name': bangumi_obj.name,
-        'data_source': valid_data_source_list,
+        'data_source_id': valid_data_source_list,
         'subtitle_group': list({x['name'] for x in subtitle_list}),
         'followed': followed_filter_obj.subtitle,
         'followed_data_source': followed_filter_obj.data_source,
@@ -337,16 +336,17 @@ def search(
     except (TypeError, ValueError):
         count = 3
     data = website.search_by_keyword(keyword, count=count)
-    data = Followed(regex=regex).apply_regex(data)
+    if regex:
+        data = apply_regex(regex, data)
     if min_episode is not None:
-        data = [x for x in data if x['episode'] >= min_episode]
+        data = [x for x in data if x.episode >= min_episode]
     if max_episode is not None:
-        data = [x for x in data if x['episode'] <= max_episode]
+        data = [x for x in data if x.episode <= max_episode]
     if not dupe:
         data = website.Utils.remove_duplicated_episode_bangumi(data)
-    data.sort(key=lambda x: x['episode'])
+    data.sort(key=lambda x: x.episode)
     if data:
-        if data[0]['episode'] == 0:
+        if data[0].episode == 0:
             data.pop(0)
     return {
         'status': 'success',
@@ -413,7 +413,7 @@ def update_single_bangumi(subscribe, name, ignore, download):
     )
     all_episode_data = sorted(
         all_episode_data,
-        key=lambda x: title_to_weight(x['title']),
+        key=lambda x: title_to_weight(x.title),
         reverse=True,
     )
     if (episode.get('episode') > subscribe['episode']) or (len(name) == 1 and download):
@@ -435,7 +435,7 @@ def update_single_bangumi(subscribe, name, ignore, download):
 
         for i in episode_range:
             for epi in all_episode_data:
-                if epi['episode'] == i:
+                if epi.episode == i:
                     download_queue.append(epi)
                     break
 
@@ -497,13 +497,14 @@ def update(name, download=None, not_ignore=False):
     )
     result['data']['updated'] = sum(map(itemgetter(0), res), [])
     download_queue = sum(map(itemgetter(1), res), [])
-
     if download is not None:
         result['data']['downloaded'] = download_queue
-        download_prepare(download_queue)
-        download_prepare(script_download_queue)
+        for bangumi_obj, episodes in res:
+            if bangumi_obj:
+                download_prepare(bangumi_obj[0]['bangumi'], episodes)
+        for name, queue in script_download_queue.items():
+            download_prepare(name, queue)
         print_info('Re-downloading ...')
-        download_prepare(Download.get_all_downloads(status=Download.STATUS.NOT_DOWNLOAD))
 
     return result
 

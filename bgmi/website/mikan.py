@@ -13,6 +13,7 @@ from bgmi.website.base import BaseWebsite
 week = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 server_root = 'https://mikanani.me/'
 
+cover_url = server_root[:-1]
 Cn_week_map = {
     '星期日': 'Sun',
     '星期一': 'Mon',
@@ -52,7 +53,9 @@ def parser_day_bangumi(soup):
             name = url['title']
             url = url['href']
             bangumi_id = url.split('/')[-1]
-            container.append({'name': name, 'keyword': bangumi_id, 'cover': span['data-src']})
+            container.append({
+                'name': name, 'keyword': bangumi_id, 'cover': cover_url + span['data-src']
+            })
     return container
 
 
@@ -114,7 +117,7 @@ def parse_bangumi_details_page(bangumi_id):
 
 class Mikanani(BaseWebsite):
     name = '蜜柑计划'
-    cover_url = server_root[:-1]
+    data_source_id = 'mikan_project'
 
     def search_by_keyword(self, keyword, count=None):
         result = []

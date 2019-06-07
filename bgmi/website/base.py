@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
+from typing import List, Tuple
 
-from bgmi.lib.db_models import BangumiItem
-from bgmi.utils import normalize_path, parse_episode
+from bgmi.lib.models import DataSourceItem, Subtitle
+from bgmi.utils import parse_episode
 
 
 class BaseWebsite(ABC):
@@ -11,23 +12,36 @@ class BaseWebsite(ABC):
     """
     parse_episode = staticmethod(parse_episode)
 
-    def get_bangumi_calendar_and_subtitle_group(self):
+    def get_bangumi_calendar_and_subtitle_group(
+        self
+    ) -> Tuple[List[DataSourceItem], List[Subtitle]]:
         bangumi_result, subtitile_result = self.fetch_bangumi_calendar_and_subtitle_group()
-        for item in bangumi_result:
-            item['cover'] = self.cover_url + item['cover']
-            item['name'] = normalize_path(item['name'])
-        # for i, bangumi in enumerate(bangumi_result):
-        #     bangumi_result[i] = Bangumi(**bangumi)
+        # for item in bangumi_result:
+        #     item['name'] = normalize_path(item['name'])
         bangumi_result = [
-            BangumiItem(**bangumi) for bangumi in bangumi_result if bangumi['subtitle_group']
+            DataSourceItem(
+                data_source_id=self.data_source_id,
+                **bangumi,
+            ) for bangumi in bangumi_result if bangumi['subtitle_group']
         ]
-        return bangumi_result, subtitile_result
+        return bangumi_result, [
+            Subtitle(data_source_id=self.data_source_id, **x) for x in subtitile_result
+        ]
 
     @property
     @abstractmethod
     def name(self):
         """
         return bangumi source name
+
+        :rtype: str
+        """
+
+    @property
+    @abstractmethod
+    def data_source_id(self):
+        """
+        id of this data source, should be same with its entry point
 
         :rtype: str
         """
@@ -41,7 +55,9 @@ class BaseWebsite(ABC):
         update time should be one of ``['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']``
         (``bgmi.lib.db_models._tables.Bangumi.week``)
 
-        final cover url will be ``self.cover_url + item['cover']``
+        .. warning::
+
+            cover should starts with ``http://`` or ``https://``
 
         .. code-block:: python
 
@@ -55,7 +71,7 @@ class BaseWebsite(ABC):
                     "name": "名侦探柯南",
                     "keyword": "1234", #bangumi id
                     "update_time": "Sat",
-                    "cover": "data/images/cover1.jpg"
+                    "cover": "https://www.example.com/data/images/cover1.jpg"
                 },
             ]
 
@@ -77,9 +93,8 @@ class BaseWebsite(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def fetch_episode_of_bangumi(
-        self, bangumi_id, max_page, subtitle_list=None
-    ):  # pragma: no cover
+    def fetch_episode_of_bangumi(self, bangumi_id, max_page,
+                                 subtitle_list=None) -> List[dict]:  # pragma: no cover
         """
         get all episode by bangumi id
         example

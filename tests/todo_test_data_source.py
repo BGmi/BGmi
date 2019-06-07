@@ -84,7 +84,7 @@ class TestDataSource:
 
         :param keyword: search key word
         :type keyword: str
-        :param count: how many page to fetch from data_source
+        :param count: how many page to fetch from data_source_id
         :type count: int
 
         :return: list of episode search result

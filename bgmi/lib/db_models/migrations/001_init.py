@@ -51,12 +51,12 @@ def migrate(migrator, database, fake=False, **kwargs):
         update_time = pw.FixedCharField()
         subtitle_group = pw.TextField()
         keyword = pw.CharField(max_length=255)
-        data_source = pw.FixedCharField()
-        bangumi_id = pw.IntegerField(default=0)
+        data_source_id = pw.FixedCharField()
+        bangumi_id = pw.IntegerField(default=0, index=True)
 
         class Meta:
             table_name = 'bangumi_item'
-            indexes = [(('keyword', 'data_source'), True)]
+            indexes = [(('keyword', 'data_source_id'), True)]
 
     @migrator.create_model
     class Download(pw.Model):
@@ -100,11 +100,11 @@ def migrate(migrator, database, fake=False, **kwargs):
     class Subtitle(pw.Model):
         id = pw.CharField(max_length=255, index=True)
         name = pw.CharField(max_length=255)
-        data_source = pw.CharField(max_length=30, index=True)
+        data_source_id = pw.CharField(max_length=30, index=True)
 
         class Meta:
             table_name = 'subtitle'
-            primary_key = pw.CompositeKey('id', 'data_source')
+            primary_key = pw.CompositeKey('id', 'data_source_id')
 
 
 def rollback(migrator, database, fake=False, **kwargs):

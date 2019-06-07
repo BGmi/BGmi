@@ -53,7 +53,7 @@ def parser_bangumi(data):
             'name': name[bangumi_item['tag_id']] or bangumi_item['name'],
             'keyword': bangumi_item['tag_id'],
             'update_time': Bangumi.week[bangumi_item['showOn'] - 1],
-            'cover': bangumi_item['cover'],
+            'cover': COVER_URL + bangumi_item['cover'],
         }
         for key, value in subtitle_of_bangumi.items():
             subtitle_group_list.append({'id': key, 'name': value})
@@ -65,7 +65,7 @@ def parser_bangumi(data):
 
 class BangumiMoe(BaseWebsite):
     name = 'Bangumi.Moe'
-    cover_url = COVER_URL
+    data_source_id = 'bangumi_moe'
 
     def fetch_episode_of_bangumi(self, bangumi_id, max_page, subtitle_list=None):
         max_page = int(max_page)
@@ -133,6 +133,10 @@ class BangumiMoe(BaseWebsite):
                 'subtitle_group': info['team_id'],
                 'title': info['title'],
                 'episode': self.parse_episode(info['title']),
+                'time': int(
+                    time.mktime(time.strptime(info['publish_time'][:18], '%Y-%m-%dT%H:%M:%S'))
+                ),
+                # 'time': '2017-11-29T12:34:56.763Z' info['publish_time'],
             })
 
         # Avoid bangumi collection. It's ok but it will waste your traffic and bandwidth.

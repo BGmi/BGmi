@@ -21,7 +21,7 @@ def fetch_data():
             )
 
         obj = {}
-        for bangumi in value.get_bangumi_calendar_and_subtitle_group()[0]:
+        for bangumi in value.get_bangumi_calendar_and_subtitle_group[0]:
             obj[bangumi.keyword] = value.fetch_episode_of_bangumi(bangumi.keyword, max_page=1)[:3]
         with open(f'./data/website/{key}.bangumi-episode.json', 'w+', encoding='utf8') as f:
             json.dump(obj, f, indent=2, ensure_ascii=False)
@@ -29,6 +29,7 @@ def fetch_data():
 
 class W(BaseWebsite):
     name = 'mock website'
+    data_source_id = 'mock_website_id'
     website_id = ''
 
     def __init__(self, website_id):

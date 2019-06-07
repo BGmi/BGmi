@@ -1,7 +1,6 @@
 import hashlib
 import json
 import os
-import re
 import time
 from collections import defaultdict
 from enum import IntEnum
@@ -21,7 +20,7 @@ DATA_SOURCE_ID_MAX_LENGTH = 30
 
 class BangumiItem(pw.Model):
     """
-    This model is the item of Bangumi.data_source:Dict[str, BangumiItem]
+    This model is the item of Bangumi.data_source_id:Dict[str, BangumiItem]
 
     It will not be stored in database and there isn't a table named BangumiItem in database.
     """
@@ -31,20 +30,20 @@ class BangumiItem(pw.Model):
         database = db
         indexes = (
             # create a unique on from/to/date
-            (('keyword', 'data_source'), True),
+            (('keyword', 'data_source_id'), True),
         )
-        # primary_key = pw.CompositeKey('keyword', 'data_source')
+        # primary_key = pw.CompositeKey('keyword', 'data_source_id')
 
     id = pw.AutoField(primary_key=True)
     name = pw.CharField(max_length=BANGUMI_NAME_MAX_LENGTH)  # type: str
     cover = pw.CharField()  # type: str
     status = pw.IntegerField()  # type: int
     update_time = pw.FixedCharField(5, null=False)  # type: str
-    subtitle_group = pw.TextField()  # type: str
+    subtitle_group = pw.TextField()  # type: List[str]
     keyword = pw.CharField()  # type: str
-    data_source = pw.FixedCharField(max_length=DATA_SOURCE_ID_MAX_LENGTH)  # type: str
+    data_source_id = pw.FixedCharField(max_length=DATA_SOURCE_ID_MAX_LENGTH)  # type: str
     # foreign key
-    bangumi_id = pw.IntegerField(default=0)
+    bangumi_id = pw.IntegerField(default=0, index=True)
 
     class STATUS(IntEnum):
         UPDATING = 0
@@ -93,7 +92,7 @@ class BangumiItem(pw.Model):
         return cls.select().where(cond)
 
     @classmethod
-    def get_data_source_by_id(cls, bangumi_id) -> Iterator['BangumiItem']:
+    def select_by_bangumi_id(cls, bangumi_id: int) -> Iterator['BangumiItem']:
         return cls.select().where(cls.bangumi_id == bangumi_id)
 
 
@@ -176,7 +175,7 @@ class Bangumi(FuzzyMixIn, NeoDB):
             self.data_source[source] = bangumi
         else:
             raise ValueError(
-                'data_source item must be type dict or BangumiItem,'
+                'data_source_id item must be type dict or BangumiItem,'
                 ' can\'t be {} {}'.format(type(bangumi), bangumi)
             )
 
@@ -263,50 +262,6 @@ class Followed(NeoDB):
 
         return list(d)
 
-    def apply_keywords_filter_on_list_of_episode(self, episode_list: List[Dict]) -> List[Dict]:
-        episode_list = self.apply_include(episode_list)
-        episode_list = self.apply_exclude(episode_list)
-        episode_list = self.apply_regex(episode_list)
-        return episode_list
-
-    def apply_include(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
-        if self.include:
-
-            def f1(s):
-                return all(map(lambda t: t in s['title'], split_str_to_list(self.include)))
-
-            episode_list = list(filter(f1, episode_list))
-        return episode_list
-
-    def apply_exclude(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
-        if self.exclude:
-            exclude = split_str_to_list(self.exclude)
-        else:
-            exclude = []
-        if config.ENABLE_GLOBAL_FILTER != '0':
-            exclude += split_str_to_list(config.GLOBAL_FILTER)
-        exclude.append('合集')
-
-        def f2(s):
-            return not any(map(lambda t: t in s['title'], exclude))
-
-        episode_list = list(filter(f2, episode_list))
-        return episode_list
-
-    def apply_regex(self, episode_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
-        if self.regex:
-            try:
-                match = re.compile(self.regex)
-                episode_list = [s for s in episode_list if match.findall(s['title'])]
-            except re.error as exc:
-                if os.getenv('DEBUG'):  # pragma: no cover
-                    import traceback
-
-                    traceback.print_exc()
-                    raise exc
-                return episode_list
-        return episode_list
-
     @classmethod
     def get_by_name(cls, bangumi_name):
         if config.SHOW_WARNING:
@@ -316,7 +271,12 @@ class Followed(NeoDB):
 
 
 def split_str_to_list(s: str) -> List[str]:
-    return [x.strip() for x in s.split(',')]
+    result = []
+    for x in s.split(','):
+        ss = x.strip()
+        if ss:
+            result.append(ss)
+    return result
 
 
 class Download(NeoDB):
@@ -350,13 +310,13 @@ class Download(NeoDB):
 class Subtitle(NeoDB):
     id = pw.CharField(index=True)
     name = pw.CharField()
-    data_source = pw.CharField(max_length=DATA_SOURCE_ID_MAX_LENGTH, index=True)
+    data_source_id = pw.CharField(max_length=DATA_SOURCE_ID_MAX_LENGTH, index=True)
 
-    # data_source = pw.CharField(max_length=255)
+    # data_source_id = pw.CharField(max_length=255)
 
     class Meta:
         database = db
-        primary_key = pw.CompositeKey('id', 'data_source')
+        primary_key = pw.CompositeKey('id', 'data_source_id')
 
     @classmethod
     def get_subtitle_of_bangumi(cls, bangumi_obj):
@@ -370,7 +330,7 @@ class Subtitle(NeoDB):
 
         data_source_dict = {}
         for item in items:
-            data_source_dict[item['data_source']] = item
+            data_source_dict[item['data_source_id']] = item
         return cls.get_subtitle_from_data_source_dict(data_source_dict)
 
     @classmethod
@@ -384,7 +344,7 @@ class Subtitle(NeoDB):
         condition = []
         for s in source:
             condition.append((Subtitle.id.in_(split_str_to_list(data_source[s]['subtitle_group'])))
-                             & (Subtitle.data_source == s))
+                             & (Subtitle.data_source_id == s))
         if len(condition) > 1:
             tmp_c = condition[0]
             for c in condition[1:]:
@@ -399,25 +359,29 @@ class Subtitle(NeoDB):
     def save_subtitle_list(cls, subtitle_group_list):
         """
         subtitle_group_list example: `tests/data/subtitle.json`
-        :type subtitle_group_list: dict
+        :type subtitle_group_list: list[models.Subtitle]
         """
-        with db.atomic():
-            for data_source_id, subtitle_group_lists in subtitle_group_list.items():
-                for subtitle_group in subtitle_group_lists:
-                    s, if_created = Subtitle.get_or_create(
-                        id=str(subtitle_group['id']),
-                        data_source=data_source_id,
-                        defaults={'name': subtitle_group['name']}
-                    )  # type: Subtitle, bool
-                    if not if_created:
-                        if s.name != subtitle_group['name']:
-                            s.name = subtitle_group['name']
-                            s.save()
-                            # Subtitle.replace(data_source=data_source_id, **subtitle_group)
+        for subtitle_group in subtitle_group_list:
+            s, if_created = Subtitle.get_or_create(
+                id=str(subtitle_group.id),
+                data_source_id=subtitle_group.data_source_id,
+                defaults={'name': subtitle_group.name}
+            )  # type: Subtitle, bool
+            if not if_created:
+                if s.name != subtitle_group.name:
+                    s.name = subtitle_group.name
+                    s.save()
 
     @classmethod
     def get_subtitle_by_name(cls, subtitle_name_list: List[str]) -> 'List[Subtitle]':
         return cls.select().where(cls.name.in_(subtitle_name_list))
+
+    @classmethod
+    def select_by_name_and_data_source(
+        cls, subtitle_name_list: List[str], data_source_id_list: List[str]
+    ):
+        return cls.select(
+        ).where(cls.name.in_(subtitle_name_list) & cls.data_source_id.in_(data_source_id_list))
 
     @classmethod
     def get_subtitle_by_id(cls, subtitle_id_list: List[str]) -> 'pw.ModelSelect':

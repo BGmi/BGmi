@@ -11,8 +11,6 @@ fi
 
 bgmi install --no-web;
 
-bash <(curl -s https://codecov.io/bash) -c -F command > /dev/null
-
 bash tests/init_env_and_run_unit_test.sh test_utils
 bash tests/init_env_and_run_unit_test.sh test_db_models
 
@@ -31,5 +29,3 @@ bash tests/init_env_and_run_unit_test.sh test_download_delegate
 bash tests/init_env_and_run_unit_test.sh test_website
 
 cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
-
-bash <(curl -s https://codecov.io/bash) -c -F unittests > /dev/null
