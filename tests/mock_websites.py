@@ -28,6 +28,7 @@ def fetch_data():
 
 
 class W(BaseWebsite):
+    name = 'mock website'
     website_id = ''
 
     def __init__(self, website_id):

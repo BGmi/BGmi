@@ -98,13 +98,13 @@ def migrate(migrator, database, fake=False, **kwargs):
 
     @migrator.create_model
     class Subtitle(pw.Model):
-        id = pw.CharField(max_length=255)
+        id = pw.CharField(max_length=255, index=True)
         name = pw.CharField(max_length=255)
-        data_source = pw.CharField(max_length=30)
+        data_source = pw.CharField(max_length=30, index=True)
 
         class Meta:
             table_name = 'subtitle'
-            indexes = [(('id', 'data_source'), True)]
+            primary_key = pw.CompositeKey('id', 'data_source')
 
 
 def rollback(migrator, database, fake=False, **kwargs):

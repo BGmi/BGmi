@@ -1,28 +1,14 @@
 import os
 
-from playhouse import db_url
-
 from bgmi import __version__, config
-from bgmi.config import BGMI_PATH, DB_URL, write_default_config
+from bgmi.config import BGMI_PATH, write_default_config
 from bgmi.lib import constants
 from bgmi.lib.db_models import db, get_kv_storage
 from bgmi.setup import install_crontab
 from bgmi.sql import init_db
-from bgmi.utils import exec_command, print_error, print_info, print_warning
+from bgmi.utils import exec_command, print_error, print_warning
 
 OLD = os.path.join(BGMI_PATH, 'old')
-
-
-def exec_sql(sql, connect_url=DB_URL):
-    try:
-        print_info(f'connecting to {connect_url}')
-        conn = db_url.connect(connect_url)
-        print_info(f'Execute {sql}')
-        conn.execute(sql)
-        conn.commit()
-        conn.close()
-    except Exception as e:  # pragma: no cover
-        print_error(f'Execute SQL statement failed, {e}', exit_=False)
 
 
 def upgrade_version():

@@ -348,18 +348,15 @@ class Download(NeoDB):
 
 
 class Subtitle(NeoDB):
-    id = pw.CharField()
+    id = pw.CharField(index=True)
     name = pw.CharField()
-    data_source = pw.CharField(max_length=DATA_SOURCE_ID_MAX_LENGTH)
+    data_source = pw.CharField(max_length=DATA_SOURCE_ID_MAX_LENGTH, index=True)
 
     # data_source = pw.CharField(max_length=255)
 
     class Meta:
         database = db
-        indexes = (
-            # create a unique on from/to/date
-            (('id', 'data_source'), True),
-        )
+        primary_key = pw.CompositeKey('id', 'data_source')
 
     @classmethod
     def get_subtitle_of_bangumi(cls, bangumi_obj):
@@ -404,18 +401,19 @@ class Subtitle(NeoDB):
         subtitle_group_list example: `tests/data/subtitle.json`
         :type subtitle_group_list: dict
         """
-        for data_source_id, subtitle_group_lists in subtitle_group_list.items():
-            for subtitle_group in subtitle_group_lists:
-                with db.atomic():
+        with db.atomic():
+            for data_source_id, subtitle_group_lists in subtitle_group_list.items():
+                for subtitle_group in subtitle_group_lists:
                     s, if_created = Subtitle.get_or_create(
                         id=str(subtitle_group['id']),
                         data_source=data_source_id,
-                        defaults={'name': str(subtitle_group['name'])}
-                    )
+                        defaults={'name': subtitle_group['name']}
+                    )  # type: Subtitle, bool
                     if not if_created:
-                        if s.name != str(subtitle_group['name']):
-                            s.name = str(subtitle_group['name'])
+                        if s.name != subtitle_group['name']:
+                            s.name = subtitle_group['name']
                             s.save()
+                            # Subtitle.replace(data_source=data_source_id, **subtitle_group)
 
     @classmethod
     def get_subtitle_by_name(cls, subtitle_name_list: List[str]) -> 'List[Subtitle]':

@@ -409,7 +409,6 @@ def bind_bangumi_item_in_db_to_bangumi():
     Bangumi.update(has_data_source=0) \
         .where(Bangumi.id.not_in([x.bangumi_id for x in bangumi_item_list])
                & (Bangumi.status == Bangumi.STATUS.UPDATING)).execute()
-    bangumi_item_list = list(BangumiItem.get_unmarked_updating_bangumi())
 
 
 __all__ = [

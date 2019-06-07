@@ -149,9 +149,7 @@ def update(mark=True):
         if not mark:
             update()
             raise SystemExit
-    except Exception as e:
-        if os.environ.get('DEBUG'):
-            raise e
+    except (requests.ConnectionError, requests.ConnectTimeout) as e:
         print_warning('Error occurs when checking update, {}'.format(str(e)))
 
 

@@ -259,10 +259,11 @@ def cover_has_downloaded(url: str) -> bool:
 @click.option('--today', is_flag=True, help='Show bangumi calendar for today.')
 @click.option('--detail', is_flag=True, help='Show bangumi with data source bangumi item.')
 def cal(force_update, no_save, download_cover, today, detail):
-    save = not no_save
     runner = ScriptRunner()
 
-    weekly_list = website.bangumi_calendar(force_update=force_update, save=save, detail=detail)
+    weekly_list = website.bangumi_calendar(
+        force_update=force_update, save=not no_save, detail=detail
+    )
     patch_list = runner.get_models_dict()
     for i in patch_list:
         weekly_list[i['update_time'].lower()].append(i)
@@ -380,7 +381,7 @@ def add_bangumi(subject_id):
         print_error(r.text)
     if res.get('name_cn'):
         res['name'] = res['name_cn']
-    obj, created = Bangumi.get_or_create(subject_id=res['id'], defaults=res)  # type: (Bangumi,bool)
+    _, created = Bangumi.get_or_create(subject_id=res['id'], defaults=res)  # type: (Bangumi,bool)
     if created:
         print_success(f'create bangumi {res["name_cn"]}')
     else:
@@ -455,7 +456,7 @@ def set_item(item_source, item_name, bangumi_name):
         print_error(f"bangumi {bangumi_name} doesn't exists")
     except BangumiItem.DoesNotExist:
         print_error(
-            "bangumi item {} doesn't exists in data source".format(
+            "bangumi item {} doesn't exists in data source {}".format(
                 bangumi_name,
                 get_provider(item_source).name
             )

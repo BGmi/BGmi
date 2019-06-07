@@ -34,11 +34,6 @@ STATUS_INFO = 'info'
 SPACIAL_APPEND_CHARS = 'ⅡⅢⅥ♪Δ×☆É·♭★‧☆'
 SPACIAL_REMOVE_CHARS = ''
 
-UNSUPPORTED_VIDEO_CODING = [
-    'hevc',
-]
-COMMON_EXCLUDE_KEYWORD = UNSUPPORTED_VIDEO_CODING
-
 # There should be no `'` in any help message
 actions_and_arguments = [
     {
