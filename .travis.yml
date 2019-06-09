@@ -146,7 +146,8 @@ jobs:
       before_install: false
       install: pip install -q -r requirements/dev.txt
       script:
-       - bash .ci/build.sh
+        - rm ./dist/binary -rf
+        - bash .ci/build.sh
 
       deploy:
        - skip_cleanup: true
