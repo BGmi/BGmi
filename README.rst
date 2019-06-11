@@ -110,7 +110,7 @@ Configure BGmi docker:
 
     # bgmi config ARIA2_RPC_TOKEN token:TOKEN_OF_ARIA2_RPC
     # docker exec -it <CONTAINER ID> ln -s ~/.bgmi/ /bgmi
-    # docker exec -it <CONTAINER ID> bash -c 'echo rpc-secret=token:TOKEN_OF_ARIA2_RPC >> /root/aria2c.conf'
+    # docker exec -it <CONTAINER ID> bash -c 'echo rpc-secret=TOKEN_OF_ARIA2_RPC >> /root/aria2c.conf'
     # docker exec -it <CONTAINER ID> supervisorctl
     supervisor> restart bgmi:aria2c
     supervisor> quit
