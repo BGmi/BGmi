@@ -3,7 +3,7 @@
 faker==1.0.7
 isort==4.3.21
 mock==3.0.5
-pre-commit==1.16.1
+pre-commit==1.17.0
 pycodestyle==2.5.0
 pymysql==0.9.3
 transmission_rpc>=1.0.0, <2.0.0
