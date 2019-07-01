@@ -26,19 +26,11 @@ jobs:
             - pip-v1-{{ .Branch }}-
             - pip-v1-
 
-      - run: sudo pip install codecov -U
-      - run: sudo apt install mysql-client -y
-      - run:
-          name: Print Tools Version
-          command: |
-            python --version
-            pip --version
-            codecov --version
-            mysql --version
-
       - run:
           name: Install Dependencies
-          command: sudo pip install -r requirements/dev.txt
+          command: |
+            sudo pip install pip -U
+            sudo pip install codecov -r requirements/dev.txt
 
       - save_cache:
           key: pip-v1-{{ .Branch }}-{{ checksum ".circleci/PIP_CACHE_KEY" }}
@@ -49,6 +41,10 @@ jobs:
       - run:
           name: Code Style
           command: pre-commit run --all-files
+
+      - run:
+          name: Unittest
+          command: coverage run -m pytest bgmi
 
       - run:
           when: on_success

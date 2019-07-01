@@ -33,3 +33,4 @@ htmlcov
 watchdemo*.yaml
 .tox
 .git
+.pytest_cache

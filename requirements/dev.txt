@@ -1,5 +1,6 @@
 -r prod.txt
 -r build.txt
+pytest==5.0.0
 faker==1.0.7
 isort==4.3.21
 mock==3.0.5

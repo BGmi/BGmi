@@ -25,7 +25,4 @@ bash tests/init_env_and_run_unit_test.sh test_config
 bash tests/init_env_and_run_unit_test.sh test_download_delegate
 #   UNITTEST=1 BGMI_LOG=info coverage run -a -m unittest tests.test_http_api -v
 
-
-bash tests/init_env_and_run_unit_test.sh test_website
-
 cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py

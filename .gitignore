@@ -20,3 +20,4 @@ watchdemo*.yaml
 .tox
 test_dir
 .mypy_cache
+.pytest_cache
