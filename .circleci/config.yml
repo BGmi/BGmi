@@ -1,0 +1,56 @@
+version: 2.1
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - unittest
+
+jobs:
+  unittest:
+    docker:
+      - image: circleci/python:3.6
+
+    steps:
+      - checkout # check out the code in the project directory
+
+      - run:
+          name: Hash Requirement files
+          command: |
+            echo $(find ./requirements -type f -exec md5sum {} \; | md5sum | cut -d' ' -f1) > .circleci/PIP_CACHE_KEY
+            cat .circleci/PIP_CACHE_KEY
+
+      - restore_cache:
+          keys:
+            - pip-v1-{{ .Branch }}-{{ checksum ".circleci/PIP_CACHE_KEY" }}
+            - pip-v1-{{ .Branch }}-
+            - pip-v1-
+
+      - run: sudo pip install codecov -U
+      - run: sudo apt install mysql-client -y
+      - run:
+          name: Print Tools Version
+          command: |
+            python --version
+            pip --version
+            codecov --version
+            mysql --version
+
+      - run:
+          name: Install Dependencies
+          command: sudo pip install -r requirements/dev.txt
+
+      - save_cache:
+          key: pip-v1-{{ .Branch }}-{{ checksum ".circleci/PIP_CACHE_KEY" }}
+          paths:
+            - /home/circleci/.cache/pip
+            - /home/circleci/.cache/pre-commit
+
+      - run:
+          name: Code Style
+          command: pre-commit run --all-files
+
+      - run:
+          when: on_success
+          name: Upload Coverage Report
+          command: codecov
