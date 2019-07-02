@@ -1,44 +1,74 @@
-import os
 from abc import ABC, abstractmethod
 
 from bgmi.lib.db_models import Download
 from bgmi.utils import print_info, print_success, print_warning
 
 
+class ConnectError(Exception):
+    pass
+
+
+class AuthError(Exception):
+    pass
+
+
+class RequireNotSatisfied(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
 class BaseDownloadService(ABC):
-    def __init__(self, download_obj, save_path, overwrite=True):
-        self.name = download_obj.name
-        self.torrent = download_obj.download
-        self.overwrite = overwrite
-        self.save_path = save_path
-        self.episode = download_obj.episode
-        self.return_code = 0
+    """
+    Raises
+    ------
+    ConnectError
+        Any connection error
+    AuthError
+        If RPC server require authorization
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.require()
+
+    @classmethod
+    def require(cls):
+        """
+        Implement this classmethod if your download delegate has some additional requires
+
+        Notes
+        -----
+            You can also install dependencies here.
+            But this method will be called every time bgmi try to download some files.
+            So only install dependencies when missing them.
+
+        Raises
+        ------
+        RequireNotSatisfied
+            If some requirements not satisfied. like missing bin or python package.
+            Don't raise ImportError, catch it and describe it in message.
+        """
 
     @abstractmethod
-    def download(self):
-        # download
-        raise NotImplementedError
+    def download(self, torrent: str, save_path: str):
+        """
 
-    @staticmethod
-    def install():
-        # install requirement
-        raise NotImplementedError
+        Parameters
+        ----------
+        torrent
+            magnet link ot url of torrent file
+        save_path
+            video file save path on
 
-    def check_path(self):
-        if not os.path.exists(self.save_path):
-            print_warning(f'Create dir {self.save_path}')
-            os.makedirs(self.save_path)
+        Raises
+        ------
+        AuthError
+            Auth failure, no auth provided or wrong auth
+        ConnectError
+            Network unreachable, or timeout
 
-    @abstractmethod
-    def check_delegate_bin_exist(self):
-        raise NotImplementedError
+        """
 
-    def check_download(self, name):
-        if not os.path.exists(self.save_path) or self.return_code != 0:
-            raise Exception(f'It seems the bangumi {name} not be downloaded')
-
-    @staticmethod
-    def download_status(status=None):
+    def download_status(self, status=None):
         last_status = -1
         for download_data in Download.get_all_downloads(status=status):
             latest_status = download_data['status']

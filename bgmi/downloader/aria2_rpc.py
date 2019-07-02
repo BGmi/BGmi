@@ -28,54 +28,39 @@ class PatchedServerProxy(ServerProxy):
 
 
 class Aria2DownloadRPC(BaseDownloadService):
-    old_version = False
+    old_version: bool
 
     def __init__(self, *args, **kwargs):
+        self.old_version = False
         self.server = PatchedServerProxy(ARIA2_RPC_URL)
-        Aria2DownloadRPC.check_aria2c_version()
+        self.check_aria2c_version()
         super().__init__(*args, **kwargs)
 
-    def download(self):
+    def download(self, torrent: str, save_path: str):
         if self.old_version:
-            self.server.aria2.addUri([self.torrent], {'dir': self.save_path})
+            self.server.aria2.addUri([torrent], {'dir': save_path})
         else:
-            self.server.aria2.addUri(ARIA2_RPC_TOKEN, [self.torrent], {'dir': self.save_path})
-        print_info(
-            'Add torrent into the download queue, the file will be saved at {}'.format(
-                self.save_path
-            )
-        )
+            self.server.aria2.addUri(ARIA2_RPC_TOKEN, [torrent], {'dir': save_path})
+        print_info(f'Add torrent into the download queue, the file will be saved at {save_path}')
 
-    @staticmethod
-    def check_aria2c_version():
+    def check_aria2c_version(self):
         url = ARIA2_RPC_URL.split('/')
         url[2] = ARIA2_RPC_TOKEN + '@' + url[2]
         url = '/'.join(url)
-        s = PatchedServerProxy(url)
-        r = s.aria2.getVersion(ARIA2_RPC_TOKEN)
+        r = self.server.aria2.getVersion(ARIA2_RPC_TOKEN)
         version = r['version']
         if version:
-            Aria2DownloadRPC.old_version = version < '1.18.4'
+            self.old_version = version < '1.18.4'
         else:
             print_warning('Get aria2c version failed')
 
-    @staticmethod
-    def install():
-        print_warning('Please install aria2 by yourself')
-
-    def check_download(self, name):
-        pass
-
-    @staticmethod
-    def download_status(status=None):
-        Aria2DownloadRPC.check_aria2c_version()
+    def download_status(self, status=None):
 
         print_info('Print download status in database')
         BaseDownloadService.download_status(status=status)
         print()
         print_info('Print download status in aria2c-rpc')
         try:
-            server = PatchedServerProxy(ARIA2_RPC_URL)
             # self.server.aria2
             status_dict = {
                 Download.STATUS.DOWNLOADING: ['tellActive'],
@@ -89,9 +74,9 @@ class Aria2DownloadRPC(BaseDownloadService):
                 else:
                     params = ()
                 if Aria2DownloadRPC.old_version:
-                    data = server.aria2[method](*params)
+                    data = self.server.aria2[method](*params)
                 else:
-                    data = server.aria2[method](ARIA2_RPC_TOKEN, *params)
+                    data = self.server.aria2[method](ARIA2_RPC_TOKEN, *params)
 
                 if data:
                     print_warning(f'RPC {method}:', indicator=False)
@@ -103,6 +88,3 @@ class Aria2DownloadRPC(BaseDownloadService):
 
         except BaseException:
             print_error('Cannot connect to aria2-rpc server')
-
-    def check_delegate_bin_exist(self):
-        pass

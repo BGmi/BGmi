@@ -1,71 +1,58 @@
+import uuid
+
 import requests
 
 from bgmi.config import DELUGE_RPC_PASSWORD, DELUGE_RPC_URL
-from bgmi.downloader.base import BaseDownloadService
-from bgmi.utils import print_error, print_info
+from bgmi.downloader.base import AuthError, BaseDownloadService, ConnectError
+from bgmi.utils import print_info
 
 
 class DelugeRPC(BaseDownloadService):
     def __init__(self, *args, **kwargs):
-        self._id = 0
+        super().__init__(*args, **kwargs)
+        self._session = requests.session()
         self._call('auth.login', [
             DELUGE_RPC_PASSWORD,
         ])
-        super().__init__(*args, **kwargs)
 
     def _call(self, methods, params):
-        if not hasattr(self, '_session'):
-            self._session = requests.session()
+        id = uuid.uuid4().hex
+        try:
 
-        r = self._session.post(
-            DELUGE_RPC_URL,
-            headers={'Content-Type': 'application/json'},
-            json={'method': methods, 'params': params, 'id': self._id},
-            timeout=10
-        )
+            r = self._session.post(
+                DELUGE_RPC_URL,
+                headers={'Content-Type': 'application/json'},
+                json={
+                    'method': methods,
+                    'params': params,
+                    'id': id,
+                },
+                timeout=10,
+            )
+        except (requests.ConnectionError, requests.ConnectTimeout) as e:
+            raise ConnectError() from e
 
-        self._id += 1
         e = r.json()
         if not e['result']:
-            print_error('deluge error, reason: {}'.format(e['error']['message']), exit_=False)
+            raise AuthError('deluge error, reason: {}'.format(e['error']['message']))
 
         return e
 
-    def download(self):
-        if not self.torrent.startswith('magnet:'):
+    def download(self, torrent: str, save_path: str):
+        if not torrent.startswith('magnet:'):
             e = self._call('web.download_torrent_from_url', [
-                self.torrent,
+                torrent,
             ])
-            self.torrent = e['result']
+            torrent = e['result']
         options = {
-            'path': self.torrent, 'options': {
+            'path': torrent, 'options': {
                 'add_paused': False,
                 'compact_allocation': False,
                 'move_completed': False,
-                'download_location': self.save_path,
+                'download_location': save_path,
             }
         }
 
-        e = self._call('web.add_torrents', [[options]])
+        self._call('web.add_torrents', [[options]])
 
-        print_info(
-            'Add torrent into the download queue, the file will be saved at {}'.format(
-                self.save_path
-            )
-        )
-
-        return e
-
-    def check_delegate_bin_exist(self):
-        pass
-
-    @staticmethod
-    def install():
-        pass
-
-    def check_download(self, name):
-        pass
-
-    @staticmethod
-    def download_status(status=None):
-        pass
+        print_info(f'Add torrent into the download queue, the file will be saved at {save_path}')

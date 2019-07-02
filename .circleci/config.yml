@@ -1,3 +1,34 @@
+aliases:
+  hash_deps: &hash_deps
+    run:
+      name: Hash Requirement files
+      command: |
+        echo $(find ./requirements -type f -exec md5sum {} \; | md5sum | cut -d' ' -f1) > .circleci/PIP_CACHE_KEY
+        cat .circleci/PIP_CACHE_KEY
+  restore_pip_cache: &restore_pip_cache
+    restore_cache:
+      keys:
+        - pip-v1-{{ .Branch }}-{{ checksum ".circleci/PIP_CACHE_KEY" }}
+        - pip-v1-{{ .Branch }}-
+        - pip-v1-
+  install_pip_deps: &install_pip_deps
+    run:
+      name: Install Dependencies
+      command: |
+        sudo pip install pip -U
+        sudo pip install codecov -r requirements/dev.txt
+  save_pip_cache: &save_pip_cache
+    - save_cache:
+        key: pip-v1-{{ .Branch }}-{{ checksum ".circleci/PIP_CACHE_KEY" }}
+        paths:
+          - /home/circleci/.cache/pip
+          - /home/circleci/.cache/pre-commit
+  upload_codecov_report: &upload_codecov_report
+    run:
+      when: on_success
+      name: Upload Coverage Report
+      command: codecov
+
 version: 2.1
 
 workflows:
@@ -13,30 +44,10 @@ jobs:
 
     steps:
       - checkout # check out the code in the project directory
-
-      - run:
-          name: Hash Requirement files
-          command: |
-            echo $(find ./requirements -type f -exec md5sum {} \; | md5sum | cut -d' ' -f1) > .circleci/PIP_CACHE_KEY
-            cat .circleci/PIP_CACHE_KEY
-
-      - restore_cache:
-          keys:
-            - pip-v1-{{ .Branch }}-{{ checksum ".circleci/PIP_CACHE_KEY" }}
-            - pip-v1-{{ .Branch }}-
-            - pip-v1-
-
-      - run:
-          name: Install Dependencies
-          command: |
-            sudo pip install pip -U
-            sudo pip install codecov -r requirements/dev.txt
-
-      - save_cache:
-          key: pip-v1-{{ .Branch }}-{{ checksum ".circleci/PIP_CACHE_KEY" }}
-          paths:
-            - /home/circleci/.cache/pip
-            - /home/circleci/.cache/pre-commit
+      - *hash_deps
+      - *restore_pip_cache
+      - *install_pip_deps
+      - *save_pip_cache
 
       - run:
           name: Code Style
@@ -46,7 +57,22 @@ jobs:
           name: Unittest
           command: coverage run -m pytest bgmi
 
-      - run:
-          when: on_success
-          name: Upload Coverage Report
-          command: codecov
+      - *upload_codecov_report
+
+  aria2c:
+    docker:
+      - image: circleci/python:3.6
+      - image: bgmidocker/aria2c:latest
+      - image: linuxserver/transmission
+      - image: linuxserver/deluge
+
+    steps:
+      - checkout # check out the code in the project directory
+      - *hash_deps
+      - *restore_pip_cache
+      - *install_pip_deps
+      - *save_pip_cache
+
+      - run: coverage run -m pytest bgmi/downloader
+
+      - *upload_codecov_report

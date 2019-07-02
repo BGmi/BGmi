@@ -1,50 +1,43 @@
 import os
-import xmlrpc.client
-from functools import singledispatch
-from typing import List, Type
+from typing import List
 
 import stevedore
 import stevedore.exception
 
 from bgmi.config import DOWNLOAD_DELEGATE, SAVE_PATH
-from bgmi.downloader.base import BaseDownloadService
+from bgmi.downloader.base import AuthError, BaseDownloadService, ConnectError, RequireNotSatisfied
 from bgmi.lib import models
 from bgmi.lib.constants import NameSpace
 from bgmi.lib.db_models import Download
 from bgmi.utils import normalize_path, print_error
 
 
-def get_download_class() -> Type[BaseDownloadService]:
+def get_download_class(rpc_name) -> BaseDownloadService:
     try:
-        cls = stevedore.DriverManager(NameSpace.download_delegate, DOWNLOAD_DELEGATE).driver
-        return cls
+        return stevedore.DriverManager(
+            NameSpace.download_delegate,
+            rpc_name,
+            invoke_on_load=True,
+        ).driver
     except stevedore.exception.NoMatches:
-        print_error(f'unexpected delegate {DOWNLOAD_DELEGATE}')
-
-
-@singledispatch
-def handle_specific_exception(e):  # got an exception we don't handle
-    print_error(f'Error, {e}', exit_=False)
-
-
-@handle_specific_exception.register(xmlrpc.client.Fault)
-def _(e):
-    # handle exception 1
-    err_string = str(e)
-    if 'Unauthorized' in err_string:
-        print_error('aria2-rpc, wrong secret token', exit_=False)
-    else:
-        print_error(f'Error, {e}', exit_=False)
-
-
-@handle_specific_exception.register(xmlrpc.client.ProtocolError)
-def _(e):
-    # handle exception 2
-    print_error(f'can\'t connect to aria2-rpc server, {e}', exit_=False)
+        print_error(f'unexpected delegate {rpc_name}')
 
 
 def download_prepare(name, data: List[models.Episode]):
     queue = save_to_bangumi_download_queue(name, data)
+    try:
+
+        download_class = get_download_class(DOWNLOAD_DELEGATE)
+
+    except AuthError:
+        return
+
+    except RequireNotSatisfied:
+        return
+
+    except ConnectError:
+        return
+
     for download in queue:
         save_path = os.path.join(
             os.path.join(SAVE_PATH, normalize_path(download.name)), str(download.episode)
@@ -57,19 +50,14 @@ def download_prepare(name, data: List[models.Episode]):
         download.save()
 
         try:
-            # start download
-            download_class = get_download_class()
-            download_class = download_class(
-                download_obj=download, overwrite=True, save_path=save_path
-            )
-            download_class.download()
-            download_class.check_download(download.name)
+
+            download_class.download(torrent=download.name, save_path=save_path)
 
             # mark as downloaded
             download.downloaded()
 
         except Exception as e:  # pylint: disable=W0703
-            handle_specific_exception(e)
+            print_error(f'Error, {e}', exit_=False)
 
             download.status = Download.STATUS.NOT_DOWNLOAD
             download.save()

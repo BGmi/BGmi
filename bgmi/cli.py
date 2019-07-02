@@ -509,7 +509,7 @@ def download_manager(ret):
     else:
         status = ret.status
         status = int(status) if status is not None else None
-        delegate = get_download_class()
+        delegate = get_download_class(config.DOWNLOAD_DELEGATE)
         delegate.download_status(status=status)
 
 
