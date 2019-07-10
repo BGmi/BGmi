@@ -21,3 +21,4 @@ watchdemo*.yaml
 test_dir
 .mypy_cache
 .pytest_cache
+codealike.json

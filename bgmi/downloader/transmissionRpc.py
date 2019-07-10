@@ -1,8 +1,9 @@
-from bgmi.config import (
-    TRANSMISSION_RPC_PASSWORD, TRANSMISSION_RPC_PORT, TRANSMISSION_RPC_URL,
-    TRANSMISSION_RPC_USERNAME
-)
-from bgmi.downloader.base import BaseDownloadService, RequireNotSatisfied
+import urllib.parse
+
+import requests
+
+from bgmi import config
+from bgmi.downloader.base import BaseDownloadService, ConnectError, RequireNotSatisfied
 from bgmi.utils import print_info
 
 
@@ -10,13 +11,17 @@ class TransmissionRPC(BaseDownloadService):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         import transmission_rpc
-
-        self.client = transmission_rpc.Client(
-            TRANSMISSION_RPC_URL,
-            port=TRANSMISSION_RPC_PORT,
-            user=TRANSMISSION_RPC_USERNAME,
-            password=TRANSMISSION_RPC_PASSWORD
-        )
+        try:
+            url_obj: urllib.parse.ParseResult = urllib.parse.urlparse(config.TRANSMISSION_RPC_URL)
+            self.client = transmission_rpc.Client(
+                url_obj.hostname,
+                port=url_obj.port or config.TRANSMISSION_RPC_PORT,
+                user=url_obj.username or config.TRANSMISSION_RPC_USERNAME,
+                password=url_obj.password or config.TRANSMISSION_RPC_PASSWORD,
+            )
+            self.client.session_stats()
+        except requests.ConnectionError as e:
+            raise ConnectError from e
 
     @classmethod
     def require(cls):

@@ -51,7 +51,7 @@ def download_prepare(name, data: List[models.Episode]):
 
         try:
 
-            download_class.download(torrent=download.name, save_path=save_path)
+            download_class.download(torrent=download.download, save_path=save_path)
 
             # mark as downloaded
             download.downloaded()

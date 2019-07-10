@@ -18,11 +18,11 @@ aliases:
         sudo pip install pip -U
         sudo pip install codecov -r requirements/dev.txt
   save_pip_cache: &save_pip_cache
-    - save_cache:
-        key: pip-v1-{{ .Branch }}-{{ checksum ".circleci/PIP_CACHE_KEY" }}
-        paths:
-          - /home/circleci/.cache/pip
-          - /home/circleci/.cache/pre-commit
+    save_cache:
+      key: pip-v1-{{ .Branch }}-{{ checksum ".circleci/PIP_CACHE_KEY" }}
+      paths:
+        - /home/circleci/.cache/pip
+        - /home/circleci/.cache/pre-commit
   upload_codecov_report: &upload_codecov_report
     run:
       when: on_success
@@ -36,7 +36,7 @@ workflows:
   main:
     jobs:
       - unittest
-
+      - test_downloader
 jobs:
   unittest:
     docker:
@@ -55,17 +55,22 @@ jobs:
 
       - run:
           name: Unittest
-          command: coverage run -m pytest bgmi
+          command: coverage run -m pytest bgmi --ignore=bgmi/downloader
 
       - *upload_codecov_report
 
-  aria2c:
+  test_downloader:
     docker:
       - image: circleci/python:3.6
-      - image: bgmidocker/aria2c:latest
-      - image: linuxserver/transmission
       - image: linuxserver/deluge
-
+      - image: bgmidocker/aria2:latest
+        environment:
+          RPC_SECRET: aria2-rpc-secret
+      - image: caseyfw/transmission
+        environment:
+          UID: '1000'
+          USERNAME: "transmission-rpc-username"
+          PASSWORD: "example-rpc-password"
     steps:
       - checkout # check out the code in the project directory
       - *hash_deps
@@ -73,6 +78,12 @@ jobs:
       - *install_pip_deps
       - *save_pip_cache
 
-      - run: coverage run -m pytest bgmi/downloader
+      - run:
+          name: test downloader
+          command: coverage run -m pytest bgmi/downloader
+          environment:
+            BGMI_TRANSMISSION_RPC_USERNAME: "transmission-rpc-username"
+            BGMI_TRANSMISSION_RPC_PASSWORD: "example-rpc-password"
+            BGMI_ARIA2_RPC_TOKEN : 'token:aria2-rpc-secret'
 
       - *upload_codecov_report

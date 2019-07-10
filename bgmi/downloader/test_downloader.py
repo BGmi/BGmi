@@ -1,18 +1,106 @@
+from typing import Type
+
+import mock
 import pytest
 
-from bgmi.config import DOWNLOAD_DELEGATE_MAP
+from bgmi import config
 from bgmi.downloader.aria2_rpc import Aria2DownloadRPC
+from bgmi.downloader.base import AuthError, ConnectError
 from bgmi.downloader.deluge import DelugeRPC
 from bgmi.downloader.transmissionRpc import BaseDownloadService, TransmissionRPC
-from bgmi.lib.download import get_download_class
 
+# @pytest.mark.parametrize('rpc_name', DOWNLOAD_DELEGATE_MAP.keys())
+# def test_get_all_download_class(rpc_name):
+#     assert isinstance(get_download_class(rpc_name), BaseDownloadService)
 
-@pytest.mark.parametrize('rpc_name', DOWNLOAD_DELEGATE_MAP.keys())
-def test_get_all_download_class(rpc_name):
-    assert issubclass(get_download_class(rpc_name), BaseDownloadService)
+# @pytest.mark.parametrize('test_class', [Aria2DownloadRPC, DelugeRPC, TransmissionRPC])
+# def test_download(test_class: Type[BaseDownloadService]):
+#     test_class.require()
+#     origin_require = test_class.require
+#     mock_require = mock.Mock()
+#     test_class.require = mock_require
+#     try:
+#         downloader_instance = test_class()
+#     except:
+#         pass
+#     assert mock_require.called_once()
 
 
 @pytest.mark.parametrize('test_class', [Aria2DownloadRPC, DelugeRPC, TransmissionRPC])
-def test_download(test_class: BaseDownloadService):
-    test_class.install()
-    # test_class.download()
+def test_raise_connect_error(test_class: Type[BaseDownloadService], set_wrong_addr):
+    with pytest.raises(ConnectError):
+        test_class()
+
+
+@pytest.mark.parametrize('test_class', [Aria2DownloadRPC, DelugeRPC, TransmissionRPC])
+def test_raise_auth_error(test_class: Type[BaseDownloadService], set_wrong_auth):
+    with pytest.raises(AuthError):
+        test_class()
+
+
+@pytest.mark.parametrize('test_class', [Aria2DownloadRPC, DelugeRPC, TransmissionRPC])
+def test_magnet(test_class: Type[BaseDownloadService], set_download_limit):
+    downloader_instance = test_class()
+    downloader_instance.download(
+        torrent='magnet:?xt=urn:btih:ff9a3613357e955fc7090eeb1cc7808ef51c9521',
+        save_path='/downloads',
+    )
+
+
+@pytest.mark.parametrize('test_class', [Aria2DownloadRPC, DelugeRPC, TransmissionRPC])
+def test_torrent_file_url(test_class: Type[BaseDownloadService], set_download_limit):
+    TransmissionRPC().client.set_session()
+    downloader_instance = test_class()
+    downloader_instance.download(
+        torrent='https://mikanani.me/Download/20190706/'
+        'ff9a3613357e955fc7090eeb1cc7808ef51c9521.torrent',
+        save_path='/downloads',
+    )
+
+
+@pytest.fixture()
+def set_wrong_auth(test_class: Type[BaseDownloadService]):
+    if issubclass(test_class, Aria2DownloadRPC):
+        with mock.patch('bgmi.config.ARIA2_RPC_TOKEN', 'wrong auth'):
+            yield
+    elif issubclass(test_class, DelugeRPC):
+        with mock.patch('bgmi.config.DELUGE_RPC_PASSWORD', 'wrong auth'):
+            yield
+    elif issubclass(test_class, TransmissionRPC):
+        with mock.patch('bgmi.config.TRANSMISSION_RPC_PASSWORD', 'wrong auth'):
+            yield
+    else:
+        yield
+
+
+@pytest.fixture()
+def set_wrong_addr(test_class: Type[BaseDownloadService]):
+    if issubclass(test_class, Aria2DownloadRPC):
+        with mock.patch('bgmi.config.ARIA2_RPC_URL', 'wrong addr'):
+            yield
+    elif issubclass(test_class, DelugeRPC):
+        with mock.patch('bgmi.config.DELUGE_RPC_URL', 'wrong addr'):
+            yield
+    elif issubclass(test_class, TransmissionRPC):
+        with mock.patch('bgmi.config.TRANSMISSION_RPC_URL', 'wrong addr'):
+            yield
+    else:
+        yield
+
+
+@pytest.fixture()
+def set_download_limit(test_class: Type[BaseDownloadService]):
+    if issubclass(test_class, Aria2DownloadRPC):
+        test_class().server.aria2.changeGlobalOption(
+            config.ARIA2_RPC_TOKEN,
+            {'max-overall-download-limit': '1K'},
+        )
+        yield
+    elif issubclass(test_class, DelugeRPC):
+        test_class()._call('set_config', {'max_download_speed': 1})
+        yield
+    elif issubclass(test_class, TransmissionRPC):
+        test_class().client.set_session(speed_limit_down_enable=True, speed_limit_down=1)
+        yield
+    else:
+        yield
