@@ -56,30 +56,6 @@ jobs:
 
     - python: '3.6'
       os: linux
-      name: 'Downloader aria2-rpc'
-      env:
-        - DOWNLOADER=aria2-rpc
-      script:
-        - bash .ci/tests/aria2.bash
-
-    - python: '3.6'
-      os: linux
-      name: 'Downloader deluge-rpc'
-      env:
-        - DOWNLOADER=deluge-rpc
-      script:
-        - bash .ci/tests/delute.bash
-
-    - python: '3.6'
-      os: linux
-      name: 'Downloader transmission-rpc'
-      env:
-        - DOWNLOADER=transmission-rpc
-      script:
-        - bash .ci/tests/transmission.bash
-
-    - python: '3.6'
-      os: linux
       name: 'Build docs'
       script:
         - pip install -r docs/requirements.txt
