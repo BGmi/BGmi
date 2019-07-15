@@ -122,6 +122,14 @@ def write_config_parser(config_parser: configparser.ConfigParser):
         config_parser.write(f)
 
 
+def read_config_from_env():
+    for key, value in os.environ.items():
+        if key.startswith('BGMI_'):
+            real_key = key.replace('BGMI_', '')
+            if real_key in __all__ or real_key in __download_delegate__:
+                globals().update({real_key: value})
+
+
 def read_config():
     if not os.path.exists(CONFIG_FILE_PATH):
         write_default_config()
@@ -130,13 +138,15 @@ def read_config():
     c = get_config_parser_and_read()
     for i in __writeable__:
         if c.has_option('bgmi', i):
-            v = os.getenv('BGMI_' + i) or c.get('bgmi', i)
-            globals().update({i: v})
+            v = c.get('bgmi', i)
+            if v:
+                globals().update({i: v})
 
     for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
         if c.has_option(DOWNLOAD_DELEGATE, i):
-            v = os.getenv('BGMI_' + i) or c.get(DOWNLOAD_DELEGATE, i)
-            globals().update({i: v})
+            v = c.get(DOWNLOAD_DELEGATE, i)
+            if v:
+                globals().update({i: v})
 
     read_keywords_weight_section(c)
 
@@ -211,15 +221,15 @@ def _config_decorator(func):
 
 @_config_decorator
 def print_config():
-    c = get_config_parser_and_read()
+    get_config_parser_and_read()
     string = ''
     string += '[bgmi]\n'
     for i in __writeable__:
-        string += '{}={}\n'.format(i, c.get('bgmi', i))
+        string += '{}={}\n'.format(i, globals().get(i))
 
     string += f'\n[{DOWNLOAD_DELEGATE}]\n'
     for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
-        string += '{}={}\n'.format(i, c.get(DOWNLOAD_DELEGATE, i))
+        string += '{}={}\n'.format(i, globals().get(i))
 
     string += '\n[{}]'.format('keyword weight')
     for key, value in KEYWORDS_WEIGHT.items():
@@ -329,7 +339,7 @@ TRANSMISSION_RPC_PASSWORD = 'your_password'
 BANGUMI_TAG = '549ef207fe682f7549f1ea90'
 
 # Global blocked keyword
-GLOBAL_FILTER = 'Leopard-Raws, hevc, x265, c-a Raws'
+GLOBAL_FILTER = 'Leopard-Raws, hevc, x265, c-a Raws, 预告'
 
 # enable global filter
 ENABLE_GLOBAL_FILTER = '1'
@@ -342,6 +352,7 @@ KEYWORDS_WEIGHT = {}
 # ------------------------------ #
 # !!! Read config from file and write to globals() !!!
 read_config()
+read_config_from_env()
 # ------------------------------ #
 # will be used in other other db_models
 __all_writable_now__ = __writeable__ + DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]
