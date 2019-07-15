@@ -2,7 +2,7 @@ import uuid
 
 import requests
 
-from bgmi.config import DELUGE_RPC_PASSWORD, DELUGE_RPC_URL
+from bgmi import config
 from bgmi.downloader.base import AuthError, BaseDownloadService, ConnectError
 from bgmi.utils import print_info
 
@@ -11,16 +11,18 @@ class DelugeRPC(BaseDownloadService):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._session = requests.session()
-        self._call('auth.login', [
-            DELUGE_RPC_PASSWORD,
+        res = self._call('auth.login', [
+            config.DELUGE_RPC_PASSWORD,
         ])
+        if not res['result']:
+            raise AuthError('Deluge RPC require a password')
 
     def _call(self, methods, params):
         id = uuid.uuid4().hex
         try:
 
             r = self._session.post(
-                DELUGE_RPC_URL,
+                config.DELUGE_RPC_URL,
                 headers={'Content-Type': 'application/json'},
                 json={
                     'method': methods,
@@ -33,7 +35,7 @@ class DelugeRPC(BaseDownloadService):
             raise ConnectError() from e
 
         e = r.json()
-        if not e['result']:
+        if e['error']:
             raise AuthError('deluge error, reason: {}'.format(e['error']['message']))
 
         return e
@@ -56,3 +58,7 @@ class DelugeRPC(BaseDownloadService):
         self._call('web.add_torrents', [[options]])
 
         print_info(f'Add torrent into the download queue, the file will be saved at {save_path}')
+
+
+if __name__ == '__main__':
+    rpc_server = DelugeRPC()

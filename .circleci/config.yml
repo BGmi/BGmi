@@ -63,9 +63,16 @@ jobs:
     docker:
       - image: circleci/python:3.6
       - image: linuxserver/deluge
+        environment:
+          PUID: "1001"
+          PGID: "1000"
+          TZ: "Asia/Shanghai"
+          UMASK_SET: "022"
+
       - image: bgmidocker/aria2:latest
         environment:
           RPC_SECRET: aria2-rpc-secret
+
       - image: caseyfw/transmission
         environment:
           UID: '1000'
@@ -79,11 +86,22 @@ jobs:
       - *save_pip_cache
 
       - run:
+          name: Wait for Docker Ready
+          command: |
+            # wait for mysql start up
+            for i in `seq 1 100`;
+              do
+                nc -z 127.0.0.1 8112 && nc -z 127.0.0.1 6800 && nc -z 127.0.0.1 9091 && echo Success && exit 0
+                echo -n .
+                sleep 0.1
+              done
+            echo Failed waiting for MySQL && exit 1
+
+      - run:
           name: test downloader
           command: coverage run -m pytest bgmi/downloader
           environment:
-            BGMI_TRANSMISSION_RPC_USERNAME: "transmission-rpc-username"
-            BGMI_TRANSMISSION_RPC_PASSWORD: "example-rpc-password"
-            BGMI_ARIA2_RPC_TOKEN : 'token:aria2-rpc-secret'
+            BGMI_TRANSMISSION_RPC_URL: http://transmission-rpc-username:example-rpc-password@127.0.0.1:9091/transmission/rpc
+            BGMI_ARIA2_RPC_TOKEN: token:aria2-rpc-secret
 
       - *upload_codecov_report

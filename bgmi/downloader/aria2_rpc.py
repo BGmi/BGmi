@@ -3,7 +3,7 @@ from functools import wraps
 from types import FunctionType
 from xmlrpc.client import ServerProxy
 
-from bgmi.config import ARIA2_RPC_TOKEN, ARIA2_RPC_URL
+from bgmi import config
 from bgmi.downloader.base import AuthError, BaseDownloadService, ConnectError
 from bgmi.lib.db_models import Download
 from bgmi.utils import print_info, print_success, print_warning
@@ -19,7 +19,7 @@ def _unauthorized(func: FunctionType):
         try:
             return func(*args, **kwargs)
         except xmlrpc.client.Fault as e:
-            if e.faultCode == 401:
+            if e.faultCode in (401, 1) or e.faultString == 'Unauthorized':
                 raise AuthError(e.faultString)
             else:
                 raise
@@ -47,7 +47,7 @@ class Aria2DownloadRPC(BaseDownloadService):
 
     def __init__(self, *args, **kwargs):
         self.old_version = False
-        self.server = ServerProxy(ARIA2_RPC_URL)
+        self.server = ServerProxy(config.ARIA2_RPC_URL)
         self.check_aria2c_version()
         super().__init__(*args, **kwargs)
 
@@ -57,16 +57,18 @@ class Aria2DownloadRPC(BaseDownloadService):
         if self.old_version:
             self.server.aria2.addUri([torrent], {'dir': save_path})
         else:
-            self.server.aria2.addUri(ARIA2_RPC_TOKEN, [torrent], {'dir': save_path})
+            self.server.aria2.addUri(config.ARIA2_RPC_TOKEN, [torrent], {'dir': save_path})
         print_info(f'Add torrent into the download queue, the file will be saved at {save_path}')
 
     @_unauthorized
     @_connect_error
     def check_aria2c_version(self):
-        url = ARIA2_RPC_URL.split('/')
-        url[2] = ARIA2_RPC_TOKEN + '@' + url[2]
+        # http://hostname:port/rpc
+        # 0    1 2             3
+        url = config.ARIA2_RPC_URL.split('/')
+        url[2] = config.ARIA2_RPC_TOKEN + '@' + url[2]
         url = '/'.join(url)
-        r = ServerProxy(url).aria2.getVersion(ARIA2_RPC_TOKEN)
+        r = ServerProxy(url).aria2.getVersion(config.ARIA2_RPC_TOKEN)
         version = r['version']
         if version:
             self.old_version = version < '1.18.4'
@@ -96,7 +98,7 @@ class Aria2DownloadRPC(BaseDownloadService):
             if Aria2DownloadRPC.old_version:
                 data = getattr(self.server.aria2, method)(*params)
             else:
-                data = getattr(self.server.aria2, method)(ARIA2_RPC_TOKEN, *params)
+                data = getattr(self.server.aria2, method)(config.ARIA2_RPC_TOKEN, *params)
 
             if data:
                 print_warning(f'RPC {method}:', indicator=False)
