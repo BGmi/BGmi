@@ -5,6 +5,7 @@
 dist/
 build/
 .eggs
+venv
 bgmi.egg-info
 .python-version
 .DS_Store

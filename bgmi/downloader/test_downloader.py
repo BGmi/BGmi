@@ -48,7 +48,7 @@ def test_raise_auth_error(test_class: Type[BaseDownloadService], set_wrong_auth)
 def test_magnet(test_class: Type[BaseDownloadService]):
     downloader_instance = test_class()
     downloader_instance.download(
-        torrent='magnet:?xt=urn:btih:ff9a3613357e955fc7090eeb1cc7808ef51c9521',
+        torrent='magnet:?xt=urn:btih:d3e841c79c1d7c0ec60df0c414356ac0d2833f22',
         save_path='/downloads',
     )
 

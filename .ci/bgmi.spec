@@ -4,13 +4,17 @@ from PyInstaller.building.build_main import Analysis
 import os
 import os.path
 import importlib
-import glob
 from typing import List
+
+project_root = os.getcwd()
+
 bindata_dir = [
-    'bgmi/front/templates',
-    'bgmi/others',
-    'bgmi/lib/db_models/migrations',
-    'bgmi.egg-info',
+    os.path.join(project_root, x) for x in [
+        'bgmi/front/templates',
+        'bgmi/others',
+        'bgmi/lib/db_models/migrations',
+        'bgmi.egg-info',
+    ]
 ]
 
 import pkg_resources
@@ -71,7 +75,7 @@ for package, files in package_imports:
     proot = os.path.dirname(importlib.import_module(package).__file__)
     datas.extend((os.path.join(proot, f), package) for f in files)
 
-a = Analysis(['bgmi/__main__.py'],
+a = Analysis([os.path.join(project_root, 'bgmi/__main__.py')],
              pathex=['.'],
              hiddenimports=['colorsys', 'dataclasses', 'distutils', 'distutils.version'],
              hookspath=None,
@@ -79,9 +83,6 @@ a = Analysis(['bgmi/__main__.py'],
              excludes=['pydantic'],
              runtime_hooks=None,
              cipher=block_cipher)
-
-# for pkg in a.pure:
-#     print(pkg)
 
 pyz = PYZ(a.pure, cipher=block_cipher)
 

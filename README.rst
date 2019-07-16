@@ -37,16 +37,16 @@ Feature
 + Keyword, subtitle group, regular expression filters for download bangumi
 + Windows, Linux and Router system supported, BGmi everywhere
 
-.. image:: ./images/bgmi_cli.png?raw=true
+.. image:: ./docs/images/bgmi_cli.png?raw=true
     :alt: BGmi
     :align: center
-.. image:: ./images/bgmi_http.png?raw=true
+.. image:: ./docs/images/bgmi_http.png?raw=true
     :alt: BGmi HTTP Service
     :align: center
-.. image:: ./images/bgmi_player.png?raw=true
+.. image:: ./docs/images/bgmi_player.png?raw=true
     :alt: BGmi HTTP Service
     :align: center
-.. image:: ./images/bgmi_admin.png?raw=true
+.. image:: ./docs/images/bgmi_admin.png?raw=true
     :alt: BGmi HTTP Service
     :align: center
 

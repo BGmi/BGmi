@@ -54,29 +54,6 @@ jobs:
       env:
         - TRAVIS_PYTHON_VERSION=3.6
 
-    - python: '3.6'
-      os: linux
-      name: 'Build docs'
-      script:
-        - pip install -r docs/requirements.txt
-        - cd docs
-        - make html
-
-    - python: '3.6'
-      os: linux
-      name: 'Code Style'
-      script:
-        - pre-commit run --all-files
-
-    - os: linux
-      name: Test build and run docker
-      before_install: false
-      install: false
-      script:
-        - docker build -t bgmi .
-        - docker run -v $HOME/.bgmi:/bgmi --net host bgmi install
-        - ls $HOME/.bgmi
-
     - os: linux
       name: Build binary and test
       python: '3.6'
@@ -113,29 +90,6 @@ jobs:
           bgmi filter ${BANGUMI_2} --subtitle "" --exclude "MKV" --regex "720p|720P"
           bgmi fetch ${BANGUMI_2}
           bgmi search "海贼王" --regex-filter '.*MP4.*720P.*' --min-episode 800 --max-episode 900
-
-
-    - stage: deploy
-      os: linux
-      name: deploy binary
-      python: '3.6'
-      before_install: false
-      install: pip install -q -r requirements/dev.txt
-      script:
-        - rm ./dist/binary -rf
-        - bash .ci/build.sh
-
-      deploy:
-       - skip_cleanup: true
-         provider: releases
-         api_key: ${GITHUB_OAUTH_TOKEN}
-         file_glob: true
-         file: ./dist/binary/*
-         name: ${TRAVIS_TAG}
-         on:
-           tags: true
-           branch: master
-
 
 before_cache:
   - rm -f $HOME/.cache/pip/log/debug.log

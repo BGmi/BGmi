@@ -1,43 +1,80 @@
-aliases:
-  hash_deps: &hash_deps
-    run:
-      name: Hash Requirement files
-      command: |
-        echo $(find ./requirements -type f -exec md5sum {} \; | md5sum | cut -d' ' -f1) > .circleci/PIP_CACHE_KEY
-        cat .circleci/PIP_CACHE_KEY
-  restore_pip_cache: &restore_pip_cache
-    restore_cache:
-      keys:
-        - pip-v1-{{ .Branch }}-{{ checksum ".circleci/PIP_CACHE_KEY" }}
-        - pip-v1-{{ .Branch }}-
-        - pip-v1-
-  install_pip_deps: &install_pip_deps
-    run:
-      name: Install Dependencies
-      command: |
-        sudo pip install pip -U
-        sudo pip install codecov -r requirements/dev.txt
-  save_pip_cache: &save_pip_cache
-    save_cache:
-      key: pip-v1-{{ .Branch }}-{{ checksum ".circleci/PIP_CACHE_KEY" }}
-      paths:
-        - /home/circleci/.cache/pip
-        - /home/circleci/.cache/pre-commit
-  upload_codecov_report: &upload_codecov_report
-    run:
-      when: on_success
-      name: Upload Coverage Report
-      command: codecov
-
 version: 2.1
 
 workflows:
   version: 2
   main:
     jobs:
-      - unittest
-      - test_downloader
+      - code_style
+      - unittest:
+          requires:
+            - code_style
+      - test_downloader:
+          requires:
+            - code_style
+      - build-docker:
+          requires:
+            - unittest
+            - test_downloader
+      - build-docs:
+          requires:
+            - unittest
+            - test_downloader
+      - build-binary:
+          requires:
+            - unittest
+            - test_downloader
+
+aliases:
+  hash_deps: &hash_deps
+    run:
+      name: Hash Requirement files
+      command: |
+        python .circleci/hash_requirement_files.py > .circleci/PIP_CACHE_KEY
+        cat .circleci/PIP_CACHE_KEY
+
+  restore_pip_cache: &restore_pip_cache
+    restore_cache:
+      keys:
+        - pip-v1-{{ .Branch }}-{{ checksum ".circleci/PIP_CACHE_KEY" }}
+
+  install_pip_deps: &install_pip_deps
+    run:
+      name: Install Dependencies
+      command: |
+        echo 'export PATH=/home/circleci/.local/bin:$PATH' >> $BASH_ENV
+        source $BASH_ENV
+        pip install --user pip -U
+        pip install --user codecov -r docs/requirements.txt -r requirements/dev.txt
+
+  save_pip_cache: &save_pip_cache
+    save_cache:
+      key: pip-v1-{{ .Branch }}-{{ checksum ".circleci/PIP_CACHE_KEY" }}
+      paths:
+        - /home/circleci/.cache/pip
+        - /home/circleci/.cache/pre-commit
+
+  upload_codecov_report: &upload_codecov_report
+    run:
+      when: on_success
+      name: Upload Coverage Report
+      command: codecov
+
 jobs:
+  code_style:
+    docker:
+      - image: circleci/python:3.6
+    steps:
+      - checkout # check out the code in the project directory
+      - *hash_deps
+      - *restore_pip_cache
+      - *install_pip_deps
+
+      - run:
+          name: Code Style
+          command: pre-commit run --all-files
+
+      - *save_pip_cache
+
   unittest:
     docker:
       - image: circleci/python:3.6
@@ -47,11 +84,7 @@ jobs:
       - *hash_deps
       - *restore_pip_cache
       - *install_pip_deps
-      - *save_pip_cache
 
-      - run:
-          name: Code Style
-          command: pre-commit run --all-files
 
       - run:
           name: Unittest
@@ -83,7 +116,6 @@ jobs:
       - *hash_deps
       - *restore_pip_cache
       - *install_pip_deps
-      - *save_pip_cache
 
       - run:
           name: Wait for Docker Ready
@@ -103,5 +135,61 @@ jobs:
           environment:
             BGMI_TRANSMISSION_RPC_URL: http://transmission-rpc-username:example-rpc-password@127.0.0.1:9091/transmission/rpc
             BGMI_ARIA2_RPC_TOKEN: token:aria2-rpc-secret
+
+      - *upload_codecov_report
+
+  build-docs:
+    docker:
+      - image: circleci/python:3.6
+    steps:
+      - checkout
+      - *hash_deps
+      - *restore_pip_cache
+      - *install_pip_deps
+
+      - run:
+          name: build docs
+          command: |
+            cd docs
+            make html
+
+      - *upload_codecov_report
+
+  build-docker:
+    docker:
+      - image: circleci/python:3.6
+
+    steps:
+      - checkout
+
+      - setup_remote_docker:
+          docker_layer_caching: true    # default - false
+
+      - run:
+          name: Try Build Docker
+          command: docker build -t bgmi -t bgmidocker/bgmi .
+
+      - run:
+          name: Test Docker Command
+          command: docker run -v $HOME/.bgmi:/bgmi --net host bgmi install
+
+  build-binary:
+    docker:
+      - image: circleci/python:3.6
+    steps:
+      - checkout
+      - *hash_deps
+      - *restore_pip_cache
+      - *install_pip_deps
+
+      - run:
+          name: build binary
+          command: |
+            pip install --user -e .
+            pyinstaller .ci/bgmi.spec --distpath ./dist/binary/
+
+      - store_artifacts:
+          path: /home/circleci/project/dist/binary/bgmi
+          destination: bgmi-linux-amd64
 
       - *upload_codecov_report

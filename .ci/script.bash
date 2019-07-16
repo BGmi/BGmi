@@ -29,8 +29,9 @@ bash tests/init_env_and_run_unit_test.sh test_config
 
 cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
 
-bash <(curl -s https://codecov.io/bash) -c -F unittests > /dev/null
+bash <(curl -s https://codecov.io/bash) -c -F unittests > /dev/null||true
 
 chmod +x .ci/command_test.bash
 ./.ci/command_test.bash
-bash <(curl -s https://codecov.io/bash) -c -F command > /dev/null
+
+bash <(curl -s https://codecov.io/bash) -c -F command > /dev/null||true

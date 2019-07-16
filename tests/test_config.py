@@ -195,16 +195,6 @@ class BadConfigTest(base, unittest.TestCase):
             self.assertEqual(r['status'], 'error')
             m.assert_any_call()
 
-    def test_bad_config_file_missing_section(self):
-        # os.remove(CONFIG_FILE_PATH)
-        self.read()
-        self.config.remove_section('bgmi')
-        self.write()
-        with unittest.mock.patch('bgmi.config.write_default_config', unittest.mock.Mock()) as m:
-            r = config_()
-            self.assertEqual(r['status'], 'error')
-            m.assert_any_call()
-
     def test_bad_config_file_missing_file(self):
         os.remove(CONFIG_FILE_PATH)
         with unittest.mock.patch('bgmi.config.write_default_config', unittest.mock.Mock()) as m:
@@ -221,7 +211,7 @@ class BadConfigTest(base, unittest.TestCase):
     def test_read_config_from_env(self):
         os.environ['BGMI_DB_URL'] = 'db_url'
         os.environ['BGMI_ARIA2_RPC_URL'] = 'aria2_rpc_url'
-        bgmi.config.read_config()
+        bgmi.config.read_config_from_env()
         self.assertEqual(bgmi.config.DB_URL, 'db_url')
         self.assertEqual(bgmi.config.ARIA2_RPC_URL, 'aria2_rpc_url')
         del os.environ['BGMI_DB_URL']
