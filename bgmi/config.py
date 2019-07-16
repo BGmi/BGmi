@@ -285,7 +285,7 @@ TRANSMISSION_RPC_PASSWORD = 'your_password'
 BANGUMI_TAG = '549ef207fe682f7549f1ea90'
 
 # Global blocked keyword
-GLOBAL_FILTER = 'Leopard-Raws, hevc, x265, c-a Raws, U3-Web, 预告'
+GLOBAL_FILTER = 'Leopard-Raws, hevc, x265, c-a Raws, U3-Web'
 
 # enable global filter
 ENABLE_GLOBAL_FILTER = '1'
