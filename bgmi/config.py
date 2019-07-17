@@ -101,24 +101,22 @@ TOOLS_PATH = os.path.join(BGMI_PATH, 'tools')
 
 
 def get_config_parser_and_read() -> configparser.ConfigParser:
-    with open(CONFIG_FILE_PATH, 'rb') as f:
-        content = f.read()
-        encoding = chardet.detect(content).get('encoding')
+    try:
+        with open(CONFIG_FILE_PATH, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except UnicodeDecodeError:
+        with open(CONFIG_FILE_PATH, 'rb') as f:
+            content = f.read()
+        encoding = chardet.detect(content)
+        content = content.decode(encoding.get('encoding'))
 
     c = configparser.ConfigParser()
-    c.read_string(content.decode(encoding))
+    c.read_string(content)
     return c
 
 
 def write_config_parser(config_parser: configparser.ConfigParser):
-    try:
-        with open(CONFIG_FILE_PATH, 'rb+') as f:
-            encoding = chardet.detect(f.read()).get('encoding')
-            if encoding == 'ascii':
-                encoding = 'utf-8'
-    except IOError:
-        encoding = None
-    with open(CONFIG_FILE_PATH, 'w+', encoding=encoding) as f:
+    with open(CONFIG_FILE_PATH, 'w+', encoding='utf-8') as f:
         config_parser.write(f)
 
 
