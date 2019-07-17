@@ -1,5 +1,6 @@
 from unittest import TestCase, mock
 
+from bgmi.lib.models import Episode
 from bgmi.website import DataSource
 from bgmi.website.base import BaseWebsite
 # from .mock_websites import MockDateSource
@@ -13,16 +14,11 @@ def w():
 @mock.patch('bgmi.website.DATA_SOURCE_MAP', MockDateSource)
 class TestDataSourceUtils(TestCase):
     def test_remove_duplicated_bangumi(self):
-        duplicated_episode = [{
-            'title': 'bangumi',
-            'episode': 1,
-        }, {
-            'title': 'bangumi',
-            'episode': 1,
-        }, {
-            'title': 'bangumi',
-            'episode': 2,
-        }]
+        duplicated_episode = [
+            Episode(title='bangumi', episode=1),
+            Episode(title='bangumi', episode=1),
+            Episode(title='bangumi', episode=2),
+        ]
         e = DataSource.Utils.remove_duplicated_episode_bangumi(duplicated_episode)
         self.assertEqual(len(e), 2)
         self.assertListEqual(e, [duplicated_episode[0], duplicated_episode[-1]])

@@ -4,25 +4,45 @@ workflows:
   version: 2
   main:
     jobs:
-      - code_style
+
+      - prepare
+
       - unittest:
           requires:
-            - code_style
+            - prepare
+
       - test_downloader:
           requires:
-            - code_style
+            - prepare
+
+      - test-sqlite:
+          requires:
+            - prepare
+
+      - test-mysql:
+          requires:
+            - prepare
+
       - build-docker:
           requires:
             - unittest
             - test_downloader
+            - test-sqlite
+            - test-mysql
+
       - build-docs:
           requires:
             - unittest
             - test_downloader
+            - test-sqlite
+            - test-mysql
+
       - build-binary:
           requires:
             - unittest
             - test_downloader
+            - test-sqlite
+            - test-mysql
 
 aliases:
   hash_deps: &hash_deps
@@ -59,8 +79,23 @@ aliases:
       name: Upload Coverage Report
       command: codecov
 
+  restore_test_data_cache: &restore_test_data_cache
+    restore_cache:
+      keys:
+        - test-data-{{ .Branch }}-{{ checksum ".circleci/test-data-version" }}
+        - test-data-{{ .Branch }}-
+        - test-data-
+
+  save_test_data_cache: &save_test_data_cache
+    save_cache:
+      key: test-data-{{ .Branch }}-{{ checksum ".circleci/test-data-version" }}
+      paths:
+        - /home/circleci/data
+
+
+
 jobs:
-  code_style:
+  prepare:
     docker:
       - image: circleci/python:3.6
     steps:
@@ -68,6 +103,14 @@ jobs:
       - *hash_deps
       - *restore_pip_cache
       - *install_pip_deps
+
+      - *restore_test_data_cache
+      - run:
+          name: get test data
+          command: |
+            mkdir -p ~/data
+            curl -L https://github.com/BGmi/BGmi/releases/download/test-data/data-1.sql -o ~/data/db.sql
+      - *save_test_data_cache
 
       - run:
           name: Code Style
@@ -83,6 +126,7 @@ jobs:
       - checkout # check out the code in the project directory
       - *hash_deps
       - *restore_pip_cache
+      - *restore_test_data_cache
       - *install_pip_deps
 
 
@@ -115,28 +159,103 @@ jobs:
       - checkout # check out the code in the project directory
       - *hash_deps
       - *restore_pip_cache
+      - *restore_test_data_cache
       - *install_pip_deps
 
       - run:
           name: Wait for Docker Ready
           command: |
             # wait for mysql start up
-            for i in `seq 1 100`;
-              do
-                nc -z 127.0.0.1 8112 && nc -z 127.0.0.1 6800 && nc -z 127.0.0.1 9091 && echo Success && exit 0
-                echo -n .
-                sleep 0.1
-              done
+            for i in `seq 1 100`; do
+              nc -z 127.0.0.1 8112 && \
+                nc -z 127.0.0.1 6800 && \
+                nc -z 127.0.0.1 9091 && \
+                echo Success && exit 0
+              echo -n .
+              sleep 0.1
+            done
             echo Failed waiting for MySQL && exit 1
 
       - run:
           name: test downloader
           command: coverage run -m pytest bgmi/downloader
           environment:
-            BGMI_TRANSMISSION_RPC_URL: http://transmission-rpc-username:example-rpc-password@127.0.0.1:9091/transmission/rpc
+            BGMI_TRANSMISSION_RPC_URL: "http://transmission-rpc-username:example-rpc-password\
+            @127.0.0.1:9091/transmission/rpc"
             BGMI_ARIA2_RPC_TOKEN: token:aria2-rpc-secret
 
       - *upload_codecov_report
+
+  test-sqlite:
+    docker:
+      - image: circleci/python:3.6
+
+    environment:
+      DB_SQL_PATH: /home/circleci/data/db.sql
+
+    steps:
+      - checkout # check out the code in the project directory
+      - *hash_deps
+      - *restore_pip_cache
+      - *restore_test_data_cache
+      - *install_pip_deps
+
+      - run:
+          name: restore sql
+          command: |
+            coverage run -m bgmi install --no-web
+
+      - run:
+          name: Unittest
+          command: coverage run -m pytest tests/test_db_models.py
+
+      - *upload_codecov_report
+
+  test-mysql:
+    docker:
+      - image: circleci/python:3.6
+      - image: mysql:5.7
+        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+        environment:
+          MYSQL_USER: root
+          MYSQL_ROOT_PASSWORD: root_password
+          MYSQL_DATABASE: bgmi
+
+    environment:
+      BGMI_DB_URL: mysql://root:root_password@127.0.0.1:3306/bgmi?charset=utf8mb4
+      DB_SQL_PATH: /home/circleci/data/db.sql
+
+    steps:
+      - checkout # check out the code in the project directory
+      - *hash_deps
+      - *restore_pip_cache
+      - *restore_test_data_cache
+      - *install_pip_deps
+
+      - run:
+          name: Wait for MySQL Ready
+          command: |
+            # wait for mysql start up
+            for i in `seq 1 100`;
+              do
+                nc -z 127.0.0.1 3306 && echo Success && exit 0
+                echo -n .
+                sleep 0.1
+              done
+            echo Failed waiting for MySQL && exit 1
+
+      - run:
+          name: restore sql
+          command: |
+            coverage run -m bgmi install --no-web
+
+      - run:
+          name: Unittest
+          command: coverage run -m pytest tests/test_db_models.py
+
+      - *upload_codecov_report
+
+
 
   build-docs:
     docker:
@@ -145,6 +264,7 @@ jobs:
       - checkout
       - *hash_deps
       - *restore_pip_cache
+      - *restore_test_data_cache
       - *install_pip_deps
 
       - run:
@@ -180,6 +300,7 @@ jobs:
       - checkout
       - *hash_deps
       - *restore_pip_cache
+      - *restore_test_data_cache
       - *install_pip_deps
 
       - run:

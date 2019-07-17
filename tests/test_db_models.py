@@ -1,6 +1,5 @@
-import json
+import os
 import time
-from os import path
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
@@ -8,33 +7,10 @@ import faker
 
 from bgmi.lib import db_models
 from bgmi.lib.db_models import Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle, db
-from tests.base import project_dir
 
-with open(
-    path.join(project_dir, 'tests/data/db_models/main_bangumi.json'), 'r', encoding='utf8'
-) as f:
-    bangumi_list = json.load(f)
-with open(
-    path.join(project_dir, 'tests/data/db_models/main_followed.json'), 'r', encoding='utf8'
-) as f:
-    followed_list = json.load(f)
-with open(
-    path.join(project_dir, 'tests/data/db_models/main_bangumi_item.json'), 'r', encoding='utf8'
-) as f:
-    bangumi_item_list = json.load(f)
-
-with open(path.join(project_dir, 'tests/data/db_models/subtitle.json'), 'r', encoding='utf8') as f:
-    subtitle_group = json.load(f)
-    for key, value in subtitle_group.items():
-        for subtitle in value:
-            subtitle['data_source_id'] = key
-subtitle_list = []
-for _, value in subtitle_group.items():
-    subtitle_list += value
-
-# with open(path.join(project_dir, 'tests/data/db_models/main_subtitle.json'),
-#           'r', encoding='utf8') as f:
-#     subtitle_list = json.load(f)
+DB_SQL_PATH = os.getenv('DB_SQL_PATH')
+with open(DB_SQL_PATH, 'r', encoding='utf8') as f:
+    SQL = f.read()
 
 
 class Base:
@@ -46,23 +22,10 @@ class Base:
         Followed.delete().where(True).execute()
         BangumiItem.delete().where(True).execute()
         Subtitle.delete().where(True).execute()
-        # db.create_tables([Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle])
-        Bangumi.insert_many(bangumi_list).execute()
-        BangumiItem.insert_many(bangumi_item_list).execute()
-        Subtitle.insert_many(subtitle_list).execute()
-        Followed.insert_many(followed_list).execute()
+        for line in SQL.splitlines():
+            if line:
+                db.execute_sql(line.replace('%', '%%'))
         db.close()
-
-    # def tearDown(self):
-    #     db.drop_tables([
-    #         Bangumi,
-    #         Followed,
-    #         Download,
-    #         Subtitle,
-    #         BangumiItem,
-    #         BangumiLink,
-    #         Scripts,
-    #     ])
 
 
 class BangumiTest(Base, TestCase):
@@ -147,14 +110,12 @@ class BangumiTest(Base, TestCase):
             for v in value:  #
                 self.assertIn(v['name'], bgm_updated)
 
+        updating_bangumi_names = [
+            x.name
+            for x in Bangumi.select(Bangumi.name).where(Bangumi.status == Bangumi.STATUS.UPDATING)
+        ]
         for bangumi in b3:
-            self.assertIn(bangumi['name'], [
-                '机动奥特曼',
-                '川柳少女',
-                '名侦探柯南',
-                '海贼王',
-                '汉化日记',
-            ])
+            self.assertIn(bangumi['name'], updating_bangumi_names)
 
     def test_get_all_bangumi(self):
         Bangumi.delete().execute()
@@ -207,19 +168,18 @@ class SubtitleTest(Base, TestCase):
         def check(data_source):
             s = Subtitle.get_subtitle_from_data_source_dict(data_source)
 
-            # All subtitles meet the requirement
-            for subtitle in subtitle_list:
-                for key, value in data_source.items():
-                    if key == subtitle['data_source_id'] and subtitle['id'
-                                                                      ] in value['subtitle_group']:
-                        self.assertIn(subtitle, s)
+            ss = []
+            for key, value in data_source.items():
+                for subtitle in Subtitle.select().where(
+                    Subtitle.data_source_id == key,
+                    Subtitle.id.in_(value['subtitle_group'].split(','))
+                ).dicts():
+                    ss.append(subtitle)
 
-            # No extra subtitle returned
-            for subtitle in s:
-                self.assertIn(subtitle, subtitle_group[subtitle['data_source_id']])
-                self.assertIn(
-                    subtitle['id'], data_source[subtitle['data_source_id']]['subtitle_group']
-                )
+            for i in s:
+                assert i in ss
+            for i in ss:
+                assert i in s
 
         condition = {'mikan_project': {'subtitle_group': ','.join(['1', '2', '6', '7', '9'])}}
         check(condition)

@@ -11,6 +11,11 @@ from bgmi.lib.controllers import ControllerResult, config_
 
 class base:
     def setUp(self):
+        try:
+            os.makedirs(bgmi.config.BGMI_PATH)
+        except FileExistsError:
+            pass
+
         os.remove(CONFIG_FILE_PATH) if os.path.exists(CONFIG_FILE_PATH) else None
 
         write_default_config()
@@ -37,6 +42,11 @@ class base:
 
 class ReadConfigTest(base, unittest.TestCase):
     def setUp(self):
+        try:
+            os.makedirs(bgmi.config.BGMI_PATH)
+        except FileExistsError:
+            pass
+
         os.remove(CONFIG_FILE_PATH) if os.path.exists(CONFIG_FILE_PATH) else None
 
     @staticmethod
@@ -64,7 +74,7 @@ disabled_data_source =
 lang = zh_cn
 admin_token = 233
 share_dmhy_url = https://share.dmhy.org
-global_filter = Leopard-Raws, hevc, x265, c-a Raws
+global_filter = Leopard-Raws, hevc, x265, c-a Raws, 预告
 enable_global_filter = 1
 tornado_serve_static_files = 1
 
@@ -90,7 +100,7 @@ disabled_data_source =
 lang = zh_cn
 admin_token = 233
 share_dmhy_url = https://share.dmhy.org
-global_filter = Leopard-Raws, hevc, x265, c-a Raws
+global_filter = Leopard-Raws, hevc, x265, c-a Raws, 预告
 enable_global_filter = 1
 tornado_serve_static_files = 1
 

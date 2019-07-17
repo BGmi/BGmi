@@ -19,7 +19,7 @@ class ControllersTest(Base, unittest.TestCase):
     bangumi 1 is followed
     bangumi 2 is not followed
     """
-    bangumi_name_1 = '机动奥特曼'  # not followed bangumi
+    bangumi_name_1 = '某科学的一方通行'  # not followed bangumi
     bangumi_name_2 = '海贼王'  # followed bangumi
 
     def get_followed_obj(self):
@@ -162,7 +162,7 @@ class ControllersTest(Base, unittest.TestCase):
 
     def test_data_source_input_not_available(self):
         result = controllers.filter_(
-            name=self.bangumi_name_2,
+            name='爱在西元前',
             data_source_input=self.invalid_data_source,
         )
         self.assertEqual(result.status, ControllerResult.error, result.message)

@@ -12,32 +12,31 @@ import bgmi
 import bgmi.config
 from bgmi import utils
 from bgmi.lib import constants
-from bgmi.lib.db_models import (
-    Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle, db, get_kv_storage
-)
-from bgmi.lib.db_models._kv import create_kv_storage
 from bgmi.utils import utils as inner_utils
 from bgmi.utils.utils import FRONTEND_NPM_URL, PACKAGE_JSON_URL
 
+mock_kv_data = {}
 
+
+def get_kv_storage():
+    return mock_kv_data
+
+
+@patch('bgmi.lib.db_models.get_kv_storage', get_kv_storage)
 class UtilsTest(unittest.TestCase):
     test_dir = './test_dir'
 
     def setUp(self):
-        if db.is_closed():
-            db.connect()
-        db.create_tables([Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle])
-        create_kv_storage()
-        db.close()
+        try:
+            os.makedirs(self.test_dir)
+        except FileExistsError:
+            pass
 
     def tearDown(self):
-        db.close()
-        if os.path.exists(self.test_dir):
-            if os.path.isdir(self.test_dir):
-                shutil.rmtree(self.test_dir)
-            else:
-                os.remove(self.test_dir)
-        os.mkdir(self.test_dir)
+        try:
+            shutil.rmtree(self.test_dir)
+        except FileNotFoundError:
+            pass
 
     def test_download_file(self):
         with patch('bgmi.utils.utils.requests.get') as m:

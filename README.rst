@@ -2,7 +2,7 @@ BGmi
 ====
 BGmi is a cli tool for subscribed bangumi.
 
-`中文说明 <./README.cn.md>`_
+`中文说明 <https://bgmi.rtfd.io/zh_CN/latest/>`_
 
 |pypi|
 |pypistats|

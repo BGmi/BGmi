@@ -18,8 +18,7 @@ import requests
 from tornado import template
 
 from bgmi import __admin_version__, __version__, config
-from bgmi.lib import constants
-from bgmi.lib.db_models import get_kv_storage
+from bgmi.lib import constants, db_models
 from bgmi.logger import logger
 
 from ._decorator import COLOR_END, GREEN, _indicator, colorize, disable_in_test, log_utils_function
@@ -123,9 +122,7 @@ def update(mark=True):
     try:
         print_info('Checking update ...')
         version = requests.get('https://pypi.python.org/pypi/bgmi/json').json()['info']['version']
-        get_kv_storage()[constants.kv.LATEST_VERSION] = version
-        # with open(os.path.join(BGMI_PATH, 'latest'), 'w') as f:
-        #     f.write(version)
+        db_models.get_kv_storage()[constants.kv.LATEST_VERSION] = version
 
         if version > __version__:
             print_warning(
@@ -155,10 +152,10 @@ def update(mark=True):
 
 @log_utils_function
 def check_update(mark=True):
-    date = get_kv_storage().get(constants.kv.LAST_CHECK_UPDATE_TIME, 0)
+    date = db_models.get_kv_storage().get(constants.kv.LAST_CHECK_UPDATE_TIME, 0)
     if time.time() - date > SECOND_OF_WEEK:
         update(mark)
-        get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = int(time.time())
+        db_models.get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = int(time.time())
 
 
 @log_utils_function

@@ -136,7 +136,7 @@ def init_data() -> Tuple[List[models.DataSourceItem], List[models.Subtitle]]:
 class DataSource:
     class Utils:
         @staticmethod
-        def remove_duplicated_episode_bangumi(result: models.Episode) -> List[models.Episode]:
+        def remove_duplicated_episode_bangumi(result: List[models.Episode]) -> List[models.Episode]:
             ret = []
             episodes = list({i.episode for i in result})
             for i in result:
