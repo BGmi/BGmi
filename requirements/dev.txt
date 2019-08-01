@@ -1,6 +1,6 @@
 -r prod.txt
 -r build.txt
-faker==1.0.7
+faker==2.0.0
 isort==4.3.21
 mock==3.0.5
 pre-commit==1.17.0
