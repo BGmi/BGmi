@@ -24,7 +24,6 @@ class BangumiItem(pw.Model):
 
     It will not be stored in database and there isn't a table named BangumiItem in database.
     """
-
     class Meta:
         table_name = 'bangumi_item'
         database = db

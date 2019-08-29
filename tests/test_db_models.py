@@ -51,7 +51,6 @@ class BangumiTest(Base, TestCase):
 
         has_data_source = pw.IntegerField(default=0)
     """
-
     def test_delete_all(self):
         now = int(time.time())
         name_updating = []
@@ -164,7 +163,6 @@ class SubtitleTest(Base, TestCase):
         :param data_source_id:
         :return:
         """
-
         def check(data_source):
             s = Subtitle.get_subtitle_from_data_source_dict(data_source)
 

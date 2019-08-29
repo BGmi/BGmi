@@ -45,7 +45,6 @@ def action_decorator(fn):
 
 class GroupWithCommandOptions(click.Group):
     """ Allow application of options to group with multi command """
-
     def add_command(self, cmd, name=None):
         """ Hook the added command and put the group options on the command """
         click.Group.add_command(self, cmd, name=name)

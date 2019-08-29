@@ -13,7 +13,6 @@ def _unauthorized(func: FunctionType):
     """
     wrap xmlrpc.client exception to DownloadService exception
     """
-
     @wraps(func)
     def wrapped(*args, **kwargs):
         try:
@@ -31,7 +30,6 @@ def _connect_error(func: FunctionType):
     """
     wrap all exception to ConnectError
     """
-
     @wraps(func)
     def wrapped(*args, **kwargs):
         try:

@@ -28,7 +28,6 @@ SQL = pw.SQL
 
 def migrate(migrator, database, fake=False, **kwargs):
     """Write your migrations here."""
-
     @migrator.create_model
     class Bangumi(pw.Model):
         id = pw.AutoField()

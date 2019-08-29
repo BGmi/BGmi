@@ -36,7 +36,6 @@ class BaseWebsite(ABC):
 
         :rtype: str
         """
-
     @property
     @abstractmethod
     def data_source_id(self):
@@ -45,7 +44,6 @@ class BaseWebsite(ABC):
 
         :rtype: str
         """
-
     @abstractmethod
     def fetch_bangumi_calendar_and_subtitle_group(self):  # pragma: no cover
         """

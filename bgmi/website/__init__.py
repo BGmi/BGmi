@@ -365,7 +365,6 @@ class DataSource:
         :return: list of episode search result
         :rtype: list[dict]
         """
-
         def f(_, source):
             return [models.Episode.parse_obj(x) for x in source.search_by_keyword(keyword, count)]
 

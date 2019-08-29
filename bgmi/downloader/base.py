@@ -26,7 +26,6 @@ class BaseDownloadService(ABC):
     AuthError
         If RPC server require authorization
     """
-
     def __init__(self, *args, **kwargs):
         self.require()
 
@@ -47,7 +46,6 @@ class BaseDownloadService(ABC):
             If some requirements not satisfied. like missing bin or python package.
             Don't raise ImportError, catch it and describe it in message.
         """
-
     @abstractmethod
     def download(self, torrent: str, save_path: str):
         """
@@ -67,7 +65,6 @@ class BaseDownloadService(ABC):
             Network unreachable, or timeout
 
         """
-
     def download_status(self, status=None):
         last_status = -1
         for download_data in Download.get_all_downloads(status=status):

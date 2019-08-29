@@ -190,7 +190,7 @@ def write_default_config():
 
     try:
         write_config_parser(c)
-    except IOError:  # pragma: no cover
+    except OSError:  # pragma: no cover
         print('[-] Error writing to config file and ignored')
 
 

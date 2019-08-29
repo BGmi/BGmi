@@ -34,7 +34,7 @@ def get_logger() -> Logger:
             orm_logger = getLogger('peewee')
             orm_logger.setLevel(DEBUG)
             orm_logger.addHandler(h)
-    except IOError:
+    except OSError:
         _logger.info("Can't create log file, log to file is disabled.")
 
     return _logger
