@@ -11,6 +11,7 @@ import requests
 import stevedore
 from hanziconv import HanziConv
 
+import bgmi
 from bgmi import config
 from bgmi.config import MAX_PAGE
 from bgmi.lib import models
@@ -87,7 +88,11 @@ def format_bangumi_dict(bangumi):
 
 
 def get_bgm_tv_calendar() -> list:
-    r = requests.get('https://api.bgm.tv/calendar')
+    # bgm.tv now checks request User-Agent, and using default requests UA will be blocked
+    r = requests.get(
+        'https://api.bgm.tv/calendar',
+        headers={'user-agent': f'BGmi/{bgmi.__version__} https://github.com/BGmi/BGmi'}
+    )
     r = r.json()
     bangumi_tv_weekly_list = []
 
@@ -365,6 +370,7 @@ class DataSource:
         :return: list of episode search result
         :rtype: list[dict]
         """
+
         def f(_, source):
             return [models.Episode.parse_obj(x) for x in source.search_by_keyword(keyword, count)]
 
