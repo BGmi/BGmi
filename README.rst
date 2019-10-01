@@ -522,6 +522,8 @@ BGmi Data Source
 You can easily add your own BGmi data source by extending BGmi website base(:code:`bgmi.website.base.BaseWebsite`) class and implement all the method.
 
 .. code-block:: python
+
+
     from bgmi.website.base import BaseWebsite
 
     class DataSource(BaseWebsite)
@@ -690,5 +692,5 @@ SOFTWARE.
 .. |license| image:: https://img.shields.io/badge/License-MIT-blue.svg
    :target: https://github.com/BGmi/BGmi/blob/master/LICENSE
 
-.. |pypistats| image::  https://img.shields.io/pypi/dm/bgmi.svg
+.. |pypistats| image:: https://img.shields.io/pypi/dm/bgmi.svg
    :target: https://pypi.python.org/pypi/bgmi
