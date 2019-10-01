@@ -77,7 +77,11 @@ before_install:
       export LANG=en_US.UTF-8
       v=$TRAVIS_PYTHON_VERSION
       export PATH="/c/Python${v/./}:/c/Python${v/./}/Scripts:$PATH"
+
       python -m pip install --upgrade pip wheel;
+
+      python -m venv ~/venv
+      source ~/venv/Scripts/activate
     fi
 
 install:
