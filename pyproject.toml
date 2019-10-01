@@ -1,0 +1,100 @@
+[tool.poetry]
+name = "bgmi"
+version = "3.0.0a0"
+description = "BGmi is a cli tool for subscribed bangumi."
+keywords=['bangumi', 'bgmi', 'feed']
+authors = [
+    "RicterZ <ricterzheng@gmail.com>",
+    "Trim21 <i@trim21.me>"
+]
+readme = 'README.rst'
+license = "MIT"
+repository = 'https://github.com/BGmi/BGmi'
+homepage = 'https://github.com/BGmi/BGmi'
+classifiers = [
+  'Development Status :: 4 - Beta',
+  'Intended Audience :: Other Audience',
+  'Natural Language :: Chinese (Traditional)',
+  'License :: OSI Approved :: MIT License',
+  'Programming Language :: Python',
+  'Programming Language :: Python :: 3',
+  'Programming Language :: Python :: 3.6',
+  'Programming Language :: Python :: 3.7',
+  'Programming Language :: Python :: Implementation :: CPython',
+]
+
+packages = [
+    { include = "bgmi" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+
+attrs = "19.1.0"
+beautifulsoup4 = "4.8.0"
+chardet = "3.0.4"
+hanziconv = "0.3.2"
+icalendar = "4.0.3"
+peewee = "3.11.2"
+requests = "2.22.0"
+stevedore = "1.31.0"
+tornado = "6.0.3"
+peewee_migrate = "1.1.6"
+click = "7.0"
+pydantic = "0.32.2"
+
+pymysql = {version = "0.9.3", optional = true}
+
+[tool.poetry.dev-dependencies]
+pytest = "=5.2.0"
+faker = "2.0.2"
+isort = "4.3.21"
+mock = "3.0.5"
+pre-commit = "1.18.3"
+pycodestyle = "2.5.0"
+pymysql = "0.9.3"
+transmission_rpc = "2.0.1"
+yapf = "0.28.0"
+livereload = "2.6.1"
+pyupgrade = "1.24.0"
+autoflake = "1.3.1"
+flake8 = "3.7.8"
+flake8-comprehensions = "2.2.0"
+flake8-bugbear = "19.8.0"
+flake8-commas = "2.0.0"
+flake8-mutable = "1.2.0"
+twine = "^2.0.0"
+sphinx='2.2.0'
+sphinx_rtd_theme='0.4.3'
+sphinxcontrib-httpdomain='1.7.0'
+sphinxcontrib-httpexample='0.10.3'
+sphinx-argparse='0.2.5'
+sphinxcontrib-openapi='0.5.0'
+sphinx_issues='1.2.0'
+pyinstaller = "3.5"
+codecov = "^2.0.15"
+
+
+
+[tool.poetry.extras]
+mysql = [
+  "pymysql",
+]
+
+[tool.poetry.scripts]
+bgmi = 'bgmi.cli:cli'
+bgmi_http = 'bgmi.front.server:main'
+
+[tool.poetry.plugins."bgmi.data_source.provider"]
+bangumi_moe = 'bgmi.website.bangumi_moe:BangumiMoe'
+mikan_project = 'bgmi.website.mikan:Mikanani'
+dmhy = 'bgmi.website.share_dmhy:DmhySource'
+
+[tool.poetry.plugins."bgmi.downloader.delegate"]
+aria2-rpc = 'bgmi.downloader.aria2_rpc:Aria2DownloadRPC'
+deluge-rpc = 'gmi.downloader.deluge:DelugeRPC'
+transmission-rpc = 'bgmi.downloader.transmissionRpc:TransmissionRPC'
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
