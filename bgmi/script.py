@@ -1,10 +1,10 @@
 import datetime
 import glob
-import imp
 import os
 import time
 import traceback
 from collections import defaultdict
+from importlib.machinery import SourceFileLoader
 from typing import Dict, List
 
 import stevedore.exception
@@ -27,7 +27,7 @@ class ScriptRunner:
             script_files = glob.glob(f'{SCRIPT_PATH}{os.path.sep}*.py')
             for i in script_files:
                 try:
-                    s = imp.load_source('script', os.path.join(SCRIPT_PATH, i))
+                    s = SourceFileLoader('script', os.path.join(SCRIPT_PATH, i)).load_module()
                     script_class = s.Script()
 
                     if cls.check(script_class):
