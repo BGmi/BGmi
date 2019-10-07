@@ -630,6 +630,10 @@ Set env ``BGMI_LOG`` to ``debug``, ``info``, ``warning``, ``error`` for differen
 
 log file will locate at ``{TMP_PATH}/bgmi.log``
 
+Paragraph: ::
+
+    Literal block
+
 =========
 Uninstall
 =========
