@@ -12,7 +12,7 @@ export DB_SQL_PATH=~/data/db.sql
 coverage run -a -m bgmi install --no-web
 
 codecov --flags command > /dev/null
-rm .coverage codecov.yml -f||true # macos's rm return 0 with f flag when file doesn't exists
+rm .coverage codecov.yml -f||true # macos's rm return not 0 with f flag when file doesn't exists
 
 #  bash tests/init_env_and_run_unit_test.sh test_data_source
 
