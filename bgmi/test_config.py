@@ -6,7 +6,8 @@ from unittest.mock import patch
 
 import bgmi.config
 from bgmi.config import CONFIG_FILE_PATH, write_default_config
-from bgmi.lib.controllers import ControllerResult, config_
+from bgmi.lib.constants import ActionStatus
+from bgmi.lib.controllers import config_
 
 
 class base:
@@ -143,13 +144,13 @@ class WriteConfigTest(base, unittest.TestCase):
 
     def test_print_config(self):
         r = config_()
-        self.assertEqual(r['status'], ControllerResult.success)
+        self.assertEqual(r['status'], ActionStatus.success)
 
     def test_print_single_config(self):
         r = config_('DANMAKU_API_URL', '233')
 
         r = config_('DANMAKU_API_URL')
-        self.assertEqual(r['status'], ControllerResult.success)
+        self.assertEqual(r['status'], ActionStatus.success)
         self.assertTrue(r['message'].startswith('DANMAKU_API_URL'))
         self.assertTrue(r['message'].endswith('233'))
 
@@ -190,7 +191,7 @@ class WriteConfigTest(base, unittest.TestCase):
 
     def test_get_DOWNLOAD_DELEGATE_VALUE(self):
         r = config_('ARIA2_RPC_URL')
-        self.assertEqual(r['status'], ControllerResult.success)
+        self.assertEqual(r['status'], ActionStatus.success)
         self.assertEqual(r['message'], 'ARIA2_RPC_URL=http://localhost:6800/rpc')
 
 
