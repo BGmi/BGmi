@@ -1,13 +1,14 @@
 import time
 import warnings
 from operator import itemgetter
-from typing import Mapping
+from typing import Mapping, Optional
 
-import attr
 import peewee as pw
+import pydantic
 
 from bgmi import config
 from bgmi.lib import db_models
+from bgmi.lib.constants import ActionStatus
 from bgmi.lib.db_models import Bangumi, BangumiItem, DoesNotExist, Followed, Subtitle, model_to_dict
 from bgmi.lib.db_models._tables import split_str_to_list
 from bgmi.lib.download import download_prepare
@@ -21,19 +22,10 @@ from bgmi.utils import (
 from bgmi.utils.followed_filter import apply_regex
 
 
-@attr.s
-class ControllerResult:
-    success = 'success'
-    warning = 'warning'
-    error = 'error'
-
-    status = attr.ib(
-        type=str,
-        default=success,
-        validator=attr.validators.in_([success, warning, error]),
-    )
-    message = attr.ib(type=str, default='')
-    data = attr.ib(factory=dict)
+class ControllerResult(pydantic.BaseModel):
+    status: ActionStatus
+    message: Optional[str]
+    data: Optional[dict]
 
     def __getitem__(self, item):
         if config.SHOW_WARNING:
@@ -61,20 +53,20 @@ class ControllerResult:
         return cls(**d)
 
     @classmethod
-    def new_error(cls, message, **kwargs):
-        return cls(status=cls.error, message=message, **kwargs)
+    def error(cls, message, **kwargs):
+        return cls(status=ActionStatus.error, message=message, **kwargs)
 
     @classmethod
-    def new_warning(cls, message, **kwargs):
-        return cls(status=cls.warning, message=message, **kwargs)
+    def warning(cls, message, **kwargs):
+        return cls(status=ActionStatus.warning, message=message, **kwargs)
 
     def __contains__(self, item):
         return item in ['status', 'message', 'data']
 
     print_map = {
-        success: print_info,
-        warning: print_warning,
-        error: print_error,
+        ActionStatus.success: print_info,
+        ActionStatus.warning: print_warning,
+        ActionStatus.error: print_error,
     }
 
     def print(self, indicator=False):
@@ -135,9 +127,9 @@ def filter_(
         Followed.get(bangumi_id=bangumi_obj.id)
         name = bangumi_obj.name
     except Bangumi.DoesNotExist:
-        return ControllerResult.new_error(f'Bangumi {name} does not exist.')
+        return ControllerResult.error(f'Bangumi {name} does not exist.')
     except Followed.DoesNotExist:
-        return ControllerResult.new_error(
+        return ControllerResult.error(
             'Bangumi {name} has not subscribed, try \'bgmi add "{name}"\'.'.format(name=name)
         )
 
@@ -159,7 +151,7 @@ def filter_(
             try:
                 Subtitle.get(name=subtitle_name)
             except Subtitle.DoesNotExist:
-                return ControllerResult.new_error(
+                return ControllerResult.error(
                     f'{subtitle_name} is not a available subtitle_group',
                     data={
                         'name': bangumi_obj.name,
@@ -168,7 +160,7 @@ def filter_(
                     }
                 )
             if subtitle_name not in valid_subtitle_name_list:
-                return ControllerResult.new_error(
+                return ControllerResult.error(
                     f'{subtitle_name} is not a available subtitle',
                     data={
                         'name': bangumi_obj.name,
@@ -182,7 +174,7 @@ def filter_(
         data_source_input = split_str_to_list(data_source_input)
         for data_source in data_source_input:
             if data_source not in valid_data_source_list:
-                return ControllerResult.new_error(f'{data_source} is not a available data source')
+                return ControllerResult.error(f'{data_source} is not a available data source')
         followed_filter_obj.data_source = ','.join(data_source_input)
 
     if include:
@@ -538,7 +530,7 @@ def list_():
     script_bangumi = ScriptRunner().get_models_dict()
 
     if not followed_bangumi and not script_bangumi:
-        return ControllerResult.new_warning('you have not subscribed any bangumi')
+        return ControllerResult.warning('you have not subscribed any bangumi')
     for bangumi_list in followed_bangumi.values():
         for bangumi in bangumi_list:
             bangumi['subtitle_group'] = [
@@ -572,7 +564,7 @@ def get_bangumi_source(name):
     try:
         bangumi = Bangumi.get(name=name)
     except pw.DoesNotExist:
-        return ControllerResult.new_error(f'bangumi {name} not exists')
+        return ControllerResult.error(f'bangumi {name} not exists')
     bangumi_items = BangumiItem.select().where(BangumiItem.bangumi_id == bangumi.id)
     return ControllerResult(data=list(bangumi_items))
 
