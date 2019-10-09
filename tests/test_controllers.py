@@ -3,7 +3,7 @@ from unittest import mock
 
 import bgmi.lib.controllers
 from bgmi.lib import controllers
-from bgmi.lib.controllers import ControllerResult
+from bgmi.lib.controllers import ActionStatus
 from bgmi.lib.db_models import Bangumi, Followed
 from bgmi.website.base import BaseWebsite
 from tests.test_db_models import Base
@@ -92,22 +92,22 @@ class ControllersTest(Base, unittest.TestCase):
         result = controllers.filter_(name='hello')
         self.assertEqual(
             result.status,
-            ControllerResult.error,
-            f'non existed bangumi should return {ControllerResult.error}',
+            ActionStatus.error,
+            f'non existed bangumi should return {ActionStatus.error}',
         )
 
         result = controllers.filter_(name=self.bangumi_name_1)
         self.assertEqual(
             result.status,
-            ControllerResult.error,
-            f'non followed bangumi should return {ControllerResult.error}',
+            ActionStatus.error,
+            f'non followed bangumi should return {ActionStatus.error}',
         )
 
         result = controllers.filter_(name=self.bangumi_name_2)
         self.assertEqual(
             result.status,
-            ControllerResult.success,
-            f'non followed bangumi should return {ControllerResult.success}',
+            ActionStatus.success,
+            f'non followed bangumi should return {ActionStatus.success}',
         )
 
     valid_subtitle = 'OPFans枫雪动漫'
@@ -126,8 +126,8 @@ class ControllersTest(Base, unittest.TestCase):
         result = controllers.filter_(name=self.bangumi_name_2, subtitle_input=self.not_a_subtitle)
         self.assertEqual(
             result.status,
-            ControllerResult.error,
-            f'unavailable subtitle_group should return {ControllerResult.error}',
+            ActionStatus.error,
+            f'unavailable subtitle_group should return {ActionStatus.error}',
         )
 
         result = controllers.filter_(self.bangumi_name_2)
@@ -138,8 +138,8 @@ class ControllersTest(Base, unittest.TestCase):
         result = controllers.filter_(name=self.bangumi_name_2, subtitle_input=self.invalid_subtitle)
         self.assertEqual(
             result.status,
-            ControllerResult.error,
-            f'unavailable subtitle_group should return {ControllerResult.error}',
+            ActionStatus.error,
+            f'unavailable subtitle_group should return {ActionStatus.error}',
         )
 
         result = controllers.filter_(self.bangumi_name_2)
@@ -147,7 +147,7 @@ class ControllersTest(Base, unittest.TestCase):
 
     def test_filter_add_right_subtitle(self):
         result = controllers.filter_(name=self.bangumi_name_2, subtitle_input=self.valid_subtitle)
-        self.assertEqual(result.status, ControllerResult.success)
+        self.assertEqual(result.status, ActionStatus.success)
         self.assertEqual(result.data['followed'], self.valid_subtitle)
 
         followed_obj = Followed.get_by_name(bangumi_name=self.bangumi_name_2)
@@ -165,7 +165,7 @@ class ControllersTest(Base, unittest.TestCase):
             name='爱在西元前',
             data_source_input=self.invalid_data_source,
         )
-        self.assertEqual(result.status, ControllerResult.error, result.message)
+        self.assertEqual(result.status, ActionStatus.error, result.message)
 
         followed_obj = Followed.get_by_name(bangumi_name=self.bangumi_name_2)
         self.assertEqual(followed_obj.data_source, '')
@@ -182,7 +182,7 @@ class ControllersTest(Base, unittest.TestCase):
             name=self.bangumi_name_2,
             data_source_input=self.valid_data_source,
         )
-        self.assertEqual(result.status, ControllerResult.success, result.message)
+        self.assertEqual(result.status, ActionStatus.success, result.message)
         self.assertEqual(
             result.data['followed_data_source'],
             self.valid_data_source,
@@ -208,7 +208,7 @@ class ControllersTest(Base, unittest.TestCase):
         )
         self.assertEqual(
             result.status,
-            ControllerResult.success,
+            ActionStatus.success,
             f'include value {value}',
         )
         self.assertEqual(result.data['include'], value)
@@ -222,7 +222,7 @@ class ControllersTest(Base, unittest.TestCase):
             name=self.bangumi_name_2,
             exclude=value,
         )
-        self.assertEqual(result.status, ControllerResult.success, value)
+        self.assertEqual(result.status, ActionStatus.success, value)
         self.assertEqual(result.data['exclude'], value)
         followed_obj = self.get_followed_obj()
         self.assertEqual(followed_obj.exclude, value, 'exclude value should be parsed and saved')
@@ -233,7 +233,7 @@ class ControllersTest(Base, unittest.TestCase):
             name=self.bangumi_name_2,
             regex=value,
         )
-        self.assertEqual(result.status, ControllerResult.success, value)
+        self.assertEqual(result.status, ActionStatus.success, value)
         self.assertEqual(result.data['regex'], value)
         followed_obj = self.get_followed_obj()
         self.assertEqual(followed_obj.regex, value, 'regex value should be saved')

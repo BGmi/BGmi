@@ -1,3 +1,5 @@
+from enum import Enum
+
 from . import kv
 from .actions import ACTION_DOWNLOAD
 
@@ -26,10 +28,14 @@ DOWNLOAD_CHOICE = (
 FOLLOWED_ACTION_LIST = 'list'
 FOLLOWED_ACTION_MARK = 'mark'
 FOLLOWED_CHOICE = (FOLLOWED_ACTION_LIST, FOLLOWED_ACTION_MARK)
-STATUS_SUCCESS = 'success'
-STATUS_WARNING = 'warning'
-STATUS_ERROR = 'error'
-STATUS_INFO = 'info'
+
+
+class ActionStatus(str, Enum):
+    success = 'success'
+    warning = 'warning'
+    error = 'error'
+    info = 'info'
+
 
 SPACIAL_APPEND_CHARS = 'ⅡⅢⅥ♪Δ×☆É·♭★‧☆'
 SPACIAL_REMOVE_CHARS = ''

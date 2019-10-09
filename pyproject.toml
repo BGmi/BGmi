@@ -30,7 +30,6 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.6"
 
-attrs = "19.1.0"
 beautifulsoup4 = "4.8.0"
 chardet = "3.0.4"
 hanziconv = "0.3.2"
