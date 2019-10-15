@@ -45,7 +45,7 @@ BGmi是一个用来追番的命令行程序.
 pip install bgmi
 ```
 
-或者从Github安装最新版本
+或者从Github安装最新版本（强烈不推荐）
 
 ```bash
 pip install https://github.com/Bgmi/BGmi/tarball/dev
