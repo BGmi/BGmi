@@ -58,7 +58,6 @@ before_install:
     if [[ $TRAVIS_OS_NAME == "osx" ]]; then
       bash .ci/install_python_on_osx.bash
       source $HOME/venv/bin/activate
-      pip install --upgrade certifi
     fi
   - |
     if [[ $TRAVIS_OS_NAME == "windows" ]]; then

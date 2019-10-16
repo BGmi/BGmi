@@ -5,7 +5,13 @@ set -ex
 python --version
 pip --version
 
-curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+if [[ $TRAVIS_OS_NAME == "osx" ]]; then
+  pip install --upgrade certifi
+  pip install -U poetry
+else
+  curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+fi
+
 export PATH=$HOME/.poetry/bin:$PATH
 pip install toml==0.10.0
 python .circleci/export_requirements.py --all
