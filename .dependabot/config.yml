@@ -1,0 +1,10 @@
+---
+version: 1
+update_configs:
+- commit_message:
+    prefix: chore
+    include_scope: true
+  directory: "/"
+  package_manager: python
+  target_branch: dev
+  update_schedule: weekly
