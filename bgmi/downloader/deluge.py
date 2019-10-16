@@ -34,11 +34,11 @@ class DelugeRPC(BaseDownloadService):
         except (requests.ConnectionError, requests.ConnectTimeout) as e:
             raise ConnectError() from e
 
-        e = r.json()
-        if e['error']:
-            raise AuthError('deluge error, reason: {}'.format(e['error']['message']))
+        res = r.json()
+        if res['error']:
+            raise AuthError('deluge error, reason: {}'.format(res['error']['message']))
 
-        return e
+        return res
 
     def download(self, torrent: str, save_path: str):
         if not torrent.startswith('magnet:'):

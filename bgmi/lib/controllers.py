@@ -23,7 +23,7 @@ from bgmi.utils.followed_filter import apply_regex
 
 
 class ControllerResult(pydantic.BaseModel):
-    status: ActionStatus
+    status: ActionStatus = ActionStatus.success
     message: Optional[str]
     data: Optional[dict]
 
@@ -133,7 +133,9 @@ def filter_(
             'Bangumi {name} has not subscribed, try \'bgmi add "{name}"\'.'.format(name=name)
         )
 
-    followed_filter_obj, _ = Followed.get_or_create(bangumi_id=bangumi_obj.id)  # type: Followed
+    followed_filter_obj, _ = Followed.get_or_create(
+        bangumi_id=bangumi_obj.id
+    )  # type: Followed, bool
     subtitle_list = [
         x for x in bangumi_obj.get_subtitle_of_bangumi()
         if x['name'] not in config.DISABLED_DATA_SOURCE

@@ -5,21 +5,21 @@ from collections import defaultdict
 from difflib import SequenceMatcher
 from functools import lru_cache
 from itertools import chain
-from typing import Dict, Iterator, List, Tuple
+from typing import DefaultDict, Iterator, List, Tuple
 
 import requests
 import stevedore
 from hanziconv import HanziConv
 
 import bgmi
-from bgmi import config
+from bgmi import config, models
 from bgmi.config import MAX_PAGE
-from bgmi.lib import models
 from bgmi.lib.constants import NameSpace
 from bgmi.lib.db_models import (
     Bangumi, BangumiItem, Followed, Subtitle, db, get_updating_bangumi_with_data_source,
     get_updating_bangumi_with_out_data_source
 )
+from bgmi.models.status import BangumiStatus
 from bgmi.utils import (
     full_to_half, normalize_path, parallel, print_info, print_warning, test_connection
 )
@@ -28,7 +28,7 @@ from bgmi.website.base import BaseWebsite
 from . import bangumi_moe, base, mikan, share_dmhy
 
 THRESHOLD = 60
-MAX_PAGE = int(MAX_PAGE)
+_MAX_PAGE: int = int(MAX_PAGE)
 
 
 def _raise(_1, _2, c):
@@ -45,7 +45,7 @@ def get_provider(source) -> BaseWebsite:
     ).driver
 
 
-def get_all_provider() -> Iterator[Dict[str, BaseWebsite]]:
+def get_all_provider() -> Iterator[Tuple[str, BaseWebsite]]:
     mgr = stevedore.ExtensionManager(
         namespace=NameSpace.data_source_provider,
         invoke_on_load=True,
@@ -89,11 +89,11 @@ def format_bangumi_dict(bangumi):
 
 def get_bgm_tv_calendar() -> list:
     # bgm.tv now checks request User-Agent, and using default requests UA will be blocked
-    r = requests.get(
+    req = requests.get(
         'https://api.bgm.tv/calendar',
         headers={'user-agent': f'BGmi/{bgmi.__version__} https://github.com/BGmi/BGmi'}
     )
-    r = r.json()
+    r: dict = req.json()
     bangumi_tv_weekly_list = []
 
     for day in r:
@@ -110,7 +110,7 @@ def get_bgm_tv_calendar() -> list:
                 models.Bangumi(
                     name=normalize_path(html.unescape(name)),
                     cover=images.get('large', images.get('common')) or '',
-                    status=Bangumi.STATUS.UPDATING,
+                    status=BangumiStatus.UPDATING,
                     subject_id=item['id'],
                     update_time=day['weekday']['en'].capitalize(),
                     data_source={},
@@ -200,7 +200,7 @@ class DataSource:
         # :type data: dict
         """
         d = data.copy()
-        d.subtitle_group = ','.join(data.subtitle_group)
+        d.subtitle_group = ','.join(data.subtitle_group)  # type: ignore
         b, obj_created = BangumiItem.get_or_create(
             keyword=data.keyword, data_source_id=data.data_source_id, defaults=d.dict()
         )  # type: (BangumiItem, bool)
@@ -244,7 +244,7 @@ class DataSource:
         return weekly_list
 
     def get_maximum_episode(self, bangumi, ignore_old_row=True,
-                            max_page=MAX_PAGE) -> (dict, List[models.Episode]):
+                            max_page=_MAX_PAGE) -> Tuple[dict, List[models.Episode]]:
         """
 
         :type max_page: str
@@ -280,7 +280,7 @@ class DataSource:
     @staticmethod
     def fetch_episode(filter_obj: models.Followed, bangumi_obj: Bangumi,
                       max_page) -> List[models.Episode]:
-        response_data = []
+        response_data: List[dict] = []
 
         available_source: List[BangumiItem] = []
         for x in BangumiItem.select_by_bangumi_id(bangumi_obj.id):
@@ -302,7 +302,7 @@ class DataSource:
         if filter_obj.subtitle:
             subtitle_group = Subtitle.select_by_name_and_data_source(filter_obj.subtitle, source)
 
-            data_source_to_subtitle_group = defaultdict(set)
+            data_source_to_subtitle_group: DefaultDict[str, set] = defaultdict(set)
 
             for subtitle in subtitle_group:
                 data_source_to_subtitle_group[subtitle.data_source_id].add(subtitle.id)
@@ -405,7 +405,7 @@ def bind_bangumi_item_in_db_to_bangumi():
                & (Bangumi.status == Bangumi.STATUS.UPDATING)).execute()
 
 
-def enabled_data_source_id(data_source_id, followed: models.Followed = None):
+def enabled_data_source_id(data_source_id, followed: models.Followed):
 
     if data_source_id in config.DISABLED_DATA_SOURCE:
         return False

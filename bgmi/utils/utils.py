@@ -8,11 +8,11 @@ import struct
 import subprocess
 import tarfile
 import time
-from io import BytesIO
+from io import BytesIO, TextIOBase
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from shutil import move, rmtree
-from typing import TextIO, Union
+from typing import Union
 
 import requests
 from tornado import template
@@ -57,7 +57,7 @@ def print_warning(message, indicator=True):
 @disable_in_test
 @_indicator
 @colorize
-def print_error(message, exit_=True, indicator=True):
+def print_error(message, exit_: bool = True, indicator=True):
     logger.error(message)
 
     if exit_:
@@ -295,7 +295,7 @@ def exec_command(command: str) -> int:
     return status
 
 
-def render_template(path_or_file: Union[str, Path, TextIO], ctx: dict = None, **kwargs):
+def render_template(path_or_file: Union[str, Path, TextIOBase], ctx: dict = None, **kwargs):
     """
     read file content and render it as tornado template with kwargs or ctx
 
@@ -307,7 +307,8 @@ def render_template(path_or_file: Union[str, Path, TextIO], ctx: dict = None, **
     """
     if ctx and kwargs:
         raise ValueError('render_template and only be called with ctx or kwargs')
-    if hasattr(path_or_file, 'read'):
+    # if hasattr(path_or_file, 'read'):
+    if isinstance(path_or_file, TextIOBase):
         # input is a file
         content = path_or_file.read()
     else:

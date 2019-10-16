@@ -2,7 +2,7 @@ import os
 import time
 from collections import defaultdict
 from functools import reduce
-from typing import List
+from typing import Dict, List
 
 import bs4
 import requests
@@ -61,7 +61,7 @@ def parser_day_bangumi(soup):
 
 def parse_episodes_from_soup(soup: bs4.BeautifulSoup):
     container = soup.find('div', class_='central-container')  # type:bs4.Tag
-    subtitle_groups = defaultdict(lambda: defaultdict(list))
+    subtitle_groups: Dict[str, Dict[str, list]] = defaultdict(lambda: defaultdict(list))
     episode_container_list = {}
     for tag in container.contents:
         if hasattr(tag, 'attrs'):

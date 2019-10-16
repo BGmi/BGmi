@@ -246,7 +246,7 @@ def cover_has_downloaded(url: str) -> bool:
 
     """
     _, file_path = convert_cover_url_to_path(url)
-    return os.path.exists(file_path) and imghdr.what(file_path)
+    return os.path.exists(file_path) and bool(imghdr.what(file_path))
 
 
 @normal_cli.command(help='Print bangumi calendar.')
@@ -657,8 +657,10 @@ Email: ricterzheng@gmail.com
 Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END)
 
 
-@click.command(
-    cls=click.CommandCollection, sources=[meta_cli, normal_cli], invoke_without_command=True
+@click.command(  # type: ignore
+    cls=click.CommandCollection,
+    sources=[meta_cli, normal_cli],
+    invoke_without_command=True
 )
 @click.version_option(print_version())
 def cli():

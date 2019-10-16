@@ -2,7 +2,7 @@ import os
 import re
 from typing import List
 
-from bgmi.lib.models import Episode
+from bgmi.models import Episode
 
 
 def apply_regex(regex, episode_list: List[Episode]) -> List[Episode]:
