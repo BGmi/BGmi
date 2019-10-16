@@ -27,7 +27,7 @@ class Followed(BaseModel):
             bangumi_id=f.bangumi_id,
             episode=f.episode,
             status=f.status,
-            updated_time=f.updated_time,
+            updated_time=f.updated_time or 0,
             data_source=split_str_to_list(f.data_source),
             subtitle=split_str_to_list(f.subtitle),
             include=split_str_to_list(f.include),
