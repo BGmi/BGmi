@@ -4,9 +4,9 @@ from typing import List
 import stevedore
 import stevedore.exception
 
+from bgmi import models
 from bgmi.config import DOWNLOAD_DELEGATE, SAVE_PATH
 from bgmi.downloader.base import AuthError, BaseDownloadService, ConnectError, RequireNotSatisfied
-from bgmi.lib import models
 from bgmi.lib.constants import NameSpace
 from bgmi.lib.db_models import Download
 from bgmi.utils import normalize_path, print_error
@@ -20,7 +20,8 @@ def get_download_class(rpc_name) -> BaseDownloadService:
             invoke_on_load=True,
         ).driver
     except stevedore.exception.NoMatches:
-        print_error(f'unexpected delegate {rpc_name}')
+        print_error(f'unexpected delegate {rpc_name}', exit_=False)
+        exit(1)
 
 
 def download_prepare(name, data: List[models.Episode]):

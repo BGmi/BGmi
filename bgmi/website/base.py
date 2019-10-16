@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 
-from bgmi.lib.models import DataSourceItem, Subtitle
+from bgmi.models import DataSourceItem, Subtitle
 from bgmi.utils import parse_episode
 
 

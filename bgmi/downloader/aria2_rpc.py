@@ -1,6 +1,7 @@
 import xmlrpc.client
 from functools import wraps
 from types import FunctionType
+from typing import Callable
 from xmlrpc.client import ServerProxy
 
 from bgmi import config
@@ -26,7 +27,7 @@ def _unauthorized(func: FunctionType):
     return wrapped
 
 
-def _connect_error(func: FunctionType):
+def _connect_error(func: Callable):
     """
     wrap all exception to ConnectError
     """

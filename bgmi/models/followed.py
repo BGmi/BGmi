@@ -5,8 +5,8 @@ from pydantic import BaseModel
 from bgmi import config
 from bgmi.lib import db_models
 from bgmi.lib.db_models._tables import split_str_to_list
-from bgmi.lib.models import Episode
-from bgmi.lib.models.status import FollowedStatus
+from bgmi.models import Episode
+from bgmi.models.status import FollowedStatus
 from bgmi.utils.followed_filter import apply_regex
 
 
@@ -27,7 +27,7 @@ class Followed(BaseModel):
             bangumi_id=f.bangumi_id,
             episode=f.episode,
             status=f.status,
-            update_time=f.updated_time,
+            updated_time=f.updated_time,
             data_source=split_str_to_list(f.data_source),
             subtitle=split_str_to_list(f.subtitle),
             include=split_str_to_list(f.include),

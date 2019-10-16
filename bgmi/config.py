@@ -5,13 +5,14 @@ import platform
 import random
 import tempfile
 from functools import wraps
+# Detail URL
+# platform
+from typing import Dict
 
 import chardet
 
 # --------- Read-Only ---------- #
 
-# Detail URL
-# platform
 IS_WINDOWS = platform.system() == 'Windows'
 SHOW_WARNING = bool(os.getenv('DEV') or os.getenv('DEBUG'))
 SOURCE_ROOT = os.path.dirname(__file__)
@@ -31,7 +32,7 @@ __deluge__ = ('DELUGE_RPC_URL', 'DELUGE_RPC_PASSWORD')
 __download_delegate__ = __aria2__ + __transmission__ + __deluge__
 
 # fake __all__
-__all__ = (
+__fake_all__ = (
     'BANGUMI_MOE_URL',
     'SAVE_PATH',
     'DOWNLOAD_DELEGATE',
@@ -65,12 +66,12 @@ __readonly__ = (
 )
 
 # writeable
-__writeable__ = tuple(i for i in __all__ if i not in __readonly__)
+__writeable__ = tuple(i for i in __fake_all__ if i not in __readonly__)
 
 # the real __all__
-__all__ = __all__ + __download_delegate__ + __readonly__
+__all__ = list(__fake_all__ + __download_delegate__ + __readonly__)
 
-DOWNLOAD_DELEGATE_MAP = {
+DOWNLOAD_DELEGATE_MAP: Dict[str, tuple] = {
     'aria2-rpc': __aria2__,
     'transmission-rpc': __transmission__,
     'deluge-rpc': __deluge__,
@@ -105,10 +106,10 @@ def get_config_parser_and_read() -> configparser.ConfigParser:
         with open(CONFIG_FILE_PATH, 'r', encoding='utf-8') as f:
             content = f.read()
     except UnicodeDecodeError:
-        with open(CONFIG_FILE_PATH, 'rb') as f:
-            content = f.read()
-        encoding = chardet.detect(content)
-        content = content.decode(encoding.get('encoding'))
+        with open(CONFIG_FILE_PATH, 'rb') as fb:
+            byte_content = fb.read()
+        encoding = chardet.detect(byte_content)
+        content = byte_content.decode(encoding.get('encoding'))
 
     c = configparser.ConfigParser()
     c.read_string(content)
@@ -152,7 +153,6 @@ def read_config():
 def read_keywords_weight_section(c: configparser.ConfigParser):
     section = 'keyword weight'
     try:
-        KEYWORDS_WEIGHT.update(dict(c.items(section)))
         for key, value in c.items(section):
             try:
                 KEYWORDS_WEIGHT[key] = int(value)
@@ -342,7 +342,7 @@ ENABLE_GLOBAL_FILTER = '1'
 # use tornado serving video files
 TORNADO_SERVE_STATIC_FILES = '0'
 
-KEYWORDS_WEIGHT = {}
+KEYWORDS_WEIGHT: Dict[str, int] = {}
 
 # ------------------------------ #
 # !!! Read config from file and write to globals() !!!

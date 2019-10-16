@@ -5,12 +5,12 @@ import time
 import traceback
 from collections import defaultdict
 from importlib.machinery import SourceFileLoader
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import stevedore.exception
 
+from bgmi import models
 from bgmi.config import MAX_PAGE, SCRIPT_PATH
-from bgmi.lib import models
 from bgmi.lib.db_models import Followed, Scripts
 from bgmi.utils import print_info, print_success, print_warning
 from bgmi.website import get_all_provider, get_provider
@@ -18,8 +18,8 @@ from bgmi.website import get_all_provider, get_provider
 
 class ScriptRunner:
     _defined = None
-    scripts = []
-    download_queue = []
+    scripts: List['ScriptBase'] = []
+    download_queue: List[models.Episode] = []
 
     def __new__(cls, *args, **kwargs):
         if cls._defined is None:
@@ -62,10 +62,11 @@ class ScriptRunner:
 
         return True
 
-    def get_model(self, name: str) -> Scripts:
+    def get_model(self, name: str) -> Optional[Scripts]:
         for script in self.scripts:
             if script.Model.bangumi_name == name:
                 return script.Model().obj
+        return None
 
     def get_models_dict(self) -> List[dict]:
         return [dict(script.Model()) for script in self.scripts if script.bangumi_name is not None]
@@ -80,7 +81,7 @@ class ScriptRunner:
         } for k, v in script.get_download_url().items()]
 
     def run(self, return_=True) -> Dict[str, List[models.Episode]]:
-        container = defaultdict(list)
+        container: Dict[str, list] = defaultdict(list)
         for script in self.scripts:
             print_info(f'fetching {script.bangumi_name} ...')
             download_item = self.make_dict(script)
@@ -104,7 +105,7 @@ class ScriptRunner:
             script_obj.updated_time = int(time.time())
             script_obj.save()
 
-            download_queue = []
+            download_queue: List[models.Episode] = []
             for i in episode_range:
                 for e in download_item:
                     if i == e['episode']:
@@ -122,7 +123,7 @@ class ScriptRunner:
 
 class ScriptBase:
     class Model:
-        obj = None
+        obj: Scripts
 
         # data
         bangumi_name = None
@@ -131,7 +132,7 @@ class ScriptBase:
         due_date = None
 
         # source
-        source = None
+        source: str
 
         # fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
         bangumi_id = None

@@ -5,7 +5,7 @@ import shutil
 import unittest.mock
 from pathlib import Path
 from types import SimpleNamespace
-from typing import List
+from typing import Any, Dict, List
 from unittest.mock import Mock, patch
 
 import bgmi
@@ -15,7 +15,7 @@ from bgmi.lib import constants
 from bgmi.utils import utils as inner_utils
 from bgmi.utils.utils import FRONTEND_NPM_URL, PACKAGE_JSON_URL
 
-mock_kv_data = {}
+mock_kv_data: Dict[str, Any] = {}
 
 
 def get_kv_storage():

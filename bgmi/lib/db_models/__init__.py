@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import List
+from typing import DefaultDict, List, TypeVar, Union
 
 import peewee as pw
 from playhouse.shortcuts import model_to_dict
@@ -11,9 +11,11 @@ from ._kv import get_kv_storage
 
 DoesNotExist = pw.DoesNotExist
 
+M = TypeVar('M', bound=Union[dict, pw.Model])
 
-def order_by_weekday(data, obj=False) -> defaultdict:
-    weekly_list = defaultdict(list)
+
+def order_by_weekday(data: List[M], obj=False) -> DefaultDict[str, List[M]]:
+    weekly_list: DefaultDict[str, List[M]] = defaultdict(list)
     for bangumi_item in data:
         if obj:
             weekly_list[bangumi_item.update_time.lower()].append(bangumi_item)
@@ -25,8 +27,9 @@ def order_by_weekday(data, obj=False) -> defaultdict:
 def get_updating_bangumi_with_out_data_source(status=None, order=True):
     common_cond = ((Bangumi.status == Bangumi.STATUS.UPDATING) & (Bangumi.has_data_source == 1))
 
-    query = Bangumi.select(Followed.status, Followed.episode, Bangumi) \
-        .join(Followed, pw.JOIN.LEFT_OUTER, on=(Bangumi.id == Followed.bangumi_id))
+    query = Bangumi.select(Followed.status, Followed.episode, Bangumi).join(
+        Followed, pw.JOIN.LEFT_OUTER, on=(Bangumi.id == Followed.bangumi_id)
+    )
 
     if status is None:
         data = query.where(common_cond)

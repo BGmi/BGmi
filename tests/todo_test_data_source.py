@@ -1,6 +1,6 @@
 from unittest import TestCase, mock
 
-from bgmi.lib.models import Episode
+from bgmi.models import Episode
 from bgmi.website import DataSource
 from bgmi.website.base import BaseWebsite
 # from .mock_websites import MockDateSource

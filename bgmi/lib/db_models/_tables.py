@@ -4,7 +4,7 @@ import os
 import time
 from collections import defaultdict
 from enum import IntEnum
-from typing import Dict, Iterator, List, Union
+from typing import DefaultDict, Dict, Iterator, List, Union
 
 import peewee as pw
 from playhouse.shortcuts import model_to_dict
@@ -12,7 +12,7 @@ from playhouse.shortcuts import model_to_dict
 from bgmi import config
 from bgmi.lib.constants import SECOND_OF_WEEK
 
-from ._db import FuzzyMixIn, NeoDB, db
+from ._db import NeoDB, db
 
 BANGUMI_NAME_MAX_LENGTH = 255
 DATA_SOURCE_ID_MAX_LENGTH = 30
@@ -95,7 +95,7 @@ class BangumiItem(pw.Model):
         return cls.select().where(cls.bangumi_id == bangumi_id)
 
 
-class Bangumi(FuzzyMixIn, NeoDB):
+class Bangumi(NeoDB):
     """
     bangumi mainline table
 
@@ -137,7 +137,7 @@ class Bangumi(FuzzyMixIn, NeoDB):
             .execute()  # do not mark updating bangumi as Bangumi.STATUS.END
 
     @classmethod
-    def get_updating_bangumi(cls, status=None, order=True, obj=False) -> Dict:
+    def get_updating_bangumi(cls, status=None, order=True, obj=False) -> Union[Dict, list]:
         base_cond = (cls.status == cls.STATUS.UPDATING)
         query = cls.select(Followed.status, Followed.episode, cls).join(
             Followed, pw.JOIN['LEFT_OUTER'], on=(cls.id == Followed.bangumi_id)
@@ -151,11 +151,12 @@ class Bangumi(FuzzyMixIn, NeoDB):
             data = data.dicts()
 
         if order:
-            weekly_list = defaultdict(list)
+            # weekly_list: Dict[str, List[BangumiItem]] = defaultdict(list)
+            weekly_list: DefaultDict[str, list] = defaultdict(list)
             for bangumi_item in data:
                 weekly_list[bangumi_item['update_time'].lower()].append(dict(bangumi_item))
         else:
-            weekly_list = list(data)
+            return list(data)
 
         return weekly_list
 

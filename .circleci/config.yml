@@ -11,7 +11,7 @@ workflows:
           requires:
             - prepare
 
-      - test_downloader:
+      - test-downloader:
           requires:
             - prepare
 
@@ -26,21 +26,21 @@ workflows:
       - build-docker:
           requires:
             - unittest
-            - test_downloader
+            - test-downloader
             - test-sqlite
             - test-mysql
 
       - build-docs:
           requires:
             - unittest
-            - test_downloader
+            - test-downloader
             - test-sqlite
             - test-mysql
 
       - build-binary:
           requires:
             - unittest
-            - test_downloader
+            - test-downloader
             - test-sqlite
             - test-mysql
 
@@ -111,6 +111,9 @@ jobs:
       - run:
           name: Code Style
           command: pre-commit run --all-files
+      - run:
+          name: Mypy
+          command: mypy bgmi
 
       - *save_pip_cache
 
@@ -131,7 +134,7 @@ jobs:
 
       - *upload_codecov_report
 
-  test_downloader:
+  test-downloader:
     docker:
       - image: circleci/python:3.6
       - image: linuxserver/deluge
@@ -207,15 +210,17 @@ jobs:
   test-mysql:
     docker:
       - image: circleci/python:3.6
-      - image: mysql:5.7
-        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+      - image: mysql:5.7.27
+        # fuck 5.7.28, maybe 5.7.29 will work on CircleCI again
+        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --explicit_defaults_for_timestamp=on
         environment:
-          MYSQL_USER: root
-          MYSQL_ROOT_PASSWORD: root_password
+          MYSQL_USER: bgmi_user
+          MYSQL_PASSWORD: bgmi_user_password
           MYSQL_DATABASE: bgmi
+          MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
 
     environment:
-      BGMI_DB_URL: mysql://root:root_password@127.0.0.1:3306/bgmi?charset=utf8mb4
+      BGMI_DB_URL: mysql://bgmi_user:bgmi_user_password@127.0.0.1:3306/bgmi?charset=utf8mb4
       DB_SQL_PATH: /home/circleci/data/db.sql
 
     steps:
@@ -232,7 +237,7 @@ jobs:
               do
                 nc -z 127.0.0.1 3306 && echo Success && exit 0
                 echo -n .
-                sleep 0.1
+                sleep 1
               done
             echo Failed waiting for MySQL && exit 1
 

@@ -10,7 +10,7 @@ class BangumiItem(BaseModel):
     id: int
     name: str
     cover: str
-    status: BangumiStatus = 0
+    status: BangumiStatus = BangumiStatus.UPDATING
     update_time: UpdateTime
     subtitle_group: List[str]
     keyword: str

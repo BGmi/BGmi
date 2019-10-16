@@ -51,12 +51,12 @@ def chinese_to_arabic(cn: str) -> int:
     ldig = []  # digest
     for cndig in reversed(cn):
         if cndig in CN_UNIT:
-            unit = CN_UNIT.get(cndig)
+            unit = CN_UNIT.get(cndig, 0)
             if unit in (10000, 100000000):
                 ldig.append(unit)
                 unit = 1
         else:
-            dig = CN_NUM.get(cndig)
+            dig = CN_NUM.get(cndig, 0)
             if unit:
                 dig *= unit
                 unit = 0
