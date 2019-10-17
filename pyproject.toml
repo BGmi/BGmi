@@ -72,7 +72,7 @@ sphinxcontrib-openapi='0.5.0'
 sphinx_issues='1.2.0'
 pyinstaller = "3.5"
 codecov = "^2.0.15"
-mypy = '0.730'
+mypy = '0.740'
 
 
 [tool.poetry.extras]
