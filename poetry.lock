@@ -617,7 +617,7 @@ description = "pytest: simple powerful testing with Python"
 name = "pytest"
 optional = false
 python-versions = ">=3.5"
-version = "5.2.0"
+version = "5.2.1"
 
 [package.dependencies]
 atomicwrites = ">=1.0"
@@ -1050,7 +1050,7 @@ more-itertools = "*"
 mysql = ["pymysql"]
 
 [metadata]
-content-hash = "31661960826060a678eb470cea9a72beb9a1fba27cccfcff92a7e804d1362528"
+content-hash = "8e9e7f4e9061d90a47cb82b651a6d604e02180961a2c95fabe8b43096c24235a"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -1115,7 +1115,7 @@ pyinstaller = ["ee7504022d1332a3324250faf2135ea56ac71fdb6309cff8cd235de26b1d0a96
 pymysql = ["3943fbbbc1e902f41daf7f9165519f140c4451c179380677e6a848587042561a", "d8c059dcd81dedb85a9f034d5e22dcb4442c0b201908bede99e306d65ea7c8e7"]
 pyparsing = ["6f98a7b9397e206d78cc01df10131398f1c8b8510a2f4d97d9abd82e1aacdd80", "d9338df12903bbf5d65a0e4e87c2161968b10d2e489652bb47001d82a9b028b4"]
 pyrsistent = ["34b47fa169d6006b32e99d4b3c4031f155e6e68ebcc107d6454852e8e0ee6533"]
-pytest = ["13c1c9b22127a77fc684eee24791efafcef343335d855e3573791c68588fe1a5", "d8ba7be9466f55ef96ba203fc0f90d0cf212f2f927e69186e1353e30bc7f62e5"]
+pytest = ["7e4800063ccfc306a53c461442526c5571e1462f61583506ce97e4da6a1d88c8", "ca563435f4941d0cb34767301c27bc65c510cb82e90b9ecf9cb52dc2c63caaa0"]
 python-dateutil = ["7e6584c74aeed623791615e26efd690f29817a27c73085b78e4bad02493df2fb", "c89805f6f4d64db21ed966fda138f8a5ed7a4fdbc1a8ee329ce1b74e3c74da9e"]
 pytz = ["1c557d7d0e871de1f5ccd5833f60fb2550652da6be2693c1e02300743d21500d", "b02c06db6cf09c12dd25137e563b31700d3b80fcc4ad23abb7a315f2789819be"]
 pyupgrade = ["016ca25d9233c0abc09577981580a5f96a15f34b9d955d6dd40f709f5065c946", "e8984d5c5b4c509b111720d73d85caa5fc75c90b37609b037d19b25b5b3c9eb5"]
