@@ -45,7 +45,7 @@ pydantic = "0.32.2"
 pymysql = {version = "0.9.3", optional = true}
 
 [tool.poetry.dev-dependencies]
-pytest = "=5.2.0"
+pytest = "=5.2.1"
 faker = "2.0.3"
 isort = "4.3.21"
 mock = "3.0.5"
