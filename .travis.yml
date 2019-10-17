@@ -1,5 +1,10 @@
 language: python
 
+branches:
+  only:
+  - master
+  - dev
+
 python:
   - "3.6"
 
