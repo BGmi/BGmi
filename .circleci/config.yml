@@ -238,7 +238,7 @@ jobs:
 
       - run:
           name: Unittest
-          command: coverage run -m pytest tests/test_db_models.py
+          command: coverage run -m pytest tests/test_db_models.py --junitxml=$HOME/junit/test_report.xml
 
       - *store_test_result
       - *upload_codecov_report
