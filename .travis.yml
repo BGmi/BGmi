@@ -2,8 +2,8 @@ language: python
 
 branches:
   only:
-  - master
-  - dev
+    - master
+    - dev
 
 python:
   - "3.6"
@@ -94,8 +94,15 @@ install:
   - ./.ci/install.bash
 
 script:
+  - export DB_SQL_PATH=~/data/db.sql
+
   - bash .ci/script.bash
 
+  - |
+    bash ./.ci/command_test.bash
+
+    codecov --flags command > /dev/null
+    rm .coverage codecov.yml -f||true
 
 after_success:
   - codecov

@@ -7,7 +7,6 @@ pip freeze
 
 mkdir -p ~/data
 curl -L https://github.com/BGmi/BGmi/releases/download/test-data/data-1.sql -o ~/data/db.sql
-export DB_SQL_PATH=~/data/db.sql
 
 coverage run -a -m bgmi install --no-web
 
@@ -22,10 +21,4 @@ bash tests/init_env_and_run_unit_test.sh test_controllers
 cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
 
 codecov --flags unittest > /dev/null
-rm .coverage codecov.yml -f||true
-
-chmod +x .ci/command_test.bash
-./.ci/command_test.bash
-
-codecov --flags command > /dev/null
 rm .coverage codecov.yml -f||true
