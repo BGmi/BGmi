@@ -1,48 +1,78 @@
 version: 2.1
 
+workflow-aliases:
+  require-test: &require-test
+      - unittest
+      - test-downloader
+      - test-sqlite
+      - test-mysql
+
+  after-build: &after-build
+    - build-docker
+    - build-docs
+    - build-binary
+    - build-docs
+  on-tag: &on-tag
+    tags:
+      only: /.*/
+
 workflows:
   version: 2
   main:
     jobs:
 
-      - prepare
+      - prepare:
+          filters: *on-tag
 
       - unittest:
+          filters: *on-tag
           requires:
             - prepare
 
       - test-downloader:
+          filters: *on-tag
           requires:
             - prepare
 
       - test-sqlite:
+          filters: *on-tag
           requires:
             - prepare
 
       - test-mysql:
+          filters: *on-tag
           requires:
             - prepare
 
+      - build-binary:
+          filters: *on-tag
+          requires: *require-test
+
       - build-docker:
-          requires:
-            - unittest
-            - test-downloader
-            - test-sqlite
-            - test-mysql
+          filters: *on-tag
+          requires: *require-test
 
       - build-docs:
-          requires:
-            - unittest
-            - test-downloader
-            - test-sqlite
-            - test-mysql
+          filters: *on-tag
+          requires: *require-test
 
-      - build-binary:
-          requires:
-            - unittest
-            - test-downloader
-            - test-sqlite
-            - test-mysql
+      - deploy-docs:
+          requires: *after-build
+
+          filters:
+            tags:
+              only: /v.*/
+            branches:
+              ignore: /.*/
+
+      - deploy-binary:
+          requires: *after-build
+
+          filters:
+            tags:
+              only: /v.*/
+            branches:
+              ignore: /.*/
 
 aliases:
   restore_pip_cache: &restore_pip_cache
@@ -89,6 +119,9 @@ aliases:
       paths:
         - /home/circleci/data
 
+  store_test_result: &store_test_result
+    store_test_results:
+      path: ~/junit
 
 
 jobs:
@@ -130,8 +163,9 @@ jobs:
 
       - run:
           name: Unittest
-          command: coverage run -m pytest bgmi --ignore=bgmi/downloader
+          command: coverage run -m pytest bgmi --ignore=bgmi/downloader --junitxml=$HOME/junit/test_report.xml
 
+      - *store_test_result
       - *upload_codecov_report
 
   test-downloader:
@@ -175,12 +209,13 @@ jobs:
 
       - run:
           name: test downloader
-          command: coverage run -m pytest bgmi/downloader
+          command: coverage run -m pytest bgmi/downloader --junitxml=$HOME/junit/test_report.xml
           environment:
             BGMI_TRANSMISSION_RPC_URL: "http://transmission-rpc-username:example-rpc-password\
             @127.0.0.1:9091/transmission/rpc"
             BGMI_ARIA2_RPC_TOKEN: token:aria2-rpc-secret
 
+      - *store_test_result
       - *upload_codecov_report
 
   test-sqlite:
@@ -205,6 +240,7 @@ jobs:
           name: Unittest
           command: coverage run -m pytest tests/test_db_models.py
 
+      - *store_test_result
       - *upload_codecov_report
 
   test-mysql:
@@ -248,28 +284,11 @@ jobs:
 
       - run:
           name: Unittest
-          command: coverage run -m pytest tests/test_db_models.py
+          command: coverage run -m pytest tests/test_db_models.py --junitxml=$HOME/junit/test_report.xml
 
+      - *store_test_result
       - *upload_codecov_report
 
-
-
-  build-docs:
-    docker:
-      - image: circleci/python:3.6
-    steps:
-      - checkout
-      - *restore_pip_cache
-      - *restore_test_data_cache
-      - *install_pip_deps
-
-      - run:
-          name: build docs
-          command: |
-            cd docs
-            make html
-
-      - *upload_codecov_report
 
   build-docker:
     docker:
@@ -288,6 +307,51 @@ jobs:
           name: Test Docker Command
           command: docker run -v $HOME/.bgmi:/bgmi --net host bgmi install
 
+  build-docs:
+    docker:
+      - image: circleci/python:3.6
+    steps:
+      - checkout
+      - *restore_pip_cache
+      - *restore_test_data_cache
+      - *install_pip_deps
+
+      - run:
+          name: build docs
+          command: |
+            cd docs
+            make html
+
+      - persist_to_workspace:
+          root: docs/build
+          paths: html
+
+      - *upload_codecov_report
+
+  deploy-docs:
+    docker:
+      - image: node:lts
+    steps:
+      - checkout
+      - attach_workspace:
+          at: docs/build
+      - run:
+          name: Install and configure dependencies
+          command: |
+            npm install -g --silent gh-pages@2.0.1
+            git config user.email "circleci@bgmi.github.io"
+            git config user.name "circleci"
+
+      - add_ssh_keys:
+          fingerprints:
+            - "59:ad:fd:64:71:eb:81:01:6a:d7:1a:c9:0c:19:39:af"
+
+      - run:
+          name: Deploy docs to gh-pages branch
+          command: |
+            gh-pages --dotfiles --message "[skip ci] Updates" --dist docs/build/html \
+                --repo https://$DOCKER_PASS@github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git
+
   build-binary:
     docker:
       - image: circleci/python:3.6
@@ -299,10 +363,33 @@ jobs:
 
       - run:
           name: build binary
-          command: pyinstaller .ci/bgmi.spec --distpath ./dist/binary/
+          command: pyinstaller .ci/bgmi.spec --distpath ./dist/binary/ -n bgmi-$(uname -s)-$(uname -m)
 
       - store_artifacts:
-          path: /home/circleci/project/dist/binary/bgmi
-          destination: bgmi-linux-amd64
+          path: /home/circleci/project/dist/binary/bgmi-Linux-x86_64
+          destination: bgmi-Linux-x86_64
+
+      - persist_to_workspace:
+          root: dist
+          paths: binary
 
       - *upload_codecov_report
+
+  deploy-binary:
+    docker:
+      - image: circleci/golang:1.12
+
+    steps:
+      - checkout
+
+      - attach_workspace:
+          at: ./dist
+
+      - run:
+          name: Install release tool
+          command: go get github.com/tcnksm/ghr
+
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            ghr -t ${DOCKER_PASS} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${CIRCLE_TAG} ./dist/binary/
