@@ -2,10 +2,10 @@ version: 2.1
 
 workflow-aliases:
   require-test: &require-test
-      - unittest
-      - test-downloader
-      - test-sqlite
-      - test-mysql
+    - unittest
+    - test-downloader
+    - test-sqlite
+    - test-mysql
 
   after-build: &after-build
     - build-docker
@@ -15,6 +15,13 @@ workflow-aliases:
   on-tag: &on-tag
     tags:
       only: /.*/
+
+  on-tag-version: &on-tag-version
+    tags:
+      only: /v.*/
+    branches:
+      ignore: /.*/
+
 
 workflows:
   version: 2
@@ -58,21 +65,11 @@ workflows:
 
       - deploy-docs:
           requires: *after-build
-
-          filters:
-            tags:
-              only: /v.*/
-            branches:
-              ignore: /.*/
+          filters: *on-tag-version
 
       - deploy-binary:
           requires: *after-build
-
-          filters:
-            tags:
-              only: /v.*/
-            branches:
-              ignore: /.*/
+          filters: *on-tag-version
 
 aliases:
   restore_pip_cache: &restore_pip_cache
@@ -361,9 +358,13 @@ jobs:
       - *restore_test_data_cache
       - *install_pip_deps
 
+      - run: sudo apt-get install upx-ucl
+
       - run:
           name: build binary
-          command: pyinstaller .ci/bgmi.spec --distpath ./dist/binary/ -n bgmi-$(uname -s)-$(uname -m)
+          command: |
+            pyinstaller .ci/bgmi.spec --distpath ./dist/binary/
+            mv ./dist/binary/bgmi ./dist/binary/bgmi-$(uname -s)-$(uname -m)
 
       - store_artifacts:
           path: /home/circleci/project/dist/binary/bgmi-Linux-x86_64

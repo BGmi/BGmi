@@ -635,29 +635,6 @@ version = ">=0.12"
 
 [[package]]
 category = "dev"
-description = "A custom jest-pytest oriented Pytest reporter"
-name = "pytest-jest"
-optional = false
-python-versions = "*"
-version = "0.3.0"
-
-[package.dependencies]
-pytest = ">=3.3.2"
-pytest-metadata = "*"
-
-[[package]]
-category = "dev"
-description = "pytest plugin for test session metadata"
-name = "pytest-metadata"
-optional = false
-python-versions = "*"
-version = "1.8.0"
-
-[package.dependencies]
-pytest = ">=2.9.0"
-
-[[package]]
-category = "dev"
 description = "pytest plugin to re-run tests to eliminate flaky failures"
 name = "pytest-rerunfailures"
 optional = false
@@ -1084,7 +1061,7 @@ more-itertools = "*"
 mysql = ["pymysql"]
 
 [metadata]
-content-hash = "c6c62a968539b413c155f456c5101aa9189dc2545a27aa08537d92aafde1e6db"
+content-hash = "86020c3bcac3ac5d18463875f63b8820ca70b75b4f48fe703b9e7b0f76ee4f51"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -1150,8 +1127,6 @@ pymysql = ["3943fbbbc1e902f41daf7f9165519f140c4451c179380677e6a848587042561a", "
 pyparsing = ["6f98a7b9397e206d78cc01df10131398f1c8b8510a2f4d97d9abd82e1aacdd80", "d9338df12903bbf5d65a0e4e87c2161968b10d2e489652bb47001d82a9b028b4"]
 pyrsistent = ["34b47fa169d6006b32e99d4b3c4031f155e6e68ebcc107d6454852e8e0ee6533"]
 pytest = ["7e4800063ccfc306a53c461442526c5571e1462f61583506ce97e4da6a1d88c8", "ca563435f4941d0cb34767301c27bc65c510cb82e90b9ecf9cb52dc2c63caaa0"]
-pytest-jest = ["5b772232626a366a722b9ed01421f6c1d4d3b2d122c3edb0dd98c09798b00624", "7d7379fc7a238c98805ace1b869bd7c9ab35ead34f187c7cf35af2733034ac53"]
-pytest-metadata = ["2071a59285de40d7541fde1eb9f1ddea1c9db165882df82781367471238b66ba", "c29a1fb470424926c63154c1b632c02585f2ba4282932058a71d35295ff8c96d"]
 pytest-rerunfailures = ["1180a0f98975e1e1a2e055c87c1159cbd3bace8ceb71b1e7ffe4ace6121e7801", "f3c9cf31339bf87b048c09dadb633a81156fa4899527fffc55cde105d04ed5fd"]
 python-dateutil = ["7e6584c74aeed623791615e26efd690f29817a27c73085b78e4bad02493df2fb", "c89805f6f4d64db21ed966fda138f8a5ed7a4fdbc1a8ee329ce1b74e3c74da9e"]
 pytz = ["1c557d7d0e871de1f5ccd5833f60fb2550652da6be2693c1e02300743d21500d", "b02c06db6cf09c12dd25137e563b31700d3b80fcc4ad23abb7a315f2789819be"]
