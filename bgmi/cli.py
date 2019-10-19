@@ -14,7 +14,7 @@ import requests
 import bgmi.setup
 import bgmi.utils
 import bgmi.website
-from bgmi import __version__, config
+from bgmi import __author__, __email__, __version__, config
 from bgmi.lib import constants, controllers
 from bgmi.lib.constants import DOWNLOAD_CHOICE_LIST_DICT, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS
 from bgmi.lib.constants.actions import ACTIONS
@@ -650,11 +650,14 @@ def print_filter(followed_filter_obj: Followed):
 
 
 def print_version():
-    return '''BGmi %sver. %s%s built by %sRicterZ%s with ❤️
+    return '''{}{}{}
+built by {}{}{} with ❤️
 
 Github: https://github.com/BGmi/BGmi
-Email: ricterzheng@gmail.com
-Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END)
+Email: {}
+Blog: https://ricterz.me'''.format(
+        YELLOW, __version__, COLOR_END, YELLOW, __author__, COLOR_END, __email__
+    )
 
 
 @click.command(  # type: ignore
@@ -662,6 +665,6 @@ Blog: https://ricterz.me''' % (YELLOW, __version__, COLOR_END, YELLOW, COLOR_END
     sources=[meta_cli, normal_cli],
     invoke_without_command=True
 )
-@click.version_option(print_version())
+@click.version_option(print_version(), prog_name='BGmi', message='%(prog)s version %(version)s')
 def cli():
     pass

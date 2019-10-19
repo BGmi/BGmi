@@ -1,59 +1,57 @@
 version: 2.1
 
-workflow-aliases:
-  require-test: &require-test
-    - unittest
-    - test-downloader
-    - test-sqlite
-    - test-mysql
-
-  after-build: &after-build
-    - build-docker
-    - build-docs
-    - build-binary
-    - build-docs
-  on-tag: &on-tag
-    tags:
-      only: /.*/
-
-  on-tag-version: &on-tag-version
-    tags:
-      only: /v.*/
-    branches:
-      ignore: /.*/
-
-
 workflows:
   version: 2
   main:
     jobs:
+      - prepare-py36:
+          filters: &on-tag
+            tags:
+              only: /.*/
 
-      - prepare:
+      - prepare-py37:
           filters: *on-tag
 
-      - unittest:
+      - prepare-py38:
+          filters: *on-tag
+
+      - unittest-py36:
           filters: *on-tag
           requires:
-            - prepare
+            - prepare-py36
+
+      - unittest-py37:
+          filters: *on-tag
+          requires:
+            - prepare-py37
+
+      - unittest-py38:
+          filters: *on-tag
+          requires:
+            - prepare-py38
 
       - test-downloader:
           filters: *on-tag
           requires:
-            - prepare
+            - prepare-py36
 
       - test-sqlite:
           filters: *on-tag
           requires:
-            - prepare
+            - prepare-py36
 
       - test-mysql:
           filters: *on-tag
           requires:
-            - prepare
+            - prepare-py36
 
       - build-binary:
           filters: *on-tag
-          requires: *require-test
+          requires: &require-test
+            - unittest-py36
+            - test-downloader
+            - test-sqlite
+            - test-mysql
 
       - build-docker:
           filters: *on-tag
@@ -64,79 +62,65 @@ workflows:
           requires: *require-test
 
       - deploy-docs:
+          requires: &after-build
+            - build-docker
+            - build-docs
+            - build-binary
+            - build-docs
+
+          filters: &on-tag-version
+            tags:
+              only: /v.*/
+            branches:
+              ignore: /.*/
+
+      - deploy-linux-binary:
           requires: *after-build
           filters: *on-tag-version
-
-      - deploy-binary:
-          requires: *after-build
-          filters: *on-tag-version
-
-aliases:
-  restore_pip_cache: &restore_pip_cache
-    restore_cache:
-      keys:
-        - pip-v1-{{ .Branch }}-{{ checksum ".pre-commit-config.yaml" }}-{{ checksum "poetry.lock" }}
-
-  install_pip_deps: &install_pip_deps
-    run:
-      name: Install Dependencies
-      command: |
-        pip install --user toml==0.10.0
-        python .circleci/export_requirements.py --all
-        pip install --user --require-hashes --no-deps -r requirements.txt
-        poetry config settings.virtualenvs.create false
-        PIP_USER=1 poetry install
-
-  save_pip_cache: &save_pip_cache
-    save_cache:
-      key: pip-v1-{{ .Branch }}-{{ checksum ".pre-commit-config.yaml" }}-{{ checksum "poetry.lock" }}
-      paths:
-        - /home/circleci/.cache/pip
-        - /home/circleci/.cache/pypoetry
-        - /home/circleci/.cache/pre-commit
-        - /home/circleci/.local/bin
-        - /home/circleci/.local/lib/python3.6/site-packages
-
-  upload_codecov_report: &upload_codecov_report
-    run:
-      when: on_success
-      name: Upload Coverage Report
-      command: codecov
-
-  restore_test_data_cache: &restore_test_data_cache
-    restore_cache:
-      keys:
-        - test-data-{{ .Branch }}-{{ checksum ".circleci/test-data-version" }}
-        - test-data-{{ .Branch }}-
-        - test-data-
-
-  save_test_data_cache: &save_test_data_cache
-    save_cache:
-      key: test-data-{{ .Branch }}-{{ checksum ".circleci/test-data-version" }}
-      paths:
-        - /home/circleci/data
-
-  store_test_result: &store_test_result
-    store_test_results:
-      path: ~/junit
-
 
 jobs:
-  prepare:
+  prepare-py36: &prepare-template
     docker:
       - image: circleci/python:3.6
+
     steps:
       - checkout # check out the code in the project directory
-      - *restore_pip_cache
-      - *install_pip_deps
+      - run: &echo-py-version
+          name: Echo Python Version
+          command: python --version | tee _PY_VERSION
+      - restore_cache: &restore_pip_cache
+          keys:
+            - pip-{{ checksum "_PY_VERSION" }}-{{ checksum ".pre-commit-config.yaml" }}-{{ checksum "poetry.lock" }}
+            - pip-{{ checksum "_PY_VERSION" }}-{{ checksum ".pre-commit-config.yaml" }}-
+            - pip-{{ checksum "_PY_VERSION" }}-
 
-      - *restore_test_data_cache
+
+      - run: &install_pip_deps
+          name: Install Dependencies
+          command: |
+            pip install --user toml==0.10.0
+            python .circleci/export_requirements.py --all
+            pip install --user --require-hashes --no-deps -q -r requirements.txt
+            poetry config settings.virtualenvs.create false
+            PIP_USER=1 poetry install
+
+
+      - restore_cache: &restore_test_data_cache
+          keys:
+            - test-data-{{ .Branch }}-{{ checksum ".circleci/test-data-version" }}
+            - test-data-{{ .Branch }}-
+            - test-data-
+
       - run:
           name: get test data
           command: |
             mkdir -p ~/data
             curl -L https://github.com/BGmi/BGmi/releases/download/test-data/data-1.sql -o ~/data/db.sql
-      - *save_test_data_cache
+
+      - save_cache:
+          key: test-data-{{ .Branch }}-{{ checksum ".circleci/test-data-version" }}
+          paths:
+            - /home/circleci/data
 
       - run:
           name: Code Style
@@ -145,25 +129,57 @@ jobs:
           name: Mypy
           command: mypy bgmi
 
-      - *save_pip_cache
+      - save_cache:
+          key: pip-{{ checksum "_PY_VERSION" }}-{{ checksum ".pre-commit-config.yaml" }}-{{ checksum "poetry.lock" }}
+          paths:
+            - /home/circleci/.cache/pip
+            - /home/circleci/.cache/pypoetry
+            - /home/circleci/.cache/pre-commit
+            - /home/circleci/.local
 
-  unittest:
+  prepare-py37:
+    <<: *prepare-template
+    docker:
+      - image: circleci/python:3.7
+
+  prepare-py38:
+    <<: *prepare-template
+    docker:
+      - image: circleci/python:3.8
+
+  unittest-py36: &unittest-template
     docker:
       - image: circleci/python:3.6
 
     steps:
       - checkout # check out the code in the project directory
-      - *restore_pip_cache
-      - *restore_test_data_cache
-      - *install_pip_deps
+      - run: *echo-py-version
+      - restore_cache: *restore_pip_cache
+      - restore_cache: *restore_test_data_cache
+      - run: *install_pip_deps
 
 
       - run:
           name: Unittest
-          command: coverage run -m pytest bgmi --ignore=bgmi/downloader --junitxml=$HOME/junit/test_report.xml
+          command: coverage run -m pytest bgmi --ignore=bgmi/downloader
 
-      - *store_test_result
-      - *upload_codecov_report
+      - store_test_results: &store_test_result
+          path: ~/junit
+
+      - run: &upload_codecov_report
+          when: on_success
+          name: Upload Coverage Report
+          command: codecov
+
+  unittest-py37:
+    <<: *unittest-template
+    docker:
+      - image: circleci/python:3.7
+
+  unittest-py38:
+    <<: *unittest-template
+    docker:
+      - image: circleci/python:3.8
 
   test-downloader:
     docker:
@@ -186,9 +202,10 @@ jobs:
           PASSWORD: "example-rpc-password"
     steps:
       - checkout # check out the code in the project directory
-      - *restore_pip_cache
-      - *restore_test_data_cache
-      - *install_pip_deps
+      - run: *echo-py-version
+      - restore_cache: *restore_pip_cache
+      - restore_cache: *restore_test_data_cache
+      - run: *install_pip_deps
 
       - run:
           name: Wait for Docker Ready
@@ -206,14 +223,14 @@ jobs:
 
       - run:
           name: test downloader
-          command: coverage run -m pytest bgmi/downloader --junitxml=$HOME/junit/test_report.xml
+          command: coverage run -m pytest bgmi/downloader
           environment:
             BGMI_TRANSMISSION_RPC_URL: "http://transmission-rpc-username:example-rpc-password\
             @127.0.0.1:9091/transmission/rpc"
             BGMI_ARIA2_RPC_TOKEN: token:aria2-rpc-secret
 
-      - *store_test_result
-      - *upload_codecov_report
+      - store_test_results: *store_test_result
+      - run : *upload_codecov_report
 
   test-sqlite:
     docker:
@@ -224,9 +241,10 @@ jobs:
 
     steps:
       - checkout # check out the code in the project directory
-      - *restore_pip_cache
-      - *restore_test_data_cache
-      - *install_pip_deps
+      - run: *echo-py-version
+      - restore_cache: *restore_pip_cache
+      - restore_cache: *restore_test_data_cache
+      - run: *install_pip_deps
 
       - run:
           name: restore sql
@@ -235,10 +253,10 @@ jobs:
 
       - run:
           name: Unittest
-          command: coverage run -m pytest tests/test_db_models.py --junitxml=$HOME/junit/test_report.xml
+          command: coverage run -m pytest tests/test_db_models.py
 
-      - *store_test_result
-      - *upload_codecov_report
+      - store_test_results: *store_test_result
+      - run : *upload_codecov_report
 
   test-mysql:
     docker:
@@ -258,9 +276,10 @@ jobs:
 
     steps:
       - checkout # check out the code in the project directory
-      - *restore_pip_cache
-      - *restore_test_data_cache
-      - *install_pip_deps
+      - run: *echo-py-version
+      - restore_cache: *restore_pip_cache
+      - restore_cache: *restore_test_data_cache
+      - run: *install_pip_deps
 
       - run:
           name: Wait for MySQL Ready
@@ -281,10 +300,10 @@ jobs:
 
       - run:
           name: Unittest
-          command: coverage run -m pytest tests/test_db_models.py --junitxml=$HOME/junit/test_report.xml
+          command: coverage run -m pytest tests/test_db_models.py
 
-      - *store_test_result
-      - *upload_codecov_report
+      - store_test_results: *store_test_result
+      - run : *upload_codecov_report
 
 
   build-docker:
@@ -309,9 +328,9 @@ jobs:
       - image: circleci/python:3.6
     steps:
       - checkout
-      - *restore_pip_cache
-      - *restore_test_data_cache
-      - *install_pip_deps
+      - run: *echo-py-version
+      - restore_cache: *restore_pip_cache
+      - run: *install_pip_deps
 
       - run:
           name: build docs
@@ -323,7 +342,7 @@ jobs:
           root: docs/build
           paths: html
 
-      - *upload_codecov_report
+      - run : *upload_codecov_report
 
   deploy-docs:
     docker:
@@ -354,9 +373,9 @@ jobs:
       - image: circleci/python:3.6
     steps:
       - checkout
-      - *restore_pip_cache
-      - *restore_test_data_cache
-      - *install_pip_deps
+      - run: *echo-py-version
+      - restore_cache: *restore_pip_cache
+      - run: *install_pip_deps
 
       - run: sudo apt-get install upx-ucl
 
@@ -374,9 +393,9 @@ jobs:
           root: dist
           paths: binary
 
-      - *upload_codecov_report
+      - run : *upload_codecov_report
 
-  deploy-binary:
+  deploy-linux-binary:
     docker:
       - image: circleci/golang:1.12
 
@@ -394,3 +413,29 @@ jobs:
           name: "Publish Release on GitHub"
           command: |
             ghr -t ${DOCKER_PASS} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${CIRCLE_TAG} ./dist/binary/
+
+
+  build-osx-binary: # todo
+    macos:
+      xcode: "9.4.1"
+    steps:
+      - checkout
+      - run:
+          name: Install deps
+          command: |
+            sudo pip install --upgrade pip
+            curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+
+      - run:
+          name: setup script
+          command: DEPLOYMENT_TARGET=10.11 ./script/setup/osx
+      - run:
+          name: build script
+          command: ./script/build/osx
+      - store_artifacts:
+          path: dist/docker-compose-Darwin-x86_64
+          destination: docker-compose-Darwin-x86_64
+      - deploy:
+          name: Deploy binary to bintray
+          command: |
+            OS_NAME=Darwin PKG_NAME=osx ./script/circle/bintray-deploy.sh

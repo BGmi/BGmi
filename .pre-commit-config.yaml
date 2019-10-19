@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.2.3
+    rev: v2.3.0
     hooks:
       - id: check-merge-conflict
         exclude: '\.rst$'
@@ -35,7 +35,7 @@ repos:
         name: flake8
         entry: flake8
         require_serial: false
-        language: python
+        language: system
         types: [python]
         args: ['--config=setup.cfg']
 
@@ -43,7 +43,7 @@ repos:
         name: autoflake
         entry: autoflake
         require_serial: true
-        language: python
+        language: system
         types: [python]
         args: ['--in-place', '--remove-unused-variables', '--remove-all-unused-imports']
 
@@ -51,20 +51,20 @@ repos:
         name: pyupgrade
         entry: pyupgrade
         require_serial: true
-        language: python
+        language: system
         types: [python]
-        args: ['--py36-plus']
+        args: ['--py36-plus', '--keep-percent-format']
 
       - id: isort
         name: isort
         entry: isort
         require_serial: true
-        language: python
+        language: system
         types: [python]
 
       - id: yapf
         name: yapf
         entry: yapf -i
         require_serial: true
-        language: python
+        language: system
         types: [python]
