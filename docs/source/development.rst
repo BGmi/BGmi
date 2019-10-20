@@ -9,7 +9,7 @@
 
 .. warning::
 
-    使用 ``lint.sh`` 格式化代码后，由于 :issue:`myint/autoflake/#52` 会生成一段无意义的代码，请注意删除。
+    使用 ``autoflake`` 自动移除未用到的 ``import`` 后，由于 :issue:`myint/autoflake/#52` 会生成一段无意义的代码，请注意删除。
 
     ``peewee_migrate`` 对字段的default值处理有bug
     如果前一个migration中的 ``constraints=[SQL("DEFAULT 0")]`` 没有被修改为 ``default=0`` 的形式，
@@ -18,4 +18,4 @@
     所有的 ``primary_key=True`` 的字段不能添加 ``unique=True``，
     否则会生成一个试图 ``drop_index`` 的migration。(primary_key本身就是unique的，无此必要)
 
-3. 请确认travis-ci上测试通过。
+3. 请确认travis-ci和circleci上测试通过。

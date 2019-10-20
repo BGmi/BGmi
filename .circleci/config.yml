@@ -184,7 +184,7 @@ jobs:
   test-downloader:
     docker:
       - image: circleci/python:3.6
-      - image: linuxserver/deluge
+      - image: linuxserver/deluge:2.0.3-2201906121747ubuntu18.04.1-ls42
         environment:
           PUID: "1001"
           PGID: "1000"
@@ -342,8 +342,6 @@ jobs:
           root: docs/build
           paths: html
 
-      - run : *upload_codecov_report
-
   deploy-docs:
     docker:
       - image: node:lts
@@ -392,8 +390,6 @@ jobs:
       - persist_to_workspace:
           root: dist
           paths: binary
-
-      - run : *upload_codecov_report
 
   deploy-linux-binary:
     docker:

@@ -1,9 +1,9 @@
 language: python
 
 branches:
-  only:
-    - master
-    - dev
+  except:
+  - gh-pages
+  - /dependabot\/.*/
 
 python:
   - "3.6"

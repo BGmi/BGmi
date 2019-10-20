@@ -1,20 +1,27 @@
 # Contributing
 
-If you want to add an issue or pull request, please ensure that the [existing issues](https://github.com/BGmi/bgmi/issues?utf8=✓&q=) don't already cover your question or contribution.
+If you want to add an issue or pull request,
+please ensure that the [existing issues](https://github.com/BGmi/bgmi/issues?utf8=✓&q=)
+don't already cover your question or contribution.
 
 To get started contributing code to the `BGmi`:
 
 ## Installation
 
-We recommend using [`virtualenv`](https://virtualenv.readthedocs.org/en/latest/) to isolate dependencies for development.
-This guide assumes that you have already created and activated a virtualenv for this project.
+We recommend using [`poetry`](https://github.com/sdispater/poetry) to isolate dependencies for development.
+
+It's a `dependency management and packaging` tool with lockfile
+to make sure every one have save dependencies after installation.
 
 Ensure that you have the latest version of pip installed:
 ```
 pip install -U pip
 ```
 
-Clone the repository (alternatively, if you plan on making a pull request and are not in the `BGmi` organization, use the [github page](https://github.com/BGmi/BGmi) to create your own fork)
+Install poetry by following [sdispater/poetry#installation](https://github.com/sdispater/poetry#installation)
+
+Clone the repository (alternatively, if you plan on making a pull request and are not in the `BGmi` organization,
+use the [github page](https://github.com/BGmi/BGmi) to create your own fork)
 
 ```
 git clone git@github.com:BGmi/BGmi.git
@@ -24,7 +31,10 @@ cd BGmi
 Install all dev requirements
 
 ```
-pip install -r requirements/dev.txt
+poetry install -E mysql
+# A virtualenv will be created automatically
+# Or you could create a virtualenv and activate it before.
+# Poetry will handle it correctly
 ```
 
 Install `pre-commit` hooks
@@ -50,6 +60,6 @@ Make sure passed all tests in CI.
 
 ## code style
 
-code should be formatted by`isort` and `yapf`, which config are included in [`setup.cfg`](../setup.cfg).
+Code should be formatted by`isort` and `yapf`, which config are included in [`setup.cfg`](../setup.cfg).
 
 Lint by `flake8`, which config is also included in [`setup.cfg`](../setup.cfg).
