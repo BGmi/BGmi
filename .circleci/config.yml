@@ -102,7 +102,7 @@ jobs:
             python .circleci/export_requirements.py --all
             pip install --user --require-hashes --no-deps -q -r requirements.txt
             poetry config settings.virtualenvs.create false
-            PIP_USER=1 poetry install
+            PIP_USER=1 poetry install -E docs -E mysql
 
 
       - restore_cache: &restore_test_data_cache
