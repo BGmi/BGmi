@@ -144,7 +144,7 @@ class Mikanani(BaseWebsite):
 
         soup = bs4.BeautifulSoup(r, 'html.parser')
         episode = parse_episodes_from_soup(soup)
-        result = sum([x['episode'] for x in episode.values()], [])
+        result = sum((x['episode'] for x in episode.values()), [])
         return result
 
     def fetch_bangumi_calendar_and_subtitle_group(self):
