@@ -202,7 +202,7 @@ description = "the modular source code checker: pep8, pyflakes and co"
 name = "flake8"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "3.7.8"
+version = "3.7.9"
 
 [package.dependencies]
 entrypoints = ">=0.3.0,<0.4.0"
@@ -992,7 +992,7 @@ docs = ["sphinx", "sphinx_rtd_theme", "sphinxcontrib-httpdomain", "sphinxcontrib
 mysql = ["pymysql"]
 
 [metadata]
-content-hash = "53508d0a66001dfb279557c2b5c8e7249a173cd6a815b7b3c4ebb605b2674099"
+content-hash = "349c0713bbafada87ca29a38aedc6f099c542d8167ca540eda0d589f6dbeedf8"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -1017,7 +1017,7 @@ dataclasses = ["454a69d788c7fda44efd71e259be79577822f5e3f53f029a22d08004e951dc9f
 docutils = ["6c4f696463b79f1fb8ba0c594b63840ebd41f059e92b31957c46b74a4599b6d0", "9e4d7ecfc600058e07ba661411a2b7de2fd0fafa17d1a7f7361cd47b1175c827", "a2aeea129088da402665e92e0b25b04b073c04b2dce4ab65caaa38b7ce2e1a99"]
 entrypoints = ["589f874b313739ad35be6e0cd7efde2a4e9b6fea91edcc34e58ecbb8dbe56d19", "c70dd71abe5a8c85e55e12c19bd91ccfeec11a6e99044204511f9ed547d48451"]
 faker = ["5902379d8df308a204fc11c4f621590ee83975805a6c7b2228203b9defa45250", "5e8c755c619f332d5ec28b7586389665f136bcf528e165eb925e87c06a63eda7"]
-flake8 = ["19241c1cbc971b9962473e4438a2ca19749a7dd002dd1a946eaba171b4114548", "8e9dfa3cecb2400b3738a42c54c3043e821682b9c840b0448c0503f781130696"]
+flake8 = ["45681a117ecc81e870cbf1262835ae4af5e7a8b08e40b944a8a6e6b895914cfb", "49356e766643ad15072a789a20915d3c91dc89fd313ccd71802303fd67e4deca"]
 flake8-bugbear = ["d8c466ea79d5020cb20bf9f11cf349026e09517a42264f313d3f6fddb83e0571", "ded4d282778969b5ab5530ceba7aa1a9f1b86fa7618fc96a19a1d512331640f8"]
 flake8-commas = ["d3005899466f51380387df7151fb59afec666a0f4f4a2c6a8995b975de0f44b7", "ee2141a3495ef9789a3894ed8802d03eff1eaaf98ce6d8653a7c573ef101935e"]
 flake8-comprehensions = ["d1337979289e2877693b49a862c3e193a443833e2843e0e2450d54abd93aea9a", "d3a8339e262205a15a4a84f6363eabb63e2dbd8292c4655366aaa0452eb28496"]
