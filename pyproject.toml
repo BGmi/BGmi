@@ -40,7 +40,7 @@ stevedore = "1.31.0"
 tornado = "6.0.3"
 peewee_migrate = "1.1.6"
 click = "7.0"
-pydantic = "1.0"
+pydantic = "1.1"
 
 pymysql = {version = "0.9.3", optional = true}
 
