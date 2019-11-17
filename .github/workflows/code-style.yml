@@ -1,0 +1,85 @@
+name: Tests
+# This workflow is triggered on pushes to the repository.
+on: [push, pull_request]
+
+jobs:
+  Linting:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.6'
+          architecture: 'x64' # (x64 or x86)
+
+      - name: Cache pip
+        uses: actions/cache@v1
+        with:
+          path: ~/.cache/pip
+          key: pip-3.6-${{ hashFiles('poetry.lock') }}
+
+      - name: Cache pre-commit
+        uses: actions/cache@v1
+        with:
+          path: ~/.cache/pre-commit
+          key: pip-3.6-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Install deps
+        run: |
+          python -m pip install toml==0.10.0
+          python .circleci/export_requirements.py --all
+          pip install -r requirements.txt
+#          curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+#          ls $HOME -ahl
+#          source $HOME/.poetry/env
+#          poetry config settings.virtualenvs.create false
+#          poetry install
+
+      - name: Run pre-commit
+        run: pre-commit run --all-files
+
+      - name: Mypy
+        run: mypy bgmi
+
+  Linux:
+    needs: Linting
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-16.04, ubuntu-18.04]
+        #        python: [3.6, 3.7, 3.8]
+        python: [3.6, 3.7]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python }}
+          architecture: 'x64' # (x64 or x86)
+
+      - name: Cache pip
+        uses: actions/cache@v1
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ matrix.python }}-${{ hashFiles('poetry.lock') }}
+
+      - name: Install deps
+        run: |
+          python -m pip install toml==0.10.0
+          python .circleci/export_requirements.py --all
+          pip install -r requirements.txt
+          curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+          source $HOME/.poetry/env
+          poetry config settings.virtualenvs.create false
+          poetry install
+
+      - name: Unittest
+        run: coverage run -m pytest bgmi --ignore=bgmi/downloader
+
+#        todo: set $CODECOV_TOKEN according to https://github.com/codecov/codecov-action
+#      - uses: codecov/codecov-action@v1.0.3
+#        with:
+#          token: ${{secrets.CODECOV_TOKEN}} # required
+#          flags: unittests #optional
