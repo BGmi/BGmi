@@ -1,0 +1,24 @@
+matrix:
+  Linux-Python36:
+    imageName: "ubuntu-16.04"
+    python.version: '3.6'
+  Linux-Python37:
+    imageName: "ubuntu-16.04"
+    python.version: '3.7'
+
+  MacOX-Python36:
+    python.version: '3.6'
+    imageName: "macos-10.13"
+  MacOX-Python37:
+      python.version: '3.7'
+      imageName: "macos-10.13"
+
+  Windows-Python36:
+      python.version: '3.6'
+      imageName: "vs2017-win2016"
+  Windows-Python37:
+      python.version: '3.7'
+      imageName: "vs2017-win2016"
+
+#  Linux-Python38:
+#    python.version: '3.8'

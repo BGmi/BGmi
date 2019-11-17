@@ -1,0 +1,17 @@
+parameters:
+  python_version: '3.6'  # defaults for any parameters that aren't specified
+
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '${{ parameters.python_version }}'
+
+  - script: |
+      python -m pip install toml==0.10.0
+      python .circleci/export_requirements.py --all
+      pip install -r requirements.txt
+      curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+      source $HOME/.poetry/env
+      poetry config settings.virtualenvs.create false
+      poetry install
+    displayName: Install project

@@ -15,21 +15,6 @@ workflows:
       - prepare-py38:
           filters: *on-tag
 
-      - unittest-py36:
-          filters: *on-tag
-          requires:
-            - prepare-py36
-
-      - unittest-py37:
-          filters: *on-tag
-          requires:
-            - prepare-py37
-
-      - unittest-py38:
-          filters: *on-tag
-          requires:
-            - prepare-py38
-
       - test-downloader:
           filters: *on-tag
           requires:
@@ -48,7 +33,6 @@ workflows:
       - build-binary:
           filters: *on-tag
           requires: &require-test
-            - unittest-py36
             - test-downloader
             - test-sqlite
             - test-mysql

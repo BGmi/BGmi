@@ -77,9 +77,3 @@ jobs:
 
       - name: Unittest
         run: coverage run -m pytest bgmi --ignore=bgmi/downloader
-
-#        todo: set $CODECOV_TOKEN according to https://github.com/codecov/codecov-action
-#      - uses: codecov/codecov-action@v1.0.3
-#        with:
-#          token: ${{secrets.CODECOV_TOKEN}} # required
-#          flags: unittests #optional

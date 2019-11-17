@@ -1,0 +1,44 @@
+jobs:
+- job: 'Code_Style'
+  pool:
+    vmImage: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
+  strategy:
+    matrix:
+      Python36:
+        python.version: '3.6'
+
+  steps:
+  - template: ./templates/install-project.yaml
+    parameters:
+      python_version: $(python.version)
+
+  - script: coverage run -m pytest bgmi --ignore=bgmi/downloader
+    displayName: Unittest
+
+  - script: mypy bgmi
+    displayName: Mypy
+
+- job: 'Test_Downloader'
+  pool:
+    vmImage: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
+
+  strategy:
+    matrix:
+      Python36:
+        python.version: '3.6'
+      Python37:
+        python.version: '3.7'
+
+  steps:
+    - template: ./templates/install-project.yaml
+      parameters:
+        python_version: $(python.version)
+
+    - script: coverage run -m pytest bgmi --ignore=bgmi/downloader
+      displayName: Unittest
+
+    - task: PublishTestResults@2
+      condition: succeededOrFailed()
+      inputs:
+        testResultsFiles: 'junit/test_*.xml'
+        testRunTitle: 'Publish test results for Python $(python.version)'
