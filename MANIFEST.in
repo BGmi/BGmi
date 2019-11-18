@@ -1,7 +1,0 @@
-include LICENSE
-include README.rst
-include setup.cfg
-recursive-include bgmi *
-recursive-include requirements *
-recursive-exclude bgmi *.pyc
-recursive-exclude tests *
