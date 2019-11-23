@@ -1,44 +1,12 @@
-jobs:
-- job: 'Code_Style'
-  pool:
-    vmImage: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
-  strategy:
-    matrix:
-      Python36:
-        python.version: '3.6'
-
-  steps:
-  - template: ./templates/install-project.yaml
-    parameters:
-      python_version: $(python.version)
-
-  - script: coverage run -m pytest bgmi --ignore=bgmi/downloader
-    displayName: Unittest
-
-  - script: mypy bgmi
-    displayName: Mypy
-
-- job: 'Test_Downloader'
-  pool:
-    vmImage: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
-
-  strategy:
-    matrix:
-      Python36:
-        python.version: '3.6'
-      Python37:
-        python.version: '3.7'
-
-  steps:
-    - template: ./templates/install-project.yaml
-      parameters:
-        python_version: $(python.version)
-
-    - script: coverage run -m pytest bgmi --ignore=bgmi/downloader
-      displayName: Unittest
-
-    - task: PublishTestResults@2
-      condition: succeededOrFailed()
-      inputs:
-        testResultsFiles: 'junit/test_*.xml'
-        testRunTitle: 'Publish test results for Python $(python.version)'
+stages:
+- stage: Test
+  jobs:
+    - template: ./templates/jobs/base-unittest.yaml
+    - template: ./templates/jobs/test-downloader.yaml
+    - template: ./templates/jobs/test-sqlite.yaml
+    - template: ./templates/jobs/test-mysql.yaml
+- stage: Build
+  jobs:
+    - template: ./templates/jobs/build-docker.yaml
+    - template: ./templates/jobs/build-binary.yaml
+    - template: ./templates/jobs/build-docs.yaml

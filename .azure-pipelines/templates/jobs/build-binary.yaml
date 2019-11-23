@@ -1,0 +1,28 @@
+jobs:
+- job: 'Binary'
+  pool:
+    vmImage: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
+
+  strategy:
+    matrix:
+      Python36:
+        python.version: '3.6'
+#      Python37:
+#        python.version: '3.7'
+
+  steps:
+    - template: /.azure-pipelines/templates/steps/install-project.yaml
+      parameters:
+        python_version: $(python.version)
+
+    - script: sudo apt-get install upx-ucl
+
+    - script: |
+        pyinstaller .ci/bgmi.spec --distpath ./dist/binary/
+        mv ./dist/binary/bgmi ./dist/binary/bgmi-$(uname -s)-$(uname -m)
+      displayName: build binary
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: '$(Build.Repository.LocalPath)/dist/binary'
+        artifactName: bgmi-Linux-x86_64

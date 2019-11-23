@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:5.7
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --explicit_defaults_for_timestamp=on
+    networks:
+      - backend
+    ports:
+      - "3307:3306" # 3306 is in use
+    environment:
+      MYSQL_USER: bgmi_user
+      MYSQL_PASSWORD: bgmi_user_password
+      MYSQL_DATABASE: bgmi
+      MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+
+networks:
+  backend:
+    driver: bridge

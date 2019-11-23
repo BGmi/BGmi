@@ -1,10 +1,21 @@
 parameters:
   python_version: '3.6'  # defaults for any parameters that aren't specified
+  os: 'linux'
 
 steps:
   - task: UsePythonVersion@0
     inputs:
       versionSpec: '${{ parameters.python_version }}'
+
+  - task: CacheBeta@1
+    inputs:
+      key: '"$(Agent.OS)" | "${{ parameters.python_version }}" | poetry.lock'
+      restoreKeys: |
+        "$(Agent.OS)" | "${{ parameters.python_version }}" | poetry.lock
+        "$(Agent.OS)" | "${{ parameters.python_version }}"
+        "$(Agent.OS)"
+      path: /home/vsts/.cache/pip
+    displayName: Cache pip
 
   - script: |
       python -m pip install toml==0.10.0
