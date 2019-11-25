@@ -8,12 +8,7 @@ VOLUME /bgmi
 WORKDIR /opt/bgmi
 COPY ./ /opt/bgmi/
 
-#RUN pip install -e '.[mysql]'
-
-RUN curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python && \
-    export PATH=$HOME/.poetry/bin:$PATH && \
-    poetry config settings.virtualenvs.create false && \
-    poetry install --no-dev -E mysql
+RUN pip install '.[mysql]'
 
 ENTRYPOINT ["python", "-m", "bgmi"]
 

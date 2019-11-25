@@ -7,22 +7,17 @@ steps:
     inputs:
       versionSpec: '${{ parameters.python_version }}'
 
-  - task: CacheBeta@1
-    inputs:
-      key: '"$(Agent.OS)" | "${{ parameters.python_version }}" | poetry.lock'
-      restoreKeys: |
-        "$(Agent.OS)" | "${{ parameters.python_version }}" | poetry.lock
-        "$(Agent.OS)" | "${{ parameters.python_version }}"
-        "$(Agent.OS)"
-      path: /home/vsts/.cache/pip
-    displayName: Cache pip
+  - template: ./cache-pip.yaml
 
-  - script: |
+  - bash: |
       python -m pip install toml==0.10.0
-      python .circleci/export_requirements.py --all
-      pip install -r requirements.txt
+      python .ci/export_requirements.py --all
+      pip install --no-deps -r requirements.txt
       curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
-      source $HOME/.poetry/env
+      echo "##vso[task.prependpath]$HOME/.poetry/bin"
+    displayName: Install Poetry
+
+  - bash: |
       poetry config settings.virtualenvs.create false
       poetry install
-    displayName: Install project
+    displayName: Install Packages

@@ -1,0 +1,5 @@
+steps:
+  - bash: |
+      mkdir -p ~/data
+      curl -L https://github.com/BGmi/BGmi/releases/download/test-data/data-1.sql -o ~/data/db.sql
+    displayName: Download Test Data
