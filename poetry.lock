@@ -240,7 +240,7 @@ description = "A flake8 plugin to help you write better list/set/dict comprehens
 name = "flake8-comprehensions"
 optional = false
 python-versions = ">=3.5"
-version = "3.1.1"
+version = "3.1.4"
 
 [package.dependencies]
 flake8 = ">=3.0,<3.2.0 || >3.2.0,<4"
@@ -993,7 +993,7 @@ docs = ["sphinx", "sphinx_rtd_theme", "sphinxcontrib-httpdomain", "sphinxcontrib
 mysql = ["pymysql"]
 
 [metadata]
-content-hash = "fb49611650623012bf0593b2e50b247b32a34ec31b253e1bfeeba4a761acabf4"
+content-hash = "8e74d24f0fdf34a1559f940dcce8bf23c2c7ce50eed194dca98d91e746fb9045"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -1021,7 +1021,7 @@ faker = ["48c03580720e0b46538d528b1296e4e5b24a809dcaf33a7dddec719489a9edb8", "63
 flake8 = ["45681a117ecc81e870cbf1262835ae4af5e7a8b08e40b944a8a6e6b895914cfb", "49356e766643ad15072a789a20915d3c91dc89fd313ccd71802303fd67e4deca"]
 flake8-bugbear = ["d8c466ea79d5020cb20bf9f11cf349026e09517a42264f313d3f6fddb83e0571", "ded4d282778969b5ab5530ceba7aa1a9f1b86fa7618fc96a19a1d512331640f8"]
 flake8-commas = ["d3005899466f51380387df7151fb59afec666a0f4f4a2c6a8995b975de0f44b7", "ee2141a3495ef9789a3894ed8802d03eff1eaaf98ce6d8653a7c573ef101935e"]
-flake8-comprehensions = ["2f73897575ce6d904c761d636ca1c6c33159abaac7ec7ee10fd9cc2189812e92", "b28537e05dde41ea865e4e36af86992a74bd053e1750170c90fc25500f9109bd"]
+flake8-comprehensions = ["6de428c3ac67d3614d527456469c8a3d6638960e9ad7e1222358526a2507400a", "e3a8350a35d7bc71f8a1f64cf3c633a418a26b0edace2219d26ea4dd78ac21f3"]
 flake8-mutable = ["38fd9dadcbcda6550a916197bc40ed76908119dabb37fbcca30873666c31d2d5", "ee9b77111b867d845177bbc289d87d541445ffcc6029a0c5c65865b42b18c6a6"]
 hanziconv = ["208866da6ae305bca19eb98702b65c93bb3a803b496e4287ca740d68892fc4c4"]
 icalendar = ["07c2447a1d44cbb27c90b8c6a5c98e890cc1853c6223e2a52195cddec26c6356", "83f7248b7485ddd29c7d69b706b21c441e34855d9c1d888939fd24aefdd9d19b"]
