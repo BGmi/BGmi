@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 set -ex
 
-BANGUMI_1=名侦探柯南
-BANGUMI_2=海贼王
-
 rm -rf ~/.bgmi || true
 coverage run -a -m bgmi install
 cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
@@ -28,4 +25,4 @@ coverage run -a -m bgmi mark ${BANGUMI_2} 1
 coverage run -a -m bgmi update ${BANGUMI_2}
 coverage run -a -m bgmi filter ${BANGUMI_2} --subtitle "" --exclude "MKV" --regex "720p|720P"
 coverage run -a -m bgmi fetch ${BANGUMI_2}
-coverage run -a -m bgmi search "海贼王" --regex-filter '.*MP4.*720P.*' --min-episode 800 --max-episode 900
+coverage run -a -m bgmi search ${BANGUMI_2} --regex-filter '.*MP4.*720P.*' --min-episode 800 --max-episode 900

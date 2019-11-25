@@ -36,10 +36,7 @@ jobs:
 
 
     - script: coverage run -m bgmi install --no-web
-    - script: |
-        mkdir -p ~/data
-        curl -L https://github.com/BGmi/BGmi/releases/download/test-data/data-1.sql -o ~/data/db.sql
-      displayName: Download Test Data
+    - template: /.azure-pipelines/templates/steps/get_test_data.yaml
 
     - script: |
           # wait for mysql start up

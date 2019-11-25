@@ -1,7 +1,7 @@
 jobs:
-- job: 'Sqlite'
+- job: 'Windows'
   pool:
-    vmImage: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
+    vmImage: 'vs2017-win2016' # other options: 'macOS-10.13', 'vs2017-win2016'
 
   strategy:
     matrix:
@@ -15,13 +15,7 @@ jobs:
       parameters:
         python_version: $(python.version)
 
-    - script: coverage run -m bgmi install --no-web
-    - template: /.azure-pipelines/templates/steps/get_test_data.yaml
-
-    - script: coverage run -m pytest tests/test_db_models.py --reruns 0
-      displayName: Unittest
-      env:
-        DB_SQL_PATH: ~/data/db.sql
+    - template: /.azure-pipelines/templates/steps/commands.yaml
 
     - task: PublishTestResults@2
       condition: succeededOrFailed()

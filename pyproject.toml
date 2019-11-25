@@ -103,7 +103,7 @@ dmhy = 'bgmi.website.share_dmhy:DmhySource'
 
 [tool.poetry.plugins."bgmi.downloader.delegate"]
 aria2-rpc = 'bgmi.downloader.aria2_rpc:Aria2DownloadRPC'
-deluge-rpc = 'gmi.downloader.deluge:DelugeRPC'
+deluge-rpc = 'bgmi.downloader.deluge:DelugeRPC'
 transmission-rpc = 'bgmi.downloader.transmissionRpc:TransmissionRPC'
 
 [build-system]

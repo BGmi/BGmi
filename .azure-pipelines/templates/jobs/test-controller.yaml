@@ -1,5 +1,5 @@
 jobs:
-- job: 'Sqlite'
+- job: 'Controllers'
   pool:
     vmImage: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
 
@@ -15,13 +15,20 @@ jobs:
       parameters:
         python_version: $(python.version)
 
-    - script: coverage run -m bgmi install --no-web
     - template: /.azure-pipelines/templates/steps/get_test_data.yaml
 
-    - script: coverage run -m pytest tests/test_db_models.py --reruns 0
-      displayName: Unittest
+    - script: |
+        coverage run -a -m bgmi install --no-web
+        coverage run -a -m unittest tests.test_controllers -v
+
       env:
+        UNITTEST: '1'
+        BGMI_LOG: info
         DB_SQL_PATH: ~/data/db.sql
+        TRAVIS_CI: '1'
+        BANGUMI_1: 名侦探柯南
+        BANGUMI_2: 海贼王
+      displayName: Unittest
 
     - task: PublishTestResults@2
       condition: succeededOrFailed()

@@ -1,0 +1,8 @@
+steps:
+  - bash: bash ./.azure-pipelines/scripts/command_test.bash
+    env:
+      DB_SQL_PATH: ~/data/db.sql
+      TRAVIS_CI: '1'
+      BANGUMI_1: 名侦探柯南
+      BANGUMI_2: 海贼王
+      PYTHONIOENCODING: utf-8

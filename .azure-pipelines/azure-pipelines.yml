@@ -3,8 +3,14 @@ stages:
   jobs:
     - template: ./templates/jobs/base-unittest.yaml
     - template: ./templates/jobs/test-downloader.yaml
+    - template: ./templates/jobs/test-controller.yaml
     - template: ./templates/jobs/test-sqlite.yaml
     - template: ./templates/jobs/test-mysql.yaml
+- stage: Command_Test
+  jobs:
+    - template: /.azure-pipelines/templates/jobs/platform/windows.yaml
+    - template: /.azure-pipelines/templates/jobs/platform/linux.yaml
+    - template: /.azure-pipelines/templates/jobs/platform/macos.yaml
 - stage: Build
   jobs:
     - template: ./templates/jobs/build-docker.yaml
