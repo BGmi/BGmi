@@ -627,10 +627,11 @@ description = "pytest plugin to re-run tests to eliminate flaky failures"
 name = "pytest-rerunfailures"
 optional = false
 python-versions = "*"
-version = "7.0"
+version = "8.0"
 
 [package.dependencies]
-pytest = ">=3.10"
+pytest = ">=4.4"
+setuptools = ">=40.0"
 
 [[package]]
 category = "main"
@@ -993,7 +994,7 @@ docs = ["sphinx", "sphinx_rtd_theme", "sphinxcontrib-httpdomain", "sphinxcontrib
 mysql = ["pymysql"]
 
 [metadata]
-content-hash = "8e74d24f0fdf34a1559f940dcce8bf23c2c7ce50eed194dca98d91e746fb9045"
+content-hash = "9ac154816ea2b9a25231a0ef50c9dfb4bdc3d190c7a2fd0ee87ccec6a6babdfd"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -1057,7 +1058,7 @@ pymysql = ["3943fbbbc1e902f41daf7f9165519f140c4451c179380677e6a848587042561a", "
 pyparsing = ["6f98a7b9397e206d78cc01df10131398f1c8b8510a2f4d97d9abd82e1aacdd80", "d9338df12903bbf5d65a0e4e87c2161968b10d2e489652bb47001d82a9b028b4"]
 pyrsistent = ["eb6545dbeb1aa69ab1fb4809bfbf5a8705e44d92ef8fc7c2361682a47c46c778"]
 pytest = ["1897d74f60a5d8be02e06d708b41bf2445da2ee777066bd68edf14474fc201eb", "f6a567e20c04259d41adce9a360bd8991e6aa29dd9695c5e6bd25a9779272673"]
-pytest-rerunfailures = ["1180a0f98975e1e1a2e055c87c1159cbd3bace8ceb71b1e7ffe4ace6121e7801", "f3c9cf31339bf87b048c09dadb633a81156fa4899527fffc55cde105d04ed5fd"]
+pytest-rerunfailures = ["17c1236b9f8463f74a5df6c807f301c53c2ea1ab81b7509b7e23fab3b7cbe812", "4997cda1b82f74cc0c280f6a5a0470d36deb318e3d8bd6da71efc32a3e0c9ae4"]
 python-dateutil = ["7e6584c74aeed623791615e26efd690f29817a27c73085b78e4bad02493df2fb", "c89805f6f4d64db21ed966fda138f8a5ed7a4fdbc1a8ee329ce1b74e3c74da9e"]
 pytz = ["1c557d7d0e871de1f5ccd5833f60fb2550652da6be2693c1e02300743d21500d", "b02c06db6cf09c12dd25137e563b31700d3b80fcc4ad23abb7a315f2789819be"]
 pyupgrade = ["a0db809531fafa686d3eb567d8bf7f5119f8d1bfa076d2a2ffa87e20d5aafd4e", "ddf33de4ab2d9b7f7eb9aae540a9cf0e576b2bbb82eb24db5be7eb610bbcbad9"]
