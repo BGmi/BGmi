@@ -460,7 +460,7 @@ description = "a little orm"
 name = "peewee"
 optional = false
 python-versions = "*"
-version = "3.11.2"
+version = "3.12.0"
 
 [[package]]
 category = "main"
@@ -994,7 +994,7 @@ docs = ["sphinx", "sphinx_rtd_theme", "sphinxcontrib-httpdomain", "sphinxcontrib
 mysql = ["pymysql"]
 
 [metadata]
-content-hash = "9ac154816ea2b9a25231a0ef50c9dfb4bdc3d190c7a2fd0ee87ccec6a6babdfd"
+content-hash = "830e4e39bd713b1f159cfbf37d325050e6e5bfbc513dc380a1f853aad7d426ff"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -1044,7 +1044,7 @@ mypy-extensions = ["090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846
 nodeenv = ["ad8259494cf1c9034539f6cced78a1da4840a4b157e23640bc4a0c0546b0cb7a"]
 packaging = ["28b924174df7a2fa32c1953825ff29c61e2f5e082343165438812f00d3a7fc47", "d9551545c6d761f3def1677baf08ab2a3ca17c56879e70fecba2fc4dde4ed108"]
 pbr = ["2c8e420cd4ed4cec4e7999ee47409e876af575d4c35a45840d59e8b5f3155ab8", "b32c8ccaac7b1a20c0ce00ce317642e6cf231cf038f9875e0280e28af5bf7ac9"]
-peewee = ["f3f5c80c51b632d031f60454accadd84f166453a471bff63093ca674973f2a4e"]
+peewee = ["8298c603d822e1b9023a981e0e771236f5d4975ca9386e15c5d5ec44e5a9b257"]
 peewee-migrate = ["17c6340047ce4090eb352488c8a7ba991dd3cf253aeeb2232881ae45414cb2c5", "9291c6cd39d214644ebc5d2ef2a43f9310f9546aedc8280015647c6f8ef92614"]
 pluggy = ["0db4b7601aae1d35b4a033282da476845aa19185c1e6964b25cf324b5e4ec3e6", "fa5fa1622fa6dd5c030e9cad086fa19ef6a0cf6d7a2d12318e10cb49d6d68f34"]
 pre-commit = ["9f152687127ec90642a2cc3e4d9e1e6240c4eb153615cb02aa1ad41d331cbb6e", "c2e4810d2d3102d354947907514a78c5d30424d299dc0fe48f5aa049826e9b50"]
