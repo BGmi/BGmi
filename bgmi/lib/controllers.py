@@ -1,7 +1,7 @@
 import time
 import warnings
 from operator import itemgetter
-from typing import Mapping, Optional
+from typing import Any, Mapping, Optional
 
 import peewee as pw
 import pydantic
@@ -10,22 +10,19 @@ from bgmi import config
 from bgmi.lib import db_models
 from bgmi.lib.constants import ActionStatus
 from bgmi.lib.db_models import Bangumi, BangumiItem, DoesNotExist, Followed, Subtitle, model_to_dict
-from bgmi.lib.db_models._tables import split_str_to_list
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
 from bgmi.logger import logger
+from bgmi.pure_utils import normalize_path, parallel, split_str_to_list
 from bgmi.script import ScriptRunner
-from bgmi.utils import (
-    COLOR_END, GREEN, normalize_path, parallel, print_error, print_info, print_success,
-    print_warning
-)
+from bgmi.utils import COLOR_END, GREEN, print_error, print_info, print_success, print_warning
 from bgmi.utils.followed_filter import apply_regex
 
 
 class ControllerResult(pydantic.BaseModel):
     status: ActionStatus = ActionStatus.success
     message: Optional[str]
-    data: Optional[dict]
+    data: Optional[Any]
 
     def __getitem__(self, item):
         if config.SHOW_WARNING:
@@ -35,12 +32,7 @@ class ControllerResult(pydantic.BaseModel):
             'message': self.message,
             'data': self.data,
         }
-        v = _data.get(item, KeyError)
-        if v == KeyError:
-            raise KeyError(item)
-        return v
-
-    get = __getitem__
+        return _data[item]
 
     def __setitem__(self, key, value):
         if key in ['status', 'message', 'data']:
@@ -262,16 +254,6 @@ def cal():
             bangumi['cover'] = normalize_path(bangumi['cover'])
     logger.debug(r)
     return r
-
-
-def download_(name, title, episode, download_url):
-    my_dict = {
-        'name': name,
-        'title': title,
-        'episode': episode,
-        'download': download_url,
-    }
-    download_prepare(my_dict)
 
 
 def mark(name, episode):

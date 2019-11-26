@@ -2,8 +2,6 @@ import re
 
 from bgmi.logger import logger
 
-from ._decorator import log_utils_function
-
 
 def chinese_to_arabic(cn: str) -> int:
     """
@@ -102,7 +100,6 @@ def get_real_episode(episode_list):
     return real
 
 
-@log_utils_function
 def parse_episode(episode_title):  # pylint: disable=R0911,R0912
     """
     parse episode from title

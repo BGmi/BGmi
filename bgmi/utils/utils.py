@@ -1,6 +1,5 @@
 import glob
 import gzip
-import inspect
 import json
 import os
 import signal
@@ -8,18 +7,15 @@ import struct
 import subprocess
 import tarfile
 import time
-from io import BytesIO, TextIOBase
-from multiprocessing.pool import ThreadPool
-from pathlib import Path
+from io import BytesIO
 from shutil import move, rmtree
-from typing import Union
 
 import requests
-from tornado import template
 
 from bgmi import __admin_version__, __version__, config
 from bgmi.lib import constants, db_models
 from bgmi.logger import logger
+from bgmi.pure_utils import normalize_path, parallel
 
 from ._decorator import COLOR_END, GREEN, _indicator, colorize, disable_in_test, log_utils_function
 
@@ -62,15 +58,6 @@ def print_error(message, exit_: bool = True, indicator=True):
 
     if exit_:
         exit(1)
-
-
-@log_utils_function
-def test_connection():
-    try:
-        requests.request('head', 'https://api.bgm.tv/calendar', timeout=3)
-    except BaseException:
-        return False
-    return True
 
 
 def bug_report():  # pragma: no cover
@@ -156,26 +143,6 @@ def check_update(mark=True):
     if time.time() - date > SECOND_OF_WEEK:
         update(mark)
         db_models.get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = int(time.time())
-
-
-@log_utils_function
-def normalize_path(url):
-    """
-    normalize link to path
-
-    :param url: path or url to normalize
-    :type url: str
-    :return: normalized path
-    :rtype: str
-    """
-    url = url.replace('http://', 'http/').replace('https://', 'https/')
-    illegal_char = [':', '*', '?', '"', '<', '>', '|', "'"]
-    for char in illegal_char:
-        url = url.replace(char, '')
-
-    if url.startswith('/'):
-        return url[1:]
-    return url
 
 
 def get_web_admin():
@@ -268,68 +235,6 @@ def download_cover(cover_url_list):
             os.makedirs(dir_path)
 
     parallel(download_file, cover_url_list)
-
-
-def full_to_half(s):
-    n = []
-    # s = s.decode('utf-8')
-    for char in s:
-        num = ord(char)
-        if num == 0x3000:
-            num = 32
-        elif 0xFF01 <= num <= 0xFF5E:
-            num -= 0xfee0
-        num = chr(num)
-        n.append(num)
-    return ''.join(n)
-
-
-@log_utils_function
-def exec_command(command: str) -> int:
-    """
-    exec command and stdout iconv
-    :return: command exec result
-    """
-    status, stdout = subprocess.getstatusoutput(command)
-    print(stdout)
-    return status
-
-
-def render_template(path_or_file: Union[str, Path, TextIOBase], ctx: dict = None, **kwargs):
-    """
-    read file content and render it as tornado template with kwargs or ctx
-
-    :param ctx:
-    :param path_or_file: path-like or file-like object
-    :param kwargs:
-    :rtype: str
-    :return:
-    """
-    if ctx and kwargs:
-        raise ValueError('render_template and only be called with ctx or kwargs')
-    # if hasattr(path_or_file, 'read'):
-    if isinstance(path_or_file, TextIOBase):
-        # input is a file
-        content = path_or_file.read()
-    else:
-        # py3.4 can't open pathlib.Path directly, need to be str
-        with open(str(path_or_file), 'r', encoding='utf8') as f:
-            content = f.read()
-    template_obj = template.Template(content, autoescape='')
-    return template_obj.generate(**(ctx or kwargs)).decode('utf-8')
-
-
-def parallel(func, args):
-    with ThreadPool(4) as pool:
-        try:
-            sign = inspect.signature(func)
-            if len(sign.parameters) == 1:
-                res = pool.starmap_async(func, ((x, ) for x in args))
-            else:
-                res = pool.starmap_async(func, args)
-            return res.get()
-        except KeyboardInterrupt:
-            signal_handler(None, None)
 
 
 # global Ctrl-C signal handler

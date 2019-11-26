@@ -19,7 +19,7 @@ jobs:
 
     - script: |
         coverage run -a -m bgmi install --no-web
-        coverage run -a -m unittest tests.test_controllers -v
+        coverage run -a -m pytest tests/test_controllers.py -v
 
       env:
         UNITTEST: '1'

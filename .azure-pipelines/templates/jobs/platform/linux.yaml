@@ -16,9 +16,3 @@ jobs:
         python_version: $(python.version)
 
     - template: /.azure-pipelines/templates/steps/commands.yaml
-
-    - task: PublishTestResults@2
-      condition: succeededOrFailed()
-      inputs:
-        testResultsFiles: 'junit/test_*.xml'
-        testRunTitle: 'Publish test results for Python $(python.version)'

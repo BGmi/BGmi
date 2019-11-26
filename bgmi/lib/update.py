@@ -4,9 +4,10 @@ from bgmi import __version__, config
 from bgmi.config import BGMI_PATH, write_default_config
 from bgmi.lib import constants
 from bgmi.lib.db_models import db, get_kv_storage
+from bgmi.pure_utils import exec_command
 from bgmi.setup import install_crontab
 from bgmi.sql import init_db
-from bgmi.utils import exec_command, print_error, print_warning
+from bgmi.utils import print_error, print_warning
 
 OLD = os.path.join(BGMI_PATH, 'old')
 

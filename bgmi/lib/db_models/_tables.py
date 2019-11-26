@@ -11,6 +11,7 @@ from playhouse.shortcuts import model_to_dict
 
 from bgmi import config
 from bgmi.lib.constants import SECOND_OF_WEEK
+from bgmi.pure_utils import split_str_to_list
 
 from ._db import NeoDB, db
 
@@ -268,15 +269,6 @@ class Followed(NeoDB):
             import warnings
             warnings.warn('should use Followed.get(id=bangumi_obj.id) instead of get by name')
         return cls.get(bangumi_id=Bangumi.get(name=bangumi_name).id)
-
-
-def split_str_to_list(s: str) -> List[str]:
-    result = []
-    for x in s.split(','):
-        ss = x.strip()
-        if ss:
-            result.append(ss)
-    return result
 
 
 class Download(NeoDB):
