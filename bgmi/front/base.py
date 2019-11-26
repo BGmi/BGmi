@@ -8,8 +8,8 @@ from bgmi import __admin_version__, __version__
 from bgmi.config import DANMAKU_API_URL, LANG
 from bgmi.lib import constants
 from bgmi.lib.db_models import get_kv_storage
+from bgmi.pure_utils import normalize_path
 from bgmi.script import ScriptRunner
-from bgmi.utils import normalize_path
 
 COVER_URL = '/bangumi/cover'
 WEEK = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')

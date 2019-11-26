@@ -7,7 +7,8 @@ from typing import Dict, List
 import bs4
 import requests
 
-from bgmi.utils import parallel, parse_episode
+from bgmi.pure_utils import parallel
+from bgmi.utils import parse_episode
 from bgmi.website.base import BaseWebsite
 
 week = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']

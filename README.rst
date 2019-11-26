@@ -6,7 +6,7 @@ BGmi is a cli tool for subscribed bangumi.
 
 |pypi|
 |pypistats|
-|travis|
+|azure pipelines|
 |coverage|
 |license|
 
@@ -687,8 +687,8 @@ SOFTWARE.
 .. |pypi| image:: https://img.shields.io/pypi/v/bgmi.svg
    :target: https://pypi.python.org/pypi/bgmi
 
-.. |travis| image:: https://img.shields.io/travis/BGmi/BGmi/master.svg
-   :target: https://travis-ci.org/BGmi/BGmi
+.. |azure pipelines| image:: https://dev.azure.com/BGmi/BGmi/_apis/build/status/BGmi.BGmi?branchName=master
+   :target: https://dev.azure.com/BGmi/BGmi/_build?definitionId=1&_a=summary
 
 .. |coverage| image:: https://img.shields.io/codecov/c/github/BGmi/BGmi/master.svg
    :target: https://codecov.io/gh/BGmi/BGmi

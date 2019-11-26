@@ -3,6 +3,7 @@ import re
 from typing import List
 
 from bgmi.models import Episode
+from bgmi.utils import print_warning
 
 
 def apply_regex(regex, episode_list: List[Episode]) -> List[Episode]:
@@ -15,5 +16,5 @@ def apply_regex(regex, episode_list: List[Episode]) -> List[Episode]:
 
             traceback.print_exc()
             raise exc
-        return episode_list
+        print_warning(f'regex {regex!r} has syntax error {exc}')
     return episode_list

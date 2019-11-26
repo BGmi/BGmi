@@ -3,9 +3,8 @@ import os
 import os.path
 import shutil
 import unittest.mock
-from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, Dict, List
+from typing import Any, Dict
 from unittest.mock import Mock, patch
 
 import bgmi
@@ -50,38 +49,6 @@ class UtilsTest(unittest.TestCase):
             m.assert_called_with('https://hello world')
             shutil.rmtree(dir_path)
             # os.remove(file_path)
-
-    def test_parse_episode(self):
-        with open('tests/data/episode', 'r', encoding='utf8') as f:
-            lines = f.readlines()
-            lines = map(lambda x: x.strip(), lines)
-            lines = list(filter(bool, lines))  # type: List[str]
-            lines = list(filter(lambda x: not x.startswith('#'), lines))
-
-        for line in lines:
-            episode, title = line.split(' ', 1)
-            title = title.rstrip()
-            episode = int(episode)
-            self.assertEqual(episode, utils.parse_episode(title), msg=line)
-
-        return 0
-
-    def test_chinese_to_arabic(self):
-        test_case = [
-            ['二', 2],
-            ['八', 8],
-            ['十一', 11],
-            ['一百二十三', 123],
-            ['一千二百零三', 1203],
-            ['一万一千一百零一', 11101],
-        ]
-        for raw, result in test_case:
-            self.assertEqual(utils.chinese_to_arabic(raw), result)
-
-    def test_normalize_path(self):
-        self.assertEqual(
-            utils.normalize_path('http://hello? world:/233.qq'), 'http/hello world/233.qq'
-        )
 
     def test_convert_cover_url_to_path(self):
         dir_path, file_path = utils.convert_cover_url_to_path('http://hello? world:/233.qq')
@@ -201,37 +168,3 @@ class UtilsTest(unittest.TestCase):
                 json.dump({'version': '1.1.2'}, f)
             inner_utils.update(True)
             get_web_admin.assert_any_call()
-
-    @property
-    def template_path(self) -> str:
-        # print( os.path.join(self.test_dir, 'template.html'))
-        return os.path.join(self.test_dir, 'template.html')
-
-    def test_render_template_with_path(self):
-        content = 'template content'
-        with open(self.template_path, 'w+', encoding='utf8') as f:
-            f.write(content)
-        self.assertEqual(utils.render_template(self.template_path), content)
-        self.assertEqual(utils.render_template(Path(self.template_path)), content)
-
-    def test_render_template_with_file(self):
-        content = 'template content'
-
-        with open(self.template_path, 'w+', encoding='utf8') as f:
-            f.write(content)
-        with open(self.template_path, 'r', encoding='utf8') as f:
-            self.assertEqual(utils.render_template(f), content)
-
-    def test_render_template_with_ctx(self):
-        content = '{{name}} world'
-        with open(self.template_path, 'w+', encoding='utf8') as f:
-            f.write(content)
-        with open(self.template_path, 'r', encoding='utf8') as f:
-            self.assertEqual(utils.render_template(f, ctx={'name': 'hello'}), 'hello world')
-
-    def test_render_template_with_kwargs(self):
-        content = '{{name}} world'
-        with open(self.template_path, 'w+', encoding='utf8') as f:
-            f.write(content)
-        with open(self.template_path, 'r', encoding='utf8') as f:
-            self.assertEqual(utils.render_template(f, name='hello'), 'hello world')

@@ -3,7 +3,8 @@ import os
 from bgmi.config import (
     BGMI_PATH, FRONT_STATIC_PATH, IS_WINDOWS, SAVE_PATH, SCRIPT_PATH, TMP_PATH, TOOLS_PATH
 )
-from bgmi.utils import exec_command, print_error, print_info, print_success, print_warning
+from bgmi.pure_utils import exec_command
+from bgmi.utils import print_error, print_info, print_success, print_warning
 
 
 def install_crontab() -> None:

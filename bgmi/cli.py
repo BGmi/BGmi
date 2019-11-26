@@ -24,11 +24,12 @@ from bgmi.lib.db_models import (
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
 from bgmi.lib.update import upgrade_version
+from bgmi.pure_utils import render_template
 from bgmi.script import ScriptRunner
 from bgmi.sql import init_db
 from bgmi.utils import (
     COLOR_END, GREEN, RED, WHITE, YELLOW, check_update, convert_cover_url_to_path, get_terminal_col,
-    get_web_admin, print_error, print_info, print_success, print_warning, render_template
+    get_web_admin, print_error, print_info, print_success, print_warning
 )
 from bgmi.website import get_all_provider
 

@@ -20,9 +20,8 @@ from bgmi.lib.db_models import (
     get_updating_bangumi_with_out_data_source
 )
 from bgmi.models.status import BangumiStatus
-from bgmi.utils import (
-    full_to_half, normalize_path, parallel, print_info, print_warning, test_connection
-)
+from bgmi.pure_utils import full_to_half, normalize_path, parallel
+from bgmi.utils import print_info, print_warning
 from bgmi.website.base import BaseWebsite
 
 from . import bangumi_moe, base, mikan, share_dmhy
@@ -224,10 +223,6 @@ class DataSource:
         :param save: set true to enable save bangumi data to database
         :type save: bool
         """
-        if force_update and not test_connection():
-            force_update = False
-            print_warning('Network is unreachable')
-
         if force_update:
             print_info('Fetching bangumi info ...')
             weekly_list = self.fetch(save=save)
