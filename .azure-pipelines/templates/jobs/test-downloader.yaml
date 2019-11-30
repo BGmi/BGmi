@@ -66,3 +66,5 @@ jobs:
       inputs:
         testResultsFiles: 'junit/test_*.xml'
         testRunTitle: 'Publish test results for Python $(python.version)'
+
+    - script: bash <(curl -s https://codecov.io/bash)
