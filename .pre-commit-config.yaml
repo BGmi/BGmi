@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+    rev: v2.4.0
     hooks:
       - id: check-merge-conflict
         exclude: '\.rst$'
@@ -29,6 +29,20 @@ repos:
     hooks:
       - id: find-trailing-comma
 
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v1.25.1
+    hooks:
+      - id: pyupgrade
+        args: ['--py36-plus',]
+
+#  - repo: https://github.com/PyCQA/doc8
+#    rev: 0.8.1rc2
+#    hooks:
+#      - id: doc8
+#        args: ['--config', 'setup.cfg']
+#        files: \.rst$
+
+
   - repo: local
     hooks:
       - id: flake8
@@ -46,14 +60,6 @@ repos:
         language: system
         types: [python]
         args: ['--in-place', '--remove-unused-variables', '--remove-all-unused-imports']
-
-      - id: pyupgrade
-        name: pyupgrade
-        entry: pyupgrade
-        require_serial: true
-        language: system
-        types: [python]
-        args: ['--py36-plus', '--keep-percent-format']
 
       - id: isort
         name: isort

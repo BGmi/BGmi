@@ -1,0 +1,28 @@
+jobs:
+- job: 'Lint'
+  pool:
+    vmImage: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
+
+  strategy:
+    matrix:
+      Python36:
+        python.version: '3.6'
+      Python37:
+        python.version: '3.7'
+
+  steps:
+    - template: /.azure-pipelines/templates/steps/install-project.yaml
+      parameters:
+        python_version: $(python.version)
+
+    - task: Cache@1
+      inputs:
+        key: '"pre-commit" | "$(Agent.OS)" | "$(python.version)" | .pre-commit-config.yaml'
+        restoreKeys: |
+          "pre-commit" | "$(Agent.OS)" | "$(python.version)" | .pre-commit-config.yaml
+          "pre-commit" | "$(Agent.OS)" | "$(python.version)"
+          "pre-commit" | "$(Agent.OS)"
+        path: /home/vsts/.cache/pre-commit
+      displayName: Cache Pre-commit
+
+    - script: pre-commit run --all-files

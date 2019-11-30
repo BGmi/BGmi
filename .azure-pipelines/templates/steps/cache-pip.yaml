@@ -1,33 +1,36 @@
+parameters:
+  python_version: ''  # defaults for any parameters that aren't specified
+
 steps:
   - task: Cache@1
     inputs:
-      key: '"$(Agent.OS)" | "${{ parameters.python_version }}" | poetry.lock'
+      key: '"pip" | "$(Agent.OS)" | "${{ parameters.python_version }}" | poetry.lock'
       restoreKeys: |
-        "$(Agent.OS)" | "${{ parameters.python_version }}" | poetry.lock
-        "$(Agent.OS)" | "${{ parameters.python_version }}"
-        "$(Agent.OS)"
+        "pip" | "$(Agent.OS)" | "${{ parameters.python_version }}" | poetry.lock
+        "pip" | "$(Agent.OS)" | "${{ parameters.python_version }}"
+        "pip" | "$(Agent.OS)"
       path: /home/vsts/.cache/pip
     displayName: Cache pip
     condition: eq(variables['Agent.OS'], 'Linux')
 
   - task: Cache@1
     inputs:
-      key: '"$(Agent.OS)" | "${{ parameters.python_version }}" | poetry.lock'
+      key: '"pip" | "$(Agent.OS)" | "${{ parameters.python_version }}" | poetry.lock'
       restoreKeys: |
-        "$(Agent.OS)" | "${{ parameters.python_version }}" | poetry.lock
-        "$(Agent.OS)" | "${{ parameters.python_version }}"
-        "$(Agent.OS)"
+        "pip" | "$(Agent.OS)" | "${{ parameters.python_version }}" | poetry.lock
+        "pip" | "$(Agent.OS)" | "${{ parameters.python_version }}"
+        "pip" | "$(Agent.OS)"
       path: /Users/runner/Library/Caches/pip
     displayName: Cache pip
     condition: eq(variables['Agent.OS'], 'Darwin')
 
   - task: Cache@1
     inputs:
-      key: '"$(Agent.OS)" | "${{ parameters.python_version }}" | poetry.lock'
+      key: '"pip" | "$(Agent.OS)" | "${{ parameters.python_version }}" | poetry.lock'
       restoreKeys: |
-        "$(Agent.OS)" | "${{ parameters.python_version }}" | poetry.lock
-        "$(Agent.OS)" | "${{ parameters.python_version }}"
-        "$(Agent.OS)"
+        "pip" | "$(Agent.OS)" | "${{ parameters.python_version }}" | poetry.lock
+        "pip" | "$(Agent.OS)" | "${{ parameters.python_version }}"
+        "pip" | "$(Agent.OS)"
       path: C:\Users\VssAdministrator\AppData\Local\pip\Cache
     displayName: Cache pip
     condition: eq(variables['Agent.OS'], 'Windows_NT')

@@ -26,3 +26,5 @@ coverage run -a -m bgmi update ${BANGUMI_2}
 coverage run -a -m bgmi filter ${BANGUMI_2} --subtitle "" --exclude "MKV" --regex "720p|720P"
 coverage run -a -m bgmi fetch ${BANGUMI_2}
 coverage run -a -m bgmi search ${BANGUMI_2} --regex-filter '.*MP4.*720P.*' --min-episode 800 --max-episode 900
+
+curl -sSL https://codecov.io/bash | bash

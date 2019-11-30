@@ -8,6 +8,8 @@ steps:
       versionSpec: '${{ parameters.python_version }}'
 
   - template: ./cache-pip.yaml
+    parameters:
+      python_version: '${{ parameters.python_version }}'
 
   - bash: |
       python -m pip install toml==0.10.0
