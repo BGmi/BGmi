@@ -1,6 +1,8 @@
 import unittest
 from unittest import mock
 
+import pytest
+
 import bgmi.lib.controllers
 from bgmi.lib import controllers
 from bgmi.lib.controllers import ActionStatus
@@ -8,11 +10,14 @@ from bgmi.lib.db_models import Bangumi, Followed
 from bgmi.website.base import BaseWebsite
 from tests.test_db_models import Base
 
+_re_run = 3
+
 
 def w():
     return mock.Mock(spec=BaseWebsite)
 
 
+@pytest.mark.flaky(reruns=_re_run)
 class ControllersTest(Base, unittest.TestCase):
     """
     at the beginning of each test,

@@ -28,8 +28,10 @@ test_websites = [
     BangumiMoe,
     DmhySource,
 ]
+_re_run = 3
 
 
+@pytest.mark.flaky(reruns=_re_run)
 @pytest.mark.parametrize('website', test_websites)
 def test_search(website):
     w = website()
@@ -41,6 +43,7 @@ def test_search(website):
         assert 'episode' in b
 
 
+@pytest.mark.flaky(reruns=_re_run)
 @pytest.mark.parametrize('website', test_websites)
 def test_info(website):
     w = website()

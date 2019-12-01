@@ -1,10 +1,14 @@
+import json
 import os
 
+import requests
+
+from bgmi import utils
 from bgmi.config import (
-    BGMI_PATH, FRONT_STATIC_PATH, IS_WINDOWS, SAVE_PATH, SCRIPT_PATH, TMP_PATH, TOOLS_PATH
+    BGMI_PATH, FRONT_STATIC_PATH, FRONTEND_NPM_URL, IS_WINDOWS, PACKAGE_JSON_URL, SAVE_PATH,
+    SCRIPT_PATH, TMP_PATH, TOOLS_PATH
 )
-from bgmi.pure_utils import exec_command
-from bgmi.utils import print_error, print_info, print_success, print_warning
+from bgmi.utils import exec_command, print_error, print_info, print_success, print_warning
 
 
 def install_crontab() -> None:
@@ -42,3 +46,23 @@ def create_dir() -> None:
                 print_success('%s created successfully' % path)
     except OSError as e:
         print_error('Error: {}'.format(str(e)))
+
+
+def get_web_admin():
+    print_info('Fetching BGmi frontend')
+    try:
+        r = requests.get(FRONTEND_NPM_URL).json()
+        version = requests.get(PACKAGE_JSON_URL).json()
+        if 'error' in version and version['reason'] == 'document not found':  # pragma: no cover
+            print_error(
+                'Cnpm has not synchronized the latest version of BGmi-frontend from npm, '
+                'please try it later'
+            )
+        tar_url = r['versions'][version['version']]['dist']['tarball']
+        r = requests.get(tar_url)
+        utils.unzip_zipped_file(r.content, version)
+        print_success('Web admin page install successfully. version: {}'.format(version['version']))
+    except requests.exceptions.ConnectionError:
+        print_error('failed to download web admin')
+    except json.JSONDecodeError:
+        print_error('failed to download web admin')

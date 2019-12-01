@@ -20,8 +20,7 @@ from bgmi.lib.db_models import (
     get_updating_bangumi_with_out_data_source
 )
 from bgmi.models.status import BangumiStatus
-from bgmi.pure_utils import full_to_half, normalize_path, parallel
-from bgmi.utils import print_info, print_warning
+from bgmi.utils import full_to_half, normalize_path, parallel, print_info, print_warning
 from bgmi.website.base import BaseWebsite
 
 from . import bangumi_moe, base, mikan, share_dmhy
@@ -394,12 +393,14 @@ def bind_bangumi_item_in_db_to_bangumi():
             bangumi.save()
 
     bangumi_item_list = list(BangumiItem.get_marked_updating_bangumi())
-    Bangumi.update(has_data_source=1)\
-        .where(Bangumi.id.in_([x.bangumi_id for x in bangumi_item_list])
-               & (Bangumi.status == Bangumi.STATUS.UPDATING)).execute()
-    Bangumi.update(has_data_source=0) \
-        .where(Bangumi.id.not_in([x.bangumi_id for x in bangumi_item_list])
-               & (Bangumi.status == Bangumi.STATUS.UPDATING)).execute()
+    Bangumi.update(has_data_source=1).where(
+        Bangumi.id.in_([x.bangumi_id for x in bangumi_item_list])
+        & (Bangumi.status == Bangumi.STATUS.UPDATING)
+    ).execute()
+    Bangumi.update(has_data_source=0).where(
+        Bangumi.id.not_in([x.bangumi_id for x in bangumi_item_list])
+        & (Bangumi.status == Bangumi.STATUS.UPDATING)
+    ).execute()
 
 
 def enabled_data_source_id(data_source_id, followed: models.Followed):
@@ -413,5 +414,12 @@ def enabled_data_source_id(data_source_id, followed: models.Followed):
 
 
 __all__ = [
-    'mikan', 'bangumi_moe', 'share_dmhy', 'base', 'DataSource', 'bind_bangumi_item_in_db_to_bangumi'
+    'mikan',
+    'bangumi_moe',
+    'share_dmhy',
+    'base',
+    'DataSource',
+    'bind_bangumi_item_in_db_to_bangumi',
+    'get_all_provider',
+    'get_provider',
 ]

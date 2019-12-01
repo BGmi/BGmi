@@ -45,14 +45,6 @@ repos:
 
   - repo: local
     hooks:
-      - id: flake8
-        name: flake8
-        entry: flake8
-        require_serial: false
-        language: system
-        types: [python]
-        args: ['--config=setup.cfg']
-
       - id: autoflake
         name: autoflake
         entry: autoflake
@@ -60,6 +52,14 @@ repos:
         language: system
         types: [python]
         args: ['--in-place', '--remove-unused-variables', '--remove-all-unused-imports']
+
+      - id: flake8
+        name: flake8
+        entry: flake8
+        require_serial: false
+        language: system
+        types: [python]
+        args: ['--config=setup.cfg']
 
       - id: isort
         name: isort

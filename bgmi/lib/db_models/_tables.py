@@ -11,7 +11,7 @@ from playhouse.shortcuts import model_to_dict
 
 from bgmi import config
 from bgmi.lib.constants import SECOND_OF_WEEK
-from bgmi.pure_utils import split_str_to_list
+from bgmi.utils import split_str_to_list
 
 from ._db import NeoDB, db
 

@@ -351,3 +351,14 @@ read_config_from_env()
 # ------------------------------ #
 # will be used in other other db_models
 __all_writable_now__ = __writeable__ + DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]
+
+__admin_version__ = '1.1.x'
+
+if 'SYSTEM_TEAMFOUNDATIONSERVERURI' in os.environ:
+    # in azure pipelines
+    NPM_REGISTER_DOMAIN = 'registry.npmjs.com'
+else:
+    NPM_REGISTER_DOMAIN = 'registry.npm.taobao.org'
+
+FRONTEND_NPM_URL = f'https://{NPM_REGISTER_DOMAIN}/bgmi-frontend/'
+PACKAGE_JSON_URL = FRONTEND_NPM_URL + __admin_version__

@@ -13,9 +13,11 @@ from bgmi.lib.db_models import Bangumi, BangumiItem, DoesNotExist, Followed, Sub
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
 from bgmi.logger import logger
-from bgmi.pure_utils import normalize_path, parallel, split_str_to_list
 from bgmi.script import ScriptRunner
-from bgmi.utils import COLOR_END, GREEN, print_error, print_info, print_success, print_warning
+from bgmi.utils import (
+    COLOR_END, GREEN, normalize_path, parallel, print_error, print_info, print_success,
+    print_warning, split_str_to_list
+)
 from bgmi.utils.followed_filter import apply_regex
 
 

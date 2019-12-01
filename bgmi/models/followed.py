@@ -6,7 +6,7 @@ from bgmi import config
 from bgmi.lib import db_models
 from bgmi.models import Episode
 from bgmi.models.status import FollowedStatus
-from bgmi.pure_utils import split_str_to_list
+from bgmi.utils import split_str_to_list
 from bgmi.utils.followed_filter import apply_regex
 
 

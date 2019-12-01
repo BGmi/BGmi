@@ -9,8 +9,7 @@ from bgmi.config import DOWNLOAD_DELEGATE, SAVE_PATH
 from bgmi.downloader.base import AuthError, BaseDownloadService, ConnectError, RequireNotSatisfied
 from bgmi.lib.constants import NameSpace
 from bgmi.lib.db_models import Download
-from bgmi.pure_utils import normalize_path
-from bgmi.utils import print_error
+from bgmi.utils import normalize_path, print_error
 
 
 def get_download_class(rpc_name) -> BaseDownloadService:

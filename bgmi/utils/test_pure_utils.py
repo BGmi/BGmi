@@ -8,8 +8,8 @@ import pytest
 
 import bgmi
 import bgmi.config
-import bgmi.pure_utils
-from bgmi.pure_utils import split_str_to_list
+import bgmi.utils.pure_utils
+from bgmi.utils.pure_utils import split_str_to_list
 
 
 @pytest.mark.parametrize(
@@ -24,7 +24,7 @@ def test_split_str_to_list(s, output):
 
 
 def test_normalize_path():
-    assert bgmi.pure_utils.normalize_path(
+    assert bgmi.utils.pure_utils.normalize_path(
         'http://hello? world:/233.qq'
     ) == 'http/hello world/233.qq'
 
@@ -53,8 +53,8 @@ class UtilsTest(unittest.TestCase):
         content = 'template content'
         with open(self.template_path, 'w+', encoding='utf8') as f:
             f.write(content)
-        self.assertEqual(bgmi.pure_utils.render_template(self.template_path), content)
-        self.assertEqual(bgmi.pure_utils.render_template(Path(self.template_path)), content)
+        self.assertEqual(bgmi.utils.pure_utils.render_template(self.template_path), content)
+        self.assertEqual(bgmi.utils.pure_utils.render_template(Path(self.template_path)), content)
 
     def test_render_template_with_file(self):
         content = 'template content'
@@ -62,7 +62,7 @@ class UtilsTest(unittest.TestCase):
         with open(self.template_path, 'w+', encoding='utf8') as f:
             f.write(content)
         with open(self.template_path, 'r', encoding='utf8') as f:
-            self.assertEqual(bgmi.pure_utils.render_template(f), content)
+            self.assertEqual(bgmi.utils.pure_utils.render_template(f), content)
 
     def test_render_template_with_ctx(self):
         content = '{{name}} world'
@@ -70,7 +70,7 @@ class UtilsTest(unittest.TestCase):
             f.write(content)
         with open(self.template_path, 'r', encoding='utf8') as f:
             self.assertEqual(
-                bgmi.pure_utils.render_template(f, ctx={'name': 'hello'}), 'hello world'
+                bgmi.utils.pure_utils.render_template(f, ctx={'name': 'hello'}), 'hello world'
             )
 
     def test_render_template_with_kwargs(self):
@@ -78,4 +78,4 @@ class UtilsTest(unittest.TestCase):
         with open(self.template_path, 'w+', encoding='utf8') as f:
             f.write(content)
         with open(self.template_path, 'r', encoding='utf8') as f:
-            self.assertEqual(bgmi.pure_utils.render_template(f, name='hello'), 'hello world')
+            self.assertEqual(bgmi.utils.pure_utils.render_template(f, name='hello'), 'hello world')

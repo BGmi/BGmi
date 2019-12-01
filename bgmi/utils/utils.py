@@ -1,32 +1,19 @@
-import glob
 import gzip
 import json
 import os
-import signal
 import struct
 import subprocess
 import tarfile
-import time
 from io import BytesIO
 from shutil import move, rmtree
 
 import requests
 
-from bgmi import __admin_version__, __version__, config
-from bgmi.lib import constants, db_models
+from bgmi import config
 from bgmi.logger import logger
-from bgmi.pure_utils import normalize_path, parallel
+from bgmi.utils.pure_utils import normalize_path, parallel
 
-from ._decorator import COLOR_END, GREEN, _indicator, colorize, disable_in_test, log_utils_function
-
-SECOND_OF_WEEK = 7 * 24 * 3600
-
-if os.environ.get('TRAVIS_CI', False):
-    NPM_REGISTER_DOMAIN = 'registry.npmjs.com'
-else:
-    NPM_REGISTER_DOMAIN = 'registry.npm.taobao.org'
-FRONTEND_NPM_URL = f'https://{NPM_REGISTER_DOMAIN}/bgmi-frontend/'
-PACKAGE_JSON_URL = f'https://{NPM_REGISTER_DOMAIN}/bgmi-frontend/{__admin_version__}'
+from ._decorator import _indicator, colorize, disable_in_test, log_utils_function
 
 
 @disable_in_test
@@ -71,6 +58,10 @@ def bug_report():  # pragma: no cover
 
 @log_utils_function
 def get_terminal_col():  # pragma: no cover
+    if 'SYSTEM_TEAMFOUNDATIONSERVERURI' in os.environ:
+        # azure pipelines
+        return 80
+
     # https://gist.github.com/jtriley/1108174
     if not config.IS_WINDOWS:
         import fcntl
@@ -99,70 +90,6 @@ def get_terminal_col():  # pragma: no cover
         return cols
     except BaseException:
         return 80
-
-
-def _parse_version(version_string):
-    return [int(x) for x in version_string.split('.')]
-
-
-def update(mark=True):
-    try:
-        print_info('Checking update ...')
-        version = requests.get('https://pypi.python.org/pypi/bgmi/json').json()['info']['version']
-        db_models.get_kv_storage()[constants.kv.LATEST_VERSION] = version
-
-        if version > __version__:
-            print_warning(
-                'Please update bgmi to the latest version {}{}{}.'
-                '\nThen execute `bgmi upgrade` to migrate database'.format(
-                    GREEN, version, COLOR_END
-                )
-            )
-        else:
-            print_success('Your BGmi is the latest version.')
-
-        package_json = requests.get(PACKAGE_JSON_URL).json()
-        admin_version = package_json['version']
-        if glob.glob(os.path.join(config.FRONT_STATIC_PATH, 'package.json')):
-            with open(os.path.join(config.FRONT_STATIC_PATH, 'package.json'), 'r') as f:
-                local_version = json.loads(f.read())['version']
-            if _parse_version(admin_version) > _parse_version(local_version):
-                get_web_admin()
-        else:
-            print_info("Use 'bgmi install' to install BGmi frontend / download delegate")
-        if not mark:
-            update()
-            raise SystemExit
-    except (requests.ConnectionError, requests.ConnectTimeout) as e:
-        print_warning('Error occurs when checking update, {}'.format(str(e)))
-
-
-@log_utils_function
-def check_update(mark=True):
-    date = db_models.get_kv_storage().get(constants.kv.LAST_CHECK_UPDATE_TIME, 0)
-    if time.time() - date > SECOND_OF_WEEK:
-        update(mark)
-        db_models.get_kv_storage()[constants.kv.LAST_CHECK_UPDATE_TIME] = int(time.time())
-
-
-def get_web_admin():
-    print_info('Fetching BGmi frontend')
-    try:
-        r = requests.get(FRONTEND_NPM_URL).json()
-        version = requests.get(PACKAGE_JSON_URL).json()
-        if 'error' in version and version['reason'] == 'document not found':  # pragma: no cover
-            print_error(
-                'Cnpm has not synchronized the latest version of BGmi-frontend from npm, '
-                'please try it later'
-            )
-        tar_url = r['versions'][version['version']]['dist']['tarball']
-        r = requests.get(tar_url)
-        unzip_zipped_file(r.content, version)
-        print_success('Web admin page install successfully. version: {}'.format(version['version']))
-    except requests.exceptions.ConnectionError:
-        print_error('failed to download web admin')
-    except json.JSONDecodeError:
-        print_error('failed to download web admin')
 
 
 def unzip_zipped_file(file_content, front_version):
@@ -235,12 +162,3 @@ def download_cover(cover_url_list):
             os.makedirs(dir_path)
 
     parallel(download_file, cover_url_list)
-
-
-# global Ctrl-C signal handler
-def signal_handler(signal, frame):  # pragma: no cover # pylint: disable=W0613
-
-    print_error('User aborted, quit')
-
-
-signal.signal(signal.SIGINT, signal_handler)

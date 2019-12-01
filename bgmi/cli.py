@@ -3,6 +3,7 @@ import imghdr
 import itertools
 import os
 import re
+import signal
 import string
 import sys
 from functools import wraps
@@ -23,17 +24,15 @@ from bgmi.lib.db_models import (
 )
 from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
-from bgmi.lib.update import upgrade_version
-from bgmi.pure_utils import render_template
+from bgmi.lib.update import check_update, upgrade_version
 from bgmi.script import ScriptRunner
+from bgmi.setup import get_web_admin
 from bgmi.sql import init_db
 from bgmi.utils import (
-    COLOR_END, GREEN, RED, WHITE, YELLOW, check_update, convert_cover_url_to_path, get_terminal_col,
-    get_web_admin, print_error, print_info, print_success, print_warning
+    COLOR_END, GREEN, RED, WHITE, YELLOW, convert_cover_url_to_path, get_terminal_col, print_error,
+    print_info, print_success, print_warning, render_template
 )
-from bgmi.website import get_all_provider
-
-from .website import get_provider
+from bgmi.website import get_all_provider, get_provider
 
 
 def action_decorator(fn):
@@ -668,4 +667,9 @@ Blog: https://ricterz.me'''.format(
 )
 @click.version_option(print_version(), prog_name='BGmi', message='%(prog)s version %(version)s')
 def cli():
-    pass
+    # global Ctrl-C signal handler
+    def signal_handler(signal, frame):  # pragma: no cover # pylint: disable=W0613
+
+        print_error('User aborted, quit')
+
+    signal.signal(signal.SIGINT, signal_handler)
