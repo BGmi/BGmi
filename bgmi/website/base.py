@@ -36,6 +36,7 @@ class BaseWebsite(ABC):
 
         :rtype: str
         """
+
     @property
     @abstractmethod
     def data_source_id(self):
@@ -44,6 +45,7 @@ class BaseWebsite(ABC):
 
         :rtype: str
         """
+
     @abstractmethod
     def fetch_bangumi_calendar_and_subtitle_group(self):  # pragma: no cover
         """
@@ -91,7 +93,9 @@ class BaseWebsite(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def fetch_episode_of_bangumi(self, bangumi_id, max_page,
+    def fetch_episode_of_bangumi(self,
+                                 bangumi_id,
+                                 max_page,
                                  subtitle_list=None) -> List[dict]:  # pragma: no cover
         """
         get all episode by bangumi id
