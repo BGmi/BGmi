@@ -16,3 +16,4 @@ jobs:
         python_version: $(python.version)
 
     - template: /.azure-pipelines/templates/steps/commands.yaml
+    - template: /.azure-pipelines/templates/steps/codecov.yaml
