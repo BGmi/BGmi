@@ -52,6 +52,7 @@ class BangumiTest(Base, TestCase):
 
         has_data_source = pw.IntegerField(default=0)
     """
+
     def test_delete_all(self):
         now = int(time.time())
         name_updating = []

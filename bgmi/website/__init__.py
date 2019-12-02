@@ -238,7 +238,9 @@ class DataSource:
 
         return weekly_list
 
-    def get_maximum_episode(self, bangumi, ignore_old_row=True,
+    def get_maximum_episode(self,
+                            bangumi,
+                            ignore_old_row=True,
                             max_page=_MAX_PAGE) -> Tuple[dict, List[models.Episode]]:
         """
 
