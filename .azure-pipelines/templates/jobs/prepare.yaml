@@ -26,3 +26,7 @@ jobs:
       displayName: Cache Pre-commit
 
     - script: pre-commit run --all-files
+      displayName: Pre-commit
+
+    - script: mypy bgmi
+      displayName: Mypy
