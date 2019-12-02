@@ -1,6 +1,9 @@
 steps:
   - bash: |
-      curl -sSL https://codecov.io/bash -o codecov
+      until curl -sSL https://raw.githubusercontent.com/codecov/codecov-bash/master/codecov -o codecov
+      do
+        echo "Try again"
+      done
 
       until bash codecov
       do

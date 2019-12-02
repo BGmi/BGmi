@@ -20,9 +20,9 @@ stages:
     - template: ./templates/jobs/test-mysql.yaml
 - stage: Command_Test
   jobs:
-    - template: /.azure-pipelines/templates/jobs/platform/windows.yaml
-    - template: /.azure-pipelines/templates/jobs/platform/linux.yaml
-    - template: /.azure-pipelines/templates/jobs/platform/macos.yaml
+    - template: ./templates/jobs/platform/windows.yaml
+    - template: ./templates/jobs/platform/linux.yaml
+    - template: ./templates/jobs/platform/macos.yaml
 - stage: Build
   jobs:
     - template: ./templates/jobs/build-docker.yaml
