@@ -32,6 +32,3 @@ flags:
   tests:
     paths:
       - tests/
-
-# comment: false  # to disable comments
-comment: false
