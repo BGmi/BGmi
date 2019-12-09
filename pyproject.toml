@@ -45,7 +45,7 @@ pydantic = "1.2"
 
 pymysql = { version = "0.9.3", optional = true }
 
-sphinx = { version = '2.2.1', optional = true }
+sphinx = { version = '2.2.2', optional = true }
 sphinx_rtd_theme =  { version = '0.4.3', optional = true }
 sphinxcontrib-httpdomain =  { version = '1.7.0', optional = true }
 sphinxcontrib-httpexample =  { version = '0.10.3', optional = true }
