@@ -7,6 +7,15 @@ trigger:
     exclude:
       - dependabot/*
 
+schedules:
+- cron: "0 12 * * 6"
+  displayName: Weekly Saturday build
+  branches:
+    include:
+    - master
+    - dev
+  always: true
+
 stages:
 - stage: Lint
   jobs:

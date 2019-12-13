@@ -7,19 +7,30 @@ steps:
     inputs:
       versionSpec: '${{ parameters.python_version }}'
 
-  - template: ./cache-pip.yaml
-    parameters:
-      python_version: '${{ parameters.python_version }}'
+  - bash: |
+      echo "##vso[task.setvariable variable=PY]$(python -VV)"
+    displayName: set env variables
+
+  - task: Cache@2
+    inputs:
+      key: '"pip" | "3" | "$(Agent.OS)" | "$(PY)" | poetry.lock'
+      restoreKeys: |
+        "pip" | "3" | "$(Agent.OS)" | "$(PY)" | poetry.lock
+        "pip" | "3" | "$(Agent.OS)" | "$(PY)"
+      path: $(Build.Repository.LocalPath)/.venv
+    displayName: Cache pip
 
   - bash: |
-      python -m pip install toml==0.10.0
-      python .ci/export_requirements.py --all
-      pip install --no-deps -r requirements.txt
       curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
       echo "##vso[task.prependpath]$HOME/.poetry/bin"
     displayName: Install Poetry
 
   - bash: |
-      poetry config settings.virtualenvs.create false
-      poetry install
+      poetry config virtualenvs.in-project true
+      poetry install -E docs
+      if [[ "$(Agent.OS)" == 'Windows_NT' ]];then
+        echo "##vso[task.prependpath]$PWD/.venv/Scripts"
+      else
+        echo "##vso[task.prependpath]$PWD/.venv/bin"
+      fi
     displayName: Install Packages

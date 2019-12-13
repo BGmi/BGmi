@@ -18,7 +18,7 @@ jobs:
     - script: sudo apt-get install upx-ucl
 
     - script: |
-        pyinstaller .ci/bgmi.spec --distpath ./dist/binary/
+        pyinstaller .azure-pipelines/bgmi.spec --distpath ./dist/binary/
         mv ./dist/binary/bgmi ./dist/binary/bgmi-$(uname -s)-$(uname -m)
       displayName: build binary
 

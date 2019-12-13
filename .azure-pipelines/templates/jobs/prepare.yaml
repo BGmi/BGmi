@@ -17,12 +17,12 @@ jobs:
 
     - task: Cache@1
       inputs:
-        key: '"pre-commit" | "$(Agent.OS)" | "$(python.version)" | .pre-commit-config.yaml'
+        key: '"pre-commit" | "$(PY)" | .pre-commit-config.yaml'
         restoreKeys: |
-          "pre-commit" | "$(Agent.OS)" | "$(python.version)" | .pre-commit-config.yaml
-          "pre-commit" | "$(Agent.OS)" | "$(python.version)"
-          "pre-commit" | "$(Agent.OS)"
-        path: /home/vsts/.cache/pre-commit
+          "pre-commit" | "$(PY)" | .pre-commit-config.yaml
+          "pre-commit" | "$(PY)"
+          "pre-commit"
+        path: $(HOME)/.cache/pre-commit
       displayName: Cache Pre-commit
 
     - script: pre-commit run --all-files
