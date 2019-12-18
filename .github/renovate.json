@@ -1,0 +1,51 @@
+{
+  "extends": [
+    "config:base",
+    ":masterIssue",
+    ":semanticCommitTypeAll(chore)"
+  ],
+  "baseBranches": [
+    "dev"
+  ],
+  "assignees": [
+    "@Trim21"
+  ],
+  "pip_setup": {
+    "enabled": false
+  },
+  "pip_requirements": {
+    "enabled": false
+  },
+  "pipenv": {
+    "enabled": false
+  },
+  "rangeStrategy": "pin",
+  "semanticCommits": true,
+  "labels": [
+    "dependencies"
+  ],
+  "packageRules": [
+    {
+      "groupName": "deps-build",
+      "managers": [
+        "dockerfile"
+      ],
+      "versionScheme": "pep440",
+      "semanticCommitScope": "deps-build"
+    },
+    {
+      "groupName": "deps-prod",
+      "depTypeList": [
+        "dependencies"
+      ],
+      "semanticCommitScope": "deps"
+    },
+    {
+      "groupName": "deps-dev",
+      "depTypeList": [
+        "dev-dependencies"
+      ],
+      "semanticCommitScope": "deps-dev"
+    }
+  ]
+}
