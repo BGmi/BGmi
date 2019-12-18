@@ -23,5 +23,6 @@ test_dir
 .mypy_cache
 .pytest_cache
 codealike.json
-
+node_modules
 junit
+package-lock.json

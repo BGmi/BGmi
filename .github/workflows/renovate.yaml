@@ -1,0 +1,67 @@
+name: renovate
+
+#on: ['push']
+
+
+on:
+  push:
+    branches:
+      - dev
+      - '!renovate/**'
+  schedule:
+    # daily on github default branch
+    - cron:  '0 0 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-16.04
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '13'
+
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.7'
+
+      - name: Get Latest tools version
+        id: get-version
+        run: |
+          echo "::set-output name=poetry::$(curl -sSl https://pypi.org/pypi/poetry/json | jq .info.version -r)"
+          echo "::set-output name=renovate::$(npm info renovate --json | jq -r .version)"
+          echo "::set-output name=node::$(node -p 'process.version.substr(1)')"
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.poetry
+          key: ${{ steps.get-version.outputs.poetry }}
+
+      - uses: actions/cache@v1
+        with:
+          path: /opt/hostedtoolcache/node/${{ steps.get-version.outputs.node }}/x64/lib/node_modules/renovate
+          key: ${{ steps.get-version.outputs.node }}-${{ steps.get-version.outputs.renovate }}
+
+      - name: Install Poetry
+        run: |
+          echo "::add-path::$HOME/.poetry/bin"
+          $HOME/.poetry/bin/poetry --version && exit 0
+          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python - --version 1.0.0
+
+      - name: Install Renovate cli
+        run: npm i renovate@${{ steps.get-version.outputs.renovate }} -g
+
+      - name: Run renovate cli
+        run: |
+          renovate $GITHUB_REPOSITORY \
+                   --include-forks true \
+                   --token $PERSONAL_GITHUB_TOKEN \
+                   --platform github \
+                   --trust-level high \
+                   --log-level debug
+        env:
+          PERSONAL_GITHUB_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
+          POETRY_VIRTUALENVS_CREATE: 'false'

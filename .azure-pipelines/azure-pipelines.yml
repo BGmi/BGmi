@@ -6,34 +6,44 @@ trigger:
       - '*'
     exclude:
       - dependabot/*
+  paths:
+    include:
+      - '*'
+    exclude:
+      - '.github/'
+      - 'README.rst'
+      - 'codecov.yml'
+      - '.readthedocs.yml'
+      - '.gitignore'
+      - '.editorconfig'
 
 schedules:
-- cron: "0 12 * * 6"
-  displayName: Weekly Saturday build
-  branches:
-    include:
-    - master
-    - dev
-  always: true
+  - cron: "0 12 * * 6"
+    displayName: Weekly Saturday build
+    branches:
+      include:
+        - master
+        - dev
+    always: true
 
 stages:
-- stage: Lint
-  jobs:
-    - template: ./templates/jobs/prepare.yaml
-- stage: Test
-  jobs:
-    - template: ./templates/jobs/base-unittest.yaml
-    - template: ./templates/jobs/test-downloader.yaml
-    - template: ./templates/jobs/test-controller.yaml
-    - template: ./templates/jobs/test-sqlite.yaml
-    - template: ./templates/jobs/test-mysql.yaml
-- stage: Command_Test
-  jobs:
-    - template: ./templates/jobs/platform/windows.yaml
-    - template: ./templates/jobs/platform/linux.yaml
-    - template: ./templates/jobs/platform/macos.yaml
-- stage: Build
-  jobs:
-    - template: ./templates/jobs/build-docker.yaml
-    - template: ./templates/jobs/build-binary.yaml
-    - template: ./templates/jobs/build-docs.yaml
+  - stage: Lint
+    jobs:
+      - template: ./templates/jobs/prepare.yaml
+  - stage: Test
+    jobs:
+      - template: ./templates/jobs/base-unittest.yaml
+      - template: ./templates/jobs/test-downloader.yaml
+      - template: ./templates/jobs/test-controller.yaml
+      - template: ./templates/jobs/test-sqlite.yaml
+      - template: ./templates/jobs/test-mysql.yaml
+  - stage: Command_Test
+    jobs:
+      - template: ./templates/jobs/platform/windows.yaml
+      - template: ./templates/jobs/platform/linux.yaml
+      - template: ./templates/jobs/platform/macos.yaml
+  - stage: Build
+    jobs:
+      - template: ./templates/jobs/build-docker.yaml
+      - template: ./templates/jobs/build-binary.yaml
+      - template: ./templates/jobs/build-docs.yaml
