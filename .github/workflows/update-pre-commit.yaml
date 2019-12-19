@@ -1,0 +1,78 @@
+name: check pre-commit update
+
+on:
+  push:
+    branches:
+      - dev
+  schedule:
+    # monthly on github default branch
+    - cron:  '0 0 1 * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-16.04
+
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          ref: 'dev'
+
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.7'
+
+      - name: Get Latest tools version
+        id: get-version
+        run: |
+          echo "::set-output name=poetry::$(curl -sSl https://pypi.org/pypi/poetry/json | jq .info.version -r)"
+          echo "::set-output name=python::$(python --version)"
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.poetry
+          key: ${{ steps.get-version.outputs.poetry }}
+
+      - name: Install Poetry
+        run: |
+          echo "::add-path::$HOME/.local/bin"
+          echo "::add-path::$HOME/.poetry/bin"
+          $HOME/.poetry/bin/poetry --version && exit 0
+          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python - --version 1.0.0
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.local
+          key: ${{ steps.get-version.outputs.python }}-${{ hashFiles('**/poetry.lock') }}
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ steps.get-version.outputs.python }}-${{ hashFiles('**/.pre-commit-config.yaml') }}
+
+      - name: Install Dependencies
+        run: |
+          pip install --user --no-deps -q -r <(poetry export -f requirements.txt --dev)
+
+      - name: check if pre-commit update
+        run: |
+          set +e
+          pre-commit autoupdate
+          git diff --exit-code
+          RESULT=$?
+          if [[ ! $RESULT -eq 0 ]] ; then
+            pre-commit run --all-files
+            exit $RESULT
+          fi
+
+      - name: Create A PR
+        if: failure()
+        uses: peter-evans/create-pull-request@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: update pre-commit config'
+          title: update pre-commit config
+          author-name: pol-actions[bot]
+          author-email: github@trim21.me
+          base: dev
+          branch: create-pull-request/pre-commit
+          branch-suffix: none
