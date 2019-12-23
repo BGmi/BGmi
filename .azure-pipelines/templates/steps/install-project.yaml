@@ -16,7 +16,6 @@ steps:
       key: '"pip" | "3" | "$(Agent.OS)" | "$(PY)" | poetry.lock'
       restoreKeys: |
         "pip" | "3" | "$(Agent.OS)" | "$(PY)" | poetry.lock
-        "pip" | "3" | "$(Agent.OS)" | "$(PY)"
       path: $(Build.Repository.LocalPath)/.venv
     displayName: Cache pip
 
