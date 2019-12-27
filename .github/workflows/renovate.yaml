@@ -11,14 +11,16 @@ on:
   schedule:
     # daily on github default branch
     - cron:  '0 0 * * *'
+  issue_comment:
+    types: [edited]
+  pull_request:
+    types: [edited]
 
 jobs:
   build:
     runs-on: ubuntu-16.04
 
     steps:
-      - uses: actions/checkout@v1
-
       - name: Setup node
         uses: actions/setup-node@v1
         with:
