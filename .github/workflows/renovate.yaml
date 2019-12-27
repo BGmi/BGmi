@@ -11,10 +11,6 @@ on:
   schedule:
     # daily on github default branch
     - cron:  '0 0 * * *'
-  issue_comment:
-    types: [edited]
-  pull_request:
-    types: [edited]
 
 jobs:
   build:
