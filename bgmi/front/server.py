@@ -1,7 +1,9 @@
 # encoding: utf-8
 from __future__ import print_function, unicode_literals
 
+import sys
 import os
+import asyncio
 
 import tornado.httpserver
 import tornado.ioloop
@@ -10,7 +12,7 @@ import tornado.template
 import tornado.web
 from tornado.options import options, define
 
-from bgmi.config import SAVE_PATH, FRONT_STATIC_PATH, TORNADO_SERVE_STATIC_FILES
+from bgmi.config import SAVE_PATH, FRONT_STATIC_PATH, TORNADO_SERVE_STATIC_FILES, IS_WINDOWS
 from bgmi.front.admin import AdminApiHandler, UpdateHandler, API_MAP_POST, API_MAP_GET
 from bgmi.front.index import BangumiListHandler, IndexHandler
 from bgmi.front.resources import RssHandler, CalendarHandler, BangumiHandler
@@ -24,7 +26,9 @@ if os.environ.get('DEV'):  # pragma: no cover
     def prepare(self):
         self.set_header('Access-Control-Allow-Origin', 'http://localhost:8080')
         self.set_header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-        self.set_header("Access-Control-Allow-Headers", "Content-Type, bgmi-token, X-Requested-With")
+        self.set_header("Access-Control-Allow-Headers",
+                        "Content-Type, bgmi-token, X-Requested-With")
+
 
     tornado.web.RequestHandler.prepare = prepare
 
@@ -60,6 +64,9 @@ def make_app(**kwargs):
 
 
 def main():
+    if IS_WINDOWS:
+        if sys.version_info[1] >= 8:
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     # print(tornado.options.options.__dict__)
     tornado.options.parse_command_line()
     print('BGmi HTTP Server listening on %s:%d' % (options.address, options.port))
