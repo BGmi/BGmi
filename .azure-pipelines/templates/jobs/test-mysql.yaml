@@ -1,44 +1,45 @@
 jobs:
-- job: 'Mysql'
-  pool:
-    vmImage: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
+  - job: 'Mysql'
+    pool:
+      vmImage: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
 
-  strategy:
-    matrix:
-      Python36:
-        python.version: '3.6'
-      Python37:
-        python.version: '3.7'
-
-#  services:
-#    mysql:
-#        image: mysql:5.7
-#        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --explicit_defaults_for_timestamp=on
-#        ports:
-#        - "3307:3306" # 3306 is in use
-#        env:
-#          MYSQL_USER: bgmi_user
-#          MYSQL_PASSWORD: bgmi_user_password
-#          MYSQL_DATABASE: bgmi
-#          MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
-
-
-  steps:
-    - task: DockerCompose@0
-      displayName: Container registry login
-      inputs:
-        action: Run services
-        dockerComposeFile: '$(Build.Repository.LocalPath)/.azure-pipelines/composes/mysql-docker-compose.yaml'
-
-    - template: /.azure-pipelines/templates/steps/install-project.yaml
-      parameters:
-        python_version: $(python.version)
+    strategy:
+      matrix:
+        Python36:
+          python.version: '3.6'
+        Python37:
+          python.version: '3.7'
+        Python38:
+          python.version: '3.8'
+    #  services:
+    #    mysql:
+    #        image: mysql:5.7
+    #        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --explicit_defaults_for_timestamp=on
+    #        ports:
+    #        - "3307:3306" # 3306 is in use
+    #        env:
+    #          MYSQL_USER: bgmi_user
+    #          MYSQL_PASSWORD: bgmi_user_password
+    #          MYSQL_DATABASE: bgmi
+    #          MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
 
 
-    - script: coverage run -m bgmi install --no-web
-    - template: /.azure-pipelines/templates/steps/get_test_data.yaml
+    steps:
+      - task: DockerCompose@0
+        displayName: Container registry login
+        inputs:
+          action: Run services
+          dockerComposeFile: '$(Build.Repository.LocalPath)/.azure-pipelines/composes/mysql-docker-compose.yaml'
 
-    - script: |
+      - template: /.azure-pipelines/templates/steps/install-project.yaml
+        parameters:
+          python_version: $(python.version)
+
+
+      - script: coverage run -m bgmi install --no-web
+      - template: /.azure-pipelines/templates/steps/get_test_data.yaml
+
+      - script: |
           # wait for mysql start up
           for i in `seq 1 200`; do
             nc -z localhost 3307 && \
@@ -47,18 +48,18 @@ jobs:
             sleep 0.1
           done
           echo 'Failed waiting for All docker' && exit 1
-      displayName: Wait Docker Ready
+        displayName: Wait Docker Ready
 
-    - script: coverage run -m pytest tests/test_db_models.py --reruns 0
-      displayName: Unittest
-      env:
-        BGMI_DB_URL: "mysql://bgmi_user:bgmi_user_password@127.0.0.1:3307/bgmi?charset=utf8mb4"
-        DB_SQL_PATH: ~/data/db.sql
+      - script: coverage run -m pytest tests/test_db_models.py --reruns 0
+        displayName: Unittest
+        env:
+          BGMI_DB_URL: "mysql://bgmi_user:bgmi_user_password@127.0.0.1:3307/bgmi?charset=utf8mb4"
+          DB_SQL_PATH: ~/data/db.sql
 
-    - task: PublishTestResults@2
-      condition: succeededOrFailed()
-      inputs:
-        testResultsFiles: 'junit/test_*.xml'
-        testRunTitle: 'Publish test results for Python $(python.version)'
+      - task: PublishTestResults@2
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFiles: 'junit/test_*.xml'
+          testRunTitle: 'Publish test results for Python $(python.version)'
 
-    - template: /.azure-pipelines/templates/steps/codecov.yaml
+      - template: /.azure-pipelines/templates/steps/codecov.yaml

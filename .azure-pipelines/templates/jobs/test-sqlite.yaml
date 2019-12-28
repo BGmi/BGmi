@@ -1,32 +1,33 @@
 jobs:
-- job: 'Sqlite'
-  pool:
-    vmImage: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
+  - job: 'Sqlite'
+    pool:
+      vmImage: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
 
-  strategy:
-    matrix:
-      Python36:
-        python.version: '3.6'
-      Python37:
-        python.version: '3.7'
+    strategy:
+      matrix:
+        Python36:
+          python.version: '3.6'
+        Python37:
+          python.version: '3.7'
+        Python38:
+          python.version: '3.8'
+    steps:
+      - template: /.azure-pipelines/templates/steps/install-project.yaml
+        parameters:
+          python_version: $(python.version)
 
-  steps:
-    - template: /.azure-pipelines/templates/steps/install-project.yaml
-      parameters:
-        python_version: $(python.version)
+      - script: coverage run -m bgmi install --no-web
+      - template: /.azure-pipelines/templates/steps/get_test_data.yaml
 
-    - script: coverage run -m bgmi install --no-web
-    - template: /.azure-pipelines/templates/steps/get_test_data.yaml
+      - script: coverage run -m pytest tests/test_db_models.py --reruns 0
+        displayName: Unittest
+        env:
+          DB_SQL_PATH: ~/data/db.sql
 
-    - script: coverage run -m pytest tests/test_db_models.py --reruns 0
-      displayName: Unittest
-      env:
-        DB_SQL_PATH: ~/data/db.sql
+      - task: PublishTestResults@2
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFiles: 'junit/test_*.xml'
+          testRunTitle: 'Publish test results for Python $(python.version)'
 
-    - task: PublishTestResults@2
-      condition: succeededOrFailed()
-      inputs:
-        testResultsFiles: 'junit/test_*.xml'
-        testRunTitle: 'Publish test results for Python $(python.version)'
-
-    - template: /.azure-pipelines/templates/steps/codecov.yaml
+      - template: /.azure-pipelines/templates/steps/codecov.yaml

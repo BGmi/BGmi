@@ -1,47 +1,48 @@
 jobs:
-- job: 'Downloader'
-  pool:
-    container: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
+  - job: 'Downloader'
+    pool:
+      container: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
 
-  strategy:
-    matrix:
-      Python36:
-        python.version: '3.6'
-      Python37:
-        python.version: '3.7'
+    strategy:
+      matrix:
+        Python36:
+          python.version: '3.6'
+        Python37:
+          python.version: '3.7'
+        Python38:
+          python.version: '3.8'
+    services:
+      deluge:
+        image: linuxserver/deluge:2.0.3-2201906121747ubuntu18.04.1-ls42
+        ports:
+          - "8112:8112"
+        env:
+          PUID: "1001"
+          PGID: "1000"
+          TZ: "Asia/Shanghai"
+          UMASK_SET: "022"
+      aria2:
+        image: bgmidocker/aria2:latest
+        ports:
+          - "6800:6800"
+        env:
+          RPC_SECRET: aria2-rpc-secret
+      transmission:
+        image: caseyfw/transmission
+        ports:
+          - "9091:9091"
+        env:
+          UID: '1000'
+          USERNAME: "transmission-rpc-username"
+          PASSWORD: "example-rpc-password"
 
-  services:
-    deluge:
-      image: linuxserver/deluge:2.0.3-2201906121747ubuntu18.04.1-ls42
-      ports:
-        - "8112:8112"
-      env:
-        PUID: "1001"
-        PGID: "1000"
-        TZ: "Asia/Shanghai"
-        UMASK_SET: "022"
-    aria2:
-      image: bgmidocker/aria2:latest
-      ports:
-        - "6800:6800"
-      env:
-        RPC_SECRET: aria2-rpc-secret
-    transmission:
-      image: caseyfw/transmission
-      ports:
-        - "9091:9091"
-      env:
-        UID: '1000'
-        USERNAME: "transmission-rpc-username"
-        PASSWORD: "example-rpc-password"
 
+    steps:
+      - template: /.azure-pipelines/templates/steps/install-project.yaml
+        parameters:
+          python_version: $(python.version)
 
-  steps:
-    - template: /.azure-pipelines/templates/steps/install-project.yaml
-      parameters:
-        python_version: $(python.version)
-
-    - script: |
+      - script: |
           # wait for mysql start up
           for i in `seq 1 200`; do
             nc -z localhost 8112 && \
@@ -52,19 +53,19 @@ jobs:
             sleep 0.1
           done
           echo 'Failed waiting for All docker' && exit 1
-      displayName: Wait Docker Ready
+        displayName: Wait Docker Ready
 
-    - script: coverage run -m pytest bgmi/downloader
-      displayName: Unittest
-      env:
-        BGMI_TRANSMISSION_RPC_URL: "http://transmission-rpc-username:example-rpc-password\
+      - script: coverage run -m pytest bgmi/downloader
+        displayName: Unittest
+        env:
+          BGMI_TRANSMISSION_RPC_URL: "http://transmission-rpc-username:example-rpc-password\
         @localhost:9091/transmission/rpc"
-        BGMI_ARIA2_RPC_TOKEN: token:aria2-rpc-secret
+          BGMI_ARIA2_RPC_TOKEN: token:aria2-rpc-secret
 
-    - task: PublishTestResults@2
-      condition: succeededOrFailed()
-      inputs:
-        testResultsFiles: 'junit/test_*.xml'
-        testRunTitle: 'Publish test results for Python $(python.version)'
+      - task: PublishTestResults@2
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFiles: 'junit/test_*.xml'
+          testRunTitle: 'Publish test results for Python $(python.version)'
 
-    - template: /.azure-pipelines/templates/steps/codecov.yaml
+      - template: /.azure-pipelines/templates/steps/codecov.yaml

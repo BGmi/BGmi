@@ -1,32 +1,33 @@
 jobs:
-- job: 'Lint'
-  pool:
-    vmImage: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
+  - job: 'Lint'
+    pool:
+      vmImage: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
 
-  strategy:
-    matrix:
-      Python36:
-        python.version: '3.6'
-      Python37:
-        python.version: '3.7'
+    strategy:
+      matrix:
+        Python36:
+          python.version: '3.6'
+        Python37:
+          python.version: '3.7'
+        Python38:
+          python.version: '3.8'
+    steps:
+      - template: /.azure-pipelines/templates/steps/install-project.yaml
+        parameters:
+          python_version: $(python.version)
 
-  steps:
-    - template: /.azure-pipelines/templates/steps/install-project.yaml
-      parameters:
-        python_version: $(python.version)
+      - task: Cache@1
+        inputs:
+          key: '"pre-commit" | "$(PY)" | .pre-commit-config.yaml'
+          restoreKeys: |
+            "pre-commit" | "$(PY)" | .pre-commit-config.yaml
+            "pre-commit" | "$(PY)"
+            "pre-commit"
+          path: $(HOME)/.cache/pre-commit
+        displayName: Cache Pre-commit
 
-    - task: Cache@1
-      inputs:
-        key: '"pre-commit" | "$(PY)" | .pre-commit-config.yaml'
-        restoreKeys: |
-          "pre-commit" | "$(PY)" | .pre-commit-config.yaml
-          "pre-commit" | "$(PY)"
-          "pre-commit"
-        path: $(HOME)/.cache/pre-commit
-      displayName: Cache Pre-commit
+      - script: pre-commit run --all-files
+        displayName: Pre-commit
 
-    - script: pre-commit run --all-files
-      displayName: Pre-commit
-
-    - script: mypy bgmi
-      displayName: Mypy
+      - script: mypy bgmi
+        displayName: Mypy

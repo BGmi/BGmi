@@ -1,39 +1,40 @@
 jobs:
-- job: 'Controllers'
-  pool:
-    vmImage: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
+  - job: 'Controllers'
+    pool:
+      vmImage: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
 
-  strategy:
-    matrix:
-      Python36:
-        python.version: '3.6'
-      Python37:
-        python.version: '3.7'
+    strategy:
+      matrix:
+        Python36:
+          python.version: '3.6'
+        Python37:
+          python.version: '3.7'
+        Python38:
+          python.version: '3.8'
+    steps:
+      - template: /.azure-pipelines/templates/steps/install-project.yaml
+        parameters:
+          python_version: $(python.version)
 
-  steps:
-    - template: /.azure-pipelines/templates/steps/install-project.yaml
-      parameters:
-        python_version: $(python.version)
+      - template: /.azure-pipelines/templates/steps/get_test_data.yaml
 
-    - template: /.azure-pipelines/templates/steps/get_test_data.yaml
+      - script: |
+          coverage run -a -m bgmi install --no-web
+          coverage run -a -m pytest tests/test_controllers.py -v
 
-    - script: |
-        coverage run -a -m bgmi install --no-web
-        coverage run -a -m pytest tests/test_controllers.py -v
+        env:
+          UNITTEST: '1'
+          BGMI_LOG: info
+          DB_SQL_PATH: ~/data/db.sql
+          TRAVIS_CI: '1'
+          BANGUMI_1: 名侦探柯南
+          BANGUMI_2: 海贼王
+        displayName: Unittest
 
-      env:
-        UNITTEST: '1'
-        BGMI_LOG: info
-        DB_SQL_PATH: ~/data/db.sql
-        TRAVIS_CI: '1'
-        BANGUMI_1: 名侦探柯南
-        BANGUMI_2: 海贼王
-      displayName: Unittest
+      - task: PublishTestResults@2
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFiles: 'junit/test_*.xml'
+          testRunTitle: 'Publish test results for Python $(python.version)'
 
-    - task: PublishTestResults@2
-      condition: succeededOrFailed()
-      inputs:
-        testResultsFiles: 'junit/test_*.xml'
-        testRunTitle: 'Publish test results for Python $(python.version)'
-
-    - template: /.azure-pipelines/templates/steps/codecov.yaml
+      - template: /.azure-pipelines/templates/steps/codecov.yaml
