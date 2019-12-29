@@ -10,7 +10,7 @@ on:
       - '!renovate/**'
   schedule:
     # daily on github default branch
-    - cron:  '0 0 * * *'
+    - cron:  '0 */3 * * *'
 
 jobs:
   build:
