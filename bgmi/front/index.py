@@ -5,7 +5,7 @@ from pprint import pformat
 from tornado import gen
 from tornado.ioloop import IOLoop
 
-from bgmi.config import FRONT_STATIC_PATH, SAVE_PATH
+from bgmi.config import config_obj
 from bgmi.front.base import COVER_URL, BaseHandler
 from bgmi.lib.db_models import Bangumi, Followed
 from bgmi.logger import logger
@@ -16,15 +16,15 @@ def get_player(bangumi_name):
     episode_list = {}
     # new path
     bangumi_name = normalize_path(bangumi_name)
-    bangumi_path = os.path.join(SAVE_PATH, bangumi_name)
+    bangumi_path = os.path.join(config_obj.SAVE_PATH, bangumi_name)
     path_walk = os.walk(bangumi_path)
 
     logger.debug('os.walk(bangumi_path) => %s', pformat(path_walk))
     for root, _, files in path_walk:
         _ = root.replace(bangumi_path, '').split(os.path.sep)
-        base_path = root.replace(SAVE_PATH, '')
+        base_path = root.replace(config_obj.SAVE_PATH, '')
         if len(_) >= 2:
-            episode_path = root.replace(os.path.join(SAVE_PATH, bangumi_name), '')
+            episode_path = root.replace(os.path.join(config_obj.SAVE_PATH, bangumi_name), '')
             if episode_path.split(os.path.sep)[1].isdigit():
                 episode = int(episode_path.split(os.path.sep)[1])
             else:
@@ -47,7 +47,7 @@ def get_player(bangumi_name):
 
 class IndexHandler(BaseHandler):
     def get(self, *args, **kwargs):
-        if not os.path.exists(FRONT_STATIC_PATH):
+        if not os.path.exists(config_obj.FRONT_STATIC_PATH):
             msg = '''<h1>Thanks for your using BGmi</h1>
             <p>It seems you have not install BGmi Frontend,
              please run <code>bgmi install</code> to install.</p>

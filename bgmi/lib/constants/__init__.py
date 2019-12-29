@@ -75,5 +75,5 @@ class NameSpace:
 
 __all__ = [
     'kv', 'actions_and_arguments', 'NameSpace', 'SPACIAL_APPEND_CHARS', 'SPACIAL_REMOVE_CHARS',
-    'SECOND_OF_WEEK', 'ActionStatus'
+    'SECOND_OF_WEEK', 'ActionStatus', 'DOWNLOAD_CHOICE_LIST_DICT'
 ]

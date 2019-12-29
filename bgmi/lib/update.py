@@ -6,7 +6,7 @@ import time
 import requests
 
 from bgmi import __version__, config
-from bgmi.config import BGMI_PATH, PACKAGE_JSON_URL, write_default_config
+from bgmi.config import PACKAGE_JSON_URL, config_obj, write_default_config
 from bgmi.lib import constants, db_models
 from bgmi.lib.constants import SECOND_OF_WEEK
 from bgmi.lib.db_models import db, get_kv_storage
@@ -17,7 +17,7 @@ from bgmi.utils import (
     COLOR_END, GREEN, exec_command, print_error, print_info, print_success, print_warning
 )
 
-OLD = os.path.join(BGMI_PATH, 'old')
+OLD = os.path.join(config_obj.BGMI_PATH, 'old')
 
 
 def _parse_semver_version(version_string):
@@ -39,8 +39,8 @@ def upgrade_version():
         c = input()
         if c.lower().startswith('y'):
             db.close()
-            os.remove(os.path.join(BGMI_PATH, 'bangumi.db'))
-            if config.IS_WINDOWS:
+            os.remove(os.path.join(config_obj.BGMI_PATH, 'bangumi.db'))
+            if config.config_obj.IS_WINDOWS:
                 remove_old_windows_cron()
             install_crontab()
             init_db()
@@ -78,8 +78,8 @@ def update(mark=True):
 
         package_json = requests.get(PACKAGE_JSON_URL).json()
         admin_version = package_json['version']
-        if glob.glob(os.path.join(config.FRONT_STATIC_PATH, 'package.json')):
-            with open(os.path.join(config.FRONT_STATIC_PATH, 'package.json'), 'r') as f:
+        if glob.glob(os.path.join(config.config_obj.FRONT_STATIC_PATH, 'package.json')):
+            with open(os.path.join(config.config_obj.FRONT_STATIC_PATH, 'package.json'), 'r') as f:
                 local_version = json.loads(f.read())['version']
             if _parse_semver_version(admin_version) > _parse_semver_version(local_version):
                 get_web_admin()

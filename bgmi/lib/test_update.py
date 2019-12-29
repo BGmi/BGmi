@@ -83,9 +83,11 @@ class UtilsTest(unittest.TestCase):
                 return request_map[url]
 
             m.side_effect = mock_get
-            if not os.path.exists(bgmi.config.FRONT_STATIC_PATH):
-                os.makedirs(bgmi.config.FRONT_STATIC_PATH)
-            with open(bgmi.config.FRONT_STATIC_PATH + '/package.json', 'w+', encoding='utf8') as f:
+            if not os.path.exists(bgmi.config.config_obj.FRONT_STATIC_PATH):
+                os.makedirs(bgmi.config.config_obj.FRONT_STATIC_PATH)
+            with open(
+                bgmi.config.config_obj.FRONT_STATIC_PATH + '/package.json', 'w+', encoding='utf8'
+            ) as f:
                 json.dump({'version': '1.1.2'}, f)
             bgmi.lib.update.update(True)
             get_web_admin.assert_any_call()

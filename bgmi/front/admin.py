@@ -9,7 +9,7 @@ from tornado.concurrent import run_on_executor
 from tornado.ioloop import IOLoop
 from tornado.web import HTTPError
 
-from bgmi.config import ADMIN_TOKEN
+from bgmi.config import config_obj
 from bgmi.front.base import BaseHandler
 from bgmi.lib.constants.actions import (
     ACTION_ADD, ACTION_CAL, ACTION_DELETE, ACTION_DOWNLOAD, ACTION_FILTER, ACTION_MARK,
@@ -23,7 +23,7 @@ ACTION_STATUS = 'status'
 
 
 def auth_(token=''):
-    return {'status': 'success' if token == ADMIN_TOKEN else 'error'}
+    return {'status': 'success' if token == config_obj.ADMIN_TOKEN else 'error'}
 
 
 def _filter(name, subtitle=None, include=None, exclude=None, regex=None):
@@ -62,7 +62,7 @@ def auth(f):
             return f(*args, **kwargs)
 
         token = args[0].request.headers.get('bgmi-token')
-        if token == ADMIN_TOKEN:
+        if token == config_obj.ADMIN_TOKEN:
             return f(*args, **kwargs)
         # HTTPError will be except in `BaseHandler.write_error`
         raise HTTPError(401)

@@ -12,8 +12,8 @@ import stevedore
 from hanziconv import HanziConv
 
 import bgmi
-from bgmi import config, models
-from bgmi.config import MAX_PAGE
+from bgmi import models
+from bgmi.config import config_obj
 from bgmi.lib.constants import NameSpace
 from bgmi.lib.db_models import (
     Bangumi, BangumiItem, Followed, Subtitle, db, get_updating_bangumi_with_data_source,
@@ -21,12 +21,12 @@ from bgmi.lib.db_models import (
 )
 from bgmi.models.status import BangumiStatus
 from bgmi.utils import full_to_half, normalize_path, parallel, print_info, print_warning
+from bgmi.utils.filter_utils import apply_keywords_filter_on_list_of_episode
 from bgmi.website.base import BaseWebsite
 
 from . import bangumi_moe, base, mikan, share_dmhy
 
 THRESHOLD = 60
-_MAX_PAGE: int = int(MAX_PAGE)
 
 
 def _raise(_1, _2, c):
@@ -122,7 +122,7 @@ def init_data() -> Tuple[List[models.DataSourceItem], List[models.Subtitle]]:
     subtitle_list = []
 
     for data_source_id, data_source in get_all_provider():
-        if data_source_id in config.DISABLED_DATA_SOURCE:
+        if data_source_id in config_obj.DISABLED_DATA_SOURCE:
             continue
         print_info(f'Fetching {data_source_id}')
         try:
@@ -240,7 +240,7 @@ class DataSource:
     def get_maximum_episode(self,
                             bangumi,
                             ignore_old_row=True,
-                            max_page=_MAX_PAGE) -> Tuple[dict, List[models.Episode]]:
+                            max_page=config_obj.MAX_PAGE) -> Tuple[dict, List[models.Episode]]:
         """
 
         :type max_page: str
@@ -320,9 +320,9 @@ class DataSource:
         for episode in response_data:
             episode['name'] = bangumi_obj.name
 
-        return filter_obj.apply_keywords_filter_on_list_of_episode([
-            models.Episode(**x) for x in response_data
-        ])
+        return apply_keywords_filter_on_list_of_episode(
+            filter_obj, [models.Episode(**x) for x in response_data]
+        )
 
     @staticmethod
     def followed_bangumi():
@@ -345,10 +345,9 @@ class DataSource:
 
     @staticmethod
     def search_by_keyword(keyword, count):  # pragma: no cover
-        """
-        return a list of dict with at least 4 key: download, name, title, episode
-        example:
-        ```
+        """return a list of dict with at least 4 key: download, name, title, episode
+            example:
+            ```
             [
                 {
                     'name':"路人女主的养成方法",
@@ -357,6 +356,7 @@ class DataSource:
                     'episode': 12
                 },
             ]
+            ```
 
         :param keyword: search key word
         :type keyword: str
@@ -405,7 +405,7 @@ def bind_bangumi_item_in_db_to_bangumi():
 
 def enabled_data_source_id(data_source_id, followed: models.Followed):
 
-    if data_source_id in config.DISABLED_DATA_SOURCE:
+    if data_source_id in config_obj.DISABLED_DATA_SOURCE:
         return False
     if Followed and followed.data_source:
         if data_source_id in followed.data_source:

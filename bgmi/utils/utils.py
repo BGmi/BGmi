@@ -6,6 +6,7 @@ import subprocess
 import tarfile
 from io import BytesIO
 from shutil import move, rmtree
+from typing import Tuple
 
 import requests
 
@@ -63,7 +64,7 @@ def get_terminal_col():  # pragma: no cover
         return 80
 
     # https://gist.github.com/jtriley/1108174
-    if not config.IS_WINDOWS:
+    if not config.config_obj.IS_WINDOWS:
         import fcntl
         import termios
 
@@ -97,34 +98,36 @@ def unzip_zipped_file(file_content, front_version):
     with gzip.GzipFile(fileobj=admin_zip) as f:
         tar_file = BytesIO(f.read())
 
-    rmtree(config.FRONT_STATIC_PATH)
-    os.makedirs(config.FRONT_STATIC_PATH)
+    rmtree(config.config_obj.FRONT_STATIC_PATH)
+    os.makedirs(config.config_obj.FRONT_STATIC_PATH)
 
     with tarfile.open(fileobj=tar_file) as tar_file_obj:
-        tar_file_obj.extractall(path=config.FRONT_STATIC_PATH)
+        tar_file_obj.extractall(path=config.config_obj.FRONT_STATIC_PATH)
 
-    for file in os.listdir(os.path.join(config.FRONT_STATIC_PATH, 'package', 'dist')):
+    for file in os.listdir(os.path.join(config.config_obj.FRONT_STATIC_PATH, 'package', 'dist')):
         move(
-            os.path.join(config.FRONT_STATIC_PATH, 'package', 'dist', file),
-            os.path.join(config.FRONT_STATIC_PATH, file)
+            os.path.join(config.config_obj.FRONT_STATIC_PATH, 'package', 'dist', file),
+            os.path.join(config.config_obj.FRONT_STATIC_PATH, file)
         )
-    with open(os.path.join(config.FRONT_STATIC_PATH, 'package.json'), 'w+') as f:
+    with open(os.path.join(config.config_obj.FRONT_STATIC_PATH, 'package.json'), 'w+') as f:
         f.write(json.dumps(front_version))
 
 
 @log_utils_function
-def convert_cover_url_to_path(cover_url):
+def convert_cover_url_to_path(cover_url: str,
+                              save_path=config.config_obj.SAVE_PATH) -> Tuple[str, str]:
     """
     convert bangumi cover to file path
 
-    :param cover_url: bangumi cover path
-    :type cover_url:str
-    :rtype: (str,str)
-    :return: dir_path, file_path
+
+    Parameters
+    ----------
+        cover_url: cover uri
+        save_path: root of save path
     """
 
     cover_url = normalize_path(cover_url)
-    file_path = os.path.join(config.SAVE_PATH, 'cover')
+    file_path = os.path.join(save_path, 'cover')
     file_path = os.path.join(file_path, cover_url)
     dir_path = os.path.dirname(file_path)
 

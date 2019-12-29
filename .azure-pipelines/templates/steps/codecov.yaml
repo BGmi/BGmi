@@ -9,3 +9,4 @@ steps:
       do
         echo "Try again"
       done
+    condition: always()

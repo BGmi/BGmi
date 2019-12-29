@@ -1,8 +1,5 @@
-import urllib.parse
-
 import requests
 
-from bgmi import config
 from bgmi.downloader.base import AuthError, BaseDownloadService, ConnectError, RequireNotSatisfied
 from bgmi.utils import print_info
 
@@ -12,15 +9,13 @@ class TransmissionRPC(BaseDownloadService):
         super().__init__(*args, **kwargs)
         import transmission_rpc
         try:
-            url_obj: urllib.parse.ParseResult = urllib.parse.urlparse(config.TRANSMISSION_RPC_URL)
-
             self.client = transmission_rpc.Client(
-                protocol=url_obj.scheme,
-                host=url_obj.hostname,
-                path=url_obj.path,
-                port=url_obj.port,
-                username=url_obj.username,
-                password=url_obj.password,
+                protocol=self.config.TRANSMISSION_RPC_URL.scheme,
+                host=self.config.TRANSMISSION_RPC_URL.host,
+                path=self.config.TRANSMISSION_RPC_URL.path,
+                port=self.config.TRANSMISSION_RPC_URL.port,
+                username=self.config.TRANSMISSION_RPC_URL.user,
+                password=self.config.TRANSMISSION_RPC_URL.password,
             )
         except transmission_rpc.TransmissionError as e:
             if e.original.status_code == 401:

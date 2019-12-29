@@ -7,7 +7,7 @@ from tornado import gen
 from tornado.ioloop import IOLoop
 from tornado.web import HTTPError
 
-from bgmi.config import SAVE_PATH
+from bgmi.config import config_obj
 from bgmi.front.base import BaseHandler
 from bgmi.lib.db_models import Bangumi, Download, Followed
 
@@ -15,7 +15,7 @@ from bgmi.lib.db_models import Bangumi, Download, Followed
 class BangumiHandler(BaseHandler):
     def get(self, _):  # pylint: disable=W0221
         if os.environ.get('DEV', False):  # pragma: no cover
-            with open(os.path.join(SAVE_PATH, _), 'rb') as f:
+            with open(os.path.join(config_obj.SAVE_PATH, _), 'rb') as f:
                 self.write(f.read())
                 self.finish()
         else:
@@ -33,7 +33,7 @@ class BangumiHandler(BaseHandler):
                 '...\n\n'
                 'If use want to use Tornado to serve static files, please run\n'
                 '<code>`bgmi config TORNADO_SERVE_STATIC_FILES 1`</code></pre>' %
-                (SAVE_PATH, SAVE_PATH)
+                (config_obj.SAVE_PATH, config_obj.SAVE_PATH)
             )
             self.finish()
 

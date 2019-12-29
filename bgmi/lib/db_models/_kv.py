@@ -8,7 +8,7 @@ from bgmi import config
 
 
 def create_kv_storage():
-    return KeyValue(database=pw.SqliteDatabase(path.join(config.BGMI_PATH, 'kv.db')))
+    return KeyValue(database=pw.SqliteDatabase(path.join(config.config_obj.BGMI_PATH, 'kv.db')))
 
 
 def _kv_storage_decorator(func):

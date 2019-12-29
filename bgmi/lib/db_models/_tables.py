@@ -265,7 +265,7 @@ class Followed(NeoDB):
 
     @classmethod
     def get_by_name(cls, bangumi_name):
-        if config.SHOW_WARNING:
+        if config.config_obj.SHOW_WARNING:
             import warnings
             warnings.warn('should use Followed.get(id=bangumi_obj.id) instead of get by name')
         return cls.get(bangumi_id=Bangumi.get(name=bangumi_name).id)

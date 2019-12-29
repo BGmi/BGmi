@@ -1,11 +1,19 @@
 import peewee as pw
-from playhouse.db_url import connect
+from playhouse import db_url
 
-import bgmi.config
+from bgmi.config import advanced_config_obj, config_obj
+from bgmi.models.config import AdvancedConfig, Config
 
-db = connect(bgmi.config.DB_URL)
 
-# T = TypeVar('T', bound=pw.Model)
+def get_db(config: Config, advanced_config: AdvancedConfig):
+    if advanced_config.DB_URL:
+        db = db_url.connect(advanced_config.DB_URL)
+    else:
+        db = pw.SqliteDatabase(config.DB_PATH)
+    return db
+
+
+db = get_db(config_obj, advanced_config_obj)
 
 
 class NeoDB(pw.Model):

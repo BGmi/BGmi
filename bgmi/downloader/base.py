@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from bgmi.lib.db_models import Download
+from bgmi.models.config import Config
 from bgmi.utils import print_info, print_success, print_warning
 
 
@@ -18,6 +19,7 @@ class RequireNotSatisfied(Exception):
 
 
 class BaseDownloadService(ABC):
+    config: Config
     """
     Raises
     ------
@@ -26,7 +28,8 @@ class BaseDownloadService(ABC):
     AuthError
         If RPC server require authorization
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, config: Config, *args, **kwargs):
+        self.config = config
         self.require()
 
     @classmethod

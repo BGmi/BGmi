@@ -16,7 +16,7 @@ jobs:
         parameters:
           python_version: $(python.version)
 
-      - task: Cache@1
+      - task: Cache@2
         inputs:
           key: '"pre-commit" | "$(PY)" | .pre-commit-config.yaml'
           restoreKeys: |
@@ -26,7 +26,7 @@ jobs:
           path: $(HOME)/.cache/pre-commit
         displayName: Cache Pre-commit
 
-      - script: pre-commit run --all-files
+      - script: pre-commit run --all-files && pre-commit gc
         displayName: Pre-commit
 
       - script: mypy bgmi

@@ -22,6 +22,8 @@ class UtilsTest(unittest.TestCase):
     def setUp(self):
         try:
             os.makedirs(self.test_dir)
+            os.makedirs(os.path.join(self.test_dir, 'front_static'))
+            os.makedirs(os.path.join(self.test_dir, 'bangumi'))
         except FileExistsError:
             pass
 
@@ -50,7 +52,7 @@ class UtilsTest(unittest.TestCase):
         self.assertTrue(file_path.endswith('http/hello world/233.qq'))
 
     def test_download_cover(self):
-        with patch('bgmi.config.SAVE_PATH', self.test_dir), patch('requests.get') as m:
+        with patch('bgmi.config.config_obj.BGMI_PATH', self.test_dir), patch('requests.get') as m:
 
             class Mo:
                 def __init__(self, content):
@@ -82,9 +84,11 @@ class UtilsTest(unittest.TestCase):
     def test_unzip_zipped_file(self):
         with open('./tests/data/bgmi-frontend-1.1.4.tgz', 'rb') as f:
             file_content = f.read()
-        with patch('bgmi.config.FRONT_STATIC_PATH', self.test_dir):
+        with patch('bgmi.config.config_obj.BGMI_PATH', self.test_dir):
             inner_utils.unzip_zipped_file(
                 file_content, {'version': '1.2.3', 'dist': {'tarball': 'tarball'}}
             )
             for file_path in ['index.html', 'static/js/app.js', 'package.json']:
-                self.assertTrue(os.path.exists(os.path.join(self.test_dir, file_path)))
+                self.assertTrue(
+                    os.path.exists(os.path.join(self.test_dir, 'front_static', file_path))
+                )

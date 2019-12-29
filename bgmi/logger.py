@@ -5,11 +5,11 @@ from logging import (
     getLogger
 )
 
-from bgmi import config
+from bgmi.config import config_obj
 
 
 def get_logger() -> Logger:
-    log_level = config.LOG_LEVEL
+    log_level = config_obj.LOG_LEVEL
     log_level = log_level.upper()
     if log_level not in ['DEBUG', 'INFO', 'WARNING', 'ERROR']:
         print('log level invalid, will use default log level info')
@@ -26,14 +26,17 @@ def get_logger() -> Logger:
     _logger.addHandler(stdout)
 
     try:
-        h = FileHandler(config.LOG_PATH, 'a+', 'utf-8')
-        h.setFormatter(Formatter(BASIC_FORMAT))
-        h.setLevel(getLevelName(log_level))
-        _logger.addHandler(h)
-        if log_level == 'DEBUG':
-            orm_logger = getLogger('peewee')
-            orm_logger.setLevel(DEBUG)
-            orm_logger.addHandler(h)
+
+        if config_obj.LOG_PATH:
+            h = FileHandler(config_obj.LOG_PATH, 'a+', 'utf-8')
+            h.setFormatter(Formatter(BASIC_FORMAT))
+            h.setLevel(getLevelName(log_level))
+            _logger.addHandler(h)
+            if log_level == 'DEBUG':
+                orm_logger = getLogger('peewee')
+                orm_logger.setLevel(DEBUG)
+                orm_logger.addHandler(h)
+
     except OSError:
         _logger.info("Can't create log file, log to file is disabled.")
 

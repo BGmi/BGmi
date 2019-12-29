@@ -10,7 +10,7 @@ from typing import Dict, List, Optional
 import stevedore.exception
 
 from bgmi import models
-from bgmi.config import MAX_PAGE, SCRIPT_PATH
+from bgmi.config import config_obj
 from bgmi.lib.db_models import Followed, Scripts
 from bgmi.utils import print_info, print_success, print_warning
 from bgmi.website import get_all_provider, get_provider
@@ -24,10 +24,13 @@ class ScriptRunner:
     def __new__(cls, *args, **kwargs):
         if cls._defined is None:
 
-            script_files = glob.glob(f'{SCRIPT_PATH}{os.path.sep}*.py')
+            script_files = glob.glob(f'{config_obj.SCRIPT_PATH}{os.path.sep}*.py')
             for i in script_files:
                 try:
-                    s = SourceFileLoader('script', os.path.join(SCRIPT_PATH, i)).load_module()
+                    s = SourceFileLoader(
+                        'script',
+                        os.path.join(config_obj.SCRIPT_PATH, i),
+                    ).load_module()
                     script_class = s.Script()
 
                     if cls.check(script_class):
@@ -137,7 +140,7 @@ class ScriptBase:
         # fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
         bangumi_id = None
         subtitle_list = []  # type: list
-        max_page = MAX_PAGE
+        max_page = config_obj.MAX_PAGE
 
         def __init__(self):
             if self.bangumi_name is not None:
@@ -149,18 +152,18 @@ class ScriptBase:
 
         def __iter__(self):
             for i in ('bangumi_name', 'cover', 'update_time'):
-                yield (i, getattr(self, i))
+                yield i, getattr(self, i)
 
             # patch for cal
-            yield ('name', self.bangumi_name)
-            yield ('status', self.obj.status)
-            yield ('updated_time', self.obj.updated_time)
-            yield ('subtitle_group', '')
-            yield ('episode', self.obj.episode)
+            yield 'name', self.bangumi_name
+            yield 'status', self.obj.status
+            yield 'updated_time', self.obj.updated_time
+            yield 'subtitle_group', ''
+            yield 'episode', self.obj.episode
             yield ('bangumi_names', [
                 self.bangumi_name,
             ])
-            yield ('data_source_id', {})
+            yield 'data_source_id', {}
 
     @property
     def _data(self) -> dict:

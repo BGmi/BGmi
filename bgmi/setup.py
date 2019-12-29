@@ -4,10 +4,7 @@ import os
 import requests
 
 from bgmi import utils
-from bgmi.config import (
-    BGMI_PATH, FRONT_STATIC_PATH, FRONTEND_NPM_URL, IS_WINDOWS, PACKAGE_JSON_URL, SAVE_PATH,
-    SCRIPT_PATH, TMP_PATH, TOOLS_PATH
-)
+from bgmi.config import FRONTEND_NPM_URL, PACKAGE_JSON_URL, config_obj
 from bgmi.utils import exec_command, print_error, print_info, print_success, print_warning
 
 
@@ -16,7 +13,7 @@ def install_crontab() -> None:
         print_warning('env BGMI_IN_DOCKER exists, skip install crontab')
         return
     print_info('Installing crontab job')
-    if IS_WINDOWS:
+    if config_obj.IS_WINDOWS:
         base = os.path.join(os.path.dirname(__file__), 'others\\windows\\cron')
         exec_command(
             'SCHTASKS /Create /TN "bgmi calendar updater" /SC HOURLY /MO 2 '
@@ -33,10 +30,14 @@ def install_crontab() -> None:
 
 
 def create_dir() -> None:
-    path_to_create = (BGMI_PATH, SAVE_PATH, TMP_PATH, SCRIPT_PATH, TOOLS_PATH, FRONT_STATIC_PATH)
-
-    if not os.environ.get('HOME', os.environ.get('USERPROFILE', None)):
-        print_warning('$HOME and $BGMI_PATH not set, use a tmp dir ' + BGMI_PATH)
+    path_to_create = (
+        config_obj.BGMI_PATH,
+        config_obj.SAVE_PATH,
+        config_obj.TMP_PATH,
+        config_obj.SCRIPT_PATH,
+        config_obj.TOOLS_PATH,
+        config_obj.FRONT_STATIC_PATH,
+    )
 
     # bgmi home dir
     try:

@@ -12,7 +12,8 @@ def pytest_sessionstart(session):
     """
     print('conftest for downloader')
     try:
-        deluge = DelugeRPC()
+        from bgmi.config import config_obj
+        deluge = DelugeRPC(config_obj)
         res = deluge._call('web.get_hosts', [])
         host_id = res['result'][0][0]
         deluge._call('web.connect', [host_id])

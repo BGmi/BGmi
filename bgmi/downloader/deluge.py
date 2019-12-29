@@ -2,7 +2,6 @@ import uuid
 
 import requests
 
-from bgmi import config
 from bgmi.downloader.base import AuthError, BaseDownloadService, ConnectError
 from bgmi.utils import print_info
 
@@ -11,8 +10,9 @@ class DelugeRPC(BaseDownloadService):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._session = requests.session()
+        self._url = self.config.DELUGE_RPC_URL
         res = self._call('auth.login', [
-            config.DELUGE_RPC_PASSWORD,
+            self.config.DELUGE_RPC_PASSWORD,
         ])
         if not res['result']:
             raise AuthError('Deluge RPC require a password')
@@ -22,7 +22,7 @@ class DelugeRPC(BaseDownloadService):
         try:
 
             r = self._session.post(
-                config.DELUGE_RPC_URL,
+                self._url,
                 headers={'Content-Type': 'application/json'},
                 json={
                     'method': methods,

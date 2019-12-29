@@ -35,13 +35,12 @@ repos:
       - id: pyupgrade
         args: ['--py36-plus',]
 
-#  - repo: https://github.com/PyCQA/doc8
-#    rev: 0.8.1rc2
-#    hooks:
-#      - id: doc8
-#        args: ['--config', 'setup.cfg']
-#        files: \.rst$
-
+  #  - repo: https://github.com/PyCQA/doc8
+  #    rev: 0.8.1rc2
+  #    hooks:
+  #      - id: doc8
+  #        args: ['--config', 'setup.cfg']
+  #        files: \.rst$
 
   - repo: local
     hooks:
@@ -74,3 +73,12 @@ repos:
         require_serial: true
         language: system
         types: [python]
+
+      - id: mypy
+        name: mypy
+        entry: mypy
+        language: system
+        types: [python]
+#        args: ["--ignore-missing-imports", "--scripts-are-modules"]
+        require_serial: true
+        files: '^bgmi.*\.py$'

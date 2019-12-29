@@ -5,7 +5,7 @@ import tornado.web
 from tornado.web import HTTPError
 
 from bgmi import __version__
-from bgmi.config import DANMAKU_API_URL, LANG, __admin_version__
+from bgmi.config import __admin_version__, config_obj
 from bgmi.lib import constants
 from bgmi.lib.db_models import get_kv_storage
 from bgmi.script import ScriptRunner
@@ -31,8 +31,8 @@ class BaseHandler(tornado.web.RequestHandler):
             'latest_version': self.latest_version,
             'frontend_version': __admin_version__,
             'status': 'success',
-            'lang': LANG,
-            'danmaku_api': DANMAKU_API_URL,
+            'lang': config_obj.LANG,
+            'danmaku_api': config_obj.DANMAKU_API_URL,
             'data': data,
         }
         j.update(kwargs)

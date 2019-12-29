@@ -6,7 +6,7 @@ import string
 
 from tornado.testing import AsyncHTTPTestCase
 
-from bgmi.config import ADMIN_TOKEN, SAVE_PATH
+from bgmi.config import config_obj
 from bgmi.front.server import make_app
 from tests.test_db_models import Base
 
@@ -17,7 +17,7 @@ def random_word(length):
 
 
 class ApiTestCase(AsyncHTTPTestCase, Base):
-    headers = {'BGmi-Token': ADMIN_TOKEN, 'Content-Type': 'application/json'}
+    headers = {'BGmi-Token': config_obj.ADMIN_TOKEN, 'Content-Type': 'application/json'}
     bangumi_1 = os.environ.get('BANGUMI_1')
     bangumi_2 = os.environ.get('BANGUMI_2')
     bangumi_3 = os.environ.get('BANGUMI_3')
@@ -27,7 +27,9 @@ class ApiTestCase(AsyncHTTPTestCase, Base):
         return self.app
 
     def test_a_auth(self):
-        r = self.fetch('/api/auth', method='POST', body=json.dumps({'token': ADMIN_TOKEN}))
+        r = self.fetch(
+            '/api/auth', method='POST', body=json.dumps({'token': config_obj.ADMIN_TOKEN})
+        )
         self.assertEqual(r.code, 200)
         res = self.parse_response(r)
         self.assertEqual(res['status'], 'success')
@@ -204,7 +206,7 @@ class ApiTestCase(AsyncHTTPTestCase, Base):
         #     self.assertIn(item, subtitle_group)
 
     def test_e_index(self):
-        save_dir = os.path.join(SAVE_PATH)
+        save_dir = os.path.join(config_obj.SAVE_PATH)
         episode1_dir = os.path.join(save_dir, self.bangumi_1, '1', 'episode1')
         if not os.path.exists(episode1_dir):
             os.makedirs(episode1_dir)

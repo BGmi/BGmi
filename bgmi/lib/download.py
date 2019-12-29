@@ -5,7 +5,7 @@ import stevedore
 import stevedore.exception
 
 from bgmi import models
-from bgmi.config import DOWNLOAD_DELEGATE, SAVE_PATH
+from bgmi.config import config_obj
 from bgmi.downloader.base import AuthError, BaseDownloadService, ConnectError, RequireNotSatisfied
 from bgmi.lib.constants import NameSpace
 from bgmi.lib.db_models import Download
@@ -18,6 +18,7 @@ def get_download_class(rpc_name) -> BaseDownloadService:
             NameSpace.download_delegate,
             rpc_name,
             invoke_on_load=True,
+            invoke_kwds={'config': config_obj},
         ).driver
     except stevedore.exception.NoMatches:
         print_error(f'unexpected delegate {rpc_name}', exit_=False)
@@ -28,7 +29,7 @@ def download_prepare(name, data: List[models.Episode]):
     queue = save_to_bangumi_download_queue(name, data)
     try:
 
-        download_class = get_download_class(DOWNLOAD_DELEGATE)
+        download_class = get_download_class(config_obj.DOWNLOAD_DELEGATE)
 
     except AuthError:
         return
@@ -41,7 +42,8 @@ def download_prepare(name, data: List[models.Episode]):
 
     for download in queue:
         save_path = os.path.join(
-            os.path.join(SAVE_PATH, normalize_path(download.name)), str(download.episode)
+            os.path.join(config_obj.SAVE_PATH, normalize_path(download.name)),
+            str(download.episode)
         )
         if not os.path.exists(save_path):
             os.makedirs(save_path)

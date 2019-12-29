@@ -43,8 +43,8 @@ tornado = "6.0.3"
 peewee_migrate = "1.1.6"
 click = "7.0"
 pydantic = "1.2"
-
-pymysql = { version = "0.9.3", optional = true }
+toml = "0.10.0"
+pymysql = {version = "0.9.3", optional = true}
 
 sphinx = { version = '2.2.2', optional = true }
 sphinx_rtd_theme =  { version = '0.4.3', optional = true }

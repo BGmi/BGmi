@@ -6,14 +6,14 @@ import urllib.parse
 import requests
 from bs4 import BeautifulSoup
 
-from bgmi import config
 from bgmi.website.base import BaseWebsite
 
 unquote = urllib.parse.unquote
+SHARE_DMHY_URL = 'https://share.dmhy.org'
 
-base_url = config.SHARE_DMHY_URL
+base_url = SHARE_DMHY_URL
 
-cover_url = config.SHARE_DMHY_URL
+cover_url = SHARE_DMHY_URL
 
 
 def parse_bangumi_with_week_days(content, update_time, array_name):

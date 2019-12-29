@@ -4,12 +4,14 @@ import time
 
 import requests
 
-from bgmi.config import BANGUMI_MOE_URL, LANG
+from bgmi.config import config_obj
 from bgmi.lib.db_models import Bangumi
 from bgmi.website.base import BaseWebsite
 
 # tag of bangumi on bangumi.moe
 BANGUMI_TAG = '549ef207fe682f7549f1ea90'
+
+BANGUMI_MOE_URL = 'https://bangumi.moe'
 
 __split = '/' if not BANGUMI_MOE_URL.endswith('/') else ''
 FETCH_URL = f'{BANGUMI_MOE_URL}{__split}api/bangumi/current'
@@ -22,7 +24,7 @@ COVER_URL = 'https://bangumi.moe/'
 
 
 def process_name(data):
-    lang = 'zh_cn' if LANG not in ('zh_cn', 'zh_tw', 'ja', 'en') else LANG
+    lang = 'zh_cn' if config_obj.LANG not in ('zh_cn', 'zh_tw', 'ja', 'en') else config_obj.LANG
     return {i['_id']: i['locale'][lang] for i in data}
 
 

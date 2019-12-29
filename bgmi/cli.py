@@ -16,6 +16,7 @@ import bgmi.setup
 import bgmi.utils
 import bgmi.website
 from bgmi import __author__, __email__, __version__, config
+from bgmi.config import config_obj
 from bgmi.lib import constants, controllers
 from bgmi.lib.constants import DOWNLOAD_CHOICE_LIST_DICT, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS
 from bgmi.lib.constants.actions import ACTIONS
@@ -98,12 +99,13 @@ def install(no_web: bool = False):
     """
     install bangumi on your local
     """
-    if not os.path.exists(config.BGMI_PATH):
-        print_warning('BGMI_PATH %s does not exist, installing' % config.BGMI_PATH)
+    if not os.path.exists(config.config_obj.BGMI_PATH):
+        print_warning('BGMI_PATH %s does not exist, installing' % config.config_obj.BGMI_PATH)
 
     bgmi.setup.create_dir()
     bgmi.setup.install_crontab()
     init_db()
+    bgmi.config.write_default_config()
 
     if constants.kv.OLD_VERSION not in get_kv_storage():
         get_kv_storage()[constants.kv.OLD_VERSION] = bgmi.__version__
@@ -158,7 +160,7 @@ def config_wrapper(name=None, value=None):
 @click.option(
     '--count',
     type=int,
-    default=int(config.MAX_PAGE),
+    default=int(config_obj.MAX_PAGE),
     show_default=True,
     help='The max page count of search result.'
 )
@@ -508,7 +510,7 @@ def download_manager(ret):
     else:
         status = ret.status
         status = int(status) if status is not None else None
-        delegate = get_download_class(config.DOWNLOAD_DELEGATE)
+        delegate = get_download_class(config_obj.DOWNLOAD_DELEGATE)
         delegate.download_status(status=status)
 
 
@@ -600,8 +602,8 @@ def config_gen(config_name, server_name):
             actions=ACTIONS,
             server_name=server_name,
             os_sep=os.sep,
-            front_static_path=config.FRONT_STATIC_PATH,
-            save_path=config.SAVE_PATH
+            front_static_path=config.config_obj.FRONT_STATIC_PATH,
+            save_path=config.config_obj.SAVE_PATH
         )
         print(template_with_content)
 
@@ -619,8 +621,8 @@ def config_gen(config_name, server_name):
         template_with_content = render_template(
             template_file_path,
             server_name=server_name,
-            front_static_path=config.FRONT_STATIC_PATH,
-            save_path=config.SAVE_PATH
+            front_static_path=config.config_obj.FRONT_STATIC_PATH,
+            save_path=config.config_obj.SAVE_PATH
         )
         print(template_with_content)
 

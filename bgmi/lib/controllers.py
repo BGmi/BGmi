@@ -7,6 +7,7 @@ import peewee as pw
 import pydantic
 
 from bgmi import config
+from bgmi.config import config_obj
 from bgmi.lib import db_models
 from bgmi.lib.constants import ActionStatus
 from bgmi.lib.db_models import Bangumi, BangumiItem, DoesNotExist, Followed, Subtitle, model_to_dict
@@ -27,7 +28,7 @@ class ControllerResult(pydantic.BaseModel):
     data: Optional[Any]
 
     def __getitem__(self, item):
-        if config.SHOW_WARNING:
+        if config_obj.SHOW_WARNING:
             warnings.warn("don't use ControllerResult as dict")
         _data = {
             'status': self.status,
@@ -99,7 +100,7 @@ def add(name, episode=None):
 
     Followed.get_or_create(bangumi_id=bangumi_obj.id)
 
-    bangumi_data, _ = website.get_maximum_episode(bangumi_obj, max_page=config.MAX_PAGE)
+    bangumi_data, _ = website.get_maximum_episode(bangumi_obj, max_page=config_obj.MAX_PAGE)
     followed_obj.episode = bangumi_data['episode'] if episode is None else episode
     followed_obj.save()
     result = {'status': 'success', 'message': f'{bangumi_obj.name} has been followed'}
@@ -132,12 +133,12 @@ def filter_(
     )  # type: Followed, bool
     subtitle_list = [
         x for x in bangumi_obj.get_subtitle_of_bangumi()
-        if x['name'] not in config.DISABLED_DATA_SOURCE
+        if x['name'] not in config_obj.DISABLED_DATA_SOURCE
     ]
     valid_data_source_list = [
         x.data_source_id
         for x in BangumiItem.select_by_bangumi_id(bangumi_obj.id)
-        if x.data_source_id not in config.DISABLED_DATA_SOURCE
+        if x.data_source_id not in config_obj.DISABLED_DATA_SOURCE
     ]
 
     if subtitle_input:
@@ -303,7 +304,7 @@ def mark(name, episode):
 
 def search(
     keyword,
-    count=config.MAX_PAGE,
+    count=config_obj.MAX_PAGE,
     regex=None,
     dupe=False,
     min_episode=None,
@@ -363,7 +364,7 @@ def title_to_weight(title: str, weight: Mapping = None) -> int:
 
     """
     if weight is None:
-        weight = config.KEYWORDS_WEIGHT
+        weight = config_obj.KEYWORDS_WEIGHT
 
     count = 0
     for key, value in weight.items():
@@ -387,7 +388,7 @@ def update_single_bangumi(subscribe, name, ignore, download):
         return [], []
 
     episode, all_episode_data = website.get_maximum_episode(
-        bangumi=bangumi_obj, ignore_old_row=ignore, max_page=config.MAX_PAGE
+        bangumi=bangumi_obj, ignore_old_row=ignore, max_page=config_obj.MAX_PAGE
     )
     all_episode_data = sorted(
         all_episode_data,
@@ -521,7 +522,7 @@ def list_():
         for bangumi in bangumi_list:
             bangumi['subtitle_group'] = [
                 x for x in Subtitle.get_subtitle_of_bangumi(bangumi)
-                if x['name'] not in config.DISABLED_DATA_SOURCE
+                if x['name'] not in config_obj.DISABLED_DATA_SOURCE
             ]
     for i in script_bangumi:
         i['subtitle_group'] = [{'name': '<BGmi Script>'}]
