@@ -139,8 +139,8 @@ Or add this code to your .bashrc file:
 Supported data source:
 
 + `bangumi_moe(default) <https://bangumi.moe>`_
-+ `mikan_project <https://mikanani.me>`_
-+ `dmhy <https://share.dmhy.org/>`_
++ `mikan_project_ <https://mikanani.me>`_
++ `dmhy_ <https://share.dmhy.org/>`_
 
 Change data source:
 
@@ -293,13 +293,13 @@ Start BGmi HTTP Service bind on :code:`0.0.0.0:8888`:
     bgmi_http --port=8888 --address=0.0.0.0
 
 Use bgmi_http on Windows
------------------
+------------------------
 Just start your bgmi_http and open `http://localhost:8888/ <http://localhost:8888/>`_ in your browser.
 
 Consider most people won't use Nginx on Windows, bgmi_http use tornado.web.StaticFileHandler to serve static files(frontend, bangumi covers, bangumi files) without Nginx.
 
 Use bgmi_http on Linux
------------------
+----------------------
 Generate Nginx config
 
 .. code-block:: bash
@@ -360,7 +360,7 @@ Of cause you can use `yaaw <https://github.com/binux/yaaw/>`_ to manage download
 Example file: `bgmi.conf <https://github.com/BGmi/BGmi/blob/dev/bgmi.conf>`_
 
 macOS launchctl service controller
------------------
+----------------------------------
 see `issue #77 <https://github.com/BGmi/BGmi/pull/77>`_
 
 `me.ricterz.bgmi.plist <https://github.com/BGmi/BGmi/blob/master/bgmi/others/me.ricterz.bgmi.plist>`_
@@ -634,7 +634,7 @@ Uninstall
 ===================
 Scheduled task will not be delete automatically, you will have to remove them manually.
 
-*nix:
+\*nix:
     remove them from your crontab
 
 windows:
