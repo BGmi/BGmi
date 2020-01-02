@@ -217,8 +217,8 @@ category = "dev"
 description = "A plugin for flake8 finding likely bugs and design problems in your program. Contains warnings that don't belong in pyflakes and pycodestyle."
 name = "flake8-bugbear"
 optional = false
-python-versions = ">=3.5"
-version = "19.8.0"
+python-versions = ">=3.6"
+version = "20.1.0"
 
 [package.dependencies]
 attrs = "*"
@@ -1068,7 +1068,7 @@ docs = ["sphinx", "sphinx_rtd_theme", "sphinxcontrib-httpdomain", "sphinxcontrib
 mysql = ["pymysql"]
 
 [metadata]
-content-hash = "5c581cf2b658e29539a9397e1a9028be04c25516481aaad38ca7e707324fb73e"
+content-hash = "5a6d5ffc39126a5ab5ac2348ecb72d5f4ff8d9671e1b5afcb3771395d9ceb70a"
 python-versions = "^3.6"
 
 [metadata.files]
@@ -1187,8 +1187,8 @@ flake8 = [
     {file = "flake8-3.7.9.tar.gz", hash = "sha256:45681a117ecc81e870cbf1262835ae4af5e7a8b08e40b944a8a6e6b895914cfb"},
 ]
 flake8-bugbear = [
-    {file = "flake8-bugbear-19.8.0.tar.gz", hash = "sha256:d8c466ea79d5020cb20bf9f11cf349026e09517a42264f313d3f6fddb83e0571"},
-    {file = "flake8_bugbear-19.8.0-py35.py36.py37-none-any.whl", hash = "sha256:ded4d282778969b5ab5530ceba7aa1a9f1b86fa7618fc96a19a1d512331640f8"},
+    {file = "flake8-bugbear-20.1.0.tar.gz", hash = "sha256:775aa4cbff549d0e6a2e80c323297dc348f077186bfd556afe2354fffcac5c86"},
+    {file = "flake8_bugbear-20.1.0-py36.py37.py38-none-any.whl", hash = "sha256:1bb5683b74ab86084c856153804fd7066e9d409fb507efaad6adedc1ff052de5"},
 ]
 flake8-commas = [
     {file = "flake8-commas-2.0.0.tar.gz", hash = "sha256:d3005899466f51380387df7151fb59afec666a0f4f4a2c6a8995b975de0f44b7"},
