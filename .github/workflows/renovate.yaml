@@ -20,7 +20,8 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v1
         with:
-          node-version: '13'
+          node-version: '13.x'
+          registry-url: 'https://registry.npmjs.org'
 
       - uses: actions/setup-python@v1
         with:
