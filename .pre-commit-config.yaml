@@ -33,14 +33,14 @@ repos:
     rev: v1.26.2
     hooks:
       - id: pyupgrade
-        args: ['--py36-plus',]
+        args: ['--py36-plus']
 
-  #  - repo: https://github.com/PyCQA/doc8
-  #    rev: 0.8.1rc2
-  #    hooks:
-  #      - id: doc8
-  #        args: ['--config', 'setup.cfg']
-  #        files: \.rst$
+  - repo: https://github.com/PyCQA/doc8
+    rev: 0.8.1rc3
+    hooks:
+      - id: doc8
+        args: ['--config', 'setup.cfg']
+        files: \.rst$
 
   - repo: local
     hooks:

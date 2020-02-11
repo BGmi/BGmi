@@ -95,7 +95,7 @@ rss
 
 订阅番剧的Rss feed,可以导出给uTorrent等支持rss的客户端使用.
 
-具体的下载地址为版权站提供的磁链.
+具体的下载地址为资源站提供的磁链.
 
 ..  http:example:: curl wget httpie python-requests
 

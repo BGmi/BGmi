@@ -10,7 +10,7 @@ Name Space
 ``BGmi`` 使用 `stevedore <https://github.com/openstack/stevedore>`_ 来加载可用的数据源和下载工具
 
 添加数据源
-~~~~~~
+~~~~~~~~~~
 
 .. note::
 
@@ -43,9 +43,9 @@ Name Space
 
 数据源应该继承 :py:class:`bgmi.website.base.BaseWebsite`,并且实现所有的 ``abstractmethod``:
 
-+ :py:func:`bgmi.website.base.BaseWebsite.fetch_bangumi_calendar_and_subtitle_group`,
-+ :py:func:`bgmi.website.base.BaseWebsite.fetch_episode_of_bangumi`,
-+ :py:func:`bgmi.website.base.BaseWebsite.search_by_keyword`.
++ :py:func:`bgmi.website.base.BaseWebsite.fetch_bangumi_calendar_and_subtitle_group`
++ :py:func:`bgmi.website.base.BaseWebsite.fetch_episode_of_bangumi`
++ :py:func:`bgmi.website.base.BaseWebsite.search_by_keyword`
 
 .. note::
 
