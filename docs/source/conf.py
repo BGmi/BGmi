@@ -41,7 +41,6 @@ extensions = [
     'sphinxcontrib.httpdomain',
     'sphinxcontrib.httpexample',
     'sphinxarg.ext',
-    'sphinxcontrib.openapi',
     'sphinx_issues',
 ]
 

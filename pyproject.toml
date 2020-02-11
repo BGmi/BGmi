@@ -51,7 +51,6 @@ sphinx_rtd_theme =  { version = '0.4.3', optional = true }
 sphinxcontrib-httpdomain =  { version = '1.7.0', optional = true }
 sphinxcontrib-httpexample =  { version = '0.10.3', optional = true }
 sphinx-argparse =  { version = '0.2.5', optional = true }
-sphinxcontrib-openapi = { version = '0.5.0', optional = true }
 sphinx_issues = { version = '1.2.0', optional = true }
 
 [tool.poetry.dev-dependencies]
@@ -87,7 +86,6 @@ docs = [
   'sphinxcontrib-httpdomain',
   'sphinxcontrib-httpexample',
   'sphinx-argparse',
-  'sphinxcontrib-openapi',
   'sphinx_issues',
 ]
 
