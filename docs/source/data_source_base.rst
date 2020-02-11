@@ -6,3 +6,4 @@ BaseWebsite
 
 .. autoclass:: BaseWebsite
     :members:
+    :exclude-members: cover_url
