@@ -18,11 +18,11 @@ jobs:
 
       - task: Cache@2
         inputs:
-          key: '"pre-commit" | "$(PY)" | .pre-commit-config.yaml'
+          key: '"pre-commit" | "1" | "$(Agent.OS)" | "$(PY)" | poetry.lock | .pre-commit-config.yaml'
           restoreKeys: |
-            "pre-commit" | "$(PY)" | .pre-commit-config.yaml
-            "pre-commit" | "$(PY)"
-            "pre-commit"
+            "pre-commit" | "1" | "$(Agent.OS)" | "$(PY)" | poetry.lock | .pre-commit-config.yaml
+            "pre-commit" | "1" | "$(Agent.OS)" | "$(PY)" | poetry.lock
+            "pre-commit" | "1" | "$(Agent.OS)" | "$(PY)"
           path: $(HOME)/.cache/pre-commit
         displayName: Cache Pre-commit
 

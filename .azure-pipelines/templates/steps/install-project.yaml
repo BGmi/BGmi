@@ -13,9 +13,10 @@ steps:
 
   - task: Cache@2
     inputs:
-      key: '"pip" | "3" | "$(Agent.OS)" | "$(PY)" | poetry.lock'
+      key: '"pip" | "4" | "$(Agent.OS)" | "$(PY)" | poetry.lock'
       restoreKeys: |
-        "pip" | "3" | "$(Agent.OS)" | "$(PY)" | poetry.lock
+        "pip" | "4" | "$(Agent.OS)" | "$(PY)" | poetry.lock
+        "pip" | "4" | "$(Agent.OS)" | "$(PY)"
       path: $(Build.Repository.LocalPath)/.venv
     displayName: Cache pip
 
