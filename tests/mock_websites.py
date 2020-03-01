@@ -40,14 +40,13 @@ class W(BaseWebsite):
             './tests/data/website/{}.fetch_bangumi_calendar_and_subtitle_group.json'.format(
                 self.website_id
             ),
-            'r',
             encoding='utf8'
         ) as f:
             return json.load(f)
 
     def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=1):
         with open(
-            f'./tests/data/website/{self.website_id}.bangumi-episode.json', 'r', encoding='utf8'
+            f'./tests/data/website/{self.website_id}.bangumi-episode.json', encoding='utf8'
         ) as f:
             return json.load(f).get(bangumi_id, [])
 
@@ -55,7 +54,7 @@ class W(BaseWebsite):
         episode_list = []
 
         with open(
-            f'./tests/data/website/{self.website_id}.bangumi-episode.json', 'r', encoding='utf8'
+            f'./tests/data/website/{self.website_id}.bangumi-episode.json', encoding='utf8'
         ) as f:
             b = json.load(f)
 

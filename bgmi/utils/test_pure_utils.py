@@ -61,14 +61,14 @@ class UtilsTest(unittest.TestCase):
 
         with open(self.template_path, 'w+', encoding='utf8') as f:
             f.write(content)
-        with open(self.template_path, 'r', encoding='utf8') as f:
+        with open(self.template_path, encoding='utf8') as f:
             self.assertEqual(bgmi.utils.pure_utils.render_template(f), content)
 
     def test_render_template_with_ctx(self):
         content = '{{name}} world'
         with open(self.template_path, 'w+', encoding='utf8') as f:
             f.write(content)
-        with open(self.template_path, 'r', encoding='utf8') as f:
+        with open(self.template_path, encoding='utf8') as f:
             self.assertEqual(
                 bgmi.utils.pure_utils.render_template(f, ctx={'name': 'hello'}), 'hello world'
             )
@@ -77,5 +77,5 @@ class UtilsTest(unittest.TestCase):
         content = '{{name}} world'
         with open(self.template_path, 'w+', encoding='utf8') as f:
             f.write(content)
-        with open(self.template_path, 'r', encoding='utf8') as f:
+        with open(self.template_path, encoding='utf8') as f:
             self.assertEqual(bgmi.utils.pure_utils.render_template(f, name='hello'), 'hello world')

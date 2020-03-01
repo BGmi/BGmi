@@ -79,7 +79,7 @@ def update(mark=True):
         package_json = requests.get(PACKAGE_JSON_URL).json()
         admin_version = package_json['version']
         if glob.glob(os.path.join(config.config_obj.FRONT_STATIC_PATH, 'package.json')):
-            with open(os.path.join(config.config_obj.FRONT_STATIC_PATH, 'package.json'), 'r') as f:
+            with open(os.path.join(config.config_obj.FRONT_STATIC_PATH, 'package.json')) as f:
                 local_version = json.loads(f.read())['version']
             if _parse_semver_version(admin_version) > _parse_semver_version(local_version):
                 get_web_admin()

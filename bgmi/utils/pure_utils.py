@@ -45,7 +45,7 @@ def render_template(path_or_file: Union[str, Path, TextIOBase, TextIO], ctx: dic
         content = path_or_file.read()
     else:
         # py3.4 can't open pathlib.Path directly, need to be str
-        with open(str(path_or_file), 'r', encoding='utf8') as f:
+        with open(str(path_or_file), encoding='utf8') as f:
             content = f.read()
     template_obj = template.Template(content, autoescape='')
     return template_obj.generate(**(ctx or kwargs)).decode('utf-8')

@@ -2,7 +2,7 @@ from bgmi.utils.episode_parser import chinese_to_arabic, parse_episode
 
 
 def test_parse_episode():
-    with open('tests/data/episode', 'r', encoding='utf8') as f:
+    with open('tests/data/episode', encoding='utf8') as f:
         lines = f.readlines()
         lines = map(lambda x: x.strip(), lines)
         lines = list(filter(bool, lines))

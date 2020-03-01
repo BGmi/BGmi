@@ -167,9 +167,7 @@ except OSError:
     config_obj = Config()
 
 try:
-    with open(
-        os.path.join(Config().SAVE_PATH, 'advanced_config.toml'), 'r', encoding='utf-8'
-    ) as ff:
+    with open(os.path.join(Config().SAVE_PATH, 'advanced_config.toml'), encoding='utf-8') as ff:
         advanced_config_obj = AdvancedConfig.parse_obj(toml.load(ff))
 except OSError:
     advanced_config_obj = AdvancedConfig()

@@ -60,7 +60,7 @@ def dump_config(config: WritableConfig) -> configparser.ConfigParser:
 
 def get_config_parser_and_read(config_file_path: str) -> configparser.ConfigParser:
     try:
-        with open(config_file_path, 'r', encoding='utf-8') as f:
+        with open(config_file_path, encoding='utf-8') as f:
             content = f.read()
     except UnicodeDecodeError:
         with open(config_file_path, 'rb') as fb:

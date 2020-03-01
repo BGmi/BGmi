@@ -10,7 +10,7 @@ from bgmi.lib import db_models
 from bgmi.lib.db_models import Bangumi, BangumiItem, Download, Followed, Scripts, Subtitle, db
 
 DB_SQL_PATH = os.path.expanduser(os.getenv('DB_SQL_PATH'))
-with open(DB_SQL_PATH, 'r', encoding='utf8') as f:
+with open(DB_SQL_PATH, encoding='utf8') as f:
     SQL = f.read()
 
 
