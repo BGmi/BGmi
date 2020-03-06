@@ -37,16 +37,16 @@ chardet = "3.0.4"
 hanziconv = "0.3.2"
 icalendar = "4.0.4"
 peewee = "3.13.1"
-requests = "2.22.0"
-stevedore = "1.31.0"
-tornado = "6.0.3"
+requests = "2.23.0"
+stevedore = "1.32.0"
+tornado = "6.0.4"
 peewee_migrate = "1.1.6"
 click = "7.0"
 pydantic = "1.2"
 toml = "0.10.0"
 pymysql = {version = "0.9.3", optional = true}
 
-sphinx = { version = '2.4.0', optional = true }
+sphinx = { version = "2.4.4", optional = true }
 sphinx-rtd-theme =  { version = '0.4.3', optional = true }
 sphinxcontrib-httpdomain =  { version = '1.7.0', optional = true }
 sphinxcontrib-httpexample =  { version = '0.10.3', optional = true }
