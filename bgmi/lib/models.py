@@ -96,14 +96,21 @@ class Bangumi(NeoDB):
 
     @classmethod
     def fuzzy_get(cls, **filters):
-        q = []
+        fuzzy_q = []
+        raw_q = []
         for key, value in filters.items():
-            q.append(getattr(cls, key).contains(value))
-        o = list(cls.select().where(*q))
-        if not o:
-            raise cls.DoesNotExist
-        else:
-            return o[0]
+            raw_q.append(getattr(cls, key) == value)
+            fuzzy_q.append(getattr(cls, key).contains(value))
+
+        raw = list(cls.select().where(*raw_q))
+        if raw:
+            return raw[0]
+
+        fuzzy = list(cls.select().where(*fuzzy_q))
+        if fuzzy:
+            return fuzzy[0]
+
+        raise cls.DoesNotExist
 
 
 class Followed(NeoDB):
