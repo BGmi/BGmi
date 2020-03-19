@@ -13,11 +13,12 @@ BGmi is a cli tool for subscribed bangumi.
 ====
 TODO
 ====
-`Fetch data from multi data source at same time <https://github.com/BGmi/BGmi/projects/1>`_
+
 
 ==========
 Update Log
 ==========
++ remove python 3.4 support as it has reached its end-of-life
 + The BGmi version you saw will be the last version that support Python2.
 + Transmission rpc authentication configuration
 + New download delegate `deluge-rpc <https://www.deluge-torrent.org/>`_
