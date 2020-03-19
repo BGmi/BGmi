@@ -31,34 +31,33 @@ class ControllersTest(unittest.TestCase):
 
     def test_b_add(self):
         r = add(self.bangumi_name_1, 0)
-        self.assertEqual(r['status'], 'success')
+        self.assertEqual(r['status'], 'success', r['message'])
         r = add(self.bangumi_name_1, 0)
-        self.assertEqual(r['status'], 'warning')
+        self.assertEqual(r['status'], 'warning', r['message'])
         r = delete(self.bangumi_name_1)
-        self.assertEqual(r['status'], 'warning')
+        self.assertEqual(r['status'], 'warning', r['message'])
 
     def test_c_mark(self):
-        r = add(self.bangumi_name_1, 0)
-        self.assertEqual(r['status'], 'success')
+        add(self.bangumi_name_1, 0)
 
         r = mark(self.bangumi_name_1, 1)
-        self.assertEqual(r['status'], 'success')
+        self.assertEqual(r['status'], 'success', r['message'])
         r = mark(self.bangumi_name_1, None)
-        self.assertEqual(r['status'], 'info')
+        self.assertEqual(r['status'], 'info', r['message'])
         r = mark(self.bangumi_name_2, 0)
-        self.assertEqual(r['status'], 'error')
+        self.assertEqual(r['status'], 'error', r['message'])
 
     def test_d_delete(self):
         r = delete()
-        self.assertEqual(r['status'], 'warning')
+        self.assertEqual(r['status'], 'warning', r['message'])
         r = delete(self.bangumi_name_1)
-        self.assertEqual(r['status'], 'warning')
+        self.assertEqual(r['status'], 'warning', r['message'])
         r = delete(self.bangumi_name_1)
-        self.assertEqual(r['status'], 'warning')
+        self.assertEqual(r['status'], 'warning', r['message'])
         r = delete(self.bangumi_name_2)
-        self.assertEqual(r['status'], 'error')
+        self.assertEqual(r['status'], 'error', r['message'])
         r = delete(clear_all=True, batch=True)
-        self.assertEqual(r['status'], 'warning')
+        self.assertEqual(r['status'], 'warning', r['message'])
 
     def test_e_search(self):
         r = search(self.bangumi_name_1, dupe=False)
