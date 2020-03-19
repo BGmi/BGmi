@@ -18,8 +18,8 @@ TODO
 ==========
 Update Log
 ==========
-+ remove python 3.4 support as it has reached its end-of-life
-+ The BGmi version you saw will be the last version that support Python2.
++ Remove python3.4 support as it has reached its end-of-life
++ Remove Python2 support
 + Transmission rpc authentication configuration
 + New download delegate `deluge-rpc <https://www.deluge-torrent.org/>`_
 + You can filter search results by min and max episode
