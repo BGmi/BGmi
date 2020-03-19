@@ -29,7 +29,6 @@ setup(
     url='https://github.com/BGmi/BGmi',
     download_url='https://github.com/BGmi/BGmi/tarball/master',
     packages=find_packages(),
-    package_data={'': ['LICENSES']},
     include_package_data=True,
     zip_safe=False,
     install_requires=requirements,
