@@ -19,19 +19,19 @@ class ScriptRunner:
     def __new__(cls, *args, **kwargs):
         if cls._defined is None:
 
-            script_files = glob.glob('{}{}*.py'.format(SCRIPT_PATH, os.path.sep))
+            script_files = glob.glob("{}{}*.py".format(SCRIPT_PATH, os.path.sep))
             for i in script_files:
                 try:
-                    s = imp.load_source('script', os.path.join(SCRIPT_PATH, i))
-                    script_class = getattr(s, 'Script')()
+                    s = imp.load_source("script", os.path.join(SCRIPT_PATH, i))
+                    script_class = getattr(s, "Script")()
 
                     if cls.check(script_class):
                         cls.scripts.append(script_class)
-                        print_info('Load script {} successfully.'.format(i))
+                        print_info("Load script {} successfully.".format(i))
 
                 except:
-                    print_warning('Load script {} failed, ignored'.format(i))
-                    if os.getenv('DEBUG_SCRIPT'):  # pragma: no cover
+                    print_warning("Load script {} failed, ignored".format(i))
+                    if os.getenv("DEBUG_SCRIPT"):  # pragma: no cover
                         traceback.print_exc()
                         # self.scripts = filter(self._check_followed, self.scripts)
                         # self.scripts = filter(self._check_bangumi, self.scripts)
@@ -43,7 +43,7 @@ class ScriptRunner:
     @classmethod
     def check(cls, script):
         condition = [
-            'script.Model().due_date > datetime.datetime.now()',
+            "script.Model().due_date > datetime.datetime.now()",
         ]
 
         for i in condition:
@@ -52,7 +52,7 @@ class ScriptRunner:
                     return False
             except:
                 # ignore if error
-                if os.getenv('DEBUG_SCRIPT'):  # pragma: no cover
+                if os.getenv("DEBUG_SCRIPT"):  # pragma: no cover
                     traceback.print_exc()
 
         return True
@@ -63,36 +63,45 @@ class ScriptRunner:
                 return script.Model().obj
 
     def get_models_dict(self):
-        return [dict(script.Model()) for script in self.scripts if script.bangumi_name is not None]
+        return [
+            dict(script.Model())
+            for script in self.scripts
+            if script.bangumi_name is not None
+        ]
 
     @staticmethod
     def make_dict(script):
-        return [{
-            'name': script.bangumi_name,
-            'title': '[{}][{}]'.format(script.bangumi_name, k),
-            'episode': k,
-            'download': v
-        } for k, v in script.get_download_url().items()]
+        return [
+            {
+                "name": script.bangumi_name,
+                "title": "[{}][{}]".format(script.bangumi_name, k),
+                "episode": k,
+                "download": v,
+            }
+            for k, v in script.get_download_url().items()
+        ]
 
     def run(self, return_=True, download=False):
         for script in self.scripts:
-            print_info('fetching {} ...'.format(script.bangumi_name))
+            print_info("fetching {} ...".format(script.bangumi_name))
             download_item = self.make_dict(script)
 
             script_obj = script.Model().obj
 
             if not download_item:
-                print_info('Got nothing, quit script {}.'.format(script))
+                print_info("Got nothing, quit script {}.".format(script))
                 continue
 
-            max_episode = max(download_item, key=lambda d: d['episode'])
-            episode = max_episode['episode']
+            max_episode = max(download_item, key=lambda d: d["episode"])
+            episode = max_episode["episode"]
             episode_range = range(script_obj.episode + 1, episode + 1)
 
             if episode <= script_obj.episode:
                 continue
 
-            print_success('{} updated, episode: {}'.format(script.bangumi_name, episode))
+            print_success(
+                "{} updated, episode: {}".format(script.bangumi_name, episode)
+            )
             script_obj.episode = episode
             script_obj.status = STATUS_UPDATED
             script_obj.updated_time = int(time.time())
@@ -101,7 +110,7 @@ class ScriptRunner:
             download_queue = []
             for i in episode_range:
                 for e in download_item:
-                    if i == e['episode']:
+                    if i == e["episode"]:
                         download_queue.append(e)
 
             if return_:
@@ -109,13 +118,13 @@ class ScriptRunner:
                 continue
 
             if download:
-                print_success('Start downloading of {}'.format(script))
+                print_success("Start downloading of {}".format(script))
                 download_prepare(download_queue)
 
         return self.download_queue
 
     def get_download_cover(self):
-        return [script['cover'] for script in self.get_models_dict()]
+        return [script["cover"] for script in self.get_models_dict()]
 
 
 class ScriptBase:
@@ -138,27 +147,29 @@ class ScriptBase:
 
         def __init__(self):
             if self.bangumi_name is not None:
-                s, _ = Scripts.get_or_create(bangumi_name=self.bangumi_name,
-                                             defaults={'episode': 0, 'status': STATUS_FOLLOWED})
+                s, _ = Scripts.get_or_create(
+                    bangumi_name=self.bangumi_name,
+                    defaults={"episode": 0, "status": STATUS_FOLLOWED},
+                )
                 self.obj = s
 
         def __iter__(self):
-            for i in ('bangumi_name', 'cover', 'update_time'):
+            for i in ("bangumi_name", "cover", "update_time"):
                 yield (i, getattr(self, i))
 
             # patch for cal
-            yield ('name', self.bangumi_name)
-            yield ('status', self.obj.status)
-            yield ('updated_time', self.obj.updated_time)
-            yield ('subtitle_group', '')
-            yield ('episode', self.obj.episode)
+            yield ("name", self.bangumi_name)
+            yield ("status", self.obj.status)
+            yield ("updated_time", self.obj.updated_time)
+            yield ("subtitle_group", "")
+            yield ("episode", self.obj.episode)
 
     @property
     def _data(self):
         return {
-            'bangumi_id': self.Model._bangumi_id,
-            'subtitle_list': self.Model._subtitle_list,
-            'max_page': int(self.Model._max_page),
+            "bangumi_id": self.Model._bangumi_id,
+            "subtitle_list": self.Model._subtitle_list,
+            "max_page": int(self.Model._max_page),
         }
 
     @property
@@ -198,18 +209,21 @@ class ScriptBase:
         if self.source is not None:
             source = DATA_SOURCE_MAP.get(self.source, None)()
             if source is None:
-                raise Exception('Script data source is invalid, usable sources: {}'
-                                .format(', '.join(DATA_SOURCE_MAP.keys())))
+                raise Exception(
+                    "Script data source is invalid, usable sources: {}".format(
+                        ", ".join(DATA_SOURCE_MAP.keys())
+                    )
+                )
             ret = {}
             data = source.fetch_episode_of_bangumi(**self._data)
             for i in data:
-                if int(i['episode']) not in data:
-                    ret[int(i['episode'])] = i['download']
+                if int(i["episode"]) not in data:
+                    ret[int(i["episode"])] = i["download"]
             return ret
         else:
             return {}
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     runner = ScriptRunner()
     runner.run()

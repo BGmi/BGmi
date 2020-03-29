@@ -19,14 +19,14 @@ from bgmi import __admin_version__, __version__
 from bgmi.config import BGMI_PATH, DATA_SOURCE, FRONT_STATIC_PATH, LOG_PATH, SAVE_PATH
 from bgmi.lib.constants import SUPPORT_WEBSITE
 
-log_level = os.environ.get('BGMI_LOG') or 'ERROR'
+log_level = os.environ.get("BGMI_LOG") or "ERROR"
 log_level = log_level.upper()
-if log_level not in ['DEBUG', 'INFO', "WARNING", "ERROR"]:
-    print('log level error, doing nothing and exit')
+if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR"]:
+    print("log level error, doing nothing and exit")
     exit(1)
-logger = logging.getLogger('BGmi')
+logger = logging.getLogger("BGmi")
 try:
-    h = logging.FileHandler(LOG_PATH, 'a+', 'utf-8')
+    h = logging.FileHandler(LOG_PATH, "a+", "utf-8")
     handlers = [h]
     fs = logging.BASIC_FORMAT
     fmt = logging.Formatter(fs)
@@ -34,21 +34,19 @@ try:
     logging.root.addHandler(h)
     logging.root.setLevel(log_level)
 except OSError:
-    logging.basicConfig(stream=sys.stdout,
-                        level=logging.getLevelName(log_level))
+    logging.basicConfig(stream=sys.stdout, level=logging.getLevelName(log_level))
 
 
 def log_utils_function(func):
     @functools.wraps(func)
     def echo_func(*func_args, **func_kwargs):
-        logger.debug('')
+        logger.debug("")
         logger.debug(
-            str("start function {} {} {}".format(func.__name__, func_args,
-                                                       func_kwargs)))
+            str("start function {} {} {}".format(func.__name__, func_args, func_kwargs))
+        )
         r = func(*func_args, **func_kwargs)
-        logger.debug(str("return function {} {}".format(func.__name__,
-                                                              r)))
-        logger.debug('')
+        logger.debug(str("return function {} {}".format(func.__name__, r)))
+        logger.debug("")
         return r
 
     return echo_func
@@ -57,67 +55,71 @@ def log_utils_function(func):
 urllib3.disable_warnings()
 
 # monkey patch for dev
-if os.environ.get('DEV', False):  # pragma: no cover
+if os.environ.get("DEV", False):  # pragma: no cover
 
     def replace_url(url):
-        if url.startswith('https://'):
-            url = url.replace('https://', 'http://localhost:8092/https/')
-        elif url.startswith('http://'):
-            url = url.replace('http://', 'http://localhost:8092/http/')
+        if url.startswith("https://"):
+            url = url.replace("https://", "http://localhost:8092/https/")
+        elif url.startswith("http://"):
+            url = url.replace("http://", "http://localhost:8092/http/")
         return url
 
     from requests import request
 
     def get(url, params=None, **kwargs):
         url = replace_url(url)
-        kwargs.setdefault('allow_redirects', True)
-        return request('get', url, params=params, **kwargs)
+        kwargs.setdefault("allow_redirects", True)
+        return request("get", url, params=params, **kwargs)
 
     def post(url, data=None, json=None, **kwargs):
         url = replace_url(url)
-        return request('post', url, data=data, json=json, **kwargs)
+        return request("post", url, data=data, json=json, **kwargs)
 
     requests.get = get
     requests.post = post
 
-if sys.platform.startswith('win'):  # pragma: no cover
-    GREEN = ''
-    YELLOW = ''
-    RED = ''
-    COLOR_END = ''
+if sys.platform.startswith("win"):  # pragma: no cover
+    GREEN = ""
+    YELLOW = ""
+    RED = ""
+    COLOR_END = ""
 else:
-    GREEN = '\033[1;32m'
-    YELLOW = '\033[1;33m'
-    RED = '\033[1;31m'
-    COLOR_END = '\033[0m'
+    GREEN = "\033[1;32m"
+    YELLOW = "\033[1;33m"
+    RED = "\033[1;31m"
+    COLOR_END = "\033[0m"
 
 color_map = {
-    'print_info': '',
-    'print_success': GREEN,
-    'print_warning': YELLOW,
-    'print_error': RED,
+    "print_info": "",
+    "print_success": GREEN,
+    "print_warning": YELLOW,
+    "print_error": RED,
 }
 
 indicator_map = {
-    'print_info': '[*] ',
-    'print_success': '[+] ',
-    'print_warning': '[-] ',
-    'print_error': '[x] ',
+    "print_info": "[*] ",
+    "print_success": "[+] ",
+    "print_warning": "[-] ",
+    "print_error": "[x] ",
 }
 
-NPM_REGISTER_DOMAIN = 'registry.npmjs.com' if os.environ.get(
-    'TRAVIS_CI', False) else 'registry.npm.taobao.org'
-FRONTEND_NPM_URL = 'https://{}/bgmi-frontend/'.format(NPM_REGISTER_DOMAIN)
-PACKAGE_JSON_URL = 'https://{}/bgmi-frontend/{}'.format(
-    NPM_REGISTER_DOMAIN, __admin_version__)
+NPM_REGISTER_DOMAIN = (
+    "registry.npmjs.com"
+    if os.environ.get("TRAVIS_CI", False)
+    else "registry.npm.taobao.org"
+)
+FRONTEND_NPM_URL = "https://{}/bgmi-frontend/".format(NPM_REGISTER_DOMAIN)
+PACKAGE_JSON_URL = "https://{}/bgmi-frontend/{}".format(
+    NPM_REGISTER_DOMAIN, __admin_version__
+)
 
 
 def indicator(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
-        if kwargs.get('indicator', True):
+        if kwargs.get("indicator", True):
             func_name = f.__qualname__
-            args = (indicator_map.get(func_name, '') + args[0], )
+            args = (indicator_map.get(func_name, "") + args[0],)
         f(*args, **kwargs)
         sys.stdout.flush()
 
@@ -128,8 +130,10 @@ def colorize(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         func_name = f.__qualname__
-        b, e = color_map.get(func_name,
-                             ''), COLOR_END if color_map.get(func_name) else ''
+        b, e = (
+            color_map.get(func_name, ""),
+            COLOR_END if color_map.get(func_name) else "",
+        )
         args = tuple(map(lambda s: b + s + e, args))
         return f(*args, **kwargs)
 
@@ -167,20 +171,21 @@ def print_error(message, exit_=True, indicator=True):
 
 
 def print_version():
-    return '''BGmi {}ver. {}{} built by {}RicterZ{} with ❤️
+    return """BGmi {}ver. {}{} built by {}RicterZ{} with ❤️
 
 Github: https://github.com/BGmi/BGmi
 Email: ricterzheng@gmail.com
-Blog: https://ricterz.me'''.format(YELLOW, __version__, COLOR_END, YELLOW,
-                                   COLOR_END)
+Blog: https://ricterz.me""".format(
+        YELLOW, __version__, COLOR_END, YELLOW, COLOR_END
+    )
 
 
 @log_utils_function
 def test_connection():
     try:
         for website in SUPPORT_WEBSITE:
-            if DATA_SOURCE == website['id']:
-                requests.request('head', website['url'], timeout=10)
+            if DATA_SOURCE == website["id"]:
+                requests.request("head", website["url"], timeout=10)
     except:
         return False
     return True
@@ -188,22 +193,22 @@ def test_connection():
 
 def bug_report():  # pragma: no cover
     print_error(
-        'It seems that no bangumi found, if https://bangumi.moe can \n'
-        '    be opened normally, please submit issue at: https://github.com/BGmi/BGmi/issues',
-        exit_=True)
+        "It seems that no bangumi found, if https://bangumi.moe can \n"
+        "    be opened normally, please submit issue at: https://github.com/BGmi/BGmi/issues",
+        exit_=True,
+    )
 
 
 @log_utils_function
 def get_terminal_col():  # pragma: no cover
     # https://gist.github.com/jtriley/1108174
-    if not sys.platform.startswith('win'):
+    if not sys.platform.startswith("win"):
         import fcntl
         import termios
 
         _, col, _, _ = struct.unpack(
-            'HHHH',
-            fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0,
-                                                           0)))
+            "HHHH", fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack("HHHH", 0, 0, 0, 0))
+        )
 
         return col
     else:
@@ -217,15 +222,26 @@ def get_terminal_col():  # pragma: no cover
             csbi = create_string_buffer(22)
             res = windll.kernel32.GetConsoleScreenBufferInfo(h, csbi)
             if res:
-                (bufx, bufy, curx, cury, wattr, left, top, right, bottom, maxx,
-                 maxy) = struct.unpack("hhhhHhhhhhh", csbi.raw)
+                (
+                    bufx,
+                    bufy,
+                    curx,
+                    cury,
+                    wattr,
+                    left,
+                    top,
+                    right,
+                    bottom,
+                    maxx,
+                    maxy,
+                ) = struct.unpack("hhhhHhhhhhh", csbi.raw)
                 sizex = right - left + 1
                 # sizey = bottom - top + 1
                 return sizex
             else:
                 import subprocess
 
-                cols = int(subprocess.check_output('tput cols'))
+                cols = int(subprocess.check_output("tput cols"))
                 return cols
         except:
             return 80
@@ -235,30 +251,33 @@ def get_terminal_col():  # pragma: no cover
 def check_update(mark=True):
     def update():
         try:
-            print_info('Checking update ...')
-            version = requests.get('https://pypi.python.org/pypi/bgmi/json',
-                                   verify=False).json()['info']['version']
+            print_info("Checking update ...")
+            version = requests.get(
+                "https://pypi.python.org/pypi/bgmi/json", verify=False
+            ).json()["info"]["version"]
 
-            with open(os.path.join(BGMI_PATH, 'latest'), 'w') as f:
+            with open(os.path.join(BGMI_PATH, "latest"), "w") as f:
                 f.write(version)
 
             if version > __version__:
                 print_warning(
-                    'Please update bgmi to the latest version {}{}{}.'
-                    '\nThen execute `bgmi upgrade` to migrate database'.format(
-                        GREEN, version, COLOR_END))
+                    "Please update bgmi to the latest version {}{}{}."
+                    "\nThen execute `bgmi upgrade` to migrate database".format(
+                        GREEN, version, COLOR_END
+                    )
+                )
             else:
-                print_success('Your BGmi is the latest version.')
+                print_success("Your BGmi is the latest version.")
 
             package_json = requests.get(PACKAGE_JSON_URL).json()
-            admin_version = package_json['version']
-            if glob.glob(os.path.join(FRONT_STATIC_PATH, 'package.json')):
-                with open(os.path.join(FRONT_STATIC_PATH, 'package.json'),
-                          'r') as f:
-                    local_version = json.loads(f.read())['version']
-                if [int(x) for x in admin_version.split('.')
-                    ] > [int(x) for x in local_version.split('.')]:
-                    get_web_admin(method='update')
+            admin_version = package_json["version"]
+            if glob.glob(os.path.join(FRONT_STATIC_PATH, "package.json")):
+                with open(os.path.join(FRONT_STATIC_PATH, "package.json"), "r") as f:
+                    local_version = json.loads(f.read())["version"]
+                if [int(x) for x in admin_version.split(".")] > [
+                    int(x) for x in local_version.split(".")
+                ]:
+                    get_web_admin(method="update")
             else:
                 print_info(
                     "Use 'bgmi install' to install BGmi frontend / download delegate"
@@ -267,20 +286,19 @@ def check_update(mark=True):
                 update()
                 raise SystemExit
         except Exception as e:
-            print_warning('Error occurs when checking update, {}'.format(
-                str(e)))
+            print_warning("Error occurs when checking update, {}".format(str(e)))
 
-    version_file = os.path.join(BGMI_PATH, 'version')
+    version_file = os.path.join(BGMI_PATH, "version")
     if not os.path.exists(version_file):
-        with open(version_file, 'w') as f:
+        with open(version_file, "w") as f:
             f.write(str(int(time.time())))
         return update()
 
-    with open(version_file, 'r') as f:
+    with open(version_file, "r") as f:
         try:
             data = int(f.read())
             if time.time() - 7 * 24 * 3600 > data:
-                with open(version_file, 'w') as f:
+                with open(version_file, "w") as f:
                     f.write(str(int(time.time())))
                 return update()
         except ValueError:
@@ -294,39 +312,39 @@ def chinese_to_arabic(cn):
     :rtype: int
     """
     CN_NUM = {
-        '〇': 0,
-        '一': 1,
-        '二': 2,
-        '三': 3,
-        '四': 4,
-        '五': 5,
-        '六': 6,
-        '七': 7,
-        '八': 8,
-        '九': 9,
-        '零': 0,
-        '壹': 1,
-        '贰': 2,
-        '叁': 3,
-        '肆': 4,
-        '伍': 5,
-        '陆': 6,
-        '柒': 7,
-        '捌': 8,
-        '玖': 9,
-        '貮': 2,
-        '两': 2,
+        "〇": 0,
+        "一": 1,
+        "二": 2,
+        "三": 3,
+        "四": 4,
+        "五": 5,
+        "六": 6,
+        "七": 7,
+        "八": 8,
+        "九": 9,
+        "零": 0,
+        "壹": 1,
+        "贰": 2,
+        "叁": 3,
+        "肆": 4,
+        "伍": 5,
+        "陆": 6,
+        "柒": 7,
+        "捌": 8,
+        "玖": 9,
+        "貮": 2,
+        "两": 2,
     }
 
     CN_UNIT = {
-        '十': 10,
-        '拾': 10,
-        '百': 100,
-        '佰': 100,
-        '千': 1000,
-        '仟': 1000,
-        '万': 10000,
-        '萬': 10000,
+        "十": 10,
+        "拾": 10,
+        "百": 100,
+        "佰": 100,
+        "千": 1000,
+        "仟": 1000,
+        "万": 10000,
+        "萬": 10000,
     }
     unit = 0  # current
     ldig = []  # digest
@@ -355,23 +373,29 @@ def chinese_to_arabic(cn):
     return val
 
 
-FETCH_EPISODE_WITH_BRACKETS = re.compile(r'[【\[](\d+)\s?(?:END)?[】\]]')
+FETCH_EPISODE_WITH_BRACKETS = re.compile(r"[【\[](\d+)\s?(?:END)?[】\]]")
 
 FETCH_EPISODE_ZH = re.compile(r"第?\s?(\d{1,3})\s?[話话集]")
 FETCH_EPISODE_ALL_ZH = re.compile(r"第([^第]*?)[話话集]")
-FETCH_EPISODE_ONLY_NUM = re.compile(r'^([\d]{2,})$')
+FETCH_EPISODE_ONLY_NUM = re.compile(r"^([\d]{2,})$")
 
-FETCH_EPISODE_RANGE = re.compile(r'[\d]{2,}\s?-\s?([\d]{2,})')
-FETCH_EPISODE_RANGE_ZH = re.compile(r'[第][\d]{2,}\s?-\s?([\d]{2,})\s?[話话集]')
-FETCH_EPISODE_RANGE_ALL_ZH = re.compile(r'[全]([^-^第]*?)[話话集]')
+FETCH_EPISODE_RANGE = re.compile(r"[\d]{2,}\s?-\s?([\d]{2,})")
+FETCH_EPISODE_RANGE_ZH = re.compile(r"[第][\d]{2,}\s?-\s?([\d]{2,})\s?[話话集]")
+FETCH_EPISODE_RANGE_ALL_ZH = re.compile(r"[全]([^-^第]*?)[話话集]")
 
-FETCH_EPISODE_OVA_OAD = re.compile(r'([\d]{2,})\s?\((?:OVA|OAD)\)]')
-FETCH_EPISODE_WITH_VERSION = re.compile(r'[【\[](\d+)\s? *v\d(?:END)?[】\]]')
+FETCH_EPISODE_OVA_OAD = re.compile(r"([\d]{2,})\s?\((?:OVA|OAD)\)]")
+FETCH_EPISODE_WITH_VERSION = re.compile(r"[【\[](\d+)\s? *v\d(?:END)?[】\]]")
 
-FETCH_EPISODE = (FETCH_EPISODE_ZH, FETCH_EPISODE_ALL_ZH,
-                 FETCH_EPISODE_WITH_BRACKETS, FETCH_EPISODE_ONLY_NUM,
-                 FETCH_EPISODE_RANGE, FETCH_EPISODE_RANGE_ALL_ZH,
-                 FETCH_EPISODE_OVA_OAD, FETCH_EPISODE_WITH_VERSION)
+FETCH_EPISODE = (
+    FETCH_EPISODE_ZH,
+    FETCH_EPISODE_ALL_ZH,
+    FETCH_EPISODE_WITH_BRACKETS,
+    FETCH_EPISODE_ONLY_NUM,
+    FETCH_EPISODE_RANGE,
+    FETCH_EPISODE_RANGE_ALL_ZH,
+    FETCH_EPISODE_OVA_OAD,
+    FETCH_EPISODE_WITH_VERSION,
+)
 
 
 @log_utils_function
@@ -391,46 +415,46 @@ def parse_episode(episode_title):
 
     _ = FETCH_EPISODE_RANGE_ALL_ZH.findall(episode_title)
     if _ and _[0]:
-        logger.debug('return episode range all zh')
+        logger.debug("return episode range all zh")
         return int(0)
 
     _ = FETCH_EPISODE_RANGE.findall(episode_title)
     if _ and _[0]:
-        logger.debug('return episode range')
+        logger.debug("return episode range")
         return int(0)
 
     _ = FETCH_EPISODE_RANGE_ZH.findall(episode_title)
     if _ and _[0]:
-        logger.debug('return episode range zh')
+        logger.debug("return episode range zh")
         return int(0)
 
     _ = FETCH_EPISODE_ZH.findall(episode_title)
     if _ and _[0].isdigit():
-        logger.debug('return episode zh')
+        logger.debug("return episode zh")
         return int(_[0])
 
     _ = FETCH_EPISODE_ALL_ZH.findall(episode_title)
     if _ and _[0]:
         try:
-            logger.debug('try return episode all zh %s', _)
+            logger.debug("try return episode all zh %s", _)
             e = chinese_to_arabic(_[0])
-            logger.debug('return episode all zh')
+            logger.debug("return episode all zh")
             return e
         except Exception:
-            logger.debug('can\'t convert %s to int', _[0])
+            logger.debug("can't convert %s to int", _[0])
 
     _ = FETCH_EPISODE_WITH_VERSION.findall(episode_title)
     if _ and _[0].isdigit():
-        logger.debug('return episode range with version')
+        logger.debug("return episode range with version")
         return int(_[0])
 
     _ = FETCH_EPISODE_WITH_BRACKETS.findall(episode_title)
     if _:
-        logger.debug('return episode with brackets')
+        logger.debug("return episode with brackets")
         return get_real_episode(_)
 
-    logger.debug('don\'t match any regex, try match after split')
-    for i in episode_title.replace('[', ' ').replace('【', ',').split(' '):
+    logger.debug("don't match any regex, try match after split")
+    for i in episode_title.replace("[", " ").replace("【", ",").split(" "):
         for regexp in FETCH_EPISODE:
             match = regexp.findall(i)
             if match and match[0].isdigit():
@@ -438,7 +462,7 @@ def parse_episode(episode_title):
                 if match > 1000:
                     spare = match
                 else:
-                    logger.debug('match {} {} {}'.format(i, regexp, match))
+                    logger.debug("match {} {} {}".format(i, regexp, match))
                     return match
 
     if spare:
@@ -457,12 +481,12 @@ def normalize_path(url):
     :return: normalized path
     :rtype: str
     """
-    url = url.replace('http://', 'http/').replace('https://', 'https/')
-    illegal_char = [':', '*', '?', '"', '<', '>', '|', "'"]
+    url = url.replace("http://", "http/").replace("https://", "https/")
+    illegal_char = [":", "*", "?", '"', "<", ">", "|", "'"]
     for char in illegal_char:
-        url = url.replace(char, '')
+        url = url.replace(char, "")
 
-    if url.startswith('/'):
+    if url.startswith("/"):
         return url[1:]
     else:
         return url
@@ -470,24 +494,26 @@ def normalize_path(url):
 
 def get_web_admin(method):
     # frontend_npm_url = 'https://registry.npmjs.com/bgmi-frontend/'
-    print_info('{}ing BGmi frontend'.format(method[0].upper() + method[1:]))
+    print_info("{}ing BGmi frontend".format(method[0].upper() + method[1:]))
 
     try:
         r = requests.get(FRONTEND_NPM_URL).json()
         version = requests.get(PACKAGE_JSON_URL).json()
-        if 'error' in version and version[
-                'reason'] == "document not found":  # pragma: no cover
+        if (
+            "error" in version and version["reason"] == "document not found"
+        ):  # pragma: no cover
             print_error(
                 "Cnpm has not synchronized the latest version of BGmi-frontend from npm, "
-                "please try it later")
+                "please try it later"
+            )
             return
-        tar_url = r['versions'][version['version']]['dist']['tarball']
+        tar_url = r["versions"][version["version"]]["dist"]["tarball"]
         r = requests.get(tar_url)
     except requests.exceptions.ConnectionError:
-        print_warning('failed to download web admin')
+        print_warning("failed to download web admin")
         return
     except json.JSONDecodeError:
-        print_warning('failed to download web admin')
+        print_warning("failed to download web admin")
         return
     admin_zip = BytesIO(r.content)
     with gzip.GzipFile(fileobj=admin_zip) as f:
@@ -499,13 +525,16 @@ def get_web_admin(method):
     with tarfile.open(fileobj=tar_file) as tar_file_obj:
         tar_file_obj.extractall(path=FRONT_STATIC_PATH)
 
-    for file in os.listdir(os.path.join(FRONT_STATIC_PATH, 'package', 'dist')):
-        move(os.path.join(FRONT_STATIC_PATH, 'package', 'dist', file),
-             os.path.join(FRONT_STATIC_PATH, file))
-    with open(os.path.join(FRONT_STATIC_PATH, 'package.json'), 'w+') as f:
+    for file in os.listdir(os.path.join(FRONT_STATIC_PATH, "package", "dist")):
+        move(
+            os.path.join(FRONT_STATIC_PATH, "package", "dist", file),
+            os.path.join(FRONT_STATIC_PATH, file),
+        )
+    with open(os.path.join(FRONT_STATIC_PATH, "package.json"), "w+") as f:
         f.write(json.dumps(version))
-    print_success('Web admin page {} successfully. version: {}'.format(
-        method, version['version']))
+    print_success(
+        "Web admin page {} successfully. version: {}".format(method, version["version"])
+    )
 
 
 @log_utils_function
@@ -520,7 +549,7 @@ def convert_cover_url_to_path(cover_url):
     """
 
     cover_url = normalize_path(cover_url)
-    file_path = os.path.join(SAVE_PATH, 'cover')
+    file_path = os.path.join(SAVE_PATH, "cover")
     file_path = os.path.join(file_path, cover_url)
     dir_path = os.path.dirname(file_path)
 
@@ -529,8 +558,8 @@ def convert_cover_url_to_path(cover_url):
 
 @log_utils_function
 def download_file(url):
-    if url.startswith('https://') or url.startswith('http://'):
-        print_info('Download: {}'.format(url))
+    if url.startswith("https://") or url.startswith("http://"):
+        print_info("Download: {}".format(url))
         return requests.get(url)
 
 
@@ -552,6 +581,6 @@ def download_cover(cover_url_list):
         dir_path, file_path = convert_cover_url_to_path(cover_url_list[index])
         if not glob.glob(dir_path):
             os.makedirs(dir_path)
-        with open(file_path, 'wb') as f:
+        with open(file_path, "wb") as f:
             f.write(r.content)
     p.close()

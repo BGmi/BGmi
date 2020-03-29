@@ -47,13 +47,17 @@ repos:
     rev: '4.3.21'
     hooks:
       - id: isort
-        args: [  '--line-width', '88',
-                 '--trailing-comma',
-                 '--multi-line', '3',
-                 '--project', 'bgmi', ]
+        args: [
+          '--line-width', '88',
+          '--trailing-comma',
+          '--multi-line', '3',
+          '--project', 'bgmi',
+          '--force-grid-wrap=0',
+          '--use-parentheses'
+        ]
 
-#  - repo: local
-#    hooks:
+  - repo: local
+    hooks:
 #      - id: isort
 #        name: isort
 #        entry: isort
@@ -64,13 +68,13 @@ repos:
 #                 '--trailing-comma',
 #                 '--multi-line', '3',
 #                 '--project', 'bgmi', ]
-#
-#      - id: black
-#        name: black
-#        entry: black
-#        require_serial: true
-#        language: system
-#        types: [python]
+
+      - id: black
+        name: black
+        entry: black
+        require_serial: true
+        language: system
+        types: [python]
 #
 #      - id: poetry
 #        name: poetry

@@ -17,36 +17,45 @@ from bgmi.utils import print_error, print_info, print_success, print_warning
 
 
 def install_crontab():
-    print_info('Installing crontab job')
+    print_info("Installing crontab job")
     if IS_WINDOWS:
-        copy(os.path.join(os.path.dirname(__file__), 'others/cron.vbs'), BGMI_PATH)
-        os.system('schtasks /Create /SC HOURLY /TN "bgmi updater" /TR "{}"  /IT /F'.format(
-            os.path.join(BGMI_PATH, 'cron.vbs')))
+        copy(os.path.join(os.path.dirname(__file__), "others/cron.vbs"), BGMI_PATH)
+        os.system(
+            'schtasks /Create /SC HOURLY /TN "bgmi updater" /TR "{}"  /IT /F'.format(
+                os.path.join(BGMI_PATH, "cron.vbs")
+            )
+        )
     else:
-        path = os.path.join(os.path.dirname(__file__), 'others/crontab.sh')
+        path = os.path.join(os.path.dirname(__file__), "others/crontab.sh")
         os.system("bash '%s'" % path)
 
 
 def create_dir():
-    path_to_create = (BGMI_PATH, SAVE_PATH, TMP_PATH,
-                      SCRIPT_PATH, TOOLS_PATH, FRONT_STATIC_PATH)
+    path_to_create = (
+        BGMI_PATH,
+        SAVE_PATH,
+        TMP_PATH,
+        SCRIPT_PATH,
+        TOOLS_PATH,
+        FRONT_STATIC_PATH,
+    )
 
-    if not os.environ.get('HOME', os.environ.get('USERPROFILE', '')):
-        print_warning('$HOME not set, use \'/tmp/\'')
+    if not os.environ.get("HOME", os.environ.get("USERPROFILE", "")):
+        print_warning("$HOME not set, use '/tmp/'")
 
     # bgmi home dir
     try:
         for path in path_to_create:
             if not os.path.exists(path):
                 os.makedirs(path)
-                print_success('%s created successfully' % path)
-        OLD = os.path.join(BGMI_PATH, 'old')
+                print_success("%s created successfully" % path)
+        OLD = os.path.join(BGMI_PATH, "old")
         # create OLD if not exist oninstall
         if not os.path.exists(OLD):
-            with open(OLD, 'w') as f:
+            with open(OLD, "w") as f:
                 f.write(__version__)
     except OSError as e:
-        print_error('Error: {}'.format(str(e)))
+        print_error("Error: {}".format(str(e)))
 
 
 def install():
