@@ -1,4 +1,3 @@
-# coding=utf-8
 from __future__ import print_function, unicode_literals
 
 import datetime
@@ -6,10 +5,9 @@ import os
 import time
 
 import requests
-
-from bgmi.config import (LANG, MAX_PAGE, BANGUMI_MOE_URL)
+from bgmi.config import BANGUMI_MOE_URL, LANG, MAX_PAGE
 from bgmi.lib.models import Bangumi
-from bgmi.utils import (print_info, bug_report, print_error, print_warning)
+from bgmi.utils import bug_report, print_error, print_info, print_warning
 from bgmi.website.base import BaseWebsite
 
 # tag of bangumi on bangumi.moe

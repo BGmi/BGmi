@@ -1,9 +1,10 @@
-# coding=utf-8
 from __future__ import print_function, unicode_literals
 
+import functools
 import glob
 import gzip
 import json
+import logging
 import os
 import re
 import struct
@@ -11,18 +12,22 @@ import sys
 import tarfile
 import time
 from io import BytesIO
-from shutil import rmtree, move
-import functools
+from multiprocessing.pool import ThreadPool
+from shutil import move, rmtree
+
 import requests
 import urllib3
-from multiprocessing.pool import ThreadPool
-from six import text_type as unicode_
-
-from bgmi import __version__, __admin_version__
-from bgmi.config import IS_PYTHON3, BGMI_PATH, DATA_SOURCE, FRONT_STATIC_PATH, SAVE_PATH, LOG_PATH
+from bgmi import __admin_version__, __version__
+from bgmi.config import (
+    BGMI_PATH,
+    DATA_SOURCE,
+    FRONT_STATIC_PATH,
+    IS_PYTHON3,
+    LOG_PATH,
+    SAVE_PATH,
+)
 from bgmi.lib.constants import SUPPORT_WEBSITE
-
-import logging
+from six import text_type as unicode_
 
 log_level = os.environ.get('BGMI_LOG') or 'ERROR'
 log_level = log_level.upper()

@@ -1,19 +1,17 @@
-# coding=utf-8
 from __future__ import print_function, unicode_literals
 
+import datetime
 import glob
 import imp
 import os
 import time
-import datetime
 import traceback
 
-from bgmi.config import SCRIPT_PATH, MAX_PAGE
+from bgmi.config import MAX_PAGE, SCRIPT_PATH
 from bgmi.lib.download import download_prepare
-from bgmi.lib.models import STATUS_UPDATED, STATUS_FOLLOWED
-from bgmi.lib.models import Scripts
 from bgmi.lib.fetch import DATA_SOURCE_MAP
-from bgmi.utils import print_success, print_warning, print_info
+from bgmi.lib.models import STATUS_FOLLOWED, STATUS_UPDATED, Scripts
+from bgmi.utils import print_info, print_success, print_warning
 
 
 class ScriptRunner(object):

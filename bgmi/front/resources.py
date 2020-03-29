@@ -1,16 +1,14 @@
-# coding: utf-8
 from __future__ import print_function, unicode_literals
 
 import datetime
 import os
 from collections import defaultdict
 
-from icalendar import Calendar, Event
-from tornado.web import HTTPError
-
 from bgmi.config import SAVE_PATH
 from bgmi.front.base import BaseHandler
-from bgmi.lib.models import Download, Followed, Bangumi
+from bgmi.lib.models import Bangumi, Download, Followed
+from icalendar import Calendar, Event
+from tornado.web import HTTPError
 
 
 class BangumiHandler(BaseHandler):

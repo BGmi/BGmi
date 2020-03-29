@@ -1,4 +1,3 @@
-# coding=utf-8
 from __future__ import print_function, unicode_literals
 
 import os
@@ -7,11 +6,10 @@ import time as Time
 import urllib
 
 import requests
-from bs4 import BeautifulSoup
-
-from bgmi.config import (MAX_PAGE, SHARE_DMHY_URL, IS_PYTHON3)
+from bgmi.config import IS_PYTHON3, MAX_PAGE, SHARE_DMHY_URL
 from bgmi.utils import print_error
 from bgmi.website.base import BaseWebsite
+from bs4 import BeautifulSoup
 
 if IS_PYTHON3:
     unquote = urllib.parse.unquote

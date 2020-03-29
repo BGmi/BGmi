@@ -1,10 +1,11 @@
 from __future__ import print_function, unicode_literals
+
 import os
 from tempfile import NamedTemporaryFile
 
+from bgmi.config import BGMI_PATH, TMP_PATH, XUNLEI_LX_PATH
 from bgmi.downloader.base import BaseDownloadService
-from bgmi.config import XUNLEI_LX_PATH, BGMI_PATH, TMP_PATH
-from bgmi.utils import print_info, print_warning, print_success
+from bgmi.utils import print_info, print_success, print_warning
 
 
 class XunleiLixianDownload(BaseDownloadService):

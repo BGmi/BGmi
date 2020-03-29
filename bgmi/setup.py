@@ -1,11 +1,19 @@
-# coding=utf-8
 import os
 from shutil import copy
+
 from bgmi import __version__
-from bgmi.config import (IS_WINDOWS, BGMI_PATH, DOWNLOAD_DELEGATE,
-                         SAVE_PATH, FRONT_STATIC_PATH, TMP_PATH, SCRIPT_PATH, TOOLS_PATH)
+from bgmi.config import (
+    BGMI_PATH,
+    DOWNLOAD_DELEGATE,
+    FRONT_STATIC_PATH,
+    IS_WINDOWS,
+    SAVE_PATH,
+    SCRIPT_PATH,
+    TMP_PATH,
+    TOOLS_PATH,
+)
 from bgmi.lib.download import get_download_class
-from bgmi.utils import print_success, print_warning, print_info, print_error
+from bgmi.utils import print_error, print_info, print_success, print_warning
 
 
 def install_crontab():

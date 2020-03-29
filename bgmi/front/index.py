@@ -1,13 +1,12 @@
-# coding: utf-8
 from __future__ import print_function, unicode_literals
 
 import os
 from pprint import pformat
 
-from bgmi.config import SAVE_PATH, FRONT_STATIC_PATH
-from bgmi.front.base import BaseHandler, COVER_URL
-from bgmi.lib.models import STATUS_DELETED, STATUS_UPDATING, STATUS_END, Followed
-from bgmi.utils import normalize_path, logger
+from bgmi.config import FRONT_STATIC_PATH, SAVE_PATH
+from bgmi.front.base import COVER_URL, BaseHandler
+from bgmi.lib.models import STATUS_DELETED, STATUS_END, STATUS_UPDATING, Followed
+from bgmi.utils import logger, normalize_path
 
 
 def get_player(bangumi_name):
@@ -50,7 +49,7 @@ class IndexHandler(BaseHandler):
             '''
         else:
             msg = '''<h1>Thanks for your using BGmi</h1>
-            <p>If use want to use Tornado to serve static files, please run 
+            <p>If use want to use Tornado to serve static files, please run
             <code>bgmi config TORNADO_SERVE_STATIC_FILES 1</code>, and do not forget install bgmi-frontend by
             running <code>bgmi install</code></p>'''
 

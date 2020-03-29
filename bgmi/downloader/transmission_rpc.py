@@ -1,11 +1,17 @@
 from __future__ import print_function, unicode_literals
+
 import base64
-from six import iteritems
 
+from bgmi.config import (
+    IS_PYTHON3,
+    TRANSMISSION_RPC_PASSWORD,
+    TRANSMISSION_RPC_PORT,
+    TRANSMISSION_RPC_URL,
+    TRANSMISSION_RPC_USERNAME,
+)
 from bgmi.downloader.base import BaseDownloadService
-from bgmi.config import TRANSMISSION_RPC_PORT, TRANSMISSION_RPC_URL, TRANSMISSION_RPC_USERNAME, TRANSMISSION_RPC_PASSWORD, IS_PYTHON3
 from bgmi.utils import print_info, print_warning
-
+from six import iteritems
 
 if IS_PYTHON3:
     from urllib.request import build_opener

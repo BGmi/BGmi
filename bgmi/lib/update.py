@@ -1,10 +1,9 @@
-# coding=utf-8
 import os
 import sqlite3
 from shutil import copy
 
 from bgmi import __version__
-from bgmi.config import DB_PATH, BGMI_PATH, SCRIPT_DB_PATH
+from bgmi.config import BGMI_PATH, DB_PATH, SCRIPT_DB_PATH
 from bgmi.utils import print_error, print_info
 
 OLD = os.path.join(BGMI_PATH, 'old')

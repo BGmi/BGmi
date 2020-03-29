@@ -1,4 +1,3 @@
-# coding=utf-8
 from __future__ import print_function, unicode_literals
 
 import imghdr
@@ -8,13 +7,24 @@ import time
 from collections import defaultdict
 from itertools import chain
 
+from bgmi.config import ENABLE_GLOBAL_FILTER, GLOBAL_FILTER, MAX_PAGE
+from bgmi.lib.models import (
+    STATUS_FOLLOWED,
+    STATUS_UPDATED,
+    STATUS_UPDATING,
+    Bangumi,
+    Filter,
+    Subtitle,
+)
+from bgmi.utils import (
+    convert_cover_url_to_path,
+    download_cover,
+    parse_episode,
+    print_info,
+    print_warning,
+    test_connection,
+)
 from six import text_type
-
-from bgmi.config import MAX_PAGE, GLOBAL_FILTER, ENABLE_GLOBAL_FILTER
-from bgmi.lib.models import (Filter, Subtitle, STATUS_FOLLOWED, STATUS_UPDATED,
-                             Bangumi, STATUS_UPDATING)
-from bgmi.utils import (parse_episode, print_warning, print_info,
-                        test_connection, download_cover, convert_cover_url_to_path)
 
 
 class BaseWebsite(object):

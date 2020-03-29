@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals
 
 import json
@@ -7,11 +6,10 @@ import os
 import random
 import string
 
-from tornado.testing import AsyncHTTPTestCase
-
-from bgmi.config import SAVE_PATH, ADMIN_TOKEN
+from bgmi.config import ADMIN_TOKEN, SAVE_PATH
 from bgmi.front.server import make_app
 from bgmi.lib.constants import unicode_
+from tornado.testing import AsyncHTTPTestCase
 
 logging.basicConfig(level=logging.DEBUG)
 

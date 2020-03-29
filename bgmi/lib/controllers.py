@@ -1,18 +1,37 @@
-# coding=utf-8
 from __future__ import print_function, unicode_literals
 
 import time
 
-from bgmi.config import write_config, MAX_PAGE
+from bgmi.config import MAX_PAGE, write_config
 from bgmi.lib.constants import SUPPORT_WEBSITE
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
-from bgmi.lib.models import (Filter, Subtitle, Download, recreate_source_relatively_table,
-                             STATUS_FOLLOWED, STATUS_UPDATED, STATUS_NOT_DOWNLOAD, FOLLOWED_STATUS, Followed, Bangumi,
-                             DoesNotExist, model_to_dict)
-from bgmi.lib.models import (STATUS_DELETED)
+from bgmi.lib.models import (
+    FOLLOWED_STATUS,
+    STATUS_DELETED,
+    STATUS_FOLLOWED,
+    STATUS_NOT_DOWNLOAD,
+    STATUS_UPDATED,
+    Bangumi,
+    DoesNotExist,
+    Download,
+    Filter,
+    Followed,
+    Subtitle,
+    model_to_dict,
+    recreate_source_relatively_table,
+)
 from bgmi.script import ScriptRunner
-from bgmi.utils import print_info, normalize_path, print_warning, print_success, print_error, GREEN, COLOR_END, logger
+from bgmi.utils import (
+    COLOR_END,
+    GREEN,
+    logger,
+    normalize_path,
+    print_error,
+    print_info,
+    print_success,
+    print_warning,
+)
 
 
 def add(name, episode=None):

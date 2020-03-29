@@ -1,16 +1,17 @@
-# coding=utf-8
 from __future__ import print_function, unicode_literals
 
-import time
 import os
+import time
 from collections import defaultdict
-# from typing import List
-
-import peewee
-from peewee import IntegerField, FixedCharField, TextField
-from playhouse.shortcuts import model_to_dict
 
 import bgmi.config
+import peewee
+from peewee import FixedCharField, IntegerField, TextField
+from playhouse.shortcuts import model_to_dict
+
+# from typing import List
+
+
 
 # bangumi status
 STATUS_UPDATING = 0

@@ -1,4 +1,3 @@
-# coding=utf-8
 from __future__ import print_function, unicode_literals
 
 import os
@@ -9,11 +8,10 @@ from multiprocessing.pool import ThreadPool
 
 import bs4
 import requests
-from bs4 import BeautifulSoup
-from six import string_types
-
 from bgmi.config import MAX_PAGE
 from bgmi.website.base import BaseWebsite
+from bs4 import BeautifulSoup
+from six import string_types
 
 week = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 server_root = 'https://mikanani.me/'

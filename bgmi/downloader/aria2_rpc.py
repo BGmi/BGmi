@@ -1,10 +1,10 @@
 from __future__ import print_function, unicode_literals
-import bgmi.config
-from bgmi.downloader.base import BaseDownloadService
-from bgmi.config import ARIA2_RPC_URL, ARIA2_RPC_TOKEN
-from bgmi.utils import print_info, print_warning, print_success, print_error
-from bgmi.lib.models import STATUS_DOWNLOADED, STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING
 
+import bgmi.config
+from bgmi.config import ARIA2_RPC_TOKEN, ARIA2_RPC_URL
+from bgmi.downloader.base import BaseDownloadService
+from bgmi.lib.models import STATUS_DOWNLOADED, STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD
+from bgmi.utils import print_error, print_info, print_success, print_warning
 
 if bgmi.config.IS_PYTHON3:
     from xmlrpc.client import ServerProxy, _Method

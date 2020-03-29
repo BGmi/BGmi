@@ -1,10 +1,9 @@
 from __future__ import print_function, unicode_literals
 
 import requests
-
-from bgmi.config import DELUGE_RPC_URL, DELUGE_RPC_PASSWORD
+from bgmi.config import DELUGE_RPC_PASSWORD, DELUGE_RPC_URL
 from bgmi.downloader.base import BaseDownloadService
-from bgmi.utils import print_info, print_error
+from bgmi.utils import print_error, print_info
 
 
 class DelugeRPC(BaseDownloadService):

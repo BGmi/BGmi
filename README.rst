@@ -367,121 +367,11 @@ BGmi will load the script and call the method you write before the native functi
 Bangumi Script Runner will catch the data you returned, update the database, and download the bangumi.
 You only just write the parser and return the data.
 
-Bangumi Script is located at :code:`BGMI_PATH/script`, inherited :code:`ScriptBase` class. There is an example:
+Bangumi Script is located at :code:`BGMI_PATH/script`, inherited :code:`ScriptBase` class.
 
-.. code-block:: python
+examples: `script_example.py <./script_example.py>`_
 
-    # coding=utf-8
-    from __future__ import print_function, unicode_literals
-
-    import re
-    import json
-    import requests
-    import urllib
-
-    from bgmi.utils import parse_episode
-    from bgmi.script import ScriptBase
-    from bgmi.utils import print_error
-    from bgmi.config import IS_PYTHON3
-
-
-    if IS_PYTHON3:
-        unquote = urllib.parse.unquote
-    else:
-        unquote = urllib.unquote
-
-
-    class Script(ScriptBase):
-
-        # 定义 Model, 此处 Model 为显示在 BGmi HTTP 以及其他地方的名称、封面及其它信息
-        class Model(ScriptBase.Model):
-            bangumi_name = '猜谜王(BGmi Script)' # 名称, 随意填写即可
-            cover = 'COVER URL' # 封面的 URL
-            update_time = 'Tue' # 每周几更新
-
-        def get_download_url(self):
-            """Get the download url, and return a dict of episode and the url.
-            Download url also can be magnet link.
-            For example:
-            ```
-                {
-                    1: 'http://example.com/Bangumi/1/1.mp4'
-                    2: 'http://example.com/Bangumi/1/2.mp4'
-                    3: 'http://example.com/Bangumi/1/3.mp4'
-                }
-            ```
-            The keys `1`, `2`, `3` is the episode, the value is the url of bangumi.
-            :return: dict
-            """
-            # fetch and return dict
-            resp = requests.get('http://www.kirikiri.tv/?m=vod-play-id-4414-src-1-num-2.html').text
-            data = re.findall("mac_url=unescape\('(.*)?'\)", resp)
-            if not data:
-                print_error('No data found, maybe the script is out-of-date.', exit_=False)
-                return {}
-
-            data = unquote(json.loads('["{}"]'.format(data[0].replace('%u', '\\u')))[0])
-
-            ret = {}
-            for i in data.split('#'):
-                title, url = i.split('$')
-                # parse_episode 为内置的解析集数的方法, 可以应对大多数情况。如若不可用, 可以自己实现解析
-                ret[parse_episode(title)] = url
-
-            return ret
-
-Another example:
-
-.. code-block:: python
-
-    # coding=utf-8
-    from __future__ import print_function, unicode_literals
-
-    import re
-    import requests
-    from bs4 import BeautifulSoup as bs
-
-    from bgmi.utils import parse_episode
-    from bgmi.script import ScriptBase
-    from bgmi.utils import print_error
-    from bgmi.config import IS_PYTHON3
-
-
-    class Script(ScriptBase):
-
-        class Model(ScriptBase.Model):
-            bangumi_name = 'Rick and Morty Season 3'
-            cover = 'http://img.itvfans.com/wp-content/uploads/31346.jpg'
-            update_time = 'Mon'
-
-        def get_download_url(self):
-            # fetch and return dict
-            resp = requests.get('http://www.itvfans.com/fenji/313463.html').text
-            html = bs(resp, 'lxml')
-
-            data = html.find(attrs={'id': '31346-3-720p'})
-
-            if not data:
-                print_error('No data found, maybe the script is out-of-date.', exit_=False)
-                return {}
-
-            ret = {}
-            match_episode = re.compile('Rick\.and\.Morty\.S03E(\d+)\.720p')
-            for row in data.find_all('a', attrs={'type': 'magnet'}):
-                link = row.attrs['href']
-                episode = match_episode.findall(link)
-                if episode:
-                    ret[int(episode[0])] = link
-
-            return ret
-
-
-    if __name__ == '__main__':
-        s = Script()
-        print(s.get_download_url())
-
-
-The returned dict as follows.
+``get_download_url`` returns a dict as follows.
 
 .. code-block:: bash
 
@@ -658,5 +548,3 @@ SOFTWARE.
 
 .. |pypistats| image::  https://img.shields.io/pypi/dm/bgmi.svg
    :target: https://pypi.python.org/pypi/bgmi
-
-

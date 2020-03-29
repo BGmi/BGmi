@@ -1,11 +1,15 @@
-# coding=utf-8
-from __future__ import unicode_literals, print_function
+from __future__ import print_function, unicode_literals
 
 import os
 import subprocess
 
-from bgmi.lib.models import STATUS_DOWNLOADED, STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, Download
-from bgmi.utils import print_warning, print_info, print_success
+from bgmi.lib.models import (
+    STATUS_DOWNLOADED,
+    STATUS_DOWNLOADING,
+    STATUS_NOT_DOWNLOAD,
+    Download,
+)
+from bgmi.utils import print_info, print_success, print_warning
 
 
 class BaseDownloadService(object):

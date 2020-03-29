@@ -1,7 +1,6 @@
-# coding=utf-8
 import sqlite3
 
-from bgmi.config import DB_PATH, SCRIPT_DB_PATH, BGMI_PATH
+from bgmi.config import BGMI_PATH, DB_PATH, SCRIPT_DB_PATH
 from bgmi.utils import print_error
 
 CREATE_TABLE_BANGUMI = '''CREATE TABLE IF NOT EXISTS bangumi (

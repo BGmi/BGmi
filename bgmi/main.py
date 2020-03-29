@@ -1,19 +1,24 @@
-# coding=utf-8
 from __future__ import print_function, unicode_literals
 
-import os
-import sys
-import signal
 import argparse
-from six import string_types
+import os
+import signal
+import sys
 
-from bgmi.lib.cli import controllers
 from bgmi.config import BGMI_PATH, IS_PYTHON3
-from bgmi.lib.constants import actions_and_arguments, ACTION_COMPLETE
+from bgmi.lib.cli import controllers
+from bgmi.lib.constants import ACTION_COMPLETE, actions_and_arguments
+from bgmi.lib.update import update_database
 from bgmi.setup import create_dir, install_crontab
 from bgmi.sql import init_db
-from bgmi.lib.update import update_database
-from bgmi.utils import print_warning, print_error, print_version, check_update, get_web_admin
+from bgmi.utils import (
+    check_update,
+    get_web_admin,
+    print_error,
+    print_version,
+    print_warning,
+)
+from six import string_types
 
 
 # global Ctrl-C signal handler

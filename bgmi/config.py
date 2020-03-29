@@ -1,7 +1,9 @@
-# coding=utf-8
 from __future__ import unicode_literals
 
+# - Unify python2 and python3 - #
+import codecs
 import hashlib
+import locale
 import os
 import platform
 import random
@@ -308,9 +310,6 @@ IS_PYTHON3 = sys.version_info > (3, 0)
 # platform
 IS_WINDOWS = platform.system() == 'Windows'
 
-# - Unify python2 and python3 - #
-import codecs
-import locale
 
 # Wrap sys.stdout into a StreamWriter to allow writing unicode.
 

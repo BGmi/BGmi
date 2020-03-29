@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals
 
 import os
 import unittest
 
+from bgmi.lib.constants import unicode_
 from bgmi.lib.controllers import *
 from bgmi.main import setup
-from bgmi.lib.constants import unicode_
 
 
 class ControllersTest(unittest.TestCase):
