@@ -1,7 +1,5 @@
-from __future__ import unicode_literals
-
-# - Unify python2 and python3 - #
 import codecs
+import configparser
 import hashlib
 import locale
 import os
@@ -9,32 +7,51 @@ import platform
 import random
 import sys
 
-try:
-    import ConfigParser as configparser
-except ImportError:
-    import configparser
-
 # download delegate
-__wget__ = ('WGET_PATH',)
-__thunder__ = ('XUNLEI_LX_PATH',)
+__wget__ = ('WGET_PATH', )
+__thunder__ = ('XUNLEI_LX_PATH', )
 __transmission__ = (
-    'TRANSMISSION_RPC_URL', 'TRANSMISSION_RPC_PORT', 'TRANSMISSION_RPC_USERNAME', 'TRANSMISSION_RPC_PASSWORD',)
-__aria2__ = ('ARIA2_RPC_URL', 'ARIA2_RPC_TOKEN',)
+    'TRANSMISSION_RPC_URL',
+    'TRANSMISSION_RPC_PORT',
+    'TRANSMISSION_RPC_USERNAME',
+    'TRANSMISSION_RPC_PASSWORD',
+)
+__aria2__ = (
+    'ARIA2_RPC_URL',
+    'ARIA2_RPC_TOKEN',
+)
 __deluge__ = ('DELUGE_RPC_URL', 'DELUGE_RPC_PASSWORD')
 
 __download_delegate__ = __wget__ + __thunder__ + __aria2__ + __transmission__ + __deluge__
 
 # fake __all__
-__all__ = ('BANGUMI_MOE_URL', 'SAVE_PATH', 'DOWNLOAD_DELEGATE',
-           'MAX_PAGE', 'DATA_SOURCE', 'TMP_PATH', 'DANMAKU_API_URL',
-           'LANG', 'FRONT_STATIC_PATH', 'ADMIN_TOKEN', 'SHARE_DMHY_URL',
-           'GLOBAL_FILTER', 'ENABLE_GLOBAL_FILTER',
-           'TORNADO_SERVE_STATIC_FILES',
-           )
+__all__ = (
+    'BANGUMI_MOE_URL',
+    'SAVE_PATH',
+    'DOWNLOAD_DELEGATE',
+    'MAX_PAGE',
+    'DATA_SOURCE',
+    'TMP_PATH',
+    'DANMAKU_API_URL',
+    'LANG',
+    'FRONT_STATIC_PATH',
+    'ADMIN_TOKEN',
+    'SHARE_DMHY_URL',
+    'GLOBAL_FILTER',
+    'ENABLE_GLOBAL_FILTER',
+    'TORNADO_SERVE_STATIC_FILES',
+)
 
 # cannot be rewrite
-__readonly__ = ('BGMI_PATH', 'DB_PATH', 'CONFIG_FILE_PATH', 'TOOLS_PATH',
-                'SCRIPT_PATH', 'SCRIPT_DB_PATH', 'FRONT_STATIC_PATH',)
+__readonly__ = (
+    'BGMI_PATH',
+    'DB_PATH',
+    'CONFIG_FILE_PATH',
+    'TOOLS_PATH',
+    'SCRIPT_PATH',
+    'SCRIPT_DB_PATH',
+    'FRONT_STATIC_PATH',
+)
 
 # writeable
 __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
@@ -93,11 +110,11 @@ def print_config():
     string = ''
     string += '[bgmi]\n'
     for i in __writeable__:
-        string += '{0}={1}\n'.format(i, c.get('bgmi', i))
+        string += '{}={}\n'.format(i, c.get('bgmi', i))
 
-    string += '\n[{0}]\n'.format(DOWNLOAD_DELEGATE)
+    string += '\n[{}]\n'.format(DOWNLOAD_DELEGATE)
     for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
-        string += '{0}={1}\n'.format(i, c.get(DOWNLOAD_DELEGATE, i))
+        string += '{}={}\n'.format(i, c.get(DOWNLOAD_DELEGATE, i))
     return string
 
 
@@ -109,10 +126,7 @@ def write_default_config():
     for k in __writeable__:
         v = globals().get(k, '0')
         if k == 'ADMIN_TOKEN' and v is None:
-            if sys.version_info > (3, 0):
-                v = hashlib.md5(str(random.random()).encode('utf-8')).hexdigest()
-            else:
-                v = hashlib.md5(str(random.random())).hexdigest()
+            v = hashlib.md5(str(random.random()).encode('utf-8')).hexdigest()
 
         c.set('bgmi', k, v)
 
@@ -129,54 +143,56 @@ def write_default_config():
     try:
         with open(CONFIG_FILE_PATH, 'w+') as f:
             c.write(f)
-    except IOError:
+    except OSError:
         print('[-] Error writing to config file and ignored')
 
 
 def write_config(config=None, value=None):
     if not os.path.exists(CONFIG_FILE_PATH):
         write_default_config()
-        return {'status': 'error',
-                'message': 'Config file does not exists, writing default config file',
-                'data': []}
+        return {
+            'status': 'error',
+            'message':
+            'Config file does not exists, writing default config file',
+            'data': []
+        }
 
     c = configparser.ConfigParser()
     c.read(CONFIG_FILE_PATH)
     if config is not None and config not in __all_writable_now__:
-        result = {'status': 'error',
-                  'message': '{0} does not exist or not writeable'.format(config)}
+        result = {
+            'status': 'error',
+            'message': '{} does not exist or not writeable'.format(config)
+        }
         # return result
 
     try:
         if config is None:
-            result = {'status': 'info',
-                      'message': print_config()}
+            result = {'status': 'info', 'message': print_config()}
 
         elif value is None:  # config(config, None)
             result = {'status': 'info'}
 
             if config in __download_delegate__:
-                result['message'] = '{0}={1}'.format(config, c.get(DOWNLOAD_DELEGATE, config))
+                result['message'] = '{}={}'.format(
+                    config, c.get(DOWNLOAD_DELEGATE, config))
             else:
-                result['message'] = '{0}={1}'.format(config, c.get('bgmi', config))
+                result['message'] = '{}={}'.format(config,
+                                                   c.get('bgmi', config))
 
         else:  # config(config, Value)
             if config in __writeable__:
                 if config == 'DOWNLOAD_DELEGATE' and value not in DOWNLOAD_DELEGATE_MAP:
-                    result = {'status': 'error',
-                              'message': '{0} is not a support download_delegate'.format(value)}
+                    result = {
+                        'status':
+                        'error',
+                        'message':
+                        '{} is not a support download_delegate'.format(value)
+                    }
                 else:
                     c.set('bgmi', config, value)
                     with codecs.open(CONFIG_FILE_PATH, 'w', 'utf-8') as f:
-                        if not IS_PYTHON3:
-                            import __builtin__
-
-                            origin_str = str
-                            __builtin__.str = unicode
-                            c.write(f)
-                            __builtin__.str = origin_str
-                        else:
-                            c.write(f)
+                        c.write(f)
 
                     read_config()
                     if config == 'DOWNLOAD_DELEGATE':
@@ -187,41 +203,36 @@ def write_config(config=None, value=None):
                                 c.set(DOWNLOAD_DELEGATE, i, v)
 
                             with open(CONFIG_FILE_PATH, 'w') as f:
-                                if not IS_PYTHON3:
-                                    import __builtin__
+                                c.write(f)
 
-                                    origin_str = str
-                                    __builtin__.str = unicode
-                                    c.write(f)
-                                    __builtin__.str = origin_str
-                                else:
-                                    c.write(f)
-
-                    result = {'status': 'success',
-                              'message': '{0} has been set to {1}'.format(config, value)}
+                    result = {
+                        'status': 'success',
+                        'message':
+                        '{} has been set to {}'.format(config, value)
+                    }
 
             elif config in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
                 c.set(DOWNLOAD_DELEGATE, config, value)
                 with open(CONFIG_FILE_PATH, 'w') as f:
-                    if not IS_PYTHON3:
-                        import __builtin__
+                    c.write(f)
 
-                        origin_str = str
-                        __builtin__.str = unicode
-                        c.write(f)
-                        __builtin__.str = origin_str
-                    else:
-                        c.write(f)
-
-                result = {'status': 'success',
-                          'message': '{0} has been set to {1}'.format(config, value)}
+                result = {
+                    'status': 'success',
+                    'message': '{} has been set to {}'.format(config, value)
+                }
             else:
-                result = {'status': 'error',
-                          'message': '{0} does not exist or not writeable'.format(config)}
+                result = {
+                    'status': 'error',
+                    'message':
+                    '{} does not exist or not writeable'.format(config)
+                }
 
     except configparser.NoOptionError:
         write_default_config()
-        result = {'status': 'error', 'message': 'Error in config file, try rerun `bgmi config`'}
+        result = {
+            'status': 'error',
+            'message': 'Error in config file, try rerun `bgmi config`'
+        }
 
     result['data'] = [{'writable': True, 'name': x, 'value': globals()[x]} for x in __writeable__] + \
                      [{'writable': False, 'name': x, 'value': globals()[x]} for x in __readonly__]
@@ -303,33 +314,19 @@ read_config()
 __all_writable_now__ = __writeable__ + DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]
 
 # --------- Read-Only ---------- #
-# Python version
-IS_PYTHON3 = sys.version_info > (3, 0)
-
-# Detail URL
 # platform
 IS_WINDOWS = platform.system() == 'Windows'
 
-
 # Wrap sys.stdout into a StreamWriter to allow writing unicode.
 
-if IS_PYTHON3:
-    unicode = str
-    if platform.system() != 'Windows':
-        file_ = sys.stdout.buffer
-        sys.stdout = codecs.getwriter(locale.getpreferredencoding())(file_)
-else:
-
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
-    input = raw_input
+unicode = str
+if platform.system() != 'Windows':
+    file_ = sys.stdout.buffer
+    sys.stdout = codecs.getwriter(locale.getpreferredencoding())(file_)
 
 
 def unicode_(s):
-    if not IS_PYTHON3:
-        unicode_string = s.decode(sys.getfilesystemencoding())
-        return unicode_string
-    else:
-        return unicode(s)
+    return unicode(s)
 
 
 if __name__ == '__main__':

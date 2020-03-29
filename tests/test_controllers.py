@@ -1,5 +1,3 @@
-from __future__ import print_function, unicode_literals
-
 import os
 import unittest
 
@@ -12,7 +10,6 @@ class ControllersTest(unittest.TestCase):
     def setUp(self):
         self.bangumi_name_1 = unicode_(os.environ.get('BANGUMI_1'))
         self.bangumi_name_2 = unicode_(os.environ.get('BANGUMI_2'))
-        pass
 
     def test_a_cal(self):
         r = cal()

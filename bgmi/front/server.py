@@ -1,5 +1,3 @@
-from __future__ import print_function, unicode_literals
-
 import asyncio
 import os
 import sys
@@ -23,7 +21,7 @@ from tornado.options import define, options
 define('port', default=8888, help='listen on the port', type=int)
 define('address', default='0.0.0.0', help='binding at given address', type=str)
 
-API_ACTIONS = '%s|%s' % ('|'.join(API_MAP_GET.keys()), '|'.join(API_MAP_POST.keys()))
+API_ACTIONS = '{}|{}'.format('|'.join(API_MAP_GET.keys()), '|'.join(API_MAP_POST.keys()))
 
 if os.environ.get('DEV'):  # pragma: no cover
     def prepare(self):

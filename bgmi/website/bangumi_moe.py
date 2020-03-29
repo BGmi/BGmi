@@ -1,5 +1,3 @@
-from __future__ import print_function, unicode_literals
-
 import datetime
 import os
 import time
@@ -14,12 +12,12 @@ from bgmi.website.base import BaseWebsite
 BANGUMI_TAG = '549ef207fe682f7549f1ea90'
 
 __split = '/' if not BANGUMI_MOE_URL.endswith('/') else ''
-FETCH_URL = '{0}{1}api/bangumi/current'.format(BANGUMI_MOE_URL, __split)
-TEAM_URL = '{0}{1}api/team/working'.format(BANGUMI_MOE_URL, __split)
-NAME_URL = '{0}{1}api/tag/fetch'.format(BANGUMI_MOE_URL, __split)
-DETAIL_URL = '{0}{1}api/torrent/search'.format(BANGUMI_MOE_URL, __split)
-SEARCH_URL = '{0}{1}api/v2/torrent/search'.format(BANGUMI_MOE_URL, __split)
-TORRENT_URL = '{0}{1}download/torrent/'.format(BANGUMI_MOE_URL, __split)
+FETCH_URL = '{}{}api/bangumi/current'.format(BANGUMI_MOE_URL, __split)
+TEAM_URL = '{}{}api/team/working'.format(BANGUMI_MOE_URL, __split)
+NAME_URL = '{}{}api/tag/fetch'.format(BANGUMI_MOE_URL, __split)
+DETAIL_URL = '{}{}api/torrent/search'.format(BANGUMI_MOE_URL, __split)
+SEARCH_URL = '{}{}api/v2/torrent/search'.format(BANGUMI_MOE_URL, __split)
+TORRENT_URL = '{}{}download/torrent/'.format(BANGUMI_MOE_URL, __split)
 COVER_URL = 'https://bangumi.moe/'
 
 
@@ -28,7 +26,7 @@ def get_response(url, method='GET', **kwargs):
     if os.environ.get('DEV'):  # pragma: no cover
         url = url.replace('https://', 'http://localhost:8092/https/')
     if os.environ.get('DEBUG'):  # pragma: no cover
-        print_info('Request URL: {0}'.format(url))
+        print_info('Request URL: {}'.format(url))
     try:
         r = requests.request(method.lower(), url, **kwargs)
         if os.environ.get('DEBUG'):  # pragma: no cover
@@ -108,7 +106,7 @@ class BangumiMoe(BaseWebsite):
         else:
             for i in range(max_page):
                 if max_page > 1:
-                    print_info('Fetch page {0} ...'.format(i + 1))
+                    print_info('Fetch page {} ...'.format(i + 1))
                 data = {'tag_id': [bangumi_id, BANGUMI_TAG], 'p': i + 1}
                 response = get_response(DETAIL_URL, 'POST', json=data)
                 if response:

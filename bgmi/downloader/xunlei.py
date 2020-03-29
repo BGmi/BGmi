@@ -1,5 +1,3 @@
-from __future__ import print_function, unicode_literals
-
 import os
 from tempfile import NamedTemporaryFile
 
@@ -11,18 +9,18 @@ from bgmi.utils import print_info, print_success, print_warning
 class XunleiLixianDownload(BaseDownloadService):
     def __init__(self, *args, **kwargs):
         self.check_delegate_bin_exist(XUNLEI_LX_PATH)
-        super(XunleiLixianDownload, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def download(self):
         print_warning('XunleiLixian is deprecated, please choose aria2-rpc or transmission-rpc.')
         overwrite = '--overwrite' if self.overwrite else ''
 
         command = [XUNLEI_LX_PATH, 'download', '--torrent', overwrite,
-                   '--output-dir={0}'.format(self.save_path), self.torrent,
-                   '--verification-code-path={0}'.format(os.path.join(TMP_PATH, 'vcode.jpg'))]
+                   '--output-dir={}'.format(self.save_path), self.torrent,
+                   '--verification-code-path={}'.format(os.path.join(TMP_PATH, 'vcode.jpg'))]
 
-        print_info('Run command {0}'.format(' '.join(command)))
-        print_warning('Verification code path: {0}'.format(os.path.join(TMP_PATH, 'vcode.jpg')))
+        print_info('Run command {}'.format(' '.join(command)))
+        print_warning('Verification code path: {}'.format(os.path.join(TMP_PATH, 'vcode.jpg')))
         self.call(command)
 
     @staticmethod
@@ -48,11 +46,11 @@ class XunleiLixianDownload(BaseDownloadService):
         print_info('Create link file ...')
 
         if not os.path.exists(XUNLEI_LX_PATH):
-            os.symlink(os.path.join(BGMI_PATH, 'tools/xunlei-lixian/{0}/lixian_cli.py'.format(dir_name)),
+            os.symlink(os.path.join(BGMI_PATH, 'tools/xunlei-lixian/{}/lixian_cli.py'.format(dir_name)),
                        XUNLEI_LX_PATH)
         else:
-            print_warning('{0} already exists'.format(XUNLEI_LX_PATH))
+            print_warning('{} already exists'.format(XUNLEI_LX_PATH))
 
         print_success('All done')
-        print_info('Please run command \'{0} config\' to configure your lixian-xunlei '
+        print_info('Please run command \'{} config\' to configure your lixian-xunlei '
                    '(Notice: only for Thunder VIP)'.format(XUNLEI_LX_PATH))

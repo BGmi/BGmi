@@ -1,5 +1,3 @@
-from __future__ import print_function, unicode_literals
-
 import os
 import subprocess
 
@@ -12,7 +10,7 @@ from bgmi.lib.models import (
 from bgmi.utils import print_info, print_success, print_warning
 
 
-class BaseDownloadService(object):
+class BaseDownloadService:
     def __init__(self, download_obj, save_path, overwrite=True):
         self.name = download_obj.name
         self.torrent = download_obj.download
@@ -32,12 +30,12 @@ class BaseDownloadService(object):
 
     def check_path(self):
         if not os.path.exists(self.save_path):
-            print_warning('Create dir {0}'.format(self.save_path))
+            print_warning('Create dir {}'.format(self.save_path))
             os.makedirs(self.save_path)
 
     def check_delegate_bin_exist(self, path):
         if not os.path.exists(path):
-            raise Exception('{0} not exist, please run command \'bgmi install\' to install'.format(path))
+            raise Exception('{} not exist, please run command \'bgmi install\' to install'.format(path))
 
     def call(self, command):
         self.return_code = subprocess.call(command, env={'PATH': '/usr/local/bin:/usr/bin:/bin',
@@ -45,14 +43,14 @@ class BaseDownloadService(object):
 
     def check_download(self, name):
         if not os.path.exists(self.save_path) or self.return_code != 0:
-            raise Exception('It seems the bangumi {0} not be downloaded'.format(name))
+            raise Exception('It seems the bangumi {} not be downloaded'.format(name))
 
     @staticmethod
     def download_status(status=None):
         last_status = -1
         for download_data in Download.get_all_downloads(status=status):
             latest_status = download_data['status']
-            name = '  {0}. <{1}: {2}>'.format(download_data['id'], download_data['name'],
+            name = '  {}. <{}: {}>'.format(download_data['id'], download_data['name'],
                                               download_data['episode'])
             if latest_status != last_status:
                 if latest_status == STATUS_DOWNLOADING:

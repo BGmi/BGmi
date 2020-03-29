@@ -1,5 +1,3 @@
-from __future__ import print_function, unicode_literals
-
 import os
 import unittest
 
@@ -12,7 +10,6 @@ class ControllersTest(unittest.TestCase):
         self.bangumi_name_1 = unicode_(os.environ.get('BANGUMI_1'))
         self.bangumi_name_2 = unicode_(os.environ.get('BANGUMI_2'))
         self.w = website
-        pass
 
     def test_info(self):
         bs, gs = self.w.fetch_bangumi_calendar_and_subtitle_group()

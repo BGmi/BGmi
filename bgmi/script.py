@@ -1,6 +1,3 @@
-from __future__ import print_function, unicode_literals
-
-import datetime
 import glob
 import imp
 import os
@@ -14,7 +11,7 @@ from bgmi.lib.models import STATUS_FOLLOWED, STATUS_UPDATED, Scripts
 from bgmi.utils import print_info, print_success, print_warning
 
 
-class ScriptRunner(object):
+class ScriptRunner:
     _defined = None
     scripts = []
     download_queue = []
@@ -39,7 +36,7 @@ class ScriptRunner(object):
                         # self.scripts = filter(self._check_followed, self.scripts)
                         # self.scripts = filter(self._check_bangumi, self.scripts)
 
-            cls._defined = super(ScriptRunner, cls).__new__(cls, *args, **kwargs)
+            cls._defined = super().__new__(cls, *args, **kwargs)
 
         return cls._defined
 
@@ -121,8 +118,8 @@ class ScriptRunner(object):
         return [script['cover'] for script in self.get_models_dict()]
 
 
-class ScriptBase(object):
-    class Model(object):
+class ScriptBase:
+    class Model:
         obj = None
 
         # data

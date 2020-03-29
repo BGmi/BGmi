@@ -1,20 +1,15 @@
-from __future__ import print_function, unicode_literals
-
 import os
 import re
 import time as Time
 import urllib
 
 import requests
-from bgmi.config import IS_PYTHON3, MAX_PAGE, SHARE_DMHY_URL
+from bgmi.config import MAX_PAGE, SHARE_DMHY_URL
 from bgmi.utils import print_error
 from bgmi.website.base import BaseWebsite
 from bs4 import BeautifulSoup
 
-if IS_PYTHON3:
-    unquote = urllib.parse.unquote
-else:
-    unquote = urllib.unquote
+unquote = urllib.parse.unquote
 
 base_url = SHARE_DMHY_URL
 
@@ -24,15 +19,20 @@ def fetch_url(url, **kwargs):
     try:
         ret = requests.get(url, **kwargs).text
     except requests.ConnectionError:
-        print_error('Create connection to {site}... failed'.format(site=SHARE_DMHY_URL), exit_=False)
+        print_error('Create connection to {site}... failed'.format(
+            site=SHARE_DMHY_URL),
+                    exit_=False)
         print_error(
-            'Check internet connection or try to set a DMHY mirror site via: bgmi config SHARE_DMHY_URL <site url>')
+            'Check internet connection or try to set a DMHY mirror site via: bgmi config SHARE_DMHY_URL <site url>'
+        )
 
     return ret
 
 
 def parse_bangumi_with_week_days(content, update_time, array_name):
-    r = re.compile(array_name + '\.push\(\[\'(.*?)\',\'(.*?)\',\'(.*?)\',\'(.*?)\',\'(.*?)\'\]\)')
+    r = re.compile(
+        array_name +
+        '\\.push\\(\\[\'(.*?)\',\'(.*?)\',\'(.*?)\',\'(.*?)\',\'(.*?)\'\\]\\)')
     ret = r.findall(content)
 
     bangumi_list = []
@@ -68,7 +68,6 @@ def parse_bangumi_with_week_days(content, update_time, array_name):
             })
 
             bangumi['subtitle_group'].append(subtitle_group_id)
-            pass
 
         bangumi['name'] = name
         bangumi['update_time'] = update_time
@@ -89,7 +88,8 @@ def parse_subtitle_list(content):
 
     for li in li_list:
         subtitle_group_name = li.span.a.get('title')
-        subtitle_group_id_raw = re.findall('team_id\/(.+)$', li.span.a.get('href'))
+        subtitle_group_id_raw = re.findall(r'team_id\/(.+)$',
+                                           li.span.a.get('href'))
 
         if (len(subtitle_group_id_raw) == 0) or subtitle_group_name == '':
             continue
@@ -168,10 +168,13 @@ class DmhySource(BaseWebsite):
 
                 time_string = td_list[0].span.string
                 name = keyword
-                title = td_list[2].find('a', {'target': '_blank'}).get_text(strip=True)
+                title = td_list[2].find('a', {
+                    'target': '_blank'
+                }).get_text(strip=True)
                 download = td_list[3].a['href']
                 episode = self.parse_episode(title)
-                time = int(Time.mktime(Time.strptime(time_string, "%Y/%m/%d %H:%M")))
+                time = int(
+                    Time.mktime(Time.strptime(time_string, "%Y/%m/%d %H:%M")))
 
                 result.append({
                     'name': name,
@@ -239,10 +242,10 @@ class DmhySource(BaseWebsite):
         r = fetch_url(url)
 
         for update_time, array_name in week_days_mapping:
-            (b_list, s_list) = parse_bangumi_with_week_days(r, update_time, array_name)
+            (b_list,
+             s_list) = parse_bangumi_with_week_days(r, update_time, array_name)
             bangumi_list.extend(b_list)
             subtitle_list.extend(s_list)
-            pass
 
         # fetch subtitle
         url = base_url + '/team/navigate/'
@@ -259,7 +262,10 @@ class DmhySource(BaseWebsite):
 
         return (bangumi_list, subtitle_list)
 
-    def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=int(MAX_PAGE)):
+    def fetch_episode_of_bangumi(self,
+                                 bangumi_id,
+                                 subtitle_list=None,
+                                 max_page=int(MAX_PAGE)):
         """
         get all episode by bangumi id
         example
@@ -311,10 +317,13 @@ class DmhySource(BaseWebsite):
 
                 time_string = td_list[0].span.string
                 name = keyword
-                title = td_list[2].find('a', {'target': '_blank'}).get_text(strip=True)
+                title = td_list[2].find('a', {
+                    'target': '_blank'
+                }).get_text(strip=True)
                 download = td_list[3].a['href']
                 episode = self.parse_episode(title)
-                time = int(Time.mktime(Time.strptime(time_string, "%Y/%m/%d %H:%M")))
+                time = int(
+                    Time.mktime(Time.strptime(time_string, "%Y/%m/%d %H:%M")))
                 subtitle_group = ''
 
                 tag_list = td_list[2].find_all('span', {'class': 'tag'})
@@ -325,7 +334,7 @@ class DmhySource(BaseWebsite):
                     if href == None:
                         continue
 
-                    team_id_raw = re.findall('team_id\/(.*)$', href)
+                    team_id_raw = re.findall(r'team_id\/(.*)$', href)
                     if len(team_id_raw) == 0:
                         continue
                     subtitle_group = team_id_raw[0]
@@ -347,5 +356,3 @@ class DmhySource(BaseWebsite):
                 })
 
         return result
-
-    pass

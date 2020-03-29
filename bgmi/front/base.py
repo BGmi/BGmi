@@ -1,6 +1,3 @@
-#!coding: utf-8
-from __future__ import print_function, unicode_literals
-
 import json
 import json.decoder
 import os
@@ -9,7 +6,7 @@ import tornado.web
 from bgmi import __admin_version__, __version__
 from bgmi.config import BGMI_PATH, DANMAKU_API_URL, LANG
 from bgmi.script import ScriptRunner
-from bgmi.utils.utils import normalize_path
+from bgmi.utils import normalize_path
 from tornado.web import HTTPError
 
 COVER_URL = '/bangumi/cover'
@@ -55,7 +52,7 @@ class BaseHandler(tornado.web.RequestHandler):
             for i in self.patch_list:
                 i['cover'] = normalize_path(i['cover'])
 
-        super(BaseHandler, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def write_error(self, status_code, **kwargs):
         """Override to implement custom error pages.

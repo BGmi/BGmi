@@ -1,9 +1,8 @@
-from __future__ import print_function, unicode_literals
-
 import base64
+from urllib.parse import urlparse
+from urllib.request import build_opener
 
 from bgmi.config import (
-    IS_PYTHON3,
     TRANSMISSION_RPC_PASSWORD,
     TRANSMISSION_RPC_PORT,
     TRANSMISSION_RPC_URL,
@@ -11,15 +10,6 @@ from bgmi.config import (
 )
 from bgmi.downloader.base import BaseDownloadService
 from bgmi.utils import print_info, print_warning
-from six import iteritems
-
-if IS_PYTHON3:
-    from urllib.request import build_opener
-    from urllib.parse import urlparse
-else:
-    from urllib2 import build_opener
-    from urlparse import urlparse
-
 
 try:
     import transmissionrpc
@@ -51,16 +41,14 @@ try:
                 torrent_data = torrent_file.read()
                 torrent_data = base64.b64encode(torrent_data).decode('utf-8')
             if not torrent_data:
-                if torrent.endswith('.torrent') or torrent.startswith('magnet:'):
+                if torrent.endswith('.torrent') or torrent.startswith(
+                        'magnet:'):
                     torrent_data = None
                 else:
                     might_be_base64 = False
                     try:
                         # check if this is base64 data
-                        if IS_PYTHON3:
-                            base64.b64decode(torrent.encode('utf-8'))
-                        else:
-                            base64.b64decode(torrent)
+                        base64.b64decode(torrent.encode('utf-8'))
                         might_be_base64 = True
                     except Exception:
                         pass
@@ -71,38 +59,46 @@ try:
                 args = {'metainfo': torrent_data}
             else:
                 args = {'filename': torrent}
-            for key, value in iteritems(kwargs):
+            for key, value in kwargs.items():
                 argument = make_rpc_name(key)
-                (arg, val) = argument_value_convert('torrent-add', argument, value, self.rpc_version)
+                (arg, val) = argument_value_convert('torrent-add', argument,
+                                                    value, self.rpc_version)
                 args[arg] = val
-            return list(self._request('torrent-add', args, timeout=timeout).values())[0]
+            return list(
+                self._request('torrent-add', args,
+                              timeout=timeout).values())[0]
 except ImportError:
-    class PatchClient(object):
+
+    class PatchClient:
         pass
 
 
 class TransmissionRPC(BaseDownloadService):
-
     def __init__(self, *args, **kwargs):
         self.check_delegate_bin_exist('')
-        super(TransmissionRPC, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def download(self):
         try:
-            import transmissionrpc
-            tc = PatchClient(TRANSMISSION_RPC_URL, port=TRANSMISSION_RPC_PORT, user=TRANSMISSION_RPC_USERNAME, password=TRANSMISSION_RPC_PASSWORD)
+            tc = PatchClient(TRANSMISSION_RPC_URL,
+                             port=TRANSMISSION_RPC_PORT,
+                             user=TRANSMISSION_RPC_USERNAME,
+                             password=TRANSMISSION_RPC_PASSWORD)
             try:
                 tc.add_torrent(self.torrent, download_dir=self.save_path)
             except UnicodeEncodeError:
-                tc.add_torrent(self.torrent, download_dir=self.save_path.encode('utf-8'))
+                tc.add_torrent(self.torrent,
+                               download_dir=self.save_path.encode('utf-8'))
 
-            print_info('Add torrent into the download queue, the file will be saved at {0}'.format(self.save_path))
+            print_info(
+                'Add torrent into the download queue, the file will be saved at {}'
+                .format(self.save_path))
         except ImportError:
             pass
 
     def check_delegate_bin_exist(self, path):
         try:
-            import transmissionrpc
+            pass
         except ImportError:
             raise Exception('Please run `pip install transmissionrpc`')
 
@@ -117,9 +113,13 @@ class TransmissionRPC(BaseDownloadService):
         print_info('Print download status in transmission-rpc')
         try:
             import transmissionrpc
-            tc = transmissionrpc.Client(TRANSMISSION_RPC_URL, port=TRANSMISSION_RPC_PORT, user=TRANSMISSION_RPC_USERNAME, password=TRANSMISSION_RPC_PASSWORD)
+            tc = transmissionrpc.Client(TRANSMISSION_RPC_URL,
+                                        port=TRANSMISSION_RPC_PORT,
+                                        user=TRANSMISSION_RPC_USERNAME,
+                                        password=TRANSMISSION_RPC_PASSWORD)
             for torrent in tc.get_torrents():
-                print_info('  * {0}: {1}'.format(torrent.status, torrent), indicator=False)
+                print_info('  * {}: {}'.format(torrent.status, torrent),
+                           indicator=False)
         except ImportError:
             pass
 

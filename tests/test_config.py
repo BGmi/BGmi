@@ -1,5 +1,3 @@
-from __future__ import print_function, unicode_literals
-
 import unittest
 
 import bgmi.config as bgmi_config
@@ -43,9 +41,9 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(r['status'], 'error')
 
     def test_DOWNLOAD_DELEGATE(self):
-        r = config('DOWNLOAD_DELEGATE', 'aria2-rpc')
-        r = config('DOWNLOAD_DELEGATE', 'rr!')
-        r = config('WGET_PATH', 'some_place')
+        config('DOWNLOAD_DELEGATE', 'aria2-rpc')
+        config('DOWNLOAD_DELEGATE', 'rr!')
+        config('WGET_PATH', 'some_place')
         # self.assertEqual(r['status'], 'error')
 
     @classmethod

@@ -1,5 +1,3 @@
-from __future__ import print_function, unicode_literals
-
 import os
 import time
 from collections import defaultdict
@@ -11,7 +9,6 @@ import requests
 from bgmi.config import MAX_PAGE
 from bgmi.website.base import BaseWebsite
 from bs4 import BeautifulSoup
-from six import string_types
 
 week = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 server_root = 'https://mikanani.me/'
@@ -55,7 +52,7 @@ def parser_day_bangumi(soup):
         if url:
             name = url['title']
             url = url['href']
-            assert isinstance(url, string_types)
+            assert isinstance(url, str)
             bangumi_id = url.split('/')[-1]
             soup.find('li', )
             li.append({'name': name, 'keyword': bangumi_id, 'cover': span['data-src']})

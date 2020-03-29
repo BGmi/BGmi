@@ -1,5 +1,3 @@
-from __future__ import print_function, unicode_literals
-
 import datetime
 import itertools
 import os
@@ -65,7 +63,6 @@ from bgmi.utils import (
     print_success,
     print_warning,
 )
-from six import string_types
 from tornado import template
 
 
@@ -169,7 +166,7 @@ def cal_wrapper(ret):
     for index, weekday in enumerate(weekday_order):
         if weekly_list[weekday.lower()]:
             print(
-                '%s%s. %s' % (
+                '{}{}. {}'.format(
                     GREEN, weekday if not today else 'Bangumi Schedule for Today (%s)' % weekday, COLOR_END),
                 end='')
             print()
@@ -193,11 +190,11 @@ def cal_wrapper(ret):
                         space_count -= bangumi['name'].count(s)
 
                 if bangumi['status'] == STATUS_FOLLOWED:
-                    bangumi['name'] = '%s%s%s' % (
+                    bangumi['name'] = '{}{}{}'.format(
                         YELLOW, bangumi['name'], COLOR_END)
 
                 if bangumi['status'] == STATUS_UPDATED:
-                    bangumi['name'] = '%s%s%s' % (
+                    bangumi['name'] = '{}{}{}'.format(
                         GREEN, bangumi['name'], COLOR_END)
                 try:
                     print(' ' + bangumi['name'], ' ' * space_count, end='')
@@ -218,7 +215,7 @@ def filter_wrapper(ret):
     if 'data' not in result:
         globals()["print_{}".format(result['status'])](result['message'])
     else:
-        print_info('Usable subtitle group: {0}'.format(', '.join(result['data']['subtitle_group'])))
+        print_info('Usable subtitle group: {}'.format(', '.join(result['data']['subtitle_group'])))
         followed_filter_obj = Filter.get(bangumi_name=ret.name)
         print_filter(followed_filter_obj)
     return result['data']
@@ -242,7 +239,7 @@ def download_manager(ret):
         #                                                              download_obj.status))
         # download_obj.status = status
         # download_obj.save()
-        print_success('Download status has been marked as {0}'.format(
+        print_success('Download status has been marked as {}'.format(
             DOWNLOAD_CHOICE_LIST_DICT.get(int(status))))
     else:
         status = ret.status
@@ -255,19 +252,19 @@ def fetch_(ret):
     try:
         bangumi_obj = Bangumi.get(name=ret.name)
     except Bangumi.DoesNotExist:
-        print_error('Bangumi {0} not exist'.format(ret.name))
+        print_error('Bangumi {} not exist'.format(ret.name))
         return
 
     try:
         Followed.get(bangumi_name=bangumi_obj.name)
     except Followed.DoesNotExist:
-        print_error('Bangumi {0} is not followed'.format(ret.name))
+        print_error('Bangumi {} is not followed'.format(ret.name))
         return
 
     followed_filter_obj = Filter.get(bangumi_name=ret.name)
     print_filter(followed_filter_obj)
 
-    print_info('Fetch bangumi {0} ...'.format(bangumi_obj.name))
+    print_info('Fetch bangumi {} ...'.format(bangumi_obj.name))
     _, data = website.get_maximum_episode(bangumi_obj, ignore_old_row=False if ret.not_ignore else True)
 
     if not data:
@@ -288,7 +285,7 @@ def complete(ret):
     for action_dict in actions_and_arguments:
         actions_and_opts[action_dict['action']] = []
         for arg in action_dict.get('arguments', []):
-            if isinstance(arg['dest'], string_types) and arg['dest'].startswith('-'):
+            if isinstance(arg['dest'], str) and arg['dest'].startswith('-'):
                 actions_and_opts[action_dict['action']].append(arg)
             elif isinstance(arg['dest'], list):
                 actions_and_opts[action_dict['action']].append(arg)
@@ -314,7 +311,7 @@ def complete(ret):
                                                     source=[x['id'] for x in SUPPORT_WEBSITE],
                                                     helper=helper,
                                                     isinstance=isinstance,
-                                                    string_types=string_types)  # type: bytes
+                                                    string_types=(str,))  # type: bytes
 
     if os.environ.get('DEBUG', False):  # pragma: no cover
         with open('./_bgmi', 'wb+') as template_file:
@@ -354,14 +351,14 @@ def history(ret):
 
         if date.year != 1970:
             if date.year != year:
-                print('%s%s%s' % (GREEN, str(date.year), COLOR_END))
+                print('{}{}{}'.format(GREEN, str(date.year), COLOR_END))
                 year = date.year
 
             if date.year == year and date.month != month:
-                print('  |\n  |--- %s%s%s\n  |      |' % (YELLOW, m[date.month - 1], COLOR_END))
+                print('  |\n  |--- {}{}{}\n  |      |'.format(YELLOW, m[date.month - 1], COLOR_END))
                 month = date.month
 
-            print('  |      |--- [%s%-9s%s] (%-2s) %s' % (color, slogan, COLOR_END, i.episode, i.bangumi_name))
+            print('  |      |--- [{}{:<9}{}] ({:<2}) {}'.format(color, slogan, COLOR_END, i.episode, i.bangumi_name))
 
 
 def config_gen(ret):
@@ -409,8 +406,8 @@ def controllers(ret):
 
 
 def print_filter(followed_filter_obj):
-    print_info('Followed subtitle group: {0}'.format(', '.join(map(lambda s: s['name'], Subtitle.get_subtitle_by_id(
+    print_info('Followed subtitle group: {}'.format(', '.join(map(lambda s: s['name'], Subtitle.get_subtitle_by_id(
         followed_filter_obj.subtitle.split(', ')))) if followed_filter_obj.subtitle else 'None'))
-    print_info('Include keywords: {0}'.format(followed_filter_obj.include))
-    print_info('Exclude keywords: {0}'.format(followed_filter_obj.exclude))
-    print_info('Regular expression: {0}'.format(followed_filter_obj.regex))
+    print_info('Include keywords: {}'.format(followed_filter_obj.include))
+    print_info('Exclude keywords: {}'.format(followed_filter_obj.exclude))
+    print_info('Regular expression: {}'.format(followed_filter_obj.regex))

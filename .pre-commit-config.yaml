@@ -30,11 +30,18 @@ repos:
     hooks:
       - id: find-trailing-comma
 
-#  - repo: https://github.com/asottile/pyupgrade
-#    rev: v1.26.2
-#    hooks:
-#      - id: pyupgrade
-#        args: ['--py3-plus']
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v1.26.2
+    hooks:
+      - id: pyupgrade
+        args: ['--py3-plus']
+
+
+  - repo: https://github.com/Trim21/mirrors-autoflake
+    rev: v1.3.1
+    hooks:
+      - id: autoflake
+        args: ['--in-place', '--remove-unused-variables', '--remove-all-unused-imports']
 
   - repo: https://github.com/timothycrosley/isort
     rev: '4.3.21'
@@ -44,12 +51,6 @@ repos:
                  '--trailing-comma',
                  '--multi-line', '3',
                  '--project', 'bgmi', ]
-
-#  - repo: https://github.com/Trim21/mirrors-autoflake
-#    rev: v1.3.1
-#    hooks:
-#      - id: autoflake
-#        args: ['--in-place', '--remove-unused-variables', '--remove-all-unused-imports']
 
 #  - repo: local
 #    hooks:

@@ -374,155 +374,16 @@ schtasks /Delete /TN 'bgmi updater'
 
 你可以写一个`BGmi Script`来解析你自己的想看的番剧或者美剧. BGmi会加载你的script, 视作一个番剧来对待. 而你所需要做的只是继承`ScriptBase`类, 然后实现特定的方法, 再把你的script文件放到`BGMI_PATH/script`文件夹内.
 
-Example:
+Example: <./script_example.py>
+
+
+
+`get_download_url()`的返回一个`dict`, 以对应集数为键, 对应的下载链接为值
 
 ```python
-import re
-import json
-import requests
-import urllib
-
-from bgmi.utils import parse_episode
-from bgmi.script import ScriptBase
-from bgmi.utils import print_error
-from bgmi.config import IS_PYTHON3
-
-
-unquote = urllib.parse.unquote
-
-
-class Script(ScriptBase):
-
-    # 定义 Model, 此处 Model 为显示在 BGmi HTTP 以及其他地方的名称、封面及其它信息
-    class Model(ScriptBase.Model):
-        bangumi_name = '猜谜王(BGmi Script)' # 名称, 随意填写即可
-        cover = 'COVER URL' # 封面的 URL
-        update_time = 'Tue' # 每周几更新
-
-    def get_download_url(self):
-        """Get the download url, and return a dict of episode and the url.
-        Download url also can be magnet link.
-        For example:
-        ```
-            {
-                1: 'http://example.com/Bangumi/1/1.mp4'
-                2: 'http://example.com/Bangumi/1/2.mp4'
-                3: 'http://example.com/Bangumi/1/3.mp4'
-            }
-        ```
-        The keys `1`, `2`, `3` is the episode, the value is the url of bangumi.
-        :return: dict
-        """
-        # fetch and return dict
-        resp = requests.get('http://www.kirikiri.tv/?m=vod-play-id-4414-src-1-num-2.html').text
-        data = re.findall("mac_url=unescape\('(.*)?'\)", resp)
-        if not data:
-            print_error('No data found, maybe the script is out-of-date.', exit_=False)
-            return {}
-
-        data = unquote(json.loads('["{}"]'.format(data[0].replace('%u', '\\u')))[0])
-
-        ret = {}
-        for i in data.split('#'):
-            title, url = i.split('$')
-            # parse_episode 为内置的解析集数的方法, 可以应对大多数情况。如若不可用, 可以自己实现解析
-            ret[parse_episode(title)] = url
-
-        return ret
-```
-
-另一个例子, 这个是从zimuzu下载美剧硅谷的:
-
-```python
-# coding=utf-8
-"""download tv play from http://www.zimuzu.tv/, change config for another tv play"""
-from __future__ import print_function, unicode_literals
-
-import re
-
-# import bs4
-import requests
-from bs4 import BeautifulSoup
-
-from bgmi.script import ScriptBase
-
-BANGUMI_NAME = 'Sillicon Valley'
-UPDATE_TIME = 'Mon'
-COVER = 'http://renren.maoyun.tv/ftp/2018/0226/b_8ddd4f8d7fa60f961de34d5b6ab883db.jpg'
-RESOURCE_ID = 31801
-SEASON = 5
-
-
-HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X)'
-                  ' AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}
-
-
-class Script(ScriptBase):
-    class Model(ScriptBase.Model):
-        bangumi_name = BANGUMI_NAME
-        # this cover may be failure
-        cover = COVER
-        # due_date = datetime(2017, 10, 1)
-        update_time = UPDATE_TIME
-
-    def get_download_url(self):
-        """
-        for another teleplay, you just need to change `season_to_download` and `resource_id`
-        """
-        # config
-        season_to_download = SEASON
-        resource_id = RESOURCE_ID
-
-        # fetch and return dict
-        resp = requests.get('http://m.zimuzu.tv/resource/{}'.format(resource_id), headers=HEADERS).content
-        soup = BeautifulSoup(resp, 'lxml')
-
-        data = soup.find('div', id='item1mobile')  # type: bs4.Tag
-        data = data.find_all('a', class_='aurl')
-        regex_expression = re.compile(
-            r'http://m\.zimuzu\.tv/resource/item\?rid={}&season=(?P<season>\d+)&episode=(?P<episode>\d+)'.format(resource_id))
-        result = {}
-        print(data)
-        for a_tag in data:
-            page_url = a_tag['href'].replace('&amp;', '&')
-            re_result = regex_expression.match(page_url)
-            if re_result.group('season') == str(season_to_download):
-                result[re_result.group('episode')] = page_url
-
-        result = {int(key): page_url_to_magnet(p_url) for key, p_url in result.items()}
-        result = {key: value for key, value in result.items() if key and value}
-        return result
-
-
-def page_url_to_magnet(url):
-    """get magnet url from url like
-    http://m.zimuzu.tv/resource/item?rid=33555&season=3&episode=6
-    """
-    response = requests.get(url, headers=HEADERS).content
-    response = BeautifulSoup(response, 'lxml')
-    for li in response.find_all('li', class_="mui-table-view-cell mui-collapse"):
-        badge = li.find('span', class_="mui-badge")
-        if '中文' in badge.text:
-            for link in li.find_all('a', class_='copy'):
-                if link['data-url'].startswith('magnet:?xt=urn:btih:'):
-                    return link['data-url']
-
-
-if __name__ == '__main__':
-    s = Script()
-    r = s.get_download_url()
-    from pprint import pprint
-
-    pprint(r)
-```
-
-`get_download_url()`的返回值是这样的一个`dict`, 以对应集数为键, 对应的下载链接为值
-
-```js
 {
-    1: 'http://example.com/Bangumi/1/1.mp4'
-    2: 'http://example.com/Bangumi/1/2.torrent'
+    1: 'http://example.com/Bangumi/1/1.mp4',
+    2: 'http://example.com/Bangumi/1/2.torrent',
     3: 'http://example.com/Bangumi/1/3.mp4'
 }
 ```

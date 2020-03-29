@@ -1,5 +1,3 @@
-from __future__ import print_function, unicode_literals
-
 import requests
 from bgmi.config import DELUGE_RPC_PASSWORD, DELUGE_RPC_URL
 from bgmi.downloader.base import BaseDownloadService
@@ -12,8 +10,8 @@ class DelugeRPC(BaseDownloadService):
     def __init__(self, *args, **kwargs):
         self._id = 0
         self._session = requests.session()
-        l = self._call('auth.login', [DELUGE_RPC_PASSWORD, ])
-        super(DelugeRPC, self).__init__(**kwargs)
+        self._call('auth.login', [DELUGE_RPC_PASSWORD, ])
+        super().__init__(**kwargs)
 
     def _call(self, methods, params):
         r = self._session.post(DELUGE_RPC_URL,
@@ -45,7 +43,7 @@ class DelugeRPC(BaseDownloadService):
                                "max_upload_speed": -1,
                                }}
         e = self._call('web.add_torrents', [[options]])
-        print_info('Add torrent into the download queue, the file will be saved at {0}'.format(self.save_path))
+        print_info('Add torrent into the download queue, the file will be saved at {}'.format(self.save_path))
 
         return e
 
@@ -62,7 +60,7 @@ class DelugeRPC(BaseDownloadService):
 
 
 if __name__ == '__main__':
-    class downloadObj(object):
+    class downloadObj:
         pass
 
 

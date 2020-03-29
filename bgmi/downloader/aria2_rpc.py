@@ -1,15 +1,9 @@
-from __future__ import print_function, unicode_literals
+from xmlrpc.client import ServerProxy, _Method
 
-import bgmi.config
 from bgmi.config import ARIA2_RPC_TOKEN, ARIA2_RPC_URL
 from bgmi.downloader.base import BaseDownloadService
 from bgmi.lib.models import STATUS_DOWNLOADED, STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD
 from bgmi.utils import print_error, print_info, print_success, print_warning
-
-if bgmi.config.IS_PYTHON3:
-    from xmlrpc.client import ServerProxy, _Method
-else:
-    from xmlrpclib import ServerProxy, _Method
 
 
 class _PatchedMethod(_Method):
@@ -39,14 +33,14 @@ class Aria2DownloadRPC(BaseDownloadService):
     def __init__(self, *args, **kwargs):
         self.server = PatchedServerProxy(ARIA2_RPC_URL)
         Aria2DownloadRPC.check_aria2c_version()
-        super(Aria2DownloadRPC, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def download(self):
         if self.old_version:
             self.server.aria2.addUri([self.torrent], {"dir": self.save_path})
         else:
             self.server.aria2.addUri(ARIA2_RPC_TOKEN, [self.torrent], {"dir": self.save_path})
-        print_info('Add torrent into the download queue, the file will be saved at {0}'.format(self.save_path))
+        print_info('Add torrent into the download queue, the file will be saved at {}'.format(self.save_path))
 
     @staticmethod
     def check_aria2c_version():
@@ -96,12 +90,12 @@ class Aria2DownloadRPC(BaseDownloadService):
                     data = server.aria2[method](ARIA2_RPC_TOKEN, *params)
 
                 if data:
-                    print_warning('RPC {0}:'.format(method), indicator=False)
+                    print_warning('RPC {}:'.format(method), indicator=False)
 
                 for row in data:
-                    print_success('- {0}'.format(row['dir']), indicator=False)
+                    print_success('- {}'.format(row['dir']), indicator=False)
                     for file_ in row['files']:
-                        print_info('    * {0}'.format(file_['path']), indicator=False)
+                        print_info('    * {}'.format(file_['path']), indicator=False)
 
-        except Exception as e:
+        except Exception:
             print_error('Cannot connect to aria2-rpc server')

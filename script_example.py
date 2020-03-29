@@ -1,23 +1,16 @@
-from __future__ import print_function, unicode_literals
-
 import datetime
 import json
 import re
 import urllib
 
 import requests
-from bgmi.config import IS_PYTHON3
 from bgmi.script import ScriptBase
 from bgmi.utils import parse_episode, print_error
 
-if IS_PYTHON3:
-    unquote = urllib.parse.unquote
-else:
-    unquote = urllib.unquote
+unquote = urllib.parse.unquote
 
 
 class Script(ScriptBase):
-
     class Model(ScriptBase.Model):
         bangumi_name = '猜谜王(BGmi Script)'
         cover = 'COVER URL'
@@ -26,13 +19,16 @@ class Script(ScriptBase):
 
     def get_download_url(self):
         # fetch and return dict
-        resp = requests.get('http://www.kirikiri.tv/?m=vod-play-id-4414-src-1-num-2.html').text
-        data = re.findall("mac_url=unescape\('(.*)?'\)", resp)
+        resp = requests.get(
+            'http://www.kirikiri.tv/?m=vod-play-id-4414-src-1-num-2.html').text
+        data = re.findall(r"mac_url=unescape\('(.*)?'\)", resp)
         if not data:
-            print_error('No data found, maybe the script is out-of-date.', exit_=False)
+            print_error('No data found, maybe the script is out-of-date.',
+                        exit_=False)
             return {}
 
-        data = unquote(json.loads('["{}"]'.format(data[0].replace('%u', '\\u')))[0])
+        data = unquote(
+            json.loads('["{}"]'.format(data[0].replace('%u', '\\u')))[0])
 
         ret = {}
         for i in data.split('#'):

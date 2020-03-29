@@ -1,5 +1,3 @@
-from __future__ import print_function, unicode_literals
-
 import bgmi.config
 from bgmi.config import BANGUMI_MOE_URL, SHARE_DMHY_URL, unicode_
 

@@ -1,5 +1,3 @@
-from __future__ import print_function, unicode_literals
-
 import time
 
 from bgmi.config import MAX_PAGE, write_config
@@ -49,13 +47,13 @@ def add(name, episode=None):
         bangumi_obj = Bangumi.fuzzy_get(name=name)
     except Bangumi.DoesNotExist:
         result = {'status': 'error',
-                  'message': '{0} not found, please check the name'.format(name)}
+                  'message': '{} not found, please check the name'.format(name)}
         return result
     followed_obj, this_obj_created = Followed.get_or_create(bangumi_name=bangumi_obj.name,
                                                             defaults={'status': STATUS_FOLLOWED})
     if not this_obj_created:
         if followed_obj.status == STATUS_FOLLOWED:
-            result = {'status': 'warning', 'message': '{0} already followed'.format(bangumi_obj.name)}
+            result = {'status': 'warning', 'message': '{} already followed'.format(bangumi_obj.name)}
             return result
         else:
             followed_obj.status = STATUS_FOLLOWED
@@ -66,7 +64,7 @@ def add(name, episode=None):
     bangumi_data, _ = website.get_maximum_episode(bangumi_obj, subtitle=False, max_page=MAX_PAGE)
     followed_obj.episode = bangumi_data['episode'] if episode is None else episode
     followed_obj.save()
-    result = {'status': 'success', 'message': '{0} has been followed'.format(bangumi_obj.name)}
+    result = {'status': 'success', 'message': '{} has been followed'.format(bangumi_obj.name)}
     logger.debug(result)
     return result
 
@@ -77,7 +75,7 @@ def filter_(name, subtitle=None, include=None, exclude=None, regex=None):
         bangumi_obj = Bangumi.fuzzy_get(name=name)
     except Bangumi.DoesNotExist:
         result['status'] = 'error'
-        result['message'] = 'Bangumi {0} does not exist.'.format(name)
+        result['message'] = 'Bangumi {} does not exist.'.format(name)
         return result
 
     try:
@@ -354,13 +352,13 @@ def update(name, download=None, not_ignore=False):
         try:
             bangumi_obj = Bangumi.get(name=subscribe['bangumi_name'])
         except Bangumi.DoesNotExist:
-            print_error('Bangumi<{0}> does not exists.'.format(subscribe['bangumi_name']),
+            print_error('Bangumi<{}> does not exists.'.format(subscribe['bangumi_name']),
                         exit_=False)
             continue
         try:
             followed_obj = Followed.get(bangumi_name=subscribe['bangumi_name'])
         except Followed.DoesNotExist:
-            print_error('Bangumi<{0}> is not followed.'.format(subscribe['bangumi_name']),
+            print_error('Bangumi<{}> is not followed.'.format(subscribe['bangumi_name']),
                         exit_=False)
             continue
 
@@ -403,7 +401,7 @@ def status_(name, status=STATUS_DELETED):
 
     if not status in FOLLOWED_STATUS or not status:
         result['status'] = 'error'
-        result['message'] = 'Invalid status: {0}'.format(status)
+        result['message'] = 'Invalid status: {}'.format(status)
         return result
 
     status = int(status)
@@ -411,12 +409,12 @@ def status_(name, status=STATUS_DELETED):
         followed_obj = Followed.get(bangumi_name=name)
     except Followed.DoesNotExist:
         result['status'] = 'error'
-        result['message'] = 'Followed<{0}> does not exists'.format(name)
+        result['message'] = 'Followed<{}> does not exists'.format(name)
         return result
 
     followed_obj.status = status
     followed_obj.save()
-    result['message'] = 'Followed<{0}> has been marked as status {1}'.format(name, status)
+    result['message'] = 'Followed<{}> has been marked as status {}'.format(name, status)
     return result
 
 
@@ -440,7 +438,7 @@ def list_():
     result['message'] = ''
     for index, weekday in enumerate(weekday_order):
         if followed_bangumi[weekday.lower()]:
-            result['message'] += '%s%s. %s' % (GREEN, weekday, COLOR_END)
+            result['message'] += '{}{}. {}'.format(GREEN, weekday, COLOR_END)
             for i, bangumi in enumerate(followed_bangumi[weekday.lower()]):
                 if bangumi['status'] in (STATUS_UPDATED, STATUS_FOLLOWED) and 'episode' in bangumi:
                     bangumi['name'] = '%s(%d)' % (
@@ -448,6 +446,6 @@ def list_():
                 if i > 0:
                     result['message'] += ' ' * 5
                 f = map(lambda x: x['name'], bangumi['subtitle_group'])
-                result['message'] += '%s: %s\n' % (bangumi['name'], ', '.join(f) if f else '<None>')
+                result['message'] += '{}: {}\n'.format(bangumi['name'], ', '.join(f) if f else '<None>')
 
     return result

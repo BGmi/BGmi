@@ -1,11 +1,8 @@
-from __future__ import print_function, unicode_literals
-
 import argparse
 import os
 import signal
-import sys
 
-from bgmi.config import BGMI_PATH, IS_PYTHON3
+from bgmi.config import BGMI_PATH
 from bgmi.lib.cli import controllers
 from bgmi.lib.constants import ACTION_COMPLETE, actions_and_arguments
 from bgmi.lib.update import update_database
@@ -18,17 +15,12 @@ from bgmi.utils import (
     print_version,
     print_warning,
 )
-from six import string_types
 
 
 # global Ctrl-C signal handler
 def signal_handler(signal, frame):  # pragma: no cover
     print_error('User aborted, quit')
 
-
-if not IS_PYTHON3 and sys.platform.startswith('win'):
-    reload(sys)
-    sys.setdefaultencoding('gbk')
 
 signal.signal(signal.SIGINT, signal_handler)
 
@@ -38,20 +30,27 @@ def main():
     setup()
     c = argparse.ArgumentParser()
 
-    c.add_argument('--version', help='Show the version of BGmi.', action='version', version=print_version())
+    c.add_argument('--version',
+                   help='Show the version of BGmi.',
+                   action='version',
+                   version=print_version())
 
     sub_parser = c.add_subparsers(help='BGmi actions', dest='action')
 
     for action in actions_and_arguments:
-        tmp_sub_parser = sub_parser.add_parser(action['action'], help=action.get('help', ''))
+        tmp_sub_parser = sub_parser.add_parser(action['action'],
+                                               help=action.get('help', ''))
         for sub_action in action.get('arguments', []):
-            if isinstance(sub_action['dest'], string_types):
-                tmp_sub_parser.add_argument(sub_action['dest'], **sub_action['kwargs'])
+            if isinstance(sub_action['dest'], str):
+                tmp_sub_parser.add_argument(sub_action['dest'],
+                                            **sub_action['kwargs'])
             if isinstance(sub_action['dest'], list):
-                tmp_sub_parser.add_argument(*sub_action['dest'], **sub_action['kwargs'])
+                tmp_sub_parser.add_argument(*sub_action['dest'],
+                                            **sub_action['kwargs'])
 
-    sub_parser.add_parser(ACTION_COMPLETE, help='Gen completion, `eval "$(bgmi complete)"` '
-                                                'or `eval "$(bgmi complete|dos2unix)"`')
+    sub_parser.add_parser(ACTION_COMPLETE,
+                          help='Gen completion, `eval "$(bgmi complete)"` '
+                          'or `eval "$(bgmi complete|dos2unix)"`')
     # sub_parser_del.add_argument('command', nargs='+', )
 
     ret = c.parse_args()

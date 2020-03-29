@@ -1,6 +1,3 @@
-from __future__ import print_function, unicode_literals
-
-import glob
 import os
 
 from bgmi.config import DOWNLOAD_DELEGATE, SAVE_PATH
@@ -21,7 +18,7 @@ DOWNLOAD_DELEGATE_DICT = {
 
 def get_download_class(download_obj=None, save_path='', overwrite=True, instance=True):
     if DOWNLOAD_DELEGATE not in DOWNLOAD_DELEGATE_DICT:
-        print_error('unexpected delegate {0}'.format(DOWNLOAD_DELEGATE))
+        print_error('unexpected delegate {}'.format(DOWNLOAD_DELEGATE))
 
     delegate = DOWNLOAD_DELEGATE_DICT.get(DOWNLOAD_DELEGATE)
 
@@ -67,7 +64,7 @@ def download_prepare(data):
                 traceback.print_exc()
                 raise e
 
-            print_error('Error: {0}'.format(e), exit_=False)
+            print_error('Error: {}'.format(e), exit_=False)
             download.status = STATUS_NOT_DOWNLOAD
             download.save()
 

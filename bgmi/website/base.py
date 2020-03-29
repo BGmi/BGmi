@@ -1,5 +1,3 @@
-from __future__ import print_function, unicode_literals
-
 import imghdr
 import os
 import re
@@ -24,10 +22,9 @@ from bgmi.utils import (
     print_warning,
     test_connection,
 )
-from six import text_type
 
 
-class BaseWebsite(object):
+class BaseWebsite:
     cover_url = ''
     parse_episode = staticmethod(parse_episode)
 
@@ -52,8 +49,8 @@ class BaseWebsite(object):
         Bangumi.delete_all()
         if subtitle_group_result:
             for subtitle_group in subtitle_group_result:
-                (Subtitle.insert({Subtitle.id: text_type(subtitle_group['id']),
-                                  Subtitle.name: text_type(subtitle_group['name'])})
+                (Subtitle.insert({Subtitle.id: str(subtitle_group['id']),
+                                  Subtitle.name: str(subtitle_group['name'])})
                  .on_conflict_replace()).execute()
         if not bangumi_result:
             print('no result return None')
