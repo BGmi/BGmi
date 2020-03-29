@@ -326,7 +326,7 @@ if platform.system() != "Windows":
 
 
 def unicode_(s):
-    return unicode(s)
+    return str(s)
 
 
 if __name__ == "__main__":
