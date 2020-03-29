@@ -1,0 +1,13 @@
+# specific branch build with batching
+trigger:
+  batch: true
+  branches:
+    include:
+      - '*'
+    exclude:
+      - renovate/*
+
+stages:
+  - stage: Lint
+    jobs:
+      - template: ./jobs/lint.yaml

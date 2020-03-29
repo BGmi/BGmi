@@ -69,11 +69,14 @@ version = "2019.11.28"
 [[package]]
 category = "dev"
 description = "Validate configuration and produce human readable error messages."
-marker = "python_version >= \"3.6.1\""
+marker = "python_version >= \"3.6\""
 name = "cfgv"
 optional = false
-python-versions = ">=3.6.1"
-version = "3.1.0"
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+version = "2.0.1"
+
+[package.dependencies]
+six = "*"
 
 [[package]]
 category = "main"
@@ -106,7 +109,7 @@ toml = ["toml"]
 [[package]]
 category = "dev"
 description = "Distribution utilities"
-marker = "python_version >= \"3.6.1\""
+marker = "python_version >= \"3.6\""
 name = "distlib"
 optional = false
 python-versions = "*"
@@ -115,7 +118,7 @@ version = "0.3.0"
 [[package]]
 category = "dev"
 description = "A platform independent file lock."
-marker = "python_version >= \"3.6.1\""
+marker = "python_version >= \"3.6\""
 name = "filelock"
 optional = false
 python-versions = "*"
@@ -136,7 +139,7 @@ pytz = "*"
 [[package]]
 category = "dev"
 description = "File identification library for Python"
-marker = "python_version >= \"3.6.1\""
+marker = "python_version >= \"3.6\""
 name = "identify"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,>=2.7"
@@ -156,7 +159,7 @@ version = "2.9"
 [[package]]
 category = "dev"
 description = "Read metadata from Python packages"
-marker = "python_version >= \"3.6.1\" and python_version < \"3.7\" or python_version >= \"3.6.1\" and python_version < \"3.8\""
+marker = "python_version >= \"3.6\" and python_version < \"3.7\" or python_version >= \"3.6\" and python_version < \"3.8\""
 name = "importlib-metadata"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
@@ -172,7 +175,7 @@ testing = ["packaging", "importlib-resources"]
 [[package]]
 category = "dev"
 description = "Read resources from Python packages"
-marker = "python_version >= \"3.6.1\" and python_version < \"3.7\""
+marker = "python_version >= \"3.6\" and python_version < \"3.7\""
 name = "importlib-resources"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
@@ -193,7 +196,7 @@ docs = ["sphinx", "rst.linker", "jaraco.packaging"]
 [[package]]
 category = "dev"
 description = "Node.js virtual environment builder"
-marker = "python_version >= \"3.6.1\""
+marker = "python_version >= \"3.6\""
 name = "nodeenv"
 optional = false
 python-versions = "*"
@@ -219,11 +222,11 @@ version = "3.13.2"
 [[package]]
 category = "dev"
 description = "A framework for managing and maintaining multi-language pre-commit hooks."
-marker = "python_version >= \"3.6.1\""
+marker = "python_version >= \"3.6\""
 name = "pre-commit"
 optional = false
-python-versions = ">=3.6.1"
-version = "2.2.0"
+python-versions = ">=3.6"
+version = "2.1.1"
 
 [package.dependencies]
 cfgv = ">=2.0.0"
@@ -263,7 +266,7 @@ version = "2019.3"
 [[package]]
 category = "dev"
 description = "YAML parser and emitter for Python"
-marker = "python_version >= \"3.6.1\""
+marker = "python_version >= \"3.6\""
 name = "pyyaml"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
@@ -354,7 +357,7 @@ socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7,<2.0)"]
 [[package]]
 category = "dev"
 description = "Virtual Python Environment builder"
-marker = "python_version >= \"3.6.1\""
+marker = "python_version >= \"3.6\""
 name = "virtualenv"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,>=2.7"
@@ -381,7 +384,7 @@ testing = ["pytest (>=4.0.0,<6)", "coverage (>=4.5.1,<6)", "pytest-mock (>=2.0.0
 [[package]]
 category = "dev"
 description = "Backport of pathlib-compatible object wrapper for zip files"
-marker = "python_version >= \"3.6.1\" and python_version < \"3.7\" or python_version >= \"3.6.1\" and python_version < \"3.8\""
+marker = "python_version >= \"3.6\" and python_version < \"3.7\" or python_version >= \"3.6\" and python_version < \"3.8\""
 name = "zipp"
 optional = false
 python-versions = ">=3.6"
@@ -392,7 +395,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "b2ea23917885f553636e83bee408e535c073b92aa20bf4f4772fe835a71af3dd"
+content-hash = "bdc86817d01aef95d6e962a0f0143e49d0da38172150b4d1d532f2bf5e972c7d"
 python-versions = "^3.5"
 
 [metadata.files]
@@ -418,8 +421,8 @@ certifi = [
     {file = "certifi-2019.11.28.tar.gz", hash = "sha256:25b64c7da4cd7479594d035c08c2d809eb4aab3a26e5a990ea98cc450c320f1f"},
 ]
 cfgv = [
-    {file = "cfgv-3.1.0-py2.py3-none-any.whl", hash = "sha256:1ccf53320421aeeb915275a196e23b3b8ae87dea8ac6698b1638001d4a486d53"},
-    {file = "cfgv-3.1.0.tar.gz", hash = "sha256:c8e8f552ffcc6194f4e18dd4f68d9aef0c0d58ae7e7be8c82bee3c5e9edfa513"},
+    {file = "cfgv-2.0.1-py2.py3-none-any.whl", hash = "sha256:fbd93c9ab0a523bf7daec408f3be2ed99a980e20b2d19b50fc184ca6b820d289"},
+    {file = "cfgv-2.0.1.tar.gz", hash = "sha256:edb387943b665bf9c434f717bf630fa78aecd53d5900d2e05da6ad6048553144"},
 ]
 chardet = [
     {file = "chardet-3.0.4-py2.py3-none-any.whl", hash = "sha256:fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691"},
@@ -500,8 +503,8 @@ peewee = [
     {file = "peewee-3.13.2.tar.gz", hash = "sha256:85f6696b6691a315646047e0b19e9a28258b35612b7121bc4eb1b61ff53c760a"},
 ]
 pre-commit = [
-    {file = "pre_commit-2.2.0-py2.py3-none-any.whl", hash = "sha256:487c675916e6f99d355ec5595ad77b325689d423ef4839db1ed2f02f639c9522"},
-    {file = "pre_commit-2.2.0.tar.gz", hash = "sha256:c0aa11bce04a7b46c5544723aedf4e81a4d5f64ad1205a30a9ea12d5e81969e1"},
+    {file = "pre_commit-2.1.1-py2.py3-none-any.whl", hash = "sha256:09ebe467f43ce24377f8c2f200fe3cd2570d328eb2ce0568c8e96ce19da45fa6"},
+    {file = "pre_commit-2.1.1.tar.gz", hash = "sha256:f8d555e31e2051892c7f7b3ad9f620bd2c09271d87e9eedb2ad831737d6211eb"},
 ]
 python-dateutil = [
     {file = "python-dateutil-2.8.1.tar.gz", hash = "sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"},

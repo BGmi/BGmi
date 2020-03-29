@@ -1,0 +1,30 @@
+jobs:
+  - job: 'Lint'
+    pool:
+      vmImage: 'ubuntu-18.04'
+
+    strategy:
+      matrix:
+        Python36:
+          python.version: '3.6'
+        Python37:
+          python.version: '3.7'
+        Python38:
+          python.version: '3.8'
+
+    steps:
+      - template: /.ci/templates/install-project.yaml
+        parameters:
+          python_version: $(python.version)
+
+      - task: Cache@2
+        inputs:
+          key: '"pre-commit" | "1" | "$(Agent.OS)" | "$(PY)" | .pre-commit-config.yaml'
+          restoreKeys: |
+            "pre-commit" | "1" | "$(Agent.OS)" | "$(PY)" | .pre-commit-config.yaml
+            "pre-commit" | "1" | "$(Agent.OS)" | "$(PY)"
+          path: $(HOME)/.cache/pre-commit
+        displayName: Cache Pre-commit
+
+      - script: pre-commit run --all-files && pre-commit gc
+        displayName: Pre-commit
