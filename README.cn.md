@@ -10,9 +10,6 @@ BGmi是一个用来追番的命令行程序.
 
 ## TODO
 
-[同时抓取多个数据源](https://github.com/BGmi/BGmi/projects/1)
-
-
 ## 更新日志
 
 - 你现在看到的BGmi版本是最后一个支持python2的版本, 快拥抱python3吧.
@@ -45,13 +42,14 @@ BGmi是一个用来追番的命令行程序.
 pip install bgmi
 ```
 
-或者从Github安装最新版本（强烈不推荐）
+或者从源码安装（强烈不推荐）
 
 ```bash
-pip install https://github.com/Bgmi/BGmi/tarball/dev
+git clone https://github.com/BGmi/BGmi
+cd BGmi
+git checkout master
+pip install .
 ```
-
-
 
 安装`BGmi`所需的依赖以及下载`BGmi`的前端文件
 
@@ -80,22 +78,12 @@ bgmi upgrade
 bgmi -h
 ```
 
+`-h`选项同样适用于所有的子命令，readme并没有提到所有的可用参数。
+
 启用命令自动补全
 
 ```bash
 eval "$(bgmi complete)"
-```
-
-设置`BGMI_PATH`:
-
-```bash
-BGMI_PATH=/bgmi bgmi -h
-```
-
-或者在你的`.bashrc`里添加一个alias
-
-```bash
-alias bgmi='BGMI_PATH=/tmp bgmi'
 ```
 
 支持的数据源:

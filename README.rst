@@ -54,19 +54,19 @@ Feature
 Installation
 ============
 
-For **Mac OS X / Linux / Windows**:
+Use pip:
+
+.. code-block:: bash
+
+    pip install bgmi
+
+Or from source(not recommended):
 
 .. code-block:: bash
 
     git clone https://github.com/BGmi/BGmi
     cd BGmi
-    python setup.py install
-
-Or use pip:
-
-.. code-block:: bash
-
-    pip install bgmi
+    pip install .
 
 Init BGmi database and install BGmi web interface:
 
@@ -99,7 +99,7 @@ Cli completion(bash and zsh. Shell was detected from your env $SHELL)
 
     eval "$(bgmi complete)"
 
-Setup custom BGMI_PATH:
+If you want to setup a custom BGMI_PATH instead of default ``$HOME/.bgmi``:
 
 .. code-block:: bash
 
@@ -117,18 +117,25 @@ Supported data source:
 + `mikan_project <https://mikanani.me>`_
 + `dmhy <https://share.dmhy.org/>`_
 
+Help
+------
+
+you can add ``--help`` to all ``BGmi`` sub command to show full options, some of them are not mentioned here.
+
 Change data source:
+---------------------
 
 **All bangumi in database will be deleted when changing data source!** but scripts won't be affected
 
 video files will still store on the disk, but won't be shown on website.
 
-
 .. code-block:: bash
 
     bgmi source mikan_project
 
+
 Show bangumi calendar:
+---------------------
 
 .. code-block:: bash
 
@@ -136,6 +143,7 @@ Show bangumi calendar:
 
 
 Subscribe bangumi:
+---------------------
 
 .. code-block:: bash
 
@@ -144,11 +152,14 @@ Subscribe bangumi:
 
 
 Unsubscribe bangumi:
+---------------------
 
 .. code-block:: bash
 
     bgmi delete --name "Re:CREATORS"
 
+Update bangumi:
+-----------------
 
 Update bangumi database which locates at ~/.bgmi/bangumi.db acquiescently:
 
@@ -158,6 +169,8 @@ Update bangumi database which locates at ~/.bgmi/bangumi.db acquiescently:
     bgmi update "从零开始的魔法书" --download 2 3
     bgmi update "时钟机关之星" --download
 
+Filter download:
+-----------------
 
 Set up the bangumi subtitle group filter and fetch entries:
 
@@ -168,12 +181,12 @@ Set up the bangumi subtitle group filter and fetch entries:
     bgmi filter "Re:CREATORS" --subtitle "DHR動研字幕組,豌豆字幕组" --include 720P --exclude BIG5
     bgmi fetch "Re:CREATORS"
     # remove subtitle, include and exclude keyword filter and add regex filter
-    bgmi filter "Re:CREATORS" --subtitle "" --include "" --exclude "" --regex
+    bgmi filter "Re:CREATORS" --subtitle "" --include "" --exclude ""
     bgmi filter "Re:CREATORS" --regex "(DHR動研字幕組|豌豆字幕组).*(720P)"
     bgmi fetch "Re:CREATORS"
 
-
-Search bangumi and download:
+Search episodes:
+-----------------
 
 .. code-block:: bash
 
