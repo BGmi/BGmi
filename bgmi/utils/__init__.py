@@ -272,7 +272,7 @@ def check_update(mark=True):
             package_json = requests.get(PACKAGE_JSON_URL).json()
             admin_version = package_json["version"]
             if glob.glob(os.path.join(FRONT_STATIC_PATH, "package.json")):
-                with open(os.path.join(FRONT_STATIC_PATH, "package.json"), "r") as f:
+                with open(os.path.join(FRONT_STATIC_PATH, "package.json")) as f:
                     local_version = json.loads(f.read())["version"]
                 if [int(x) for x in admin_version.split(".")] > [
                     int(x) for x in local_version.split(".")
@@ -294,7 +294,7 @@ def check_update(mark=True):
             f.write(str(int(time.time())))
         return update()
 
-    with open(version_file, "r") as f:
+    with open(version_file) as f:
         try:
             data = int(f.read())
             if time.time() - 7 * 24 * 3600 > data:

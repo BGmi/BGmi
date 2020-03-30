@@ -332,7 +332,7 @@ def complete(ret):
         )
         return
 
-    with open(template_file_path, "r") as template_file:
+    with open(template_file_path) as template_file:
         shell_template = template.Template(template_file.read(), autoescape="")
 
     template_with_content = shell_template.generate(
@@ -421,7 +421,7 @@ def config_gen(ret):
         os.path.dirname(__file__), "..", "others", "nginx.conf"
     )
 
-    with open(template_file_path, "r") as template_file:
+    with open(template_file_path) as template_file:
         shell_template = template.Template(template_file.read(), autoescape="")
 
     template_with_content = shell_template.generate(
