@@ -20,18 +20,18 @@ flags:
   # filter the folder(s) you wish to measure by that flag
   front:
     paths:
-      - bgmi/front/
+      - 'bgmi/front/'
   app:
     paths:
-      - bgmi/
-      - !bgmi/front/
-      - !bgmi/downloader/
+      - 'bgmi/'
+      - '!bgmi/front/'
+      - '!bgmi/downloader/'
   downloader:
     paths:
-      - bgmi/downloader/
+      - 'bgmi/downloader/'
   tests:
     paths:
-      - tests/
+      - 'tests/'
 
 # comment: false  # to disable comments
 comment: false

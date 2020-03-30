@@ -1,16 +1,14 @@
-# coding=utf-8
-from __future__ import print_function, unicode_literals
-
-import time
 import os
+import time
 from collections import defaultdict
-# from typing import List
-
-import peewee
-from peewee import IntegerField, FixedCharField, TextField
-from playhouse.shortcuts import model_to_dict
 
 import bgmi.config
+import peewee
+from peewee import FixedCharField, IntegerField, TextField
+from playhouse.shortcuts import model_to_dict
+
+# from typing import List
+
 
 # bangumi status
 STATUS_UPDATING = 0
@@ -33,8 +31,8 @@ DoesNotExist = peewee.DoesNotExist
 
 db = peewee.SqliteDatabase(bgmi.config.DB_PATH)
 
-if os.environ.get('DEV'):
-    print('using', bgmi.config.DB_PATH)
+if os.environ.get("DEV"):
+    print("using", bgmi.config.DB_PATH)
 
 
 class NeoDB(peewee.Model):
@@ -51,44 +49,63 @@ class Bangumi(NeoDB):
     cover = TextField()
     status = IntegerField(default=0)
 
-    week = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
+    week = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
     def __init__(self, **kwargs):
         super(NeoDB, self).__init__(**kwargs)
 
-        update_time = kwargs.get('update_time', '').title()
+        update_time = kwargs.get("update_time", "").title()
         if update_time and update_time not in self.week:
-            raise ValueError('unexpected update time %s' % update_time)
+            raise ValueError("unexpected update time %s" % update_time)
         self.update_time = update_time
-        if isinstance(kwargs.get('subtitle_group'), list):
-            self.subtitle_group = ', '.join(kwargs.get('subtitle_group', []))
+        if isinstance(kwargs.get("subtitle_group"), list):
+            self.subtitle_group = ", ".join(kwargs.get("subtitle_group", []))
 
     @classmethod
     def delete_all(cls):
         un_updated_bangumi = Followed.select().where(
-            Followed.updated_time > (int(time.time()) - 2 * 7 * 24 * 3600))  # type: list[Followed]
-        if os.getenv('DEBUG'):  # pragma: no cover
-            print('ignore updating bangumi', [x.bangumi_name for x in un_updated_bangumi])
+            Followed.updated_time > (int(time.time()) - 2 * 7 * 24 * 3600)
+        )  # type: list[Followed]
+        if os.getenv("DEBUG"):  # pragma: no cover
+            print(
+                "ignore updating bangumi", [x.bangumi_name for x in un_updated_bangumi]
+            )
 
-        cls.update(status=STATUS_END) \
-            .where(cls.name.not_in(
-            [x.bangumi_name for x in un_updated_bangumi])).execute()  # do not mark updating bangumi as STATUS_END
+        cls.update(status=STATUS_END).where(
+            cls.name.not_in([x.bangumi_name for x in un_updated_bangumi])
+        ).execute()  # do not mark updating bangumi as STATUS_END
 
     @classmethod
     def get_updating_bangumi(cls, status=None, order=True):
         if status is None:
-            data = cls.select(Followed.status, Followed.episode, cls, ) \
-                .join(Followed, peewee.JOIN['LEFT_OUTER'], on=(cls.name == Followed.bangumi_name)) \
-                .where(cls.status == STATUS_UPDATING).dicts()
+            data = (
+                cls.select(Followed.status, Followed.episode, cls,)
+                .join(
+                    Followed,
+                    peewee.JOIN["LEFT_OUTER"],
+                    on=(cls.name == Followed.bangumi_name),
+                )
+                .where(cls.status == STATUS_UPDATING)
+                .dicts()
+            )
         else:
-            data = cls.select(Followed.status, Followed.episode, cls, ) \
-                .join(Followed, peewee.JOIN['LEFT_OUTER'], on=(cls.name == Followed.bangumi_name)) \
-                .where((cls.status == STATUS_UPDATING) & (Followed.status == status)).dicts()
+            data = (
+                cls.select(Followed.status, Followed.episode, cls,)
+                .join(
+                    Followed,
+                    peewee.JOIN["LEFT_OUTER"],
+                    on=(cls.name == Followed.bangumi_name),
+                )
+                .where((cls.status == STATUS_UPDATING) & (Followed.status == status))
+                .dicts()
+            )
 
         if order:
             weekly_list = defaultdict(list)
             for bangumi_item in data:
-                weekly_list[bangumi_item['update_time'].lower()].append(dict(bangumi_item))
+                weekly_list[bangumi_item["update_time"].lower()].append(
+                    dict(bangumi_item)
+                )
         else:
             weekly_list = list(data)
 
@@ -121,13 +138,16 @@ class Followed(NeoDB):
 
     class Meta:
         database = db
-        table_name = 'followed'
+        table_name = "followed"
 
     @classmethod
     def delete_followed(cls, batch=True):
         q = cls.delete()
         if not batch:
-            if not input('[+] are you sure want to CLEAR ALL THE BANGUMI? (y/N): ') == 'y':
+            if (
+                not input("[+] are you sure want to CLEAR ALL THE BANGUMI? (y/N): ")
+                == "y"
+            ):
                 return False
 
         q.execute()
@@ -135,12 +155,14 @@ class Followed(NeoDB):
 
     @classmethod
     def get_all_followed(cls, status=STATUS_DELETED, bangumi_status=STATUS_UPDATING):
-        join_cond = (Bangumi.name == cls.bangumi_name)
-        d = cls.select(Bangumi.name, Bangumi.update_time, Bangumi.cover, cls, ) \
-            .join(Bangumi, peewee.JOIN['LEFT_OUTER'], on=join_cond) \
-            .where((cls.status != status) & (Bangumi.status == bangumi_status)) \
-            .order_by(cls.updated_time.desc()) \
+        join_cond = Bangumi.name == cls.bangumi_name
+        d = (
+            cls.select(Bangumi.name, Bangumi.update_time, Bangumi.cover, cls,)
+            .join(Bangumi, peewee.JOIN["LEFT_OUTER"], on=join_cond)
+            .where((cls.status != status) & (Bangumi.status == bangumi_status))
+            .order_by(cls.updated_time.desc())
             .dicts()
+        )
 
         return list(d)
 
@@ -215,7 +237,7 @@ def recreate_source_relatively_table():
     return True
 
 
-if __name__ == '__main__':  # pragma:no cover
+if __name__ == "__main__":  # pragma:no cover
     from pprint import pprint
 
     d = Bangumi.get_updating_bangumi(status=STATUS_FOLLOWED)

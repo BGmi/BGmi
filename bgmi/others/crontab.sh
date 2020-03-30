@@ -36,5 +36,3 @@ else
     (crontab -l;printf "0 */10 * * * LC_ALL=en_US.UTF-8 TRAVIS_CI=1 $BGMI_PATH cal --force-update --download-cover\n")|crontab -
     echo "[+] crontab update cover added"
 fi
-
-
