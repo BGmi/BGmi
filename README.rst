@@ -114,8 +114,8 @@ Or add this code to your .bashrc file:
 Supported data source:
 
 + `bangumi_moe(default) <https://bangumi.moe>`_
-+ `mikan_project_ <https://mikanani.me>`_
-+ `dmhy_ <https://share.dmhy.org/>`_
++ `mikan_project <https://mikanani.me>`_
++ `dmhy <https://share.dmhy.org/>`_
 
 Change data source:
 
@@ -512,7 +512,7 @@ windows:
 License
 =======
 
-<MIT License `./LICENSE`>_
+`MIT License <./LICENSE>`_
 
 
 
