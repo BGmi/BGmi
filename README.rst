@@ -283,7 +283,7 @@ Generate Nginx config
 
 Or write your config file manually.
 
-.. code-block:: bash
+.. code-block:: nginx
 
     server {
         listen 80;
@@ -319,7 +319,7 @@ Or write your config file manually.
 
 Of cause you can use `yaaw <https://github.com/binux/yaaw/>`_ to manage download items if you use aria2c to download bangumi.
 
-.. code-block:: bash
+.. code-block:: nginx
 
     ...
     location /yaaw {
@@ -373,11 +373,11 @@ examples: `script_example.py <./script_example.py>`_
 
 ``get_download_url`` returns a dict as follows.
 
-.. code-block:: bash
+.. code-block:: python
 
     {
-        1: 'http://example.com/Bangumi/1/1.mp4'
-        2: 'http://example.com/Bangumi/1/2.mp4'
+        1: 'http://example.com/Bangumi/1/1.mp4',
+        2: 'http://example.com/Bangumi/1/2.mp4',
         3: 'http://example.com/Bangumi/1/3.mp4'
     }
 
@@ -390,7 +390,7 @@ You can easily add your own BGmi data source by extending BGmi website base clas
 
 .. code-block:: python
 
-    class DataSource(bgmi.website.base.BaseWebsite)
+    class DataSource(bgmi.website.base.BaseWebsite):
         cover_url=''
 
         def search_by_keyword(self, keyword, count):
