@@ -1,5 +1,5 @@
 import bgmi.config
-from bgmi.config import BANGUMI_MOE_URL, SHARE_DMHY_URL, unicode_
+from bgmi.config import BANGUMI_MOE_URL, SHARE_DMHY_URL
 
 ACTION_ADD = "add"
 ACTION_FETCH = "fetch"
@@ -94,7 +94,7 @@ actions_and_arguments = [
             {
                 "dest": "name",
                 "kwargs": dict(
-                    metavar="name", type=unicode_, nargs="+", help="Bangumi name"
+                    metavar="name", type=str, nargs="+", help="Bangumi name"
                 ),
             },
             {
@@ -123,7 +123,7 @@ actions_and_arguments = [
                 "kwargs": dict(
                     metavar="name",
                     nargs="+",
-                    type=unicode_,
+                    type=str,
                     help="Bangumi name to unsubscribe.",
                 ),
             },
@@ -148,16 +148,14 @@ actions_and_arguments = [
             {
                 "dest": "name",
                 "kwargs": dict(
-                    metavar="name",
-                    type=unicode_,
-                    help="Bangumi name to set the filter.",
+                    metavar="name", type=str, help="Bangumi name to set the filter.",
                 ),
             },
             {
                 "dest": "--subtitle",
                 "kwargs": dict(
                     metavar="subtitle",
-                    type=unicode_,
+                    type=str,
                     help='Subtitle group name, split by ",".',
                 ),
             },
@@ -165,7 +163,7 @@ actions_and_arguments = [
                 "dest": "--include",
                 "kwargs": dict(
                     metavar="include",
-                    type=unicode_,
+                    type=str,
                     help='Filter by keywords which in the title, split by ",".',
                 ),
             },
@@ -173,14 +171,14 @@ actions_and_arguments = [
                 "dest": "--exclude",
                 "kwargs": dict(
                     metavar="exclude",
-                    type=unicode_,
+                    type=str,
                     help='Filter by keywords which not int the title, split by ",".',
                 ),
             },
             {
                 "dest": "--regex",
                 "kwargs": dict(
-                    metavar="regex", type=unicode_, help="Filter by regular expression"
+                    metavar="regex", type=str, help="Filter by regular expression"
                 ),
             },
         ],
@@ -193,7 +191,7 @@ actions_and_arguments = [
                 "dest": "name",
                 "kwargs": dict(
                     metavar="name",
-                    type=unicode_,
+                    type=str,
                     nargs="*",
                     help="Update specified bangumi.",
                 ),
@@ -255,14 +253,14 @@ actions_and_arguments = [
                 "dest": "name",
                 "kwargs": dict(
                     nargs="?",
-                    type=unicode_,
+                    type=str,
                     help="Config name",
                     choices=bgmi.config.__all_writable_now__,
                 ),
             },
             {
                 "dest": "value",
-                "kwargs": dict(nargs="?", type=unicode_, help="Config value"),
+                "kwargs": dict(nargs="?", type=str, help="Config value"),
             },
         ],
     },
@@ -270,7 +268,7 @@ actions_and_arguments = [
         "action": ACTION_MARK,
         "help": "Mark bangumi episode.",
         "arguments": [
-            {"dest": "name", "kwargs": dict(type=unicode_, help="Bangumi name"),},
+            {"dest": "name", "kwargs": dict(type=str, help="Bangumi name"),},
             {"dest": "episode", "kwargs": dict(help="Bangumi episode", type=int),},
         ],
     },
@@ -303,7 +301,7 @@ actions_and_arguments = [
         "action": ACTION_FETCH,
         "help": "Fetch bangumi.",
         "arguments": [
-            {"dest": "name", "kwargs": dict(help="Bangumi name", type=unicode_),},
+            {"dest": "name", "kwargs": dict(help="Bangumi name", type=str),},
             {
                 "dest": "--not-ignore",
                 "kwargs": dict(
@@ -317,16 +315,14 @@ actions_and_arguments = [
         "action": ACTION_SEARCH,
         "help": "Search torrents from data source by keyword",
         "arguments": [
-            {"dest": "keyword", "kwargs": dict(help="Search keyword", type=unicode_),},
+            {"dest": "keyword", "kwargs": dict(help="Search keyword", type=str),},
             {
                 "dest": "--count",
                 "kwargs": dict(type=int, help="The max page count of search result."),
             },
             {
                 "dest": "--regex-filter",
-                "kwargs": dict(
-                    type=unicode_, help="Regular expression filter of title."
-                ),
+                "kwargs": dict(type=str, help="Regular expression filter of title."),
             },
             {
                 "dest": "--download",
@@ -362,7 +358,7 @@ actions_and_arguments = [
                 "dest": "source",
                 "kwargs": dict(
                     help="bangumi_moe or mikan_project",
-                    type=unicode_,
+                    type=str,
                     choices=[x["id"] for x in SUPPORT_WEBSITE],
                 ),
             },
@@ -375,16 +371,13 @@ actions_and_arguments = [
             {
                 "dest": "config",
                 "kwargs": dict(
-                    help="gen nginx.conf", type=unicode_, choices=["nginx.conf",]
+                    help="gen nginx.conf", type=str, choices=["nginx.conf",]
                 ),
             },
             {
                 "dest": "--server-name",
                 "kwargs": dict(
-                    metavar="server_name",
-                    help="server name",
-                    type=unicode_,
-                    required=True,
+                    metavar="server_name", help="server name", type=str, required=True,
                 ),
             },
         ],

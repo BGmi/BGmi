@@ -1,15 +1,14 @@
 import os
 import unittest
 
-from bgmi.lib.constants import unicode_
 from bgmi.lib.controllers import *
 from bgmi.main import setup
 
 
 class ControllersTest(unittest.TestCase):
     def setUp(self):
-        self.bangumi_name_1 = unicode_(os.environ.get("BANGUMI_1"))
-        self.bangumi_name_2 = unicode_(os.environ.get("BANGUMI_2"))
+        self.bangumi_name_1 = str(os.environ.get("BANGUMI_1"))
+        self.bangumi_name_2 = str(os.environ.get("BANGUMI_2"))
 
     def test_a_cal(self):
         r = cal()

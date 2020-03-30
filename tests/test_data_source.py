@@ -1,14 +1,13 @@
 import os
 import unittest
 
-from bgmi.config import unicode_
 from bgmi.lib.fetch import website
 
 
 class ControllersTest(unittest.TestCase):
     def setUp(self):
-        self.bangumi_name_1 = unicode_(os.environ.get("BANGUMI_1"))
-        self.bangumi_name_2 = unicode_(os.environ.get("BANGUMI_2"))
+        self.bangumi_name_1 = os.environ.get("BANGUMI_1")
+        self.bangumi_name_2 = os.environ.get("BANGUMI_2")
         self.w = website
 
     def test_info(self):

@@ -319,14 +319,9 @@ IS_WINDOWS = platform.system() == "Windows"
 
 # Wrap sys.stdout into a StreamWriter to allow writing unicode.
 
-unicode = str
 if platform.system() != "Windows":
     file_ = sys.stdout.buffer
     sys.stdout = codecs.getwriter(locale.getpreferredencoding())(file_)
-
-
-def unicode_(s):
-    return str(s)
 
 
 if __name__ == "__main__":
