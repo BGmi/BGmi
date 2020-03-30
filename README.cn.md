@@ -68,41 +68,9 @@ bgmi upgrade
 
 在升级后请确保运行`bgmi upgrade`
 
-
-
 ## 使用Docker
 
-构建 Docker 镜像:
-
-```bash
-git clone https://github.com/BGmi/BGmi
-cd BGmi
-docker build -t bgmi .
-docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi bgmi
-```
-
-你可以直接在宿主机上使用`bgmi`命令行添加/删除你的订阅的番剧, 也可以进入docker镜像再添加.
-
-或者直接使用DockerHub上已经构建好的镜像:
-
-```bash
-docker pull ricterz/bgmi
-docker run -p127.0.0.1:8888:80 -p6800:6800 -d -v $HOME/.bgmi:$HOME/.bgmi ricterz/bgmi
-```
-
-设置 BGmi docker:
-
-```bash
-
-# bgmi config ARIA2_RPC_TOKEN token:TOKEN_OF_ARIA2_RPC
-# docker exec -it <CONTAINER ID> ln -s ~/.bgmi/ /bgmi
-# docker exec -it <CONTAINER ID> bash -c 'echo rpc-secret=token:TOKEN_OF_ARIA2_RPC >> /root/aria2c.conf'
-# docker exec -it <CONTAINER ID> supervisorctl
-supervisor> restart bgmi:aria2c
-supervisor> quit
-```
-
-
+见 [BGmi/bgmi-docker-all-in-one](https://github.com/BGmi/bgmi-docker-all-in-one)
 
 ## 使用
 
@@ -376,9 +344,7 @@ schtasks /Delete /TN 'bgmi updater'
 
 Example: <./script_example.py>
 
-
-
-`get_download_url()`的返回一个`dict`, 以对应集数为键, 对应的下载链接为值
+`get_download_url()`返回一个`dict`, 以对应集数为键, 对应的下载链接为值
 
 ```python
 {
@@ -492,24 +458,4 @@ class DataSource(bgmi.website.base.BaseWebsite)
 
 ## License
 
-The MIT License (MIT)
-
-Copyright (c) 2017 BGmi Developer Team (https://github.com/BGmi)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+[MIT License](./LICENSE)
