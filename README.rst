@@ -541,5 +541,5 @@ License
 .. |license| image:: https://img.shields.io/badge/License-MIT-blue.svg
    :target: https://github.com/BGmi/BGmi/blob/master/LICENSE
 
-.. |download| image::  https://pepy.tech/project/bgmi/month
+.. |download| image:: https://pepy.tech/badge/bgmi/month
    :target: https://pepy.tech/project/bgmi
