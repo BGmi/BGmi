@@ -3,7 +3,7 @@
 BGmi是一个用来追番的命令行程序.
 
 [![](https://img.shields.io/pypi/v/bgmi.svg)](https://pypi.python.org/pypi/bgmi)
-[![](https://pypistats.com/badge/bgmi.svg)](https://pypi.python.org/pypi/bgmi)
+[![Downloads](https://pepy.tech/badge/bgmi/month)](https://pepy.tech/project/bgmi/month)
 [![](https://travis-ci.org/BGmi/BGmi.svg?branch=master)](https://travis-ci.org/BGmi/BGmi)
 [![](https://codecov.io/gh/BGmi/BGmi/branch/master/graph/badge.svg)](https://codecov.io/gh/BGmi/BGmi/branch/master/graph/badge.svg)
 [![](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/BGmi/BGmi/blob/master/LICENSE)

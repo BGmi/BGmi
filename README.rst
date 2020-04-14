@@ -5,7 +5,7 @@ BGmi is a cli tool for subscribed bangumi.
 `中文说明 <./README.cn.md>`_
 
 |pypi|
-|pypistats|
+|download|
 |travis|
 |coverage|
 |license|
@@ -541,5 +541,5 @@ License
 .. |license| image:: https://img.shields.io/badge/License-MIT-blue.svg
    :target: https://github.com/BGmi/BGmi/blob/master/LICENSE
 
-.. |pypistats| image::  https://img.shields.io/pypi/dm/bgmi.svg
-   :target: https://pypi.python.org/pypi/bgmi
+.. |download| image::  https://pepy.tech/project/bgmi/month
+   :target: https://pepy.tech/project/bgmi
