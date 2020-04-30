@@ -6,6 +6,15 @@ trigger:
     exclude:
       - renovate/*
 
+schedules:
+- cron: "0 0 * * 1"
+  displayName: Weekly test
+  branches:
+    include:
+      - master
+      - dev
+  always: true
+
 resources:
   repositories:
     - repository: trim21
