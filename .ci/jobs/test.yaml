@@ -1,0 +1,19 @@
+jobs:
+  - template: /.ci/templates/job.yaml
+    parameters:
+      name: Test
+      steps:
+        - bash: |
+            set -ex
+            coverage run -a -m bgmi.main install
+            bgmi -h
+
+        - bash: |
+            export LC_ALL=en_US.UTF-8
+            bash .ci/test.sh
+          condition: ne(variables['Agent.OS'], 'Windows_NT') # 有某些难以处理的编码问题...
+          env:
+            TRAVIS_CI: '1'
+            PYTHONUTF8: '1'
+            PYTHONIOENCODING: 'utf-8'
+            SHELL: bash

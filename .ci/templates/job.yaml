@@ -1,0 +1,35 @@
+parameters:
+  - name: name
+    type: string
+    default: ''
+
+  - name: steps
+    type: stepList
+    default: []
+
+  - name: matrix
+    type: object
+    default:
+      images: ["windows-2019", 'ubuntu-latest', 'macos-latest' ]
+      pythonVersions: ["3.6", '3.7', '3.8' ]
+
+jobs:
+  - job: ${{ parameters.name }}
+    pool:
+      vmImage: '$(os)'
+    strategy:
+      maxParallel: 3
+      matrix:
+        ${{ each image in parameters.matrix.images }}:
+          ${{ each pythonVersion in parameters.matrix.pythonVersions }}:
+            ${{ format('{0} python{1}', image, pythonVersion) }}:
+              python_version: ${{ pythonVersion }}
+              os: ${{ image }}
+
+    steps:
+      - template: /.ci/templates/install-project.yaml
+        parameters:
+          python_version: $(python_version)
+
+      - ${{ each s in parameters.steps }}:
+          - ${{ s }}
