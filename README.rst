@@ -66,6 +66,7 @@ Or from source(not recommended):
 
     git clone https://github.com/BGmi/BGmi
     cd BGmi
+    python -m pip install -U pip
     pip install .
 
 Init BGmi database and install BGmi web interface:
