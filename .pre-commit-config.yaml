@@ -31,7 +31,7 @@ repos:
       - id: find-trailing-comma
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.3.0
+    rev: v2.4.1
     hooks:
       - id: pyupgrade
         args: ['--py3-plus']
