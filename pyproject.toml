@@ -46,7 +46,7 @@ peewee = '^3.3.4'
 importlib-metadata = "^1.6.0"
 
 [tool.poetry.dev-dependencies]
-pre-commit = { version = '^2.1.0', python='>=3.6' }
+pre-commit = { version = '^2.1.0', python='>=3.7' }
 black = { version = '19.10b0', python='>=3.6' }
 coverage = "5.0.3"
 
