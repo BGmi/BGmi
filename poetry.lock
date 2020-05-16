@@ -126,8 +126,8 @@ category = "main"
 description = "iCalendar parser/generator"
 name = "icalendar"
 optional = false
-python-versions = "*"
-version = "3.12"
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+version = "4.0.6"
 
 [package.dependencies]
 python-dateutil = "*"
@@ -361,7 +361,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "ba13135a7cf078ed6487e6693c320b1a4c8b60eb09b52c70ae60fc081be3baf4"
+content-hash = "892025bfc711c5d217a6c9ca34906805bbd8d4ec6dcb90918796c1f045693934"
 python-versions = "^3.5"
 
 [metadata.files]
@@ -439,8 +439,8 @@ filelock = [
     {file = "filelock-3.0.12.tar.gz", hash = "sha256:18d82244ee114f543149c66a6e0c14e9c4f8a1044b5cdaadd0f82159d6a6ff59"},
 ]
 icalendar = [
-    {file = "icalendar-3.12-py2.py3-none-any.whl", hash = "sha256:511156bafb4c67dd8bfb056744823fcff3105bb3ec641d9d5bb803f590e671c3"},
-    {file = "icalendar-3.12.tar.gz", hash = "sha256:ad401c93b64d8e98f1e98b4e6c96c0023a05f5984d3bfc23ce9448986edbca54"},
+    {file = "icalendar-4.0.6-py2.py3-none-any.whl", hash = "sha256:2f400b37353160af259019938e4397bf823f06a67ce9c50a58b95eb563720f00"},
+    {file = "icalendar-4.0.6.tar.gz", hash = "sha256:7e6fe7232622abe32d8f54d0936ffcd5a9087198a4c2f1ec1803a7dd9fdd979f"},
 ]
 identify = [
     {file = "identify-1.4.15-py2.py3-none-any.whl", hash = "sha256:88ed90632023e52a6495749c6732e61e08ec9f4f04e95484a5c37b9caf40283c"},
