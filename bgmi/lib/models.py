@@ -2,10 +2,11 @@ import os
 import time
 from collections import defaultdict
 
-import bgmi.config
 import peewee
 from peewee import FixedCharField, IntegerField, TextField
 from playhouse.shortcuts import model_to_dict
+
+import bgmi.config
 
 # from typing import List
 

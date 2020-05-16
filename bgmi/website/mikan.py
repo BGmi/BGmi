@@ -6,9 +6,10 @@ from multiprocessing.pool import ThreadPool
 
 import bs4
 import requests
+from bs4 import BeautifulSoup
+
 from bgmi.config import MAX_PAGE
 from bgmi.website.base import BaseWebsite
-from bs4 import BeautifulSoup
 
 week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 server_root = "https://mikanani.me/"

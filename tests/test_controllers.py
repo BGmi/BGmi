@@ -1,7 +1,15 @@
 import os
 import unittest
 
-from bgmi.lib.controllers import *
+from bgmi.lib.controllers import (
+    Bangumi,
+    add,
+    cal,
+    delete,
+    mark,
+    recreate_source_relatively_table,
+    search,
+)
 from bgmi.main import setup
 
 

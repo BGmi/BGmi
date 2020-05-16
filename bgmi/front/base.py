@@ -3,11 +3,12 @@ import json.decoder
 import os
 
 import tornado.web
+from tornado.web import HTTPError
+
 from bgmi import __admin_version__, __version__
 from bgmi.config import BGMI_PATH, DANMAKU_API_URL, LANG
 from bgmi.script import ScriptRunner
 from bgmi.utils import normalize_path
-from tornado.web import HTTPError
 
 COVER_URL = "/bangumi/cover"
 WEEK = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")

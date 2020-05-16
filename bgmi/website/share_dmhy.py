@@ -4,10 +4,11 @@ import time as Time
 import urllib
 
 import requests
+from bs4 import BeautifulSoup
+
 from bgmi.config import MAX_PAGE, SHARE_DMHY_URL
 from bgmi.utils import print_error
 from bgmi.website.base import BaseWebsite
-from bs4 import BeautifulSoup
 
 unquote = urllib.parse.unquote
 

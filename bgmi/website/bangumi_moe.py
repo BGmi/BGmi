@@ -3,6 +3,7 @@ import os
 import time
 
 import requests
+
 from bgmi.config import BANGUMI_MOE_URL, LANG, MAX_PAGE
 from bgmi.lib.models import Bangumi
 from bgmi.utils import bug_report, print_error, print_info, print_warning

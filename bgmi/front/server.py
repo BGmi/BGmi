@@ -7,6 +7,8 @@ import tornado.ioloop
 import tornado.options
 import tornado.template
 import tornado.web
+from tornado.options import define, options
+
 from bgmi.config import (
     FRONT_STATIC_PATH,
     IS_WINDOWS,
@@ -16,7 +18,6 @@ from bgmi.config import (
 from bgmi.front.admin import API_MAP_GET, API_MAP_POST, AdminApiHandler, UpdateHandler
 from bgmi.front.index import BangumiListHandler, IndexHandler
 from bgmi.front.resources import BangumiHandler, CalendarHandler, RssHandler
-from tornado.options import define, options
 
 define("port", default=8888, help="listen on the port", type=int)
 define("address", default="0.0.0.0", help="binding at given address", type=str)

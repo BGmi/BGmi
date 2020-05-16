@@ -4,6 +4,8 @@ import os
 import re
 import string
 
+from tornado import template
+
 import bgmi.config
 from bgmi.lib.constants import (
     ACTION_ADD,
@@ -63,7 +65,6 @@ from bgmi.utils import (
     print_success,
     print_warning,
 )
-from tornado import template
 
 
 def source_wrapper(ret):

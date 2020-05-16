@@ -4,9 +4,10 @@ import os
 import random
 import string
 
+from tornado.testing import AsyncHTTPTestCase
+
 from bgmi.config import ADMIN_TOKEN, SAVE_PATH
 from bgmi.front.server import make_app
-from tornado.testing import AsyncHTTPTestCase
 
 logging.basicConfig(level=logging.DEBUG)
 

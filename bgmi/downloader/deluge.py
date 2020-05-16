@@ -1,4 +1,5 @@
 import requests
+
 from bgmi.config import DELUGE_RPC_PASSWORD, DELUGE_RPC_URL
 from bgmi.downloader.base import BaseDownloadService
 from bgmi.utils import print_error, print_info

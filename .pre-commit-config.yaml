@@ -34,41 +34,48 @@ repos:
     rev: v2.4.1
     hooks:
       - id: pyupgrade
-        args: ['--py3-plus']
-
+        args: ["--py3-plus"]
 
   - repo: https://github.com/Trim21/mirrors-autoflake
     rev: v1.3.1
     hooks:
       - id: autoflake
-        args: ['--in-place', '--remove-unused-variables', '--remove-all-unused-imports']
+        args:
+          [
+            "--in-place",
+            "--remove-unused-variables",
+            "--remove-all-unused-imports",
+            "--expand-star-imports",
+          ]
         require_serial: true
 
   - repo: https://github.com/timothycrosley/isort
-    rev: '4.3.21'
+    rev: "4.3.21"
     hooks:
       - id: isort
-        args: [
-          '--line-width', '88',
-          '--trailing-comma',
-          '--multi-line', '3',
-          '--project', 'bgmi',
-          '--force-grid-wrap=0',
-          '--use-parentheses'
-        ]
+        args:
+          [
+            "--line-width=88",
+            "--trailing-comma",
+            "--multi-line=3",
+            "--project=bgmi",
+            "--force-grid-wrap=0",
+            "--use-parentheses",
+            "-sd=THIRDPARTY",
+          ]
 
   - repo: local
     hooks:
-#      - id: isort
-#        name: isort
-#        entry: isort
-#        require_serial: true
-#        language: system
-#        types: [python]
-#        args: [  '--line-width', '88',
-#                 '--trailing-comma',
-#                 '--multi-line', '3',
-#                 '--project', 'bgmi', ]
+      #      - id: isort
+      #        name: isort
+      #        entry: isort
+      #        require_serial: true
+      #        language: system
+      #        types: [python]
+      #        args: [  '--line-width', '88',
+      #                 '--trailing-comma',
+      #                 '--multi-line', '3',
+      #                 '--project', 'bgmi', ]
 
       - id: black
         name: black

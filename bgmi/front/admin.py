@@ -3,6 +3,10 @@ import traceback
 from concurrent.futures.thread import ThreadPoolExecutor
 from threading import Lock
 
+from tornado.concurrent import run_on_executor
+from tornado.ioloop import IOLoop
+from tornado.web import HTTPError, asynchronous
+
 from bgmi.config import ADMIN_TOKEN
 from bgmi.front.base import BaseHandler
 from bgmi.lib.constants import (
@@ -27,9 +31,6 @@ from bgmi.lib.controllers import (
     update,
 )
 from bgmi.lib.download import download_prepare
-from tornado.concurrent import run_on_executor
-from tornado.ioloop import IOLoop
-from tornado.web import HTTPError, asynchronous
 
 ACTION_AUTH = "auth"
 ACTION_STATUS = "status"
