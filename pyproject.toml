@@ -40,7 +40,7 @@ python = "^3.5"
 
 beautifulsoup4 = '^4.4.0'
 requests = '^2.9.1'
-tornado = '^5.0.2'
+tornado = '^6.0.0'
 icalendar = '^4.0.6'
 peewee = '^3.3.4'
 importlib-metadata = "^1.6.0"

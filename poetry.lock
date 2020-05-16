@@ -300,8 +300,8 @@ category = "main"
 description = "Tornado is a Python web framework and asynchronous networking library, originally developed at FriendFeed."
 name = "tornado"
 optional = false
-python-versions = ">= 2.7, !=3.0.*, !=3.1.*, !=3.2.*, != 3.3.*"
-version = "5.1.1"
+python-versions = ">= 3.5"
+version = "6.0.4"
 
 [[package]]
 category = "dev"
@@ -361,7 +361,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "892025bfc711c5d217a6c9ca34906805bbd8d4ec6dcb90918796c1f045693934"
+content-hash = "57a2ccd7283ad30a24141043f227485c0f1191bd11033cc0762856c5a8c10dea"
 python-versions = "^3.5"
 
 [metadata.files]
@@ -529,13 +529,15 @@ toml = [
     {file = "toml-0.10.1.tar.gz", hash = "sha256:926b612be1e5ce0634a2ca03470f95169cf16f939018233a670519cb4ac58b0f"},
 ]
 tornado = [
-    {file = "tornado-5.1.1-cp35-cp35m-win32.whl", hash = "sha256:732e836008c708de2e89a31cb2fa6c0e5a70cb60492bee6f1ea1047500feaf7f"},
-    {file = "tornado-5.1.1-cp35-cp35m-win_amd64.whl", hash = "sha256:0662d28b1ca9f67108c7e3b77afabfb9c7e87bde174fbda78186ecedc2499a9d"},
-    {file = "tornado-5.1.1-cp36-cp36m-win32.whl", hash = "sha256:8154ec22c450df4e06b35f131adc4f2f3a12ec85981a203301d310abf580500f"},
-    {file = "tornado-5.1.1-cp36-cp36m-win_amd64.whl", hash = "sha256:d4b3e5329f572f055b587efc57d29bd051589fb5a43ec8898c77a47ec2fa2bbb"},
-    {file = "tornado-5.1.1-cp37-cp37m-win32.whl", hash = "sha256:e5f2585afccbff22390cddac29849df463b252b711aa2ce7c5f3f342a5b3b444"},
-    {file = "tornado-5.1.1-cp37-cp37m-win_amd64.whl", hash = "sha256:8e9d728c4579682e837c92fdd98036bd5cdefa1da2aaf6acf26947e6dd0c01c5"},
-    {file = "tornado-5.1.1.tar.gz", hash = "sha256:4e5158d97583502a7e2739951553cbd88a72076f152b4b11b64b9a10c4c49409"},
+    {file = "tornado-6.0.4-cp35-cp35m-win32.whl", hash = "sha256:5217e601700f24e966ddab689f90b7ea4bd91ff3357c3600fa1045e26d68e55d"},
+    {file = "tornado-6.0.4-cp35-cp35m-win_amd64.whl", hash = "sha256:c98232a3ac391f5faea6821b53db8db461157baa788f5d6222a193e9456e1740"},
+    {file = "tornado-6.0.4-cp36-cp36m-win32.whl", hash = "sha256:5f6a07e62e799be5d2330e68d808c8ac41d4a259b9cea61da4101b83cb5dc673"},
+    {file = "tornado-6.0.4-cp36-cp36m-win_amd64.whl", hash = "sha256:c952975c8ba74f546ae6de2e226ab3cc3cc11ae47baf607459a6728585bb542a"},
+    {file = "tornado-6.0.4-cp37-cp37m-win32.whl", hash = "sha256:2c027eb2a393d964b22b5c154d1a23a5f8727db6fda837118a776b29e2b8ebc6"},
+    {file = "tornado-6.0.4-cp37-cp37m-win_amd64.whl", hash = "sha256:5618f72e947533832cbc3dec54e1dffc1747a5cb17d1fd91577ed14fa0dc081b"},
+    {file = "tornado-6.0.4-cp38-cp38-win32.whl", hash = "sha256:22aed82c2ea340c3771e3babc5ef220272f6fd06b5108a53b4976d0d722bcd52"},
+    {file = "tornado-6.0.4-cp38-cp38-win_amd64.whl", hash = "sha256:c58d56003daf1b616336781b26d184023ea4af13ae143d9dda65e31e534940b9"},
+    {file = "tornado-6.0.4.tar.gz", hash = "sha256:0fe2d45ba43b00a41cd73f8be321a44936dc1aba233dee979f17a042b83eb6dc"},
 ]
 typed-ast = [
     {file = "typed_ast-1.4.1-cp35-cp35m-manylinux1_i686.whl", hash = "sha256:73d785a950fc82dd2a25897d525d003f6378d1cb23ab305578394694202a58c3"},

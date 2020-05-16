@@ -5,7 +5,7 @@ from threading import Lock
 
 from tornado.concurrent import run_on_executor
 from tornado.ioloop import IOLoop
-from tornado.web import HTTPError, asynchronous
+from tornado.web import HTTPError
 
 from bgmi.config import ADMIN_TOKEN
 from bgmi.front.base import BaseHandler
@@ -109,14 +109,13 @@ class UpdateHandler(BaseHandler):
     lock = Lock()
 
     @auth
-    @asynchronous
-    def post(self):
+    async def post(self):
         if not self.lock.locked():
             self.lock.acquire()
             IOLoop.instance().add_callback(self.hard_task)  # 这样将在下一轮事件循环执行self.sleep
-            self.finish(self.jsonify(message="start updating"))
+            await self.finish(self.jsonify(message="start updating"))
         else:
-            self.finish(self.jsonify(message="previous updating has not finish"))
+            await self.finish(self.jsonify(message="previous updating has not finish"))
 
     @run_on_executor
     def hard_task(self,):
