@@ -1,7 +1,7 @@
 parameters:
   - name: name
     type: string
-    default: ''
+    default: ""
 
   - name: steps
     type: stepList
@@ -10,13 +10,13 @@ parameters:
   - name: matrix
     type: object
     default:
-      images: ["windows-2019", 'ubuntu-latest', 'macos-latest' ]
-      pythonVersions: ["3.6", '3.7', '3.8' ]
+      images: ["windows-2019", "ubuntu-latest", "macos-latest"]
+      pythonVersions: ["3.5", "3.6", "3.7", "3.8"]
 
 jobs:
   - job: ${{ parameters.name }}
     pool:
-      vmImage: '$(os)'
+      vmImage: "$(os)"
     strategy:
       maxParallel: 3
       matrix:
