@@ -20,4 +20,4 @@ jobs:
       - script: pyinstaller bgmi.spec
 
       - publish: "./dist/"
-        artifact: "binary-$(Agent.JobDisplayName)"
+        artifact: "$(Agent.JobDisplayName)"
