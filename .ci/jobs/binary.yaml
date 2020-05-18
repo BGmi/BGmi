@@ -1,0 +1,38 @@
+jobs:
+  - job: "Binary"
+    pool:
+      vmImage: "$(os)"
+
+    strategy:
+      matrix:
+        Windows:
+          os: "windows-latest"
+          name: windows
+        Linux:
+          os: "ubuntu-latest"
+          name: linux
+    #        MacOS:
+    #          os: "macos-latest"
+
+    steps:
+      - template: /.ci/templates/install-project.yaml
+        parameters:
+          python_version: "3.7"
+
+      - script: pyinstaller bgmi.spec
+
+      - publish: "./dist/"
+        artifact: "$(Agent.JobName)"
+
+      - bash: mv dist/bgmi* dist/bgmi-$(name)
+
+      - task: GitHubRelease@0
+        inputs:
+          gitHubConnection: github release
+          repositoryName: "$(Build.Repository.Name)"
+          action: "edit"
+          target: "$(Build.SourceVersion)"
+          tagPattern: ".*"
+          tag: "$(Build.SourceBranchName)"
+          assets: "./dist/*"
+          assetUploadMode: "replace"

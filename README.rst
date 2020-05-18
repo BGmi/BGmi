@@ -6,7 +6,7 @@ BGmi is a cli tool for subscribed bangumi.
 
 |pypi|
 |download|
-|travis|
+|pipeline|
 |coverage|
 |license|
 
@@ -59,6 +59,14 @@ Use pip:
 .. code-block:: bash
 
     pip install bgmi
+
+Binary(no python needed):
+
+From `GitHub Releases <https://github.com/BGmi/BGmi/releases/latest>`_
+
+nightly: `azure pipeline artifacts <https://dev.azure.com/BGmi/BGmi/_build/latest?definitionId=3&branchName=master>`_
+
+Binary for MacOS is not available yet.
 
 Or from source(not recommended):
 
@@ -533,8 +541,8 @@ License
 .. |pypi| image:: https://img.shields.io/pypi/v/bgmi.svg
    :target: https://pypi.python.org/pypi/bgmi
 
-.. |travis| image:: https://travis-ci.org/BGmi/BGmi.svg?branch=master
-   :target: https://travis-ci.org/BGmi/BGmi
+.. |pipeline| image:: https://dev.azure.com/BGmi/BGmi/_apis/build/status/BGmi.BGmi?branchName=master
+   :target: https://dev.azure.com/BGmi/BGmi/_apis/build/status/BGmi.BGmi?branchName=master
 
 .. |coverage| image:: https://codecov.io/gh/BGmi/BGmi/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/BGmi/BGmi

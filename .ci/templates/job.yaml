@@ -18,7 +18,7 @@ jobs:
     pool:
       vmImage: "$(os)"
     strategy:
-      maxParallel: 3
+      maxParallel: 5
       matrix:
         ${{ each image in parameters.matrix.images }}:
           ${{ each pythonVersion in parameters.matrix.pythonVersions }}:

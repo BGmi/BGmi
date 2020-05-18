@@ -2,18 +2,21 @@
 trigger:
   branches:
     include:
-      - '*'
+      - "*"
     exclude:
       - renovate/*
+  tags:
+    include:
+      - "*"
 
 schedules:
-- cron: "0 0 * * 1"
-  displayName: Weekly test
-  branches:
-    include:
-      - master
-      - dev
-  always: true
+  - cron: "0 0 * * 1"
+    displayName: Weekly test
+    branches:
+      include:
+        - master
+        - dev
+    always: true
 
 resources:
   repositories:
@@ -24,9 +27,12 @@ resources:
       ref: refs/tags/v0.0.5
 
 stages:
-  - stage: Lint
+  #  - stage: Lint
+  #    jobs:
+  #      - template: ./jobs/lint.yaml
+  #  - stage: Test
+  #    jobs:
+  #      - template: ./jobs/test.yaml
+  - stage: Build
     jobs:
-      - template: ./jobs/lint.yaml
-  - stage: Test
-    jobs:
-      - template: ./jobs/test.yaml
+      - template: ./jobs/binary.yaml
