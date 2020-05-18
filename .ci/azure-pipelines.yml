@@ -33,7 +33,7 @@ stages:
   #  - stage: Test
   #    jobs:
   #      - template: ./jobs/test.yaml
-  - stage: pre-release
+  - stage: pre_release
     jobs:
       - template: ./jobs/pre-release.yaml
   - stage: Build

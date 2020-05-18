@@ -1,5 +1,5 @@
 jobs:
-  - job: "create github release"
+  - job: "create_github_release"
     pool:
       vmImage: "ubuntu-latest"
 
