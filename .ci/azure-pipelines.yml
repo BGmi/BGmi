@@ -32,4 +32,4 @@ stages:
       - template: ./jobs/test.yaml
   - stage: Build
     jobs:
-      - template: ./jobs/build/binary.yaml
+      - template: ./jobs/binary.yaml

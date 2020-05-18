@@ -1,0 +1,23 @@
+jobs:
+  - job: "Binary"
+    pool:
+      vmImage: "$(os)"
+
+    strategy:
+      matrix:
+        Windows:
+          os: "windows-latest"
+        Linux:
+          os: "ubuntu-latest"
+        MacOS:
+          os: "macos-latest"
+
+    steps:
+      - template: /.ci/templates/install-project.yaml
+        parameters:
+          python_version: "3.7"
+
+      - script: pyinstaller bgmi.spec
+
+      - publish: ./dist/bgmi.exe
+        artifact: binary
