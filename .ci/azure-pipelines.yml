@@ -27,9 +27,9 @@ stages:
   - stage: Lint
     jobs:
       - template: ./jobs/lint.yaml
-#  - stage: Test
-#    jobs:
-#      - template: ./jobs/test.yaml
+  - stage: Test
+    jobs:
+      - template: ./jobs/test.yaml
   - stage: Build
     jobs:
       - template: ./jobs/binary.yaml

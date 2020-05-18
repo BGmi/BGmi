@@ -376,6 +376,17 @@ version = "6.0.4"
 
 [[package]]
 category = "dev"
+description = "Python module that implements the Transmission bittorent client RPC protocol."
+name = "transmissionrpc"
+optional = false
+python-versions = "*"
+version = "0.11"
+
+[package.dependencies]
+six = ">=1.1.0"
+
+[[package]]
+category = "dev"
 description = "a fork of Python 2 and 3 ast modules with type comment support"
 marker = "python_version >= \"3.6\""
 name = "typed-ast"
@@ -432,7 +443,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "b444f8d020b2f0f3bf7f8db62fb8d88814f8a5d2bb7c6ba55834e88f0e41eacb"
+content-hash = "8ae0a15891823bccd4d6a8e265f4b267488c72b72224dfcc4be2055630d403d5"
 python-versions = "^3.5"
 
 [metadata.files]
@@ -635,6 +646,11 @@ tornado = [
     {file = "tornado-6.0.4-cp38-cp38-win32.whl", hash = "sha256:22aed82c2ea340c3771e3babc5ef220272f6fd06b5108a53b4976d0d722bcd52"},
     {file = "tornado-6.0.4-cp38-cp38-win_amd64.whl", hash = "sha256:c58d56003daf1b616336781b26d184023ea4af13ae143d9dda65e31e534940b9"},
     {file = "tornado-6.0.4.tar.gz", hash = "sha256:0fe2d45ba43b00a41cd73f8be321a44936dc1aba233dee979f17a042b83eb6dc"},
+]
+transmissionrpc = [
+    {file = "transmissionrpc-0.11-py2.7.egg", hash = "sha256:f55d9eebd71672890f747ff5467bcdfb19ad9a08d3e5afb03f61442750ed2569"},
+    {file = "transmissionrpc-0.11-py3.3.egg", hash = "sha256:8178e2a61bc4381ce214401e4513dad00d082bc0d55edbb805586e66a2bbd824"},
+    {file = "transmissionrpc-0.11.tar.gz", hash = "sha256:ec43b460f9fde2faedbfa6d663ef495b3fd69df855a135eebe8f8a741c0dde60"},
 ]
 typed-ast = [
     {file = "typed_ast-1.4.1-cp35-cp35m-manylinux1_i686.whl", hash = "sha256:73d785a950fc82dd2a25897d525d003f6378d1cb23ab305578394694202a58c3"},
