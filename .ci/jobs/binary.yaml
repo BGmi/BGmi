@@ -27,6 +27,7 @@ jobs:
       - bash: mv dist/bgmi* dist/bgmi-$(name)
 
       - task: GitHubRelease@0
+        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         inputs:
           gitHubConnection: github release
           repositoryName: "$(Build.Repository.Name)"
