@@ -2,18 +2,18 @@
 trigger:
   branches:
     include:
-      - '*'
+      - "*"
     exclude:
       - renovate/*
 
 schedules:
-- cron: "0 0 * * 1"
-  displayName: Weekly test
-  branches:
-    include:
-      - master
-      - dev
-  always: true
+  - cron: "0 0 * * 1"
+    displayName: Weekly test
+    branches:
+      include:
+        - master
+        - dev
+    always: true
 
 resources:
   repositories:
@@ -30,3 +30,6 @@ stages:
   - stage: Test
     jobs:
       - template: ./jobs/test.yaml
+  - stage: Build
+    jobs:
+      - template: ./jobs/build/binary.yaml
