@@ -42,6 +42,11 @@ BGmi 是一个用来追番的命令行程序.
 pip install bgmi
 ```
 
+二进制文件(不需要python运行环境)
+
+[azure pipeline](https://dev.azure.com/BGmi/BGmi/_build/latest?definitionId=3&branchName=master&view=artifacts&type=publishedArtifacts)
+
+
 或者从源码安装（强烈不推荐）
 
 ```bash
