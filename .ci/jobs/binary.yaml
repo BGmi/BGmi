@@ -9,8 +9,8 @@ jobs:
           os: "windows-latest"
         Linux:
           os: "ubuntu-latest"
-        MacOS:
-          os: "macos-latest"
+    #        MacOS:
+    #          os: "macos-latest"
 
     steps:
       - template: /.ci/templates/install-project.yaml
@@ -19,5 +19,5 @@ jobs:
 
       - script: pyinstaller bgmi.spec
 
-      - publish: "./dist"
-        artifact: binary
+      - publish: "./dist/"
+        artifact: "binary-$(Agent.OS)"
