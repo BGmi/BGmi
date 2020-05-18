@@ -19,5 +19,5 @@ jobs:
 
       - script: pyinstaller bgmi.spec
 
-      - publish: "./dist/*"
+      - publish: "./dist"
         artifact: binary
