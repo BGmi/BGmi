@@ -26,20 +26,13 @@ jobs:
 
       - bash: mv dist/bgmi* dist/bgmi-$(name)
 
-      # GitHub Release
-      # Create, edit, or delete a GitHub release
       - task: GitHubRelease@0
         inputs:
           gitHubConnection: github release
           repositoryName: "$(Build.Repository.Name)"
-          action: "edit" # Options: create, edit, delete
-          target: "$(Build.SourceVersion)" # Required when action == Create || Action == Edit
-          tagSource: "auto" # Required when action == Create# Options: auto, manual
-          tagPattern: ".*" # Optional
-          tag: "$(Build.SourceBranchName)" # Required when action == Edit || Action == Delete || TagSource == Manual
-          #title: # Optional
-          #releaseNotesSource: 'file' # Optional. Options: file, input
-          #releaseNotesFile: # Optional
-          #releaseNotes: # Optional
-          assets: "./dist/*" # Optional
-          assetUploadMode: "replace" # Optional. Options: delete, replace
+          action: "edit"
+          target: "$(Build.SourceVersion)"
+          tagPattern: ".*"
+          tag: "$(Build.SourceBranchName)"
+          assets: "./dist/*"
+          assetUploadMode: "replace"

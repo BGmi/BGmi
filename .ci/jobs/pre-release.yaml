@@ -1,0 +1,14 @@
+jobs:
+  - job: "create github release"
+    pool:
+      vmImage: "ubuntu-latest"
+
+    steps:
+      - task: GitHubRelease@0
+        inputs:
+          gitHubConnection: github release
+          repositoryName: "$(Build.Repository.Name)"
+          action: "create"
+          target: "$(Build.SourceVersion)"
+          tagSource: "auto"
+          tagPattern: ".*"
