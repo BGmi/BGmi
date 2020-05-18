@@ -2,33 +2,27 @@
 name = "bgmi"
 version = "2.1.3"
 description = 'BGmi is a cli tool for subscribed bangumi.'
-authors = [
-    "RicterZ <ricterzheng@gmail.com>",
-]
-readme='README.rst'
-license='MIT'
-maintainers=[
-    "Trim21 <i@trim21.me>",
-]
-homepage='https://github.com/BGmi/BGmi'
-repository='https://github.com/BGmi/BGmi'
-keywords=['bangumi', 'bgmi', 'feed']
+authors = ["RicterZ <ricterzheng@gmail.com>"]
+readme = 'README.rst'
+license = 'MIT'
+maintainers = ["Trim21 <i@trim21.me>"]
+homepage = 'https://github.com/BGmi/BGmi'
+repository = 'https://github.com/BGmi/BGmi'
+keywords = ['bangumi', 'bgmi', 'feed']
 classifiers = [
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Other Audience',
-        'Natural Language :: Chinese (Traditional)',
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy'
+  'Development Status :: 4 - Beta',
+  'Intended Audience :: Other Audience',
+  'Natural Language :: Chinese (Traditional)',
+  'License :: OSI Approved :: MIT License',
+  'Programming Language :: Python',
+  'Programming Language :: Python :: 3.5',
+  'Programming Language :: Python :: 3.6',
+  'Programming Language :: Python :: 3.7',
+  'Programming Language :: Python :: 3.8',
+  'Programming Language :: Python :: Implementation :: CPython',
+  'Programming Language :: Python :: Implementation :: PyPy'
 ]
-packages = [
-    { include = "bgmi" },
-]
+packages = [{ include = "bgmi" }]
 include = ["LICENSE"]
 
 [tool.poetry.scripts]
@@ -37,7 +31,6 @@ bgmi_http = 'bgmi.front.server:main'
 
 [tool.poetry.dependencies]
 python = "^3.5"
-
 beautifulsoup4 = '^4.4.0'
 requests = '^2.9.1'
 tornado = '^6.0.0'
@@ -46,12 +39,14 @@ peewee = '^3.3.4'
 importlib-metadata = "^1.6.0"
 
 [tool.poetry.dev-dependencies]
-pre-commit = { version = '2.4.0', python='>=3.7' }
-black = { version = '19.10b0', python='>=3.6' }
+pre-commit = { version = '2.4.0', python = '>=3.7' }
+black = { version = '19.10b0', python = '>=3.6' }
 coverage = "5.1"
+# pyinstaller
 pyinstaller = "^3.6"
-pywin32-ctypes = {version = "^0.2.0", platform = "win32"}
-pefile = {version = "^2019.4.18", platform = "win32"}
+pywin32-ctypes = { version = "^0.2.0", platform = "win32" }
+pefile = { version = "^2019.4.18", platform = "win32" }
+macholib = { version = "^1.14", platform = "darwin" }
 
 [build-system]
 requires = ["poetry>=0.12"]
