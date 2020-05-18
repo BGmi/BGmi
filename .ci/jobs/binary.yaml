@@ -24,7 +24,7 @@ jobs:
       - publish: "./dist/"
         artifact: "$(Agent.JobName)"
 
-      - script: mv dist/bgmi* dist-bgmi-$(name)
+      - script: mv dist/bgmi* dist/bgmi-$(name)
 
       # GitHub Release
       # Create, edit, or delete a GitHub release
