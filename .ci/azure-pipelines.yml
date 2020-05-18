@@ -27,12 +27,12 @@ resources:
       ref: refs/tags/v0.0.5
 
 stages:
-  #  - stage: Lint
-  #    jobs:
-  #      - template: ./jobs/lint.yaml
-  #  - stage: Test
-  #    jobs:
-  #      - template: ./jobs/test.yaml
+  - stage: Lint
+    jobs:
+      - template: ./jobs/lint.yaml
+  - stage: Test
+    jobs:
+      - template: ./jobs/test.yaml
   - stage: Build
     jobs:
       - template: ./jobs/binary.yaml
