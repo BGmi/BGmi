@@ -62,7 +62,9 @@ Use pip:
 
 Binary(no python needed):
 
-`azure pipeline <https://dev.azure.com/BGmi/BGmi/_build/latest?definitionId=3&branchName=master&view=artifacts&type=publishedArtifacts>`_
+From `GitHub Releases <https://github.com/BGmi/BGmi/releases/latest>`_
+
+nightly: `azure pipeline artifacts <https://dev.azure.com/BGmi/BGmi/_build/latest?definitionId=3&branchName=master>`_
 
 Binary for MacOS is not available yet.
 

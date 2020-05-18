@@ -36,18 +36,23 @@ BGmi 是一个用来追番的命令行程序.
 
 ## 安装
 
-使用 pip 安装稳定版本:
+### 使用 pip 安装稳定版本:
 
 ```bash
 pip install bgmi
 ```
 
-二进制文件(不需要python运行环境)
+### 二进制文件(不需要python运行环境)
 
-[azure pipeline](https://dev.azure.com/BGmi/BGmi/_build/latest?definitionId=3&branchName=master&view=artifacts&type=publishedArtifacts)
+#### GitHub Releases
 
+<https://github.com/BGmi/BGmi/releases/latest>
 
-或者从源码安装（强烈不推荐）
+#### Nightly（不推荐）:
+
+见artifacts: [azure pipeline](https://dev.azure.com/BGmi/BGmi/_build/latest?definitionId=3&branchName=master)
+
+### 或者从源码安装（不推荐）
 
 ```bash
 git clone https://github.com/BGmi/BGmi
@@ -57,13 +62,13 @@ python -m pip install -U pip
 pip install .
 ```
 
-安装`BGmi`所需的依赖以及下载`BGmi`的前端文件
+### 初始化`BGmi`
 
 ```bash
 bgmi install
 ```
 
-## 升级
+## 升级（仅pip安装）
 
 ```bash
 pip install bgmi -U
