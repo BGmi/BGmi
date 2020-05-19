@@ -21,19 +21,15 @@ jobs:
 
       - script: pyinstaller bgmi.spec
 
-      - publish: "./dist/"
-        artifact: "$(Agent.JobName)"
-
-      - bash: mv dist/bgmi* dist/bgmi-$(name)
-
-      - task: GitHubRelease@0
-        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+      - task: ArchiveFiles@2
         inputs:
-          gitHubConnection: github release
-          repositoryName: "$(Build.Repository.Name)"
-          action: "edit"
-          target: "$(Build.SourceVersion)"
-          tagPattern: ".*"
-          tag: "$(Build.SourceBranchName)"
-          assets: "./dist/*"
-          assetUploadMode: "replace"
+          rootFolderOrFile: "./dist"
+          includeRootFolder: false
+          archiveFile: "$(Build.ArtifactStagingDirectory)/bgmi-$(Agent.OS).zip"
+          replaceExistingArchive: true
+          verbose: true # Optional
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          pathToPublish: "$(Build.ArtifactStagingDirectory)"
+          artifactName: binary
