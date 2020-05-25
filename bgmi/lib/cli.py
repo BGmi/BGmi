@@ -1,9 +1,10 @@
 import datetime
 import itertools
+import operator
 import os
-import re
-import string
+from functools import reduce
 
+import wcwidth
 from tornado import template
 
 import bgmi.config
@@ -152,9 +153,12 @@ def cal_wrapper(ret):
     else:
         weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
 
-    env_columns = 42 if os.environ.get("TRAVIS_CI", False) else get_terminal_col()
+    col = max(
+        wcwidth.wcswidth(bangumi["name"])
+        for bangumi in reduce(operator.add, weekly_list.values(), [])
+    )
 
-    col = 42
+    env_columns = col if os.environ.get("TRAVIS_CI", False) else get_terminal_col()
 
     if env_columns < col:
         print_warning("terminal window is too small.")
@@ -174,7 +178,7 @@ def cal_wrapper(ret):
                     GREEN,
                     weekday
                     if not today
-                    else "Bangumi Schedule for Today (%s)" % weekday,
+                    else "Bangumi Schedule for Today ({})".format(weekday),
                     COLOR_END,
                 ),
                 end="",
@@ -186,11 +190,12 @@ def cal_wrapper(ret):
                     bangumi["status"] in (STATUS_UPDATED, STATUS_FOLLOWED)
                     and "episode" in bangumi
                 ):
-                    bangumi["name"] = "%s(%d)" % (bangumi["name"], bangumi["episode"])
+                    bangumi["name"] = "{}({:d})".format(
+                        bangumi["name"], bangumi["episode"]
+                    )
 
-                half = len(re.findall("[%s]" % string.printable, bangumi["name"]))
-                full = len(bangumi["name"]) - half
-                space_count = col - 2 - (full * 2 + half)
+                width = wcwidth.wcswidth(bangumi["name"])
+                space_count = col - 2 - width
 
                 for s in SPACIAL_APPEND_CHARS:
                     if s in bangumi["name"]:
