@@ -16,3 +16,4 @@ tmp/
 .coverage
 htmlcov
 .xml
+.mypy_cache

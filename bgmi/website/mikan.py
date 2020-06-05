@@ -88,12 +88,13 @@ class Mikanani(BaseWebsite):
         container = soup.find("div", class_="central-container")  # type:bs4.Tag
         episode_container_list = {}
         for index, tag in enumerate(container.contents):
-            if hasattr(tag, "attrs"):
-                subtitle_id = tag.attrs.get("id", False)
-                if subtitle_id:
-                    episode_container_list[
-                        tag.attrs.get("id", None)
-                    ] = tag.find_next_sibling("table")
+            if not hasattr(tag, "attrs"):
+                continue
+            subtitle_id = tag.attrs.get("id", False)
+            if subtitle_id:
+                episode_container_list[
+                    tag.attrs.get("id", None)
+                ] = tag.find_next_sibling("table")
 
         for subtitle_id, container in episode_container_list.items():
             subtitle_groups[str(subtitle_id)]["episode"] = list()
@@ -158,9 +159,7 @@ class Mikanani(BaseWebsite):
             server_root + "Home/Search", params={"searchstr": keyword}
         ).text
         s = BeautifulSoup(r, "html.parser")
-        td_list = s.find_all(
-            "tr", attrs={"class": "js-search-results-row"}
-        )  # type:list[bs4.Tag]
+        td_list = s.find_all("tr", attrs={"class": "js-search-results-row"})
         for tr in td_list:
             title = tr.find("a", class_="magnet-link-wrap").text
             time_string = tr.find_all("td")[2].string
@@ -189,7 +188,7 @@ class Mikanani(BaseWebsite):
         ```
             [
                 {
-                    "download": "magnet:?xt=urn:btih:e43b3b6b53dd9fd6af1199e112d3c7ff15cab82c",
+                    "download": "magnet:?xt=urn:btih:e43b3b6b536a1199e112d3c7ff15cab82c",
                     "subtitle_group": "58a9c1c9f5dc363606ab42ec",
                     "title": "【喵萌奶茶屋】★七月新番★[来自深渊/Made in Abyss][07][GB][720P]",
                     "episode": 0,
@@ -217,18 +216,19 @@ class Mikanani(BaseWebsite):
         container = soup.find("div", class_="central-container")  # type:bs4.Tag
         episode_container_list = {}
         for index, tag in enumerate(container.contents):
-            if hasattr(tag, "attrs"):
-                subtitle_id = tag.attrs.get("id", False)
-                if subtitle_list:
-                    if subtitle_id in subtitle_list:
-                        episode_container_list[
-                            tag.attrs.get("id", None)
-                        ] = tag.find_next_sibling("table")
-                else:
-                    if subtitle_id:
-                        episode_container_list[
-                            tag.attrs.get("id", None)
-                        ] = tag.find_next_sibling("table")
+            if not hasattr(tag, "attrs"):
+                continue
+            subtitle_id = tag.attrs.get("id", False)
+            if subtitle_list:
+                if subtitle_id in subtitle_list:
+                    episode_container_list[
+                        tag.attrs.get("id", None)
+                    ] = tag.find_next_sibling("table")
+            else:
+                if subtitle_id:
+                    episode_container_list[
+                        tag.attrs.get("id", None)
+                    ] = tag.find_next_sibling("table")
 
         for subtitle_id, container in episode_container_list.items():
             for tr in container.find_all("tr")[1:]:
@@ -304,8 +304,10 @@ class Mikanani(BaseWebsite):
 
         [subtitle_result.extend(x["subtitle_groups"]) for x in bangumi_result]
 
-        f = lambda x, y: x if y in x else x + [y]
-        subtitle_result = reduce(f, [[],] + subtitle_result)
+        def f(x, y):
+            return x if y in x else x + [y]
+
+        subtitle_result = reduce(f, [[]] + subtitle_result)
         subtitle_result.sort(key=lambda x: int(x["id"]))
 
         return bangumi_result, subtitle_result
