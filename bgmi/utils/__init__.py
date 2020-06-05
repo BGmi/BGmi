@@ -79,7 +79,11 @@ if os.environ.get("DEV", False):  # pragma: no cover
     requests.get = get
     requests.post = post
 
-if sys.platform.startswith("win"):  # pragma: no cover
+if (
+    sys.platform.startswith("win")
+    and "bash" not in os.getenv("SHELL", "").lower()
+    and "zsh" not in os.getenv("SHELL", "").lower()
+):  # pragma: no cover
     GREEN = ""
     YELLOW = ""
     RED = ""
