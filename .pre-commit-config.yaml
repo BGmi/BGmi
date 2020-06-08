@@ -66,28 +66,17 @@ repos:
 
   - repo: local
     hooks:
-      #      - id: isort
-      #        name: isort
-      #        entry: isort
-      #        require_serial: true
-      #        language: system
-      #        types: [python]
-      #        args: [  '--line-width', '88',
-      #                 '--trailing-comma',
-      #                 '--multi-line', '3',
-      #                 '--project', 'bgmi', ]
-
       - id: black
         name: black
         entry: black
         require_serial: true
         language: system
         types: [python]
-#
-#      - id: poetry
-#        name: poetry
-#        entry: poetry check
-#        language: system
-#        pass_filenames: false
-#        require_serial: false
-#        files: 'pyproject.toml'
+
+      - id: poetry
+        name: poetry
+        entry: poetry check
+        language: system
+        pass_filenames: false
+        require_serial: false
+        files: "pyproject.toml"

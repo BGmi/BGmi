@@ -1,18 +1,8 @@
 jobs:
-  - job: 'Lint'
-    pool:
-      vmImage: 'ubuntu-latest'
-
-    strategy:
-      matrix:
-        Python37:
-          python.version: '3.7'
-        Python38:
-          python.version: '3.8'
-
-    steps:
-      - template: /.ci/templates/install-project.yaml
-        parameters:
-          python_version: $(python.version)
-
-      - template: python/pre-commit.yaml@trim21
+  - template: /.ci/templates/job.yaml
+    parameters:
+      name: Lint
+      pythonVersions: ["3.7", "3.8"]
+      steps:
+        - script: poetry --version
+        - template: python/pre-commit.yaml@trim21

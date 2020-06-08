@@ -7,11 +7,13 @@ parameters:
     type: stepList
     default: []
 
-  - name: matrix
+  - name: images
     type: object
-    default:
-      images: ["windows", "ubuntu", "macos"]
-      pythonVersions: ["3.5", "3.6", "3.7", "3.8"]
+    default: ["windows", "ubuntu", "macos"]
+
+  - name: pythonVersions
+    type: object
+    default: ["3.5", "3.6", "3.7", "3.8"]
 
 jobs:
   - job: ${{ parameters.name }}
@@ -20,14 +22,19 @@ jobs:
     strategy:
       maxParallel: 6
       matrix:
-        ${{ each image in parameters.matrix.images }}:
-          ${{ each pythonVersion in parameters.matrix.pythonVersions }}:
-            ${{ format('{0} py{1}', image, pythonVersion) }}:
+        ${{ each image in parameters.images }}:
+          ${{ each pythonVersion in parameters.pythonVersions }}:
+            ${{ format('{0} {1}', image, pythonVersion) }}:
               python_version: ${{ pythonVersion }}
               os: ${{ image }}-latest
               platform: ${{ image }}
 
     steps:
+      - powershell: git config --global core.autocrlf false
+        displayName: $(System.JobName) git config core.autocrlf
+
+      - checkout: self
+
       - template: /.ci/templates/install-project.yaml
         parameters:
           python_version: $(python_version)
