@@ -23,7 +23,6 @@ classifiers = [
   'Programming Language :: Python :: Implementation :: PyPy'
 ]
 packages = [{ include = "bgmi" }]
-include = ["LICENSE"]
 
 [tool.poetry.scripts]
 bgmi = 'bgmi.main:main'
