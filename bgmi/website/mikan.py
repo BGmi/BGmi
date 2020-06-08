@@ -3,6 +3,7 @@ import time
 from collections import defaultdict
 from functools import reduce
 from multiprocessing.pool import ThreadPool
+from typing import List
 
 import bs4
 import requests
@@ -293,25 +294,21 @@ class Mikanani(BaseWebsite):
         :return: list of bangumi, list of subtitile group
         :rtype: (list[dict], list[dict])
         """
-        bangumi_result = []
-        subtitle_result = []
-        bangumi_list = list()
+        subtitle_result = []  # type: List[List[dict]]
+        bangumi_list = []
         for day in get_weekly_bangumi():
             for obj in parser_day_bangumi(day):
                 bangumi_list.append(obj)
 
-        def wrapper(bangumi_id):
+        def wrapper(info):
             try:
-                return self.parse_bangumi_details_page(bangumi_id)
+                info.update(self.parse_bangumi_details_page(info["keyword"]))
+                return info
             except AttributeError:
                 pass
 
         with ThreadPool() as p:
-            r = [x for x in p.map(wrapper, [x["keyword"] for x in bangumi_list]) if x]
-
-        for i, bangumi in enumerate(bangumi_list):
-            bangumi.update(r[i])
-            bangumi_result.append(bangumi)
+            bangumi_result = [x for x in p.map(wrapper, [x for x in bangumi_list]) if x]
 
         [subtitle_result.extend(x["subtitle_groups"]) for x in bangumi_result]
 
