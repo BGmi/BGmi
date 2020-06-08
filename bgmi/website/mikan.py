@@ -11,8 +11,11 @@ from bs4 import BeautifulSoup
 from bgmi.config import MAX_PAGE
 from bgmi.website.base import BaseWebsite
 
+_DEBUG = "mikan" in os.environ.get("DEBUG", "").lower()
+
 week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 server_root = "https://mikanani.me/"
+
 
 Cn_week_map = {
     "星期日": "Sun",
@@ -61,13 +64,20 @@ def parser_day_bangumi(soup):
     return li
 
 
+def get_text(url):
+    if _DEBUG:  # pragma: no cover
+        print(url)
+    r = requests.get(url).text
+    if _DEBUG:  # pragma: no cover
+        print(r)
+    return r
+
+
 class Mikanani(BaseWebsite):
     cover_url = server_root[:-1]
 
     def parse_bangumi_details_page(self, bangumi_id):
-        if os.environ.get("DEBUG", False):  # pragma: no cover
-            print(server_root + "Bangumi/{}".format(bangumi_id))
-        r = requests.get(server_root + "Home/Bangumi/{}".format(bangumi_id)).text
+        r = get_text(server_root + "Home/Bangumi/{}".format(bangumi_id))
 
         subtitle_groups = defaultdict(dict)
 
@@ -204,9 +214,8 @@ class Mikanani(BaseWebsite):
         """
 
         result = []
-        if os.environ.get("DEBUG", False):  # pragma: no cover
-            print(server_root + "Bangumi/{}".format(bangumi_id))
-        r = requests.get(server_root + "Home/Bangumi/{}".format(bangumi_id)).text
+
+        r = get_text(server_root + "Home/Bangumi/{}".format(bangumi_id))
 
         soup = BeautifulSoup(r, "html.parser")
         # name = soup.find('p', class_='bangumi-title').text
