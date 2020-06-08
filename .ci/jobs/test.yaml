@@ -7,7 +7,16 @@ jobs:
             set -ex
             coverage run -a -m bgmi.main install
             bgmi -h
-            cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
+            cp tests/test_script.py $BGMI_PATH/scripts/test_script.py
             coverage run -a -m pytest tests
+          env:
+            DEBUG: mikan,dump
+            BGMI_PATH: $(Pipeline.Workspace)/.bgmi
+
+        - task: PublishBuildArtifacts@1
+          condition: always()
+          inputs:
+            pathToPublish: "$(Pipeline.Workspace)/.bgmi/tmp"
+            artifactName: tmp-$(platform)-$(python_version)
 
         - bash: bash <(curl -s https://codecov.io/bash)

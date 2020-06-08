@@ -25,6 +25,7 @@ jobs:
             ${{ format('{0} py{1}', image, pythonVersion) }}:
               python_version: ${{ pythonVersion }}
               os: ${{ image }}-latest
+              platform: ${{ image }}
 
     steps:
       - template: /.ci/templates/install-project.yaml

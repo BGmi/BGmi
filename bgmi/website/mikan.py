@@ -9,7 +9,7 @@ import bs4
 import requests
 from bs4 import BeautifulSoup
 
-from bgmi.config import MAX_PAGE
+from bgmi.config import MAX_PAGE, TMP_PATH
 from bgmi.website.base import BaseWebsite
 
 _DEBUG = "mikan" in os.environ.get("DEBUG", "").lower()
@@ -77,8 +77,7 @@ def get_text(url):
 class Mikanani(BaseWebsite):
     cover_url = server_root[:-1]
 
-    def parse_bangumi_details_page(self, bangumi_id):
-        r = get_text(server_root + "Home/Bangumi/{}".format(bangumi_id))
+    def parse_bangumi_details_page(self, r):
 
         subtitle_groups = defaultdict(dict)
 
@@ -301,11 +300,22 @@ class Mikanani(BaseWebsite):
                 bangumi_list.append(obj)
 
         def wrapper(info):
+            html = get_text(server_root + "Home/Bangumi/{}".format(info["keyword"]))
             try:
-                info.update(self.parse_bangumi_details_page(info["keyword"]))
+                info.update(self.parse_bangumi_details_page(html))
                 return info
             except AttributeError:
-                pass
+                if _DEBUG and "dump" in os.environ.get("DEBUG", "").lower():
+                    try:
+                        os.makedirs(os.path.join(TMP_PATH, "mikan"))
+                    except OSError:
+                        pass
+                    with open(
+                        os.path.join(TMP_PATH, "mikan", info["keyword"] + ".html"),
+                        "w",
+                        encoding="utf-8",
+                    ) as fd:
+                        fd.write(html)
 
         with ThreadPool() as p:
             bangumi_result = [x for x in p.map(wrapper, [x for x in bangumi_list]) if x]
