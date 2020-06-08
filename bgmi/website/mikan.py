@@ -75,17 +75,14 @@ class Mikanani(BaseWebsite):
 
         # info
         bangumi_info = {"status": 0}
-        left_container = soup.find(
-            "div", class_="pull-left leftbar-container"
-        )  # type:bs4.Tag
+        left_container = soup.select_one("div.pull-left.leftbar-container")
         title = left_container.find("p", class_="bangumi-title")
         day = title.find_next_sibling("p", class_="bangumi-info")
         bangumi_info["update_time"] = Cn_week_map[day.text[-3:]]
 
         ######
         soup = BeautifulSoup(r, "html.parser")
-        # name = soup.find('p', class_='bangumi-title').text
-        container = soup.find("div", class_="central-container")  # type:bs4.Tag
+        container = soup.find("div", class_="central-container")
         episode_container_list = {}
         for index, tag in enumerate(container.contents):
             if not hasattr(tag, "attrs"):
@@ -294,9 +291,14 @@ class Mikanani(BaseWebsite):
             for obj in parser_day_bangumi(day):
                 bangumi_list.append(obj)
 
-        p = ThreadPool()
-        r = p.map(self.parse_bangumi_details_page, [x["keyword"] for x in bangumi_list])
-        p.close()
+        def wrapper(bangumi_id):
+            try:
+                return self.parse_bangumi_details_page(bangumi_id)
+            except AttributeError:
+                pass
+
+        with ThreadPool() as p:
+            r = [x for x in p.map(wrapper, [x["keyword"] for x in bangumi_list]) if x]
 
         for i, bangumi in enumerate(bangumi_list):
             bangumi.update(r[i])
