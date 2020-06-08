@@ -7,13 +7,7 @@ jobs:
             set -ex
             coverage run -a -m bgmi.main install
             bgmi -h
+            cp tests/test_script.py $HOME/.bgmi/scripts/test_script.py
+            coverage run -a -m pytest tests
 
-        - bash: |
-            export LC_ALL=en_US.UTF-8
-            bash .ci/test.sh
-          condition: ne(variables['Agent.OS'], 'Windows_NT') # 有某些难以处理的编码问题...
-          env:
-            TRAVIS_CI: '1'
-            PYTHONUTF8: '1'
-            PYTHONIOENCODING: 'utf-8'
-            SHELL: bash
+        - bash: bash <(curl -s https://codecov.io/bash)

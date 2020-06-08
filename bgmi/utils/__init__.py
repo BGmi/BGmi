@@ -204,6 +204,9 @@ def bug_report():  # pragma: no cover
     )
 
 
+_DEFAULT_TERMINAL_WIDTH = 80
+
+
 @log_utils_function
 def get_terminal_col():  # pragma: no cover
     # https://gist.github.com/jtriley/1108174
@@ -211,11 +214,15 @@ def get_terminal_col():  # pragma: no cover
         import fcntl
         import termios
 
-        _, col, _, _ = struct.unpack(
-            "HHHH", fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack("HHHH", 0, 0, 0, 0))
-        )
+        try:
+            _, col, _, _ = struct.unpack(
+                "HHHH",
+                fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack("HHHH", 0, 0, 0, 0)),
+            )
 
-        return col
+            return col
+        except Exception:
+            return _DEFAULT_TERMINAL_WIDTH
     else:
         try:
             from ctypes import windll, create_string_buffer
@@ -248,8 +255,8 @@ def get_terminal_col():  # pragma: no cover
 
                 cols = int(subprocess.check_output("tput cols"))
                 return cols
-        except:
-            return 80
+        except Exception:
+            return _DEFAULT_TERMINAL_WIDTH
 
 
 @log_utils_function

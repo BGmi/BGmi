@@ -1,4 +1,3 @@
-import os
 import unittest
 
 from bgmi.lib.controllers import (
@@ -15,8 +14,8 @@ from bgmi.main import setup
 
 class ControllersTest(unittest.TestCase):
     def setUp(self):
-        self.bangumi_name_1 = str(os.environ.get("BANGUMI_1"))
-        self.bangumi_name_2 = str(os.environ.get("BANGUMI_2"))
+        self.bangumi_name_1 = "名侦探柯南"
+        self.bangumi_name_2 = "海贼王"
 
     def test_a_cal(self):
         r = cal()
@@ -28,7 +27,6 @@ class ControllersTest(unittest.TestCase):
                 self.assertIn("status", bangumi)
                 self.assertIn("subtitle_group", bangumi)
                 self.assertIn("name", bangumi)
-                self.assertIn("keyword", bangumi)
                 self.assertIn("update_time", bangumi)
                 self.assertIn("cover", bangumi)
 

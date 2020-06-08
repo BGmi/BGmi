@@ -1,49 +1,43 @@
-import os
-import unittest
+import pytest
 
-from bgmi.lib.fetch import website
+from bgmi.lib.fetch import DATA_SOURCE_MAP
 
 
-class ControllersTest(unittest.TestCase):
-    def setUp(self):
-        self.bangumi_name_1 = os.environ.get("BANGUMI_1")
-        self.bangumi_name_2 = os.environ.get("BANGUMI_2")
-        self.w = website
+@pytest.mark.parametrize("source", DATA_SOURCE_MAP.keys())
+def test_info(source, data_source_bangumi_name):
+    w = DATA_SOURCE_MAP[source]()
+    bs, gs = w.fetch_bangumi_calendar_and_subtitle_group()
+    assert bs, "website {} should return bangumi list".format(source)
+    assert gs, "website {} should return subtitle_group list".format(source)
+    for bangumi in bs:
+        assert "status" in bangumi
+        assert "subtitle_group" in bangumi
+        assert "name" in bangumi
+        assert "keyword" in bangumi
+        assert "update_time" in bangumi
+        assert "cover" in bangumi
 
-    def test_info(self):
-        bs, gs = self.w.fetch_bangumi_calendar_and_subtitle_group()
-        b = {}
-        for bangumi in bs:
-            self.assertIn("status", bangumi)
-            self.assertIn("subtitle_group", bangumi)
-            self.assertIn("name", bangumi)
-            self.assertIn("keyword", bangumi)
-            self.assertIn("update_time", bangumi)
-            self.assertIn("cover", bangumi)
-            if bangumi["name"] == self.bangumi_name_1:
-                b = bangumi
+    for subtitle_group in gs:
+        assert "id" in subtitle_group
+        assert "name" in subtitle_group
 
-        for subtitle_group in gs:
-            self.assertIn("id", subtitle_group)
-            self.assertIn("name", subtitle_group)
-        self.assertTrue(bool(b))
-        es = self.w.fetch_episode_of_bangumi(b["keyword"])
-        for episode in es:
-            self.assertIn("download", episode)
-            self.assertIn("subtitle_group", episode)
-            self.assertIn("title", episode)
-            self.assertIn("episode", episode)
-            self.assertIn("time", episode)
+    b = bs[0]
 
-    def test_search(self):
-        r = self.w.search_by_keyword(self.bangumi_name_1)
-        for b in r:
-            self.assertIn("name", b)
-            self.assertIn("download", b)
-            self.assertIn("title", b)
-            self.assertIn("episode", b)
+    es = w.fetch_episode_of_bangumi(b["keyword"])
+    for episode in es:
+        assert "download" in episode
+        assert "subtitle_group" in episode
+        assert "title" in episode
+        assert "episode" in episode
+        assert "time" in episode
 
-    # @staticmethod
-    # def setUpClass():
-    #     setup()
-    #     recreate_source_relatively_table()
+
+@pytest.mark.parametrize("source", DATA_SOURCE_MAP.keys())
+def test_search(source, data_source_bangumi_name):
+    w = DATA_SOURCE_MAP[source]()
+    r = w.search_by_keyword(data_source_bangumi_name[source][0])
+    for b in r:
+        assert "name" in b
+        assert "download" in b
+        assert "title" in b
+        assert "episode" in b

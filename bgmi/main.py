@@ -26,7 +26,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 
 # main function
-def main():
+def main(argv=None):
     setup()
     c = argparse.ArgumentParser()
 
@@ -56,7 +56,7 @@ def main():
     )
     # sub_parser_del.add_argument('command', nargs='+', )
 
-    ret = c.parse_args()
+    ret = c.parse_args(argv)
     if ret.action == "install":
         import bgmi.setup
 
