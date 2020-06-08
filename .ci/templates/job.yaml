@@ -10,7 +10,7 @@ parameters:
   - name: matrix
     type: object
     default:
-      images: ["windows-2019", "ubuntu-latest", "macos-latest"]
+      images: ["windows", "ubuntu", "macos"]
       pythonVersions: ["3.5", "3.6", "3.7", "3.8"]
 
 jobs:
@@ -22,9 +22,9 @@ jobs:
       matrix:
         ${{ each image in parameters.matrix.images }}:
           ${{ each pythonVersion in parameters.matrix.pythonVersions }}:
-            ${{ format('{0} python{1}', image, pythonVersion) }}:
+            ${{ format('{0} py{1}', image, pythonVersion) }}:
               python_version: ${{ pythonVersion }}
-              os: ${{ image }}
+              os: ${{ image }}-latest
 
     steps:
       - template: /.ci/templates/install-project.yaml

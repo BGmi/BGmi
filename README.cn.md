@@ -355,7 +355,7 @@ Example: <./script_example.py>
 每个方法具体的意义和返回值格式请参照每个方法对应的注释
 
 ```python
-class DataSource(bgmi.website.base.BaseWebsite)
+class DataSource(bgmi.website.base.BaseWebsite):
     cover_url=''
 
     def search_by_keyword(self, keyword, count):
