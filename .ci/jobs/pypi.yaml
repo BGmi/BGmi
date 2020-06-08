@@ -1,0 +1,14 @@
+jobs:
+  - job: "pypi"
+    pool:
+      vmImage: "ubuntu-latest"
+
+    steps:
+      - template: /.ci/templates/install-project.yaml
+        parameters:
+          python_version: "3.7"
+
+      - script: poetry build
+      - script: |
+          pip install twine
+          twine check dist/*
