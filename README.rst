@@ -144,7 +144,7 @@ video files will still store on the disk, but won't be shown on website.
 
 
 Show bangumi calendar:
----------------------
+--------------------------
 
 .. code-block:: bash
 
@@ -521,10 +521,10 @@ Uninstall
 ===================
 Scheduled task will not be delete automatically, you will have to remove them manually.
 
-\*nix:
+``*nix``:
     remove them from your crontab
 
-windows:
+``windows``:
 
 .. code-block:: bash
 
@@ -534,9 +534,7 @@ windows:
 License
 =======
 
-`MIT License <./LICENSE>`_
-
-
+`MIT License <https://github.com/BGmi/BGmi/blob/master/LICENSE>`_
 
 .. |pypi| image:: https://img.shields.io/pypi/v/bgmi.svg
    :target: https://pypi.python.org/pypi/bgmi
