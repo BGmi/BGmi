@@ -1,8 +1,8 @@
 import glob
-import imp
 import os
 import time
 import traceback
+from importlib.machinery import SourceFileLoader
 
 from bgmi.config import MAX_PAGE, SCRIPT_PATH
 from bgmi.lib.download import download_prepare
@@ -22,7 +22,9 @@ class ScriptRunner:
             script_files = glob.glob("{}{}*.py".format(SCRIPT_PATH, os.path.sep))
             for i in script_files:
                 try:
-                    s = imp.load_source("script", os.path.join(SCRIPT_PATH, i))
+                    s = SourceFileLoader(
+                        "script", os.path.join(SCRIPT_PATH, i)
+                    ).load_module()
                     script_class = getattr(s, "Script")()
 
                     if cls.check(script_class):
