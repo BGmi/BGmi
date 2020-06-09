@@ -1,22 +1,22 @@
 jobs:
-  - job: "Github"
+  - job: Github
     pool:
-      vmImage: "ubuntu-latest"
+      vmImage: ubuntu-latest
 
     steps:
       - task: DownloadBuildArtifacts@0
         inputs:
-          buildType: "current"
+          buildType: current
           artifactName: binary
-          downloadPath: "$(System.ArtifactsDirectory)"
+          downloadPath: $(System.ArtifactsDirectory)
 
       - task: GitHubRelease@0
         inputs:
           gitHubConnection: github release
-          repositoryName: "$(Build.Repository.Name)"
-          action: "create"
-          target: "$(Build.SourceVersion)"
-          tagPattern: ".*"
-          tag: "$(Build.SourceBranchName)"
-          assets: "$(Build.ArtifactStagingDirectory)/*/*"
-          assetUploadMode: "replace"
+          repositoryName: $(Build.Repository.Name)
+          action: create
+          target: $(Build.SourceVersion)
+          tagPattern: .*
+          tag: $(Build.SourceBranchName)
+          assets: $(Build.ArtifactStagingDirectory)/*/*
+          assetUploadMode: replace

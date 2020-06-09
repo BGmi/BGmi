@@ -2,15 +2,15 @@
 trigger:
   branches:
     include:
-      - "*"
+      - '*'
     exclude:
       - renovate/*
   tags:
     include:
-      - "*"
+      - '*'
 
 schedules:
-  - cron: "0 0 * * 1"
+  - cron: 0 0 * * 1
     displayName: Weekly test
     branches:
       include:

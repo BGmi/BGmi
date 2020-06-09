@@ -2,7 +2,7 @@ jobs:
   - template: /.ci/templates/job.yaml
     parameters:
       name: Lint
-      pythonVersions: ["3.7", "3.8"]
+      pythonVersions: ['3.7', '3.8']
       steps:
         - script: poetry --version
         - template: python/pre-commit.yaml@trim21

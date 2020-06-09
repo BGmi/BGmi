@@ -16,7 +16,7 @@ jobs:
         - task: PublishBuildArtifacts@1
           condition: always()
           inputs:
-            pathToPublish: "$(Pipeline.Workspace)/.bgmi/tmp"
+            pathToPublish: $(Pipeline.Workspace)/.bgmi/tmp
             artifactName: tmp-$(platform)-$(python_version)
 
         - bash: bash <(curl -s https://codecov.io/bash)

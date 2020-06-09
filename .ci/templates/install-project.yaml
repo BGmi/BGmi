@@ -4,4 +4,4 @@ parameters:
 steps:
   - template: python/install-poetry-project.yaml@trim21
     parameters:
-      python_version: '${{ parameters.python_version }}'
+      python_version: ${{ parameters.python_version }}

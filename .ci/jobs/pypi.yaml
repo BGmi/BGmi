@@ -2,9 +2,9 @@ jobs:
   - template: /.ci/templates/job.yaml
     parameters:
       name: pypi
-      pythonVersions: ["3.7"]
+      pythonVersions: ['3.7']
       images:
-        - "ubuntu"
+        - ubuntu
       steps:
         - script: poetry build
         - script: |
