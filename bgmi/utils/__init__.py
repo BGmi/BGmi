@@ -37,6 +37,8 @@ try:
 except OSError:
     logging.basicConfig(stream=sys.stdout, level=logging.getLevelName(log_level))
 
+urllib3.disable_warnings()
+
 
 def log_utils_function(func):
     @functools.wraps(func)
@@ -52,32 +54,6 @@ def log_utils_function(func):
 
     return echo_func
 
-
-urllib3.disable_warnings()
-
-# monkey patch for dev
-if os.environ.get("DEV", False):  # pragma: no cover
-
-    def replace_url(url):
-        if url.startswith("https://"):
-            url = url.replace("https://", "http://localhost:8092/https/")
-        elif url.startswith("http://"):
-            url = url.replace("http://", "http://localhost:8092/http/")
-        return url
-
-    from requests import request
-
-    def get(url, params=None, **kwargs):
-        url = replace_url(url)
-        kwargs.setdefault("allow_redirects", True)
-        return request("get", url, params=params, **kwargs)
-
-    def post(url, data=None, json=None, **kwargs):
-        url = replace_url(url)
-        return request("post", url, data=data, json=json, **kwargs)
-
-    requests.get = get
-    requests.post = post
 
 if (
     sys.platform.startswith("win")

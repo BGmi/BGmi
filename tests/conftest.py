@@ -7,6 +7,11 @@ import pytest
 import requests_cache
 
 from bgmi.config import IS_WINDOWS
+from bgmi.lib.models import recreate_source_relatively_table
+
+
+def pytest_addoption(parser):
+    parser.addoption("--cache-requests", action="store_true")
 
 
 def pytest_sessionstart(session):
@@ -15,9 +20,12 @@ def pytest_sessionstart(session):
     before performing collection and entering the run test loop.
     """
     "session start"
-    requests_cache.install_cache(
-        os.path.join(tempfile.gettempdir(), "requests.cache"), backend="sqlite",
-    )
+    if session.config.getoption("--cache-requests"):
+        requests_cache.install_cache(
+            os.path.join(tempfile.gettempdir(), "requests.cache"),
+            backend="sqlite",
+            allowable_methods=("GET", "POST"),
+        )
 
     if IS_WINDOWS:
         if sys.version_info[1] >= 8:
@@ -31,3 +39,10 @@ def data_source_bangumi_name():
         "mikan_project": ["名侦探柯南", "海贼王"],
         "dmhy": ["名偵探柯南", "海賊王"],
     }
+
+
+@pytest.fixture()
+def clean_bgmi():
+    recreate_source_relatively_table()
+    yield
+    recreate_source_relatively_table()

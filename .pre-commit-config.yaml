@@ -1,11 +1,11 @@
 repos:
   - repo: https://github.com/Trim21/pre-commit-hooks
-    rev: refs/tags/v0.0.1
+    rev: c37e29c1e823c5ce25cac879a0aa7fd63d387c25  # frozen: v0.0.1
     hooks:
       - id: yamlfmt
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.0.0
+    rev: ebc15addedad713c86ef18ae9632c88e187dd0af  # frozen: v3.1.0
     hooks:
       - id: check-merge-conflict
         exclude: \.rst$
@@ -30,18 +30,18 @@ repos:
         args: [--remove]
 
   - repo: https://github.com/Trim21/find-trailing-comma
-    rev: v0.0.1
+    rev: 6f7daa24655f33876ae870aa8ad808639693d775  # frozen: v0.0.1
     hooks:
       - id: find-trailing-comma
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.4.1
+    rev: 4656fbe8173b927bc215d09db1af0ef739741ad0  # frozen: v2.5.0
     hooks:
       - id: pyupgrade
         args: [--py3-plus]
 
   - repo: https://github.com/Trim21/mirrors-autoflake
-    rev: v1.3.1
+    rev: b8c878d1121dc5160be52479e8d0790fc116fb6a  # frozen: v1.3.1
     hooks:
       - id: autoflake
         args:
@@ -52,7 +52,7 @@ repos:
         require_serial: true
 
   - repo: https://github.com/timothycrosley/isort
-    rev: 4.3.21-2
+    rev: cd9c2f6e70196bd429d0179635e0fac2d034ac5e  # frozen: 4.3.21-2
     hooks:
       - id: isort
         args:

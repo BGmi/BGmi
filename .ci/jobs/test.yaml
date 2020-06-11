@@ -8,7 +8,7 @@ jobs:
             coverage run -a -m bgmi.main install
             bgmi -h
             cp tests/test_script.py $BGMI_PATH/scripts/test_script.py
-            coverage run -a -m pytest tests
+            coverage run -a -m pytest tests --cache-requests
           env:
             DEBUG: mikan,dump
             BGMI_PATH: $(Pipeline.Workspace)/.bgmi
@@ -19,4 +19,11 @@ jobs:
             pathToPublish: $(Pipeline.Workspace)/.bgmi/tmp
             artifactName: tmp-$(platform)-$(python_version)
 
-        - bash: bash <(curl -s https://codecov.io/bash)
+        - bash: |
+            export BUILD_SOURCEBRANCHNAME=${BRANCH#"refs/heads/"} # fix azure branch source name
+            bash <(curl -s https://codecov.io/bash) -Z -F "py${PYV/./}" -F "${PLATFORM}" -C $(Build.SourceVersion)
+          name: Codecov
+          env:
+            PYV: $(python_version)
+            BRANCH: $(Build.SourceBranch)
+            PLATFORM: $(platform)

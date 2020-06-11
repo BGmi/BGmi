@@ -23,9 +23,6 @@ COVER_URL = "https://bangumi.moe/"
 
 
 def get_response(url, method="GET", **kwargs):
-    # kwargs['proxies'] = {'http': "http://localhost:1080"}
-    if os.environ.get("DEV"):  # pragma: no cover
-        url = url.replace("https://", "http://localhost:8092/https/")
     if os.environ.get("DEBUG"):  # pragma: no cover
         print_info("Request URL: {}".format(url))
     try:

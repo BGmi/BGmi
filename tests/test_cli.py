@@ -1,19 +1,12 @@
 import pytest
 
-from bgmi.lib.models import Followed, recreate_source_relatively_table
+from bgmi.lib.models import Filter, Followed
 from bgmi.main import main
 
 
 @pytest.fixture()
 def bangumi_names(data_source_bangumi_name):
     return data_source_bangumi_name["bangumi_moe"]
-
-
-@pytest.fixture()
-def clean_bgmi():
-    recreate_source_relatively_table()
-    yield
-    recreate_source_relatively_table()
 
 
 def test_gen_nginx_conf():
@@ -65,6 +58,9 @@ def test_filter(bangumi_names, clean_bgmi):
     name = bangumi_names[0]
     main("add {} --episode 0".format(name).split())
     main(["filter", name, "--subtitle", "", "--exclude", "MKV", "--regex", "720p|720P"])
+    f = Filter.get(bangumi_name=name, exclude="MKV", regex="720p|720P")
+    assert not f.include
+    assert not f.subtitle
 
 
 def test_fetch(bangumi_names, clean_bgmi):
