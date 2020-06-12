@@ -8,11 +8,23 @@ from typing import List
 import bs4
 import requests
 from bs4 import BeautifulSoup
+from requests.adapters import HTTPAdapter, Retry
 
 from bgmi.config import MAX_PAGE, TMP_PATH
 from bgmi.website.base import BaseWebsite
 
 _DEBUG = "mikan" in os.environ.get("DEBUG", "").lower()
+_DUMP = _DEBUG and "dump" in os.environ.get("DEBUG", "").lower()
+
+_session = requests.Session()
+_session.mount(
+    "https://",
+    HTTPAdapter(
+        max_retries=Retry(
+            total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
+        )
+    ),
+)
 
 week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 server_root = "https://mikanani.me/"
@@ -33,8 +45,8 @@ def get_weekly_bangumi():
     """
     network
     """
-    r = requests.get(server_root)
-    soup = bs4.BeautifulSoup(r.text, "html.parser")
+    r = get_text(server_root)
+    soup = bs4.BeautifulSoup(r, "html.parser")
     for day_of_week in [x for x in range(0, 9) if x != 7]:
         d = soup.find(
             "div", attrs={"class": "sk-bangumi", "data-dayofweek": str(day_of_week)}
@@ -65,10 +77,12 @@ def parser_day_bangumi(soup):
     return li
 
 
-def get_text(url):
+def get_text(url, params=None):
     if _DEBUG:  # pragma: no cover
         print(url)
-    r = requests.get(url).text
+    res = _session.get(url, params=params)
+    res.raise_for_status()
+    r = res.text
     if _DEBUG:  # pragma: no cover
         print(r)
     return r
@@ -162,9 +176,7 @@ class Mikanani(BaseWebsite):
         """
 
         result = []
-        r = requests.get(
-            server_root + "Home/Search", params={"searchstr": keyword}
-        ).text
+        r = get_text(server_root + "Home/Search", params={"searchstr": keyword})
         s = BeautifulSoup(r, "html.parser")
         td_list = s.find_all("tr", attrs={"class": "js-search-results-row"})
         for tr in td_list:
@@ -305,7 +317,7 @@ class Mikanani(BaseWebsite):
                 info.update(self.parse_bangumi_details_page(html))
                 return info
             except AttributeError:
-                if _DEBUG and "dump" in os.environ.get("DEBUG", "").lower():
+                if _DUMP:
                     try:
                         os.makedirs(os.path.join(TMP_PATH, "mikan"))
                     except OSError:

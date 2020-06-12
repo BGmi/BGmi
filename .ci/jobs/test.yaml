@@ -23,7 +23,7 @@ jobs:
           condition: always()
           inputs:
             pathToPublish: $(Pipeline.Workspace)/.bgmi/tmp
-            artifactName: tmp-$(platform)-$(python_version)
+            artifactName: dump-$(platform)-$(python_version)
 
         - bash: |
             export BUILD_SOURCEBRANCHNAME=${BRANCH#"refs/heads/"} # fix azure branch source name
