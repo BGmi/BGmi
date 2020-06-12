@@ -2,6 +2,9 @@ import argparse
 import os
 import signal
 
+import requests
+import requests.adapters
+
 from bgmi.config import BGMI_PATH
 from bgmi.lib.cli import controllers
 from bgmi.lib.constants import ACTION_COMPLETE, actions_and_arguments
@@ -27,6 +30,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 # main function
 def main(argv=None):
+    patch_requests()
     setup()
     c = argparse.ArgumentParser()
 
@@ -83,6 +87,12 @@ def setup():
     init_db()
     if need_to_init:
         install_crontab()
+
+
+def patch_requests():
+    requests.adapters.DEFAULT_RETRIES = requests.adapters.Retry(
+        total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
+    )
 
 
 if __name__ == "__main__":

@@ -8,23 +8,12 @@ from typing import List
 import bs4
 import requests
 from bs4 import BeautifulSoup
-from requests.adapters import HTTPAdapter, Retry
 
 from bgmi.config import MAX_PAGE, TMP_PATH
 from bgmi.website.base import BaseWebsite
 
 _DEBUG = "mikan" in os.environ.get("DEBUG", "").lower()
 _DUMP = _DEBUG and "dump" in os.environ.get("DEBUG", "").lower()
-
-_session = requests.Session()
-_session.mount(
-    "https://",
-    HTTPAdapter(
-        max_retries=Retry(
-            total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
-        )
-    ),
-)
 
 week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 server_root = "https://mikanani.me/"
@@ -80,7 +69,7 @@ def parser_day_bangumi(soup):
 def get_text(url, params=None):
     if _DEBUG:  # pragma: no cover
         print(url)
-    res = _session.get(url, params=params)
+    res = requests.get(url, params=params)
     res.raise_for_status()
     r = res.text
     if _DEBUG:  # pragma: no cover
