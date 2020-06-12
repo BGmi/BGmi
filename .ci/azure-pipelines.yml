@@ -5,9 +5,20 @@ trigger:
       - '*'
     exclude:
       - renovate/*
+
   tags:
     include:
       - '*'
+
+  paths:
+    include:
+      - /
+    exclude:
+      - CHANGELOG.md
+      - README.*
+      - LICENSE
+      - images/*
+      - .github/*
 
 schedules:
   - cron: 0 0 * * 1
