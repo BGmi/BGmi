@@ -8,6 +8,7 @@ import requests_cache
 
 from bgmi.config import IS_WINDOWS
 from bgmi.lib.models import recreate_source_relatively_table
+from bgmi.main import patch_requests
 
 
 def pytest_addoption(parser):
@@ -26,7 +27,7 @@ def pytest_sessionstart(session):
             backend="sqlite",
             allowable_methods=("GET", "POST"),
         )
-
+    patch_requests()
     if IS_WINDOWS:
         if sys.version_info[1] >= 8:
             asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())

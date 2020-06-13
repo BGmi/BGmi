@@ -10,7 +10,7 @@ jobs:
             cp tests/test_script.py $BGMI_PATH/scripts/test_script.py
             coverage run -a -m pytest tests --cache-requests --junitxml tmp/junit/test_report.xml
           env:
-            DEBUG: mikan,dump
+            DEBUG: mikan-dump
             BGMI_PATH: $(Pipeline.Workspace)/.bgmi
 
         - task: PublishTestResults@2
