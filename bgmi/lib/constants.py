@@ -386,3 +386,6 @@ actions_and_arguments = [
     {"action": "upgrade", "help": "Check update."},
     {"action": "history", "help": "List your history of following bangumi"},
 ]
+
+
+BANGUMI_UPDATE_TIME = ("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Unknown")

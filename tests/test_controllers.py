@@ -1,5 +1,6 @@
 import unittest
 
+from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.lib.controllers import (
     Bangumi,
     add,
@@ -21,7 +22,7 @@ class ControllersTest(unittest.TestCase):
         r = cal()
         self.assertIsInstance(r, dict)
         for day in r.keys():
-            self.assertIn(day.lower(), [x.lower() for x in Bangumi.week])
+            self.assertIn(day.lower(), [x.lower() for x in BANGUMI_UPDATE_TIME])
             self.assertIsInstance(r[day], list)
             for bangumi in r[day]:
                 self.assertIn("status", bangumi)

@@ -7,9 +7,7 @@ from peewee import FixedCharField, IntegerField, TextField
 from playhouse.shortcuts import model_to_dict
 
 import bgmi.config
-
-# from typing import List
-
+from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 
 # bangumi status
 STATUS_UPDATING = 0
@@ -50,13 +48,11 @@ class Bangumi(NeoDB):
     cover = TextField()
     status = IntegerField(default=0)
 
-    week = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-
     def __init__(self, **kwargs):
         super(NeoDB, self).__init__(**kwargs)
 
         update_time = kwargs.get("update_time", "").title()
-        if update_time and update_time not in self.week:
+        if update_time and update_time not in BANGUMI_UPDATE_TIME:
             raise ValueError("unexpected update time %s" % update_time)
         self.update_time = update_time
         if isinstance(kwargs.get("subtitle_group"), list):

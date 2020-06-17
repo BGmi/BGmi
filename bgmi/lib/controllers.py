@@ -1,7 +1,7 @@
 import time
 
 from bgmi.config import MAX_PAGE, write_config
-from bgmi.lib.constants import SUPPORT_WEBSITE
+from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SUPPORT_WEBSITE
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
 from bgmi.lib.models import (
@@ -485,7 +485,7 @@ def status_(name, status=STATUS_DELETED):
 
 def list_():
     result = {}
-    weekday_order = Bangumi.week
+    weekday_order = BANGUMI_UPDATE_TIME
     followed_bangumi = website.followed_bangumi()
 
     script_bangumi = ScriptRunner().get_models_dict()

@@ -5,7 +5,7 @@ import time
 import requests
 
 from bgmi.config import BANGUMI_MOE_URL, LANG, MAX_PAGE
-from bgmi.lib.models import Bangumi
+from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.utils import bug_report, print_error, print_info, print_warning
 from bgmi.website.base import BaseWebsite
 
@@ -66,6 +66,7 @@ def parser_bangumi(data):
 
     weekly_list = []
     subtitle_group_list = []
+    bangumi_update_time_known = BANGUMI_UPDATE_TIME[:-1]
     for bangumi_item in data:
         subtitle_of_bangumi = process_subtitle(subtitle.get(bangumi_item["tag_id"], []))
         item = {
@@ -73,7 +74,7 @@ def parser_bangumi(data):
             "subtitle_group": list(subtitle_of_bangumi.keys()),
             "name": name[bangumi_item["tag_id"]],
             "keyword": bangumi_item["tag_id"],
-            "update_time": Bangumi.week[bangumi_item["showOn"] - 1],
+            "update_time": bangumi_update_time_known[bangumi_item["showOn"] - 1],
             "cover": bangumi_item["cover"],
         }
 

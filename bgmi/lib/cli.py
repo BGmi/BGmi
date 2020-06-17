@@ -25,6 +25,7 @@ from bgmi.lib.constants import (
     ACTION_SOURCE,
     ACTION_UPDATE,
     ACTIONS,
+    BANGUMI_UPDATE_TIME,
     DOWNLOAD_CHOICE_LIST_DICT,
     SPACIAL_APPEND_CHARS,
     SPACIAL_REMOVE_CHARS,
@@ -148,10 +149,13 @@ def cal_wrapper(ret):
         n %= len(seq)
         return seq[n:] + seq[:n]
 
+    order_without_unknown = BANGUMI_UPDATE_TIME[:-1]
     if today:
-        weekday_order = (Bangumi.week[datetime.datetime.today().weekday()],)
+        weekday_order = (order_without_unknown[datetime.datetime.today().weekday()],)
     else:
-        weekday_order = shift(Bangumi.week, datetime.datetime.today().weekday())
+        weekday_order = shift(
+            order_without_unknown, datetime.datetime.today().weekday()
+        )
 
     col = max(
         wcwidth.wcswidth(bangumi["name"])
@@ -171,7 +175,7 @@ def cal_wrapper(ret):
         split = "-" * num + "   "
         print(split * row)
 
-    for index, weekday in enumerate(weekday_order):
+    for index, weekday in enumerate(weekday_order + ("Unknown",)):
         if weekly_list[weekday.lower()]:
             print(
                 "{}{}. {}".format(

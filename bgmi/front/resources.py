@@ -7,7 +7,8 @@ from tornado.web import HTTPError
 
 from bgmi.config import SAVE_PATH
 from bgmi.front.base import BaseHandler
-from bgmi.lib.models import Bangumi, Download, Followed
+from bgmi.lib.constants import BANGUMI_UPDATE_TIME
+from bgmi.lib.models import Download, Followed
 
 
 class BangumiHandler(BaseHandler):
@@ -58,7 +59,7 @@ class CalendarHandler(BaseHandler):
 
             bangumi = defaultdict(list)
             [
-                bangumi[Bangumi.week.index(i["update_time"]) + 1].append(
+                bangumi[BANGUMI_UPDATE_TIME.index(i["update_time"]) + 1].append(
                     i["bangumi_name"]
                 )
                 for i in data

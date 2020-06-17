@@ -1,7 +1,10 @@
+from unittest import mock
+
 import pytest
 
-from bgmi.lib.models import Filter, Followed
+from bgmi.lib.models import Bangumi, Filter, Followed
 from bgmi.main import main
+from bgmi.website.bangumi_moe import BangumiMoe
 
 
 @pytest.fixture()
@@ -13,8 +16,18 @@ def test_gen_nginx_conf():
     main("gen nginx.conf --server-name _".split())
 
 
-def test_cal_force_update():
-    main("cal -f".split())
+def test_cal_force_update(clean_bgmi):
+    class MockWebsite(BangumiMoe):
+        def fetch_bangumi_calendar_and_subtitle_group(self):
+            bangumi, group = BangumiMoe().fetch_bangumi_calendar_and_subtitle_group()
+            bangumi[0]["update_time"] = "Unknown"
+            return bangumi, group
+
+    with mock.patch("bgmi.lib.cli.website", MockWebsite()):
+        main("cal -f".split())
+        assert [
+            x.name for x in Bangumi.select().where(Bangumi.update_time == "Unknown")
+        ], "at least 1 bangumi's update_time is 'Unknown'"
 
 
 def test_cal_config():
