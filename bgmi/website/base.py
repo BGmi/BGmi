@@ -46,15 +46,15 @@ class BaseWebsite:
             if data.cover and b.cover != data.cover:
                 b.cover = data.cover
                 should_save = True
+            if data.update_time != "Unknown" and data.update_time != b.update_time:
+                b.update_time = data.update_time
+                should_save = True
+
             subtitle_group = Bangumi(subtitle_group=data.subtitle_group).subtitle_group
-            if (
-                b.status != STATUS_UPDATING
-                or b.subtitle_group != subtitle_group
-                or b.update_time != data.update_time
-            ):
+
+            if b.status != STATUS_UPDATING or b.subtitle_group != subtitle_group:
                 b.status = STATUS_UPDATING
                 b.subtitle_group = subtitle_group
-                b.update_time = data.update_time
                 should_save = True
 
             if should_save:
