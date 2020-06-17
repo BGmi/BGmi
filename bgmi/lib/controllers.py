@@ -1,7 +1,5 @@
 import time
 
-import attr
-
 from bgmi.config import MAX_PAGE, write_config
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SUPPORT_WEBSITE
 from bgmi.lib.download import download_prepare
@@ -71,7 +69,7 @@ def add(name, episode=None):
 
     info = website.fetch_single_bangumi(bangumi_obj.keyword)
     if info.episodes:
-        website.save_bangumi(attr.asdict(info))
+        website.save_bangumi(info)
         followed_obj.episode = info.max_episode
     else:
         bangumi_data, _ = website.get_maximum_episode(
@@ -424,6 +422,10 @@ def update(name, download=None, not_ignore=False):
                 exit_=False,
             )
             continue
+
+        info = website.fetch_single_bangumi(bangumi_obj.keyword)
+        if info.episodes:
+            website.save_bangumi(info)
 
         episode, all_episode_data = website.get_maximum_episode(
             bangumi=bangumi_obj, ignore_old_row=ignore, max_page=1
