@@ -501,7 +501,7 @@ python-versions = ">= 3.5"
 version = "6.0.4"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Python module that implements the Transmission bittorent client RPC protocol."
 name = "transmissionrpc"
 optional = false
@@ -577,7 +577,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "61ccc7f207ba82f2d899db00b00b3b80d210e141f1d5ad9701542636213d4ae0"
+content-hash = "f4218a06933c0b331e6beccff0b91edc260465b4f96a41e36e3747e0277cddfe"
 python-versions = "^3.5"
 
 [metadata.files]

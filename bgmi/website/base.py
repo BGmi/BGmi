@@ -46,6 +46,7 @@ class BaseWebsite:
             if data.cover and b.cover != data.cover:
                 b.cover = data.cover
                 should_save = True
+
             if data.update_time != "Unknown" and data.update_time != b.update_time:
                 b.update_time = data.update_time
                 should_save = True
