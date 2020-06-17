@@ -8,6 +8,7 @@ from bgmi.config import BANGUMI_MOE_URL, LANG, MAX_PAGE
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.utils import bug_report, print_error, print_info, print_warning
 from bgmi.website.base import BaseWebsite
+from bgmi.website.model import SubtitleGroup, WebsiteBangumi
 
 # tag of bangumi on bangumi.moe
 BANGUMI_TAG = "549ef207fe682f7549f1ea90"
@@ -65,13 +66,15 @@ def parser_bangumi(data):
     name = process_name(get_response(NAME_URL, "POST", json={"_ids": ids}))
 
     weekly_list = []
-    subtitle_group_list = []
     bangumi_update_time_known = BANGUMI_UPDATE_TIME[:-1]
     for bangumi_item in data:
         subtitle_of_bangumi = process_subtitle(subtitle.get(bangumi_item["tag_id"], []))
         item = {
             "status": 0,
-            "subtitle_group": list(subtitle_of_bangumi.keys()),
+            "subtitle_group": [
+                SubtitleGroup(id=id, name=name)
+                for id, name in subtitle_of_bangumi.items()
+            ],
             "name": name[bangumi_item["tag_id"]],
             "keyword": bangumi_item["tag_id"],
             "update_time": bangumi_update_time_known[bangumi_item["showOn"] - 1],
@@ -81,14 +84,11 @@ def parser_bangumi(data):
         if item["name"] is None:
             item["name"] = bangumi_item["name"]
 
-        for key, value in subtitle_of_bangumi.items():
-            subtitle_group_list.append({"id": key, "name": value})
-
         weekly_list.append(item)
 
     if not weekly_list:
         bug_report()
-    return weekly_list, subtitle_group_list
+    return weekly_list
 
 
 class BangumiMoe(BaseWebsite):
@@ -138,12 +138,12 @@ class BangumiMoe(BaseWebsite):
 
         return ret
 
-    def fetch_bangumi_calendar_and_subtitle_group(self):
+    def fetch_bangumi_calendar(self):
         response = get_response(FETCH_URL)
         if not response:
             return []
-        bangumi_result, subtitile_result = parser_bangumi(response)
-        return bangumi_result, subtitile_result
+        bangumi_result = parser_bangumi(response)
+        return [WebsiteBangumi(**x) for x in bangumi_result]
 
     def search_by_keyword(self, keyword, count=None):
         if not count:
@@ -154,31 +154,32 @@ class BangumiMoe(BaseWebsite):
 
         for i in range(count):
             data = get_response(SEARCH_URL, "POST", json={"query": keyword, "p": i + 1})
-            if not "torrents" in data:
+            if "torrents" not in data:
                 print_warning("No torrents in response data, please re-run")
                 return []
             rows.extend(data["torrents"])
 
         for info in rows:
-            if True:
-                result.append(
-                    {
-                        "download": TORRENT_URL + info["_id"] + "/download.torrent",
-                        "name": keyword,
-                        "subtitle_group": info["team_id"],
-                        "title": info["title"],
-                        "episode": self.parse_episode(info["title"]),
-                        "time": int(
-                            time.mktime(
-                                datetime.datetime.strptime(
-                                    info["publish_time"].split(".")[0],
-                                    "%Y-%m-%dT%H:%M:%S",
-                                ).timetuple()
-                            )
-                        ),
-                    }
-                )
+            result.append(
+                {
+                    "download": TORRENT_URL + info["_id"] + "/download.torrent",
+                    "name": keyword,
+                    "subtitle_group": info["team_id"],
+                    "title": info["title"],
+                    "episode": self.parse_episode(info["title"]),
+                    "time": int(
+                        time.mktime(
+                            datetime.datetime.strptime(
+                                info["publish_time"].split(".")[0], "%Y-%m-%dT%H:%M:%S",
+                            ).timetuple()
+                        )
+                    ),
+                }
+            )
 
         # Avoid bangumi collection. It's ok but it will waste your traffic and bandwidth.
         result = result[::-1]
         return result
+
+    def fetch_single_bangumi(self, bangumi_id) -> WebsiteBangumi:
+        return WebsiteBangumi(keyword=bangumi_id)

@@ -56,7 +56,15 @@ class Bangumi(NeoDB):
             raise ValueError("unexpected update time %s" % update_time)
         self.update_time = update_time
         if isinstance(kwargs.get("subtitle_group"), list):
-            self.subtitle_group = ", ".join(kwargs.get("subtitle_group", []))
+            s = []
+            for sub in kwargs["subtitle_group"]:
+                if isinstance(sub, str):
+                    s.append(sub)
+                elif isinstance(sub, dict):
+                    s.append(sub["id"])
+                else:
+                    s.append(sub.id)
+            self.subtitle_group = ", ".join(sorted(s))
 
     @classmethod
     def delete_all(cls):
@@ -109,7 +117,7 @@ class Bangumi(NeoDB):
         return weekly_list
 
     @classmethod
-    def fuzzy_get(cls, **filters):
+    def fuzzy_get(cls, **filters) -> "Bangumi":
         fuzzy_q = []
         raw_q = []
         for key, value in filters.items():

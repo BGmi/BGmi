@@ -4,6 +4,9 @@ import re
 import time
 from collections import defaultdict
 from itertools import chain
+from typing import List
+
+import attr
 
 from bgmi.config import ENABLE_GLOBAL_FILTER, GLOBAL_FILTER, MAX_PAGE
 from bgmi.lib.models import (
@@ -22,65 +25,66 @@ from bgmi.utils import (
     print_warning,
     test_connection,
 )
+from bgmi.website.model import WebsiteBangumi
 
 
 class BaseWebsite:
-    cover_url = ""
     parse_episode = staticmethod(parse_episode)
 
     @staticmethod
-    def save_data(data):
+    def save_bangumi(data: WebsiteBangumi):
         """
         save bangumi dict to database
 
         :type data: dict
         """
-        b, obj_created = Bangumi.get_or_create(name=data["name"], defaults=data)
+        b, obj_created = Bangumi.get_or_create(
+            keyword=data.keyword, defaults=attr.asdict(data)
+        )
         if not obj_created:
+            should_save = False
+            if data.cover and b.cover != data.cover:
+                b.cover = data.cover
+                should_save = True
+            subtitle_group = Bangumi(subtitle_group=data.subtitle_group).subtitle_group
             if (
                 b.status != STATUS_UPDATING
-                or b.subtitle_group != Bangumi(**data).subtitle_group
-                or b.cover != data["cover"]
-                or b.update_time != data["update_time"]
+                or b.subtitle_group != subtitle_group
+                or b.update_time != data.update_time
             ):
                 b.status = STATUS_UPDATING
-                b.subtitle_group = Bangumi(**data).subtitle_group
-                b.cover = data["cover"]
-                b.update_time = data["update_time"]
+                b.subtitle_group = subtitle_group
+                b.update_time = data.update_time
+                should_save = True
+
+            if should_save:
                 b.save()
 
+        for subtitle_group in data.subtitle_group:
+            (
+                Subtitle.insert(
+                    {
+                        Subtitle.id: str(subtitle_group.id),
+                        Subtitle.name: str(subtitle_group.name),
+                    }
+                ).on_conflict_replace()
+            ).execute()
+
     def fetch(self, save=False, group_by_weekday=True):
-        (
-            bangumi_result,
-            subtitle_group_result,
-        ) = self.fetch_bangumi_calendar_and_subtitle_group()
-        Bangumi.delete_all()
-        if subtitle_group_result:
-            for subtitle_group in subtitle_group_result:
-                (
-                    Subtitle.insert(
-                        {
-                            Subtitle.id: str(subtitle_group["id"]),
-                            Subtitle.name: str(subtitle_group["name"]),
-                        }
-                    ).on_conflict_replace()
-                ).execute()
+        bangumi_result = self.fetch_bangumi_calendar()
         if not bangumi_result:
-            print("no result return None")
+            print("can't fetch anything from website")
             return []
-
-        for bangumi in bangumi_result:
-            bangumi["cover"] = self.cover_url + bangumi["cover"]
-
+        Bangumi.delete_all()
         if save:
             for bangumi in bangumi_result:
-                self.save_data(bangumi)
+                self.save_bangumi(bangumi)
 
         if group_by_weekday:
             result_group_by_weekday = defaultdict(list)
             for bangumi in bangumi_result:
-                result_group_by_weekday[bangumi["update_time"].lower()].append(bangumi)
-            bangumi_result = result_group_by_weekday
+                result_group_by_weekday[bangumi.update_time.lower()].append(bangumi)
+            return result_group_by_weekday
         return bangumi_result
 
     @staticmethod
@@ -124,21 +128,18 @@ class BaseWebsite:
         if force_update:
             print_info("Fetching bangumi info ...")
             self.fetch(save=save)
-        weekly_list = Bangumi.get_updating_bangumi()
 
-        if not weekly_list:
-            print_warning("Warning: no bangumi schedule, fetching ...")
-            weekly_list = self.fetch(save=save)
+        weekly_list = self.fetch(save=save)
 
         if cover is not None:
             # download cover to local
             cover_to_be_download = cover
             for daily_bangumi in weekly_list.values():
                 for bangumi in daily_bangumi:
-                    _, file_path = convert_cover_url_to_path(bangumi["cover"])
+                    _, file_path = convert_cover_url_to_path(bangumi.cover)
 
-                    if not (os.path.exists(file_path) and imghdr.what(file_path)):
-                        cover_to_be_download.append(bangumi["cover"])
+                    if not (os.path.exists(file_path) and bool(imghdr.what(file_path))):
+                        cover_to_be_download.append(bangumi.cover)
 
             if cover_to_be_download:
                 print_info("Updating cover ...")
@@ -347,43 +348,12 @@ class BaseWebsite:
         """
         raise NotImplementedError
 
-    def fetch_bangumi_calendar_and_subtitle_group(self):  # pragma: no cover
+    def fetch_bangumi_calendar(self,) -> List[WebsiteBangumi]:  # pragma: no cover
         """
         return a list of all bangumi and a list of all subtitle group
 
         list of bangumi dict:
-        update time should be one of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-        example:
-        ```
-            [
-                {
-                    "status": 0,
-                    "subtitle_group": [
-                        "123",
-                        "456"
-                    ],
-                    "name": "名侦探柯南",
-                    "keyword": "1234", #bangumi id
-                    "update_time": "Sat",
-                    "cover": "data/images/cover1.jpg"
-                },
-            ]
-        ```
-
-        list of subtitle group dict:
-        example:
-        ```
-            [
-                {
-                    'id': '233',
-                    'name': 'bgmi字幕组'
-                }
-            ]
-        ```
-
-
-        :return: list of bangumi, list of subtitile group
-        :rtype: (list[dict], list[dict])
+        update time should be one of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Unknown']
         """
         raise NotImplementedError
 
@@ -412,5 +382,15 @@ class BaseWebsite:
         :type max_page: int
         :return: list of bangumi
         :rtype: list[dict]
+        """
+        raise NotImplementedError
+
+    def fetch_single_bangumi(self, bangumi_id) -> WebsiteBangumi:
+        """
+        fetch bangumi info when updating
+
+        :param bangumi_id: banugmi_id, or bangumi['keyword']
+        :type bangumi_id: str
+        :rtype: WebsiteBangumi
         """
         raise NotImplementedError

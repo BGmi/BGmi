@@ -1,5 +1,7 @@
 import time
 
+import attr
+
 from bgmi.config import MAX_PAGE, write_config
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SUPPORT_WEBSITE
 from bgmi.lib.download import download_prepare
@@ -67,10 +69,16 @@ def add(name, episode=None):
 
     Filter.get_or_create(bangumi_name=name)
 
-    bangumi_data, _ = website.get_maximum_episode(
-        bangumi_obj, subtitle=False, max_page=MAX_PAGE
-    )
-    followed_obj.episode = bangumi_data["episode"] if episode is None else episode
+    info = website.fetch_single_bangumi(bangumi_obj.keyword)
+    if info.episodes:
+        website.save_bangumi(attr.asdict(info))
+        followed_obj.episode = info.max_episode
+    else:
+        bangumi_data, _ = website.get_maximum_episode(
+            bangumi_obj, subtitle=False, max_page=MAX_PAGE
+        )
+        followed_obj.episode = bangumi_data["episode"] if episode is None else episode
+
     followed_obj.save()
     result = {
         "status": "success",
@@ -189,9 +197,17 @@ def delete(name="", clear_all=False, batch=False):
     return result
 
 
-def cal(force_update=False, save=False):
+def cal(force_update=False, save=False, cover=None):
     logger.debug("cal force_update: {} save: {}".format(force_update, save))
-    weekly_list = website.bangumi_calendar(force_update=force_update, save=save)
+
+    weekly_list = Bangumi.get_updating_bangumi()
+    if not weekly_list:
+        print_warning("Warning: no bangumi schedule, fetching ...")
+        force_update = True
+    website.bangumi_calendar(force_update=force_update, save=save, cover=cover)
+
+    weekly_list = Bangumi.get_updating_bangumi()
+
     runner = ScriptRunner()
     patch_list = runner.get_models_dict()
     for i in patch_list:
@@ -203,22 +219,14 @@ def cal(force_update=False, save=False):
     for day, value in weekly_list.items():
         for index, bangumi in enumerate(value):
             bangumi["cover"] = normalize_path(bangumi["cover"])
-            if isinstance(bangumi["subtitle_group"], list):
-                subtitle_group = list(
-                    map(
-                        lambda x: {"name": x["name"], "id": x["id"]},
-                        Subtitle.get_subtitle_by_id(bangumi["subtitle_group"]),
-                    )
+            subtitle_group = list(
+                map(
+                    lambda x: {"name": x["name"], "id": x["id"]},
+                    Subtitle.get_subtitle_by_id(
+                        bangumi["subtitle_group"].split(", " "")
+                    ),
                 )
-            else:
-                subtitle_group = list(
-                    map(
-                        lambda x: {"name": x["name"], "id": x["id"]},
-                        Subtitle.get_subtitle_by_id(
-                            bangumi["subtitle_group"].split(", " "")
-                        ),
-                    )
-                )
+            )
 
             r[day][index]["subtitle_group"] = subtitle_group
     logger.debug(r)

@@ -18,12 +18,12 @@ def test_gen_nginx_conf():
 
 def test_cal_force_update(clean_bgmi):
     class MockWebsite(BangumiMoe):
-        def fetch_bangumi_calendar_and_subtitle_group(self):
-            bangumi, group = BangumiMoe().fetch_bangumi_calendar_and_subtitle_group()
-            bangumi[0]["update_time"] = "Unknown"
-            return bangumi, group
+        def fetch_bangumi_calendar(self):
+            bangumi = BangumiMoe().fetch_bangumi_calendar()
+            bangumi[0].update_time = "Unknown"
+            return bangumi
 
-    with mock.patch("bgmi.lib.cli.website", MockWebsite()):
+    with mock.patch("bgmi.lib.controllers.website", MockWebsite()):
         main("cal -f".split())
         assert [
             x.name for x in Bangumi.select().where(Bangumi.update_time == "Unknown")

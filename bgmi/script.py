@@ -3,12 +3,14 @@ import os
 import time
 import traceback
 from importlib.machinery import SourceFileLoader
+from typing import List
 
 from bgmi.config import MAX_PAGE, SCRIPT_PATH
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import DATA_SOURCE_MAP
 from bgmi.lib.models import STATUS_FOLLOWED, STATUS_UPDATED, Scripts
 from bgmi.utils import print_info, print_success, print_warning
+from bgmi.website.model import WebsiteBangumi
 
 
 class ScriptRunner:
@@ -64,7 +66,21 @@ class ScriptRunner:
             if script.Model.bangumi_name == name:
                 return script.Model().obj
 
-    def get_models_dict(self):
+    def get_models(self) -> List[WebsiteBangumi]:
+        m = []
+        for s in self.scripts:
+            d = dict(s.Model())
+            m.append(
+                WebsiteBangumi(
+                    name=d["bangumi_name"],
+                    update_time=d["update_time"],
+                    keyword=d["bangumi_name"],
+                    cover=d["cover"],
+                )
+            )
+        return m
+
+    def get_models_dict(self) -> List[dict]:
         return [
             dict(script.Model())
             for script in self.scripts
@@ -124,6 +140,7 @@ class ScriptRunner:
                 download_prepare(download_queue)
 
         return self.download_queue
+        # return [Episode(**x) for x in self.download_queue]
 
     def get_download_cover(self):
         return [script["cover"] for script in self.get_models_dict()]

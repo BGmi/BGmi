@@ -34,6 +34,7 @@ from bgmi.lib.constants import (
 )
 from bgmi.lib.controllers import (
     add,
+    cal,
     config,
     delete,
     filter_,
@@ -137,13 +138,11 @@ def cal_wrapper(ret):
     else:
         cover = None
 
-    weekly_list = website.bangumi_calendar(
-        force_update=force_update, save=save, cover=cover
-    )
-
-    patch_list = runner.get_models_dict()
-    for i in patch_list:
-        weekly_list[i["update_time"].lower()].append(i)
+    weekly_list = cal(force_update=force_update, save=save, cover=cover)
+    #
+    # patch_list = runner.get_models_dict()
+    # for i in patch_list:
+    #     weekly_list[i["update_time"].lower()].append(i)
 
     def shift(seq, n):
         n %= len(seq)

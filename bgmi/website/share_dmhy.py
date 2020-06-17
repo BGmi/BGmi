@@ -1,7 +1,7 @@
 import os
 import re
 import time as Time
-import urllib
+from typing import List
 
 import requests
 from bs4 import BeautifulSoup
@@ -9,8 +9,7 @@ from bs4 import BeautifulSoup
 from bgmi.config import MAX_PAGE, SHARE_DMHY_URL
 from bgmi.utils import print_error
 from bgmi.website.base import BaseWebsite
-
-unquote = urllib.parse.unquote
+from bgmi.website.model import SubtitleGroup, WebsiteBangumi
 
 base_url = SHARE_DMHY_URL
 
@@ -31,25 +30,19 @@ def fetch_url(url, **kwargs):
     return ret
 
 
-def parse_bangumi_with_week_days(content, update_time, array_name):
+def parse_bangumi_with_week_days(
+    content, update_time, array_name
+) -> List[WebsiteBangumi]:
     r = re.compile(
         array_name + "\\.push\\(\\['(.*?)','(.*?)','(.*?)','(.*?)','(.*?)'\\]\\)"
     )
     ret = r.findall(content)
 
     bangumi_list = []
-    subtitle_list = []
 
     for bangumi_row in ret:
-        bangumi = {
-            "status": 0,
-            "subtitle_group": [],
-            "name": "",
-            "keyword": "",  # bangumi id
-            "update_time": "",
-            "cover": "",
-        }
         (cover_url, name, keyword, subtitle_raw, _) = bangumi_row
+        bangumi = WebsiteBangumi(keyword=keyword)
         cover = re.findall("(/images/.*)$", cover_url)[0]
 
         bs = BeautifulSoup(subtitle_raw, "html.parser")
@@ -63,20 +56,20 @@ def parse_bangumi_with_week_days(content, update_time, array_name):
                 continue
 
             subtitle_group_id = subtitle_group_id_raw[0]
-            # append to subtitle_list
-            subtitle_list.append({"id": subtitle_group_id, "name": subtitle_group_name})
 
-            bangumi["subtitle_group"].append(subtitle_group_id)
+            bangumi.subtitle_group.append(
+                SubtitleGroup(id=subtitle_group_id, name=subtitle_group_name)
+            )
 
-        bangumi["name"] = name
-        bangumi["update_time"] = update_time
-        bangumi["keyword"] = keyword
-        bangumi["cover"] = cover
+        bangumi.name = name
+        bangumi.update_time = update_time
+        bangumi.keyword = keyword
+        bangumi.cover = SHARE_DMHY_URL + cover
 
         # append to bangumi_list
         bangumi_list.append(bangumi)
 
-    return bangumi_list, subtitle_list
+    return bangumi_list
 
 
 def parse_subtitle_list(content):
@@ -111,8 +104,6 @@ def unique_subtitle_list(raw_list):
 
 
 class DmhySource(BaseWebsite):
-    cover_url = SHARE_DMHY_URL
-
     def search_by_keyword(self, keyword, count=None):
         """
         return a list of dict with at least 4 key: download, name, title, episode
@@ -135,7 +126,7 @@ class DmhySource(BaseWebsite):
         :return: list of episode search result
         :rtype: list[dict]
         """
-        if count == None:
+        if count is None:
             count = 3
 
         result = []
@@ -151,7 +142,7 @@ class DmhySource(BaseWebsite):
             bs = BeautifulSoup(r, "html.parser")
 
             table = bs.find("table", {"id": "topic_list"})
-            if table == None:
+            if table is None:
                 break
             tr_list = table.tbody.find_all("tr", {"class": ""})
             for tr in tr_list:
@@ -180,44 +171,7 @@ class DmhySource(BaseWebsite):
 
         return result
 
-    def fetch_bangumi_calendar_and_subtitle_group(self):
-        """
-        return a list of all bangumi and a list of all subtitle group
-
-        list of bangumi dict:
-        update time should be one of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-        example:
-        ```
-            [
-                {
-                    "status": 0,
-                    "subtitle_group": [
-                        "123",
-                        "456"
-                    ],
-                    "name": "名侦探柯南",
-                    "keyword": "1234", #bangumi id
-                    "update_time": "Sat",
-                    "cover": "data/images/cover1.jpg"
-                },
-            ]
-        ```
-
-        list of subtitle group dict:
-        example:
-        ```
-            [
-                {
-                    'id': '233',
-                    'name': 'bgmi字幕组'
-                }
-            ]
-        ```
-
-
-        :return: list of bangumi, list of subtitile group
-        :rtype: (list[dict], list[dict])
-        """
+    def fetch_bangumi_calendar(self):
         week_days_mapping = [
             ("Sun", "sunarray"),
             ("Mon", "monarray"),
@@ -229,31 +183,16 @@ class DmhySource(BaseWebsite):
         ]
 
         bangumi_list = []
-        subtitle_list = []
 
         url = base_url + "/cms/page/name/programme.html"
 
         r = fetch_url(url)
 
         for update_time, array_name in week_days_mapping:
-            (b_list, s_list) = parse_bangumi_with_week_days(r, update_time, array_name)
+            b_list = parse_bangumi_with_week_days(r, update_time, array_name)
             bangumi_list.extend(b_list)
-            subtitle_list.extend(s_list)
 
-        # fetch subtitle
-        url = base_url + "/team/navigate/"
-
-        r = fetch_url(url)
-
-        subtitle_list.extend(parse_subtitle_list(r))
-
-        # unique
-        subtitle_list = unique_subtitle_list(subtitle_list)
-
-        if os.environ.get("DEBUG", False):  # pragma: no cover
-            print(subtitle_list)
-
-        return (bangumi_list, subtitle_list)
+        return bangumi_list
 
     def fetch_episode_of_bangumi(
         self, bangumi_id, subtitle_list=None, max_page=int(MAX_PAGE)
@@ -297,7 +236,7 @@ class DmhySource(BaseWebsite):
             bs = BeautifulSoup(r, "html.parser")
 
             table = bs.find("table", {"id": "topic_list"})
-            if table == None:
+            if table is None:
                 break
             tr_list = table.tbody.find_all("tr", {"class": ""})
             for tr in tr_list:
@@ -320,7 +259,7 @@ class DmhySource(BaseWebsite):
                 for tag in tag_list:
 
                     href = tag.a.get("href")
-                    if href == None:
+                    if href is None:
                         continue
 
                     team_id_raw = re.findall(r"team_id\/(.*)$", href)
@@ -347,3 +286,6 @@ class DmhySource(BaseWebsite):
                 )
 
         return result
+
+    def fetch_single_bangumi(self, bangumi_id) -> WebsiteBangumi:
+        return WebsiteBangumi(keyword=bangumi_id)
