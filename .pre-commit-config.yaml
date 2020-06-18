@@ -80,3 +80,12 @@ repos:
         pass_filenames: false
         require_serial: false
         files: pyproject.toml
+
+      - id: mypy
+        name: mypy
+        entry: mypy
+        require_serial: false
+        language: system
+        types: [python]
+        args: [--no-incremental]
+        files: ^bgmi

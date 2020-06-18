@@ -1,11 +1,10 @@
-import codecs
 import configparser
 import hashlib
-import locale
 import os
 import platform
 import random
-import sys
+import tempfile
+from typing import Any, Dict, Optional
 
 # download delegate
 __wget__ = ("WGET_PATH",)
@@ -59,7 +58,8 @@ __readonly__ = (
 __writeable__ = tuple([i for i in __all__ if i not in __readonly__])
 
 # the real __all__
-__all__ = __all__ + __download_delegate__ + __readonly__
+__all__ = __all__ + __download_delegate__ + __readonly__  # type: ignore
+
 
 DOWNLOAD_DELEGATE_MAP = {
     "rr!": __wget__,
@@ -71,13 +71,15 @@ DOWNLOAD_DELEGATE_MAP = {
 
 if not os.environ.get("BGMI_PATH"):  # pragma: no cover
     if platform.system() == "Windows":
-        BGMI_PATH = os.path.join(os.environ.get("USERPROFILE", None), ".bgmi")
+        BGMI_PATH = os.path.join(
+            os.environ.get("USERPROFILE", tempfile.gettempdir()), ".bgmi"
+        )
         if not BGMI_PATH:
             raise SystemExit
     else:
         BGMI_PATH = os.path.join(os.environ.get("HOME", "/tmp"), ".bgmi")
 else:
-    BGMI_PATH = os.environ.get("BGMI_PATH")
+    BGMI_PATH = os.environ["BGMI_PATH"]
 
 DB_PATH = os.path.join(BGMI_PATH, "bangumi.db")
 CONFIG_FILE_PATH = os.path.join(BGMI_PATH, "bgmi.cfg")
@@ -87,7 +89,7 @@ SCRIPT_PATH = os.path.join(BGMI_PATH, "scripts")
 TOOLS_PATH = os.path.join(BGMI_PATH, "tools")
 
 
-def read_config():
+def read_config() -> None:
     c = configparser.ConfigParser()
     if not os.path.exists(CONFIG_FILE_PATH):
         write_default_config()
@@ -103,10 +105,10 @@ def read_config():
             globals().update({i: c.get(DOWNLOAD_DELEGATE, i)})
 
 
-def print_config():
+def print_config() -> Optional[str]:
     c = configparser.ConfigParser()
     if not os.path.exists(CONFIG_FILE_PATH):
-        return
+        return None
 
     c.read(CONFIG_FILE_PATH)
     string = ""
@@ -120,7 +122,7 @@ def print_config():
     return string
 
 
-def write_default_config():
+def write_default_config() -> None:
     c = configparser.ConfigParser()
     if not c.has_section("bgmi"):
         c.add_section("bgmi")
@@ -149,7 +151,9 @@ def write_default_config():
         print("[-] Error writing to config file and ignored")
 
 
-def write_config(config=None, value=None):
+def write_config(
+    config: Optional[str] = None, value: Optional[str] = None
+) -> Dict[str, Any]:
     if not os.path.exists(CONFIG_FILE_PATH):
         write_default_config()
         return {
@@ -160,13 +164,7 @@ def write_config(config=None, value=None):
 
     c = configparser.ConfigParser()
     c.read(CONFIG_FILE_PATH)
-    if config is not None and config not in __all_writable_now__:
-        result = {
-            "status": "error",
-            "message": "{} does not exist or not writeable".format(config),
-        }
-        # return result
-
+    result = {}  # type: Dict[str, Any]
     try:
         if config is None:
             result = {"status": "info", "message": print_config()}
@@ -192,7 +190,7 @@ def write_config(config=None, value=None):
                     }
                 else:
                     c.set("bgmi", config, value)
-                    with codecs.open(CONFIG_FILE_PATH, "w", "utf-8") as f:
+                    with open(CONFIG_FILE_PATH, "w", encoding="utf-8") as f:
                         c.write(f)
 
                     read_config()
@@ -203,7 +201,7 @@ def write_config(config=None, value=None):
                                 v = globals().get(i, "")
                                 c.set(DOWNLOAD_DELEGATE, i, v)
 
-                            with open(CONFIG_FILE_PATH, "w") as f:
+                            with open(CONFIG_FILE_PATH, "w", encoding="utf-8") as f:
                                 c.write(f)
 
                     result = {
@@ -211,9 +209,9 @@ def write_config(config=None, value=None):
                         "message": "{} has been set to {}".format(config, value),
                     }
 
-            elif config in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE):
+            elif config in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
                 c.set(DOWNLOAD_DELEGATE, config, value)
-                with open(CONFIG_FILE_PATH, "w") as f:
+                with open(CONFIG_FILE_PATH, "w", encoding="utf-8") as f:
                     c.write(f)
 
                 result = {
@@ -316,12 +314,6 @@ __all_writable_now__ = __writeable__ + DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]
 # --------- Read-Only ---------- #
 # platform
 IS_WINDOWS = platform.system() == "Windows"
-
-# Wrap sys.stdout into a StreamWriter to allow writing unicode.
-
-if platform.system() != "Windows":
-    file_ = sys.stdout.buffer
-    sys.stdout = codecs.getwriter(locale.getpreferredencoding())(file_)
 
 
 if __name__ == "__main__":

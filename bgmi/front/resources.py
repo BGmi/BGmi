@@ -3,7 +3,6 @@ import os
 from collections import defaultdict
 
 from icalendar import Calendar, Event
-from tornado.web import HTTPError
 
 from bgmi.config import SAVE_PATH
 from bgmi.front.base import BaseHandler
@@ -12,7 +11,7 @@ from bgmi.lib.models import Download, Followed
 
 
 class BangumiHandler(BaseHandler):
-    def get(self, _):
+    def get(self, _: str) -> None:
         if os.environ.get("DEV", False):  # pragma: no cover
             with open(os.path.join(SAVE_PATH, _), "rb") as f:
                 self.write(f.read())
@@ -38,15 +37,15 @@ class BangumiHandler(BaseHandler):
 
 
 class RssHandler(BaseHandler):
-    def get(self):
+    def get(self) -> None:
         data = Download.get_all_downloads()
         self.set_header("Content-Type", "text/xml")
         self.render("templates/download.xml", data=data)
 
 
 class CalendarHandler(BaseHandler):
-    def get(self):
-        type_ = self.get_argument("type", 0)
+    def get(self) -> None:
+        type_ = self.get_argument("type", None)
 
         cal = Calendar()
         cal.add("prodid", "-//BGmi Followed Bangumi Calendar//bangumi.ricterz.me//")
@@ -55,15 +54,14 @@ class CalendarHandler(BaseHandler):
         data = Followed.get_all_followed()
         data.extend(self.patch_list)
 
-        if type_ == 0:
+        if type_ is None:
 
             bangumi = defaultdict(list)
-            [
-                bangumi[BANGUMI_UPDATE_TIME.index(i["update_time"]) + 1].append(
-                    i["bangumi_name"]
+
+            for j in data:
+                bangumi[BANGUMI_UPDATE_TIME.index(j["update_time"]) + 1].append(
+                    j["bangumi_name"]
                 )
-                for i in data
-            ]
 
             weekday = datetime.datetime.now().weekday()
             for i, k in enumerate(range(weekday, weekday + 7)):
@@ -82,9 +80,9 @@ class CalendarHandler(BaseHandler):
                         cal.add_component(event)
         else:
             data = [bangumi for bangumi in data if bangumi["status"] == 2]
-            for bangumi in data:
+            for d in data:
                 event = Event()
-                event.add("summary", "Updated: {}".format(bangumi["bangumi_name"]))
+                event.add("summary", "Updated: {}".format(d["bangumi_name"]))
                 event.add("dtstart", datetime.datetime.now().date())
                 event.add("dtend", datetime.datetime.now().date())
                 cal.add_component(event)
@@ -96,8 +94,3 @@ class CalendarHandler(BaseHandler):
 
         self.write(cal.to_ical())
         self.finish()
-
-
-class NotFoundHandler(BaseHandler):
-    def get(self, *args, **kwargs):
-        raise HTTPError(404)

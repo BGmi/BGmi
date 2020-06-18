@@ -55,7 +55,7 @@ CREATE_TABLE_SCRIPT = """CREATE TABLE IF NOT EXISTS scripts (
 CLEAR_TABLE_ = "DELETE  FROM {}"
 
 
-def init_db():
+def init_db() -> None:
     try:
         # bangumi.db
         conn = sqlite3.connect(DB_PATH)

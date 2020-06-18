@@ -1,11 +1,12 @@
 import argparse
 import os
 import signal
+from typing import Any, List, Optional
 
 import requests
 import requests.adapters
 
-from bgmi.config import BGMI_PATH
+from bgmi.config import BGMI_PATH, write_default_config
 from bgmi.lib.cli import controllers
 from bgmi.lib.constants import ACTION_COMPLETE, actions_and_arguments
 from bgmi.lib.update import update_database
@@ -21,7 +22,7 @@ from bgmi.utils import (
 
 
 # global Ctrl-C signal handler
-def signal_handler(signal, frame):  # pragma: no cover
+def signal_handler(signal: int, frame: Any) -> None:  # pragma: no cover
     print_error("User aborted, quit")
 
 
@@ -29,7 +30,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 
 # main function
-def main(argv=None):
+def main(argv: Optional[List[str]] = None) -> None:
     patch_requests()
     setup()
     c = argparse.ArgumentParser()
@@ -77,7 +78,7 @@ def main(argv=None):
         controllers(ret)
 
 
-def setup():
+def setup() -> None:
     need_to_init = False
     if not os.path.exists(BGMI_PATH):
         need_to_init = True
@@ -87,9 +88,10 @@ def setup():
     init_db()
     if need_to_init:
         install_crontab()
+    write_default_config()
 
 
-def patch_requests():
+def patch_requests() -> None:
     requests.adapters.DEFAULT_RETRIES = requests.adapters.Retry(
         total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
     )

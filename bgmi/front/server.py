@@ -1,10 +1,11 @@
 import asyncio
-import os
 import sys
+from typing import Any, List
 
 import tornado.httpserver
 import tornado.ioloop
 import tornado.options
+import tornado.routing
 import tornado.template
 import tornado.web
 from tornado.options import define, options
@@ -22,36 +23,23 @@ from bgmi.front.resources import BangumiHandler, CalendarHandler, RssHandler
 define("port", default=8888, help="listen on the port", type=int)
 define("address", default="0.0.0.0", help="binding at given address", type=str)
 
-API_ACTIONS = "{}|{}".format(
-    "|".join(API_MAP_GET.keys()), "|".join(API_MAP_POST.keys())
-)
 
-if os.environ.get("DEV"):  # pragma: no cover
-
-    def prepare(self):
-        self.set_header("Access-Control-Allow-Origin", "http://localhost:8080")
-        self.set_header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-        self.set_header(
-            "Access-Control-Allow-Headers", "Content-Type, bgmi-token, X-Requested-With"
-        )
-
-    tornado.web.RequestHandler.prepare = prepare
-
-
-def make_app(**kwargs):
+def make_app() -> tornado.web.Application:
     settings = {
         "autoreload": True,
         "gzip": True,
         "debug": True,
     }
-    settings.update(kwargs)
+    api_actions = "{}|{}".format(
+        "|".join(API_MAP_GET.keys()), "|".join(API_MAP_POST.keys())
+    )
     handlers = [
         (r"^/api/(old|index)", BangumiListHandler),
         (r"^/resource/feed.xml$", RssHandler),
         (r"^/resource/calendar.ics$", CalendarHandler),
         (r"^/api/update", UpdateHandler),
-        (r"^/api/(?P<action>%s)" % API_ACTIONS, AdminApiHandler),
-    ]
+        (r"^/api/(?P<action>%s)" % api_actions, AdminApiHandler),
+    ]  # type: List[Any]
 
     if TORNADO_SERVE_STATIC_FILES != "0":
         handlers.extend(
@@ -69,14 +57,14 @@ def make_app(**kwargs):
             [(r"^/bangumi/?(.*)", BangumiHandler), (r"^/(.*)$", IndexHandler)]
         )
 
-    return tornado.web.Application(handlers, **settings)
+    return tornado.web.Application(handlers, **settings)  # type: ignore
 
 
-def main():
+def main() -> None:
     if IS_WINDOWS:
         if sys.version_info[1] >= 8:
-            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    # print(tornado.options.options.__dict__)
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())  # type: ignore
+
     tornado.options.parse_command_line()
     print("BGmi HTTP Server listening on %s:%d" % (options.address, options.port))
     http_server = tornado.httpserver.HTTPServer(make_app())

@@ -1,5 +1,6 @@
 import os
 from pprint import pformat
+from typing import Dict
 
 from bgmi.config import FRONT_STATIC_PATH, SAVE_PATH
 from bgmi.front.base import COVER_URL, BaseHandler
@@ -7,7 +8,7 @@ from bgmi.lib.models import STATUS_DELETED, STATUS_END, STATUS_UPDATING, Followe
 from bgmi.utils import logger, normalize_path
 
 
-def get_player(bangumi_name):
+def get_player(bangumi_name: str) -> Dict[int, Dict[str, str]]:
     episode_list = {}
     # new path
     if os.path.exists(os.path.join(SAVE_PATH, normalize_path(bangumi_name))):
@@ -42,7 +43,7 @@ def get_player(bangumi_name):
 
 
 class IndexHandler(BaseHandler):
-    def get(self, path):
+    def get(self, path: str) -> None:
         if not os.path.exists(FRONT_STATIC_PATH):
             msg = """<h1>Thanks for your using BGmi</h1>
             <p>It seems you have not install BGmi Frontend, please run <code>bgmi install</code> to install.</p>
@@ -58,7 +59,7 @@ class IndexHandler(BaseHandler):
 
 
 class BangumiListHandler(BaseHandler):
-    def get(self, type_=""):
+    def get(self, type_: str = "") -> None:
         data = Followed.get_all_followed(
             STATUS_DELETED, STATUS_UPDATING if not type_ == "old" else STATUS_END
         )

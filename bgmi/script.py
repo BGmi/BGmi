@@ -3,10 +3,10 @@ import os
 import time
 import traceback
 from importlib.machinery import SourceFileLoader
-from typing import List
+from typing import Any, Dict, Iterator, List, Optional, Tuple
 
 from bgmi.config import MAX_PAGE, SCRIPT_PATH
-from bgmi.lib.download import download_prepare
+from bgmi.lib.download import Episode, download_prepare
 from bgmi.lib.fetch import DATA_SOURCE_MAP
 from bgmi.lib.models import STATUS_FOLLOWED, STATUS_UPDATED, Scripts
 from bgmi.utils import print_info, print_success, print_warning
@@ -15,10 +15,10 @@ from bgmi.website.model import WebsiteBangumi
 
 class ScriptRunner:
     _defined = None
-    scripts = []
-    download_queue = []
+    scripts = []  # type: List[ScriptBase]
+    download_queue = []  # type: List[dict]
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args, **kwargs):  # type: ignore
         if cls._defined is None:
 
             script_files = glob.glob("{}{}*.py".format(SCRIPT_PATH, os.path.sep))
@@ -45,7 +45,7 @@ class ScriptRunner:
         return cls._defined
 
     @classmethod
-    def check(cls, script):
+    def check(cls, script: "ScriptBase") -> bool:
         condition = [
             "script.Model().due_date > datetime.datetime.now()",
         ]
@@ -61,10 +61,11 @@ class ScriptRunner:
 
         return True
 
-    def get_model(self, name):
+    def get_model(self, name: str) -> Optional[Scripts]:
         for script in self.scripts:
             if script.Model.bangumi_name == name:
                 return script.Model().obj
+        return None
 
     def get_models(self) -> List[WebsiteBangumi]:
         m = []
@@ -88,7 +89,7 @@ class ScriptRunner:
         ]
 
     @staticmethod
-    def make_dict(script):
+    def make_dict(script: "ScriptBase") -> List[Dict[str, Any]]:
         return [
             {
                 "name": script.bangumi_name,
@@ -99,7 +100,7 @@ class ScriptRunner:
             for k, v in script.get_download_url().items()
         ]
 
-    def run(self, return_=True, download=False):
+    def run(self, return_: bool = True, download: bool = False) -> List[dict]:
         for script in self.scripts:
             print_info("fetching {} ...".format(script.bangumi_name))
             download_item = self.make_dict(script)
@@ -137,54 +138,53 @@ class ScriptRunner:
 
             if download:
                 print_success("Start downloading of {}".format(script))
-                download_prepare(download_queue)
+                download_prepare([Episode(**x) for x in download_queue])
 
         return self.download_queue
         # return [Episode(**x) for x in self.download_queue]
 
-    def get_download_cover(self):
+    def get_download_cover(self) -> List[str]:
         return [script["cover"] for script in self.get_models_dict()]
 
 
 class ScriptBase:
     class Model:
-        obj = None
+        obj = None  # type: Scripts
 
         # data
         bangumi_name = None
         cover = None
-        update_time = None
+        update_time = "Unknown"
         due_date = None
 
         # source
         source = None
 
-        # fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
         _bangumi_id = None
-        _subtitle_list = []
-        _max_page = MAX_PAGE
+        _subtitle_list = []  # type: list
+        _max_page = int(MAX_PAGE)
 
-        def __init__(self):
+        def __init__(self) -> None:
             if self.bangumi_name is not None:
                 s, _ = Scripts.get_or_create(
                     bangumi_name=self.bangumi_name,
                     defaults={"episode": 0, "status": STATUS_FOLLOWED},
-                )
+                )  # type: Scripts, bool
                 self.obj = s
 
-        def __iter__(self):
+        def __iter__(self) -> Iterator[Tuple[str, Any]]:
             for i in ("bangumi_name", "cover", "update_time"):
-                yield (i, getattr(self, i))
+                yield i, getattr(self, i)
 
             # patch for cal
-            yield ("name", self.bangumi_name)
-            yield ("status", self.obj.status)
-            yield ("updated_time", self.obj.updated_time)
-            yield ("subtitle_group", "")
-            yield ("episode", self.obj.episode)
+            yield "name", self.bangumi_name
+            yield "status", self.obj.status
+            yield "updated_time", self.obj.updated_time
+            yield "subtitle_group", ""
+            yield "episode", self.obj.episode
 
     @property
-    def _data(self):
+    def _data(self) -> dict:
         return {
             "bangumi_id": self.Model._bangumi_id,
             "subtitle_list": self.Model._subtitle_list,
@@ -192,42 +192,45 @@ class ScriptBase:
         }
 
     @property
-    def source(self):
+    def source(self) -> Optional[str]:
         return self.Model.source
 
     @property
-    def name(self):
+    def name(self) -> Optional[str]:
         return self.Model.bangumi_name
 
     @property
-    def bangumi_name(self):
+    def bangumi_name(self) -> Optional[str]:
         return self.Model.bangumi_name
 
     @property
-    def cover(self):
+    def cover(self) -> Optional[str]:
         return self.Model.cover
 
     @property
-    def updated_time(self):
+    def updated_time(self) -> str:
         return self.Model.update_time
 
-    def get_download_url(self):
+    def get_download_url(self) -> Dict[int, str]:
         """Get the download url, and return a dict of episode and the url.
         Download url also can be magnet link.
         For example:
-        ```
+
+        ... code-block:: python
+
             {
                 1: 'http://example.com/Bangumi/1/1.mp4'
                 2: 'http://example.com/Bangumi/1/2.mp4'
                 3: 'http://example.com/Bangumi/1/3.mp4'
             }
-        ```
+
         The keys `1`, `2`, `3` is the episode, the value is the url of bangumi.
         :return: dict
         """
         if self.source is not None:
-            source = DATA_SOURCE_MAP.get(self.source, None)()
-            if source is None:
+            try:
+                source = DATA_SOURCE_MAP[self.source]()
+            except KeyError:
                 raise Exception(
                     "Script data source is invalid, usable sources: {}".format(
                         ", ".join(DATA_SOURCE_MAP.keys())

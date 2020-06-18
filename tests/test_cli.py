@@ -1,15 +1,8 @@
 from unittest import mock
 
-import pytest
-
 from bgmi.lib.models import Bangumi, Filter, Followed
 from bgmi.main import main
 from bgmi.website.bangumi_moe import BangumiMoe
-
-
-@pytest.fixture()
-def bangumi_names(data_source_bangumi_name):
-    return data_source_bangumi_name["bangumi_moe"]
 
 
 def test_gen_nginx_conf():

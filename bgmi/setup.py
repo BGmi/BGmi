@@ -16,7 +16,7 @@ from bgmi.lib.download import get_download_class
 from bgmi.utils import print_error, print_info, print_success, print_warning
 
 
-def install_crontab():
+def install_crontab() -> None:
     print_info("Installing crontab job")
     if IS_WINDOWS:
         copy(os.path.join(os.path.dirname(__file__), "others/cron.vbs"), BGMI_PATH)
@@ -30,7 +30,7 @@ def install_crontab():
         os.system("bash '%s'" % path)
 
 
-def create_dir():
+def create_dir() -> None:
     path_to_create = (
         BGMI_PATH,
         SAVE_PATH,
@@ -58,5 +58,5 @@ def create_dir():
         print_error("Error: {}".format(str(e)))
 
 
-def install():
+def install() -> None:
     get_download_class(DOWNLOAD_DELEGATE, instance=False).install()

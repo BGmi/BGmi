@@ -9,7 +9,7 @@ from bgmi.utils import print_error, print_info
 OLD = os.path.join(BGMI_PATH, "old")
 
 
-def exec_sql(sql, db=DB_PATH):
+def exec_sql(sql: str, db: str = DB_PATH) -> None:
     try:
         print_info("Execute {}".format(sql))
         conn = sqlite3.connect(db)
@@ -20,7 +20,7 @@ def exec_sql(sql, db=DB_PATH):
         print_error("Execute SQL statement failed", exit_=False)
 
 
-def update_database():
+def update_database() -> None:
     if not os.path.exists(OLD):
         v = "0"
         with open(OLD, "w") as f:

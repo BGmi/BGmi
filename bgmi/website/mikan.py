@@ -275,7 +275,7 @@ class Mikanani(BaseWebsite):
         r = get_text(server_root + "Home/Bangumi/{}".format(bangumi_id))
         return [attr.asdict(x) for x in parse_episodes(r, subtitle_list)]
 
-    def fetch_bangumi_calendar(self):
+    def fetch_bangumi_calendar(self) -> List[WebsiteBangumi]:
         bangumi_list = []
         for update_time, day in get_weekly_bangumi():
             for obj in parser_day_bangumi(day):
@@ -286,10 +286,10 @@ class Mikanani(BaseWebsite):
                 bangumi_list.append(obj)
         return bangumi_list
 
-    def fetch_single_bangumi(self, bangumi_id) -> WebsiteBangumi:
+    def fetch_single_bangumi(self, bangumi_id: str) -> WebsiteBangumi:
         html = get_text(server_root + "Home/Bangumi/{}".format(bangumi_id))
-        info = self.parse_bangumi_details_page(html)
         try:
+            info = self.parse_bangumi_details_page(html)
             return WebsiteBangumi(
                 name=info["name"],
                 keyword=bangumi_id,
@@ -310,3 +310,4 @@ class Mikanani(BaseWebsite):
                     encoding="utf-8",
                 ) as fd:
                     fd.write(html)
+            raise

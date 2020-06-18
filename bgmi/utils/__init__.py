@@ -12,12 +12,19 @@ import time
 from io import BytesIO
 from multiprocessing.pool import ThreadPool
 from shutil import move, rmtree
+from typing import List, Optional, Tuple, Union
 
 import requests
-import urllib3
 
 from bgmi import __admin_version__, __version__
-from bgmi.config import BGMI_PATH, DATA_SOURCE, FRONT_STATIC_PATH, LOG_PATH, SAVE_PATH
+from bgmi.config import (
+    BGMI_PATH,
+    DATA_SOURCE,
+    FRONT_STATIC_PATH,
+    IS_WINDOWS,
+    LOG_PATH,
+    SAVE_PATH,
+)
 from bgmi.lib.constants import SUPPORT_WEBSITE
 
 log_level = os.environ.get("BGMI_LOG") or "ERROR"
@@ -37,12 +44,10 @@ try:
 except OSError:
     logging.basicConfig(stream=sys.stdout, level=logging.getLevelName(log_level))
 
-urllib3.disable_warnings()
 
-
-def log_utils_function(func):
+def log_utils_function(func):  # type: ignore
     @functools.wraps(func)
-    def echo_func(*func_args, **func_kwargs):
+    def echo_func(*func_args, **func_kwargs):  # type: ignore
         logger.debug("")
         logger.debug(
             str("start function {} {} {}".format(func.__name__, func_args, func_kwargs))
@@ -56,7 +61,7 @@ def log_utils_function(func):
 
 
 if (
-    sys.platform.startswith("win")
+    IS_WINDOWS
     and "bash" not in os.getenv("SHELL", "").lower()
     and "zsh" not in os.getenv("SHELL", "").lower()
 ):  # pragma: no cover
@@ -95,9 +100,9 @@ PACKAGE_JSON_URL = "https://{}/bgmi-frontend/{}".format(
 )
 
 
-def indicator(f):
+def indicator(f):  # type: ignore
     @functools.wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs):  # type: ignore
         if kwargs.get("indicator", True):
             func_name = f.__qualname__
             args = (indicator_map.get(func_name, "") + args[0],)
@@ -107,9 +112,9 @@ def indicator(f):
     return wrapper
 
 
-def colorize(f):
+def colorize(f):  # type: ignore
     @functools.wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs):  # type: ignore
         func_name = f.__qualname__
         b, e = (
             color_map.get(func_name, ""),
@@ -123,35 +128,35 @@ def colorize(f):
 
 @indicator
 @colorize
-def print_info(message, indicator=True):
+def print_info(message: str, indicator: bool = True) -> None:
     logger.info(message)
     print(message)
 
 
 @indicator
 @colorize
-def print_success(message, indicator=True):
+def print_success(message: str, indicator: bool = True) -> None:
     logger.info(message)
     print(message)
 
 
 @indicator
 @colorize
-def print_warning(message, indicator=True):
+def print_warning(message: str, indicator: bool = True) -> None:
     logger.warning(message)
     print(message)
 
 
 @indicator
 @colorize
-def print_error(message, exit_=True, indicator=True):
+def print_error(message: str, exit_: bool = True, indicator: bool = True) -> None:
     logger.error(message)
     print(message)
     if exit_:
         exit(1)
 
 
-def print_version():
+def print_version() -> str:
     return """BGmi {}ver. {}{} built by {}RicterZ{} with ❤️
 
 Github: https://github.com/BGmi/BGmi
@@ -162,7 +167,7 @@ Blog: https://ricterz.me""".format(
 
 
 @log_utils_function
-def test_connection():
+def test_connection() -> bool:
     try:
         for website in SUPPORT_WEBSITE:
             if DATA_SOURCE == website["id"]:
@@ -172,7 +177,7 @@ def test_connection():
     return True
 
 
-def bug_report():  # pragma: no cover
+def bug_report() -> None:  # pragma: no cover
     print_error(
         "It seems that no bangumi found, if https://bangumi.moe can \n"
         "    be opened normally, please submit issue at: https://github.com/BGmi/BGmi/issues",
@@ -184,24 +189,26 @@ _DEFAULT_TERMINAL_WIDTH = 80
 
 
 @log_utils_function
-def get_terminal_col():  # pragma: no cover
+def get_terminal_col() -> int:  # pragma: no cover
     # https://gist.github.com/jtriley/1108174
-    if not sys.platform.startswith("win"):
+    if not IS_WINDOWS:
         import fcntl
         import termios
 
         try:
-            _, col, _, _ = struct.unpack(
+            col = struct.unpack(
                 "HHHH",
                 fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack("HHHH", 0, 0, 0, 0)),
-            )
+            )[
+                1
+            ]  # type: int
 
             return col
         except Exception:
             return _DEFAULT_TERMINAL_WIDTH
     else:
         try:
-            from ctypes import windll, create_string_buffer
+            from ctypes import windll, create_string_buffer  # type: ignore[attr-defined]
 
             # stdin handle is -10
             # stdout handle is -11
@@ -223,7 +230,7 @@ def get_terminal_col():  # pragma: no cover
                     maxx,
                     maxy,
                 ) = struct.unpack("hhhhHhhhhhh", csbi.raw)
-                sizex = right - left + 1
+                sizex = right - left + 1  # type: int
                 # sizey = bottom - top + 1
                 return sizex
             else:
@@ -236,8 +243,8 @@ def get_terminal_col():  # pragma: no cover
 
 
 @log_utils_function
-def check_update(mark=True):
-    def update():
+def check_update(mark: bool = True) -> None:
+    def update() -> None:
         try:
             print_info("Checking update ...")
             version = requests.get(
@@ -280,7 +287,7 @@ def check_update(mark=True):
     if not os.path.exists(version_file):
         with open(version_file, "w") as f:
             f.write(str(int(time.time())))
-        return update()
+        update()
 
     with open(version_file) as f:
         try:
@@ -288,12 +295,12 @@ def check_update(mark=True):
             if time.time() - 7 * 24 * 3600 > data:
                 with open(version_file, "w") as f:
                     f.write(str(int(time.time())))
-                return update()
+                update()
         except ValueError:
             pass
 
 
-def chinese_to_arabic(cn):
+def chinese_to_arabic(cn: str) -> int:
     """
     https://blog.csdn.net/hexrain/article/details/52790126
     :type cn: str
@@ -338,12 +345,12 @@ def chinese_to_arabic(cn):
     ldig = []  # digest
     for cndig in reversed(cn):
         if cndig in CN_UNIT:
-            unit = CN_UNIT.get(cndig)
+            unit = CN_UNIT[cndig]
             if unit == 10000 or unit == 100000000:
                 ldig.append(unit)
                 unit = 1
         else:
-            dig = CN_NUM.get(cndig)
+            dig = CN_NUM[cndig]
             if unit:
                 dig *= unit
                 unit = 0
@@ -387,7 +394,7 @@ FETCH_EPISODE = (
 
 
 @log_utils_function
-def parse_episode(episode_title):
+def parse_episode(episode_title: str) -> int:
     """
     parse episode from title
     :param episode_title: episode title
@@ -397,9 +404,8 @@ def parse_episode(episode_title):
     """
     spare = None
 
-    def get_real_episode(episode_list):
-        episode_list = map(int, episode_list)
-        return min(episode_list)
+    def get_real_episode(episode_list: List[Union[str, int]]) -> int:
+        return min(int(x) for x in episode_list)
 
     _ = FETCH_EPISODE_RANGE_ALL_ZH.findall(episode_title)
     if _ and _[0]:
@@ -446,12 +452,12 @@ def parse_episode(episode_title):
         for regexp in FETCH_EPISODE:
             match = regexp.findall(i)
             if match and match[0].isdigit():
-                match = int(match[0])
-                if match > 1000:
-                    spare = match
+                m = int(match[0])
+                if m > 1000:
+                    spare = m
                 else:
-                    logger.debug("match {} {} {}".format(i, regexp, match))
-                    return match
+                    logger.debug("match {} {} {}".format(i, regexp, m))
+                    return m
 
     if spare:
         return spare
@@ -460,7 +466,7 @@ def parse_episode(episode_title):
 
 
 @log_utils_function
-def normalize_path(url):
+def normalize_path(url: str) -> str:
     """
     normalize link to path
 
@@ -480,7 +486,7 @@ def normalize_path(url):
         return url
 
 
-def get_web_admin(method):
+def get_web_admin(method: str) -> None:
     # frontend_npm_url = 'https://registry.npmjs.com/bgmi-frontend/'
     print_info("{}ing BGmi frontend".format(method[0].upper() + method[1:]))
 
@@ -518,15 +524,15 @@ def get_web_admin(method):
             os.path.join(FRONT_STATIC_PATH, "package", "dist", file),
             os.path.join(FRONT_STATIC_PATH, file),
         )
-    with open(os.path.join(FRONT_STATIC_PATH, "package.json"), "w+") as f:
-        f.write(json.dumps(version))
+    with open(os.path.join(FRONT_STATIC_PATH, "package.json"), "w+") as pkg:
+        pkg.write(json.dumps(version))
     print_success(
         "Web admin page {} successfully. version: {}".format(method, version["version"])
     )
 
 
 @log_utils_function
-def convert_cover_url_to_path(cover_url):
+def convert_cover_url_to_path(cover_url: str) -> Tuple[str, str]:
     """
     convert bangumi cover to file path
 
@@ -545,21 +551,15 @@ def convert_cover_url_to_path(cover_url):
 
 
 @log_utils_function
-def download_file(url):
+def download_file(url: str) -> Optional[requests.Response]:
     if url.startswith("https://") or url.startswith("http://"):
         print_info("Download: {}".format(url))
         return requests.get(url)
+    return None
 
 
 @log_utils_function
-def download_cover(cover_url_list):
-    """
-
-    :param cover_url_list:
-    :type cover_url_list: list
-    :return:
-    """
-
+def download_cover(cover_url_list: List[str]) -> None:
     p = ThreadPool(4)
     content_list = p.map(download_file, cover_url_list)
     for index, r in enumerate(content_list):

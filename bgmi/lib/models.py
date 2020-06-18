@@ -1,6 +1,7 @@
 import os
 import time
 from collections import defaultdict
+from typing import Any, Dict, List, Optional, Type
 
 import peewee
 from peewee import FixedCharField, IntegerField, TextField
@@ -8,6 +9,7 @@ from playhouse.shortcuts import model_to_dict
 
 import bgmi.config
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
+from bgmi.website.model import Episode
 
 # bangumi status
 STATUS_UPDATING = 0
@@ -48,7 +50,7 @@ class Bangumi(NeoDB):
     cover = TextField()
     status = IntegerField(default=0)
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         super(NeoDB, self).__init__(**kwargs)
 
         update_time = kwargs.get("update_time", "").title()
@@ -67,10 +69,10 @@ class Bangumi(NeoDB):
             self.subtitle_group = ", ".join(sorted(s))
 
     @classmethod
-    def delete_all(cls):
+    def delete_all(cls) -> None:
         un_updated_bangumi = Followed.select().where(
             Followed.updated_time > (int(time.time()) - 2 * 7 * 24 * 3600)
-        )  # type: list[Followed]
+        )  # type: List[Followed]
         if os.getenv("DEBUG"):  # pragma: no cover
             print(
                 "ignore updating bangumi", [x.bangumi_name for x in un_updated_bangumi]
@@ -81,7 +83,9 @@ class Bangumi(NeoDB):
         ).execute()  # do not mark updating bangumi as STATUS_END
 
     @classmethod
-    def get_updating_bangumi(cls, status=None, order=True):
+    def get_updating_bangumi(
+        cls, status: Optional[int] = None, order: bool = True
+    ) -> Any:
         if status is None:
             data = (
                 cls.select(Followed.status, Followed.episode, cls,)
@@ -112,23 +116,23 @@ class Bangumi(NeoDB):
                     dict(bangumi_item)
                 )
         else:
-            weekly_list = list(data)
+            weekly_list = list(data)  # type: ignore
 
         return weekly_list
 
     @classmethod
-    def fuzzy_get(cls, **filters) -> "Bangumi":
+    def fuzzy_get(cls, **filters: Any) -> "Bangumi":
         fuzzy_q = []
         raw_q = []
         for key, value in filters.items():
             raw_q.append(getattr(cls, key) == value)
             fuzzy_q.append(getattr(cls, key).contains(value))
 
-        raw = list(cls.select().where(*raw_q))
+        raw = list(cls.select().where(*raw_q))  # type: List[Bangumi]
         if raw:
             return raw[0]
 
-        fuzzy = list(cls.select().where(*fuzzy_q))
+        fuzzy = list(cls.select().where(*fuzzy_q))  # type: List[Bangumi]
         if fuzzy:
             return fuzzy[0]
 
@@ -146,7 +150,7 @@ class Followed(NeoDB):
         table_name = "followed"
 
     @classmethod
-    def delete_followed(cls, batch=True):
+    def delete_followed(cls, batch: bool = True) -> bool:
         q = cls.delete()
         if not batch:
             if (
@@ -159,7 +163,9 @@ class Followed(NeoDB):
         return True
 
     @classmethod
-    def get_all_followed(cls, status=STATUS_DELETED, bangumi_status=STATUS_UPDATING):
+    def get_all_followed(
+        cls, status: int = STATUS_DELETED, bangumi_status: int = STATUS_UPDATING
+    ) -> List[dict]:
         join_cond = Bangumi.name == cls.bangumi_name
         d = (
             cls.select(Bangumi.name, Bangumi.update_time, Bangumi.cover, cls,)
@@ -180,7 +186,7 @@ class Download(NeoDB):
     status = IntegerField(default=0)
 
     @classmethod
-    def get_all_downloads(cls, status=None):
+    def get_all_downloads(cls, status: Optional[int] = None) -> List[dict]:
         if status is None:
             data = list(cls.select().order_by(cls.status))
         else:
@@ -190,7 +196,7 @@ class Download(NeoDB):
             data[index] = model_to_dict(x)
         return data
 
-    def downloaded(self):
+    def downloaded(self) -> None:
         self.status = STATUS_DOWNLOADED
         self.save()
 
@@ -198,9 +204,33 @@ class Download(NeoDB):
 class Filter(NeoDB):
     bangumi_name = TextField(unique=True)
     subtitle = TextField()
-    include = TextField()
-    exclude = TextField()
+    include = TextField()  # type: str
+    exclude = TextField()  # type: str
     regex = TextField()
+
+    def apply_on_episodes(self, result: List[Episode]) -> List[Episode]:
+        if self.include:
+            include_list = list(map(lambda s: s.strip(), self.include.split(",")))
+            result = list(
+                filter(
+                    lambda s: True
+                    if all(map(lambda t: t in s.title, include_list))
+                    else False,
+                    result,
+                )
+            )
+
+        if self.exclude:
+            exclude_list = list(map(lambda s: s.strip(), self.exclude.split(",")))
+            result = list(
+                filter(
+                    lambda s: True
+                    if all(map(lambda t: t not in s.title, exclude_list))
+                    else False,
+                    result,
+                )
+            )
+        return result
 
 
 class Subtitle(NeoDB):
@@ -208,14 +238,14 @@ class Subtitle(NeoDB):
     name = TextField()
 
     @classmethod
-    def get_subtitle_by_id(cls, id_list=None):
+    def get_subtitle_by_id(cls, id_list: List[str]) -> List[Dict[str, str]]:
         data = list(cls.select().where(cls.id.in_(id_list)))
         for index, subtitle in enumerate(data):
             data[index] = model_to_dict(subtitle)
         return data
 
     @classmethod
-    def get_subtitle_by_name(cls, name_list=None):
+    def get_subtitle_by_name(cls, name_list: List[str]) -> List[Dict[str, str]]:
         data = list(cls.select().where(cls.name.in_(name_list)))
         for index, subtitle in enumerate(data):
             data[index] = model_to_dict(subtitle)
@@ -235,11 +265,16 @@ class Scripts(peewee.Model):
         database = script_db
 
 
-def recreate_source_relatively_table():
-    table_to_drop = [Bangumi, Followed, Subtitle, Filter, Download]
+def recreate_source_relatively_table() -> None:
+    table_to_drop = [
+        Bangumi,
+        Followed,
+        Subtitle,
+        Filter,
+        Download,
+    ]  # type: List[Type[NeoDB]]
     for table in table_to_drop:
         table.delete().execute()
-    return True
 
 
 if __name__ == "__main__":  # pragma:no cover

@@ -1,10 +1,11 @@
 import datetime
 import os
 import time
+from typing import Any, Dict, List, Optional
 
 import requests
 
-from bgmi.config import BANGUMI_MOE_URL, LANG, MAX_PAGE
+from bgmi.config import BANGUMI_MOE_URL, LANG
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.utils import bug_report, print_error, print_info, print_warning
 from bgmi.website.base import BaseWebsite
@@ -95,21 +96,25 @@ class BangumiMoe(BaseWebsite):
     cover_url = COVER_URL
 
     def fetch_episode_of_bangumi(
-        self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE
-    ):
-        max_page = int(max_page)
+        self, bangumi_id: str, max_page: int, subtitle_list: Optional[List[str]] = None,
+    ) -> List[dict]:
         response_data = []
         ret = []
         if subtitle_list:
             for subtitle_id in subtitle_list:
-                data = {"tag_id": [bangumi_id, subtitle_id, BANGUMI_TAG]}
+                data = {
+                    "tag_id": [bangumi_id, subtitle_id, BANGUMI_TAG]
+                }  # type: Dict[str, Any]
                 response = get_response(DETAIL_URL, "POST", json=data)
                 response_data.extend(response["torrents"])
         else:
             for i in range(max_page):
                 if max_page > 1:
                     print_info("Fetch page {} ...".format(i + 1))
-                data = {"tag_id": [bangumi_id, BANGUMI_TAG], "p": i + 1}
+                data = {
+                    "tag_id": [bangumi_id, BANGUMI_TAG],
+                    "p": i + 1,
+                }
                 response = get_response(DETAIL_URL, "POST", json=data)
                 if response:
                     response_data.extend(response["torrents"])
@@ -138,14 +143,14 @@ class BangumiMoe(BaseWebsite):
 
         return ret
 
-    def fetch_bangumi_calendar(self):
+    def fetch_bangumi_calendar(self) -> List[WebsiteBangumi]:
         response = get_response(FETCH_URL)
         if not response:
             return []
         bangumi_result = parser_bangumi(response)
         return [WebsiteBangumi(**x) for x in bangumi_result]
 
-    def search_by_keyword(self, keyword, count=None):
+    def search_by_keyword(self, keyword: str, count: Optional[int] = None) -> list:
         if not count:
             count = 3
 
@@ -181,5 +186,5 @@ class BangumiMoe(BaseWebsite):
         result = result[::-1]
         return result
 
-    def fetch_single_bangumi(self, bangumi_id) -> WebsiteBangumi:
+    def fetch_single_bangumi(self, bangumi_id: str) -> WebsiteBangumi:
         return WebsiteBangumi(keyword=bangumi_id)

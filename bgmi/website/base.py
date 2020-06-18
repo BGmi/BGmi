@@ -4,7 +4,7 @@ import re
 import time
 from collections import defaultdict
 from itertools import chain
-from typing import List
+from typing import Any, Dict, List, Optional, Tuple, TypeVar
 
 import attr
 
@@ -27,17 +27,15 @@ from bgmi.utils import (
 )
 from bgmi.website.model import WebsiteBangumi
 
+T = TypeVar("T", bound=dict)
+
 
 class BaseWebsite:
     parse_episode = staticmethod(parse_episode)
 
     @staticmethod
-    def save_bangumi(data: WebsiteBangumi):
-        """
-        save bangumi dict to database
-
-        :type data: dict
-        """
+    def save_bangumi(data: WebsiteBangumi) -> None:
+        """save bangumi to database"""
         b, obj_created = Bangumi.get_or_create(
             keyword=data.keyword, defaults=attr.asdict(data)
         )
@@ -71,7 +69,7 @@ class BaseWebsite:
                 ).on_conflict_replace()
             ).execute()
 
-    def fetch(self, save=False, group_by_weekday=True):
+    def fetch(self, save: bool = False, group_by_weekday: bool = True) -> Any:
         bangumi_result = self.fetch_bangumi_calendar()
         if not bangumi_result:
             print("can't fetch anything from website")
@@ -89,11 +87,10 @@ class BaseWebsite:
         return bangumi_result
 
     @staticmethod
-    def followed_bangumi():
+    def followed_bangumi() -> Dict[str, list]:
         """
 
         :return: list of bangumi followed
-        :rtype: list[dict]
         """
         weekly_list_followed = Bangumi.get_updating_bangumi(status=STATUS_FOLLOWED)
         weekly_list_updated = Bangumi.get_updating_bangumi(status=STATUS_UPDATED)
@@ -110,17 +107,17 @@ class BaseWebsite:
                 ]
         return weekly_list
 
-    def bangumi_calendar(self, force_update=False, save=True, cover=None):
+    def bangumi_calendar(
+        self,
+        force_update: bool = False,
+        save: bool = True,
+        cover: Optional[List[str]] = None,
+    ) -> Dict[str, List[WebsiteBangumi]]:
         """
 
         :param force_update:
-        :type force_update: bool
-
         :param save: set true to enable save bangumi data to database
-        :type save: bool
-
         :param cover: list of cover url (of scripts) want to download
-        :type cover: list[str]
         """
         if force_update and not test_connection():
             force_update = False
@@ -130,7 +127,7 @@ class BaseWebsite:
             print_info("Fetching bangumi info ...")
             self.fetch(save=save)
 
-        weekly_list = self.fetch(save=save)
+        weekly_list = self.fetch(save=save)  # type:  Dict[str, List[WebsiteBangumi]]
 
         if cover is not None:
             # download cover to local
@@ -149,19 +146,12 @@ class BaseWebsite:
         return weekly_list
 
     def get_maximum_episode(
-        self, bangumi, subtitle=True, ignore_old_row=True, max_page=MAX_PAGE
-    ):
-        """
-
-        :type max_page: str
-        :param max_page:
-        :type bangumi: object
-        :type ignore_old_row: bool
-        :param ignore_old_row:
-        :type bangumi: Bangumi
-        :param subtitle:
-        :type subtitle: bool
-        """
+        self,
+        bangumi: Bangumi,
+        subtitle: bool = True,
+        ignore_old_row: bool = True,
+        max_page: int = int(MAX_PAGE),
+    ) -> Tuple[dict, list]:
         followed_filter_obj, _ = Filter.get_or_create(bangumi_name=bangumi.name)
 
         if followed_filter_obj and subtitle:
@@ -206,31 +196,21 @@ class BaseWebsite:
             ]  # three month
 
         if data:
-            bangumi = max(data, key=lambda _i: _i["episode"])
-            return bangumi, data
+            b = max(data, key=lambda _i: _i["episode"])  # type: dict
+            return b, data
         else:
             return {"episode": 0}, []
 
     def fetch_episode(
         self,
-        _id,
-        name="",
-        subtitle_group=None,
-        include=None,
-        exclude=None,
-        regex=None,
-        max_page=int(MAX_PAGE),
-    ):
-        """
-        :type _id: str
-        :param _id:
-        :type name: str
-        :type subtitle_group: str
-        :type include: str
-        :type exclude: str
-        :type regex: str
-        :type max_page: int
-        """
+        _id: str,
+        name: str = "",
+        subtitle_group: str = None,
+        include: str = None,
+        exclude: str = None,
+        regex: str = None,
+        max_page: int = int(MAX_PAGE),
+    ) -> List[dict]:
         result = []
 
         max_page = int(max_page)
@@ -238,7 +218,7 @@ class BaseWebsite:
         if subtitle_group and subtitle_group.split(", "):
             condition = subtitle_group.split(", ")
             response_data = self.fetch_episode_of_bangumi(
-                bangumi_id=_id, subtitle_list=condition
+                bangumi_id=_id, subtitle_list=condition, max_page=max_page
             )
         else:
             response_data = self.fetch_episode_of_bangumi(
@@ -276,7 +256,7 @@ class BaseWebsite:
         return result
 
     @staticmethod
-    def remove_duplicated_bangumi(result):
+    def remove_duplicated_bangumi(result: List[T]) -> List[T]:
         """
 
         :type result: list[dict]
@@ -291,7 +271,7 @@ class BaseWebsite:
         return ret
 
     @staticmethod
-    def filter_keyword(data, regex=None):
+    def filter_keyword(data: List[T], regex: str = None) -> List[T]:
         """
 
         :type regex: str
@@ -325,7 +305,9 @@ class BaseWebsite:
 
         return data
 
-    def search_by_keyword(self, keyword, count):  # pragma: no cover
+    def search_by_keyword(
+        self, keyword: str, count: int
+    ) -> List[dict]:  # pragma: no cover
         """
         return a list of dict with at least 4 key: download, name, title, episode
         example:
@@ -359,8 +341,8 @@ class BaseWebsite:
         raise NotImplementedError
 
     def fetch_episode_of_bangumi(
-        self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE
-    ):  # pragma: no cover
+        self, bangumi_id: str, max_page: int, subtitle_list: Optional[List[str]] = None
+    ) -> List[dict]:  # pragma: no cover
         """
         get all episode by bangumi id
         example
@@ -386,7 +368,7 @@ class BaseWebsite:
         """
         raise NotImplementedError
 
-    def fetch_single_bangumi(self, bangumi_id) -> WebsiteBangumi:
+    def fetch_single_bangumi(self, bangumi_id: str) -> WebsiteBangumi:
         """
         fetch bangumi info when updating
 

@@ -1,4 +1,7 @@
 import os
+from typing import List
+
+import attr
 
 from bgmi.config import DOWNLOAD_DELEGATE, SAVE_PATH
 from bgmi.downloader.aria2_rpc import Aria2DownloadRPC
@@ -8,6 +11,17 @@ from bgmi.downloader.xunlei import XunleiLixianDownload
 from bgmi.lib.models import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download
 from bgmi.utils import normalize_path, print_error
 
+
+@attr.s
+class Episode:
+    name = attr.ib(type=str)
+    title = attr.ib(type=str)
+    download = attr.ib(type=str)
+    episode = attr.ib(default=0, type=int)
+    time = attr.ib(default=0, type=int)
+    subtitle_group = attr.ib(default="", type=str)
+
+
 DOWNLOAD_DELEGATE_DICT = {
     "xunlei": XunleiLixianDownload,
     "aria2-rpc": Aria2DownloadRPC,
@@ -16,7 +30,9 @@ DOWNLOAD_DELEGATE_DICT = {
 }
 
 
-def get_download_class(download_obj=None, save_path="", overwrite=True, instance=True):
+def get_download_class(  # type: ignore
+    download_obj=None, save_path="", overwrite=True, instance=True  # type: ignore
+):  # type: ignore
     if DOWNLOAD_DELEGATE not in DOWNLOAD_DELEGATE_DICT:
         print_error("unexpected delegate {}".format(DOWNLOAD_DELEGATE))
 
@@ -30,7 +46,7 @@ def get_download_class(download_obj=None, save_path="", overwrite=True, instance
     return delegate
 
 
-def download_prepare(data):
+def download_prepare(data: List[Episode]) -> None:
     """
     list[dict]
     dict[
@@ -76,7 +92,7 @@ def download_prepare(data):
             download.save()
 
 
-def save_to_bangumi_download_queue(data):
+def save_to_bangumi_download_queue(data: List[Episode]) -> List[Download]:
     """
     list[dict]
     dict:{
@@ -91,10 +107,10 @@ def save_to_bangumi_download_queue(data):
     queue = []
     for i in data:
         download, _ = Download.get_or_create(
-            title=i["title"],
-            download=i["download"],
-            name=i["name"],
-            episode=i["episode"],
+            title=i.title,
+            download=i.download,
+            name=i.name,
+            episode=i.episode,
             status=STATUS_NOT_DOWNLOAD,
         )
 

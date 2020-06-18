@@ -69,16 +69,3 @@ class DelugeRPC(BaseDownloadService):
     @staticmethod
     def download_status(status=None):
         pass
-
-
-if __name__ == "__main__":
-
-    class downloadObj:
-        pass
-
-    o = downloadObj()
-    o.name = "name"
-    o.download = "https://mikanani.me/Download/20180509/65ed60acc70e38983e564183311c9b0f47996313.torrent"
-    o.episode = "1"
-    e = DelugeRPC(download_obj=o, save_path="C:\\Users\\Trim21\\proj\\tmp\\bangumi")
-    print(e.download())

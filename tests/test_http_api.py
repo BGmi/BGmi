@@ -31,7 +31,7 @@ class ApiTestCase(AsyncHTTPTestCase):
     bangumi_3 = "黑色五叶草"
 
     def get_app(self):
-        self.app = make_app(debug=False)
+        self.app = make_app()
         return self.app
 
     def test_a_auth(self):
@@ -137,7 +137,7 @@ class ApiTestCase(AsyncHTTPTestCase):
         m2 = mock.Mock(
             return_value=[
                 {"bangumi_name": "233", "updated_time": 3, "cover": "233"},
-                {"bangumi_name": "2333", "updated_time": 2, "cover": "2333"},
+                {"bangumi_name": "2333", "updated_time": 20000000000, "cover": "2333"},
             ]
         )
         with mock.patch("bgmi.front.index.get_player", m), mock.patch(
@@ -146,8 +146,8 @@ class ApiTestCase(AsyncHTTPTestCase):
             response = self.fetch("/api/index", method="GET")
             self.assertEqual(response.code, 200)
             r = self.parse_response(response)
-            assert r["data"][1]["cover"] == COVER_URL + "/233"
-            m.assert_has_calls([mock.call("233"), mock.call("2333")])
+            assert COVER_URL + "/2333" == r["data"][0]["cover"], json.dumps(r["data"])
+            m.assert_has_calls([mock.call("233"), mock.call("2333")], any_order=True)
             assert m.call_count == 3
 
     def test_resource_ics(self):

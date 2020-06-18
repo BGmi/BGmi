@@ -2,10 +2,11 @@ import functools
 import traceback
 from concurrent.futures.thread import ThreadPoolExecutor
 from threading import Lock
+from typing import Any, Callable, Dict
 
 from tornado.concurrent import run_on_executor
 from tornado.ioloop import IOLoop
-from tornado.web import HTTPError
+from tornado.web import HTTPError, RequestHandler
 
 from bgmi.config import ADMIN_TOKEN
 from bgmi.front.base import BaseHandler
@@ -36,7 +37,7 @@ ACTION_AUTH = "auth"
 ACTION_STATUS = "status"
 
 
-def auth_(token=""):
+def auth_(token: str = "") -> Dict[str, str]:
     return {"status": "success" if token == ADMIN_TOKEN else "error"}
 
 
@@ -50,7 +51,7 @@ API_MAP_POST = {
     ACTION_MARK: mark,
     ACTION_STATUS: status_,
     ACTION_FILTER: filter_,
-}
+}  # type: Dict[str, Callable]
 
 API_MAP_GET = {
     ACTION_CAL: lambda: {"data": cal()},
@@ -60,42 +61,47 @@ API_MAP_GET = {
 NO_AUTH_ACTION = (ACTION_CAL, ACTION_AUTH)
 
 
-def auth(f):
+def auth(f):  # type: ignore
     @functools.wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapped(self: RequestHandler, *args: Any, **kwargs: Any) -> Any:
         if kwargs.get("action", None) in NO_AUTH_ACTION:
-            return f(*args, **kwargs)
+            return f(self, *args, **kwargs)
 
-        token = args[0].request.headers.get("bgmi-token")
+        token = self.request.headers.get("bgmi-token")
         if token == ADMIN_TOKEN:
-            return f(*args, **kwargs)
+            return f(self, *args, **kwargs)
         else:
             # HTTPError will be except in `BaseHandler.write_error`
             raise HTTPError(401)
 
-    return wrapper
+    # return cast(F, wrapper)
+    return wrapped
 
 
 class AdminApiHandler(BaseHandler):
     @auth
-    def get(self, action, *args, **kwargs):
+    def get(self, action: str) -> None:
         try:
-            result = API_MAP_GET.get(action)()
+            result = API_MAP_GET[action]()
+        except KeyError:
+            raise HTTPError(404)
         except Exception:
             traceback.print_exc()
             raise HTTPError(400)
         self.finish(self.jsonify(**result))
 
     @auth
-    def post(self, action, *args, **kwargs):
+    def post(self, action: str) -> None:
         data = self.get_json()
 
         try:
-            result = API_MAP_POST.get(action)(**data)
+            result = API_MAP_POST[action](**data)
             if result["status"] == "error":
                 raise HTTPError(400)
         except HTTPError:
             raise HTTPError(400)
+        except KeyError:
+            raise HTTPError(404)
         except Exception:
             traceback.print_exc()
             raise HTTPError(500)
@@ -109,7 +115,7 @@ class UpdateHandler(BaseHandler):
     lock = Lock()
 
     @auth
-    async def post(self):
+    async def post(self) -> None:
         if not self.lock.locked():
             self.lock.acquire()
             IOLoop.instance().add_callback(self.hard_task)  # 这样将在下一轮事件循环执行self.sleep
@@ -118,7 +124,7 @@ class UpdateHandler(BaseHandler):
             await self.finish(self.jsonify(message="previous updating has not finish"))
 
     @run_on_executor
-    def hard_task(self,):
+    def hard_task(self) -> None:
         print("start work")
         data = self.get_json()
 

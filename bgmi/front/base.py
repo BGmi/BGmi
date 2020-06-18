@@ -1,6 +1,7 @@
 import json
 import json.decoder
 import os
+from typing import Any, List
 
 import tornado.web
 from tornado.web import HTTPError
@@ -15,16 +16,16 @@ WEEK = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
 
 class BaseHandler(tornado.web.RequestHandler):
-    patch_list = None
+    patch_list = []  # type: List[dict]
     latest_version = None
 
-    def get_json(self):
+    def get_json(self) -> Any:
         try:
             return json.loads(self.request.body.decode("utf-8"))
         except json.decoder.JSONDecodeError:
             raise HTTPError(400)
 
-    def jsonify(self, data=None, **kwargs):
+    def jsonify(self, data: Any = None, **kwargs: Any) -> str:
         j = {
             "version": __version__,
             "latest_version": self.latest_version,
@@ -38,24 +39,23 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_header("content-type", "application/json; charset=utf-8")
         return json.dumps(j, ensure_ascii=False, indent=2)
 
-    def data_received(self, chunk):
+    def data_received(self, chunk: bytes) -> None:
         pass
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         if self.latest_version is None:
             if os.path.exists(os.path.join(BGMI_PATH, "latest")):
                 with open(os.path.join(BGMI_PATH, "latest")) as f:
                     self.latest_version = f.read().strip()
 
-        if self.patch_list is None:
-            runner = ScriptRunner()
-            self.patch_list = runner.get_models_dict()
-            for i in self.patch_list:
-                i["cover"] = normalize_path(i["cover"])
+        runner = ScriptRunner()
+        self.patch_list = runner.get_models_dict()
+        for i in self.patch_list:
+            i["cover"] = normalize_path(i["cover"])
 
         super().__init__(*args, **kwargs)
 
-    def write_error(self, status_code, **kwargs):
+    def write_error(self, status_code: int, **kwargs: Any) -> None:
         """Override to implement custom error pages.
 
         ``write_error`` may call `write`, `render`, `set_header`, etc

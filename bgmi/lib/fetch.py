@@ -9,12 +9,11 @@ DATA_SOURCE_MAP = {
 }
 
 
-def wrap(*args, **kwargs):
+try:
+    website = DATA_SOURCE_MAP[DATA_SOURCE]()
+except KeyError:
     print_error(
         'date source "{}" in config is wrong, please edit it manually'.format(
             DATA_SOURCE
         )
     )
-
-
-website = DATA_SOURCE_MAP.get(DATA_SOURCE, wrap)()

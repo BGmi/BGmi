@@ -16,7 +16,7 @@ def test_info(source, data_source_bangumi_name):
             assert isinstance(s, SubtitleGroup)
     b = bangumi_result[0]
 
-    es = w.fetch_episode_of_bangumi(b.keyword)
+    es = w.fetch_episode_of_bangumi(b.keyword, max_page=3)
     for episode in es:
         assert "download" in episode
         assert "subtitle_group" in episode

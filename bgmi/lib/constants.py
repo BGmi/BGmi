@@ -1,3 +1,5 @@
+from typing import List
+
 import bgmi.config
 from bgmi.config import BANGUMI_MOE_URL, SHARE_DMHY_URL
 
@@ -78,7 +80,7 @@ STATUS_ERROR = "error"
 STATUS_INFO = "info"
 
 SPACIAL_APPEND_CHARS = ["Ⅱ", "Ⅲ", "♪", "Δ", "×", "☆", "É", "·", "♭", "★"]
-SPACIAL_REMOVE_CHARS = []
+SPACIAL_REMOVE_CHARS = []  # type: List[str]
 
 UNSUPPORTED_VIDEO_CODING = [
     "hevc",
@@ -385,7 +387,7 @@ actions_and_arguments = [
     {"action": "install", "help": "Install BGmi front / admin / download delegate"},
     {"action": "upgrade", "help": "Check update."},
     {"action": "history", "help": "List your history of following bangumi"},
-]
+]  # type: List[dict]
 
 
 BANGUMI_UPDATE_TIME = ("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Unknown")
