@@ -1,12 +1,13 @@
 import asyncio
 import os.path
+import shutil
 import sys
 import tempfile
 
 import pytest
 import requests_cache
 
-from bgmi.config import IS_WINDOWS
+from bgmi.config import IS_WINDOWS, SCRIPT_PATH
 from bgmi.lib.models import recreate_source_relatively_table
 from bgmi.main import patch_requests
 
@@ -28,9 +29,21 @@ def pytest_sessionstart(session):
             allowable_methods=("GET", "POST"),
         )
     patch_requests()
+    ensure_example_script()
     if IS_WINDOWS:
         if sys.version_info[1] >= 8:
             asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+
+def ensure_example_script():
+    test_script = "test_script.py"
+    p = os.listdir(SCRIPT_PATH)
+    if test_script not in p:
+        print("copy test_script.py to SCRIPT_PATH")
+        shutil.copy(
+            os.path.join(os.path.dirname(__file__), test_script),
+            os.path.join(SCRIPT_PATH, test_script),
+        )
 
 
 @pytest.fixture()
