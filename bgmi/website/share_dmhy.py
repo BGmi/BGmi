@@ -286,6 +286,3 @@ class DmhySource(BaseWebsite):
                 )
 
         return result
-
-    def fetch_single_bangumi(self, bangumi_id) -> WebsiteBangumi:
-        return WebsiteBangumi(keyword=bangumi_id)

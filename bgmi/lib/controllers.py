@@ -71,15 +71,10 @@ def add(name: str, episode: int = None) -> ControllerResult:
 
     Filter.get_or_create(bangumi_name=name)
 
-    info = website.fetch_single_bangumi(bangumi_obj.keyword)
-    if info.episodes:
-        website.save_bangumi(info)
-        followed_obj.episode = info.max_episode
-    else:
-        bangumi_data, _ = website.get_maximum_episode(
-            bangumi_obj, subtitle=False, max_page=int(MAX_PAGE)
-        )
-        followed_obj.episode = bangumi_data["episode"] if episode is None else episode
+    bangumi_data, _ = website.get_maximum_episode(
+        bangumi_obj, subtitle=False, max_page=int(MAX_PAGE)
+    )
+    followed_obj.episode = bangumi_data["episode"] if episode is None else episode
 
     followed_obj.save()
     result = {
@@ -210,7 +205,10 @@ def cal(
     if not weekly_list:
         print_warning("Warning: no bangumi schedule, fetching ...")
         force_update = True
-    website.bangumi_calendar(force_update=force_update, save=save, cover=cover)
+
+    if force_update:
+        print_info("Fetching bangumi info ...")
+        website.bangumi_calendar(save=save, cover=cover)
 
     weekly_list = Bangumi.get_updating_bangumi()
 
@@ -427,12 +425,8 @@ def update(
             )
             continue
 
-        info = website.fetch_single_bangumi(bangumi_obj.keyword)
-        if info.episodes:
-            website.save_bangumi(info)
-
         episode, all_episode_data = website.get_maximum_episode(
-            bangumi=bangumi_obj, ignore_old_row=ignore, max_page=1
+            bangumi=bangumi_obj, ignore_old_row=ignore, max_page=int(MAX_PAGE)
         )
 
         if (episode.get("episode") > subscribe["episode"]) or (

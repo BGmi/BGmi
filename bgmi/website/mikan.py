@@ -1,7 +1,7 @@
 import os
 import time
 from collections import defaultdict
-from typing import List
+from typing import List, Optional
 
 import attr
 import bs4
@@ -197,32 +197,9 @@ class Mikanani(BaseWebsite):
             nr.append(subtitle)
 
         bangumi_info["subtitle_group"] = [SubtitleGroup(**x) for x in nr]
-        bangumi_info["episodes"] = parse_episodes(r)
         return bangumi_info
 
     def search_by_keyword(self, keyword, count=None):
-        """
-        return a list of dict with at least 4 key: download, name, title, episode
-        example:
-        ```
-            [
-                {
-                    'name':"路人女主的养成方法",
-                    'download': 'magnet:?xt=urn:btih:what ever',
-                    'title': "[澄空学园] 路人女主的养成方法 第12话 MP4 720p  完",
-                    'episode': 12
-                },
-            ]
-        ```
-        :param keyword: search key word
-        :type keyword: str
-        :param count: how many page to fetch from website
-        :type count: int
-
-        :return: list of episode search result
-        :rtype: list[dict]
-        """
-
         result = []
         r = get_text(server_root + "Home/Search", params={"searchstr": keyword})
         s = BeautifulSoup(r, "html.parser")
@@ -249,29 +226,6 @@ class Mikanani(BaseWebsite):
     def fetch_episode_of_bangumi(
         self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE
     ):
-        """
-        get all episode by bangumi id
-        example
-        ```
-            [
-                {
-                    "download": "magnet:?xt=urn:btih:e43b3b6b536a1199e112d3c7ff15cab82c",
-                    "subtitle_group": "58a9c1c9f5dc363606ab42ec",
-                    "title": "【喵萌奶茶屋】★七月新番★[来自深渊/Made in Abyss][07][GB][720P]",
-                    "episode": 0,
-                    "time": 1503301292
-                },
-            ]
-        ```
-
-        :param bangumi_id: bangumi_id
-        :param subtitle_list: list of subtitle group
-        :type subtitle_list: list
-        :param max_page: how many page you want to crawl if there is no subtitle list
-        :type max_page: int
-        :return: list of bangumi
-        :rtype: list[dict]
-        """
         r = get_text(server_root + "Home/Bangumi/{}".format(bangumi_id))
         return [attr.asdict(x) for x in parse_episodes(r, subtitle_list)]
 
@@ -286,7 +240,12 @@ class Mikanani(BaseWebsite):
                 bangumi_list.append(obj)
         return bangumi_list
 
-    def fetch_single_bangumi(self, bangumi_id: str) -> WebsiteBangumi:
+    def fetch_single_bangumi(
+        self,
+        bangumi_id: str,
+        subtitle_list: Optional[List[str]] = None,
+        max_page: int = 0,
+    ) -> Optional[WebsiteBangumi]:
         html = get_text(server_root + "Home/Bangumi/{}".format(bangumi_id))
         try:
             info = self.parse_bangumi_details_page(html)
@@ -296,7 +255,7 @@ class Mikanani(BaseWebsite):
                 status=info["status"],
                 update_time=info["update_time"],
                 subtitle_group=info["subtitle_group"],
-                episodes=info["episodes"],
+                episodes=parse_episodes(html, subtitle_list),
             )
         except AttributeError:
             if _DUMP:

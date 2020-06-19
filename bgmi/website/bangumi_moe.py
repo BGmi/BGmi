@@ -185,6 +185,3 @@ class BangumiMoe(BaseWebsite):
         # Avoid bangumi collection. It's ok but it will waste your traffic and bandwidth.
         result = result[::-1]
         return result
-
-    def fetch_single_bangumi(self, bangumi_id: str) -> WebsiteBangumi:
-        return WebsiteBangumi(keyword=bangumi_id)

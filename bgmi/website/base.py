@@ -108,25 +108,13 @@ class BaseWebsite:
         return weekly_list
 
     def bangumi_calendar(
-        self,
-        force_update: bool = False,
-        save: bool = True,
-        cover: Optional[List[str]] = None,
+        self, save: bool = True, cover: Optional[List[str]] = None,
     ) -> Dict[str, List[WebsiteBangumi]]:
         """
 
-        :param force_update:
         :param save: set true to enable save bangumi data to database
         :param cover: list of cover url (of scripts) want to download
         """
-        if force_update and not test_connection():
-            force_update = False
-            print_warning("Network is unreachable")
-
-        if force_update:
-            print_info("Fetching bangumi info ...")
-            self.fetch(save=save)
-
         weekly_list = self.fetch(save=save)  # type:  Dict[str, List[WebsiteBangumi]]
 
         if cover is not None:
@@ -174,6 +162,12 @@ class BaseWebsite:
         else:
             regex = None
 
+        info = self.fetch_single_bangumi(
+            bangumi.keyword, subtitle_list=subtitle_group, max_page=max_page
+        )
+        if info is not None:
+            self.save_bangumi(info)
+
         data = [
             i
             for i in self.fetch_episode(
@@ -183,7 +177,7 @@ class BaseWebsite:
                 include=include,
                 exclude=exclude,
                 regex=regex,
-                max_page=int(max_page),
+                max_page=max_page,
             )
             if i["episode"] is not None
         ]
@@ -361,19 +355,27 @@ class BaseWebsite:
         :param bangumi_id: bangumi_id
         :param subtitle_list: list of subtitle group
         :type subtitle_list: list
-        :param max_page: how many page you want to crawl if there is no subtitle list
+        :param max_page: how many page to crawl
         :type max_page: int
         :return: list of bangumi
         :rtype: list[dict]
         """
         raise NotImplementedError
 
-    def fetch_single_bangumi(self, bangumi_id: str) -> WebsiteBangumi:
+    def fetch_single_bangumi(
+        self,
+        bangumi_id: str,
+        subtitle_list: Optional[List[str]] = None,
+        max_page: int = int(MAX_PAGE),
+    ) -> Optional[WebsiteBangumi]:
         """
-        fetch bangumi info when updating
+        fetch bangumi info when updating, return ``None``
+        if website don't have a page contains episodes and info at same time.
 
-        :param bangumi_id: banugmi_id, or bangumi['keyword']
-        :type bangumi_id: str
-        :rtype: WebsiteBangumi
+        SubClass doesn't have to implement this method.
+
+        :param bangumi_id: bangumi_id, bangumi['keyword']
+        :param subtitle_list: list of subtitle group
+        :param max_page: how many page to crawl
         """
-        raise NotImplementedError
+        return None
