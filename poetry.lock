@@ -418,6 +418,18 @@ checkqa-mypy = ["mypy (v0.761)"]
 testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "requests", "xmlschema"]
 
 [[package]]
+category = "dev"
+description = "pytest plugin to re-run tests to eliminate flaky failures"
+name = "pytest-rerunfailures"
+optional = false
+python-versions = "*"
+version = "9.0"
+
+[package.dependencies]
+pytest = ">=5.0"
+setuptools = ">=40.0"
+
+[[package]]
 category = "main"
 description = "Extensions to the standard Python datetime module"
 name = "python-dateutil"
@@ -608,7 +620,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "629629c43cc5da0427f5fa4c400c686d927996b58f91e9238e1ab25e10d75c56"
+content-hash = "7e5c502ac7d2c38a088b319d7f6b38b278dc304a685a365e69782c3580c6f101"
 python-versions = "^3.5"
 
 [metadata.files]
@@ -792,6 +804,10 @@ pyparsing = [
 pytest = [
     {file = "pytest-5.4.3-py3-none-any.whl", hash = "sha256:5c0db86b698e8f170ba4582a492248919255fcd4c79b1ee64ace34301fb589a1"},
     {file = "pytest-5.4.3.tar.gz", hash = "sha256:7979331bfcba207414f5e1263b5a0f8f521d0f457318836a7355531ed1a4c7d8"},
+]
+pytest-rerunfailures = [
+    {file = "pytest-rerunfailures-9.0.tar.gz", hash = "sha256:895ac2a6486c0da0468ae31768b818d9f3f7fceddef110970c7dbb09e7b4b8e4"},
+    {file = "pytest_rerunfailures-9.0-py3-none-any.whl", hash = "sha256:f215f2b6da866f01df2e0d12c25687d7f6f0182cefed541afc442230d2d94e6b"},
 ]
 python-dateutil = [
     {file = "python-dateutil-2.8.1.tar.gz", hash = "sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"},

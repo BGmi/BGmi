@@ -43,14 +43,16 @@ transmissionrpc = "0.11"
 [tool.poetry.dev-dependencies]
 pre-commit = { version = '2.4.0', python = '>=3.7' }
 black = { version = '19.10b0', python = '>=3.6' }
+# tests
 coverage = { version = "5.1", extras = ['toml'] }
+pytest = "5.4.3"
+pytest-rerunfailures = "^9.0"
+requests-cache = "0.5.2"
 # pyinstaller
 pyinstaller = "^3.6"
 pywin32-ctypes = { version = "0.2.0", platform = "win32" }
 pefile = { version = "2019.4.18", platform = "win32" }
 macholib = { version = "^1.14", platform = "darwin" }
-pytest = "5.4.3"
-requests-cache = "0.5.2"
 mypy = "0.780"
 
 [tool.coverage.report]

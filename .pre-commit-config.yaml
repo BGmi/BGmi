@@ -64,6 +64,11 @@ repos:
           - --use-parentheses
           - -sd=THIRDPARTY
 
+  - repo: https://github.com/Trim21/poetry-check-lock
+    rev: v0.0.3
+    hooks:
+      - id: poetry-check-lock
+
   - repo: local
     hooks:
       - id: black

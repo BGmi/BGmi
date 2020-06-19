@@ -7,7 +7,8 @@ jobs:
             set -ex
             coverage run -a -m bgmi.main install
             bgmi -h
-            coverage run -a -m pytest tests --cache-requests --junitxml tmp/junit/test_report.xml
+            coverage run -a -m pytest tests --cache-requests --junitxml tmp/junit/test_report.xml --reruns=3 --reruns-delay=0.1
+
           env:
             DEBUG: mikan-dump
             BGMI_PATH: $(Pipeline.Workspace)/.bgmi
