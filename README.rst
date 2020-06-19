@@ -412,10 +412,12 @@ You can easily add your own BGmi data source by extending BGmi website base clas
 
 .. code-block:: python
 
-    class DataSource(bgmi.website.base.BaseWebsite):
-        cover_url=''
+    from bgmi.website.model import WebsiteBangumi
 
-        def search_by_keyword(self, keyword, count):
+    class DataSource(bgmi.website.base.BaseWebsite):
+         def search_by_keyword(
+            self, keyword: str, count: int
+        ) -> List[dict]:  # pragma: no cover
             """
             return a list of dict with at least 4 key: download, name, title, episode
             example:
@@ -439,49 +441,18 @@ You can easily add your own BGmi data source by extending BGmi website base clas
             """
             raise NotImplementedError
 
-        def fetch_bangumi_calendar_and_subtitle_group(self):
+        def fetch_bangumi_calendar(self) -> List[WebsiteBangumi]:  # pragma: no cover
             """
             return a list of all bangumi and a list of all subtitle group
 
             list of bangumi dict:
-            update time should be one of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-            example:
-            ```
-                [
-                    {
-                        "status": 0,
-                        "subtitle_group": [
-                            "123",
-                            "456"
-                        ],
-                        "name": "名侦探柯南",
-                        "keyword": "1234", #bangumi id
-                        "update_time": "Sat",
-                        "cover": "data/images/cover1.jpg"
-                    },
-                ]
-            ```
-            when downloading cover images, BGmi will try to get `self.cover_url + bangumi['cover']`
-
-
-            list of subtitle group dict:
-            example:
-            ```
-                [
-                    {
-                        'id': '233',
-                        'name': 'bgmi字幕组'
-                    }
-                ]
-            ```
-
-
-            :return: list of bangumi, list of subtitile group
-            :rtype: (list[dict], list[dict])
+            update time should be one of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Unknown']
             """
             raise NotImplementedError
 
-        def fetch_episode_of_bangumi(self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE):
+        def fetch_episode_of_bangumi(
+            self, bangumi_id: str, max_page: int, subtitle_list: Optional[List[str]] = None
+        ) -> List[dict]:  # pragma: no cover
             """
             get all episode by bangumi id
             example
@@ -507,6 +478,16 @@ You can easily add your own BGmi data source by extending BGmi website base clas
             """
             raise NotImplementedError
 
+        def fetch_single_bangumi(self, bangumi_id: str) -> WebsiteBangumi:
+            """
+            fetch bangumi info when updating
+
+            :param bangumi_id: bangumi_id, or bangumi['keyword']
+            :type bangumi_id: str
+            :rtype: WebsiteBangumi
+            """
+            raise NotImplementedError
+            # return WebsiteBangumi(keyword=bangumi_id) if website don't has a page contains episodes and info
 
 ===================
 Debug
