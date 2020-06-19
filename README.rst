@@ -412,36 +412,25 @@ You can easily add your own BGmi data source by extending BGmi website base clas
 
 .. code-block:: python
 
-    from bgmi.website.model import WebsiteBangumi
+    from typing import List, Optional
 
-    class DataSource(bgmi.website.base.BaseWebsite):
-         def search_by_keyword(
+    from bgmi.website.base import BaseWebsite
+    from bgmi.website.model import WebsiteBangumi, Episode
+
+
+    class DataSource(BaseWebsite):
+        def search_by_keyword(
             self, keyword: str, count: int
-        ) -> List[dict]:  # pragma: no cover
+        ) -> List[Episode]:  # pragma: no cover
             """
-            return a list of dict with at least 4 key: download, name, title, episode
-            example:
-            ```
-                [
-                    {
-                        'name':"路人女主的养成方法",
-                        'download': 'magnet:?xt=urn:btih:what ever',
-                        'title': "[澄空学园] 路人女主的养成方法 第12话 MP4 720p  完",
-                        'episode': 12
-                    },
-                ]
 
             :param keyword: search key word
-            :type keyword: str
             :param count: how many page to fetch from website
-            :type count: int
-
             :return: list of episode search result
-            :rtype: list[dict]
             """
             raise NotImplementedError
 
-        def fetch_bangumi_calendar(self) -> List[WebsiteBangumi]:  # pragma: no cover
+        def fetch_bangumi_calendar(self,) -> List[WebsiteBangumi]:  # pragma: no cover
             """
             return a list of all bangumi and a list of all subtitle group
 
@@ -452,21 +441,9 @@ You can easily add your own BGmi data source by extending BGmi website base clas
 
         def fetch_episode_of_bangumi(
             self, bangumi_id: str, max_page: int, subtitle_list: Optional[List[str]] = None
-        ) -> List[dict]:  # pragma: no cover
+        ) -> List[Episode]:  # pragma: no cover
             """
             get all episode by bangumi id
-            example
-            ```
-                [
-                    {
-                        "download": "magnet:?xt=urn:btih:e43b3b6b53dd9fd6af1199e112d3c7ff15cab82c",
-                        "subtitle_group": "58a9c1c9f5dc363606ab42ec",
-                        "title": "【喵萌奶茶屋】★七月新番★[来自深渊/Made in Abyss][07][GB][720P]",
-                        "episode": 0,
-                        "time": 1503301292
-                    },
-                ]
-            ```
 
             :param bangumi_id: bangumi_id
             :param subtitle_list: list of subtitle group
@@ -474,9 +451,9 @@ You can easily add your own BGmi data source by extending BGmi website base clas
             :param max_page: how many page you want to crawl if there is no subtitle list
             :type max_page: int
             :return: list of bangumi
-            :rtype: list[dict]
             """
             raise NotImplementedError
+
 
         def fetch_single_bangumi(self, bangumi_id: str) -> WebsiteBangumi:
             """
@@ -486,7 +463,6 @@ You can easily add your own BGmi data source by extending BGmi website base clas
             :type bangumi_id: str
             :rtype: WebsiteBangumi
             """
-            raise NotImplementedError
             # return WebsiteBangumi(keyword=bangumi_id) if website don't has a page contains episodes and info
 
 ===================

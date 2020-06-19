@@ -16,7 +16,7 @@ from bgmi.website.model import WebsiteBangumi
 class ScriptRunner:
     _defined = None
     scripts = []  # type: List[ScriptBase]
-    download_queue = []  # type: List[dict]
+    download_queue = []  # type: List[Episode]
 
     def __new__(cls, *args, **kwargs):  # type: ignore
         if cls._defined is None:
@@ -100,7 +100,7 @@ class ScriptRunner:
             for k, v in script.get_download_url().items()
         ]
 
-    def run(self, return_: bool = True, download: bool = False) -> List[dict]:
+    def run(self, return_: bool = True, download: bool = False) -> List[Episode]:
         for script in self.scripts:
             print_info("fetching {} ...".format(script.bangumi_name))
             download_item = self.make_dict(script)
@@ -133,7 +133,7 @@ class ScriptRunner:
                         download_queue.append(e)
 
             if return_:
-                self.download_queue.extend(download_queue)
+                self.download_queue.extend(Episode(**x) for x in download_queue)
                 continue
 
             if download:
@@ -239,8 +239,8 @@ class ScriptBase:
             ret = {}
             data = source.fetch_episode_of_bangumi(**self._data)
             for i in data:
-                if int(i["episode"]) not in data:
-                    ret[int(i["episode"])] = i["download"]
+                if int(i.episode) not in data:
+                    ret[int(i.episode)] = i.download
             return ret
         else:
             return {}

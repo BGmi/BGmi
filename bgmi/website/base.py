@@ -16,15 +16,8 @@ from bgmi.lib.models import (
     Filter,
     Subtitle,
 )
-from bgmi.utils import (
-    convert_cover_url_to_path,
-    download_cover,
-    parse_episode,
-    print_info,
-    print_warning,
-    test_connection,
-)
-from bgmi.website.model import WebsiteBangumi
+from bgmi.utils import parse_episode
+from bgmi.website.model import Episode, WebsiteBangumi
 
 T = TypeVar("T", bound=dict)
 
@@ -112,7 +105,7 @@ class BaseWebsite:
         subtitle: bool = True,
         ignore_old_row: bool = True,
         max_page: int = int(MAX_PAGE),
-    ) -> Tuple[dict, list]:
+    ) -> Tuple[int, List[Episode]]:
         followed_filter_obj, _ = Filter.get_or_create(bangumi_name=bangumi.name)
 
         if followed_filter_obj and subtitle:
@@ -152,21 +145,18 @@ class BaseWebsite:
                 regex=regex,
                 max_page=max_page,
             )
-            if i["episode"] is not None
         ]
 
         if ignore_old_row:
             data = [
-                row
-                for row in data
-                if row["time"] > int(time.time()) - 3600 * 24 * 30 * 3
+                row for row in data if row.time > int(time.time()) - 3600 * 24 * 30 * 3
             ]  # three month
 
         if data:
-            b = max(data, key=lambda _i: _i["episode"])  # type: dict
-            return b, data
+            b = max(data, key=lambda _i: _i.episode)
+            return b.episode, data
         else:
-            return {"episode": 0}, []
+            return 0, []
 
     def fetch_episode(
         self,
@@ -177,7 +167,7 @@ class BaseWebsite:
         exclude: str = None,
         regex: str = None,
         max_page: int = int(MAX_PAGE),
-    ) -> List[dict]:
+    ) -> List[Episode]:
         result = []
 
         max_page = int(max_page)
@@ -193,8 +183,8 @@ class BaseWebsite:
             )
 
         for info in response_data:
-            if "合集" not in info["title"]:
-                info["name"] = name
+            if "合集" not in info.title:
+                info.name = name
                 result.append(info)
 
         if include:
@@ -202,7 +192,7 @@ class BaseWebsite:
             result = list(
                 filter(
                     lambda s: True
-                    if all(map(lambda t: t in s["title"], include_list))
+                    if all(map(lambda t: t in s.title, include_list))
                     else False,
                     result,
                 )
@@ -213,7 +203,7 @@ class BaseWebsite:
             result = list(
                 filter(
                     lambda s: True
-                    if all(map(lambda t: t not in s["title"], exclude_list))
+                    if all(map(lambda t: t not in s.title, exclude_list))
                     else False,
                     result,
                 )
@@ -223,22 +213,22 @@ class BaseWebsite:
         return result
 
     @staticmethod
-    def remove_duplicated_bangumi(result: List[T]) -> List[T]:
+    def remove_duplicated_bangumi(result: List[Episode]) -> List[Episode]:
         """
 
         :type result: list[dict]
         """
         ret = []
-        episodes = list({i["episode"] for i in result})
+        episodes = list({i.episode for i in result})
         for i in result:
-            if i["episode"] in episodes:
+            if i.episode in episodes:
                 ret.append(i)
-                del episodes[episodes.index(i["episode"])]
+                del episodes[episodes.index(i.episode)]
 
         return ret
 
     @staticmethod
-    def filter_keyword(data: List[T], regex: str = None) -> List[T]:
+    def filter_keyword(data: List[Episode], regex: str = None) -> List[Episode]:
         """
 
         :type regex: str
@@ -248,7 +238,7 @@ class BaseWebsite:
         if regex:
             try:
                 match = re.compile(regex)
-                data = [s for s in data if match.findall(s["title"])]
+                data = [s for s in data if match.findall(s.title)]
             except re.error as e:
                 if os.getenv("DEBUG"):  # pragma: no cover
                     import traceback
@@ -262,7 +252,7 @@ class BaseWebsite:
                 filter(
                     lambda s: all(
                         map(
-                            lambda t: t.strip().lower() not in s["title"].lower(),
+                            lambda t: t.strip().lower() not in s.title.lower(),
                             GLOBAL_FILTER.split(","),
                         )
                     ),
@@ -274,27 +264,12 @@ class BaseWebsite:
 
     def search_by_keyword(
         self, keyword: str, count: int
-    ) -> List[dict]:  # pragma: no cover
+    ) -> List[Episode]:  # pragma: no cover
         """
-        return a list of dict with at least 4 key: download, name, title, episode
-        example:
-        ```
-            [
-                {
-                    'name':"路人女主的养成方法",
-                    'download': 'magnet:?xt=urn:btih:what ever',
-                    'title': "[澄空学园] 路人女主的养成方法 第12话 MP4 720p  完",
-                    'episode': 12
-                },
-            ]
 
         :param keyword: search key word
-        :type keyword: str
         :param count: how many page to fetch from website
-        :type count: int
-
         :return: list of episode search result
-        :rtype: list[dict]
         """
         raise NotImplementedError
 
@@ -309,21 +284,9 @@ class BaseWebsite:
 
     def fetch_episode_of_bangumi(
         self, bangumi_id: str, max_page: int, subtitle_list: Optional[List[str]] = None
-    ) -> List[dict]:  # pragma: no cover
+    ) -> List[Episode]:  # pragma: no cover
         """
         get all episode by bangumi id
-        example
-        ```
-            [
-                {
-                    "download": "magnet:?xt=urn:btih:e43b3b6b53dd9fd6af1199e112d3c7ff15cab82c",
-                    "subtitle_group": "58a9c1c9f5dc363606ab42ec",
-                    "title": "【喵萌奶茶屋】★七月新番★[来自深渊/Made in Abyss][07][GB][720P]",
-                    "episode": 0,
-                    "time": 1503301292
-                },
-            ]
-        ```
 
         :param bangumi_id: bangumi_id
         :param subtitle_list: list of subtitle group
@@ -331,7 +294,6 @@ class BaseWebsite:
         :param max_page: how many page to crawl
         :type max_page: int
         :return: list of bangumi
-        :rtype: list[dict]
         """
         raise NotImplementedError
 

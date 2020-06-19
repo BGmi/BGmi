@@ -59,4 +59,4 @@ def create_dir() -> None:
 
 
 def install() -> None:
-    get_download_class(DOWNLOAD_DELEGATE, instance=False).install()
+    get_download_class().install()

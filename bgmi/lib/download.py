@@ -1,26 +1,15 @@
 import os
-from typing import List
-
-import attr
+from typing import List, Type
 
 from bgmi.config import DOWNLOAD_DELEGATE, SAVE_PATH
 from bgmi.downloader.aria2_rpc import Aria2DownloadRPC
+from bgmi.downloader.base import BaseDownloadService
 from bgmi.downloader.deluge import DelugeRPC
 from bgmi.downloader.transmission_rpc import TransmissionRPC
 from bgmi.downloader.xunlei import XunleiLixianDownload
 from bgmi.lib.models import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download
 from bgmi.utils import normalize_path, print_error
-
-
-@attr.s
-class Episode:
-    name = attr.ib(type=str)
-    title = attr.ib(type=str)
-    download = attr.ib(type=str)
-    episode = attr.ib(default=0, type=int)
-    time = attr.ib(default=0, type=int)
-    subtitle_group = attr.ib(default="", type=str)
-
+from bgmi.website.base import Episode
 
 DOWNLOAD_DELEGATE_DICT = {
     "xunlei": XunleiLixianDownload,
@@ -30,20 +19,19 @@ DOWNLOAD_DELEGATE_DICT = {
 }
 
 
-def get_download_class(  # type: ignore
-    download_obj=None, save_path="", overwrite=True, instance=True  # type: ignore
-):  # type: ignore
-    if DOWNLOAD_DELEGATE not in DOWNLOAD_DELEGATE_DICT:
+def get_download_class() -> Type[BaseDownloadService]:
+    try:
+        return DOWNLOAD_DELEGATE_DICT[DOWNLOAD_DELEGATE]
+    except KeyError:
         print_error("unexpected delegate {}".format(DOWNLOAD_DELEGATE))
+        raise
 
-    delegate = DOWNLOAD_DELEGATE_DICT.get(DOWNLOAD_DELEGATE)
 
-    if instance:
-        delegate = delegate(
-            download_obj=download_obj, overwrite=overwrite, save_path=save_path
-        )
-
-    return delegate
+def get_download_instance(
+    download_obj: Episode = None, save_path: str = "", overwrite: bool = True
+) -> BaseDownloadService:
+    cls = get_download_class()
+    return cls(download_obj=download_obj, overwrite=overwrite, save_path=save_path)
 
 
 def download_prepare(data: List[Episode]) -> None:
@@ -72,7 +60,7 @@ def download_prepare(data: List[Episode]) -> None:
         download.save()
         try:
             # start download
-            download_class = get_download_class(
+            download_class = get_download_instance(
                 download_obj=download, save_path=save_path
             )
             download_class.download()

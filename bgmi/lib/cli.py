@@ -45,7 +45,7 @@ from bgmi.lib.controllers import (
     source,
     update,
 )
-from bgmi.lib.download import Episode, download_prepare, get_download_class
+from bgmi.lib.download import download_prepare, get_download_class
 from bgmi.lib.fetch import website
 from bgmi.lib.models import (
     STATUS_DELETED,
@@ -97,9 +97,9 @@ def search_wrapper(ret: Any) -> None:
         globals()["print_{}".format(result["status"])](result["message"])
     data = result["data"]
     for i in data:
-        print_success(i["title"])
+        print_success(i.title)
     if ret.download:
-        download_prepare([Episode(**x) for x in data])
+        download_prepare(data)
 
 
 def mark_wrapper(ret: Any) -> None:
@@ -269,7 +269,7 @@ def download_manager(ret: Any) -> None:
     else:
         status = ret.status
         status = int(status) if status is not None else None
-        delegate = get_download_class(instance=False)
+        delegate = get_download_class()
         delegate.download_status(status=status)
 
 
@@ -297,7 +297,7 @@ def fetch_(ret: Any) -> None:
     if not data:
         print_warning("Nothing.")
     for i in data:
-        print_success(i["title"])
+        print_success(i.title)
 
 
 def complete(ret: Any) -> None:

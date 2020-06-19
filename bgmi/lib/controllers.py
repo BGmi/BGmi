@@ -75,10 +75,10 @@ def add(name: str, episode: int = None) -> ControllerResult:
 
     Filter.get_or_create(bangumi_name=name)
 
-    bangumi_data, _ = website.get_maximum_episode(
+    max_episode, _ = website.get_maximum_episode(
         bangumi_obj, subtitle=False, max_page=int(MAX_PAGE)
     )
-    followed_obj.episode = bangumi_data["episode"] if episode is None else episode
+    followed_obj.episode = max_episode if episode is None else episode
 
     followed_obj.save()
     result = {
@@ -305,13 +305,13 @@ def search(
         data = website.search_by_keyword(keyword, count=count)
         data = website.filter_keyword(data, regex=regex)
         if min_episode is not None:
-            data = [x for x in data if x["episode"] >= min_episode]
+            data = [x for x in data if x.episode >= min_episode]
         if max_episode is not None:
-            data = [x for x in data if x["episode"] <= max_episode]
+            data = [x for x in data if x.episode <= max_episode]
 
         if not dupe:
             data = website.remove_duplicated_bangumi(data)
-        data.sort(key=lambda x: x["episode"])
+        data.sort(key=lambda x: x.episode)
         return {
             "status": "success",
             "message": "",
@@ -326,6 +326,8 @@ def search(
             "data": data,
         }
     except Exception as e:
+        if os.environ.get("DEBUG"):
+            raise
         return {
             "status": "error",
             "message": str(e),
@@ -447,44 +449,42 @@ def update(
             bangumi=bangumi_obj, ignore_old_row=ignore, max_page=int(MAX_PAGE)
         )
 
-        if (episode.get("episode") > subscribe["episode"]) or (
-            len(name) == 1 and download
-        ):
+        if (episode > subscribe["episode"]) or (len(name) == 1 and download):
             if len(name) == 1 and download:
                 episode_range = download
             else:
-                episode_range = range(
-                    subscribe["episode"] + 1, episode.get("episode", 0) + 1
-                )
+                episode_range = range(subscribe["episode"] + 1, episode + 1)
                 print_success(
-                    "%s updated, episode: %d"
-                    % (subscribe["bangumi_name"], episode["episode"])
+                    "%s updated, episode: %d" % (subscribe["bangumi_name"], episode)
                 )
-                followed_obj.episode = episode["episode"]
+                followed_obj.episode = episode
                 followed_obj.status = STATUS_UPDATED
                 followed_obj.updated_time = int(time.time())
                 followed_obj.save()
                 result["data"]["updated"].append(
-                    {
-                        "bangumi": subscribe["bangumi_name"],
-                        "episode": episode["episode"],
-                    }
+                    {"bangumi": subscribe["bangumi_name"], "episode": episode,}
                 )
 
             for i in episode_range:
                 for epi in all_episode_data:
-                    if epi["episode"] == i:
+                    if epi.episode == i:
                         download_queue.append(epi)
                         break
 
     if download is not None:
         result["data"]["downloaded"] = download_queue
-        download_prepare([Episode(**x) for x in download_queue])
-        download_prepare([Episode(**x) for x in script_download_queue])
+        download_prepare(download_queue)
+        download_prepare(script_download_queue)
         print_info("Re-downloading ...")
         download_prepare(
             [
-                Episode(**x)
+                Episode(
+                    **{
+                        key: value
+                        for key, value in x.items()
+                        if key not in ["id", "status"]
+                    }
+                )
                 for x in Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD)
             ]
         )

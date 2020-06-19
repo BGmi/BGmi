@@ -23,14 +23,7 @@ class MockDownloadService(BaseDownloadService):
         pass
 
 
-def return_download_class(
-    download_obj=None, save_path="", overwrite=True, instance=True
-):
-    if instance:
-        return MockDownloadService(
-            download_obj=download_obj, overwrite=overwrite, save_path=save_path
-        )
-
+def return_download_class():
     return MockDownloadService
 
 
@@ -43,3 +36,13 @@ def test_update(clean_bgmi, bangumi_names):
     with mock.patch("bgmi.lib.download.get_download_class", return_download_class):
         main(["add"] + bangumi_names + ["--episode", "0"])
         main("update -d".split())
+
+
+# def test_download_with_filter():
+#     with mock.patch("bgmi.lib.download.get_download_class", return_download_class):
+#         main("")
+
+
+def test_search_with_filter():
+    with mock.patch("bgmi.lib.download.get_download_class", return_download_class):
+        main("search 海贼王 --download --regex .*720.*".split())

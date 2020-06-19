@@ -16,6 +16,7 @@ class Episode:
     episode = attr.ib(default=0, type=int)
     time = attr.ib(default=0, type=int)
     subtitle_group = attr.ib(default="", type=str)
+    name = attr.ib(default="", type=str)
 
 
 @attr.s

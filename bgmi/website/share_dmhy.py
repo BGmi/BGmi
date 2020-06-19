@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from bgmi.config import MAX_PAGE, SHARE_DMHY_URL
 from bgmi.utils import print_error
 from bgmi.website.base import BaseWebsite
-from bgmi.website.model import SubtitleGroup, WebsiteBangumi
+from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
 
 base_url = SHARE_DMHY_URL
 
@@ -275,14 +275,13 @@ class DmhySource(BaseWebsite):
                     print(name, title, subtitle_group, download, episode, time)
 
                 result.append(
-                    {
-                        "name": name,
-                        "title": title,
-                        "subtitle_group": subtitle_group,
-                        "download": download,
-                        "episode": episode,
-                        "time": time,
-                    }
+                    Episode(
+                        title=title,
+                        subtitle_group=subtitle_group,
+                        download=download,
+                        episode=episode,
+                        time=time,
+                    )
                 )
 
         return result
