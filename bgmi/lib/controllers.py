@@ -1,3 +1,5 @@
+import imghdr
+import os.path
 import time
 from operator import itemgetter
 from typing import Any, Dict, List, Optional, Union
@@ -25,6 +27,8 @@ from bgmi.script import ScriptRunner
 from bgmi.utils import (
     COLOR_END,
     GREEN,
+    convert_cover_url_to_path,
+    download_cover,
     logger,
     normalize_path,
     print_error,
@@ -208,9 +212,23 @@ def cal(
 
     if force_update:
         print_info("Fetching bangumi info ...")
-        website.bangumi_calendar(save=save, cover=cover)
+        website.fetch(save=save)
 
     weekly_list = Bangumi.get_updating_bangumi()
+
+    if cover is not None:
+        # download cover to local
+        cover_to_be_download = cover
+        for daily_bangumi in weekly_list.values():
+            for bangumi in daily_bangumi:
+                _, file_path = convert_cover_url_to_path(bangumi["cover"])
+
+                if not (os.path.exists(file_path) and bool(imghdr.what(file_path))):
+                    cover_to_be_download.append(bangumi["cover"])
+
+        if cover_to_be_download:
+            print_info("Updating cover ...")
+            download_cover(cover_to_be_download)
 
     runner = ScriptRunner()
     patch_list = runner.get_models_dict()

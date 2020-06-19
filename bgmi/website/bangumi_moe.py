@@ -79,7 +79,7 @@ def parser_bangumi(data):
             "name": name[bangumi_item["tag_id"]],
             "keyword": bangumi_item["tag_id"],
             "update_time": bangumi_update_time_known[bangumi_item["showOn"] - 1],
-            "cover": bangumi_item["cover"],
+            "cover": COVER_URL + bangumi_item["cover"],
         }
 
         if item["name"] is None:
@@ -93,8 +93,6 @@ def parser_bangumi(data):
 
 
 class BangumiMoe(BaseWebsite):
-    cover_url = COVER_URL
-
     def fetch_episode_of_bangumi(
         self, bangumi_id: str, max_page: int, subtitle_list: Optional[List[str]] = None,
     ) -> List[dict]:

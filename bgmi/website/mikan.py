@@ -18,6 +18,8 @@ _DEBUG = not _DUMP and "mikan" in os.environ.get("DEBUG", "").lower()
 
 server_root = "https://mikanani.me/"
 
+_COVER_URL = server_root[:-1]
+
 
 Cn_week_map = {
     "星期日": "Sun",
@@ -115,11 +117,12 @@ def parser_day_bangumi(soup) -> List[WebsiteBangumi]:
         if url:
             name = url["title"]
             url = url["href"]
-            assert isinstance(url, str)
             bangumi_id = url.split("/")[-1]
             soup.find("li",)
             li.append(
-                WebsiteBangumi(name=name, keyword=bangumi_id, cover=span["data-src"])
+                WebsiteBangumi(
+                    name=name, keyword=bangumi_id, cover=_COVER_URL + span["data-src"]
+                )
             )
     return li
 
@@ -136,8 +139,6 @@ def get_text(url, params=None):
 
 
 class Mikanani(BaseWebsite):
-    cover_url = server_root[:-1]
-
     def parse_bangumi_details_page(self, r):
 
         subtitle_groups = defaultdict(dict)

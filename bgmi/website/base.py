@@ -1,4 +1,3 @@
-import imghdr
 import os
 import re
 import time
@@ -105,32 +104,6 @@ class BaseWebsite:
                         bangumi["subtitle_group"].split(", ")
                     )
                 ]
-        return weekly_list
-
-    def bangumi_calendar(
-        self, save: bool = True, cover: Optional[List[str]] = None,
-    ) -> Dict[str, List[WebsiteBangumi]]:
-        """
-
-        :param save: set true to enable save bangumi data to database
-        :param cover: list of cover url (of scripts) want to download
-        """
-        weekly_list = self.fetch(save=save)  # type:  Dict[str, List[WebsiteBangumi]]
-
-        if cover is not None:
-            # download cover to local
-            cover_to_be_download = cover
-            for daily_bangumi in weekly_list.values():
-                for bangumi in daily_bangumi:
-                    _, file_path = convert_cover_url_to_path(bangumi.cover)
-
-                    if not (os.path.exists(file_path) and bool(imghdr.what(file_path))):
-                        cover_to_be_download.append(bangumi.cover)
-
-            if cover_to_be_download:
-                print_info("Updating cover ...")
-                download_cover(cover_to_be_download)
-
         return weekly_list
 
     def get_maximum_episode(

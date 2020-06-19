@@ -11,6 +11,9 @@ def test_info(source, data_source_bangumi_name):
     bangumi_result = w.fetch_bangumi_calendar()
     assert bangumi_result, "website {} should return bangumi list".format(source)
     for bangumi in bangumi_result:
+        assert bangumi.cover.startswith("https://") or bangumi.cover.startswith(
+            "http://"
+        ), "cover not starts with https:// or http://"
         assert isinstance(bangumi, WebsiteBangumi)
         for s in bangumi.subtitle_group:
             assert isinstance(s, SubtitleGroup)

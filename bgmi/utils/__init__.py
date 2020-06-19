@@ -130,7 +130,7 @@ def colorize(f):  # type: ignore
 @colorize
 def print_info(message: str, indicator: bool = True) -> None:
     logger.info(message)
-    print(message)
+    print(message + "\n", end="")
 
 
 @indicator
@@ -562,6 +562,7 @@ def download_file(url: str) -> Optional[requests.Response]:
 def download_cover(cover_url_list: List[str]) -> None:
     p = ThreadPool(4)
     content_list = p.map(download_file, cover_url_list)
+    p.close()
     for index, r in enumerate(content_list):
         if not r:
             continue
@@ -571,4 +572,3 @@ def download_cover(cover_url_list: List[str]) -> None:
             os.makedirs(dir_path)
         with open(file_path, "wb") as f:
             f.write(r.content)
-    p.close()
