@@ -29,6 +29,7 @@ from bgmi.utils import (
     GREEN,
     convert_cover_url_to_path,
     download_cover,
+    episode_filter_regex,
     logger,
     normalize_path,
     print_error,
@@ -75,9 +76,7 @@ def add(name: str, episode: int = None) -> ControllerResult:
 
     Filter.get_or_create(bangumi_name=name)
 
-    max_episode, _ = website.get_maximum_episode(
-        bangumi_obj, subtitle=False, max_page=int(MAX_PAGE)
-    )
+    max_episode, _ = website.get_maximum_episode(bangumi_obj, max_page=int(MAX_PAGE))
     followed_obj.episode = max_episode if episode is None else episode
 
     followed_obj.save()
@@ -272,7 +271,7 @@ def mark(name: str, episode: int) -> ControllerResult:
         followed_obj = Followed.get(bangumi_name=name)
     except Followed.DoesNotExist:
         runner = ScriptRunner()
-        followed_obj = runner.get_model(name)
+        followed_obj = runner.get_model(name)  # type: ignore
         if not followed_obj:
             result["status"] = "error"
             result["message"] = "Subscribe or Script <{}> does not exist.".format(name)
@@ -303,14 +302,14 @@ def search(
         count = 3
     try:
         data = website.search_by_keyword(keyword, count=count)
-        data = website.filter_keyword(data, regex=regex)
+        data = episode_filter_regex(data, regex=regex)
         if min_episode is not None:
             data = [x for x in data if x.episode >= min_episode]
         if max_episode is not None:
             data = [x for x in data if x.episode <= max_episode]
 
         if not dupe:
-            data = website.remove_duplicated_bangumi(data)
+            data = Episode.remove_duplicated_bangumi(data)
         data.sort(key=lambda x: x.episode)
         return {
             "status": "success",

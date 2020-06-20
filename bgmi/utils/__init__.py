@@ -12,7 +12,7 @@ import time
 from io import BytesIO
 from multiprocessing.pool import ThreadPool
 from shutil import move, rmtree
-from typing import List, Optional, Tuple, Union
+from typing import Any, Callable, List, Optional, Tuple, TypeVar, Union
 
 import requests
 
@@ -20,12 +20,17 @@ from bgmi import __admin_version__, __version__
 from bgmi.config import (
     BGMI_PATH,
     DATA_SOURCE,
+    ENABLE_GLOBAL_FILTER,
     FRONT_STATIC_PATH,
+    GLOBAL_FILTER,
     IS_WINDOWS,
     LOG_PATH,
     SAVE_PATH,
 )
 from bgmi.lib.constants import SUPPORT_WEBSITE
+from bgmi.website.model import Episode
+
+F = TypeVar("F", bound=Callable[..., Any])
 
 log_level = os.environ.get("BGMI_LOG") or "ERROR"
 log_level = log_level.upper()
@@ -45,7 +50,7 @@ except OSError:
     logging.basicConfig(stream=sys.stdout, level=logging.getLevelName(log_level))
 
 
-def log_utils_function(func):  # type: ignore
+def log_utils_function(func: F) -> F:
     @functools.wraps(func)
     def echo_func(*func_args, **func_kwargs):  # type: ignore
         logger.debug("")
@@ -57,7 +62,7 @@ def log_utils_function(func):  # type: ignore
         logger.debug("")
         return r
 
-    return echo_func
+    return echo_func  # type: ignore
 
 
 if (
@@ -572,3 +577,37 @@ def download_cover(cover_url_list: List[str]) -> None:
             os.makedirs(dir_path)
         with open(file_path, "wb") as f:
             f.write(r.content)
+
+
+def episode_filter_regex(data: List[Episode], regex: str = None) -> List[Episode]:
+    """
+
+    :param data: list of bangumi dict
+    :param regex: regex
+    """
+    if regex:
+        try:
+            match = re.compile(regex)
+            data = [s for s in data if match.findall(s.title)]
+        except re.error as e:
+            if os.getenv("DEBUG"):  # pragma: no cover
+                import traceback
+
+                traceback.print_exc()
+                raise e
+            return data
+
+    if not ENABLE_GLOBAL_FILTER == "0":
+        data = list(
+            filter(
+                lambda s: all(
+                    map(
+                        lambda t: t.strip().lower() not in s.title.lower(),
+                        GLOBAL_FILTER.split(","),
+                    )
+                ),
+                data,
+            )
+        )
+
+    return data

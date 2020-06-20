@@ -1,7 +1,7 @@
 import os
 import time
 from collections import defaultdict
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
 
 import peewee
 from peewee import FixedCharField, IntegerField, TextField
@@ -9,6 +9,7 @@ from playhouse.shortcuts import model_to_dict
 
 import bgmi.config
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
+from bgmi.utils import episode_filter_regex
 from bgmi.website.model import Episode
 
 # bangumi status
@@ -36,9 +37,20 @@ if os.environ.get("DEV"):
     print("using", bgmi.config.DB_PATH)
 
 
+_Cls = TypeVar("_Cls")
+
+
 class NeoDB(peewee.Model):
     class Meta:
         database = db
+
+    @classmethod
+    def get(cls: Type[_Cls], *query: Any, **filters: Any) -> _Cls:
+        return super().get(*query, **filters)  # type: ignore
+
+    @classmethod
+    def get_or_create(cls: Type[_Cls], **kwargs: Any) -> Tuple[_Cls, bool]:
+        return super().get_or_create(**kwargs)  # type: ignore
 
 
 class Bangumi(NeoDB):
@@ -202,11 +214,18 @@ class Download(NeoDB):
 
 
 class Filter(NeoDB):
-    bangumi_name = TextField(unique=True)
-    subtitle = TextField()
-    include = TextField()  # type: str
-    exclude = TextField()  # type: str
-    regex = TextField()
+    bangumi_name = TextField(unique=True)  # type: Optional[str]
+    subtitle = TextField()  # type: Optional[str]
+    include = TextField()  # type: Optional[str]
+    exclude = TextField()  # type: Optional[str]
+    regex = TextField()  # type: Optional[str]
+
+    @property
+    def subtitle_group_split(self) -> List[str]:
+        if self.subtitle:
+            return [x.strip() for x in self.subtitle.split(",")]
+        else:
+            return []
 
     def apply_on_episodes(self, result: List[Episode]) -> List[Episode]:
         if self.include:
@@ -230,7 +249,8 @@ class Filter(NeoDB):
                     result,
                 )
             )
-        return result
+
+        return episode_filter_regex(data=result, regex=self.regex)
 
 
 class Subtitle(NeoDB):

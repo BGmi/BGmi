@@ -1,5 +1,3 @@
-import os
-import re
 import time
 from collections import defaultdict
 from itertools import chain
@@ -7,7 +5,7 @@ from typing import Any, Dict, List, Optional, Tuple, TypeVar
 
 import attr
 
-from bgmi.config import ENABLE_GLOBAL_FILTER, GLOBAL_FILTER, MAX_PAGE
+from bgmi.config import MAX_PAGE
 from bgmi.lib.models import (
     STATUS_FOLLOWED,
     STATUS_UPDATED,
@@ -102,50 +100,28 @@ class BaseWebsite:
     def get_maximum_episode(
         self,
         bangumi: Bangumi,
-        subtitle: bool = True,
         ignore_old_row: bool = True,
         max_page: int = int(MAX_PAGE),
     ) -> Tuple[int, List[Episode]]:
         followed_filter_obj, _ = Filter.get_or_create(bangumi_name=bangumi.name)
 
-        if followed_filter_obj and subtitle:
-            subtitle_group = followed_filter_obj.subtitle
-        else:
-            subtitle_group = None
-
-        if followed_filter_obj and subtitle:
-            include = followed_filter_obj.include
-        else:
-            include = None
-
-        if followed_filter_obj and subtitle:
-            exclude = followed_filter_obj.exclude
-        else:
-            exclude = None
-
-        if followed_filter_obj and subtitle:
-            regex = followed_filter_obj.regex
-        else:
-            regex = None
-
         info = self.fetch_single_bangumi(
-            bangumi.keyword, subtitle_list=subtitle_group, max_page=max_page
+            bangumi.keyword,
+            subtitle_list=followed_filter_obj.subtitle_group_split,
+            max_page=max_page,
         )
         if info is not None:
             self.save_bangumi(info)
-
-        data = [
-            i
-            for i in self.fetch_episode(
-                _id=bangumi.keyword,
-                name=bangumi.name,
-                subtitle_group=subtitle_group,
-                include=include,
-                exclude=exclude,
-                regex=regex,
+            data = followed_filter_obj.apply_on_episodes(info.episodes)
+        else:
+            data = self.fetch_episode_of_bangumi(
+                bangumi_id=bangumi.keyword,
                 max_page=max_page,
+                subtitle_list=followed_filter_obj.subtitle_group_split,
             )
-        ]
+
+        for episode in data:
+            episode.name = bangumi.name
 
         if ignore_old_row:
             data = [
@@ -162,18 +138,15 @@ class BaseWebsite:
         self,
         _id: str,
         name: str = "",
-        subtitle_group: str = None,
-        include: str = None,
-        exclude: str = None,
-        regex: str = None,
+        subtitle_list: str = None,
         max_page: int = int(MAX_PAGE),
     ) -> List[Episode]:
         result = []
 
         max_page = int(max_page)
 
-        if subtitle_group and subtitle_group.split(", "):
-            condition = subtitle_group.split(", ")
+        if subtitle_list and subtitle_list.split(", "):
+            condition = subtitle_list.split(", ")
             response_data = self.fetch_episode_of_bangumi(
                 bangumi_id=_id, subtitle_list=condition, max_page=max_page
             )
@@ -187,80 +160,7 @@ class BaseWebsite:
                 info.name = name
                 result.append(info)
 
-        if include:
-            include_list = list(map(lambda s: s.strip(), include.split(",")))
-            result = list(
-                filter(
-                    lambda s: True
-                    if all(map(lambda t: t in s.title, include_list))
-                    else False,
-                    result,
-                )
-            )
-
-        if exclude:
-            exclude_list = list(map(lambda s: s.strip(), exclude.split(",")))
-            result = list(
-                filter(
-                    lambda s: True
-                    if all(map(lambda t: t not in s.title, exclude_list))
-                    else False,
-                    result,
-                )
-            )
-
-        result = self.filter_keyword(data=result, regex=regex)
         return result
-
-    @staticmethod
-    def remove_duplicated_bangumi(result: List[Episode]) -> List[Episode]:
-        """
-
-        :type result: list[dict]
-        """
-        ret = []
-        episodes = list({i.episode for i in result})
-        for i in result:
-            if i.episode in episodes:
-                ret.append(i)
-                del episodes[episodes.index(i.episode)]
-
-        return ret
-
-    @staticmethod
-    def filter_keyword(data: List[Episode], regex: str = None) -> List[Episode]:
-        """
-
-        :type regex: str
-        :param data: list of bangumi dict
-        :type data: list[dict]
-        """
-        if regex:
-            try:
-                match = re.compile(regex)
-                data = [s for s in data if match.findall(s.title)]
-            except re.error as e:
-                if os.getenv("DEBUG"):  # pragma: no cover
-                    import traceback
-
-                    traceback.print_exc()
-                    raise e
-                return data
-
-        if not ENABLE_GLOBAL_FILTER == "0":
-            data = list(
-                filter(
-                    lambda s: all(
-                        map(
-                            lambda t: t.strip().lower() not in s.title.lower(),
-                            GLOBAL_FILTER.split(","),
-                        )
-                    ),
-                    data,
-                )
-            )
-
-        return data
 
     def search_by_keyword(
         self, keyword: str, count: int
@@ -290,9 +190,7 @@ class BaseWebsite:
 
         :param bangumi_id: bangumi_id
         :param subtitle_list: list of subtitle group
-        :type subtitle_list: list
         :param max_page: how many page to crawl
-        :type max_page: int
         :return: list of bangumi
         """
         raise NotImplementedError

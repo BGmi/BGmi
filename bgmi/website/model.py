@@ -1,12 +1,9 @@
 from operator import attrgetter
-from typing import TYPE_CHECKING
+from typing import List
 
 import attr
 
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
-
-if TYPE_CHECKING:
-    from typing import List
 
 
 @attr.s
@@ -17,6 +14,17 @@ class Episode:
     time = attr.ib(default=0, type=int)
     subtitle_group = attr.ib(default="", type=str)
     name = attr.ib(default="", type=str)
+
+    @staticmethod
+    def remove_duplicated_bangumi(result: List["Episode"]) -> List["Episode"]:
+        ret = []
+        episodes = list({i.episode for i in result})
+        for i in result:
+            if i.episode in episodes:
+                ret.append(i)
+                del episodes[episodes.index(i.episode)]
+
+        return ret
 
 
 @attr.s
