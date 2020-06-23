@@ -35,7 +35,7 @@ jobs:
 
       - checkout: self
 
-      - template: /.ci/templates/install-project.yaml
+      - template: python/install-poetry-project.yaml@trim21
         parameters:
           python_version: $(python_version)
 
