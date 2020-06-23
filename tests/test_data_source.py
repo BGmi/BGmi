@@ -26,4 +26,4 @@ def test_info(source, data_source_bangumi_name):
 @pytest.mark.parametrize("source", DATA_SOURCE_MAP.keys())
 def test_search(source, data_source_bangumi_name):
     w = DATA_SOURCE_MAP[source]()
-    assert w.search_by_keyword(data_source_bangumi_name[source][0])
+    assert w.search_by_keyword(data_source_bangumi_name[source][0], count=1)
