@@ -36,7 +36,7 @@ tornado = '6.0.4'
 icalendar = '4.0.6'
 peewee = '3.13.3'
 importlib-metadata = "1.6.0"
-wcwidth = "0.1.9"
+wcwidth = "^0.1.9"
 attrs = "19.3.0"
 transmissionrpc = "0.11"
 
