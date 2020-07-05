@@ -26,10 +26,7 @@ jobs:
             artifactName: dump-$(platform)-$(python_version)
 
         - bash: |
-            export BUILD_SOURCEBRANCHNAME=${BRANCH#"refs/heads/"} # fix azure branch source name
-            bash <(curl -s https://codecov.io/bash) -Z -F "py${PYV/./}" -F "${PLATFORM}" -C $(Build.SourceVersion)
+            bash <(curl -s https://codecov.io/bash) -F "py_${PYV/./}" -F "os_$(platform)" -C $(Build.SourceVersion) -B "${BUILD_SOURCEBRANCH#'refs/heads/'}"
           name: Codecov
           env:
             PYV: $(python_version)
-            BRANCH: $(Build.SourceBranch)
-            PLATFORM: $(platform)
