@@ -1,8 +1,7 @@
 jobs:
   - template: /.ci/templates/job.yaml
     parameters:
-      name: Lint
+      name: Mypy
       pythonVersions: ['3.7', '3.8']
       steps:
-        - script: poetry --version
-        - template: python/pre-commit.yaml@trim21
+        - script: mypy bgmi

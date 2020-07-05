@@ -40,7 +40,8 @@ resources:
 stages:
   - stage: Lint
     jobs:
-      - template: ./jobs/lint.yaml
+      - template: ./jobs/lint/mypy.yaml
+      - template: ./jobs/lint/style.yaml
 
   - stage: Test
     jobs:
