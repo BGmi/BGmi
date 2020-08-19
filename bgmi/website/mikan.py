@@ -93,10 +93,12 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
         _container = container
         if subtitle_id in expand_subtitle_map.keys():
             expand_r = requests.get(
-                bangumi_episode_expand_api
-                + "?bangumiId={}&subtitleGroupId={}&take=200".format(
-                    bangumi_id, subtitle_id
-                )
+                bangumi_episode_expand_api,
+                params={
+                    "bangumiId": bangumi_id,
+                    "subtitleGroupId": subtitle_id,
+                    "take": 200,
+                },
             ).text
             expand_soup = BeautifulSoup(expand_r, "html.parser")
             _container = expand_soup.find("table")
