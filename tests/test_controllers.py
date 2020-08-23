@@ -2,7 +2,6 @@ import unittest
 
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.lib.controllers import (
-    Bangumi,
     add,
     cal,
     delete,

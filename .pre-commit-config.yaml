@@ -5,7 +5,7 @@ repos:
       - id: yamlfmt
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: ebc15addedad713c86ef18ae9632c88e187dd0af  # frozen: v3.1.0
+    rev: e1668fe86af3810fbca72b8653fe478e66a0afdc  # frozen: v3.2.0
     hooks:
       - id: check-merge-conflict
         exclude: \.rst$
@@ -35,13 +35,13 @@ repos:
       - id: find-trailing-comma
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: 4656fbe8173b927bc215d09db1af0ef739741ad0  # frozen: v2.5.0
+    rev: f766c29ec4bb6cf2674b81959871e59d5400380a  # frozen: v2.7.2
     hooks:
       - id: pyupgrade
         args: [--py3-plus]
 
-  - repo: https://github.com/Trim21/mirrors-autoflake
-    rev: b8c878d1121dc5160be52479e8d0790fc116fb6a  # frozen: v1.3.1
+  - repo: https://github.com/myint/autoflake
+    rev: 7a53fdafc82c33f446915b60fcac947c51279260  # frozen: v1.4
     hooks:
       - id: autoflake
         args:
@@ -49,10 +49,9 @@ repos:
           - --remove-unused-variables
           - --remove-all-unused-imports
           - --expand-star-imports
-        require_serial: true
 
   - repo: https://github.com/timothycrosley/isort
-    rev: cd9c2f6e70196bd429d0179635e0fac2d034ac5e  # frozen: 4.3.21-2
+    rev: 377d260ffa6f746693f97b46d95025afc4bd8275  # frozen: 5.4.2
     hooks:
       - id: isort
         args:
@@ -65,7 +64,7 @@ repos:
           - -sd=THIRDPARTY
 
   - repo: https://github.com/Trim21/poetry-check-lock
-    rev: v0.0.3
+    rev: 63621580c70f106fd07748c262b6e08fef886ecc  # frozen: v0.0.3
     hooks:
       - id: poetry-check-lock
 

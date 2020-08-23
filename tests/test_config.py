@@ -49,8 +49,9 @@ class ConfigTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        from bgmi.config import CONFIG_FILE_PATH
         import os
+
+        from bgmi.config import CONFIG_FILE_PATH
 
         os.remove(CONFIG_FILE_PATH)
         bgmi_config.write_default_config()
