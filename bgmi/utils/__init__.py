@@ -213,7 +213,10 @@ def get_terminal_col() -> int:  # pragma: no cover
             return _DEFAULT_TERMINAL_WIDTH
     else:
         try:
-            from ctypes import windll, create_string_buffer  # type: ignore[attr-defined]
+            from ctypes import (  # type: ignore[attr-defined]
+                create_string_buffer,
+                windll,
+            )
 
             # stdin handle is -10
             # stdout handle is -11

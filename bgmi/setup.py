@@ -4,7 +4,6 @@ from shutil import copy
 from bgmi import __version__
 from bgmi.config import (
     BGMI_PATH,
-    DOWNLOAD_DELEGATE,
     FRONT_STATIC_PATH,
     IS_WINDOWS,
     SAVE_PATH,

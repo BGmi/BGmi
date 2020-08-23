@@ -37,6 +37,7 @@ class XunleiLixianDownload(BaseDownloadService):
     def install():
         # install xunlei-lixian
         import tarfile
+
         import requests
 
         print_info(
