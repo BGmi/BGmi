@@ -1,6 +1,7 @@
 import pytest
 
 from bgmi.lib.fetch import DATA_SOURCE_MAP
+from bgmi.website import mikan
 from bgmi.website.base import BaseWebsite
 from bgmi.website.model import SubtitleGroup, WebsiteBangumi
 
@@ -27,3 +28,14 @@ def test_info(source, data_source_bangumi_name):
 def test_search(source, data_source_bangumi_name):
     w = DATA_SOURCE_MAP[source]()
     assert w.search_by_keyword(data_source_bangumi_name[source][0], count=1)
+
+
+def test_mikan_fetch_all_episode():
+    """
+    大欺诈师 极影字幕社
+
+    https://mikanani.me/Home/Bangumi/2242
+    """
+    w = mikan.Mikanani()
+    results = w.fetch_episode_of_bangumi("2242", ["34"])
+    assert len(results) > 15, "should fetch more episode in expand button"
