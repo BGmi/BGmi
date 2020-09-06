@@ -19,6 +19,8 @@ server_root = "https://mikanani.me/"
 
 _COVER_URL = server_root[:-1]
 
+# Example: https://mikanani.me/Home/ExpandEpisodeTable?bangumiId=2242&subtitleGroupId=34&take=65
+bangumi_episode_expand_api = "https://mikanani.me/Home/ExpandEpisodeTable"
 
 Cn_week_map = {
     "星期日": "Sun",
@@ -60,15 +62,21 @@ def get_weekly_bangumi():
                 pass
 
 
-def parse_episodes(content, subtitle_list=None) -> List[Episode]:
+def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
     result = []
     soup = BeautifulSoup(content, "html.parser")
     # name = soup.find('p', class_='bangumi-title').text
     container = soup.find("div", class_="central-container")  # type:bs4.Tag
     episode_container_list = {}
+    expand_subtitle_map = {}
     for index, tag in enumerate(container.contents):
         if not hasattr(tag, "attrs"):
             continue
+
+        class_names = tag.attrs.get("class")
+        if class_names is not None and "episode-expand" in class_names:
+            expand_subtitle_map[tag.attrs.get("data-subtitlegroupid", None)] = True
+
         subtitle_id = tag.attrs.get("id", False)
         if subtitle_list:
             if subtitle_id in subtitle_list:
@@ -82,7 +90,20 @@ def parse_episodes(content, subtitle_list=None) -> List[Episode]:
                 ] = tag.find_next_sibling("table")
 
     for subtitle_id, container in episode_container_list.items():
-        for tr in container.find_all("tr")[1:]:
+        _container = container
+        if subtitle_id in expand_subtitle_map.keys():
+            expand_r = requests.get(
+                bangumi_episode_expand_api,
+                params={
+                    "bangumiId": bangumi_id,
+                    "subtitleGroupId": subtitle_id,
+                    "take": 200,
+                },
+            ).text
+            expand_soup = BeautifulSoup(expand_r, "html.parser")
+            _container = expand_soup.find("table")
+
+        for tr in _container.find_all("tr")[1:]:
             title = tr.find("a", class_="magnet-link-wrap").text
             time_string = tr.find_all("td")[2].string
             result.append(
@@ -227,7 +248,7 @@ class Mikanani(BaseWebsite):
         self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE
     ):
         r = get_text(server_root + "Home/Bangumi/{}".format(bangumi_id))
-        return parse_episodes(r, subtitle_list)
+        return parse_episodes(r, bangumi_id, subtitle_list)
 
     def fetch_bangumi_calendar(self) -> List[WebsiteBangumi]:
         bangumi_list = []
@@ -255,7 +276,7 @@ class Mikanani(BaseWebsite):
                 status=info["status"],
                 update_time=info["update_time"],
                 subtitle_group=info["subtitle_group"],
-                episodes=parse_episodes(html, subtitle_list),
+                episodes=parse_episodes(html, bangumi_id, subtitle_list),
             )
         except AttributeError:
             if _DUMP:
