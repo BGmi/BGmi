@@ -3,8 +3,6 @@ from collections import defaultdict
 from itertools import chain
 from typing import Any, Dict, List, Optional, Tuple, TypeVar
 
-import attr
-
 from bgmi.config import MAX_PAGE
 from bgmi.lib.models import (
     STATUS_FOLLOWED,
@@ -27,7 +25,7 @@ class BaseWebsite:
     def save_bangumi(data: WebsiteBangumi) -> None:
         """save bangumi to database"""
         b, obj_created = Bangumi.get_or_create(
-            keyword=data.keyword, defaults=attr.asdict(data)
+            keyword=data.keyword, defaults=data.dict()
         )
         if not obj_created:
             should_save = False
