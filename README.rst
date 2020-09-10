@@ -60,14 +60,6 @@ Use pip:
 
     pip install bgmi
 
-Binary(no python needed):
-
-From `GitHub Releases <https://github.com/BGmi/BGmi/releases/latest>`_
-
-nightly: `azure pipeline artifacts <https://dev.azure.com/BGmi/BGmi/_build/latest?definitionId=3&branchName=master>`_
-
-Binary for MacOS is not available yet.
-
 Or from source(not recommended):
 
 .. code-block:: bash
