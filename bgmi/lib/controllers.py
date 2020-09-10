@@ -48,7 +48,7 @@ def add(name: str, episode: int = None) -> ControllerResult:
     # action add
     # add bangumi by a list of bangumi name
     # result = {}
-    logger.debug("add name: {} episode: {}".format(name, episode))
+    logger.debug(f"add name: {name} episode: {episode}")
     if not Bangumi.get_updating_bangumi():
         website.fetch(save=True, group_by_weekday=False)
 
@@ -57,7 +57,7 @@ def add(name: str, episode: int = None) -> ControllerResult:
     except Bangumi.DoesNotExist:
         result = {
             "status": "error",
-            "message": "{} not found, please check the name".format(name),
+            "message": f"{name} not found, please check the name",
         }
         return result
     followed_obj, this_obj_created = Followed.get_or_create(
@@ -67,7 +67,7 @@ def add(name: str, episode: int = None) -> ControllerResult:
         if followed_obj.status == STATUS_FOLLOWED:
             result = {
                 "status": "warning",
-                "message": "{} already followed".format(bangumi_obj.name),
+                "message": f"{bangumi_obj.name} already followed",
             }
             return result
         else:
@@ -82,7 +82,7 @@ def add(name: str, episode: int = None) -> ControllerResult:
     followed_obj.save()
     result = {
         "status": "success",
-        "message": "{} has been followed".format(bangumi_obj.name),
+        "message": f"{bangumi_obj.name} has been followed",
     }
     logger.debug(result)
     return result
@@ -100,7 +100,7 @@ def filter_(
         bangumi_obj = Bangumi.fuzzy_get(name=name)
     except Bangumi.DoesNotExist:
         result["status"] = "error"
-        result["message"] = "Bangumi {} does not exist.".format(name)
+        result["message"] = f"Bangumi {name} does not exist."
         return result
 
     try:
@@ -175,7 +175,7 @@ def delete(
     # action delete
     # just delete subscribed bangumi or clear all the subscribed bangumi
     result = {}
-    logger.debug("delete {}".format(name))
+    logger.debug(f"delete {name}")
     if clear_all:
         if Followed.delete_followed(batch=batch):
             result["status"] = "warning"
@@ -188,7 +188,7 @@ def delete(
             followed.status = STATUS_DELETED
             followed.save()
             result["status"] = "warning"
-            result["message"] = "Bangumi {} has been deleted".format(name)
+            result["message"] = f"Bangumi {name} has been deleted"
         except Followed.DoesNotExist:
             result["status"] = "error"
             result["message"] = "Bangumi %s does not exist" % name
@@ -202,7 +202,7 @@ def delete(
 def cal(
     force_update: bool = False, save: bool = False, cover: Optional[List[str]] = None
 ) -> Dict[str, List[Dict[str, Any]]]:
-    logger.debug("cal force_update: {} save: {}".format(force_update, save))
+    logger.debug(f"cal force_update: {force_update} save: {save}")
 
     weekly_list = Bangumi.get_updating_bangumi()
     if not weekly_list:
@@ -274,17 +274,17 @@ def mark(name: str, episode: int) -> ControllerResult:
         followed_obj = runner.get_model(name)  # type: ignore
         if not followed_obj:
             result["status"] = "error"
-            result["message"] = "Subscribe or Script <{}> does not exist.".format(name)
+            result["message"] = f"Subscribe or Script <{name}> does not exist."
             return result
 
     if episode is not None:
         followed_obj.episode = episode
         followed_obj.save()
         result["status"] = "success"
-        result["message"] = "{} has been mark as episode: {}".format(name, episode)
+        result["message"] = f"{name} has been mark as episode: {episode}"
     else:  # episode is None
         result["status"] = "info"
-        result["message"] = "{}, episode: {}".format(name, followed_obj.episode)
+        result["message"] = f"{name}, episode: {followed_obj.episode}"
     return result
 
 
@@ -351,7 +351,7 @@ def source(data_source: str) -> ControllerResult:
         result["status"] = "success"
         result[
             "message"
-        ] = "you have successfully change your data source to {}".format(data_source)
+        ] = f"you have successfully change your data source to {data_source}"
     else:
         result["status"] = "error"
         result["message"] = "please check input.nata source should be {} or {}".format(
@@ -378,7 +378,7 @@ def config(name: Optional[str] = None, value: Optional[str] = None) -> Controlle
 def update(
     name: List[str], download: Any = None, not_ignore: bool = False
 ) -> ControllerResult:
-    logger.debug("updating bangumi info with args: download: {}".format(download))
+    logger.debug(f"updating bangumi info with args: download: {download}")
     result = {
         "status": "info",
         "message": "",
@@ -461,7 +461,7 @@ def update(
                 followed_obj.updated_time = int(time.time())
                 followed_obj.save()
                 result["data"]["updated"].append(
-                    {"bangumi": subscribe["bangumi_name"], "episode": episode,}
+                    {"bangumi": subscribe["bangumi_name"], "episode": episode}
                 )
 
             for i in episode_range:
@@ -496,7 +496,7 @@ def status_(name: str, status: int = STATUS_DELETED) -> ControllerResult:
 
     if not status in FOLLOWED_STATUS or not status:
         result["status"] = "error"
-        result["message"] = "Invalid status: {}".format(status)
+        result["message"] = f"Invalid status: {status}"
         return result
 
     status = int(status)
@@ -504,12 +504,12 @@ def status_(name: str, status: int = STATUS_DELETED) -> ControllerResult:
         followed_obj = Followed.get(bangumi_name=name)
     except Followed.DoesNotExist:
         result["status"] = "error"
-        result["message"] = "Followed<{}> does not exists".format(name)
+        result["message"] = f"Followed<{name}> does not exists"
         return result
 
     followed_obj.status = status
     followed_obj.save()
-    result["message"] = "Followed<{}> has been marked as status {}".format(name, status)
+    result["message"] = f"Followed<{name}> has been marked as status {status}"
     return result
 
 
@@ -533,7 +533,7 @@ def list_() -> ControllerResult:
     result["message"] = ""
     for index, weekday in enumerate(weekday_order):
         if followed_bangumi[weekday.lower()]:
-            result["message"] += "{}{}. {}".format(GREEN, weekday, COLOR_END)
+            result["message"] += f"{GREEN}{weekday}. {COLOR_END}"
             for j, bangumi in enumerate(followed_bangumi[weekday.lower()]):
                 if (
                     bangumi["status"] in (STATUS_UPDATED, STATUS_FOLLOWED)

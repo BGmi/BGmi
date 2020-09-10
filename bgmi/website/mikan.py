@@ -110,7 +110,7 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
                 Episode(
                     **{
                         "download": server_root[:-1]
-                        + tr.find_all("td")[-1].find("a",).attrs.get("href", ""),
+                        + tr.find_all("td")[-1].find("a").attrs.get("href", ""),
                         "subtitle_group": str(subtitle_id),
                         "title": title,
                         "episode": parse_episode(title),
@@ -138,7 +138,7 @@ def parser_day_bangumi(soup) -> List[WebsiteBangumi]:
             name = url["title"]
             url = url["href"]
             bangumi_id = url.split("/")[-1]
-            soup.find("li",)
+            soup.find("li")
             li.append(
                 WebsiteBangumi(
                     name=name, keyword=bangumi_id, cover=_COVER_URL + span["data-src"]
@@ -247,7 +247,7 @@ class Mikanani(BaseWebsite):
     def fetch_episode_of_bangumi(
         self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE
     ):
-        r = get_text(server_root + "Home/Bangumi/{}".format(bangumi_id))
+        r = get_text(server_root + f"Home/Bangumi/{bangumi_id}")
         return parse_episodes(r, bangumi_id, subtitle_list)
 
     def fetch_bangumi_calendar(self) -> List[WebsiteBangumi]:
@@ -267,7 +267,7 @@ class Mikanani(BaseWebsite):
         subtitle_list: Optional[List[str]] = None,
         max_page: int = 0,
     ) -> Optional[WebsiteBangumi]:
-        html = get_text(server_root + "Home/Bangumi/{}".format(bangumi_id))
+        html = get_text(server_root + f"Home/Bangumi/{bangumi_id}")
         try:
             info = self.parse_bangumi_details_page(html)
             return WebsiteBangumi(

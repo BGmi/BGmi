@@ -116,7 +116,7 @@ def print_config() -> Optional[str]:
     for i in __writeable__:
         string += "{}={}\n".format(i, c.get("bgmi", i))
 
-    string += "\n[{}]\n".format(DOWNLOAD_DELEGATE)
+    string += f"\n[{DOWNLOAD_DELEGATE}]\n"
     for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
         string += "{}={}\n".format(i, c.get(DOWNLOAD_DELEGATE, i))
     return string
@@ -206,7 +206,7 @@ def write_config(
 
                     result = {
                         "status": "success",
-                        "message": "{} has been set to {}".format(config, value),
+                        "message": f"{config} has been set to {value}",
                     }
 
             elif config in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
@@ -216,12 +216,12 @@ def write_config(
 
                 result = {
                     "status": "success",
-                    "message": "{} has been set to {}".format(config, value),
+                    "message": f"{config} has been set to {value}",
                 }
             else:
                 result = {
                     "status": "error",
-                    "message": "{} does not exist or not writeable".format(config),
+                    "message": f"{config} does not exist or not writeable",
                 }
 
     except configparser.NoOptionError:

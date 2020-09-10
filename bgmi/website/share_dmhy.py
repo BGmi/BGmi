@@ -20,7 +20,7 @@ def fetch_url(url, **kwargs):
         ret = requests.get(url, **kwargs).text
     except requests.ConnectionError:
         print_error(
-            "Create connection to {site}... failed".format(site=SHARE_DMHY_URL),
+            f"Create connection to {SHARE_DMHY_URL}... failed",
             exit_=False,
         )
         print_error(

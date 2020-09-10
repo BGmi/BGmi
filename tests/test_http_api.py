@@ -191,4 +191,4 @@ def test_get_player():
     )
 
     assert 2 in bangumi_dict["player"]
-    assert bangumi_dict["player"][2]["path"] == "/{}/2/2.mkv".format(bangumi_name)
+    assert bangumi_dict["player"][2]["path"] == f"/{bangumi_name}/2/2.mkv"
