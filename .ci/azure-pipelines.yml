@@ -41,13 +41,3 @@ stages:
   - stage: Test
     jobs:
       - template: ./jobs/test.yaml
-
-  - stage: Build
-    jobs:
-      - template: ./jobs/binary.yaml
-      - template: ./jobs/pypi.yaml
-
-  - stage: Release
-    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-    jobs:
-      - template: ./jobs/release.yaml
