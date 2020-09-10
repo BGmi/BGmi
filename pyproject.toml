@@ -36,7 +36,7 @@ icalendar = '4.0.6'
 peewee = '3.13.3'
 importlib-metadata = "==1.7.0"
 wcwidth = "^0.2.5"
-transmissionrpc = "0.11"
+transmission-rpc = "^3.2.1"
 pydantic = "^1.6.1"
 
 [tool.poetry.dev-dependencies]

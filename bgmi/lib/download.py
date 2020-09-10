@@ -5,7 +5,7 @@ from bgmi.config import DOWNLOAD_DELEGATE, SAVE_PATH
 from bgmi.downloader.aria2_rpc import Aria2DownloadRPC
 from bgmi.downloader.base import BaseDownloadService
 from bgmi.downloader.deluge import DelugeRPC
-from bgmi.downloader.transmission_rpc import TransmissionRPC
+from bgmi.downloader.transmission import TransmissionRPC
 from bgmi.downloader.xunlei import XunleiLixianDownload
 from bgmi.lib.models import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download
 from bgmi.utils import normalize_path, print_error
