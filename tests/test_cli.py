@@ -41,7 +41,7 @@ def test_update(bangumi_names, clean_bgmi):
 
 def test_update_single(bangumi_names, clean_bgmi):
     name = bangumi_names[0]
-    main("add {}".format(name).split())
+    main(f"add {name}".split())
     main(["update", name])
 
 
@@ -51,8 +51,8 @@ def test_search(bangumi_names, clean_bgmi):
 
 def test_delete(bangumi_names, clean_bgmi):
     name = bangumi_names[0]
-    main("add {} --episode 0".format(name).split())
-    main("delete --name {}".format(name).split())
+    main(f"add {name} --episode 0".split())
+    main(f"delete --name {name}".split())
 
 
 def test_delete_batch(bangumi_names, clean_bgmi):
@@ -62,7 +62,7 @@ def test_delete_batch(bangumi_names, clean_bgmi):
 
 def test_filter(bangumi_names, clean_bgmi):
     name = bangumi_names[0]
-    main("add {} --episode 0".format(name).split())
+    main(f"add {name} --episode 0".split())
     main(["filter", name, "--subtitle", "", "--exclude", "MKV", "--regex", "720p|720P"])
     f = Filter.get(bangumi_name=name, exclude="MKV", regex="720p|720P")
     assert not f.include
@@ -71,12 +71,12 @@ def test_filter(bangumi_names, clean_bgmi):
 
 def test_fetch(bangumi_names, clean_bgmi):
     name = bangumi_names[0]
-    main("add {} --episode 0".format(name).split())
-    main("fetch {}".format(name).split())
+    main(f"add {name} --episode 0".split())
+    main(f"fetch {name}".split())
 
 
 def test_mark(bangumi_names, clean_bgmi):
     name = bangumi_names[0]
-    main("add {} --episode 0".format(name).split())
-    main("mark {} 1".format(name).split())
+    main(f"add {name} --episode 0".split())
+    main(f"mark {name} 1".split())
     assert Followed.get(bangumi_name=name).episode == 1

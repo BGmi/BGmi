@@ -177,9 +177,7 @@ def cal_wrapper(ret: Any) -> None:
             print(
                 "{}{}. {}".format(
                     GREEN,
-                    weekday
-                    if not today
-                    else "Bangumi Schedule for Today ({})".format(weekday),
+                    weekday if not today else f"Bangumi Schedule for Today ({weekday})",
                     COLOR_END,
                 ),
                 end="",
@@ -277,19 +275,19 @@ def fetch_(ret: Any) -> None:
     try:
         bangumi_obj = Bangumi.get(name=ret.name)
     except Bangumi.DoesNotExist:
-        print_error("Bangumi {} not exist".format(ret.name))
+        print_error(f"Bangumi {ret.name} not exist")
         return
 
     try:
         Followed.get(bangumi_name=bangumi_obj.name)
     except Followed.DoesNotExist:
-        print_error("Bangumi {} is not followed".format(ret.name))
+        print_error(f"Bangumi {ret.name} is not followed")
         return
 
     followed_filter_obj = Filter.get(bangumi_name=ret.name)
     print_filter(followed_filter_obj)
 
-    print_info("Fetch bangumi {} ...".format(bangumi_obj.name))
+    print_info(f"Fetch bangumi {bangumi_obj.name} ...")
     _, data = website.get_maximum_episode(
         bangumi_obj, ignore_old_row=False if ret.not_ignore else True
     )
@@ -328,7 +326,7 @@ def complete(ret: Any) -> None:
     elif "zsh" in current_shell:  # zsh
         template_file_path = os.path.join(completions_dir, "_bgmi_completion_zsh.sh")
     else:
-        print("unsupported shell {}".format(current_shell), file=sys.stderr)
+        print(f"unsupported shell {current_shell}", file=sys.stderr)
         return
 
     with open(template_file_path) as template_file:
@@ -476,6 +474,6 @@ def print_filter(followed_filter_obj: Filter) -> None:
             else "None"
         )
     )
-    print_info("Include keywords: {}".format(followed_filter_obj.include))
-    print_info("Exclude keywords: {}".format(followed_filter_obj.exclude))
-    print_info("Regular expression: {}".format(followed_filter_obj.regex))
+    print_info(f"Include keywords: {followed_filter_obj.include}")
+    print_info(f"Exclude keywords: {followed_filter_obj.exclude}")
+    print_info(f"Regular expression: {followed_filter_obj.regex}")

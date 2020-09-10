@@ -10,7 +10,7 @@ from bgmi.website.model import SubtitleGroup, WebsiteBangumi
 def test_info(source, data_source_bangumi_name):
     w = DATA_SOURCE_MAP[source]()  # type: BaseWebsite
     bangumi_result = w.fetch_bangumi_calendar()
-    assert bangumi_result, "website {} should return bangumi list".format(source)
+    assert bangumi_result, f"website {source} should return bangumi list"
     for bangumi in bangumi_result:
         assert bangumi.cover.startswith("https://") or bangumi.cover.startswith(
             "http://"

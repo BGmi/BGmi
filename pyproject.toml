@@ -15,7 +15,6 @@ classifiers = [
   'Natural Language :: Chinese (Traditional)',
   'License :: OSI Approved :: MIT License',
   'Programming Language :: Python',
-  'Programming Language :: Python :: 3.5',
   'Programming Language :: Python :: 3.6',
   'Programming Language :: Python :: 3.7',
   'Programming Language :: Python :: 3.8',
@@ -29,7 +28,7 @@ bgmi = 'bgmi.main:main'
 bgmi_http = 'bgmi.front.server:main'
 
 [tool.poetry.dependencies]
-python = "^3.5"
+python = "^3.6.1"
 beautifulsoup4 = '4.9.1'
 requests = '==2.24.0'
 tornado = '6.0.4'
@@ -41,8 +40,7 @@ attrs = "19.3.0"
 transmissionrpc = "0.11"
 
 [tool.poetry.dev-dependencies]
-pre-commit = { version = '==2.7.1', python = '>=3.7' }
-black = { version = '19.10b0', python = '>=3.6' }
+pre-commit = '==2.7.1'
 # tests
 coverage = { version = "==5.2.1", extras = ['toml'] }
 pytest = "==6.0.1"

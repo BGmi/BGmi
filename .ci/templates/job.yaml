@@ -13,18 +13,17 @@ parameters:
 
   - name: pythonVersions
     type: object
-    default: ['3.5', '3.6', '3.7', '3.8']
+    default: ['3.6', '3.7', '3.8']
 
 jobs:
   - job: ${{ parameters.name }}
     pool:
       vmImage: $(os)
     strategy:
-      maxParallel: 6
       matrix:
-        ${{ each image in parameters.images }}:
-          ${{ each pythonVersion in parameters.pythonVersions }}:
-            ${{ format('{0} {1}', image, pythonVersion) }}:
+        ${{ each pythonVersion in parameters.pythonVersions }}:
+          ${{ each image in parameters.images }}:
+            ${{ format('{0} {1}', pythonVersion, image) }}:
               python_version: ${{ pythonVersion }}
               os: ${{ image }}-latest
               platform: ${{ image }}

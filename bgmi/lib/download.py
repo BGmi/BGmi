@@ -23,7 +23,7 @@ def get_download_class() -> Type[BaseDownloadService]:
     try:
         return DOWNLOAD_DELEGATE_DICT[DOWNLOAD_DELEGATE]
     except KeyError:
-        print_error("unexpected delegate {}".format(DOWNLOAD_DELEGATE))
+        print_error(f"unexpected delegate {DOWNLOAD_DELEGATE}")
         raise
 
 
@@ -75,7 +75,7 @@ def download_prepare(data: List[Episode]) -> None:
                 traceback.print_exc()
                 raise e
 
-            print_error("Error: {}".format(e), exit_=False)
+            print_error(f"Error: {e}", exit_=False)
             download.status = STATUS_NOT_DOWNLOAD
             download.save()
 

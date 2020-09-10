@@ -38,7 +38,7 @@ repos:
     rev: f766c29ec4bb6cf2674b81959871e59d5400380a  # frozen: v2.7.2
     hooks:
       - id: pyupgrade
-        args: [--py3-plus]
+        args: [--py36-plus]
 
   - repo: https://github.com/myint/autoflake
     rev: 7a53fdafc82c33f446915b60fcac947c51279260  # frozen: v1.4
@@ -68,19 +68,7 @@ repos:
     hooks:
       - id: poetry-check-lock
 
-  - repo: local
+  - repo: https://github.com/psf/black
+    rev: e66be67b9b6811913470f70c28b4d50f94d05b22  # frozen: 20.8b1
     hooks:
       - id: black
-        name: black
-        entry: black
-        require_serial: true
-        language: system
-        types: [python]
-
-      - id: poetry
-        name: poetry
-        entry: poetry check
-        language: system
-        pass_filenames: false
-        require_serial: false
-        files: pyproject.toml

@@ -109,7 +109,7 @@ class TransmissionRPC(BaseDownloadService):
             password=TRANSMISSION_RPC_PASSWORD,
         )
         for torrent in tc.get_torrents():
-            print_info("  * {}: {}".format(torrent.status, torrent), indicator=False)
+            print_info(f"  * {torrent.status}: {torrent}", indicator=False)
 
     @staticmethod
     def install():

@@ -11,7 +11,7 @@ class DelugeRPC(BaseDownloadService):
     def __init__(self, *args, **kwargs):
         self._id = 0
         self._session = requests.session()
-        self._call("auth.login", [DELUGE_RPC_PASSWORD,])
+        self._call("auth.login", [DELUGE_RPC_PASSWORD])
         super().__init__(**kwargs)
 
     def _call(self, methods, params):
@@ -35,7 +35,7 @@ class DelugeRPC(BaseDownloadService):
         if not self.torrent.startswith("magnet:"):
             # self._call("web.get_magnet_info", [self.torrent, ])
             # else:
-            e = self._call("web.download_torrent_from_url", [self.torrent,])
+            e = self._call("web.download_torrent_from_url", [self.torrent])
             self.torrent = e["result"]
         options = {
             "path": self.torrent,

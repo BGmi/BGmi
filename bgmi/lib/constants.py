@@ -142,7 +142,7 @@ actions_and_arguments = [
             },
         ],
     },
-    {"action": ACTION_LIST, "help": "List subscribed bangumi.",},
+    {"action": ACTION_LIST, "help": "List subscribed bangumi."},
     {
         "action": ACTION_FILTER,
         "help": "Set bangumi fetch filter.",
@@ -150,7 +150,7 @@ actions_and_arguments = [
             {
                 "dest": "name",
                 "kwargs": dict(
-                    metavar="name", type=str, help="Bangumi name to set the filter.",
+                    metavar="name", type=str, help="Bangumi name to set the filter."
                 ),
             },
             {
@@ -270,8 +270,8 @@ actions_and_arguments = [
         "action": ACTION_MARK,
         "help": "Mark bangumi episode.",
         "arguments": [
-            {"dest": "name", "kwargs": dict(type=str, help="Bangumi name"),},
-            {"dest": "episode", "kwargs": dict(help="Bangumi episode", type=int),},
+            {"dest": "name", "kwargs": dict(type=str, help="Bangumi name")},
+            {"dest": "episode", "kwargs": dict(help="Bangumi episode", type=int)},
         ],
     },
     {
@@ -303,7 +303,7 @@ actions_and_arguments = [
         "action": ACTION_FETCH,
         "help": "Fetch bangumi.",
         "arguments": [
-            {"dest": "name", "kwargs": dict(help="Bangumi name", type=str),},
+            {"dest": "name", "kwargs": dict(help="Bangumi name", type=str)},
             {
                 "dest": "--not-ignore",
                 "kwargs": dict(
@@ -317,7 +317,7 @@ actions_and_arguments = [
         "action": ACTION_SEARCH,
         "help": "Search torrents from data source by keyword",
         "arguments": [
-            {"dest": "keyword", "kwargs": dict(help="Search keyword", type=str),},
+            {"dest": "keyword", "kwargs": dict(help="Search keyword", type=str)},
             {
                 "dest": "--count",
                 "kwargs": dict(type=int, help="The max page count of search result."),
@@ -373,13 +373,15 @@ actions_and_arguments = [
             {
                 "dest": "config",
                 "kwargs": dict(
-                    help="gen nginx.conf", type=str, choices=["nginx.conf",]
+                    help="gen nginx.conf",
+                    type=str,
+                    choices=["nginx.conf"],
                 ),
             },
             {
                 "dest": "--server-name",
                 "kwargs": dict(
-                    metavar="server_name", help="server name", type=str, required=True,
+                    metavar="server_name", help="server name", type=str, required=True
                 ),
             },
         ],
