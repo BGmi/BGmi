@@ -11,7 +11,7 @@ OLD = os.path.join(BGMI_PATH, "old")
 
 def exec_sql(sql: str, db: str = DB_PATH) -> None:
     try:
-        print_info("Execute {}".format(sql))
+        print_info(f"Execute {sql}")
         conn = sqlite3.connect(db)
         conn.execute(sql)
         conn.commit()

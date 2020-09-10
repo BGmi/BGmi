@@ -63,7 +63,7 @@ class Bangumi(NeoDB):
     status = IntegerField(default=0)
 
     def __init__(self, **kwargs: Any) -> None:
-        super(NeoDB, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         update_time = kwargs.get("update_time", "").title()
         if update_time and update_time not in BANGUMI_UPDATE_TIME:
@@ -100,7 +100,7 @@ class Bangumi(NeoDB):
     ) -> Any:
         if status is None:
             data = (
-                cls.select(Followed.status, Followed.episode, cls,)
+                cls.select(Followed.status, Followed.episode, cls)
                 .join(
                     Followed,
                     peewee.JOIN["LEFT_OUTER"],
@@ -111,7 +111,7 @@ class Bangumi(NeoDB):
             )
         else:
             data = (
-                cls.select(Followed.status, Followed.episode, cls,)
+                cls.select(Followed.status, Followed.episode, cls)
                 .join(
                     Followed,
                     peewee.JOIN["LEFT_OUTER"],
@@ -180,7 +180,7 @@ class Followed(NeoDB):
     ) -> List[dict]:
         join_cond = Bangumi.name == cls.bangumi_name
         d = (
-            cls.select(Bangumi.name, Bangumi.update_time, Bangumi.cover, cls,)
+            cls.select(Bangumi.name, Bangumi.update_time, Bangumi.cover, cls)
             .join(Bangumi, peewee.JOIN["LEFT_OUTER"], on=join_cond)
             .where((cls.status != status) & (Bangumi.status == bangumi_status))
             .order_by(cls.updated_time.desc())

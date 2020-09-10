@@ -54,11 +54,9 @@ def log_utils_function(func: F) -> F:
     @functools.wraps(func)
     def echo_func(*func_args, **func_kwargs):  # type: ignore
         logger.debug("")
-        logger.debug(
-            str("start function {} {} {}".format(func.__name__, func_args, func_kwargs))
-        )
+        logger.debug(f"start function {func.__name__} {func_args} {func_kwargs}")
         r = func(*func_args, **func_kwargs)
-        logger.debug(str("return function {} {}".format(func.__name__, r)))
+        logger.debug(f"return function {func.__name__} {r}")
         logger.debug("")
         return r
 
@@ -99,7 +97,7 @@ NPM_REGISTER_DOMAIN = (
     if os.environ.get("TRAVIS_CI", False)
     else "registry.npm.taobao.org"
 )
-FRONTEND_NPM_URL = "https://{}/bgmi-frontend/".format(NPM_REGISTER_DOMAIN)
+FRONTEND_NPM_URL = f"https://{NPM_REGISTER_DOMAIN}/bgmi-frontend/"
 PACKAGE_JSON_URL = "https://{}/bgmi-frontend/{}".format(
     NPM_REGISTER_DOMAIN, __admin_version__
 )
@@ -464,7 +462,7 @@ def parse_episode(episode_title: str) -> int:
                 if m > 1000:
                     spare = m
                 else:
-                    logger.debug("match {} {} {}".format(i, regexp, m))
+                    logger.debug(f"match {i} {regexp} {m}")
                     return m
 
     if spare:
@@ -561,7 +559,7 @@ def convert_cover_url_to_path(cover_url: str) -> Tuple[str, str]:
 @log_utils_function
 def download_file(url: str) -> Optional[requests.Response]:
     if url.startswith("https://") or url.startswith("http://"):
-        print_info("Download: {}".format(url))
+        print_info(f"Download: {url}")
         return requests.get(url)
     return None
 

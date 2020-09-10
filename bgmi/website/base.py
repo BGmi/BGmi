@@ -173,7 +173,7 @@ class BaseWebsite:
         """
         raise NotImplementedError
 
-    def fetch_bangumi_calendar(self,) -> List[WebsiteBangumi]:  # pragma: no cover
+    def fetch_bangumi_calendar(self) -> List[WebsiteBangumi]:  # pragma: no cover
         """
         return a list of all bangumi and a list of all subtitle group
 

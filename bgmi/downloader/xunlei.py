@@ -22,7 +22,7 @@ class XunleiLixianDownload(BaseDownloadService):
             "download",
             "--torrent",
             overwrite,
-            "--output-dir={}".format(self.save_path),
+            f"--output-dir={self.save_path}",
             self.torrent,
             "--verification-code-path={}".format(os.path.join(TMP_PATH, "vcode.jpg")),
         ]
@@ -65,12 +65,12 @@ class XunleiLixianDownload(BaseDownloadService):
         if not os.path.exists(XUNLEI_LX_PATH):
             os.symlink(
                 os.path.join(
-                    BGMI_PATH, "tools/xunlei-lixian/{}/lixian_cli.py".format(dir_name)
+                    BGMI_PATH, f"tools/xunlei-lixian/{dir_name}/lixian_cli.py"
                 ),
                 XUNLEI_LX_PATH,
             )
         else:
-            print_warning("{} already exists".format(XUNLEI_LX_PATH))
+            print_warning(f"{XUNLEI_LX_PATH} already exists")
 
         print_success("All done")
         print_info(

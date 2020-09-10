@@ -15,18 +15,18 @@ from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
 BANGUMI_TAG = "549ef207fe682f7549f1ea90"
 
 __split = "/" if not BANGUMI_MOE_URL.endswith("/") else ""
-FETCH_URL = "{}{}api/bangumi/current".format(BANGUMI_MOE_URL, __split)
-TEAM_URL = "{}{}api/team/working".format(BANGUMI_MOE_URL, __split)
-NAME_URL = "{}{}api/tag/fetch".format(BANGUMI_MOE_URL, __split)
-DETAIL_URL = "{}{}api/torrent/search".format(BANGUMI_MOE_URL, __split)
-SEARCH_URL = "{}{}api/v2/torrent/search".format(BANGUMI_MOE_URL, __split)
-TORRENT_URL = "{}{}download/torrent/".format(BANGUMI_MOE_URL, __split)
+FETCH_URL = f"{BANGUMI_MOE_URL}{__split}api/bangumi/current"
+TEAM_URL = f"{BANGUMI_MOE_URL}{__split}api/team/working"
+NAME_URL = f"{BANGUMI_MOE_URL}{__split}api/tag/fetch"
+DETAIL_URL = f"{BANGUMI_MOE_URL}{__split}api/torrent/search"
+SEARCH_URL = f"{BANGUMI_MOE_URL}{__split}api/v2/torrent/search"
+TORRENT_URL = f"{BANGUMI_MOE_URL}{__split}download/torrent/"
 COVER_URL = "https://bangumi.moe/"
 
 
 def get_response(url, method="GET", **kwargs):
     if os.environ.get("DEBUG"):  # pragma: no cover
-        print_info("Request URL: {}".format(url))
+        print_info(f"Request URL: {url}")
     try:
         r = requests.request(method.lower(), url, **kwargs)
         if os.environ.get("DEBUG"):  # pragma: no cover
@@ -46,8 +46,7 @@ def process_name(data):
 
 
 def process_subtitle(data):
-    """get subtitle group name from links
-    """
+    """get subtitle group name from links"""
     result = {}
     for s in data:
         # pprint(data)
@@ -59,8 +58,7 @@ def process_subtitle(data):
 
 
 def parser_bangumi(data):
-    """match weekly bangumi list from data
-    """
+    """match weekly bangumi list from data"""
 
     ids = list(map(lambda b: b["tag_id"], data))
     subtitle = get_response(TEAM_URL, "POST", json={"tag_ids": ids})
@@ -94,7 +92,10 @@ def parser_bangumi(data):
 
 class BangumiMoe(BaseWebsite):
     def fetch_episode_of_bangumi(
-        self, bangumi_id: str, max_page: int, subtitle_list: Optional[List[str]] = None,
+        self,
+        bangumi_id: str,
+        max_page: int,
+        subtitle_list: Optional[List[str]] = None,
     ) -> List[Episode]:
         response_data = []
         ret = []
@@ -126,7 +127,7 @@ class BangumiMoe(BaseWebsite):
                     episode=self.parse_episode(bangumi["title"]),
                     time=int(
                         datetime.datetime.strptime(
-                            bangumi["publish_time"].split(".")[0], "%Y-%m-%dT%H:%M:%S",
+                            bangumi["publish_time"].split(".")[0], "%Y-%m-%dT%H:%M:%S"
                         ).timestamp()
                     ),
                 )
@@ -169,7 +170,7 @@ class BangumiMoe(BaseWebsite):
                     time=int(
                         time.mktime(
                             datetime.datetime.strptime(
-                                info["publish_time"].split(".")[0], "%Y-%m-%dT%H:%M:%S",
+                                info["publish_time"].split(".")[0], "%Y-%m-%dT%H:%M:%S"
                             ).timetuple()
                         )
                     ),
