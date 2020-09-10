@@ -1,13 +1,16 @@
 # Changelog
 
+## [2.1.4](https://github.com/BGmi/BGmi/compare/2.1.3...2.1.4) - 2020-09-11
 
-## Unreleased
+### Bug Fixes
+- **mikan**: fetch full episode list of mikan source ([#237](https://github.com/BGmi/BGmi/issues/237))
+- **cli**: enable color in bash and zsh on windows
+- **mikan**: handle server instability response
 
-### Bug Fixes:
-
-- **cli**: enable color in bash and zsh on windows ([bac4993](https://github.com/BGmi/BGmi/commit/bac4993cd784b5303431f7e430846b7ff5360117))
-- retry http requests on error ([1b803eb](https://github.com/BGmi/BGmi/commit/1b803ebac5b535aa1cc945aaef70f185c07edd22))
-- **script**: replace deprecated `imp` module ([138c98f](https://github.com/BGmi/BGmi/commit/138c98f790e5aac6dc32b6c34674b719b68ba0b0))
+### Code Refactoring
+- **script**: remove deprecated imp module
+- remove some utils from `BaseWebsite`
+- **cli**: use `wcwidth` to count bangumi name length
 
 ## [2.1.3](https://github.com/BGmi/BGmi/compare/2.1.2...2.1.3) (2020-03-19)
 
