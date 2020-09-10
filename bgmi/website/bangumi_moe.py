@@ -117,7 +117,6 @@ class BangumiMoe(BaseWebsite):
                 response = get_response(DETAIL_URL, "POST", json=data)
                 if response:
                     response_data.extend(response["torrents"])
-
         for index, bangumi in enumerate(response_data):
             ret.append(
                 Episode(
