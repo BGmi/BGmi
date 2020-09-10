@@ -1,8 +1,0 @@
-jobs:
-  - template: /.ci/templates/job.yaml
-    parameters:
-      name: Style
-      pythonVersions: ['3.7']
-      images: [ubuntu]
-      steps:
-        - template: python/pre-commit.yaml@trim21

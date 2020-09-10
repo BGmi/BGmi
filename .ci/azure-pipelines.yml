@@ -38,11 +38,6 @@ resources:
       ref: refs/tags/v0.0.9
 
 stages:
-  - stage: Lint
-    jobs:
-      - template: ./jobs/lint/mypy.yaml
-      - template: ./jobs/lint/style.yaml
-
   - stage: Test
     jobs:
       - template: ./jobs/test.yaml

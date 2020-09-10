@@ -1,0 +1,46 @@
+name: lint
+
+on: [push, pull_request]
+
+jobs:
+  mypy:
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      matrix:
+        python: ['3.6', '3.8']
+        os: [macos, windows, ubuntu]
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python }}
+
+      - uses: Trim21/setup-poetry@dist/v1
+
+      - uses: Trim21/install-poetry-project@dist/v1
+
+      - name: mypy
+        run: mypy bgmi
+
+  lint:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+
+      - uses: Trim21/setup-poetry@dist/v1
+
+      - uses: Trim21/install-poetry-project@dist/v1
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pre-commit
+          key: precommit-2-${{ env.PY }}-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: precommit-2-${{ env.PY }}-
+
+      - name: pre-commit
+        run: pre-commit run --all-files --show-diff-on-failure && pre-commit gc
