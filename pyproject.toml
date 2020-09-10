@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bgmi"
-version = "2.1.3"
+version = "2.1.4"
 description = 'BGmi is a cli tool for subscribed bangumi.'
 authors = ["RicterZ <ricterzheng@gmail.com>"]
 readme = 'README.rst'
@@ -64,10 +64,10 @@ exclude_lines = [
   'raise NotImplementedError'
 ]
 
-[build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
-
 [tool.pytest.ini_options]
 addopts = '-v --durations=10'
 junit_family = 'legacy'
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
