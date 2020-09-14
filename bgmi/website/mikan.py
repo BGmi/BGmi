@@ -1,4 +1,3 @@
-import os
 import time
 from collections import defaultdict
 from typing import List, Optional
@@ -7,13 +6,10 @@ import bs4
 import requests
 from bs4 import BeautifulSoup
 
-from bgmi.config import MAX_PAGE, TMP_PATH
+from bgmi.config import MAX_PAGE
 from bgmi.utils import parse_episode
 from bgmi.website.base import BaseWebsite
 from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
-
-_DUMP = "mikan-dump" in os.environ.get("DEBUG", "").lower()
-_DEBUG = not _DUMP and "mikan" in os.environ.get("DEBUG", "").lower()
 
 server_root = "https://mikanani.me/"
 
@@ -22,7 +18,7 @@ _COVER_URL = server_root[:-1]
 # Example: https://mikanani.me/Home/ExpandEpisodeTable?bangumiId=2242&subtitleGroupId=34&take=65
 bangumi_episode_expand_api = "https://mikanani.me/Home/ExpandEpisodeTable"
 
-Cn_week_map = {
+_CN_WEEK = {
     "星期日": "Sun",
     "星期一": "Mon",
     "星期二": "Tue",
@@ -57,7 +53,7 @@ def get_weekly_bangumi():
         )
         if d:
             try:
-                yield Cn_week_map[_DAY_OF_WEEK[day_of_week]], d
+                yield _CN_WEEK[_DAY_OF_WEEK[day_of_week]], d
             except KeyError:
                 pass
 
@@ -148,14 +144,7 @@ def parser_day_bangumi(soup) -> List[WebsiteBangumi]:
 
 
 def get_text(url, params=None):
-    if _DEBUG:  # pragma: no cover
-        print(url)
-    res = requests.get(url, params=params)
-    res.raise_for_status()
-    r = res.text
-    if _DEBUG:  # pragma: no cover
-        print(r)
-    return r
+    return requests.get(url, params=params).text
 
 
 class Mikanani(BaseWebsite):
@@ -171,7 +160,7 @@ class Mikanani(BaseWebsite):
         title = left_container.find("p", class_="bangumi-title")
         day = title.find_next_sibling("p", class_="bangumi-info")
         bangumi_info["name"] = title.text
-        bangumi_info["update_time"] = Cn_week_map[day.text[-3:]]
+        bangumi_info["update_time"] = _CN_WEEK[day.text[-3:]]
 
         ######
         soup = BeautifulSoup(r, "html.parser")
@@ -255,8 +244,6 @@ class Mikanani(BaseWebsite):
         for update_time, day in get_weekly_bangumi():
             for obj in parser_day_bangumi(day):
                 obj.update_time = update_time
-                obj.status = 0
-                obj.subtitle_group = []
                 obj.cover = obj.cover.split("?")[0]
                 bangumi_list.append(obj)
         return bangumi_list
@@ -268,26 +255,12 @@ class Mikanani(BaseWebsite):
         max_page: int = 0,
     ) -> Optional[WebsiteBangumi]:
         html = get_text(server_root + f"Home/Bangumi/{bangumi_id}")
-        try:
-            info = self.parse_bangumi_details_page(html)
-            return WebsiteBangumi(
-                name=info["name"],
-                keyword=bangumi_id,
-                status=info["status"],
-                update_time=info["update_time"],
-                subtitle_group=info["subtitle_group"],
-                episodes=parse_episodes(html, bangumi_id, subtitle_list),
-            )
-        except AttributeError:
-            if _DUMP:
-                try:
-                    os.makedirs(os.path.join(TMP_PATH, "mikan"))
-                except OSError:
-                    pass
-                with open(
-                    os.path.join(TMP_PATH, "mikan", info["keyword"] + ".html"),
-                    "w",
-                    encoding="utf-8",
-                ) as fd:
-                    fd.write(html)
-            raise
+        info = self.parse_bangumi_details_page(html)
+        return WebsiteBangumi(
+            name=info["name"],
+            keyword=bangumi_id,
+            status=info["status"],
+            update_time=info["update_time"],
+            subtitle_group=info["subtitle_group"],
+            episodes=parse_episodes(html, bangumi_id, subtitle_list),
+        )
