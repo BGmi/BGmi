@@ -11,9 +11,6 @@ from bgmi.utils import print_info, print_warning
 
 
 class TransmissionRPC(BaseDownloadService):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     @staticmethod
     def get_client():
         return transmission_rpc.Client(
@@ -25,6 +22,7 @@ class TransmissionRPC(BaseDownloadService):
 
     def download(self):
         tc = self.get_client()
+        print(tc.add_torrent)
         tc.add_torrent(self.torrent, download_dir=self.save_path)
 
         print_info(
@@ -32,9 +30,6 @@ class TransmissionRPC(BaseDownloadService):
                 self.save_path
             )
         )
-
-    def check_delegate_bin_exist(self, path):
-        pass
 
     def check_download(self, name):
         pass
