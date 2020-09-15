@@ -36,7 +36,8 @@ def get_response(url, method="GET", **kwargs):
         print_error("error: failed to establish a new connection")
     except ValueError:
         print_error(
-            "error: server returned data maybe not be json, please contact ricterzheng@gmail.com"
+            "error: server returned data maybe not be json,"
+            " please create a issue at https://github.com/BGmi/BGmi/issues"
         )
 
 

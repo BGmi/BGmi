@@ -24,7 +24,8 @@ def fetch_url(url, **kwargs):
             exit_=False,
         )
         print_error(
-            "Check internet connection or try to set a DMHY mirror site via: bgmi config SHARE_DMHY_URL <site url>"
+            "Check internet connection or try to set a DMHY mirror site via: "
+            "bgmi config SHARE_DMHY_URL <site url>"
         )
 
     return ret
@@ -195,7 +196,7 @@ class DmhySource(BaseWebsite):
         return bangumi_list
 
     def fetch_episode_of_bangumi(
-        self, bangumi_id, subtitle_list=None, max_page=int(MAX_PAGE)
+        self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE
     ):
         """
         get all episode by bangumi id
@@ -203,7 +204,7 @@ class DmhySource(BaseWebsite):
         ```
             [
                 {
-                    "download": "magnet:?xt=urn:btih:e43b3b6b53dd9fd6af1199e112d3c7ff15cab82c",
+                    "download": "magnet:?xt=urn:btih:e43b3b6b53dd9fd6af1199e112d3c7ff15",
                     "subtitle_group": "58a9c1c9f5dc363606ab42ec",
                     "title": "【喵萌奶茶屋】★七月新番★[来自深渊/Made in Abyss][07][GB][720P]",
                     "episode": 0,

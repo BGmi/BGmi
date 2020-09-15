@@ -105,7 +105,7 @@ def filter_(
 
     try:
         Followed.get(bangumi_name=bangumi_obj.name)
-    except Followed.DoesNotExist as exc:
+    except Followed.DoesNotExist:
         result["status"] = "error"
         result[
             "message"
@@ -354,15 +354,20 @@ def source(data_source: str) -> ControllerResult:
         ] = f"you have successfully change your data source to {data_source}"
     else:
         result["status"] = "error"
-        result["message"] = "please check input.nata source should be {} or {}".format(
-            *[x["id"] for x in SUPPORT_WEBSITE]
+        result[
+            "message"
+        ] = "please check your input. data source should be one of {}".format(
+            [x["id"] for x in SUPPORT_WEBSITE]
         )
     return result
 
 
 def config(name: Optional[str] = None, value: Optional[str] = None) -> ControllerResult:
     if name == "DATA_SOURCE":
-        error_message = "you can't change data source in this way. please use `bgmi source ${data source}` in cli"
+        error_message = (
+            "you can't change data source in this way. "
+            "please use `bgmi source ${data source}` in cli"
+        )
         result = {
             "status": "error",
             "message": error_message,
@@ -494,7 +499,7 @@ def update(
 def status_(name: str, status: int = STATUS_DELETED) -> ControllerResult:
     result = {"status": "success", "message": ""}
 
-    if not status in FOLLOWED_STATUS or not status:
+    if (status not in FOLLOWED_STATUS) or (not status):
         result["status"] = "error"
         result["message"] = f"Invalid status: {status}"
         return result
@@ -531,7 +536,7 @@ def list_() -> ControllerResult:
 
     result["status"] = "info"
     result["message"] = ""
-    for index, weekday in enumerate(weekday_order):
+    for weekday in weekday_order:
         if followed_bangumi[weekday.lower()]:
             result["message"] += f"{GREEN}{weekday}. {COLOR_END}"
             for j, bangumi in enumerate(followed_bangumi[weekday.lower()]):

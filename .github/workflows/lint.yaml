@@ -2,7 +2,27 @@ name: lint
 
 on: [push, pull_request]
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
+  flake8:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.7'
+
+      - uses: Trim21/setup-poetry@dist/v1
+
+      - uses: Trim21/install-poetry-project@dist/v1
+
+      - name: flake8
+        run: "flake8 --format='::error file=%(path)s,line=%(row)d,col=%(col)d::[%(code)s]: %(text)s' bgmi"
+
   mypy:
     runs-on: ${{ matrix.os }}-latest
     strategy:
@@ -21,10 +41,17 @@ jobs:
       - uses: Trim21/install-poetry-project@dist/v1
 
       - name: mypy
-        run: mypy bgmi
+        run: |
+          if [[ "${{ matrix.os }}" == "windows" ]]
+          then
+              v="true"
+          else
+              v="false"
+          fi
+          mypy bgmi "--always-$v=IS_WINDOWS"
 
   lint:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 

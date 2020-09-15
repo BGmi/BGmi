@@ -15,7 +15,7 @@ server_root = "https://mikanani.me/"
 
 _COVER_URL = server_root[:-1]
 
-# Example: https://mikanani.me/Home/ExpandEpisodeTable?bangumiId=2242&subtitleGroupId=34&take=65
+# Example: /Home/ExpandEpisodeTable?bangumiId=2242&subtitleGroupId=34&take=65
 bangumi_episode_expand_api = "https://mikanani.me/Home/ExpandEpisodeTable"
 
 _CN_WEEK = {
@@ -65,7 +65,7 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
     container = soup.find("div", class_="central-container")  # type:bs4.Tag
     episode_container_list = {}
     expand_subtitle_map = {}
-    for index, tag in enumerate(container.contents):
+    for tag in container.contents:
         if not hasattr(tag, "attrs"):
             continue
 
@@ -166,17 +166,17 @@ class Mikanani(BaseWebsite):
         soup = BeautifulSoup(r, "html.parser")
         container = soup.find("div", class_="central-container")
         episode_container_list = {}
-        for index, tag in enumerate(container.contents):
+        for tag in container.contents:
             if not hasattr(tag, "attrs"):
                 continue
             subtitle_id = tag.attrs.get("id", False)
             if subtitle_id:
-                episode_container_list[
-                    tag.attrs.get("id", None)
-                ] = tag.find_next_sibling("table")
+                episode_container_list[tag.attrs.get("id")] = tag.find_next_sibling(
+                    "table"
+                )
 
         for subtitle_id, container in episode_container_list.items():
-            subtitle_groups[str(subtitle_id)]["episode"] = list()
+            subtitle_groups[str(subtitle_id)]["episode"] = []
             for tr in container.find_all("tr")[1:]:
                 title = tr.find("a", class_="magnet-link-wrap").text
                 time_string = tr.find_all("td")[2].string
@@ -195,7 +195,7 @@ class Mikanani(BaseWebsite):
                 )
 
         ######
-        nr = list()
+        nr = []
         dv = soup.find("div", class_="leftbar-nav")
         li_list = dv.ul.find_all("li")
         for li in li_list:

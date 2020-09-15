@@ -175,16 +175,15 @@ def test_connection() -> bool:
         for website in SUPPORT_WEBSITE:
             if DATA_SOURCE == website["id"]:
                 requests.request("head", website["url"], timeout=10)
-    except:
+    except requests.RequestException:
         return False
     return True
 
 
 def bug_report() -> None:  # pragma: no cover
     print_error(
-        "It seems that no bangumi found, if https://bangumi.moe can \n"
-        "    be opened normally, please submit issue at: https://github.com/BGmi/BGmi/issues",
-        exit_=True,
+        "It seems that no bangumi found, if https://bangumi.moe can \n    be opened "
+        "normally, please submit issue at: https://github.com/BGmi/BGmi/issues"
     )
 
 
@@ -503,8 +502,8 @@ def get_web_admin(method: str) -> None:
             "error" in version and version["reason"] == "document not found"
         ):  # pragma: no cover
             print_error(
-                "Cnpm has not synchronized the latest version of BGmi-frontend from npm, "
-                "please try it later"
+                "Cnpm has not synchronized the latest version of BGmi-frontend from npm,"
+                " please try it later"
             )
             return
         tar_url = r["versions"][version["version"]]["dist"]["tarball"]
