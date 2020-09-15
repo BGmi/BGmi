@@ -390,12 +390,12 @@ examples: `script_example.py <./script_example.py>`_
 .. code-block:: python
 
     {
-        1: 'http://example.com/Bangumi/1/1.mp4',
-        2: 'http://example.com/Bangumi/1/2.mp4',
-        3: 'http://example.com/Bangumi/1/3.mp4'
+        1: 'http://example.com/Bangumi/1/1.torrent',
+        2: 'http://example.com/Bangumi/1/2.torrent',
+        3: 'http://example.com/Bangumi/1/3.torrent'
     }
 
-The keys `1`, `2`, `3` is the episode, the value is the url of bangumi.
+The keys `1`, `2`, `3` is the episode, the value is the url of bangumi, make sure your download delegate support it..
 
 ================
 BGmi Data Source
