@@ -55,7 +55,7 @@ __readonly__ = (
 )
 
 # writeable
-__writeable__ = tuple([i for i in __all__ if i not in __readonly__])
+__writeable__ = tuple(i for i in __all__ if i not in __readonly__)
 
 # the real __all__
 __all__ = __all__ + __download_delegate__ + __readonly__  # type: ignore
@@ -98,7 +98,10 @@ def read_config() -> None:
 
     for i in __writeable__:
         if c.has_option("bgmi", i):
-            globals().update({i: c.get("bgmi", i)})
+            v: Any = c.get("bgmi", i)
+            if i == "MAX_PAGE":
+                v = int(v)
+            globals().update({i: v})
 
     for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
         if c.has_option(DOWNLOAD_DELEGATE, i):
@@ -132,7 +135,7 @@ def write_default_config() -> None:
         if k == "ADMIN_TOKEN" and v is None:
             v = hashlib.md5(str(random.random()).encode("utf-8")).hexdigest()
 
-        c.set("bgmi", k, v)
+        c.set("bgmi", k, str(v))
 
     if DOWNLOAD_DELEGATE not in DOWNLOAD_DELEGATE_MAP.keys():
         raise Exception(DOWNLOAD_DELEGATE)
@@ -273,7 +276,7 @@ DANMAKU_API_URL = ""
 LANG = "zh_cn"
 
 # max page
-MAX_PAGE = "3"
+MAX_PAGE = 3
 
 # aria2
 ARIA2_RPC_URL = "http://localhost:6800/rpc"

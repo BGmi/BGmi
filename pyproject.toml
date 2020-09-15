@@ -40,13 +40,18 @@ transmission-rpc = "3.2.1"
 pydantic = "1.6.1"
 
 [tool.poetry.dev-dependencies]
-mypy = "==0.782"
-pre-commit = '==2.7.1'
 # tests
 coverage = { version = "==5.2.1", extras = ['toml'] }
 pytest = "==6.0.1"
 pytest-rerunfailures = "^9.0"
 requests-cache = "0.5.2"
+# lint
+pre-commit = '==2.7.1'
+mypy = "==0.782"
+flake8 = "3.8.3"
+flake8-comprehensions = "==3.2.3"
+flake8-bugbear = "==20.1.4"
+flake8-mutable = "1.2.0"
 
 [tool.coverage.report]
 exclude_lines = [

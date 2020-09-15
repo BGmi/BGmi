@@ -63,7 +63,7 @@ def make_app() -> tornado.web.Application:
 def main() -> None:
     if IS_WINDOWS:
         if sys.version_info[1] >= 8:
-            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())  # type: ignore
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
     tornado.options.parse_command_line()
     print("BGmi HTTP Server listening on %s:%d" % (options.address, options.port))

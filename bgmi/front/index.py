@@ -30,7 +30,7 @@ def get_player(bangumi_name: str) -> Dict[int, Dict[str, str]]:
             episode = -1
 
         for bangumi in files:
-            if any([bangumi.lower().endswith(x) for x in [".mp4", ".mkv", ".webm"]]):
+            if any(bangumi.lower().endswith(x) for x in [".mp4", ".mkv", ".webm"]):
                 video_file_path = os.path.join(base_path, bangumi)
                 video_file_path = os.path.join(
                     os.path.dirname(video_file_path), os.path.basename(video_file_path)
@@ -46,12 +46,14 @@ class IndexHandler(BaseHandler):
     def get(self, path: str) -> None:
         if not os.path.exists(FRONT_STATIC_PATH):
             msg = """<h1>Thanks for your using BGmi</h1>
-            <p>It seems you have not install BGmi Frontend, please run <code>bgmi install</code> to install.</p>
+            <p>It seems you have not install BGmi Frontend,
+             please run <code>bgmi install</code> to install.</p>
             """
         else:
             msg = """<h1>Thanks for your using BGmi</h1>
             <p>If use want to use Tornado to serve static files, please run
-            <code>bgmi config TORNADO_SERVE_STATIC_FILES 1</code>, and do not forget install bgmi-frontend by
+            <code>bgmi config TORNADO_SERVE_STATIC_FILES 1</code>,
+             and do not forget install bgmi-frontend by
             running <code>bgmi install</code></p>"""
 
         self.write(msg)

@@ -29,13 +29,13 @@ class ScriptRunner:
                     mod = types.ModuleType(loader.name)
                     loader.exec_module(mod)
 
-                    script_class = getattr(mod, "Script")()
+                    script_class = mod.Script()
 
                     if cls.check(script_class):
                         cls.scripts.append(script_class)
                         print_info(f"Load script {i} successfully.")
 
-                except:
+                except Exception:
                     print_warning(f"Load script {i} failed, ignored")
                     if os.getenv("DEBUG_SCRIPT"):  # pragma: no cover
                         traceback.print_exc()
@@ -56,7 +56,7 @@ class ScriptRunner:
             try:
                 if not eval(i):
                     return False
-            except:
+            except Exception:
                 # ignore if error
                 if os.getenv("DEBUG_SCRIPT"):  # pragma: no cover
                     traceback.print_exc()
@@ -162,7 +162,7 @@ class ScriptBase:
 
         _bangumi_id = None
         _subtitle_list = []  # type: list
-        _max_page = int(MAX_PAGE)
+        _max_page = MAX_PAGE
 
         def __init__(self) -> None:
             if self.bangumi_name is not None:
