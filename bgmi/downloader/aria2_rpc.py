@@ -1,46 +1,25 @@
-from xmlrpc.client import ServerProxy, _Method
+import xmlrpc.client
 
-from bgmi.config import ARIA2_RPC_TOKEN, ARIA2_RPC_URL
+from bgmi import config
 from bgmi.downloader.base import BaseDownloadService
 from bgmi.lib.models import STATUS_DOWNLOADED, STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD
 from bgmi.utils import print_error, print_info, print_success, print_warning
-
-
-class _PatchedMethod(_Method):
-    def __getitem__(self, name):
-        return _Method.__getattr__(self, name)
-
-    def __getattr__(self, name):
-        if name == "__getitem__":
-            return self.__getitem__
-        return _Method.__getattr__(self, name)
-
-    def __call__(self, *args):
-        print(args)
-
-
-class PatchedServerProxy(ServerProxy):
-    def __request(self, methodname, params):
-        return ServerProxy._ServerProxy__request(self, methodname, params)
-
-    def __getattr__(self, name):
-        return _PatchedMethod(self.__request, name)
 
 
 class Aria2DownloadRPC(BaseDownloadService):
     old_version = False
 
     def __init__(self, *args, **kwargs):
-        self.server = PatchedServerProxy(ARIA2_RPC_URL)
+        self.server = xmlrpc.client.ServerProxy(config.ARIA2_RPC_URL)
         Aria2DownloadRPC.check_aria2c_version()
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
 
     def download(self):
         if self.old_version:
             self.server.aria2.addUri([self.torrent], {"dir": self.save_path})
         else:
             self.server.aria2.addUri(
-                ARIA2_RPC_TOKEN, [self.torrent], {"dir": self.save_path}
+                config.ARIA2_RPC_TOKEN, [self.torrent], {"dir": self.save_path}
             )
         print_info(
             "Add torrent into the download queue, the file will be saved at {}".format(
@@ -50,11 +29,11 @@ class Aria2DownloadRPC(BaseDownloadService):
 
     @staticmethod
     def check_aria2c_version():
-        url = ARIA2_RPC_URL.split("/")
-        url[2] = ARIA2_RPC_TOKEN + "@" + url[2]
+        url = config.ARIA2_RPC_URL.split("/")
+        url[2] = config.ARIA2_RPC_TOKEN + "@" + url[2]
         url = "/".join(url)
-        s = ServerProxy(url)
-        r = s.aria2.getVersion(ARIA2_RPC_TOKEN)
+        s = xmlrpc.client.ServerProxy(url)
+        r = s.aria2.getVersion(config.ARIA2_RPC_TOKEN)
         version = r["version"]
         if version:
             Aria2DownloadRPC.old_version = version < "1.18.4"
@@ -77,7 +56,7 @@ class Aria2DownloadRPC(BaseDownloadService):
         print()
         print_info("Print download status in aria2c-rpc")
         try:
-            server = PatchedServerProxy(ARIA2_RPC_URL)
+            server = xmlrpc.client.ServerProxy(config.ARIA2_RPC_URL)
             # self.server.aria2
             status_dict = {
                 STATUS_DOWNLOADING: ["tellActive"],
@@ -91,9 +70,11 @@ class Aria2DownloadRPC(BaseDownloadService):
                 else:
                     params = ()
                 if Aria2DownloadRPC.old_version:
-                    data = server.aria2[method](*params)
+                    data = getattr(server.aria2, method)(*params)
                 else:
-                    data = server.aria2[method](ARIA2_RPC_TOKEN, *params)
+                    data = getattr(server.aria2, method)(
+                        config.ARIA2_RPC_TOKEN, *params
+                    )
 
                 if data:
                     print_warning(f"RPC {method}:", indicator=False)
