@@ -2,6 +2,7 @@ import glob
 import os
 import time
 import traceback
+import types
 from importlib.machinery import SourceFileLoader
 from typing import Any, Dict, Iterator, List, Optional, Tuple
 
@@ -24,10 +25,11 @@ class ScriptRunner:
             script_files = glob.glob(f"{SCRIPT_PATH}{os.path.sep}*.py")
             for i in script_files:
                 try:
-                    s = SourceFileLoader(
-                        "script", os.path.join(SCRIPT_PATH, i)
-                    ).load_module()
-                    script_class = getattr(s, "Script")()
+                    loader = SourceFileLoader("script", os.path.join(SCRIPT_PATH, i))
+                    mod = types.ModuleType(loader.name)
+                    loader.exec_module(mod)
+
+                    script_class = getattr(mod, "Script")()
 
                     if cls.check(script_class):
                         cls.scripts.append(script_class)
