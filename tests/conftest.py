@@ -38,12 +38,12 @@ def pytest_sessionstart(session):
 
 
 def ensure_example_script():
-    test_script = "test_script.py"
+    test_script = "script_example.py"
     p = os.listdir(SCRIPT_PATH)
     if test_script not in p:
-        print("copy test_script.py to SCRIPT_PATH")
+        print("copy script_example.py to SCRIPT_PATH")
         shutil.copy(
-            os.path.join(os.path.dirname(__file__), test_script),
+            os.path.join(os.path.dirname(__file__), "..", test_script),
             os.path.join(SCRIPT_PATH, test_script),
         )
 
