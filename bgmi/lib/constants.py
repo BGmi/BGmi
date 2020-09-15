@@ -133,7 +133,8 @@ actions_and_arguments = [
                 "dest": "--clear-all",
                 "kwargs": dict(
                     action="store_true",
-                    help="Clear all the subscriptions name will be ignored If you provide this flag.",
+                    help="Clear all the subscriptions, name will be ignored If you "
+                    "provide this flag.",
                 ),
             },
             {
@@ -372,11 +373,7 @@ actions_and_arguments = [
         "arguments": [
             {
                 "dest": "config",
-                "kwargs": dict(
-                    help="gen nginx.conf",
-                    type=str,
-                    choices=["nginx.conf"],
-                ),
+                "kwargs": dict(help="gen nginx.conf", type=str, choices=["nginx.conf"]),
             },
             {
                 "dest": "--server-name",

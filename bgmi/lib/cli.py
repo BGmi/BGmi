@@ -172,7 +172,7 @@ def cal_wrapper(ret: Any) -> None:
         split = "-" * num + "   "
         print(split * row)
 
-    for index, weekday in enumerate(weekday_order + ("Unknown",)):
+    for weekday in weekday_order + ("Unknown",):
         if weekly_list[weekday.lower()]:
             print(
                 "{}{}. {}".format(
@@ -255,8 +255,11 @@ def download_manager(ret: Any) -> None:
         # download_obj = NeoDownload.get(_id=download_id)
         # if not download_obj:
         #     print_error('Download object does not exist.')
-        # print_info('Download Object <{0} - {1}>, Status: {2}'.format(download_obj.name, download_obj.episode,
-        #                                                              download_obj.status))
+        # print_info(
+        #     "Download Object <{0} - {1}>, Status: {2}".format(
+        #         download_obj.name, download_obj.episode, download_obj.status
+        #     )
+        # )
         # download_obj.status = status
         # download_obj.save()
         print_success(

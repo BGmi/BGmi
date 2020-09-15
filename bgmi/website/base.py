@@ -99,7 +99,7 @@ class BaseWebsite:
         self,
         bangumi: Bangumi,
         ignore_old_row: bool = True,
-        max_page: int = int(MAX_PAGE),
+        max_page: int = MAX_PAGE,
     ) -> Tuple[int, List[Episode]]:
         followed_filter_obj, _ = Filter.get_or_create(bangumi_name=bangumi.name)
 
@@ -137,7 +137,7 @@ class BaseWebsite:
         _id: str,
         name: str = "",
         subtitle_list: str = None,
-        max_page: int = int(MAX_PAGE),
+        max_page: int = MAX_PAGE,
     ) -> List[Episode]:
         result = []
 
@@ -175,8 +175,8 @@ class BaseWebsite:
         """
         return a list of all bangumi and a list of all subtitle group
 
-        list of bangumi dict:
-        update time should be one of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Unknown']
+        list of bangumi dict, update time should be one of
+        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Unknown']
         """
         raise NotImplementedError
 
@@ -197,7 +197,7 @@ class BaseWebsite:
         self,
         bangumi_id: str,
         subtitle_list: Optional[List[str]] = None,
-        max_page: int = int(MAX_PAGE),
+        max_page: int = MAX_PAGE,
     ) -> Optional[WebsiteBangumi]:
         """
         fetch bangumi info when updating, return ``None``
