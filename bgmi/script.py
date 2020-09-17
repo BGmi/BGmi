@@ -39,8 +39,6 @@ class ScriptRunner:
                     print_warning(f"Load script {i} failed, ignored")
                     if os.getenv("DEBUG_SCRIPT"):  # pragma: no cover
                         traceback.print_exc()
-                        # self.scripts = filter(self._check_followed, self.scripts)
-                        # self.scripts = filter(self._check_bangumi, self.scripts)
 
             cls._defined = super().__new__(cls, *args, **kwargs)
 
@@ -141,7 +139,6 @@ class ScriptRunner:
                 download_prepare([Episode(**x) for x in download_queue])
 
         return self.download_queue
-        # return [Episode(**x) for x in self.download_queue]
 
     def get_download_cover(self) -> List[str]:
         return [script["cover"] for script in self.get_models_dict()]

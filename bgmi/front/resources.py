@@ -21,17 +21,16 @@ class BangumiHandler(BaseHandler):
             self.write("<h1>BGmi HTTP Service</h1>")
             self.write(
                 "<pre>Please modify your web server configure file\n"
-                "to server this path to '%s'.\n"
+                f"to server this path to '{SAVE_PATH}'.\n"
                 "e.g.\n\n"
                 "...\n"
                 "autoindex on;\n"
                 "location /bangumi {\n"
-                "    alias %s;\n"
+                f"    alias {SAVE_PATH};\n"
                 "}\n"
                 "...\n\n"
                 "If use want to use Tornado to serve static files, please run\n"
                 "<code>`bgmi config TORNADO_SERVE_STATIC_FILES 1`</code></pre>"
-                % (SAVE_PATH, SAVE_PATH)
             )
             self.finish()
 

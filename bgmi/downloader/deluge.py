@@ -33,8 +33,6 @@ class DelugeRPC(BaseDownloadService):
 
     def download(self):
         if not self.torrent.startswith("magnet:"):
-            # self._call("web.get_magnet_info", [self.torrent, ])
-            # else:
             e = self._call("web.download_torrent_from_url", [self.torrent])
             self.torrent = e["result"]
         options = {

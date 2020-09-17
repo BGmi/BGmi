@@ -38,14 +38,14 @@ class ApiTestCase(AsyncHTTPTestCase):
         r = self.fetch(
             "/api/auth", method="POST", body=json.dumps({"token": ADMIN_TOKEN})
         )
-        self.assertEqual(r.code, 200)
+        assert r.code == 200
         res = self.parse_response(r)
-        self.assertEqual(res["status"], "success")
+        assert res["status"] == "success"
 
         r = self.fetch("/api/auth", method="POST", body=json.dumps({"token": "3"}))
-        self.assertEqual(r.code, 400)
+        assert r.code == 400
         res = self.parse_response(r)
-        self.assertEqual(res["status"], "error")
+        assert res["status"] == "error"
 
     def test_a_cal(self):
         m = mock.Mock(return_value={"status": "warning", "data": {"hello": "world"}})
@@ -64,7 +64,7 @@ class ApiTestCase(AsyncHTTPTestCase):
                 headers=self.headers,
                 body=json.dumps({"name": self.bangumi_1}),
             )
-            self.assertEqual(r.code, 200)
+            assert r.code == 200
             m.assert_called_once_with(name=self.bangumi_1)
 
     def test_c_delete(self):
@@ -77,9 +77,9 @@ class ApiTestCase(AsyncHTTPTestCase):
                 headers=self.headers,
                 body=json.dumps({"name": self.bangumi_2}),
             )
-            self.assertEqual(r.code, 200)
+            assert r.code == 200
             r = self.parse_response(r)
-            self.assertEqual(r["status"], "warning")
+            assert r["status"] == "warning"
             m.assert_called_once_with(name=self.bangumi_2)
 
     def test_e_mark(self):
@@ -110,10 +110,10 @@ class ApiTestCase(AsyncHTTPTestCase):
                 headers=self.headers,
             )
 
-            self.assertEqual(r.code, 200)
+            assert r.code == 200
             res = self.parse_response(r)
             assert res["data"] == {"h": "w"}
-            self.assertEqual(res["status"], "success")
+            assert res["status"] == "success"
             m.assert_called_once_with(name=self.bangumi_1)
 
             data = {
@@ -144,7 +144,7 @@ class ApiTestCase(AsyncHTTPTestCase):
             "bgmi.lib.models.Followed.get_all_followed", m2
         ):
             response = self.fetch("/api/index", method="GET")
-            self.assertEqual(response.code, 200)
+            assert response.code == 200
             r = self.parse_response(response)
             assert COVER_URL + "/2333" == r["data"][0]["cover"], json.dumps(r["data"])
             m.assert_has_calls([mock.call("233"), mock.call("2333")], any_order=True)
@@ -152,17 +152,17 @@ class ApiTestCase(AsyncHTTPTestCase):
 
     def test_resource_ics(self):
         r = self.fetch("/resource/feed.xml")
-        self.assertEqual(r.code, 200)
+        assert r.code == 200
 
     def test_resource_feed(self):
         r = self.fetch("/resource/calendar.ics")
-        self.assertEqual(r.code, 200)
+        assert r.code == 200
 
     def test_no_auth(self):
         r = self.fetch(
             "/api/add", method="POST", body=json.dumps({"name": self.bangumi_1})
         )
-        self.assertEqual(r.code, 401)
+        assert r.code == 401
 
     @staticmethod
     def parse_response(response):

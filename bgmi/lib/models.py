@@ -67,7 +67,7 @@ class Bangumi(NeoDB):
 
         update_time = kwargs.get("update_time", "").title()
         if update_time and update_time not in BANGUMI_UPDATE_TIME:
-            raise ValueError("unexpected update time %s" % update_time)
+            raise ValueError(f"unexpected update time {update_time}")
         self.update_time = update_time
         if isinstance(kwargs.get("subtitle_group"), list):
             s = []

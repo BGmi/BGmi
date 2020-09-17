@@ -55,7 +55,7 @@ class XunleiLixianDownload(BaseDownloadService):
                 if chunk:
                     f.write(chunk)
         f.close()
-        print_success("Download successfully, save at %s, extracting ..." % f.name)
+        print_success(f"Download successfully, save at {f.name}, extracting ...")
         zip_file = tarfile.open(f.name, "r:gz")
         zip_file.extractall(os.path.join(BGMI_PATH, "tools/xunlei-lixian"))
         dir_name = zip_file.getnames()[0]
