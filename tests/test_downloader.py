@@ -1,5 +1,7 @@
 from unittest import mock
 
+import pytest
+
 from bgmi.downloader.base import BaseDownloadService
 from bgmi.main import main
 
@@ -27,20 +29,17 @@ def return_download_class():
     return MockDownloadService
 
 
-def test_download(clean_bgmi):
+@pytest.mark.usefixtures("_clean_bgmi")
+def test_download():
     with mock.patch("bgmi.lib.download.get_download_class", return_download_class):
         main("search 海贼王 --download".split())
 
 
-def test_update(clean_bgmi, bangumi_names):
+@pytest.mark.usefixtures("_clean_bgmi")
+def test_update(bangumi_names):
     with mock.patch("bgmi.lib.download.get_download_class", return_download_class):
         main(["add"] + bangumi_names + ["--episode", "0"])
         main("update -d".split())
-
-
-# def test_download_with_filter():
-#     with mock.patch("bgmi.lib.download.get_download_class", return_download_class):
-#         main("")
 
 
 def test_search_with_filter():

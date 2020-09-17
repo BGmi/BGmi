@@ -1,5 +1,6 @@
 import asyncio
 import sys
+from itertools import chain
 from typing import Any, List
 
 import tornado.httpserver
@@ -30,15 +31,14 @@ def make_app() -> tornado.web.Application:
         "gzip": True,
         "debug": True,
     }
-    api_actions = "{}|{}".format(
-        "|".join(API_MAP_GET.keys()), "|".join(API_MAP_POST.keys())
-    )
+    api_actions = "|".join(chain(API_MAP_GET.keys(), API_MAP_POST.keys()))
+
     handlers = [
         (r"^/api/(old|index)", BangumiListHandler),
         (r"^/resource/feed.xml$", RssHandler),
         (r"^/resource/calendar.ics$", CalendarHandler),
         (r"^/api/update", UpdateHandler),
-        (r"^/api/(?P<action>%s)" % api_actions, AdminApiHandler),
+        (fr"^/api/(?P<action>{api_actions})", AdminApiHandler),
     ]  # type: List[Any]
 
     if TORNADO_SERVE_STATIC_FILES != "0":
@@ -62,11 +62,11 @@ def make_app() -> tornado.web.Application:
 
 def main() -> None:
     if IS_WINDOWS:
-        if sys.version_info[1] >= 8:
+        if sys.version_info >= (3, 8):
             asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
     tornado.options.parse_command_line()
-    print("BGmi HTTP Server listening on %s:%d" % (options.address, options.port))
+    print(f"BGmi HTTP Server listening on {options.address}:{options.port:d}")
     http_server = tornado.httpserver.HTTPServer(make_app())
     http_server.listen(options.port, address=options.address)
     tornado.ioloop.IOLoop.current().start()

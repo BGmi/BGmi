@@ -236,7 +236,6 @@ def get_terminal_col() -> int:  # pragma: no cover
                     maxy,
                 ) = struct.unpack("hhhhHhhhhhh", csbi.raw)
                 sizex = right - left + 1  # type: int
-                # sizey = bottom - top + 1
                 return sizex
             else:
                 import subprocess
@@ -492,7 +491,6 @@ def normalize_path(url: str) -> str:
 
 
 def get_web_admin(method: str) -> None:
-    # frontend_npm_url = 'https://registry.npmjs.com/bgmi-frontend/'
     print_info("{}ing BGmi frontend".format(method[0].upper() + method[1:]))
 
     try:

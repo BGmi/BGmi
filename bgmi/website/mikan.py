@@ -61,7 +61,6 @@ def get_weekly_bangumi():
 def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
     result = []
     soup = BeautifulSoup(content, "html.parser")
-    # name = soup.find('p', class_='bangumi-title').text
     container = soup.find("div", class_="central-container")  # type:bs4.Tag
     episode_container_list = {}
     expand_subtitle_map = {}
@@ -230,7 +229,6 @@ class Mikanani(BaseWebsite):
                     ),
                 }
             )
-            # print(result)
         return result
 
     def fetch_episode_of_bangumi(

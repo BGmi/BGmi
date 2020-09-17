@@ -252,16 +252,6 @@ def download_manager(ret: Any) -> None:
         status = ret.status
         if download_id is None or status is None:
             print_error("No id or status specified.")
-        # download_obj = NeoDownload.get(_id=download_id)
-        # if not download_obj:
-        #     print_error('Download object does not exist.')
-        # print_info(
-        #     "Download Object <{0} - {1}>, Status: {2}".format(
-        #         download_obj.name, download_obj.episode, download_obj.status
-        #     )
-        # )
-        # download_obj.status = status
-        # download_obj.save()
         print_success(
             "Download status has been marked as {}".format(
                 DOWNLOAD_CHOICE_LIST_DICT.get(int(status))

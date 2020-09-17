@@ -47,7 +47,6 @@ def add(name: str, episode: int = None) -> ControllerResult:
     """
     # action add
     # add bangumi by a list of bangumi name
-    # result = {}
     logger.debug(f"add name: {name} episode: {episode}")
     if not Bangumi.get_updating_bangumi():
         website.fetch(save=True, group_by_weekday=False)
@@ -191,7 +190,7 @@ def delete(
             result["message"] = f"Bangumi {name} has been deleted"
         except Followed.DoesNotExist:
             result["status"] = "error"
-            result["message"] = "Bangumi %s does not exist" % name
+            result["message"] = f"Bangumi {name} does not exist"
     else:
         result["status"] = "warning"
         result["message"] = "Nothing has been done."
@@ -431,7 +430,7 @@ def update(
     script_download_queue = runner.run()
 
     for subscribe in updated_bangumi_obj:
-        print_info("fetching %s ..." % subscribe["bangumi_name"])
+        print_info(f"fetching {subscribe['bangumi_name']} ...")
         try:
             bangumi_obj = Bangumi.get(name=subscribe["bangumi_name"])
         except Bangumi.DoesNotExist:
@@ -459,7 +458,7 @@ def update(
             else:
                 episode_range = range(subscribe["episode"] + 1, episode + 1)
                 print_success(
-                    "%s updated, episode: %d" % (subscribe["bangumi_name"], episode)
+                    f"{subscribe['bangumi_name']} updated, episode: {episode:d}"
                 )
                 followed_obj.episode = episode
                 followed_obj.status = STATUS_UPDATED
@@ -544,7 +543,7 @@ def list_() -> ControllerResult:
                     bangumi["status"] in (STATUS_UPDATED, STATUS_FOLLOWED)
                     and "episode" in bangumi
                 ):
-                    bangumi["name"] = "%s(%d)" % (bangumi["name"], bangumi["episode"])
+                    bangumi["name"] = f"{bangumi['name']}({bangumi['episode']:d})"
                 if j > 0:
                     result["message"] += " " * 5
                 f = [x["name"] for x in bangumi["subtitle_group"]]

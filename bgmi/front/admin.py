@@ -74,7 +74,6 @@ def auth(f):  # type: ignore
             # HTTPError will be except in `BaseHandler.write_error`
             raise HTTPError(401)
 
-    # return cast(F, wrapper)
     return wrapped
 
 

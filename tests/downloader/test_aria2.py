@@ -8,7 +8,6 @@ _token = "token:2334"
 
 @mock.patch("bgmi.config.ARIA2_RPC_TOKEN", _token)
 def test_download():
-    # with mock.patch("bgmi.downloader.aria2_rpc.PatchedServerProxy") as m1:
     with mock.patch("xmlrpc.client.ServerProxy") as m1:
         addUri = mock.Mock()
         m1.return_value.aria2.addUri = addUri
@@ -19,7 +18,6 @@ def test_download():
             save_path="save_path",
         ).download()
 
-        # m1.assert_called_once()
         addUri.assert_called_with(_token, ["d"], {"dir": "save_path"})
 
 

@@ -226,8 +226,6 @@ class DmhySource(BaseWebsite):
         search_url = base_url + "/topics/list/"
         for i in range(max_page):
 
-            # params = {'keyword': keyword, 'page': i + 1}
-
             url = search_url + "?keyword=" + keyword + "&page=" + str(i + 1)
 
             if os.environ.get("DEBUG", False):  # pragma: no cover

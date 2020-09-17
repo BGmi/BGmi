@@ -50,10 +50,6 @@ def process_subtitle(data):
     """get subtitle group name from links"""
     result = {}
     for s in data:
-        # pprint(data)
-        # f = Subtitle(id=s['tag_id'], name=s['name'])
-        # if not f.select():
-        #     f.save()
         result[s["tag_id"]] = s["name"]
     return result
 

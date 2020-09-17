@@ -5,7 +5,7 @@ from bgmi.website.model import Episode
 
 
 @mock.patch("transmission_rpc.Client")
-def test_download(client_mock, clean_bgmi):
+def test_download(client_mock):
     add_torrent = mock.Mock()
     client_mock.return_value.add_torrent = add_torrent
 
