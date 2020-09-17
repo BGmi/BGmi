@@ -475,9 +475,9 @@ Scheduled task will not be delete automatically, you will have to remove them ma
 
 ``windows``:
 
-.. code-block:: bash
+.. code-block:: powershell
 
-     schtasks /Delete /TN 'bgmi updater'
+    schtasks /Delete /TN 'bgmi updater'
 
 =======
 License

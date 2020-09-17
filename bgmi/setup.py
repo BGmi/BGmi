@@ -26,7 +26,7 @@ def install_crontab() -> None:
         )
     else:
         path = os.path.join(os.path.dirname(__file__), "others/crontab.sh")
-        os.system("bash '%s'" % path)
+        os.system(f"bash '{path}'")
 
 
 def create_dir() -> None:
@@ -47,7 +47,7 @@ def create_dir() -> None:
         for path in path_to_create:
             if not os.path.exists(path):
                 os.makedirs(path)
-                print_success("%s created successfully" % path)
+                print_success(f"{path} created successfully")
         OLD = os.path.join(BGMI_PATH, "old")
         # create OLD if not exist oninstall
         if not os.path.exists(OLD):

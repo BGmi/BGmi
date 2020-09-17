@@ -73,4 +73,4 @@ def init_db() -> None:
         conn.commit()
         conn.close()
     except sqlite3.OperationalError:
-        print_error("Open database file failed, path %s is not writable." % BGMI_PATH)
+        print_error(f"Open database file failed, path {BGMI_PATH} is not writable.")

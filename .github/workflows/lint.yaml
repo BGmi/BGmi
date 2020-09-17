@@ -21,7 +21,7 @@ jobs:
       - uses: Trim21/install-poetry-project@dist/v1
 
       - name: flake8
-        run: "flake8 --format='::error file=%(path)s,line=%(row)d,col=%(col)d::[%(code)s]: %(text)s' bgmi"
+        run: "flake8 --format='::error file=%(path)s,line=%(row)d,col=%(col)d::[%(code)s]: %(text)s'"
 
   mypy:
     runs-on: ${{ matrix.os }}-latest

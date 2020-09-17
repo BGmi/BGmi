@@ -33,7 +33,7 @@ def pytest_sessionstart(session):
     ensure_example_script()
     urllib3.disable_warnings()
     if IS_WINDOWS:
-        if sys.version_info[1] >= 8:
+        if sys.version_info >= (3, 8):
             asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
@@ -58,7 +58,7 @@ def data_source_bangumi_name():
 
 
 @pytest.fixture()
-def clean_bgmi():
+def _clean_bgmi():
     recreate_source_relatively_table()
     yield
     recreate_source_relatively_table()

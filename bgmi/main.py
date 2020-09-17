@@ -59,7 +59,6 @@ def main(argv: Optional[List[str]] = None) -> None:
         help='Gen completion, `eval "$(bgmi complete)"` '
         'or `eval "$(bgmi complete|dos2unix)"`',
     )
-    # sub_parser_del.add_argument('command', nargs='+', )
 
     ret = c.parse_args(argv)
     if ret.action == "install":
@@ -82,7 +81,7 @@ def setup() -> None:
     need_to_init = False
     if not os.path.exists(BGMI_PATH):
         need_to_init = True
-        print_warning("BGMI_PATH %s does not exist, installing" % BGMI_PATH)
+        print_warning(f"BGMI_PATH {BGMI_PATH} does not exist, installing")
 
     create_dir()
     init_db()
