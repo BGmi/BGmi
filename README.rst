@@ -28,7 +28,7 @@ Update Log
 Feature
 =======
 + Multi data sources supported: `bangumi_moe <https://bangumi.moe>`_, `mikan_project <https://mikanani.me>`_ or `dmhy <https://share.dmhy.org/>`_
-+ Use aria2, transmission or xunlei-lixian to download bangumi
++ Use aria2, transmission or deluge to download bangumi
 + Web interface to manage bangumi with HTTP API
 + Play bangumi online with danmaku
 + RSS feed for uTorrent, ICS calendar for mobile devices
