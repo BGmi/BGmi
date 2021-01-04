@@ -161,13 +161,13 @@ class DmhySource(BaseWebsite):
                 time = int(Time.mktime(Time.strptime(time_string, "%Y/%m/%d %H:%M")))
 
                 result.append(
-                    {
-                        "name": name,
-                        "title": title,
-                        "download": download,
-                        "episode": episode,
-                        "time": time,
-                    }
+                    Episode(
+                        name=name,
+                        title=title,
+                        download=download,
+                        episode=episode,
+                        time=time,
+                    )
                 )
 
         return result
