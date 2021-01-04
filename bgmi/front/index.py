@@ -1,6 +1,6 @@
 import os
 from pprint import pformat
-from typing import Dict
+from typing import Dict, List
 
 from bgmi.config import FRONT_STATIC_PATH, SAVE_PATH
 from bgmi.front.base import COVER_URL, BaseHandler
@@ -62,13 +62,16 @@ class IndexHandler(BaseHandler):
 
 class BangumiListHandler(BaseHandler):
     def get(self, type_: str = "") -> None:
-        data = Followed.get_all_followed(
+        data: List[dict] = Followed.get_all_followed(
             STATUS_DELETED, STATUS_UPDATING if not type_ == "old" else STATUS_END
         )
 
+        def sorter(_: Dict[str, int]) -> int:
+            return _["updated_time"] if _["updated_time"] else 1
+
         if type_ == "index":
             data.extend(self.patch_list)
-            data.sort(key=lambda _: _["updated_time"] if _["updated_time"] else 1)
+            data.sort(key=sorter)
 
         for bangumi in data:
             bangumi["cover"] = "{}/{}".format(
