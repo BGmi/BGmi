@@ -34,12 +34,12 @@ def test_cal_config():
 
 
 def test_add(bangumi_names):
-    main("add {} {} {}".format(*bangumi_names).split())
+    main(["add", *bangumi_names])
 
 
 @pytest.mark.usefixtures("_clean_bgmi")
 def test_update(bangumi_names):
-    main("add {} {} {}".format(*bangumi_names).split())
+    main(["add", *bangumi_names])
     main(["update"])
 
 
@@ -64,7 +64,7 @@ def test_delete(bangumi_names):
 
 @pytest.mark.usefixtures("_clean_bgmi")
 def test_delete_batch(bangumi_names):
-    main("add {} {} {} --episode 0".format(*bangumi_names).split())
+    main(["add", *bangumi_names, "--episode", "0"])
     main("delete  --clear-all --batch".split())
 
 
