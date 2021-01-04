@@ -217,17 +217,19 @@ class Mikanani(BaseWebsite):
             title = tr.find("a", class_="magnet-link-wrap").text
             time_string = tr.find_all("td")[2].string
             result.append(
-                {
-                    "download": tr.find("a", class_="magnet-link").attrs.get(
-                        "data-clipboard-text", ""
-                    ),
-                    "name": keyword,
-                    "title": title,
-                    "episode": self.parse_episode(title),
-                    "time": int(
-                        time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M"))
-                    ),
-                }
+                Episode(
+                    **{
+                        "download": tr.find("a", class_="magnet-link").attrs.get(
+                            "data-clipboard-text", ""
+                        ),
+                        "name": keyword,
+                        "title": title,
+                        "episode": self.parse_episode(title),
+                        "time": int(
+                            time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M"))
+                        ),
+                    }
+                )
             )
         return result
 

@@ -3,7 +3,7 @@ import pytest
 from bgmi.lib.fetch import DATA_SOURCE_MAP
 from bgmi.website import mikan
 from bgmi.website.base import BaseWebsite
-from bgmi.website.model import SubtitleGroup, WebsiteBangumi
+from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
 
 
 @pytest.mark.parametrize("source", DATA_SOURCE_MAP.keys())
@@ -27,7 +27,10 @@ def test_info(source, data_source_bangumi_name):
 @pytest.mark.parametrize("source", DATA_SOURCE_MAP.keys())
 def test_search(source, data_source_bangumi_name):
     w = DATA_SOURCE_MAP[source]()
-    assert w.search_by_keyword(data_source_bangumi_name[source][0], count=1)
+    search_result = w.search_by_keyword(data_source_bangumi_name[source][0], count=1)
+    assert search_result
+    for episode in search_result:
+        assert isinstance(episode, Episode)
 
 
 def test_mikan_fetch_all_episode():
