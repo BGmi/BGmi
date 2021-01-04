@@ -43,7 +43,7 @@ pydantic = "1.6.1"
 # tests
 coverage = { version = "==5.3.1", extras = ['toml'] }
 pytest = "==6.2.1"
-pytest-rerunfailures = "^9.0"
+pytest-rerunfailures = "^9.1.1"
 requests-cache = "0.5.2"
 # lint
 pre-commit = '==2.9.3'
