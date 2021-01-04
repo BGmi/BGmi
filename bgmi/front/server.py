@@ -33,13 +33,13 @@ def make_app() -> tornado.web.Application:
     }
     api_actions = "|".join(chain(API_MAP_GET.keys(), API_MAP_POST.keys()))
 
-    handlers = [
+    handlers: List[Any] = [
         (r"^/api/(old|index)", BangumiListHandler),
         (r"^/resource/feed.xml$", RssHandler),
         (r"^/resource/calendar.ics$", CalendarHandler),
         (r"^/api/update", UpdateHandler),
         (fr"^/api/(?P<action>{api_actions})", AdminApiHandler),
-    ]  # type: List[Any]
+    ]
 
     if TORNADO_SERVE_STATIC_FILES != "0":
         handlers.extend(
@@ -54,7 +54,10 @@ def make_app() -> tornado.web.Application:
         )
     else:
         handlers.extend(
-            [(r"^/bangumi/?(.*)", BangumiHandler), (r"^/(.*)$", IndexHandler)]
+            [
+                (r"^/bangumi/?(.*)", BangumiHandler),
+                (r"^/(.*)$", IndexHandler),
+            ]
         )
 
     return tornado.web.Application(handlers, **settings)  # type: ignore

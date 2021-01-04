@@ -1,11 +1,13 @@
 repos:
   - repo: https://github.com/Trim21/pre-commit-hooks
-    rev: c37e29c1e823c5ce25cac879a0aa7fd63d387c25  # frozen: v0.0.1
+    rev: 5685ac183889dcafd0ea6c9dc3df211274554ec2  # frozen: v0.2.2
     hooks:
       - id: yamlfmt
+      - id: poetry-check-lock
+      - id: find-trailing-comma
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: e1668fe86af3810fbca72b8653fe478e66a0afdc  # frozen: v3.2.0
+    rev: 6e2418c5521b7d606e72914dced3253f9ace1205  # frozen: v3.4.0
     hooks:
       - id: check-merge-conflict
         exclude: \.rst$
@@ -29,13 +31,8 @@ repos:
       - id: fix-encoding-pragma
         args: [--remove]
 
-  - repo: https://github.com/Trim21/find-trailing-comma
-    rev: 6f7daa24655f33876ae870aa8ad808639693d775  # frozen: v0.0.1
-    hooks:
-      - id: find-trailing-comma
-
   - repo: https://github.com/asottile/pyupgrade
-    rev: f766c29ec4bb6cf2674b81959871e59d5400380a  # frozen: v2.7.2
+    rev: 928901205243fe52292052b8b0757d93f174d5e8  # frozen: v2.7.4
     hooks:
       - id: pyupgrade
         args: [--py36-plus]
@@ -51,7 +48,7 @@ repos:
           - --expand-star-imports
 
   - repo: https://github.com/timothycrosley/isort
-    rev: 377d260ffa6f746693f97b46d95025afc4bd8275  # frozen: 5.4.2
+    rev: 473d150c1db60f4614a574e30993e9e0d3ca0cce  # frozen: 5.7.0
     hooks:
       - id: isort
         args:
@@ -62,11 +59,6 @@ repos:
           - --force-grid-wrap=0
           - --use-parentheses
           - -sd=THIRDPARTY
-
-  - repo: https://github.com/Trim21/poetry-check-lock
-    rev: 63621580c70f106fd07748c262b6e08fef886ecc  # frozen: v0.0.3
-    hooks:
-      - id: poetry-check-lock
 
   - repo: https://github.com/psf/black
     rev: e66be67b9b6811913470f70c28b4d50f94d05b22  # frozen: 20.8b1
