@@ -313,14 +313,14 @@ def search(
         return {
             "status": "success",
             "message": "",
-            "options": dict(
-                keyword=keyword,
-                count=count,
-                regex=regex,
-                dupe=dupe,
-                min_episode=min_episode,
-                max_episode=max_episode,
-            ),
+            "options": {
+                "keyword": keyword,
+                "count": count,
+                "regex": regex,
+                "dupe": dupe,
+                "min_episode": min_episode,
+                "max_episode": max_episode,
+            },
             "data": data,
         }
     except Exception as e:
@@ -329,14 +329,14 @@ def search(
         return {
             "status": "error",
             "message": str(e),
-            "options": dict(
-                keyword=keyword,
-                count=count,
-                regex=regex,
-                dupe=dupe,
-                min_episode=min_episode,
-                max_episode=max_episode,
-            ),
+            "options": {
+                "keyword": keyword,
+                "count": count,
+                "regex": regex,
+                "dupe": dupe,
+                "min_episode": min_episode,
+                "max_episode": max_episode,
+            },
             "data": [],
         }
 

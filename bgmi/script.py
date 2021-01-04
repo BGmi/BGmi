@@ -4,6 +4,7 @@ import time
 import traceback
 import types
 from importlib.machinery import SourceFileLoader
+from operator import itemgetter
 from typing import Any, Dict, Iterator, List, Optional, Tuple
 
 from bgmi.config import MAX_PAGE, SCRIPT_PATH
@@ -111,7 +112,7 @@ class ScriptRunner:
                 print_info(f"Got nothing, quit script {script}.")
                 continue
 
-            max_episode = max(download_item, key=lambda d: d["episode"])
+            max_episode = max(download_item, key=itemgetter("episode"))
             episode = max_episode["episode"]
             episode_range = range(script_obj.episode + 1, episode + 1)
 
