@@ -230,7 +230,7 @@ Fields of configure file:
 BGmi configure:
 
 + :code:`BANGUMI_MOE_URL`: url of bangumi.moe mirror
-+ :code:`BGMI_SAVE_PATH`: bangumi saving path
++ :code:`SAVE_PATH`: bangumi saving path
 + :code:`DOWNLOAD_DELEGATE`: the ways of downloading bangumi (aria2-rpc, transmission-rpc, xunlei)
 + :code:`MAX_PAGE`: max page for fetching bangumi information
 + :code:`BGMI_TMP_PATH`: just a temporary path
