@@ -233,7 +233,7 @@ BGmi configure:
 + :code:`SAVE_PATH`: bangumi saving path
 + :code:`DOWNLOAD_DELEGATE`: the ways of downloading bangumi (aria2-rpc, transmission-rpc, xunlei)
 + :code:`MAX_PAGE`: max page for fetching bangumi information
-+ :code:`BGMI_TMP_PATH`: just a temporary path
++ :code:`TMP_PATH`: just a temporary path
 + :code:`DANMAKU_API_URL`: url of danmaku api
 + :code:`LANG`: language
 
