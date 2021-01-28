@@ -1,11 +1,30 @@
+import pytest
+
 from bgmi.utils import episode_filter_regex, parse_episode
 from bgmi.website.model import Episode
 
 
-def test_print_config():
-    title = "[YMDR][哥布林殺手][Goblin Slayer][2018][01][1080p][AVC][JAP][BIG5][MP4-AAC][繁中]"
-    episode = parse_episode(title)
-    assert episode == 1, episode
+@pytest.mark.parametrize(
+    ("title", "episode"),
+    [
+        (
+            "[YMDR][哥布林殺手][Goblin Slayer][2018][01][1080p][AVC][JAP][BIG5][MP4-AAC][繁中]",
+            1,
+        ),
+        ("【安達與島村】【第二話】【1080P】【繁體中文】【AVC】", 2),
+        ("のんのんびより のんすとっぷ 第02话 BIG5 720p MP4", 2),
+        ("OVA 噬血狂袭 Strike the Blood IV [E01][720P][GB][BDrip]", 1),
+        ("Kumo Desu ga, Nanika - 01 v2 [1080p][繁体]", 1),
+        ("Re Zero Isekai Seikatsu S02 - 17 [Baha][1080p][AVC AAC]", 17),
+        # range as 0
+        ("[从零开始的异世界生活 第二季_Re Zero S2][34-35][繁体][720P][MP4]", 0),
+        ("Strike The Blood IV][OVA][05-06][1080P][GB][MP4]", 0),
+    ],
+)
+def test_episode_parse(title, episode):
+    assert (
+        parse_episode(title) == episode
+    ), f"\ntitle: {title!r}\nepisode: {episode}\nparsed episode: {parse_episode(title)}"
 
 
 def test_remove_dupe():
