@@ -213,7 +213,7 @@ Deluge-rpc:
 
 ## 使用`bgmi_http`
 
-`.先下载所有更新中番剧的封面
+1.先下载所有更新中番剧的封面
 
 ```bash
 bgmi cal --download-cover
