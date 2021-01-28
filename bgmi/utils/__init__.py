@@ -372,7 +372,7 @@ def chinese_to_arabic(cn: str) -> int:
     return val
 
 
-FETCH_EPISODE_WITH_BRACKETS = re.compile(r"[【\[](\d+)\s?(?:END)?[】\]]")
+FETCH_EPISODE_WITH_BRACKETS = re.compile(r"[【\[]E?(\d+)\s?(?:END)?[】\]]")
 
 FETCH_EPISODE_ZH = re.compile(r"第?\s?(\d{1,3})\s?[話话集]")
 FETCH_EPISODE_ALL_ZH = re.compile(r"第([^第]*?)[話话集]")
