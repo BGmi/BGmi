@@ -15,6 +15,7 @@ from bgmi.website.model import Episode
         ("のんのんびより のんすとっぷ 第02话 BIG5 720p MP4", 2),
         ("OVA 噬血狂袭 Strike the Blood IV [E01][720P][GB][BDrip]", 1),
         ("Kumo Desu ga, Nanika - 01 v2 [1080p][繁体]", 1),
+        ("Re Zero Isekai Seikatsu S02 - 17 [Baha][1080p][AVC AAC]", 17),
         # range as 0
         ("[从零开始的异世界生活 第二季_Re Zero S2][34-35][繁体][720P][MP4]", 0),
         ("Strike The Blood IV][OVA][05-06][1080P][GB][MP4]", 0),

@@ -378,7 +378,7 @@ FETCH_EPISODE_ZH = re.compile(r"第?\s?(\d{1,3})\s?[話话集]")
 FETCH_EPISODE_ALL_ZH = re.compile(r"第([^第]*?)[話话集]")
 FETCH_EPISODE_ONLY_NUM = re.compile(r"^([\d]{2,})$")
 
-FETCH_EPISODE_RANGE = re.compile(r"[\d]{2,}\s?-\s?([\d]{2,})")
+FETCH_EPISODE_RANGE = re.compile(r"[^sS][\d]{2,}\s?-\s?([\d]{2,})")
 FETCH_EPISODE_RANGE_ZH = re.compile(r"[第][\d]{2,}\s?-\s?([\d]{2,})\s?[話话集]")
 FETCH_EPISODE_RANGE_ALL_ZH = re.compile(r"[全]([^-^第]*?)[話话集]")
 
