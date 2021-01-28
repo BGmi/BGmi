@@ -232,7 +232,7 @@ actions_and_arguments = [
                 "dest": ["-f", "--force-update"],
                 "kwargs": dict(
                     action="store_true",
-                    help="Get the newest bangumi calendar from bangumi.moe.",
+                    help="Get the newest bangumi calendar from current data source.",
                 ),
             },
             {
