@@ -1,33 +1,65 @@
 # Changelog
 
+## [Unreleased](https://github.com/BGmi/BGmi/compare/2.1.4...HEAD)
 
-## Unreleased
+### Bug Fixes
 
-### Bug Fixes:
+- episode parsing ([#249](https://github.com/BGmi/BGmi/issues/249))
+- parse episode with E prefix in brackets
 
-- **cli**: enable color in bash and zsh on windows ([bac4993](https://github.com/BGmi/BGmi/commit/bac4993cd784b5303431f7e430846b7ff5360117))
-- retry http requests on error ([1b803eb](https://github.com/BGmi/BGmi/commit/1b803ebac5b535aa1cc945aaef70f185c07edd22))
-- **script**: replace deprecated `imp` module ([138c98f](https://github.com/BGmi/BGmi/commit/138c98f790e5aac6dc32b6c34674b719b68ba0b0))
+## [2.1.4](https://github.com/BGmi/BGmi/compare/2.1.3...2.1.4) - 2021-02-08
+
+### Bug Fixes
+
+- bgmi search for mikan,dmhy ([#244](https://github.com/BGmi/BGmi/issues/244))
+- update bangumi info when updating
+- retry http requests on error
+- **mikan:** fetch full episode list of mikan source ([#237](https://github.com/BGmi/BGmi/issues/237))
+- **mikan:** retry on http error
+- **mikan:** handle server instability response
+- **script:** remove deprecated imp module
+
+### Code Refactoring
+
+- reduce dict
+- move cover downloader to controller
+- drop py3.5 support
+- remove some utils from `BaseWebsite`
+- **cli:** use wcwidth to count bangumi name length
+- **downloader:** migrate driver to transmission-rpc
+- **internal:** migrate attrs to pydantic
+- **mikan:** readability improvement
+- **mikan:** remove debug code
+- **mikan:** debug message
+- **script:** replace deprecated api load_module
+
+### Features
+
+- **cli:** enable color in bash and zsh on windows
+- don't fetch all bangumi info when show calendar
+- allow `Unknown` as bangumi update_time
+
+### BREAKING CHANGE
+
+python3.5 has reached its EOL, so bump required python version to 3.6
 
 ## [2.1.3](https://github.com/BGmi/BGmi/compare/2.1.2...2.1.3) (2020-03-19)
 
 ### Bug Fixes
 
-* bangumi name as part of other bangumi can be searched now ([7fd3a23](https://github.com/BGmi/BGmi/commit/7fd3a2314a054bef83d8f4cb90a769988af1c98a)), closes [#225](https://github.com/BGmi/BGmi/issues/225)
-
+- bangumi name as part of other bangumi can be searched now ([7fd3a23](https://github.com/BGmi/BGmi/commit/7fd3a2314a054bef83d8f4cb90a769988af1c98a)), closes [#225](https://github.com/BGmi/BGmi/issues/225)
 
 ## [2.1.2](https://github.com/BGmi/BGmi/compare/2.1.1...2.1.2) (2020-01-02)
 
 ### Bug Fixes
 
-* **front**: python3.8 windows asyncio ([7d53bf9](https://github.com/BGmi/BGmi/commit/7d53bf9084030c00f566300f719e5ff1a7e0a1f1)), closes [#217](https://github.com/BGmi/BGmi/issues/217)
-
+- **front**: python3.8 windows asyncio ([7d53bf9](https://github.com/BGmi/BGmi/commit/7d53bf9084030c00f566300f719e5ff1a7e0a1f1)), closes [#217](https://github.com/BGmi/BGmi/issues/217)
 
 ## [2.1.1](https://github.com/BGmi/BGmi/compare/2.1.0-beta...2.1.1) (2019-04-24)
 
 ### Bug Fixes
 
-* mikan parser error ([1842cc1](https://github.com/BGmi/BGmi/commit/1842cc18c1a303b893be803729f7f2046822af50))
+- mikan parser error ([1842cc1](https://github.com/BGmi/BGmi/commit/1842cc18c1a303b893be803729f7f2046822af50))
 
 
 ## [2.1.0-beta](https://github.com/BGmi/BGmi/compare/2.0.6...2.1.0-beta) (2018-10-07)
