@@ -18,7 +18,8 @@ TODO
 ==========
 Update Log
 ==========
-+ Remove python3.4 support as it has reached its end-of-life
++ Remove python 3.5 support as it has reached its end-of-life
++ Remove python 3.4 support as it has reached its end-of-life
 + Remove Python2 support
 + Transmission rpc authentication configuration
 + New download delegate `deluge-rpc <https://www.deluge-torrent.org/>`_
