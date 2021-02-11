@@ -1,4 +1,5 @@
 import datetime
+from typing import Dict
 
 from bgmi.script import ScriptBase
 from bgmi.utils import parse_episode
@@ -11,14 +12,9 @@ class Script(ScriptBase):
         update_time = "Mon"
         due_date = datetime.datetime(2017, 9, 30)
 
-    def get_download_url(self):
+    def get_download_url(self) -> Dict[int, str]:
         # fetch and return dict
-        # ignore they are not same bangumi.
         resp = [
-            {
-                "title": "[c.c动漫][4月新番][影之诗][ShadowVerse][01][简日][HEVC][1080P][MP4]",
-                "link": "http://example.com/Bangumi/1/1.torrent",
-            },
             {
                 "title": "[YMDR][慕留人 -火影忍者新时代-][2017][2][AVC][JAP][BIG5][MP4][1080P]",
                 "link": "http://example.com/Bangumi/1/2.torrent",
