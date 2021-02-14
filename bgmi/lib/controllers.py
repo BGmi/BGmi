@@ -4,6 +4,8 @@ import time
 from operator import itemgetter
 from typing import Any, Dict, List, Optional, Union
 
+import requests.exceptions
+
 from bgmi.config import MAX_PAGE, write_config
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SUPPORT_WEBSITE
 from bgmi.lib.download import Episode, download_prepare
@@ -383,11 +385,11 @@ def update(
     name: List[str], download: Any = None, not_ignore: bool = False
 ) -> ControllerResult:
     logger.debug(f"updating bangumi info with args: download: {download}")
-    result = {
+    result: Dict[str, Any] = {
         "status": "info",
         "message": "",
         "data": {"updated": [], "downloaded": []},
-    }  # type: Dict[str, Any]
+    }
 
     ignore = not bool(not_ignore)
     print_info("marking bangumi status ...")
@@ -448,9 +450,13 @@ def update(
             )
             continue
 
-        episode, all_episode_data = website.get_maximum_episode(
-            bangumi=bangumi_obj, ignore_old_row=ignore, max_page=int(MAX_PAGE)
-        )
+        try:
+            episode, all_episode_data = website.get_maximum_episode(
+                bangumi=bangumi_obj, ignore_old_row=ignore, max_page=int(MAX_PAGE)
+            )
+        except requests.exceptions.ConnectionError as e:
+            print_warning(f"error {e} to fetch {bangumi_obj.name}, skip")
+            continue
 
         if (episode > subscribe["episode"]) or (len(name) == 1 and download):
             if len(name) == 1 and download:
