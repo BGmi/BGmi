@@ -14,10 +14,10 @@
 - bgmi search for mikan,dmhy ([#244](https://github.com/BGmi/BGmi/issues/244))
 - update bangumi info when updating
 - retry http requests on error
-- **mikan:** fetch full episode list of mikan source ([#237](https://github.com/BGmi/BGmi/issues/237))
-- **mikan:** retry on http error
-- **mikan:** handle server instability response
-- **script:** remove deprecated imp module
+- **mikan**: fetch full episode list of mikan source ([#237](https://github.com/BGmi/BGmi/issues/237))
+- **mikan**: retry on http error
+- **mikan**: handle server instability response
+- **script**: remove deprecated imp module
 
 ### Code Refactoring
 
@@ -25,17 +25,17 @@
 - move cover downloader to controller
 - drop py3.5 support
 - remove some utils from `BaseWebsite`
-- **cli:** use wcwidth to count bangumi name length
-- **downloader:** migrate driver to transmission-rpc
-- **internal:** migrate attrs to pydantic
-- **mikan:** readability improvement
-- **mikan:** remove debug code
-- **mikan:** debug message
-- **script:** replace deprecated api load_module
+- **cli**: use `wcwidth` to count bangumi name length
+- **downloader**: migrate driver to transmission-rpc
+- **internal**: migrate attrs to pydantic
+- **mikan**: readability improvement
+- **mikan**: remove debug code
+- **mikan**: debug message
+- **script**: replace deprecated api load_module
 
 ### Features
 
-- **cli:** enable color in bash and zsh on windows
+- **cli**: enable color in bash and zsh on windows
 - don't fetch all bangumi info when show calendar
 - allow `Unknown` as bangumi update_time
 
