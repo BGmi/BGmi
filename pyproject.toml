@@ -38,11 +38,11 @@ beautifulsoup4 = '==4.9.3'
 requests = '==2.25.1'
 tornado = '==6.1'
 icalendar = '==4.0.7'
-peewee = '==3.14.1'
-importlib-metadata = "==3.4.0"
+peewee = '==3.14.4'
+importlib-metadata = "==3.7.3"
 wcwidth = "^0.2.5"
-transmission-rpc = "==3.2.2"
-pydantic = "==1.7.3"
+transmission-rpc = "==3.2.4"
+pydantic = "==1.8.1"
 
 [tool.poetry.dev-dependencies]
 # tests
