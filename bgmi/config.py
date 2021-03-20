@@ -94,7 +94,7 @@ def read_config() -> None:
     if not os.path.exists(CONFIG_FILE_PATH):
         write_default_config()
         return
-    c.read(CONFIG_FILE_PATH)
+    c.read(CONFIG_FILE_PATH, encoding="utf-8")
 
     for i in __writeable__:
         if c.has_option("bgmi", i):
@@ -113,7 +113,7 @@ def print_config() -> Optional[str]:
     if not os.path.exists(CONFIG_FILE_PATH):
         return None
 
-    c.read(CONFIG_FILE_PATH)
+    c.read(CONFIG_FILE_PATH, encoding="utf-8")
     string = ""
     string += "[bgmi]\n"
     for i in __writeable__:
@@ -166,7 +166,7 @@ def write_config(
         }
 
     c = configparser.ConfigParser()
-    c.read(CONFIG_FILE_PATH)
+    c.read(CONFIG_FILE_PATH, encoding="utf-8")
     result = {}  # type: Dict[str, Any]
     try:
         if config is None:
