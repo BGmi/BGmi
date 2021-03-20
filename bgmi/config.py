@@ -148,7 +148,7 @@ def write_default_config() -> None:
         c.set(DOWNLOAD_DELEGATE, k, v)
 
     try:
-        with open(CONFIG_FILE_PATH, "w+") as f:
+        with open(CONFIG_FILE_PATH, "w+", encoding="utf-8") as f:
             c.write(f)
     except OSError:
         print("[-] Error writing to config file and ignored")
