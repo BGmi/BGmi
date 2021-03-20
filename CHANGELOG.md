@@ -6,6 +6,8 @@
 
 - episode parsing ([#249](https://github.com/BGmi/BGmi/issues/249))
 - parse episode with E prefix in brackets
+- **config**: always read config file as utf-8 ([#257](https://github.com/BGmi/BGmi/issues/257))
+- **update**: catch network error when fetching bangumi info ([#254](https://github.com/BGmi/BGmi/issues/254))
 
 ## [2.1.4](https://github.com/BGmi/BGmi/compare/2.1.3...2.1.4) - 2021-02-08
 
