@@ -181,10 +181,10 @@ bgmi config ARIA2_RPC_TOKEN 'token:token233'
 
 BGmi:
 
-- `BGMI_SAVE_PATH`: 下载番剧保存地址
+- `SAVE_PATH`: 下载番剧保存地址
 - `DOWNLOAD_DELEGATE`: 番剧下载工具 (aria2-rpc, transmission-rpc, deluge-rpc)
 - `MAX_PAGE`: 抓取数据时每个番剧最大抓取页数
-- `BGMI_TMP_PATH`: 临时文件夹
+- `TMP_PATH`: 临时文件夹
 - `DANMAKU_API_URL`: danmaku api 服务器地址
 - `LANG`: 语言
 - `ADMIN_TOKEN`: 管理
