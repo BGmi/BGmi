@@ -46,21 +46,21 @@ pydantic = "==1.8.1"
 
 [tool.poetry.dev-dependencies]
 # tests
-coverage = { version = "==5.4", extras = ['toml'] }
+coverage = { version = "==5.5", extras = ['toml'] }
 pytest = "==6.2.2"
 pytest-rerunfailures = "9.1.1"
 requests-cache = "0.5.2"
 # lint
-pre-commit = '==2.10.1'
-mypy = "==0.800"
-flake8 = "==3.8.4"
-flake8-comprehensions = "==3.3.1"
+pre-commit = '==2.11.1'
+mypy = "==0.812"
+flake8 = "==3.9.0"
+flake8-comprehensions = "==3.4.0"
 flake8-bugbear = "==21.3.2"
 flake8-mutable = "1.2.0"
 flake8-eradicate = "==1.0.0"
 flake8-pep3101 = "1.3.0"
 flake8-2020 = "1.6.0"
-flake8-pytest-style = "1.3.0"
+flake8-pytest-style = "==1.4.0"
 
 [tool.coverage.report]
 exclude_lines = [
