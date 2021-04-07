@@ -7,6 +7,7 @@ from bgmi.downloader.base import BaseDownloadService
 from bgmi.downloader.deluge import DelugeRPC
 from bgmi.downloader.transmission import TransmissionRPC
 from bgmi.downloader.xunlei import XunleiLixianDownload
+from bgmi.downloader.qbittorrent import QBittorrentWebAPI
 from bgmi.lib.models import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download
 from bgmi.utils import normalize_path, print_error
 from bgmi.website.base import Episode
@@ -16,6 +17,7 @@ DOWNLOAD_DELEGATE_DICT = {
     "aria2-rpc": Aria2DownloadRPC,
     "transmission-rpc": TransmissionRPC,
     "deluge-rpc": DelugeRPC,
+    "qbittorrent-webapi": QBittorrentWebAPI,
 }
 
 
