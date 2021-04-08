@@ -26,7 +26,13 @@ class QBittorrentWebAPI(BaseDownloadService):
 
     def download(self):
         qc = self.get_client()
-        qc.torrents_add(urls=self.torrent, category=QBITTORRENT_CATEGORY, save_path=self.save_path, is_paused=False, use_auto_torrent_management=False)
+        qc.torrents_add(
+            urls=self.torrent,
+            category=QBITTORRENT_CATEGORY,
+            save_path=self.save_path,
+            is_paused=False,
+            use_auto_torrent_management=False
+        )
         print_info(
             "Add torrent into the download queue, the file will be saved at {}".format(
                 self.save_path
@@ -46,7 +52,14 @@ class QBittorrentWebAPI(BaseDownloadService):
         qc = cls.get_client()
         for torrent in qc.torrents_info(category=QBITTORRENT_CATEGORY):
             state_enum = qbittorrentapi.TorrentStates(torrent.state)
-            print_info(f"  * {state_enum.value}:\t{torrent.name}\t [{torrent.progress*100:.2f}%]", indicator=False)
+            print_info(
+                "  * {}:\t{}\t [{}%]".format(
+                    state_enum.value,
+                    torrent.name,
+                    torrent.progress*100
+                ),
+                indicator=False
+            )
 
     @staticmethod
     def install():

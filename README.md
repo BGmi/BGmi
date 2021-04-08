@@ -10,13 +10,13 @@ BGmi is a cli tool for subscribed bangumi.
 
 ## Update Log
 
+- New download delegate [qbittorrent-webapi](https://www.qbittorrent.org/)
 - Remove python 3.5 support as it has reached its end-of-life
 - Remove python 3.4 support as it has reached its end-of-life
 - Remove Python2 support
 - Transmission rpc authentication configuration
 - New download delegate [deluge-rpc](https://www.deluge-torrent.org/)
 - You can filter search results by min and max episode
-- New download delegate [qbittorrent-webapi](https://www.qbittorrent.org/)
 
 more details can be found at [changelog.md](./changelog.md)
 

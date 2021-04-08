@@ -305,9 +305,9 @@ TRANSMISSION_RPC_PASSWORD = "your_password"
 
 # qbittorrent-webapi
 QBITTORRENT_HOST = "127.0.0.1"
-QBITTORRENT_PORT = "8082"
-QBITTORRENT_USERNAME = "your_username"
-QBITTORRENT_PASSWORD = "your_password"
+QBITTORRENT_PORT = "8080"
+QBITTORRENT_USERNAME = "admin"
+QBITTORRENT_PASSWORD = "adminadmin"
 QBITTORRENT_CATEGORY = ""
 
 # tag of bangumi on bangumi.moe
