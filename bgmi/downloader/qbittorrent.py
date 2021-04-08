@@ -1,11 +1,9 @@
-#import qbittorrentapi
-
 from bgmi.config import (
+    QBITTORRENT_CATEGORY,
+    QBITTORRENT_HOST,
     QBITTORRENT_PASSWORD,
     QBITTORRENT_PORT,
-    QBITTORRENT_HOST,
     QBITTORRENT_USERNAME,
-    QBITTORRENT_CATEGORY,
 )
 from bgmi.downloader.base import BaseDownloadService
 from bgmi.utils import print_info, print_warning
@@ -15,6 +13,7 @@ class QBittorrentWebAPI(BaseDownloadService):
     @staticmethod
     def get_client():
         import qbittorrentapi
+
         qc = qbittorrentapi.Client(
             host=QBITTORRENT_HOST,
             port=QBITTORRENT_PORT,
@@ -31,7 +30,7 @@ class QBittorrentWebAPI(BaseDownloadService):
             category=QBITTORRENT_CATEGORY,
             save_path=self.save_path,
             is_paused=False,
-            use_auto_torrent_management=False
+            use_auto_torrent_management=False,
         )
         print_info(
             "Add torrent into the download queue, the file will be saved at {}".format(
@@ -45,6 +44,7 @@ class QBittorrentWebAPI(BaseDownloadService):
     @classmethod
     def download_status(cls, status=None):
         import qbittorrentapi
+
         print_info("Print download status in database")
         BaseDownloadService.download_status(status=status)
         print("")
@@ -54,11 +54,9 @@ class QBittorrentWebAPI(BaseDownloadService):
             state_enum = qbittorrentapi.TorrentStates(torrent.state)
             print_info(
                 "  * {}:\t{}\t [{}%]".format(
-                    state_enum.value,
-                    torrent.name,
-                    torrent.progress*100
+                    state_enum.value, torrent.name, torrent.progress * 100
                 ),
-                indicator=False
+                indicator=False,
             )
 
     @staticmethod
