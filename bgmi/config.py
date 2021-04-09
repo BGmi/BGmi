@@ -15,6 +15,13 @@ __transmission__ = (
     "TRANSMISSION_RPC_USERNAME",
     "TRANSMISSION_RPC_PASSWORD",
 )
+__qbittorrent__ = (
+    "QBITTORRENT_HOST",
+    "QBITTORRENT_PORT",
+    "QBITTORRENT_USERNAME",
+    "QBITTORRENT_PASSWORD",
+    "QBITTORRENT_CATEGORY",
+)
 __aria2__ = (
     "ARIA2_RPC_URL",
     "ARIA2_RPC_TOKEN",
@@ -22,7 +29,7 @@ __aria2__ = (
 __deluge__ = ("DELUGE_RPC_URL", "DELUGE_RPC_PASSWORD")
 
 __download_delegate__ = (
-    __wget__ + __thunder__ + __aria2__ + __transmission__ + __deluge__
+    __wget__ + __thunder__ + __aria2__ + __transmission__ + __deluge__ + __qbittorrent__
 )
 
 # fake __all__
@@ -67,6 +74,7 @@ DOWNLOAD_DELEGATE_MAP = {
     "xunlei": __thunder__,
     "transmission-rpc": __transmission__,
     "deluge-rpc": __deluge__,
+    "qbittorrent-webapi": __qbittorrent__,
 }
 
 if not os.environ.get("BGMI_PATH"):  # pragma: no cover
@@ -294,6 +302,13 @@ TRANSMISSION_RPC_URL = "127.0.0.1"
 TRANSMISSION_RPC_PORT = "9091"
 TRANSMISSION_RPC_USERNAME = "your_username"
 TRANSMISSION_RPC_PASSWORD = "your_password"
+
+# qbittorrent-webapi
+QBITTORRENT_HOST = "127.0.0.1"
+QBITTORRENT_PORT = "8080"
+QBITTORRENT_USERNAME = "admin"
+QBITTORRENT_PASSWORD = "adminadmin"
+QBITTORRENT_CATEGORY = ""
 
 # tag of bangumi on bangumi.moe
 BANGUMI_TAG = "549ef207fe682f7549f1ea90"

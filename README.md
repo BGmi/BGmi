@@ -10,6 +10,7 @@ BGmi is a cli tool for subscribed bangumi.
 
 ## Update Log
 
+- New download delegate [qbittorrent-webapi](https://www.qbittorrent.org/)
 - Remove python 3.5 support as it has reached its end-of-life
 - Remove python 3.4 support as it has reached its end-of-life
 - Remove Python2 support
@@ -22,7 +23,7 @@ more details can be found at [changelog.md](./changelog.md)
 ## Feature
 
 - Multi data sources supported: [bangumi\_moe](https://bangumi.moe), [mikan\_project](https://mikanani.me) or [dmhy](https://share.dmhy.org/)
-- Use aria2, transmission or deluge to download bangumi
+- Use aria2, transmission, deluge or qbittorrent to download bangumi
 - Web interface to manage bangumi with HTTP API
 - Play bangumi online with danmaku
 - RSS feed for uTorrent, ICS calendar for mobile devices
@@ -206,7 +207,7 @@ BGmi configure:
 
 - `BANGUMI_MOE_URL`: url of bangumi.moe mirror
 - `SAVE_PATH`: bangumi saving path
-- `DOWNLOAD_DELEGATE`: the ways of downloading bangumi (aria2-rpc, transmission-rpc, xunlei)
+- `DOWNLOAD_DELEGATE`: the ways of downloading bangumi (aria2-rpc, transmission-rpc, xunlei, deluge-rpc, qbittorrent-webapi)
 - `MAX_PAGE`: max page for fetching bangumi information
 - `TMP_PATH`: just a temporary path
 - `DANMAKU_API_URL`: url of danmaku api
@@ -234,6 +235,14 @@ Deluge-rpc configure:
 
 - `DELUGE_RPC_URL`: deluge rpc url
 - `DELUGE_RPC_PASSWORD`: deluge rpc password
+
+qbittorrent-webapi configure:
+
+- `QBITTORRENT_HOST`: qbittorrent WebAPI host
+- `QBITTORRENT_PORT`: qbittorrent WebAPI port
+- `QBITTORRENT_USERNAME`: qbittorrent WebUI username
+- `QBITTORRENT_PASSWORD`: qbittorrent WebUI password
+- `QBITTORRENT_CATEGORY`: qbittorrent new task category (leave it default if you don't need to set category)
 
 ### Usage of bgmi\_http
 
