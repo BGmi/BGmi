@@ -410,7 +410,7 @@ def parse_episode(episode_title: str) -> int:
     """
     spare = None
 
-    def get_real_episode(episode_list: List[Union[str, int]]) -> int:
+    def get_real_episode(episode_list: Union[List[str], List[int]]) -> int:
         return min(int(x) for x in episode_list)
 
     for pattern in (FETCH_EPISODE_RANGE_ALL_ZH_1, FETCH_EPISODE_RANGE_ALL_ZH_2):
@@ -455,7 +455,7 @@ def parse_episode(episode_title: str) -> int:
         return get_real_episode(_)
 
     logger.debug("don't match any regex, try match after split")
-    rest = []
+    rest: List[int] = []
     for i in episode_title.replace("[", " ").replace("【", ",").split(" "):
         for regexp in FETCH_EPISODE:
             match = regexp.findall(i)
