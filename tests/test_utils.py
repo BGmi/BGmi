@@ -19,6 +19,16 @@ from bgmi.website.model import Episode
         # range as 0
         ("[从零开始的异世界生活 第二季_Re Zero S2][34-35][繁体][720P][MP4]", 0),
         ("Strike The Blood IV][OVA][05-06][1080P][GB][MP4]", 0),
+        ("[Legend of the Galactic Heroes 银河英雄传说][全110话+外传+剧场版][MKV][外挂繁中]", 0),
+        ("不知道什么片 全二十话", 0),
+        ("不知道什么片 全20话", 0),
+        (
+            (
+                "[Lilith-Raws] 如果究极进化的完全沉浸 RPG 比现实还更像垃圾游戏的话 / Full Dive - 02 "
+                "[Baha][WEB-DL][1080p][AVC AAC][CHT][MP4]"
+            ),
+            2,
+        ),
     ],
 )
 def test_episode_parse(title, episode):

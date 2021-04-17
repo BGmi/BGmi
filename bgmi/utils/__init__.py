@@ -380,7 +380,8 @@ FETCH_EPISODE_ONLY_NUM = re.compile(r"^([\d]{2,})$")
 
 FETCH_EPISODE_RANGE = re.compile(r"[^sS][\d]{2,}\s?-\s?([\d]{2,})")
 FETCH_EPISODE_RANGE_ZH = re.compile(r"[第][\d]{2,}\s?-\s?([\d]{2,})\s?[話话集]")
-FETCH_EPISODE_RANGE_ALL_ZH = re.compile(r"[全]([^-^第]*?)[話话集]")
+FETCH_EPISODE_RANGE_ALL_ZH_1 = re.compile(r"[全]([\d-]*?)[話话集]")
+FETCH_EPISODE_RANGE_ALL_ZH_2 = re.compile(r"第?(\d-\d)[話话集]")
 
 FETCH_EPISODE_OVA_OAD = re.compile(r"([\d]{2,})\s?\((?:OVA|OAD)\)]")
 FETCH_EPISODE_WITH_VERSION = re.compile(r"[【\[](\d+)\s? *v\d(?:END)?[】\]]")
@@ -391,7 +392,8 @@ FETCH_EPISODE = (
     FETCH_EPISODE_WITH_BRACKETS,
     FETCH_EPISODE_ONLY_NUM,
     FETCH_EPISODE_RANGE,
-    FETCH_EPISODE_RANGE_ALL_ZH,
+    FETCH_EPISODE_RANGE_ALL_ZH_1,
+    FETCH_EPISODE_RANGE_ALL_ZH_2,
     FETCH_EPISODE_OVA_OAD,
     FETCH_EPISODE_WITH_VERSION,
 )
@@ -411,10 +413,11 @@ def parse_episode(episode_title: str) -> int:
     def get_real_episode(episode_list: List[Union[str, int]]) -> int:
         return min(int(x) for x in episode_list)
 
-    _ = FETCH_EPISODE_RANGE_ALL_ZH.findall(episode_title)
-    if _ and _[0]:
-        logger.debug("return episode range all zh")
-        return int(0)
+    for pattern in (FETCH_EPISODE_RANGE_ALL_ZH_1, FETCH_EPISODE_RANGE_ALL_ZH_2):
+        _ = pattern.findall(episode_title)
+        if _ and _[0]:
+            logger.debug("return episode range all zh '%s'", pattern.pattern)
+            return int(0)
 
     _ = FETCH_EPISODE_RANGE.findall(episode_title)
     if _ and _[0]:
