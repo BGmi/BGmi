@@ -12,6 +12,12 @@ options:
         - perf
         - refactor
   commit_groups:
+    sort_by: Custom
+    title_order:
+      - feat
+      - fix
+      - perf
+      - refactor
     title_maps:
       feat: Features
       fix: Bug Fixes

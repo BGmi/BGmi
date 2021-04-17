@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased](https://github.com/BGmi/BGmi/compare/2.1.4...HEAD)
+## [2.2.0](https://github.com/BGmi/BGmi/compare/2.1.4...2.2.0) - 2021-04-18
 
 ### Features
 
