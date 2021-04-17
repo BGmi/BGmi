@@ -455,6 +455,7 @@ def parse_episode(episode_title: str) -> int:
         return get_real_episode(_)
 
     logger.debug("don't match any regex, try match after split")
+    rest = []
     for i in episode_title.replace("[", " ").replace("【", ",").split(" "):
         for regexp in FETCH_EPISODE:
             match = regexp.findall(i)
@@ -463,8 +464,11 @@ def parse_episode(episode_title: str) -> int:
                 if m > 1000:
                     spare = m
                 else:
-                    logger.debug(f"match {i} {regexp} {m}")
-                    return m
+                    logger.debug(f"match {i} '{regexp.pattern}' {m}")
+                    rest.append(m)
+
+    if rest:
+        return get_real_episode(rest)
 
     if spare:
         return spare

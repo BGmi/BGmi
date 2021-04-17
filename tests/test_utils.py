@@ -29,6 +29,10 @@ from bgmi.website.model import Episode
             ),
             2,
         ),
+        (
+            "[Lilith-Raws] 86 - Eighty Six - 01 [Baha][WEB-DL][1080p][AVC AAC][CHT][MP4]",
+            1,
+        ),
     ],
 )
 def test_episode_parse(title, episode):
