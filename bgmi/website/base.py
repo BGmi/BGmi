@@ -117,6 +117,7 @@ class BaseWebsite:
                 max_page=max_page,
                 subtitle_list=followed_filter_obj.subtitle_group_split,
             )
+            data = followed_filter_obj.apply_on_episodes(data)
 
         for episode in data:
             episode.name = bangumi.name

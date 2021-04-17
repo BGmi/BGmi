@@ -115,7 +115,9 @@ def filter_(
         )
         return result
 
-    followed_filter_obj, is_this_obj_created = Filter.get_or_create(bangumi_name=name)
+    followed_filter_obj, is_this_obj_created = Filter.get_or_create(
+        bangumi_name=bangumi_obj.name
+    )
 
     if is_this_obj_created:
         followed_filter_obj.save()
@@ -147,7 +149,7 @@ def filter_(
     ]
 
     result["data"] = {
-        "name": name,
+        "name": bangumi_obj.name,
         "subtitle_group": subtitle_list,
         "followed": [
             s["name"]

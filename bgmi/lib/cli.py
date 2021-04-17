@@ -237,7 +237,7 @@ def filter_wrapper(ret: Any) -> None:
                 ", ".join(result["data"]["subtitle_group"])
             )
         )
-        followed_filter_obj = Filter.get(bangumi_name=ret.name)
+        followed_filter_obj = Filter.get(bangumi_name=result["data"]["name"])
         print_filter(followed_filter_obj)
 
 
@@ -456,11 +456,9 @@ def print_filter(followed_filter_obj: Filter) -> None:
     print_info(
         "Followed subtitle group: {}".format(
             ", ".join(
-                map(
-                    itemgetter("name"),
-                    Subtitle.get_subtitle_by_id(
-                        followed_filter_obj.subtitle.split(", ")
-                    ),
+                x["name"]
+                for x in Subtitle.get_subtitle_by_id(
+                    followed_filter_obj.subtitle.split(", ")
                 )
             )
             if followed_filter_obj.subtitle
