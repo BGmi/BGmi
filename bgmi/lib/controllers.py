@@ -149,7 +149,7 @@ def filter_(
     ]
 
     result["data"] = {
-        "name": name,
+        "name": bangumi_obj.name,
         "subtitle_group": subtitle_list,
         "followed": [
             s["name"]
