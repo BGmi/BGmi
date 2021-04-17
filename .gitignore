@@ -11,6 +11,7 @@ bgmi.egg-info
 env
 tmp/
 .eggs
+.venv
 
 # coverage
 .coverage
