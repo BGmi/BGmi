@@ -1,10 +1,10 @@
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "bgmi"
-version = "2.1.4"
+version = "2.2.0"
 description = 'BGmi is a cli tool for subscribed bangumi.'
 authors = ["RicterZ <ricterzheng@gmail.com>"]
 readme = 'README.md'
