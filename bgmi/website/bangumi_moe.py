@@ -106,7 +106,7 @@ class BangumiMoe(BaseWebsite):
         else:
             for i in range(max_page):
                 if max_page > 1:
-                    print_info("Fetch page {} ...".format(i + 1))
+                    print_info(f"Fetch page {i + 1} ...")
                 data = {
                     "tag_id": [bangumi_id, BANGUMI_TAG],
                     "p": i + 1,

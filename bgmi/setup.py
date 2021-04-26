@@ -54,7 +54,7 @@ def create_dir() -> None:
             with open(OLD, "w") as f:
                 f.write(__version__)
     except OSError as e:
-        print_error("Error: {}".format(str(e)))
+        print_error(f"Error: {str(e)}")
 
 
 def install() -> None:

@@ -285,7 +285,7 @@ def check_update(mark: bool = True) -> None:
                 update()
                 raise SystemExit
         except Exception as e:
-            print_warning("Error occurs when checking update, {}".format(str(e)))
+            print_warning(f"Error occurs when checking update, {str(e)}")
 
     version_file = os.path.join(BGMI_PATH, "version")
     if not os.path.exists(version_file):
@@ -498,7 +498,7 @@ def normalize_path(url: str) -> str:
 
 
 def get_web_admin(method: str) -> None:
-    print_info("{}ing BGmi frontend".format(method[0].upper() + method[1:]))
+    print_info(f"{method[0].upper() + method[1:]}ing BGmi frontend")
 
     try:
         r = requests.get(FRONTEND_NPM_URL).json()

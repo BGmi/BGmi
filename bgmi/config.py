@@ -129,7 +129,7 @@ def print_config() -> Optional[str]:
 
     string += f"\n[{DOWNLOAD_DELEGATE}]\n"
     for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
-        string += "{}={}\n".format(i, c.get(DOWNLOAD_DELEGATE, i))
+        string += f"{i}={c.get(DOWNLOAD_DELEGATE, i)}\n"
     return string
 
 

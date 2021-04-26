@@ -16,7 +16,7 @@ def get_player(bangumi_name: str) -> Dict[int, Dict[str, str]]:
     bangumi_path = os.path.join(SAVE_PATH, bangumi_name)
     path_walk = os.walk(bangumi_path)
 
-    logger.debug("os.walk(bangumi_path) => {}".format(pformat(path_walk)))
+    logger.debug(f"os.walk(bangumi_path) => {pformat(path_walk)}")
     for root, _, files in path_walk:
         _ = root.replace(bangumi_path, "").split(os.path.sep)
         base_path = root.replace(SAVE_PATH, "")
