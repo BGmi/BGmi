@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.1](https://github.com/BGmi/BGmi/compare/2.2.0...2.2.1) - 2021-04-27
+
+### Bug Fixes
+
+- filter function on bangumi.moe ([#266](https://github.com/BGmi/BGmi/issues/266))
+- episode parser ([#265](https://github.com/BGmi/BGmi/issues/265))
+
+
 ## [2.2.0](https://github.com/BGmi/BGmi/compare/2.1.4...2.2.0) - 2021-04-18
 
 ### Features
@@ -12,6 +20,7 @@
 - parse episode with E prefix in brackets
 - **config**: always read config file as utf-8 ([#257](https://github.com/BGmi/BGmi/issues/257))
 - **update**: catch network error when fetching bangumi info ([#254](https://github.com/BGmi/BGmi/issues/254))
+
 
 ## [2.1.4](https://github.com/BGmi/BGmi/compare/2.1.3...2.1.4) - 2021-02-08
 
