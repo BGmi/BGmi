@@ -22,7 +22,6 @@ class TransmissionRPC(BaseDownloadService):
 
     def download(self):
         tc = self.get_client()
-        print(tc.add_torrent)
         tc.add_torrent(self.torrent, download_dir=self.save_path)
 
         print_info(
