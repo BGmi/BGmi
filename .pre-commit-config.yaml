@@ -61,6 +61,6 @@ repos:
           - -sd=THIRDPARTY
 
   - repo: https://github.com/psf/black
-    rev: 67d5532c3392280de0ce717a1ab728eca2beb698  # frozen: 21.4b0
+    rev: b39999da7f451c285befac217f1f9a685774b34d  # frozen: 21.4b2
     hooks:
       - id: black
