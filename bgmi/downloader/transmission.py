@@ -22,7 +22,7 @@ class TransmissionRPC(BaseDownloadService):
 
     def download(self):
         tc = self.get_client()
-        tc.add_torrent(self.torrent, download_dir=self.save_path)
+        tc.add_torrent(self.torrent, download_dir=self.save_path, paused=False)
 
         print_info(
             "Add torrent into the download queue, the file will be saved at {}".format(

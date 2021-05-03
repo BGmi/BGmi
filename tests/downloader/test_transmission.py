@@ -14,5 +14,4 @@ def test_download(client_mock):
         save_path="save_path",
     ).download()
 
-    client_mock.assert_called_once()
-    add_torrent.assert_called_with("d", download_dir="save_path")
+    add_torrent.assert_called_once_with("d", download_dir="save_path", paused=False)
