@@ -1,0 +1,4 @@
+version: '3'
+services:
+  transmission:
+    image: python
