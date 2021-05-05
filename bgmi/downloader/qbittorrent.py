@@ -40,6 +40,12 @@ class QBittorrentWebAPI(BaseDownloadService):
                 save_path
             )
         )
+        info = self.client.torrents_info(sort="added_on")
+        if info:
+            return info[-1].hash
+        else:
+            return ""
+
 
     def check_download(self, name):
         pass
@@ -66,14 +72,15 @@ class QBittorrentWebAPI(BaseDownloadService):
 
     def get_status(self, id: str) -> DownloadStatus:
 
-        # torrent in self.client.torrents_info(category=QBITTORRENT_CATEGORY)
-        torrent = self.client.torrents.info()
-        state_enum: "TorrentStates" = torrent.state_enum
+        torrent = self.client.torrents.info(torrent_hashes=id)
+        if not torrent:
+            return DownloadStatus.error
+        state_enum: "TorrentStates" = qbittorrentapi.TorrentStates(torrent[0].state_enum)
         if state_enum.is_complete or state_enum.is_uploading:
             return DownloadStatus.done
         elif state_enum.is_errored:
             return DownloadStatus.error
-        elif state_enum.is_downloading:
-            return DownloadStatus.downloading
-        elif state_enum == qbittorrentapi.TorrentStates.PAUSED_DOWNLOAD:
+        elif state_enum.is_paused:
             return DownloadStatus.not_downloading
+        elif state_enum.is_downloading or state_enum.is_checking:
+            return DownloadStatus.downloading
