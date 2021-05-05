@@ -43,4 +43,4 @@ class TransmissionRPC(BaseDownloadService):
             "downloading": DownloadStatus.downloading,
             "seeding": DownloadStatus.done,
             "stopped": DownloadStatus.not_downloading,
-        }.get(torrent.status, DownloadStatus.error)
+        }.get(torrent.status)
