@@ -9,7 +9,6 @@ from bgmi.config import (
 from bgmi.downloader.base import BaseDownloadService
 from bgmi.plugin.base import BaseDownloadService
 from bgmi.plugin.status import DownloadStatus
-from bgmi.utils import print_info
 from bgmi.website.model import Episode
 
 
@@ -25,13 +24,10 @@ class TransmissionRPC(BaseDownloadService):
         )
 
     def add_download(self, episode: Episode, save_path: str, overwrite: bool = False):
-        self.client.add_torrent(episode.download, download_dir=save_path, paused=False)
-
-        print_info(
-            "Add torrent into the download queue, the file will be saved at {}".format(
-                save_path
-            )
+        torrent = self.client.add_torrent(
+            episode.download, download_dir=save_path, paused=False
         )
+        return torrent.hashString
 
     @staticmethod
     def check_dep():

@@ -11,12 +11,15 @@ class BaseDownloadService(metaclass=abc.ABCMeta):
         """Initialize rpc client here."""
 
     @abc.abstractmethod
-    def add_download(self, episode: Episode, save_path: str, overwrite: bool = False):
+    def add_download(
+        self, episode: Episode, save_path: str, overwrite: bool = False
+    ) -> str:
         """download episode
 
         :param episode:
         :param save_path: should passed to downloader, episode info has been joined.
         :param overwrite: if downloader could overwrite file content.
+        :return: task id
         """
 
     @staticmethod
