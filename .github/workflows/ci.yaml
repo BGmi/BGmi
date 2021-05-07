@@ -1,0 +1,19 @@
+name: ci
+
+on: [push, pull_request]
+
+jobs:
+  test-dist:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+      - uses: Trim21/setup-poetry@dist/v1
+
+      - run: poetry build
+
+      - run: |
+          pip install twine
+          twine check dist/*
