@@ -12,9 +12,7 @@ jobs:
       - uses: actions/setup-python@v2
       - uses: Trim21/setup-poetry@dist/v1
 
-      - run: poetry publish --build
-        env:
-          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
+      - run: poetry build
 
       - run: |
           pip install twine
