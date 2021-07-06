@@ -1,3 +1,5 @@
+import qbittorrentapi
+
 from bgmi.config import (
     QBITTORRENT_CATEGORY,
     QBITTORRENT_HOST,
@@ -6,13 +8,12 @@ from bgmi.config import (
     QBITTORRENT_USERNAME,
 )
 from bgmi.downloader.base import BaseDownloadService
-from bgmi.utils import print_info, print_warning
+from bgmi.utils import print_info
 
 
 class QBittorrentWebAPI(BaseDownloadService):
     @staticmethod
     def get_client():
-        import qbittorrentapi
 
         qc = qbittorrentapi.Client(
             host=QBITTORRENT_HOST,
@@ -43,8 +44,6 @@ class QBittorrentWebAPI(BaseDownloadService):
 
     @classmethod
     def download_status(cls, status=None):
-        import qbittorrentapi
-
         print_info("Print download status in database")
         BaseDownloadService.download_status(status=status)
         print("")
@@ -61,7 +60,4 @@ class QBittorrentWebAPI(BaseDownloadService):
 
     @staticmethod
     def install():
-        try:
-            __import__("qbittorrentapi")
-        except ImportError:
-            print_warning("Please run `pip install qbittorrent-api`")
+        pass

@@ -7,7 +7,7 @@ from bgmi.config import (
     TRANSMISSION_RPC_USERNAME,
 )
 from bgmi.downloader.base import BaseDownloadService
-from bgmi.utils import print_info, print_warning
+from bgmi.utils import print_info
 
 
 class TransmissionRPC(BaseDownloadService):
@@ -45,7 +45,4 @@ class TransmissionRPC(BaseDownloadService):
 
     @staticmethod
     def install():
-        try:
-            __import__("transmission_rpc")
-        except ImportError:
-            print_warning("Please run `pip install transmission-rpc`")
+        pass
