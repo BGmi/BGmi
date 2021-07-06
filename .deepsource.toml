@@ -1,0 +1,15 @@
+version = 1
+test_patterns = ["tests/**", "test_*.py"]
+transformers = [
+  { name = "black", enabled = true },
+  { name = 'isort', enabled = true },
+]
+
+[[analyzers]]
+name = "python"
+enabled = true
+
+[analyzers.meta]
+runtime_version = "3.x.x"
+type_checker = "mypy"
+max_line_length = 88
