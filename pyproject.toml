@@ -45,6 +45,7 @@ transmission-rpc = "==3.2.4"
 pydantic = "==1.8.1"
 
 [tool.poetry.dev-dependencies]
+black = { version = "21.6b0", python = '^3.6.2' }
 # tests
 coverage = { version = "==5.5", extras = ['toml'] }
 pytest = "==6.2.4"
