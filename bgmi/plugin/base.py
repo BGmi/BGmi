@@ -7,6 +7,7 @@ from bgmi.website.model import Episode
 class BaseDownloadService(metaclass=abc.ABCMeta):
     """Wrapped RPC client."""
 
+    @abc.abstractmethod
     def __init__(self):
         """Initialize rpc client here."""
 

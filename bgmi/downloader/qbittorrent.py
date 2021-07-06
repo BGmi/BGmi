@@ -17,8 +17,6 @@ from bgmi.website.model import Episode
 
 class QBittorrentWebAPI(BaseDownloadService):
     def __init__(self):
-        super().__init__()
-
         self.client = qbittorrentapi.Client(
             host=QBITTORRENT_HOST,
             port=QBITTORRENT_PORT,

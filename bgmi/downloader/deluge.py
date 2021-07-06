@@ -8,6 +8,11 @@ from bgmi.website.model import Episode
 
 
 class DelugeRPC(BaseDownloadService):
+    def __init__(self):
+        self._id = 0
+        self._session = requests.session()
+        self._call("auth.login", [config.DELUGE_RPC_PASSWORD])
+
     @staticmethod
     def check_dep():
         pass
@@ -49,12 +54,6 @@ class DelugeRPC(BaseDownloadService):
             "Paused": DownloadStatus.not_downloading,
             "Seeding": DownloadStatus.done,
         }.get(status["state"])
-
-    def __init__(self):
-        super().__init__()
-        self._id = 0
-        self._session = requests.session()
-        self._call("auth.login", [config.DELUGE_RPC_PASSWORD])
 
     def add_download(self, episode: Episode, save_path: str, overwrite: bool = False):
         options = {

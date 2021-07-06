@@ -11,8 +11,7 @@ class Aria2DownloadRPC(BaseDownloadService):
     def __init__(self):
         self.old_version = False
         self.server = xmlrpc.client.ServerProxy(config.ARIA2_RPC_URL)
-        Aria2DownloadRPC.check_aria2c_version()
-        super().__init__()
+        self.check_aria2c_version()
 
     def add_download(
         self, episode: Episode, save_path: str, overwrite: bool = False

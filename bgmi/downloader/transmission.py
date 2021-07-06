@@ -14,8 +14,6 @@ from bgmi.website.model import Episode
 
 class TransmissionRPC(BaseDownloadService):
     def __init__(self):
-        super().__init__()
-
         self.client = transmission_rpc.Client(
             host=TRANSMISSION_RPC_URL,
             port=TRANSMISSION_RPC_PORT,
