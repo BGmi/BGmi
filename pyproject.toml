@@ -39,12 +39,12 @@ requests = '==2.25.1'
 tornado = '==6.1'
 icalendar = '==4.0.7'
 peewee = '==3.14.4'
-importlib-metadata = "==3.7.3"
+importlib-metadata = "==3.10.1"
 wcwidth = "^0.2.5"
-pydantic = "==1.8.1"
+pydantic = "==1.8.2"
 # RPC library
-transmission-rpc = "==3.2.4"
-qbittorrent-api = "==2021.5.21"
+transmission-rpc = "==3.2.6"
+qbittorrent-api = "==2021.5.22"
 
 [tool.poetry.dev-dependencies]
 black = { version = "21.6b0", python = '^3.6.2' }
@@ -52,18 +52,18 @@ black = { version = "21.6b0", python = '^3.6.2' }
 coverage = { version = "==5.5", extras = ['toml'] }
 pytest = "==6.2.4"
 pytest-rerunfailures = "9.1.1"
-requests-cache = "==0.6.3"
+requests-cache = "==0.6.4"
 # lint
-pre-commit = '==2.12.1'
-mypy = "==0.812"
-flake8 = "==3.9.1"
-flake8-comprehensions = "==3.4.0"
+pre-commit = '==2.13.0'
+mypy = "==0.910"
+flake8 = "==3.9.2"
+flake8-comprehensions = "==3.5.0"
 flake8-bugbear = "==21.4.3"
 flake8-mutable = "1.2.0"
-flake8-eradicate = "==1.0.0"
+flake8-eradicate = "==1.1.0"
 flake8-pep3101 = "1.3.0"
 flake8-2020 = "1.6.0"
-flake8-pytest-style = "==1.4.1"
+flake8-pytest-style = "==1.5.0"
 
 [tool.coverage.report]
 exclude_lines = [
