@@ -39,10 +39,10 @@ requests = '==2.25.1'
 tornado = '==6.1'
 icalendar = '==4.0.7'
 peewee = '==3.14.4'
-importlib-metadata = "==3.7.3"
+importlib-metadata = "==3.10.1"
 wcwidth = "^0.2.5"
-transmission-rpc = "==3.2.4"
-pydantic = "==1.8.1"
+transmission-rpc = "==3.2.6"
+pydantic = "==1.8.2"
 
 [tool.poetry.dev-dependencies]
 # tests
