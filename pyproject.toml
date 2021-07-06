@@ -39,7 +39,7 @@ requests = '==2.25.1'
 tornado = '==6.1'
 icalendar = '==4.0.7'
 peewee = '==3.14.4'
-importlib-metadata = "==3.10.1"
+importlib-metadata = "==4.6.1"
 wcwidth = "^0.2.5"
 pydantic = "==1.8.2"
 # RPC library
