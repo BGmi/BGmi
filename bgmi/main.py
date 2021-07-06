@@ -91,9 +91,7 @@ def setup() -> None:
 
 
 def patch_requests() -> None:
-    requests.adapters.DEFAULT_RETRIES = requests.adapters.Retry(
-        total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
-    )
+    requests.adapters.DEFAULT_RETRIES = 3
 
 
 if __name__ == "__main__":
