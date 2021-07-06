@@ -76,3 +76,14 @@ exclude_lines = [
 [tool.pytest.ini_options]
 addopts = '-v --durations=10'
 junit_family = 'legacy'
+
+[tool.isort]
+default_section = 'THIRDPARTY'
+indent = '    '
+known_first_party = 'bgmi'
+length_sort = false
+line_length = 88
+multi_line_output = 3
+no_lines_before = 'LOCALFOLDER'
+use_parentheses = true
+include_trailing_comma = true

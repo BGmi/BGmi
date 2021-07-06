@@ -3,6 +3,7 @@ test_patterns = ["tests/**", "test_*.py"]
 transformers = [
   { name = "black", enabled = true },
   { name = 'isort', enabled = true },
+  { name = 'prettier', enabled = true },
 ]
 
 [[analyzers]]

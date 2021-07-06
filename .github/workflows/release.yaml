@@ -3,7 +3,7 @@ name: release
 on:
   push:
     tags:
-      - '*.*.*'
+      - "*.*.*"
 
 jobs:
   release:
@@ -21,8 +21,7 @@ jobs:
         env:
           POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
 
-# create github release
-
+      # create github release
       - name: Get Tag Name
         run: echo "TAG=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
@@ -34,7 +33,7 @@ jobs:
           echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
           go get -u github.com/git-chglog/git-chglog/cmd/git-chglog
 
-      - name: Generate Changlog
+      - name: Generate Changelog
         run: |
           git-chglog "$TAG" | node -p 'require("fs").readFileSync(0).toString().trim()
             .split("\n").slice(4).join("\n").trim()' > chglog.md

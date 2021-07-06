@@ -1,0 +1,57 @@
+name: test
+
+on:
+  push:
+    paths-ignore:
+      - LICENSE
+      - images/*
+      - "*.md"
+      - "*.yml"
+      - "*.yaml"
+      - "!.github/workflows/test.yaml"
+    branches-ignore:
+      - renovate/**
+      - deepsource-fix-*
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - LICENSE
+      - images/*
+      - "*.md"
+      - "*.yml"
+      - "*.yaml"
+      - "!.github/workflows/test.yaml"
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      matrix:
+        python: ["3.6", "3.9"]
+        os: [macos, windows, ubuntu]
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+
+      - uses: Trim21/setup-poetry@dist/v1
+
+      - uses: Trim21/install-poetry-project@dist/v1
+
+      - name: test
+        run: |
+          set -ex
+          coverage run -a -m bgmi.main install
+          bgmi -h
+          coverage run -a -m pytest tests --cache-requests --reruns=2 --reruns-delay=1 --maxfail=2
+
+      - uses: codecov/codecov-action@v1
+        with:
+          flags: py${{ matrix.python }}

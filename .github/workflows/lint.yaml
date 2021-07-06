@@ -40,6 +40,11 @@ jobs:
 
       - uses: Trim21/install-poetry-project@dist/v1
 
+      - uses: liskin/gh-problem-matcher-wrap@v1
+        with:
+          action: add
+          linters: mypy
+
       - name: mypy
         run: |
           if [[ "${{ matrix.os }}" == "windows" ]]
@@ -48,7 +53,7 @@ jobs:
           else
               v="false"
           fi
-          mypy bgmi "--always-$v=IS_WINDOWS"
+          mypy --show-column-numbers "--always-$v=IS_WINDOWS" bgmi
 
   lint:
     runs-on: ubuntu-latest

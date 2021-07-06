@@ -1,0 +1,33 @@
+name: test-build-files
+
+on:
+  push:
+    paths-ignore:
+      - .chglog/**
+      - CHANGELOG.md
+      - LICENSE
+      - images/*
+      - tests/**
+      - .github/**
+      - '!.github/workflows/ci.yaml'
+    branches-ignore:
+      - renovate/**
+      - deepsource-fix-*
+  pull_request: {}
+
+jobs:
+  dist-files:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - uses: Trim21/setup-poetry@dist/v1
+
+      - run: poetry build
+
+      - name: Install twine
+        run: pip install twine
+
+      - name: Check Files
+        run: twine check dist/*

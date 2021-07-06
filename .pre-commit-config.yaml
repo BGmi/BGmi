@@ -1,13 +1,12 @@
 repos:
   - repo: https://github.com/Trim21/pre-commit-hooks
-    rev: c7a95cc4bd7861446be192a3b83c7a2ca1d6d910  # frozen: v0.2.3
+    rev: c7a95cc4bd7861446be192a3b83c7a2ca1d6d910 # frozen: v0.2.3
     hooks:
-      - id: yamlfmt
       - id: poetry-check-lock
       - id: find-trailing-comma
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 6e2418c5521b7d606e72914dced3253f9ace1205  # frozen: v3.4.0
+    rev: 6e2418c5521b7d606e72914dced3253f9ace1205 # frozen: v3.4.0
     hooks:
       - id: check-merge-conflict
         exclude: \.rst$
@@ -25,20 +24,20 @@ repos:
         files: \.vbs$
 
       - id: check-json
-      - id: check-added-large-files  # check for file bigger than 500kb
+      - id: check-added-large-files # check for file bigger than 500kb
       - id: check-yaml
       - id: debug-statements
       - id: fix-encoding-pragma
         args: [--remove]
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: d6e82e348ad399e0bd625dc267dd6708276f3b28  # frozen: v2.13.0
+    rev: d6e82e348ad399e0bd625dc267dd6708276f3b28 # frozen: v2.13.0
     hooks:
       - id: pyupgrade
         args: [--py36-plus]
 
   - repo: https://github.com/myint/autoflake
-    rev: 7a53fdafc82c33f446915b60fcac947c51279260  # frozen: v1.4
+    rev: 7a53fdafc82c33f446915b60fcac947c51279260 # frozen: v1.4
     hooks:
       - id: autoflake
         args:
@@ -48,19 +47,11 @@ repos:
           - --expand-star-imports
 
   - repo: https://github.com/timothycrosley/isort
-    rev: a6222a8a125ec719724e628a5d3d0d5c60923281  # frozen: 5.8.0
+    rev: a6222a8a125ec719724e628a5d3d0d5c60923281 # frozen: 5.8.0
     hooks:
       - id: isort
-        args:
-          - --line-width=88
-          - --trailing-comma
-          - --multi-line=3
-          - --project=bgmi
-          - --force-grid-wrap=0
-          - --use-parentheses
-          - -sd=THIRDPARTY
 
   - repo: https://github.com/psf/black
-    rev: b39999da7f451c285befac217f1f9a685774b34d  # frozen: 21.4b2
+    rev: b39999da7f451c285befac217f1f9a685774b34d # frozen: 21.4b2
     hooks:
       - id: black
