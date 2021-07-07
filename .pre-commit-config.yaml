@@ -1,12 +1,12 @@
 repos:
   - repo: https://github.com/Trim21/pre-commit-hooks
-    rev: e4bd622f56f4cb289b7c15f6e9f03698afbc55d2  # frozen: v0.4.1
+    rev: e4bd622f56f4cb289b7c15f6e9f03698afbc55d2 # frozen: v0.4.1
     hooks:
       - id: poetry-check-lock
       - id: find-trailing-comma
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 38b88246ccc552bffaaf54259d064beeee434539  # frozen: v4.0.1
+    rev: 38b88246ccc552bffaaf54259d064beeee434539 # frozen: v4.0.1
     hooks:
       - id: check-merge-conflict
         exclude: \.rst$
@@ -31,7 +31,7 @@ repos:
         args: [--remove]
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: 513fe79284cd8bae3274563c42c2df226381f6fe  # frozen: v2.20.0
+    rev: 513fe79284cd8bae3274563c42c2df226381f6fe # frozen: v2.20.0
     hooks:
       - id: pyupgrade
         args: [--py36-plus]
@@ -47,11 +47,11 @@ repos:
           - --expand-star-imports
 
   - repo: https://github.com/timothycrosley/isort
-    rev: 1d7e37c3ff2536abf4359f73c46c418cfec12ada  # frozen: 5.9.1
+    rev: 1d7e37c3ff2536abf4359f73c46c418cfec12ada # frozen: 5.9.1
     hooks:
       - id: isort
 
   - repo: https://github.com/psf/black
-    rev: 93c10bf9ebccf8d7cc686b0b9579f2e5e41c5328  # frozen: 21.6b0
+    rev: 93c10bf9ebccf8d7cc686b0b9579f2e5e41c5328 # frozen: 21.6b0
     hooks:
       - id: black
