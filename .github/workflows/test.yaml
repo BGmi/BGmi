@@ -36,6 +36,8 @@ jobs:
         os: [macos, windows, ubuntu]
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
 
       - uses: actions/setup-python@v2
         with:
