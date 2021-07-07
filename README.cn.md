@@ -58,7 +58,7 @@ pip install .
 bgmi install
 ```
 
-## 升级（仅pip安装）
+## 升级（仅 pip 安装）
 
 ```bash
 pip install bgmi -U

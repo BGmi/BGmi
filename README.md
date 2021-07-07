@@ -22,7 +22,7 @@ more details can be found at [changelog.md](./CHANGELOG.md)
 
 ## Feature
 
-- Multi data sources supported: [bangumi\_moe](https://bangumi.moe), [mikan\_project](https://mikanani.me) or [dmhy](https://share.dmhy.org/)
+- Multi data sources supported: [bangumi_moe](https://bangumi.moe), [mikan_project](https://mikanani.me) or [dmhy](https://share.dmhy.org/)
 - Use aria2, transmission, deluge or qbittorrent to download bangumi
 - Web interface to manage bangumi with HTTP API
 - Play bangumi online with danmaku
@@ -44,13 +44,13 @@ more details can be found at [changelog.md](./CHANGELOG.md)
 
 Using pip:
 
-``` bash
+```bash
 pip install bgmi
 ```
 
 Or from source(not recommended):
 
-``` bash
+```bash
 git clone https://github.com/BGmi/BGmi
 cd BGmi
 python -m pip install -U pip
@@ -59,13 +59,13 @@ pip install .
 
 Init BGmi database and install BGmi web interface:
 
-``` bash
+```bash
 bgmi install
 ```
 
 ## Upgrade
 
-``` bash
+```bash
 pip install bgmi -U
 bgmi upgrade
 ```
@@ -80,26 +80,26 @@ go to [BGmi/bgmi-docker-all-in-one](https://github.com/BGmi/bgmi-docker-all-in-o
 
 Cli completion(bash and zsh. Shell was detected from your env \$SHELL)
 
-``` bash
+```bash
 eval "$(bgmi complete)"
 ```
 
-If you want to setup a custom BGMI\_PATH instead of default `$HOME/.bgmi`:
+If you want to setup a custom BGMI_PATH instead of default `$HOME/.bgmi`:
 
-``` bash
+```bash
 BGMI_PATH=/bgmi bgmi -h
 ```
 
 Or add this code to your .bashrc file:
 
-``` bash
+```bash
 alias bgmi='BGMI_PATH=/tmp bgmi'
 ```
 
 Supported data source:
 
-- [bangumi\_moe(default)](https://bangumi.moe)
-- [mikan\_project](https://mikanani.me)
+- [bangumi_moe(default)](https://bangumi.moe)
+- [mikan_project](https://mikanani.me)
 - [dmhy](https://share.dmhy.org/)
 
 ### Help
@@ -112,19 +112,19 @@ you can add `--help` to all `BGmi` sub command to show full options, some of the
 
 video files will still be stored on the disk, but won't be shown on website.
 
-``` console
+```console
 bgmi source mikan_project
 ```
 
 ### Show bangumi calendar
 
-``` bash
+```bash
 bgmi cal
 ```
 
 ### Subscribe bangumi
 
-``` bash
+```bash
 bgmi add "Re:CREATORS" "夏目友人帐 陆" "进击的巨人 season 2"
 bgmi add "樱花任务" --episode 0
 ```
@@ -134,7 +134,7 @@ If you just add a bangumi that you haven't watched any episodes, considering `bg
 
 ### Unsubscribe bangumi
 
-``` bash
+```bash
 bgmi delete --name "Re:CREATORS"
 ```
 
@@ -142,7 +142,7 @@ bgmi delete --name "Re:CREATORS"
 
 Update bangumi database (which locates at \~/.bgmi/bangumi.db acquiescently):
 
-``` bash
+```bash
 bgmi update --download # download all undownloaded episode fo all followed bangumi
 bgmi update "从零开始的魔法书" --download 2 3 # will download specific episide 2 and 3
 bgmi update "时钟机关之星" --download # will download all undownloaded episode for specific bangumi
@@ -152,7 +152,7 @@ bgmi update "时钟机关之星" --download # will download all undownloaded epi
 
 Set up the bangumi subtitle group filter and fetch entries:
 
-``` bash
+```bash
 bgmi list
 bgmi fetch "Re:CREATORS"
 bgmi filter "Re:CREATORS" --subtitle "DHR動研字幕組,豌豆字幕组" --include 720P --exclude BIG5
@@ -165,7 +165,7 @@ bgmi fetch "Re:CREATORS"
 
 ### Search episodes
 
-``` bash
+```bash
 bgmi search '为美好的世界献上祝福！' --regex-filter '.*动漫国字幕组.*为美好的世界献上祝福！.*720P.*'
 # download
 bgmi search '为美好的世界献上祝福！' --regex-filter '.*合集.*' --download
@@ -173,7 +173,7 @@ bgmi search '为美好的世界献上祝福！' --regex-filter '.*合集.*' --do
 
 ### Modify downloaded bangumi episode
 
-``` bash
+```bash
 bgmi list
 bgmi mark "Re:CREATORS" 1
 ```
@@ -182,7 +182,7 @@ This will tell bgmi to not need to download episode less than or equal to 1.
 
 ### Manage download items
 
-``` bash
+```bash
 bgmi download --list
 bgmi download --list --status 0
 bgmi download --mark 1 --status 2
@@ -196,7 +196,7 @@ Status code:
 
 ### Show BGmi configure and modify it
 
-``` bash
+```bash
 bgmi config
 bgmi config ARIA2_RPC_TOKEN 'token:token233'
 ```
@@ -244,43 +244,43 @@ qbittorrent-webapi configure:
 - `QBITTORRENT_PASSWORD`: qbittorrent WebUI password
 - `QBITTORRENT_CATEGORY`: qbittorrent new task category (leave it default if you don't need to set category)
 
-### Usage of bgmi\_http
+### Usage of bgmi_http
 
 Download all bangumi cover first:
 
-``` bash
+```bash
 bgmi cal --download-cover
 ```
 
 Download frontend static files(you may have done it before):
 
-``` bash
+```bash
 bgmi install
 ```
 
 Start BGmi HTTP Service bind on 0.0.0.0:8888:
 
-``` bash
+```bash
 bgmi_http --port=8888 --address=0.0.0.0
 ```
 
-### Use bgmi\_http on Windows
+### Use bgmi_http on Windows
 
-Just start your bgmi\_http and open [<http://localhost:8888/>](http://localhost:8888/) in your browser.
+Just start your bgmi_http and open [<http://localhost:8888/>](http://localhost:8888/) in your browser.
 
-Consider most people won't use Nginx on Windows, bgmi\_http use tornado.web.StaticFileHandler to serve static files(frontend, bangumi covers, bangumi files) without Nginx.
+Consider most people won't use Nginx on Windows, bgmi_http use tornado.web.StaticFileHandler to serve static files(frontend, bangumi covers, bangumi files) without Nginx.
 
-### Use bgmi\_http on Linux
+### Use bgmi_http on Linux
 
 Generate Nginx config
 
-``` bash
+```bash
 bgmi gen nginx.conf --server-name bgmi.whatever.com > bgmi.whatever.com
 ```
 
 Or write your config file manually.
 
-``` nginx
+```nginx
 server {
     listen 80;
     server_name bgmi;
@@ -316,7 +316,7 @@ server {
 
 Of cause you can use [yaaw](https://github.com/binux/yaaw/) to manage download items if you use aria2c to download bangumi.
 
-``` nginx
+```nginx
 ...
 location /yaaw {
     alias /path/to/yaaw;
@@ -339,11 +339,11 @@ First, setup nginx to access bangumi files. Second, choose one danmaku backend a
 
 Use bgmi config to setup the url of danmaku api.
 
-``` bash
+```bash
 bgmi config DANMAKU_API_URL https://api.prprpr.me/dplayer/ # This api is provided by dplayer official
 ```
 
-...restart your bgmi\_http and enjoy :D
+...restart your bgmi_http and enjoy :D
 
 #### macOS launchctl service controller
 
@@ -357,13 +357,13 @@ Bangumi Script is a script which you can write the bangumi parser own. BGmi will
 
 Bangumi Script Runner will catch the data you returned, update the database, and download the bangumi. You only just write the parser and return the data.
 
-Bangumi Script is located at BGMI\_PATH/script, inherited ScriptBase class.
+Bangumi Script is located at BGMI_PATH/script, inherited ScriptBase class.
 
-examples: [script\_example.py](./script_example.py)
+examples: [script_example.py](./script_example.py)
 
 `get_download_url` returns a dict as follows.
 
-``` python
+```python
 {
     1: 'http://example.com/Bangumi/1/1.torrent',
     2: 'http://example.com/Bangumi/1/2.torrent',
@@ -377,7 +377,7 @@ The keys 1, 2, 3 is the episode, the value is the url of bangumi, make sure your
 
 You can easily add your own BGmi data source by extending BGmi website base class and implement all the method.
 
-``` python
+```python
 from typing import List, Optional
 
 from bgmi.website.base import BaseWebsite
@@ -434,9 +434,9 @@ class DataSource(BaseWebsite):
 
 ## Debug
 
-Set env BGMI\_LOG to debug, info, warning, error for different log level
+Set env BGMI_LOG to debug, info, warning, error for different log level
 
-log file will locate at {TMP\_PATH}/bgmi.log
+log file will locate at {TMP_PATH}/bgmi.log
 
 ## Uninstall
 
@@ -448,7 +448,7 @@ remove them from your crontab
 
 `windows`:
 
-``` powershell
+```powershell
 schtasks /Delete /TN 'bgmi updater'
 ```
 
