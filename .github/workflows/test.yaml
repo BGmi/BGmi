@@ -11,7 +11,7 @@ on:
       - "!.github/workflows/test.yaml"
     branches-ignore:
       - renovate/**
-      - deepsource-fix-*
+      - deepsource-*
   pull_request:
     branches:
       - master

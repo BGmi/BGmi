@@ -9,10 +9,10 @@ on:
       - images/*
       - tests/**
       - .github/**
-      - '!.github/workflows/ci.yaml'
+      - "!.github/workflows/ci.yaml"
     branches-ignore:
       - renovate/**
-      - deepsource-fix-*
+      - deepsource-*
   pull_request: {}
 
 jobs:
