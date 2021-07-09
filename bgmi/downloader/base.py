@@ -1,5 +1,4 @@
 import os
-import subprocess
 
 from bgmi.lib.models import (
     STATUS_DOWNLOADED,
@@ -22,20 +21,6 @@ class BaseDownloadService:
     def download(self):
         # download
         raise NotImplementedError
-
-    def check_path(self):
-        if not os.path.exists(self.save_path):
-            print_warning(f"Create dir {self.save_path}")
-            os.makedirs(self.save_path)
-
-    def call(self, command):
-        self.return_code = subprocess.call(
-            command,
-            env={
-                "PATH": "/usr/local/bin:/usr/bin:/bin",
-                "HOME": os.environ.get("HOME", "/tmp"),
-            },
-        )
 
     def check_download(self, name):
         if not os.path.exists(self.save_path) or self.return_code != 0:
