@@ -2,7 +2,7 @@ version: '3'
 services:
   aria2:
     image: bgmidocker/aria2
-    entrypoint:
+    environment:
       RPC_SECRET: 2333
     ports:
       - 6800:6800
