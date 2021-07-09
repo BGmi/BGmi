@@ -297,7 +297,7 @@ def recreate_source_relatively_table() -> None:
         table.delete().execute()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma:no cover
     from pprint import pprint
 
     d = Bangumi.get_updating_bangumi(status=STATUS_FOLLOWED)

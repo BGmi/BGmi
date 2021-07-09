@@ -69,8 +69,8 @@ def download_prepare(data: List[Episode]) -> None:
 
             # mark as downloaded
             download.downloaded()
-        except Exception as e:  # pragma: no cover
-            if os.getenv("DEBUG"):
+        except Exception as e:
+            if os.getenv("DEBUG"):  # pragma: no cover
 
                 traceback.print_exc()
                 raise e
