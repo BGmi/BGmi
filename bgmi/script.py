@@ -30,7 +30,7 @@ class ScriptRunner:
                     mod = types.ModuleType(loader.name)
                     loader.exec_module(mod)
 
-                    script_class = mod.Script()
+                    script_class = mod.Script()  # pylint:disable=no-member
 
                     if cls.check(script_class):
                         cls.scripts.append(script_class)
