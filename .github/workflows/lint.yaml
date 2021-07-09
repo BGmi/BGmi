@@ -27,18 +27,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
       - uses: actions/setup-python@v2
         with:
           python-version: '3.8'
-
       - uses: Trim21/setup-poetry@dist/v1
-
       - uses: Trim21/install-poetry-project@dist/v1
-
       - name: add matcher
         run: echo "::add-matcher::.github/matcher/pylint.json"
-
       - name: pylint
         run: pylint ./bgmi
 
@@ -49,16 +44,12 @@ jobs:
         python: ['3.6', '3.9']
         os: [macos, windows, ubuntu]
     steps:
-      - uses: actions/checkout@v2
-
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python }}
-
+      - uses: actions/checkout@v2
       - uses: Trim21/setup-poetry@dist/v1
-
       - uses: Trim21/install-poetry-project@dist/v1
-
       - uses: liskin/gh-problem-matcher-wrap@v1
         with:
           action: add
@@ -78,15 +69,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
       - uses: actions/setup-python@v2
         with:
           python-version: 3.8
 
       - uses: Trim21/setup-poetry@dist/v1
-
       - uses: Trim21/install-poetry-project@dist/v1
-
       - uses: actions/cache@v2
         with:
           path: ~/.cache/pre-commit
