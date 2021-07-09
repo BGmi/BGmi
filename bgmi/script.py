@@ -45,13 +45,9 @@ class ScriptRunner:
     @classmethod
     def check(cls, script: "ScriptBase", fs: str) -> None:
         model = script.Model()
-        try:
-            if model.due_date and model.due_date < datetime.datetime.now():
-                print(f"Skip load {fs} because it has reach its due_date")
-                return
-        except Exception:
-            if os.getenv("DEBUG_SCRIPT"):  # pragma: no cover
-                traceback.print_exc()
+        if model.due_date and model.due_date < datetime.datetime.now():
+            print(f"Skip load {fs} because it has reach its due_date")
+            return
 
         cls.scripts.append(script)
         print_info(f"Load script {fs} successfully.")
