@@ -40,7 +40,7 @@ jobs:
            echo "::add-matcher::.github/matcher/pylint/warning.json"
 
       - name: pylint
-        run: pylint --output-format=colorized ./bgmi
+        run: pylint ./bgmi
 
   mypy:
     runs-on: ${{ matrix.os }}-latest
