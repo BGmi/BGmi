@@ -282,7 +282,7 @@ def fetch_(ret: Any) -> None:
 
     print_info(f"Fetch bangumi {bangumi_obj.name} ...")
     _, data = website.get_maximum_episode(
-        bangumi_obj, ignore_old_row=False if ret.not_ignore else True
+        bangumi_obj, ignore_old_row=not bool(ret.not_ignore)
     )
 
     if not data:

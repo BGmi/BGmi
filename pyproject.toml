@@ -108,7 +108,10 @@ module = [
 ]
 disallow_untyped_defs = false
 
+[tool.pylint]
+
 [tool.pylint.messages_control]
+extension-pkg-whitelist = ['pydantic']
 disable = [
   "missing-function-docstring",
   "missing-class-docstring",
@@ -127,5 +130,8 @@ disable = [
   'too-many-branches',
   'redefined-outer-name',
   'too-many-return-statements',
-  'too-many-statements'
+  'too-many-statements',
+  'too-many-arguments',
+  'no-self-use',
+  'not-an-iterable'
 ]

@@ -35,7 +35,9 @@ jobs:
       - uses: Trim21/setup-poetry@dist/v1
 
       - uses: Trim21/install-poetry-project@dist/v1
-      - run: |
+
+      - name: add matcher
+        run: |
            echo "::add-matcher::.github/matcher/pylint/error.json"
            echo "::add-matcher::.github/matcher/pylint/warning.json"
 

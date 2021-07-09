@@ -39,6 +39,7 @@ def get_response(url, method="GET", **kwargs):
             "error: server returned data maybe not be json,"
             " please create a issue at https://github.com/BGmi/BGmi/issues"
         )
+    raise ValueError
 
 
 def process_name(data):
@@ -173,6 +174,7 @@ class BangumiMoe(BaseWebsite):
                 )
             )
 
-        # Avoid bangumi collection. It's ok but it will waste your traffic and bandwidth.
+        # Avoid bangumi collection. It's ok but it will waste your traffic and
+        # bandwidth.
         result = result[::-1]
         return result
