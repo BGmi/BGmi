@@ -1,6 +1,6 @@
 import os
 import traceback
-from typing import List
+from typing import Dict, List, Type
 
 from bgmi.config import DOWNLOAD_DELEGATE, SAVE_PATH
 from bgmi.downloader.aria2_rpc import Aria2DownloadRPC
@@ -12,7 +12,7 @@ from bgmi.plugin.base import BaseDownloadService
 from bgmi.utils import normalize_path, print_error
 from bgmi.website.base import Episode
 
-DOWNLOAD_DELEGATE_DICT = {
+DOWNLOAD_DELEGATE_DICT: Dict[str, Type[BaseDownloadService]] = {
     "aria2-rpc": Aria2DownloadRPC,
     "transmission-rpc": TransmissionRPC,
     "deluge-rpc": DelugeRPC,

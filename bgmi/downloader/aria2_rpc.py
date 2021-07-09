@@ -1,4 +1,5 @@
 import xmlrpc.client
+from typing import cast
 
 from bgmi import config
 from bgmi.plugin.base import BaseDownloadService
@@ -15,9 +16,8 @@ class Aria2DownloadRPC(BaseDownloadService):
     def add_download(self, url: str, save_path: str, overwrite: bool = False) -> str:
         args = [[url], {"dir": save_path}]
         if self.old_version:
-            return self.server.aria2.addUri(*args)
-        else:
-            return self.server.aria2.addUri(config.ARIA2_RPC_TOKEN, *args)
+            return cast(str, self.server.aria2.addUri(*args))
+        return cast(str, self.server.aria2.addUri(config.ARIA2_RPC_TOKEN, *args))
 
     @staticmethod
     def check_dep():
@@ -35,7 +35,7 @@ class Aria2DownloadRPC(BaseDownloadService):
             "paused": DownloadStatus.not_downloading,
             "error": DownloadStatus.error,
             "complete": DownloadStatus.done,
-        }.get(r["status"])
+        }.get(r["status"], DownloadStatus.error)
 
     def check_aria2c_version(self):
         url = config.ARIA2_RPC_URL.split("/")

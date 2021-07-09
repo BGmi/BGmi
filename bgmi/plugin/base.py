@@ -7,10 +7,6 @@ class BaseDownloadService(metaclass=abc.ABCMeta):
     """Wrapped RPC client."""
 
     @abc.abstractmethod
-    def __init__(self):
-        """Initialize rpc client here."""
-
-    @abc.abstractmethod
     def add_download(self, url: str, save_path: str, overwrite: bool = False) -> str:
         """download episode
 
@@ -22,7 +18,7 @@ class BaseDownloadService(metaclass=abc.ABCMeta):
 
     @staticmethod
     @abc.abstractmethod
-    def check_dep():
+    def check_dep() -> None:
         """check dependencies like rpc library
 
         :raises MissingDependencyError:
@@ -34,5 +30,5 @@ class BaseDownloadService(metaclass=abc.ABCMeta):
 
 
 class MissingDependencyError(Exception):
-    def __init__(self, message):
+    def __init__(self, message: str) -> None:
         self.message = message

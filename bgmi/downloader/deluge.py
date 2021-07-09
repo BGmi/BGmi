@@ -46,13 +46,13 @@ class DelugeRPC(BaseDownloadService):
                 ],
             ],
         )
-        print(status)
+
         return {
             "Error": DownloadStatus.error,
             "Downloading": DownloadStatus.downloading,
             "Paused": DownloadStatus.not_downloading,
             "Seeding": DownloadStatus.done,
-        }.get(status["state"])
+        }.get(status["state"], DownloadStatus.error)
 
     def add_download(self, url: str, save_path: str, overwrite: bool = False):
         options = {

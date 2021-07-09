@@ -139,5 +139,4 @@ disable = [
   'no-self-use',
   'not-an-iterable',
   'redefined-builtin',
-  'super-init-not-called'
 ]
