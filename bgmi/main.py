@@ -63,8 +63,6 @@ def main(argv: Optional[List[str]] = None) -> None:
     ret = c.parse_args(argv)
     if ret.action == "install":
         get_web_admin(method="install")
-
-        raise SystemExit
     elif ret.action == "upgrade":
         create_dir()
         update_database()

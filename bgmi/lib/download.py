@@ -1,4 +1,5 @@
 import os
+import traceback
 from typing import List, Type
 
 from bgmi.config import DOWNLOAD_DELEGATE, SAVE_PATH
@@ -70,7 +71,6 @@ def download_prepare(data: List[Episode]) -> None:
             download.downloaded()
         except Exception as e:
             if os.getenv("DEBUG"):  # pragma: no cover
-                import traceback
 
                 traceback.print_exc()
                 raise e

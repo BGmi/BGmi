@@ -10,7 +10,7 @@ class Script(ScriptBase):
         bangumi_name = "TEST_BANGUMI"
         cover = ""
         update_time = "Mon"
-        due_date = datetime.datetime(2017, 9, 30)
+        due_date = datetime.datetime(2080, 9, 30)
 
     def get_download_url(self) -> Dict[int, str]:
         # fetch and return dict

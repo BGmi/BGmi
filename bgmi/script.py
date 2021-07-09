@@ -1,3 +1,4 @@
+import datetime
 import glob
 import os
 import time
@@ -29,38 +30,27 @@ class ScriptRunner:
                     loader = SourceFileLoader("script", os.path.join(SCRIPT_PATH, i))
                     mod = types.ModuleType(loader.name)
                     loader.exec_module(mod)
-
-                    script_class = mod.Script()
-
-                    if cls.check(script_class):
-                        cls.scripts.append(script_class)
-                        print_info(f"Load script {i} successfully.")
-
+                    script_class = mod.Script()  # pylint:disable=no-member
                 except Exception:
                     print_warning(f"Load script {i} failed, ignored")
                     if os.getenv("DEBUG_SCRIPT"):  # pragma: no cover
                         traceback.print_exc()
+                    continue
+                cls.check(script_class, i)
 
             cls._defined = super().__new__(cls, *args, **kwargs)
 
         return cls._defined
 
     @classmethod
-    def check(cls, script: "ScriptBase") -> bool:
-        condition = [
-            "script.Model().due_date > datetime.datetime.now()",
-        ]
+    def check(cls, script: "ScriptBase", fs: str) -> None:
+        model = script.Model()
+        if model.due_date and model.due_date < datetime.datetime.now():
+            print(f"Skip load {fs} because it has reach its due_date")
+            return
 
-        for i in condition:
-            try:
-                if not eval(i):
-                    return False
-            except Exception:
-                # ignore if error
-                if os.getenv("DEBUG_SCRIPT"):  # pragma: no cover
-                    traceback.print_exc()
-
-        return True
+        cls.scripts.append(script)
+        print_info(f"Load script {fs} successfully.")
 
     def get_model(self, name: str) -> Optional[Scripts]:
         for script in self.scripts:
@@ -71,13 +61,13 @@ class ScriptRunner:
     def get_models(self) -> List[WebsiteBangumi]:
         m = []
         for s in self.scripts:
-            d = dict(s.Model())
+            model = s.Model()
             m.append(
                 WebsiteBangumi(
-                    name=d["bangumi_name"],
-                    update_time=d["update_time"],
-                    keyword=d["bangumi_name"],
-                    cover=d["cover"],
+                    name=model.bangumi_name,
+                    update_time=model.update_time,
+                    keyword=model.bangumi_name,
+                    cover=model.cover,
                 )
             )
         return m
@@ -151,16 +141,16 @@ class ScriptBase:
 
         # data
         bangumi_name = None
-        cover = None
+        cover = ""
         update_time = "Unknown"
-        due_date = None
+        due_date: Optional[datetime.datetime] = None
 
         # source
         source = None
 
-        _bangumi_id = None
-        _subtitle_list = []  # type: list
-        _max_page = MAX_PAGE
+        bangumi_id = None
+        subtitle_list = []  # type: list
+        max_page = MAX_PAGE
 
         def __init__(self) -> None:
             if self.bangumi_name is not None:
@@ -184,9 +174,9 @@ class ScriptBase:
     @property
     def _data(self) -> dict:
         return {
-            "bangumi_id": self.Model._bangumi_id,
-            "subtitle_list": self.Model._subtitle_list,
-            "max_page": int(self.Model._max_page),
+            "bangumi_id": self.Model.bangumi_id,
+            "subtitle_list": self.Model.subtitle_list,
+            "max_page": int(self.Model.max_page),
         }
 
     @property
@@ -217,9 +207,9 @@ class ScriptBase:
         ... code-block:: python
 
             {
-                1: 'http://example.com/Bangumi/1/1.mp4'
-                2: 'http://example.com/Bangumi/1/2.mp4'
-                3: 'http://example.com/Bangumi/1/3.mp4'
+                1: 'https://example.com/Bangumi/1/1.mp4'
+                2: 'https://example.com/Bangumi/1/2.mp4'
+                3: 'https://example.com/Bangumi/1/3.mp4'
             }
 
         The keys `1`, `2`, `3` is the episode, the value is the url of bangumi.

@@ -126,14 +126,14 @@ def parser_day_bangumi(soup) -> List[WebsiteBangumi]:
     :type soup: bs4.Tag
     """
     li = []
-    for soup in soup.find_all("li"):
-        url = soup.select_one("a")
-        span = soup.find("span")
+    for s in soup.find_all("li"):
+        url = s.select_one("a")
+        span = s.find("span")
         if url:
             name = url["title"]
             url = url["href"]
             bangumi_id = url.split("/")[-1]
-            soup.find("li")
+            s.find("li")
             li.append(
                 WebsiteBangumi(
                     name=name, keyword=bangumi_id, cover=_COVER_URL + span["data-src"]
@@ -234,7 +234,7 @@ class Mikanani(BaseWebsite):
         return result
 
     def fetch_episode_of_bangumi(
-        self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE
+        self, bangumi_id, max_page=MAX_PAGE, subtitle_list=None
     ):
         r = get_text(server_root + f"Home/Bangumi/{bangumi_id}")
         return parse_episodes(r, bangumi_id, subtitle_list)

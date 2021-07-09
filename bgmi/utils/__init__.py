@@ -6,9 +6,11 @@ import logging
 import os
 import re
 import struct
+import subprocess
 import sys
 import tarfile
 import time
+import traceback
 from io import BytesIO
 from multiprocessing.pool import ThreadPool
 from shutil import move, rmtree
@@ -36,7 +38,7 @@ log_level = os.environ.get("BGMI_LOG") or "ERROR"
 log_level = log_level.upper()
 if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR"]:
     print("log level error, doing nothing and exit")
-    exit(1)
+    sys.exit(1)
 logger = logging.getLogger("BGmi")
 try:
     h = logging.FileHandler(LOG_PATH, "a+", "utf-8")
@@ -54,9 +56,9 @@ def log_utils_function(func: F) -> F:
     @functools.wraps(func)
     def echo_func(*func_args, **func_kwargs):  # type: ignore
         logger.debug("")
-        logger.debug(f"start function {func.__name__} {func_args} {func_kwargs}")
+        logger.debug("start function %s %r %r", func.__name__, func_args, func_kwargs)
         r = func(*func_args, **func_kwargs)
-        logger.debug(f"return function {func.__name__} {r}")
+        logger.debug("return function %s %r", func.__name__, r)
         logger.debug("")
         return r
 
@@ -103,7 +105,7 @@ PACKAGE_JSON_URL = "https://{}/bgmi-frontend/{}".format(
 )
 
 
-def indicator(f):  # type: ignore
+def _indicator(f):  # type: ignore
     @functools.wraps(f)
     def wrapper(*args, **kwargs):  # type: ignore
         if kwargs.get("indicator", True):
@@ -129,43 +131,43 @@ def colorize(f):  # type: ignore
     return wrapper
 
 
-@indicator
+@_indicator
 @colorize
 def print_info(message: str, indicator: bool = True) -> None:
     logger.info(message)
     print(message + "\n", end="")
 
 
-@indicator
+@_indicator
 @colorize
 def print_success(message: str, indicator: bool = True) -> None:
     logger.info(message)
     print(message)
 
 
-@indicator
+@_indicator
 @colorize
 def print_warning(message: str, indicator: bool = True) -> None:
     logger.warning(message)
     print(message)
 
 
-@indicator
+@_indicator
 @colorize
 def print_error(message: str, exit_: bool = True, indicator: bool = True) -> None:
     logger.error(message)
     print(message)
     if exit_:
-        exit(1)
+        sys.exit(1)
 
 
 def print_version() -> str:
-    return """BGmi {}ver. {}{} built by {}RicterZ{} with ❤️
+    return """BGmi {c}ver. {v}{e} built by {c}RicterZ{e} with ❤️
 
 Github: https://github.com/BGmi/BGmi
 Email: ricterzheng@gmail.com
 Blog: https://ricterz.me""".format(
-        YELLOW, __version__, COLOR_END, YELLOW, COLOR_END
+        c=YELLOW, v=__version__, e=COLOR_END
     )
 
 
@@ -192,6 +194,7 @@ _DEFAULT_TERMINAL_WIDTH = 80
 
 @log_utils_function
 def get_terminal_col() -> int:  # pragma: no cover
+    # pylint: disable=import-outside-toplevel,import-error
     # https://gist.github.com/jtriley/1108174
     if not IS_WINDOWS:
         import fcntl
@@ -238,7 +241,6 @@ def get_terminal_col() -> int:  # pragma: no cover
                 sizex = right - left + 1  # type: int
                 return sizex
             else:
-                import subprocess
 
                 cols = int(subprocess.check_output("tput cols"))
                 return cols
@@ -350,7 +352,7 @@ def chinese_to_arabic(cn: str) -> int:
     for cndig in reversed(cn):
         if cndig in CN_UNIT:
             unit = CN_UNIT[cndig]
-            if unit == 10000 or unit == 100000000:
+            if unit in (10000, 100000000):
                 ldig.append(unit)
                 unit = 1
         else:
@@ -363,7 +365,7 @@ def chinese_to_arabic(cn: str) -> int:
         ldig.append(10)
     val, tmp = 0, 0
     for x in reversed(ldig):
-        if x == 10000 or x == 100000000:
+        if x in (10000, 100000000):
             val += tmp * x
             tmp = 0
         else:
@@ -464,7 +466,7 @@ def parse_episode(episode_title: str) -> int:
                 if m > 1000:
                     spare = m
                 else:
-                    logger.debug(f"match {i} '{regexp.pattern}' {m}")
+                    logger.debug("match %s '%s' %d", i, regexp.pattern, m)
                     rest.append(m)
 
     if rest:
@@ -507,8 +509,8 @@ def get_web_admin(method: str) -> None:
             "error" in version and version["reason"] == "document not found"
         ):  # pragma: no cover
             print_error(
-                "Cnpm has not synchronized the latest version of BGmi-frontend from npm,"
-                " please try it later"
+                "Cnpm has not synchronized the latest version of BGmi-frontend from "
+                "npm, please try it later"
             )
             return
         tar_url = r["versions"][version["version"]]["dist"]["tarball"]
@@ -596,13 +598,11 @@ def episode_filter_regex(data: List[Episode], regex: str = None) -> List[Episode
             data = [s for s in data if match.findall(s.title)]
         except re.error as e:
             if os.getenv("DEBUG"):  # pragma: no cover
-                import traceback
-
                 traceback.print_exc()
                 raise e
             return data
 
-    if not ENABLE_GLOBAL_FILTER == "0":
+    if ENABLE_GLOBAL_FILTER != "0":
         data = list(
             filter(
                 lambda s: all(

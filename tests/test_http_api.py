@@ -132,7 +132,6 @@ class ApiTestCase(AsyncHTTPTestCase):
             m.assert_called_with(**data)
 
     def test_e_index(self):
-
         m = mock.Mock(return_value={"status": "success", "data": {"h": "w"}})
         m2 = mock.Mock(
             return_value=[
@@ -144,11 +143,18 @@ class ApiTestCase(AsyncHTTPTestCase):
             "bgmi.lib.models.Followed.get_all_followed", m2
         ):
             response = self.fetch("/api/index", method="GET")
-            assert response.code == 200
-            r = self.parse_response(response)
-            assert COVER_URL + "/2333" == r["data"][0]["cover"], json.dumps(r["data"])
-            m.assert_has_calls([mock.call("233"), mock.call("2333")], any_order=True)
-            assert m.call_count == 3
+        assert response.code == 200
+        r = self.parse_response(response)
+        assert COVER_URL + "/2333" == r["data"][0]["cover"], json.dumps(r["data"])
+        m.assert_has_calls(
+            [
+                mock.call("233"),
+                mock.call("2333"),
+                mock.call("TEST_BANGUMI"),
+            ],
+            any_order=True,
+        )
+        assert m.call_count == 3
 
     def test_resource_ics(self):
         r = self.fetch("/resource/feed.xml")

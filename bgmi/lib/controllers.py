@@ -49,7 +49,7 @@ def add(name: str, episode: int = None) -> ControllerResult:
     """
     # action add
     # add bangumi by a list of bangumi name
-    logger.debug(f"add name: {name} episode: {episode}")
+    logger.debug("add name: %s episode: %d", name, episode)
     if not Bangumi.get_updating_bangumi():
         website.fetch(save=True, group_by_weekday=False)
 
@@ -178,7 +178,7 @@ def delete(
     # action delete
     # just delete subscribed bangumi or clear all the subscribed bangumi
     result = {}
-    logger.debug(f"delete {name}")
+    logger.debug("delete %s", name)
     if clear_all:
         if Followed.delete_followed(batch=batch):
             result["status"] = "warning"
@@ -205,7 +205,7 @@ def delete(
 def cal(
     force_update: bool = False, save: bool = False, cover: Optional[List[str]] = None
 ) -> Dict[str, List[Dict[str, Any]]]:
-    logger.debug(f"cal force_update: {force_update} save: {save}")
+    logger.debug("cal force_update: %r save: %r", force_update, save)
 
     weekly_list = Bangumi.get_updating_bangumi()
     if not weekly_list:
@@ -386,7 +386,7 @@ def config(name: Optional[str] = None, value: Optional[str] = None) -> Controlle
 def update(
     name: List[str], download: Any = None, not_ignore: bool = False
 ) -> ControllerResult:
-    logger.debug(f"updating bangumi info with args: download: {download}")
+    logger.debug("updating bangumi info with args: download: %r", download)
     result: Dict[str, Any] = {
         "status": "info",
         "message": "",

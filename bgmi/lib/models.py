@@ -36,11 +36,12 @@ db = peewee.SqliteDatabase(bgmi.config.DB_PATH)
 if os.environ.get("DEV"):
     print("using", bgmi.config.DB_PATH)
 
-
 _Cls = TypeVar("_Cls")
 
 
 class NeoDB(peewee.Model):
+    DoesNotExist: Type[peewee.DoesNotExist]
+
     class Meta:
         database = db
 
@@ -82,9 +83,9 @@ class Bangumi(NeoDB):
 
     @classmethod
     def delete_all(cls) -> None:
-        un_updated_bangumi = Followed.select().where(
+        un_updated_bangumi: List[Followed] = Followed.select().where(
             Followed.updated_time > (int(time.time()) - 2 * 7 * 24 * 3600)
-        )  # type: List[Followed]
+        )
         if os.getenv("DEBUG"):  # pragma: no cover
             print(
                 "ignore updating bangumi", [x.bangumi_name for x in un_updated_bangumi]
@@ -171,7 +172,7 @@ class Followed(NeoDB):
             ):
                 return False
 
-        q.execute()
+        q.execute(None)
         return True
 
     @classmethod
@@ -223,29 +224,28 @@ class Filter(NeoDB):
     @property
     def subtitle_group_split(self) -> List[str]:
         if self.subtitle:
+            # pylint:disable=no-member
             return [x.strip() for x in self.subtitle.split(",")]
         else:
             return []
 
     def apply_on_episodes(self, result: List[Episode]) -> List[Episode]:
         if self.include:
+            # pylint:disable=no-member
             include_list = list(map(lambda s: s.strip(), self.include.split(",")))
             result = list(
                 filter(
-                    lambda s: True
-                    if all(map(lambda t: t in s.title, include_list))
-                    else False,
+                    lambda s: all(map(lambda t: t in s.title, include_list)),
                     result,
                 )
             )
 
         if self.exclude:
+            # pylint:disable=no-member
             exclude_list = list(map(lambda s: s.strip(), self.exclude.split(",")))
             result = list(
                 filter(
-                    lambda s: True
-                    if all(map(lambda t: t not in s.title, exclude_list))
-                    else False,
+                    lambda s: all(map(lambda t: t not in s.title, exclude_list)),
                     result,
                 )
             )
