@@ -1,3 +1,4 @@
+import datetime
 import glob
 import os
 import time
@@ -47,17 +48,12 @@ class ScriptRunner:
 
     @classmethod
     def check(cls, script: "ScriptBase") -> bool:
-        condition = [
-            "script.Model().due_date > datetime.datetime.now()",
-        ]
-
-        for i in condition:
-            try:
-                if not eval(i):  # pylint: disable=eval-used
-                    return False
-            except Exception:
-                if os.getenv("DEBUG_SCRIPT"):
-                    traceback.print_exc()
+        try:
+            if not script.Model().due_date > datetime.datetime.now():
+                return False
+        except Exception:
+            if os.getenv("DEBUG_SCRIPT"):
+                traceback.print_exc()
 
         return True
 
