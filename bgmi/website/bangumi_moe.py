@@ -174,7 +174,7 @@ class BangumiMoe(BaseWebsite):
                 )
             )
 
-        # Avoid bangumi collection. It's ok but it will waste your traffic and
-        # bandwidth.
+        # Avoid bangumi collection.
+        # It's ok but it will waste your traffic and bandwidth.
         result = result[::-1]
         return result
