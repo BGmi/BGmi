@@ -39,6 +39,8 @@ jobs:
           python-version: "3.8"
       - uses: Trim21/setup-poetry@dist/v1
       - uses: Trim21/install-poetry-project@dist/v1
+      - name: start daemon
+        run: docker-compose -f tests/downloader/docker-compose.yaml up -d
       - name: test
         run: |
           set -ex
