@@ -66,13 +66,13 @@ class ScriptRunner:
     def get_models(self) -> List[WebsiteBangumi]:
         m = []
         for s in self.scripts:
-            d = dict(s.Model())
+            model = s.Model()
             m.append(
                 WebsiteBangumi(
-                    name=d["bangumi_name"],
-                    update_time=d["update_time"],
-                    keyword=d["bangumi_name"],
-                    cover=d["cover"],
+                    name=model.bangumi_name,
+                    update_time=model.update_time,
+                    keyword=model.bangumi_name,
+                    cover=model.cover or "",
                 )
             )
         return m
@@ -212,9 +212,9 @@ class ScriptBase:
         ... code-block:: python
 
             {
-                1: 'http://example.com/Bangumi/1/1.mp4'
-                2: 'http://example.com/Bangumi/1/2.mp4'
-                3: 'http://example.com/Bangumi/1/3.mp4'
+                1: 'https://example.com/Bangumi/1/1.mp4'
+                2: 'https://example.com/Bangumi/1/2.mp4'
+                3: 'https://example.com/Bangumi/1/3.mp4'
             }
 
         The keys `1`, `2`, `3` is the episode, the value is the url of bangumi.
