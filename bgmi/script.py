@@ -74,7 +74,7 @@ class ScriptRunner:
                     name=model.bangumi_name,
                     update_time=model.update_time,
                     keyword=model.bangumi_name,
-                    cover=model.cover or "",
+                    cover=model.cover,
                 )
             )
         return m
