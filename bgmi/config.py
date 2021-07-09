@@ -8,7 +8,6 @@ from typing import Any, Dict, Optional
 
 # download delegate
 __wget__ = ("WGET_PATH",)
-__thunder__ = ("XUNLEI_LX_PATH",)
 __transmission__ = (
     "TRANSMISSION_RPC_URL",
     "TRANSMISSION_RPC_PORT",
@@ -29,8 +28,9 @@ __aria2__ = (
 __deluge__ = ("DELUGE_RPC_URL", "DELUGE_RPC_PASSWORD")
 
 __download_delegate__ = (
-    __wget__ + __thunder__ + __aria2__ + __transmission__ + __deluge__ + __qbittorrent__
+    __wget__ + __aria2__ + __transmission__ + __deluge__ + __qbittorrent__
 )
+
 
 # fake __all__
 __all__ = (
@@ -71,7 +71,6 @@ __all__ = __all__ + __download_delegate__ + __readonly__  # type: ignore
 DOWNLOAD_DELEGATE_MAP = {
     "rr!": __wget__,
     "aria2-rpc": __aria2__,
-    "xunlei": __thunder__,
     "transmission-rpc": __transmission__,
     "deluge-rpc": __deluge__,
     "qbittorrent-webapi": __qbittorrent__,
@@ -264,9 +263,6 @@ FRONT_STATIC_PATH = os.path.join(BGMI_PATH, "front_static")
 
 # admin token
 ADMIN_TOKEN = None
-
-# Xunlei offline download
-XUNLEI_LX_PATH = os.path.join(BGMI_PATH, "bgmi-lx")
 
 # temp path
 TMP_PATH = os.path.join(BGMI_PATH, "tmp")

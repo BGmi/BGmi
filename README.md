@@ -14,11 +14,12 @@ BGmi is a cli tool for subscribed bangumi.
 
 ## Update Log
 
+- Remove xunlei-lixian support
 - New download delegate [qbittorrent-webapi](https://www.qbittorrent.org/)
-- Remove python 3.5 support as it has reached its end-of-life
-- Remove python 3.4 support as it has reached its end-of-life
+- Remove Python3.5 support as it has reached its end-of-life
+- Remove Python3.4 support as it has reached its end-of-life
 - Remove Python2 support
-- Transmission rpc authentication configuration
+- Transmission RPC authentication configuration
 - New download delegate [deluge-rpc](https://www.deluge-torrent.org/)
 - You can filter search results by min and max episode
 
@@ -211,7 +212,7 @@ BGmi configure:
 
 - `BANGUMI_MOE_URL`: url of bangumi.moe mirror
 - `SAVE_PATH`: bangumi saving path
-- `DOWNLOAD_DELEGATE`: the ways of downloading bangumi (aria2-rpc, transmission-rpc, xunlei, deluge-rpc, qbittorrent-webapi)
+- `DOWNLOAD_DELEGATE`: the ways of downloading bangumi (aria2-rpc, transmission-rpc, deluge-rpc, qbittorrent-webapi)
 - `MAX_PAGE`: max page for fetching bangumi information
 - `TMP_PATH`: just a temporary path
 - `DANMAKU_API_URL`: url of danmaku api
@@ -221,12 +222,6 @@ Aria2-rpc configure:
 
 - `ARIA2_RPC_URL`: aria2c daemon RPC url, not jsonrpc url.("<http://localhost:6800/rpc>" for localhost)
 - `ARIA2_RPC_TOKEN`: aria2c daemon RPC token("token:" for no token)
-
-Xunlei configure:
-
-Xunlei-Lixian is deprecated, please choose aria2-rpc or transmission-rpc.
-
-- `XUNLEI_LX_PATH`: path of xunlei-lixian binary
 
 Transmission-rpc configure:
 
