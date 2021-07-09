@@ -33,7 +33,7 @@ class ScriptRunner:
                     script_class = mod.Script()  # pylint:disable=no-member
                 except Exception:
                     print_warning(f"Load script {i} failed, ignored")
-                    if os.getenv("DEBUG_SCRIPT"):
+                    if os.getenv("DEBUG_SCRIPT"):  # pragma: no cover
                         traceback.print_exc()
                     continue
                 cls.check(script_class, i)
@@ -50,7 +50,7 @@ class ScriptRunner:
                 print(f"Skip load {fs} because it has reach its due_date")
                 return
         except Exception:
-            if os.getenv("DEBUG_SCRIPT"):
+            if os.getenv("DEBUG_SCRIPT"):  # pragma: no cover
                 traceback.print_exc()
 
         cls.scripts.append(script)
