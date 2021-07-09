@@ -28,14 +28,6 @@ class BaseDownloadService:
             print_warning(f"Create dir {self.save_path}")
             os.makedirs(self.save_path)
 
-    def check_delegate_bin_exist(self, path):
-        if not os.path.exists(path):
-            raise Exception(
-                "{} not exist, please run command 'bgmi install' to install".format(
-                    path
-                )
-            )
-
     def call(self, command):
         self.return_code = subprocess.call(
             command,

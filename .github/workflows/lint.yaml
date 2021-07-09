@@ -23,6 +23,25 @@ jobs:
       - name: flake8
         run: "flake8 --format='::error file=%(path)s,line=%(row)d,col=%(col)d::[%(code)s]: %(text)s'"
 
+  pylint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - uses: Trim21/setup-poetry@dist/v1
+
+      - uses: Trim21/install-poetry-project@dist/v1
+      - run: |
+           echo "::add-matcher::.github/matcher/pylint/error.json"
+           echo "::add-matcher::.github/matcher/pylint/warning.json"
+
+      - name: pyling
+        run: pylint ./bgmi
+
   mypy:
     runs-on: ${{ matrix.os }}-latest
     strategy:

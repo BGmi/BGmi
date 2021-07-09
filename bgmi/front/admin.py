@@ -116,9 +116,10 @@ class UpdateHandler(BaseHandler):
     @auth
     async def post(self) -> None:
         if not self.lock.locked():
-            self.lock.acquire()
-            IOLoop.instance().add_callback(self.hard_task)  # 这样将在下一轮事件循环执行self.sleep
-            await self.finish(self.jsonify(message="start updating"))
+            with self.lock:
+                # 这样将在下一轮事件循环执行self.sleep
+                IOLoop.instance().add_callback(self.hard_task)
+                await self.finish(self.jsonify(message="start updating"))
         else:
             await self.finish(self.jsonify(message="previous updating has not finish"))
 

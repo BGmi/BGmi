@@ -16,7 +16,7 @@ def get_player(bangumi_name: str) -> Dict[int, Dict[str, str]]:
     bangumi_path = os.path.join(SAVE_PATH, bangumi_name)
     path_walk = os.walk(bangumi_path)
 
-    logger.debug(f"os.walk(bangumi_path) => {pformat(path_walk)}")
+    logger.debug("os.walk(bangumi_path) => %s", pformat(path_walk))
     for root, _, files in path_walk:
         _ = root.replace(bangumi_path, "").split(os.path.sep)
         base_path = root.replace(SAVE_PATH, "")
@@ -63,7 +63,7 @@ class IndexHandler(BaseHandler):
 class BangumiListHandler(BaseHandler):
     def get(self, type_: str = "") -> None:
         data: List[dict] = Followed.get_all_followed(
-            STATUS_DELETED, STATUS_UPDATING if not type_ == "old" else STATUS_END
+            STATUS_DELETED, STATUS_END if type_ == "old" else STATUS_UPDATING
         )
 
         def sorter(_: Dict[str, int]) -> int:

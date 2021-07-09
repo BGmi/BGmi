@@ -350,7 +350,7 @@ def chinese_to_arabic(cn: str) -> int:
     for cndig in reversed(cn):
         if cndig in CN_UNIT:
             unit = CN_UNIT[cndig]
-            if unit == 10000 or unit == 100000000:
+            if unit in (10000, 100000000):
                 ldig.append(unit)
                 unit = 1
         else:
@@ -363,7 +363,7 @@ def chinese_to_arabic(cn: str) -> int:
         ldig.append(10)
     val, tmp = 0, 0
     for x in reversed(ldig):
-        if x == 10000 or x == 100000000:
+        if x in (10000, 100000000):
             val += tmp * x
             tmp = 0
         else:

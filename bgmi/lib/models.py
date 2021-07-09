@@ -41,6 +41,8 @@ _Cls = TypeVar("_Cls")
 
 
 class NeoDB(peewee.Model):
+    DoesNotExist: Type[peewee.DoesNotExist]
+
     class Meta:
         database = db
 

@@ -158,9 +158,9 @@ class ScriptBase:
         # source
         source = None
 
-        _bangumi_id = None
-        _subtitle_list = []  # type: list
-        _max_page = MAX_PAGE
+        bangumi_id = None
+        subtitle_list = []  # type: list
+        max_page = MAX_PAGE
 
         def __init__(self) -> None:
             if self.bangumi_name is not None:
@@ -184,9 +184,9 @@ class ScriptBase:
     @property
     def _data(self) -> dict:
         return {
-            "bangumi_id": self.Model._bangumi_id,
-            "subtitle_list": self.Model._subtitle_list,
-            "max_page": int(self.Model._max_page),
+            "bangumi_id": self.Model.bangumi_id,
+            "subtitle_list": self.Model.subtitle_list,
+            "max_page": int(self.Model.max_page),
         }
 
     @property

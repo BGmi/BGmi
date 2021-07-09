@@ -116,5 +116,15 @@ disable = [
   'raise-missing-from',
   'invalid-name',
   'too-many-locals',
-  'duplicate-code'
+  'duplicate-code',
+  'too-few-public-methods',
+  'unused-argument',
+  'no-else-return',
+  'assignment-from-none',
+  'unused-variable',
+  'broad-except',
+  'too-many-nested-blocks',
+  'too-many-branches',
+  'redefined-outer-name',
+  'too-many-return-statements'
 ]
