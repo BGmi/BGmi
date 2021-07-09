@@ -510,8 +510,7 @@ def get_web_admin(method: str) -> None:
         ):  # pragma: no cover
             print_error(
                 "Cnpm has not synchronized the latest version of BGmi-frontend from "
-                "npm,"
-                " please try it later"
+                "npm, please try it later"
             )
             return
         tar_url = r["versions"][version["version"]]["dist"]["tarball"]
@@ -598,7 +597,7 @@ def episode_filter_regex(data: List[Episode], regex: str = None) -> List[Episode
             match = re.compile(regex)
             data = [s for s in data if match.findall(s.title)]
         except re.error as e:
-            if os.getenv("DEBUG"):
+            if os.getenv("DEBUG"):  # pragma: no cover
                 traceback.print_exc()
                 raise e
             return data
