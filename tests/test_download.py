@@ -15,18 +15,8 @@ def test_search_download(mock_download_driver: mock.Mock):
     mock_website = mock.Mock()
     mock_website.search_by_keyword = mock.Mock(
         return_value=[
-            Episode(
-                episode=3,
-                download="magnet:mm",
-                title="m-title 720p",
-                name="海贼王",
-            ),
-            Episode(
-                episode=4,
-                download="magnet:4",
-                title="m-title 1080p",
-                name="海贼王",
-            ),
+            Episode(episode=3, download="magnet:mm", title="t 720p", name="海贼王"),
+            Episode(episode=4, download="magnet:4", title="t 1080p", name="海贼王"),
         ]
     )
     with mock.patch("bgmi.lib.controllers.website", mock_website):
@@ -45,42 +35,28 @@ def test_search_download(mock_download_driver: mock.Mock):
 @pytest.mark.usefixtures("_clean_bgmi")
 def test_update_download(mock_download_driver: mock.Mock):
     """TODO: mock HTTP requests in this test"""
-    bangumi_name = "hello world"
+    name = "hello world"
     mock_website = mock.Mock()
     mock_website.get_maximum_episode = mock.Mock(
         return_value=(
             4,
             [
-                Episode(
-                    episode=3,
-                    download="magnet:mm",
-                    title="m-title 720p",
-                    name=bangumi_name,
-                ),
-                Episode(
-                    episode=4,
-                    download="magnet:4",
-                    title="m-title 1080p",
-                    name=bangumi_name,
-                ),
+                Episode(episode=3, download="magnet:mm", title="t 720p", name=name),
+                Episode(episode=4, download="magnet:4", title="t 1080p", name=name),
             ],
         )
     )
 
-    Bangumi(name=bangumi_name, subtitle_group="", keyword=bangumi_name, cover="").save()
-    Followed(bangumi_name=bangumi_name, episode=2).save()
+    Bangumi(name=name, subtitle_group="", keyword=name, cover="").save()
+    Followed(bangumi_name=name, episode=2).save()
 
     with mock.patch("bgmi.lib.controllers.website", mock_website):
         update([], download=True, not_ignore=False)
 
     mock_download_driver.add_download.assert_has_calls(
         [
-            mock.call(
-                url="magnet:mm", save_path=os.path.join(SAVE_PATH, bangumi_name, "3")
-            ),
-            mock.call(
-                url="magnet:4", save_path=os.path.join(SAVE_PATH, bangumi_name, "4")
-            ),
+            mock.call(url="magnet:mm", save_path=os.path.join(SAVE_PATH, name, "3")),
+            mock.call(url="magnet:4", save_path=os.path.join(SAVE_PATH, name, "4")),
         ]
     )
 
@@ -89,18 +65,8 @@ def test_search_with_filter(mock_download_driver: mock.Mock):
     mock_website = mock.Mock()
     mock_website.search_by_keyword = mock.Mock(
         return_value=[
-            Episode(
-                episode=3,
-                download="magnet:mm",
-                title="m-title 720p",
-                name="海贼王",
-            ),
-            Episode(
-                episode=4,
-                download="magnet:4",
-                title="m-title 1080p",
-                name="海贼王",
-            ),
+            Episode(episode=3, download="magnet:mm", title="t 720p", name="海贼王"),
+            Episode(episode=4, download="magnet:4", title="t 1080p", name="海贼王"),
         ]
     )
 
