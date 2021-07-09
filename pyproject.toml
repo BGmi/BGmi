@@ -61,6 +61,7 @@ black = { version = "21.6b0", python = '^3.6.2' }
 # tests
 coverage = { version = "==5.5", extras = ['toml'] }
 pytest = "==6.2.4"
+pytest-github-actions-annotate-failures = "0.1.2"
 pytest-rerunfailures = "10.1"
 requests-cache = "==0.6.4"
 # lint

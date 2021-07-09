@@ -11,7 +11,7 @@ def test_use_config():
     with mock.patch("xmlrpc.client.ServerProxy") as m1:
         m1.return_value.aria2.getVersion.return_value = {"version": "1.19.1"}
         Aria2DownloadRPC()
-        m1.assert_called_with("https://uuu")
+        m1.assert_has_calls([mock.call("https://uuu")])
 
 
 @mock.patch("bgmi.config.ARIA2_RPC_TOKEN", _token)

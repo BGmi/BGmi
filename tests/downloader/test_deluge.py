@@ -3,17 +3,14 @@ from unittest import mock
 from bgmi.downloader.deluge import DelugeRPC
 from bgmi.website.model import Episode
 
-_token = "token:2334"
+_token = "deluge"
 
 
 @mock.patch("bgmi.config.DELUGE_RPC_PASSWORD", _token)
-@mock.patch("bgmi.downloader.deluge.DelugeRPC._call")
-def test_init(call):
-    DelugeRPC(
-        download_obj=Episode(name="n", title="t", download="d"),
-        save_path="save_path",
-    )
-    call.assert_called_with("auth.login", [_token])
+def test_use_config():
+    with mock.patch("xmlrpc.client.ServerProxy") as m1:
+        DelugeRPC()
+        m1.assert_called_with("https://uuu")
 
 
 @mock.patch("bgmi.downloader.deluge.DelugeRPC._call")
