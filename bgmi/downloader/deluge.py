@@ -13,6 +13,10 @@ class DelugeRPC(BaseDownloadService):
         self._call("auth.login", [config.DELUGE_RPC_PASSWORD])
 
     @staticmethod
+    def check_config() -> None:
+        pass
+
+    @staticmethod
     def check_dep():
         pass
 

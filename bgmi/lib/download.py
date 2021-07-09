@@ -1,6 +1,6 @@
 import os
 import traceback
-from typing import List
+from typing import List, cast
 
 import stevedore
 
@@ -11,10 +11,13 @@ from bgmi.utils import normalize_path, print_error
 from bgmi.website.base import Episode
 
 
-def get_download_driver(delegate) -> BaseDownloadService:
-    return stevedore.DriverManager(
-        "bgmi.downloader", name=delegate, invoke_on_load=True
-    ).driver
+def get_download_driver(delegate: str) -> BaseDownloadService:
+    return cast(
+        BaseDownloadService,
+        stevedore.DriverManager(
+            "bgmi.downloader", name=delegate, invoke_on_load=True
+        ).driver,
+    )
 
 
 def download_prepare(data: List[Episode]) -> None:

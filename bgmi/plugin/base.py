@@ -24,6 +24,11 @@ class BaseDownloadService(metaclass=abc.ABCMeta):
         :raises MissingDependencyError:
         """
 
+    @staticmethod
+    @abc.abstractmethod
+    def check_config() -> None:
+        """check current config, don't try to connect."""
+
     @abc.abstractmethod
     def get_status(self, id: str) -> DownloadStatus:
         """status of downloading task"""
@@ -32,3 +37,4 @@ class BaseDownloadService(metaclass=abc.ABCMeta):
 class MissingDependencyError(Exception):
     def __init__(self, message: str) -> None:
         self.message = message
+        super().__init__()

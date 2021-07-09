@@ -1,13 +1,7 @@
 import qbittorrentapi
 from qbittorrentapi import TorrentStates
 
-from bgmi.config import (
-    QBITTORRENT_CATEGORY,
-    QBITTORRENT_HOST,
-    QBITTORRENT_PASSWORD,
-    QBITTORRENT_PORT,
-    QBITTORRENT_USERNAME,
-)
+from bgmi import config
 from bgmi.plugin.base import BaseDownloadService
 from bgmi.plugin.status import DownloadStatus
 from bgmi.utils import print_info
@@ -16,17 +10,25 @@ from bgmi.utils import print_info
 class QBittorrentWebAPI(BaseDownloadService):
     def __init__(self):
         self.client = qbittorrentapi.Client(
-            host=QBITTORRENT_HOST,
-            port=QBITTORRENT_PORT,
-            username=QBITTORRENT_USERNAME,
-            password=QBITTORRENT_PASSWORD,
+            host=config.QBITTORRENT_HOST,
+            port=config.QBITTORRENT_PORT,
+            username=config.QBITTORRENT_USERNAME,
+            password=config.QBITTORRENT_PASSWORD,
         )
         self.client.auth_log_in()
+
+    @staticmethod
+    def check_config() -> None:
+        pass
+
+    @staticmethod
+    def check_dep():
+        pass
 
     def add_download(self, url: str, save_path: str, overwrite: bool = False):
         self.client.torrents_add(
             urls=url,
-            category=QBITTORRENT_CATEGORY,
+            category=config.QBITTORRENT_CATEGORY,
             save_path=save_path,
             is_paused=False,
             use_auto_torrent_management=False,
@@ -44,10 +46,6 @@ class QBittorrentWebAPI(BaseDownloadService):
             return info[-1].hash
         else:
             return ""
-
-    @staticmethod
-    def check_dep():
-        pass
 
     def get_status(self, id: str) -> DownloadStatus:
         torrent = self.client.torrents.info(torrent_hashes=id)

@@ -4,31 +4,32 @@ from typing import cast
 from bgmi import config
 from bgmi.plugin.base import BaseDownloadService
 from bgmi.plugin.status import DownloadStatus
-from bgmi.utils import print_warning
+from bgmi.utils import print_error, print_warning
 
 
 class Aria2DownloadRPC(BaseDownloadService):
     def __init__(self):
-        self.old_version = False
         self.server = xmlrpc.client.ServerProxy(config.ARIA2_RPC_URL)
         self.check_aria2c_version()
 
     def add_download(self, url: str, save_path: str, overwrite: bool = False) -> str:
         args = [[url], {"dir": save_path}]
-        if self.old_version:
-            return cast(str, self.server.aria2.addUri(*args))
         return cast(str, self.server.aria2.addUri(config.ARIA2_RPC_TOKEN, *args))
 
     @staticmethod
     def check_dep():
         pass
 
+    @staticmethod
+    def check_config() -> None:
+        if not config.ARIA2_RPC_URL.endswith("/rpc"):
+            print_warning("make sure you are using xml-rpc endpoint of aria2")
+        if not config.ARIA2_RPC_TOKEN.startswith("token:"):
+            print_warning("rpc token should starts with `token:`")
+
     def get_status(self, id: str) -> DownloadStatus:
         args = (id, ["status"])
-        if self.old_version:
-            r = self.server.aria2.tellStatus(*args)
-        else:
-            r = self.server.aria2.tellStatus(config.ARIA2_RPC_TOKEN, *args)
+        r = self.server.aria2.tellStatus(config.ARIA2_RPC_TOKEN, *args)
 
         return {
             "waiting": DownloadStatus.downloading,
@@ -45,6 +46,10 @@ class Aria2DownloadRPC(BaseDownloadService):
         r = s.aria2.getVersion(config.ARIA2_RPC_TOKEN)
         version = r["version"]
         if version:
-            self.old_version = [int(x) for x in version.split(".")] < [1, 18, 4]
+            old_version = [int(x) for x in version.split(".")] < [1, 18, 4]
+            if old_version:
+                print_error(
+                    "you are using old aria2 version," " please upgrade to it >1.18.4"
+                )
         else:
             print_warning("Get aria2c version failed")
