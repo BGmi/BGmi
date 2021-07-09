@@ -32,6 +32,14 @@ packages = [{ include = "bgmi" }]
 bgmi = 'bgmi.main:main'
 bgmi_http = 'bgmi.front.server:main'
 
+[tool.poetry.plugins] # entry-points
+
+[tool.poetry.plugins."bgmi.downloader"]
+"aria2-rpc" = 'bgmi.downloader:Aria2DownloadRPC'
+"transmission-rpc" = 'bgmi.downloader:TransmissionRPC'
+"deluge-rpc" = 'bgmi.downloader:DelugeRPC'
+"qbittorrent-webapi" = 'bgmi.downloader:QBittorrentWebAPI'
+
 [tool.poetry.dependencies]
 python = "^3.6.1"
 beautifulsoup4 = '==4.9.3'
@@ -46,6 +54,7 @@ pydantic = "==1.8.2"
 transmission-rpc = "==3.2.6"
 qbittorrent-api = "==2021.5.22"
 bencoding = "^0.2.6"
+stevedore = "^3.3.0"
 
 [tool.poetry.dev-dependencies]
 black = { version = "21.6b0", python = '^3.6.2' }

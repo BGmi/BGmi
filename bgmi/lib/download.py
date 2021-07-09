@@ -1,36 +1,25 @@
 import os
 import traceback
-from typing import Dict, List, Type
+from typing import List
+
+import stevedore
 
 from bgmi.config import DOWNLOAD_DELEGATE, SAVE_PATH
-from bgmi.downloader.aria2_rpc import Aria2DownloadRPC
-from bgmi.downloader.deluge import DelugeRPC
-from bgmi.downloader.qbittorrent import QBittorrentWebAPI
-from bgmi.downloader.transmission import TransmissionRPC
 from bgmi.lib.models import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download
 from bgmi.plugin.base import BaseDownloadService
 from bgmi.utils import normalize_path, print_error
 from bgmi.website.base import Episode
 
-DOWNLOAD_DELEGATE_DICT: Dict[str, Type[BaseDownloadService]] = {
-    "aria2-rpc": Aria2DownloadRPC,
-    "transmission-rpc": TransmissionRPC,
-    "deluge-rpc": DelugeRPC,
-    "qbittorrent-webapi": QBittorrentWebAPI,
-}
 
-
-def get_download_driver() -> BaseDownloadService:
-    try:
-        return DOWNLOAD_DELEGATE_DICT[DOWNLOAD_DELEGATE]()
-    except KeyError:
-        print_error(f"unexpected delegate {DOWNLOAD_DELEGATE}")
-        raise
+def get_download_driver(delegate) -> BaseDownloadService:
+    return stevedore.DriverManager(
+        "bgmi.downloader", name=delegate, invoke_on_load=True
+    ).driver
 
 
 def download_prepare(data: List[Episode]) -> None:
     queue = save_to_bangumi_download_queue(data)
-    driver = get_download_driver()
+    driver = get_download_driver(DOWNLOAD_DELEGATE)
     for download in queue:
         save_path = os.path.join(
             os.path.join(SAVE_PATH, normalize_path(download.name)),
