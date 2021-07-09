@@ -57,10 +57,6 @@ class DelugeRPC(BaseDownloadService):
 
         return e
 
-    @staticmethod
-    def install():
-        pass
-
     def check_download(self, name):
         pass
 

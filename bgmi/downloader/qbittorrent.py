@@ -57,7 +57,3 @@ class QBittorrentWebAPI(BaseDownloadService):
                 ),
                 indicator=False,
             )
-
-    @staticmethod
-    def install():
-        pass

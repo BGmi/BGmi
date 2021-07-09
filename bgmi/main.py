@@ -62,9 +62,6 @@ def main(argv: Optional[List[str]] = None) -> None:
 
     ret = c.parse_args(argv)
     if ret.action == "install":
-        import bgmi.setup
-
-        bgmi.setup.install()
         get_web_admin(method="install")
 
         raise SystemExit

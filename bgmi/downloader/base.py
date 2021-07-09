@@ -23,11 +23,6 @@ class BaseDownloadService:
         # download
         raise NotImplementedError
 
-    @staticmethod
-    def install():
-        # install requirement
-        raise NotImplementedError
-
     def check_path(self):
         if not os.path.exists(self.save_path):
             print_warning(f"Create dir {self.save_path}")
