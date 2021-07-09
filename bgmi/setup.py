@@ -11,7 +11,6 @@ from bgmi.config import (
     TMP_PATH,
     TOOLS_PATH,
 )
-from bgmi.lib.download import get_download_class
 from bgmi.utils import print_error, print_info, print_success, print_warning
 
 
@@ -55,7 +54,3 @@ def create_dir() -> None:
                 f.write(__version__)
     except OSError as e:
         print_error(f"Error: {str(e)}")
-
-
-def install() -> None:
-    get_download_class().install()

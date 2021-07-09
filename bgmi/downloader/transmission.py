@@ -42,7 +42,3 @@ class TransmissionRPC(BaseDownloadService):
         tc = cls.get_client()
         for torrent in tc.get_torrents():
             print_info(f"  * {torrent.status}: {torrent}", indicator=False)
-
-    @staticmethod
-    def install():
-        pass

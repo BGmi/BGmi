@@ -29,7 +29,6 @@ def test_cal_force_update():
 def test_cal_config():
     main("config".split())
     main("config ADMIN_TOKEN 233".split())
-    main("config DOWNLOAD_DELEGATE xunlei".split())
     main("config BANGUMI_MOE_URL https://bangumi.moe".split())
 
 

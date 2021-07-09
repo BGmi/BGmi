@@ -40,10 +40,6 @@ class Aria2DownloadRPC(BaseDownloadService):
         else:
             print_warning("Get aria2c version failed")
 
-    @staticmethod
-    def install():
-        print_warning("Please install aria2 by yourself")
-
     def check_download(self, name):
         pass
 
