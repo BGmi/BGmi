@@ -40,7 +40,7 @@ jobs:
         run: echo "::add-matcher::.github/matcher/pylint.json"
 
       - name: pylint
-        run: pylint --exit-zero ./bgmi
+        run: pylint ./bgmi
 
   mypy:
     runs-on: ${{ matrix.os }}-latest

@@ -74,7 +74,10 @@ exclude_lines = [
   'if TYPE_CHECKING:',
   'if __name__ == "__main__":',
   'if typing.TYPE_CHECKING:',
-  'raise NotImplementedError'
+  'raise NotImplementedError',
+  'if os.getenv("DEBUG"):',
+  'if os.getenv("DEBUG_SCRIPT"):',
+  'if os.environ.get("DEBUG"):'
 ]
 
 [tool.pytest.ini_options]

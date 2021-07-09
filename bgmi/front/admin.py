@@ -110,7 +110,7 @@ class AdminApiHandler(BaseHandler):
 
 
 class UpdateHandler(BaseHandler):
-    executor = ThreadPoolExecutor(2)
+    executor = ThreadPoolExecutor(2)  # pylint: disable=consider-using-with
     lock = Lock()
 
     @auth

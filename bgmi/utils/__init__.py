@@ -598,13 +598,12 @@ def episode_filter_regex(data: List[Episode], regex: str = None) -> List[Episode
             match = re.compile(regex)
             data = [s for s in data if match.findall(s.title)]
         except re.error as e:
-            if os.getenv("DEBUG"):  # pragma: no cover
-
+            if os.getenv("DEBUG"):
                 traceback.print_exc()
                 raise e
             return data
 
-    if not ENABLE_GLOBAL_FILTER == "0":
+    if ENABLE_GLOBAL_FILTER != "0":
         data = list(
             filter(
                 lambda s: all(

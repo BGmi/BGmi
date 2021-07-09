@@ -38,7 +38,7 @@ class ScriptRunner:
 
                 except Exception:
                     print_warning(f"Load script {i} failed, ignored")
-                    if os.getenv("DEBUG_SCRIPT"):  # pragma: no cover
+                    if os.getenv("DEBUG_SCRIPT"):
                         traceback.print_exc()
 
             cls._defined = super().__new__(cls, *args, **kwargs)
@@ -53,11 +53,10 @@ class ScriptRunner:
 
         for i in condition:
             try:
-                if not eval(i):
+                if not eval(i):  # pylint: disable=eval-used
                     return False
             except Exception:
-                # ignore if error
-                if os.getenv("DEBUG_SCRIPT"):  # pragma: no cover
+                if os.getenv("DEBUG_SCRIPT"):
                     traceback.print_exc()
 
         return True
