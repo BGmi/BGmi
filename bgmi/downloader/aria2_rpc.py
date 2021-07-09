@@ -30,8 +30,9 @@ class Aria2DownloadRPC(BaseDownloadService):
     def get_status(self, id: str) -> DownloadStatus:
         args = (id, ["status"])
         r = self.server.aria2.tellStatus(config.ARIA2_RPC_TOKEN, *args)
-        print(r)
+
         return {
+            "active": DownloadStatus.downloading,
             "waiting": DownloadStatus.downloading,
             "paused": DownloadStatus.not_downloading,
             "error": DownloadStatus.error,
