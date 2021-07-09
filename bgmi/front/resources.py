@@ -12,7 +12,7 @@ from bgmi.lib.models import Download, Followed
 
 class BangumiHandler(BaseHandler):
     def get(self, _: str) -> None:
-        if os.environ.get("DEBUG"):
+        if os.environ.get("DEV", False):  # pragma: no cover
             with open(os.path.join(SAVE_PATH, _), "rb") as f:
                 self.write(f.read())
                 self.finish()
