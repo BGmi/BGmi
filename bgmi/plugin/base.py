@@ -1,7 +1,6 @@
 import abc
 
 from bgmi.plugin.status import DownloadStatus
-from bgmi.website.model import Episode
 
 
 class BaseDownloadService(metaclass=abc.ABCMeta):
@@ -12,12 +11,10 @@ class BaseDownloadService(metaclass=abc.ABCMeta):
         """Initialize rpc client here."""
 
     @abc.abstractmethod
-    def add_download(
-        self, episode: Episode, save_path: str, overwrite: bool = False
-    ) -> str:
+    def add_download(self, url: str, save_path: str, overwrite: bool = False) -> str:
         """download episode
 
-        :param episode:
+        :param url: torrent url or magnet link
         :param save_path: should passed to downloader, episode info has been joined.
         :param overwrite: if downloader could overwrite file content.
         :return: task id

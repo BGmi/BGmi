@@ -4,7 +4,6 @@ from bgmi import config
 from bgmi.plugin.base import BaseDownloadService
 from bgmi.plugin.status import DownloadStatus
 from bgmi.utils import print_warning
-from bgmi.website.model import Episode
 
 
 class Aria2DownloadRPC(BaseDownloadService):
@@ -13,10 +12,8 @@ class Aria2DownloadRPC(BaseDownloadService):
         self.server = xmlrpc.client.ServerProxy(config.ARIA2_RPC_URL)
         self.check_aria2c_version()
 
-    def add_download(
-        self, episode: Episode, save_path: str, overwrite: bool = False
-    ) -> str:
-        args = [[episode.download], {"dir": save_path}]
+    def add_download(self, url: str, save_path: str, overwrite: bool = False) -> str:
+        args = [[url], {"dir": save_path}]
         if self.old_version:
             return self.server.aria2.addUri(*args)
         else:

@@ -8,11 +8,9 @@ from bgmi.config import (
     QBITTORRENT_PORT,
     QBITTORRENT_USERNAME,
 )
-from bgmi.downloader.base import BaseDownloadService
 from bgmi.plugin.base import BaseDownloadService
 from bgmi.plugin.status import DownloadStatus
 from bgmi.utils import print_info
-from bgmi.website.model import Episode
 
 
 class QBittorrentWebAPI(BaseDownloadService):
@@ -25,9 +23,9 @@ class QBittorrentWebAPI(BaseDownloadService):
         )
         self.client.auth_log_in()
 
-    def add_download(self, episode: Episode, save_path: str, overwrite: bool = False):
+    def add_download(self, url: str, save_path: str, overwrite: bool = False):
         self.client.torrents_add(
-            urls=episode.download,
+            urls=url,
             category=QBITTORRENT_CATEGORY,
             save_path=save_path,
             is_paused=False,
@@ -55,7 +53,7 @@ class QBittorrentWebAPI(BaseDownloadService):
         torrent = self.client.torrents.info(torrent_hashes=id)
         if not torrent:
             return DownloadStatus.error
-        state_enum: "TorrentStates" = torrent[0].state_enum
+        state_enum: TorrentStates = torrent[0].state_enum
         if state_enum.is_complete or state_enum.is_uploading:
             return DownloadStatus.done
         elif state_enum.is_errored:
@@ -64,3 +62,4 @@ class QBittorrentWebAPI(BaseDownloadService):
             return DownloadStatus.not_downloading
         elif state_enum.is_downloading or state_enum.is_checking:
             return DownloadStatus.downloading
+        return DownloadStatus.not_found

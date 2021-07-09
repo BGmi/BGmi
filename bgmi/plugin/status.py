@@ -6,3 +6,4 @@ class DownloadStatus(Enum):
     downloading = 1
     done = 2
     error = 3
+    not_found = 4

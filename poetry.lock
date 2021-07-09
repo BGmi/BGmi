@@ -58,6 +58,14 @@ html5lib = ["html5lib"]
 lxml = ["lxml"]
 
 [[package]]
+name = "bencoding"
+version = "0.2.6"
+description = "bencoding is implemented over python3."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "black"
 version = "21.6b0"
 description = "The uncompromising code formatter."
@@ -812,7 +820,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.1"
-content-hash = "07645d77d95b5be3a713ff428e92982c96b60d3feba1e77b39e9240d2c1d6be8"
+content-hash = "4404ec6873a7cdf4ff617be858800e8b3774ae763a1a398e2d84498307ba1265"
 
 [metadata.files]
 appdirs = [
@@ -835,6 +843,10 @@ beautifulsoup4 = [
     {file = "beautifulsoup4-4.9.3-py2-none-any.whl", hash = "sha256:4c98143716ef1cb40bf7f39a8e3eec8f8b009509e74904ba3a7b315431577e35"},
     {file = "beautifulsoup4-4.9.3-py3-none-any.whl", hash = "sha256:fff47e031e34ec82bf17e00da8f592fe7de69aeea38be00523c04623c04fb666"},
     {file = "beautifulsoup4-4.9.3.tar.gz", hash = "sha256:84729e322ad1d5b4d25f805bfa05b902dd96450f43842c4e99067d5e1369eb25"},
+]
+bencoding = [
+    {file = "bencoding-0.2.6-py3-none-any.whl", hash = "sha256:ecab77f639a4bb1967d5f2c302cf048ea8e84d9ce4f330067186f9cc15188ff1"},
+    {file = "bencoding-0.2.6.tar.gz", hash = "sha256:43cce31d4863e29d6bc611551d4e9f2652be2995e9d5e15b46d8383f180d4440"},
 ]
 black = [
     {file = "black-21.6b0-py3-none-any.whl", hash = "sha256:dfb8c5a069012b2ab1e972e7b908f5fb42b6bbabcba0a788b86dc05067c7d9c7"},

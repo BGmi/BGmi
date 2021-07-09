@@ -1,14 +1,14 @@
 import os
 import traceback
-from typing import List, Type
+from typing import List
 
 from bgmi.config import DOWNLOAD_DELEGATE, SAVE_PATH
 from bgmi.downloader.aria2_rpc import Aria2DownloadRPC
-from bgmi.downloader.base import BaseDownloadService
 from bgmi.downloader.deluge import DelugeRPC
 from bgmi.downloader.qbittorrent import QBittorrentWebAPI
 from bgmi.downloader.transmission import TransmissionRPC
 from bgmi.lib.models import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download
+from bgmi.plugin.base import BaseDownloadService
 from bgmi.utils import normalize_path, print_error
 from bgmi.website.base import Episode
 
@@ -20,34 +20,17 @@ DOWNLOAD_DELEGATE_DICT = {
 }
 
 
-def get_download_class() -> Type[BaseDownloadService]:
+def get_download_driver() -> BaseDownloadService:
     try:
-        return DOWNLOAD_DELEGATE_DICT[DOWNLOAD_DELEGATE]
+        return DOWNLOAD_DELEGATE_DICT[DOWNLOAD_DELEGATE]()
     except KeyError:
         print_error(f"unexpected delegate {DOWNLOAD_DELEGATE}")
         raise
 
 
-def get_download_instance(
-    download_obj: Episode = None, save_path: str = "", overwrite: bool = True
-) -> BaseDownloadService:
-    cls = get_download_class()
-    return cls(download_obj=download_obj, overwrite=overwrite, save_path=save_path)
-
-
 def download_prepare(data: List[Episode]) -> None:
-    """
-    list[dict]
-    dict[
-    name:str, keyword you use when search
-    title:str, title of episode
-    episode:int, episode of bangumi
-    download:str, link to download
-    ]
-    :param data:
-    :return:
-    """
     queue = save_to_bangumi_download_queue(data)
+    driver = get_download_driver()
     for download in queue:
         save_path = os.path.join(
             os.path.join(SAVE_PATH, normalize_path(download.name)),
@@ -60,15 +43,7 @@ def download_prepare(data: List[Episode]) -> None:
         download.status = STATUS_DOWNLOADING
         download.save()
         try:
-            # start download
-            download_class = get_download_instance(
-                download_obj=download, save_path=save_path
-            )
-            download_class.download()
-            download_class.check_download(download.name)
-
-            # mark as downloaded
-            download.downloaded()
+            driver.add_download(url=download.download, save_path=save_path)
         except Exception as e:
             if os.getenv("DEBUG"):  # pragma: no cover
 

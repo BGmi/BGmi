@@ -27,7 +27,6 @@ from bgmi.lib.constants import (
     ACTION_UPDATE,
     ACTIONS,
     BANGUMI_UPDATE_TIME,
-    DOWNLOAD_CHOICE_LIST_DICT,
     SPACIAL_APPEND_CHARS,
     SPACIAL_REMOVE_CHARS,
     SUPPORT_WEBSITE,
@@ -45,7 +44,7 @@ from bgmi.lib.controllers import (
     source,
     update,
 )
-from bgmi.lib.download import download_prepare, get_download_class
+from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
 from bgmi.lib.models import (
     STATUS_DELETED,
@@ -246,22 +245,7 @@ def update_wrapper(ret: Any) -> None:
 
 
 def download_manager(ret: Any) -> None:
-    if ret.id:
-        # 没有入口..
-        download_id = ret.id
-        status = ret.status
-        if download_id is None or status is None:
-            print_error("No id or status specified.")
-        print_success(
-            "Download status has been marked as {}".format(
-                DOWNLOAD_CHOICE_LIST_DICT.get(int(status))
-            )
-        )
-    else:
-        status = ret.status
-        status = int(status) if status is not None else None
-        delegate = get_download_class()
-        delegate.download_status(status=status)
+    print_info("not support yet")
 
 
 def fetch_(ret: Any) -> None:

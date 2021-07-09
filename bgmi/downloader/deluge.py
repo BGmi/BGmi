@@ -4,7 +4,6 @@ from bgmi import config
 from bgmi.plugin.base import BaseDownloadService
 from bgmi.plugin.status import DownloadStatus
 from bgmi.utils import print_error, print_info
-from bgmi.website.model import Episode
 
 
 class DelugeRPC(BaseDownloadService):
@@ -55,7 +54,7 @@ class DelugeRPC(BaseDownloadService):
             "Seeding": DownloadStatus.done,
         }.get(status["state"])
 
-    def add_download(self, episode: Episode, save_path: str, overwrite: bool = False):
+    def add_download(self, url: str, save_path: str, overwrite: bool = False):
         options = {
             "add_paused": False,
             "compact_allocation": False,
@@ -66,7 +65,7 @@ class DelugeRPC(BaseDownloadService):
             "max_upload_slots": -1,
             "max_upload_speed": -1,
         }
-        e = self._call("core.add_torrent_url", [episode.download, options])
+        e = self._call("core.add_torrent_url", [url, options])
         print_info(
             "Add torrent into the download queue, the file will be saved at {}".format(
                 save_path
