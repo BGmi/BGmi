@@ -1,4 +1,8 @@
 version: '3'
 services:
-  transmission:
-    image: python
+  aria2:
+    image: bgmidocker/aria2
+    entrypoint:
+      RPC_SECRET: 2333
+    ports:
+      - 6800:6800

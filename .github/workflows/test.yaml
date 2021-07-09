@@ -28,6 +28,24 @@ defaults:
     shell: bash
 
 jobs:
+  downloader:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+      - uses: Trim21/setup-poetry@dist/v1
+      - uses: Trim21/install-poetry-project@dist/v1
+      - name: test
+        run: |
+          set -ex
+          coverage run -a -m bgmi.main install
+          coverage run -a -m pytest tests/downloader
+      - uses: codecov/codecov-action@v1
+
   test:
     runs-on: ${{ matrix.os }}-latest
     strategy:
@@ -52,7 +70,9 @@ jobs:
           set -ex
           coverage run -a -m bgmi.main install
           bgmi -h
-          coverage run -a -m pytest tests --cache-requests --reruns=2 --reruns-delay=1 --maxfail=2
+          coverage run -a -m pytest tests \
+            --cache-requests --reruns=2 --reruns-delay=1 --maxfail=2\
+            --ignore=tests/downloader
 
       - uses: codecov/codecov-action@v1
         with:
