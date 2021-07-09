@@ -105,7 +105,7 @@ PACKAGE_JSON_URL = "https://{}/bgmi-frontend/{}".format(
 )
 
 
-def indicator(f):  # type: ignore
+def _indicator(f):  # type: ignore
     @functools.wraps(f)
     def wrapper(*args, **kwargs):  # type: ignore
         if kwargs.get("indicator", True):
@@ -131,28 +131,28 @@ def colorize(f):  # type: ignore
     return wrapper
 
 
-@indicator
+@_indicator
 @colorize
 def print_info(message: str, indicator: bool = True) -> None:
     logger.info(message)
     print(message + "\n", end="")
 
 
-@indicator
+@_indicator
 @colorize
 def print_success(message: str, indicator: bool = True) -> None:
     logger.info(message)
     print(message)
 
 
-@indicator
+@_indicator
 @colorize
 def print_warning(message: str, indicator: bool = True) -> None:
     logger.warning(message)
     print(message)
 
 
-@indicator
+@_indicator
 @colorize
 def print_error(message: str, exit_: bool = True, indicator: bool = True) -> None:
     logger.error(message)

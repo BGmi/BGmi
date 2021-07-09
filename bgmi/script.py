@@ -50,9 +50,8 @@ class ScriptRunner:
     def check(cls, script: "ScriptBase") -> bool:
         model = script.Model()
         try:
-            if model.due_date:
-                if model.due_date <= datetime.datetime.now():
-                    return False
+            if model.due_date and model.due_date <= datetime.datetime.now():
+                return False
         except Exception:
             if os.getenv("DEBUG_SCRIPT"):
                 traceback.print_exc()
