@@ -196,7 +196,7 @@ class DmhySource(BaseWebsite):
         return bangumi_list
 
     def fetch_episode_of_bangumi(
-        self, bangumi_id, subtitle_list=None, max_page=MAX_PAGE
+        self, bangumi_id, max_page=MAX_PAGE, subtitle_list=None
     ):
         """
         get all episode by bangumi id
