@@ -48,9 +48,11 @@ class ScriptRunner:
 
     @classmethod
     def check(cls, script: "ScriptBase") -> bool:
+        model = script.Model()
         try:
-            if not script.Model().due_date > datetime.datetime.now():
-                return False
+            if model.due_date:
+                if model.due_date <= datetime.datetime.now():
+                    return False
         except Exception:
             if os.getenv("DEBUG_SCRIPT"):
                 traceback.print_exc()
@@ -146,9 +148,9 @@ class ScriptBase:
 
         # data
         bangumi_name = None
-        cover = None
+        cover = ""
         update_time = "Unknown"
-        due_date = None
+        due_date: Optional[datetime.datetime] = None
 
         # source
         source = None
