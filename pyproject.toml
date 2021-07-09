@@ -126,5 +126,6 @@ disable = [
   'too-many-nested-blocks',
   'too-many-branches',
   'redefined-outer-name',
-  'too-many-return-statements'
+  'too-many-return-statements',
+  'too-many-statements'
 ]

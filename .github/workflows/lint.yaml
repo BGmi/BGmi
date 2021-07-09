@@ -39,8 +39,8 @@ jobs:
            echo "::add-matcher::.github/matcher/pylint/error.json"
            echo "::add-matcher::.github/matcher/pylint/warning.json"
 
-      - name: pyling
-        run: pylint ./bgmi
+      - name: pylint
+        run: pylint --output-format=colorized ./bgmi
 
   mypy:
     runs-on: ${{ matrix.os }}-latest
