@@ -3,6 +3,7 @@ import os.path
 import shutil
 import sys
 import tempfile
+from unittest import mock
 
 import pytest
 import requests_cache
@@ -67,3 +68,12 @@ def _clean_bgmi():
 @pytest.fixture()
 def bangumi_names(data_source_bangumi_name):
     return data_source_bangumi_name["bangumi_moe"]
+
+
+@pytest.fixture()
+def mock_download_driver():
+    mock_downloader = mock.Mock()
+    with mock.patch(
+        "bgmi.lib.download.get_download_driver", mock.Mock(return_value=mock_downloader)
+    ):
+        yield mock_downloader

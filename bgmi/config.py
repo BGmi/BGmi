@@ -69,7 +69,6 @@ __all__ = __all__ + __download_delegate__ + __readonly__  # type: ignore
 
 
 DOWNLOAD_DELEGATE_MAP = {
-    "rr!": __wget__,
     "aria2-rpc": __aria2__,
     "transmission-rpc": __transmission__,
     "deluge-rpc": __deluge__,
