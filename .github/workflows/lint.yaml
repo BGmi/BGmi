@@ -37,9 +37,7 @@ jobs:
       - uses: Trim21/install-poetry-project@dist/v1
 
       - name: add matcher
-        run: |
-           echo "::add-matcher::.github/matcher/pylint/error.json"
-           echo "::add-matcher::.github/matcher/pylint/warning.json"
+        run: echo "::add-matcher::.github/matcher/pylint.json"
 
       - name: pylint
         run: pylint ./bgmi
