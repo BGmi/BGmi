@@ -224,13 +224,17 @@ class Filter(NeoDB):
     @property
     def subtitle_group_split(self) -> List[str]:
         if self.subtitle:
-            return [x.strip() for x in self.subtitle.split(",")]
+            return [
+                x.strip() for x in self.subtitle.split(",")
+            ]  # pylint:disable=no-member
         else:
             return []
 
     def apply_on_episodes(self, result: List[Episode]) -> List[Episode]:
         if self.include:
-            include_list = list(map(lambda s: s.strip(), self.include.split(",")))
+            include_list = list(
+                map(lambda s: s.strip(), self.include.split(","))
+            )  # pylint:disable=no-member
             result = list(
                 filter(
                     lambda s: all(map(lambda t: t in s.title, include_list)),
@@ -239,7 +243,9 @@ class Filter(NeoDB):
             )
 
         if self.exclude:
-            exclude_list = list(map(lambda s: s.strip(), self.exclude.split(",")))
+            exclude_list = list(
+                map(lambda s: s.strip(), self.exclude.split(","))
+            )  # pylint:disable=no-member
             result = list(
                 filter(
                     lambda s: all(map(lambda t: t not in s.title, exclude_list)),
