@@ -30,33 +30,31 @@ class ScriptRunner:
                     loader = SourceFileLoader("script", os.path.join(SCRIPT_PATH, i))
                     mod = types.ModuleType(loader.name)
                     loader.exec_module(mod)
-
                     script_class = mod.Script()  # pylint:disable=no-member
-
-                    if cls.check(script_class):
-                        cls.scripts.append(script_class)
-                        print_info(f"Load script {i} successfully.")
-
                 except Exception:
                     print_warning(f"Load script {i} failed, ignored")
                     if os.getenv("DEBUG_SCRIPT"):
                         traceback.print_exc()
+                    continue
+                cls.check(script_class, i)
 
             cls._defined = super().__new__(cls, *args, **kwargs)
 
         return cls._defined
 
     @classmethod
-    def check(cls, script: "ScriptBase") -> bool:
+    def check(cls, script: "ScriptBase", fs) -> bool:
         model = script.Model()
         try:
-            if model.due_date and model.due_date <= datetime.datetime.now():
+            if model.due_date and model.due_date < datetime.datetime.now():
+                print(f"Skip load {fs} because it has reach its due_date")
                 return False
         except Exception:
             if os.getenv("DEBUG_SCRIPT"):
                 traceback.print_exc()
 
-        return True
+        cls.scripts.append(script)
+        print_info(f"Load script {fs} successfully.")
 
     def get_model(self, name: str) -> Optional[Scripts]:
         for script in self.scripts:

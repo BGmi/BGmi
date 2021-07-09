@@ -150,10 +150,11 @@ class ApiTestCase(AsyncHTTPTestCase):
             [
                 mock.call("233"),
                 mock.call("2333"),
+                mock.call("TEST_BANGUMI"),
             ],
             any_order=True,
         )
-        assert m.call_count == 2
+        assert m.call_count == 3
 
     def test_resource_ics(self):
         r = self.fetch("/resource/feed.xml")

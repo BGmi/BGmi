@@ -77,7 +77,7 @@ class BangumiListHandler(BaseHandler):
             bangumi["cover"] = "{}/{}".format(
                 COVER_URL, normalize_path(bangumi["cover"])
             )
-
+        print(self.patch_list)
         data.reverse()
 
         for item in data:
