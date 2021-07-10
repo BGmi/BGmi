@@ -1,9 +1,9 @@
 import requests
 
 from bgmi import config
-from bgmi.plugin.base import BaseDownloadService
+from bgmi.plugin.base import BaseDownloadService, RpcError
 from bgmi.plugin.status import DownloadStatus
-from bgmi.utils import print_error, print_info
+from bgmi.utils import print_info
 
 
 class DelugeRPC(BaseDownloadService):
@@ -60,9 +60,8 @@ class DelugeRPC(BaseDownloadService):
 
         self._id += 1
         e = r.json()
+        print(e)
         if not e["result"]:
-            print_error(
-                "deluge error, reason: {}".format(e["error"]["message"]), exit_=False
-            )
+            raise RpcError("deluge error, reason: {}".format(e["error"]["message"]))
 
         return e["result"]
