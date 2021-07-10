@@ -4,7 +4,6 @@ from qbittorrentapi import TorrentStates
 from bgmi import config
 from bgmi.plugin.base import BaseDownloadService
 from bgmi.plugin.status import DownloadStatus
-from bgmi.utils import print_info
 
 
 class QBittorrentWebAPI(BaseDownloadService):
@@ -32,11 +31,6 @@ class QBittorrentWebAPI(BaseDownloadService):
             save_path=save_path,
             is_paused=False,
             use_auto_torrent_management=False,
-        )
-        print_info(
-            "Add torrent into the download queue, the file will be saved at {}".format(
-                save_path
-            )
         )
         info = self.client.torrents_info(sort="added_on")
         if info:

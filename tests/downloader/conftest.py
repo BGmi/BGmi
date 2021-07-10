@@ -11,4 +11,4 @@ def torrent_url():
 
 @pytest.fixture()
 def info_hash():
-    return "zk2qosknalv3cf4lhdzotv56fgoinodc"
+    return "cab507494d02ebb1178b38f2e9d7be299c86b862"

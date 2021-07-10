@@ -3,7 +3,6 @@ import requests
 from bgmi import config
 from bgmi.plugin.base import BaseDownloadService, RpcError
 from bgmi.plugin.status import DownloadStatus
-from bgmi.utils import print_info
 
 
 class DelugeRPC(BaseDownloadService):
@@ -33,21 +32,11 @@ class DelugeRPC(BaseDownloadService):
     def add_download(self, url: str, save_path: str, overwrite: bool = False):
         options = {
             "add_paused": False,
-            "compact_allocation": False,
             "move_completed": False,
             "download_location": save_path,
-            "max_connections": -1,
-            "max_download_speed": -1,
-            "max_upload_slots": -1,
-            "max_upload_speed": -1,
         }
         e = self._call("core.add_torrent_url", [url, options])
-        print_info(
-            "Add torrent into the download queue, the file will be saved at {}".format(
-                save_path
-            )
-        )
-
+        print(e)
         return e
 
     def _call(self, methods, params=None):

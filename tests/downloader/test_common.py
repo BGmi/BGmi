@@ -14,7 +14,9 @@ from bgmi.plugin.status import DownloadStatus
 @mock.patch("bgmi.config.DELUGE_RPC_PASSWORD", "deluge")
 @mock.patch("bgmi.config.TRANSMISSION_RPC_USERNAME", "tr_username")
 @mock.patch("bgmi.config.TRANSMISSION_RPC_PASSWORD", "tr_password")
-def test_workflow(torrent_url: str, cls):
+def test_workflow(torrent_url: str, cls, info_hash: str):
     rpc = cls()
-    info_hash = rpc.add_download(url=torrent_url, save_path="/downloads/")
+    r = rpc.add_download(url=torrent_url, save_path="/downloads/")
+    if r is not None:
+        assert r == "cab507494d02ebb1178b38f2e9d7be299c86b862"
     assert rpc.get_status(info_hash) == DownloadStatus.downloading
