@@ -23,6 +23,7 @@ def test_workflow(torrent_url: str, cls, info_hash: str):
     while time.time() - start <= 15:
         # wait for 10 second
         status = rpc.get_status(r or info_hash)
+        assert status != DownloadStatus.error
         if status == DownloadStatus.downloading:
             return
         time.sleep(0.5)
