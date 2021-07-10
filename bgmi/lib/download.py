@@ -7,7 +7,7 @@ import stevedore
 from bgmi.config import DOWNLOAD_DELEGATE, SAVE_PATH
 from bgmi.lib.models import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download
 from bgmi.plugin.base import BaseDownloadService
-from bgmi.utils import normalize_path, print_error
+from bgmi.utils import normalize_path, print_error, print_info
 from bgmi.website.base import Episode
 
 
@@ -36,6 +36,10 @@ def download_prepare(data: List[Episode]) -> None:
         download.save()
         try:
             driver.add_download(url=download.download, save_path=save_path)
+            print_info(
+                "Add torrent into the download queue, "
+                f"the file will be saved at {save_path}"
+            )
         except Exception as e:
             if os.getenv("DEBUG"):  # pragma: no cover
 
