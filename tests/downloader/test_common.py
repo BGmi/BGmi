@@ -16,7 +16,5 @@ from bgmi.plugin.status import DownloadStatus
 @mock.patch("bgmi.config.TRANSMISSION_RPC_PASSWORD", "tr_password")
 def test_workflow(torrent_url: str, cls, info_hash: str):
     rpc = cls()
-    r = rpc.add_download(url=torrent_url, save_path="/downloads/")
-    if r is not None:
-        assert r == "cab507494d02ebb1178b38f2e9d7be299c86b862"
+    rpc.add_download(url=torrent_url, save_path="/downloads/")
     assert rpc.get_status(info_hash) != DownloadStatus.not_found
