@@ -21,35 +21,7 @@ class DelugeRPC(BaseDownloadService):
         pass
 
     def get_status(self, id: str) -> DownloadStatus:
-        status = self._call(
-            "web.get_torrent_status",
-            [
-                id,
-                [
-                    "completed_time",
-                    "distributed_copies",
-                    "download_location",
-                    "download_payload_rate",
-                    "eta",
-                    "is_auto_managed",
-                    "last_seen_complete",
-                    "name",
-                    "piece_length",
-                    "progress",
-                    "queue",
-                    "ratio",
-                    "seeding_time",
-                    "shared",
-                    "state",
-                    "total_done",
-                    "total_payload_download",
-                    "total_payload_upload",
-                    "total_remaining",
-                    "total_wanted",
-                    "upload_payload_rate",
-                ],
-            ],
-        )
+        status = self._call("web.get_torrent_status", [id, ["state"]])
 
         return {
             "Error": DownloadStatus.error,
