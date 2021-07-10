@@ -24,4 +24,4 @@ def test_use_config():
 def test_workflow(torrent_url: str):
     rpc = Aria2DownloadRPC()
     info_hash = rpc.add_download(url=torrent_url, save_path="/downloads/")
-    assert rpc.get_status(info_hash) != DownloadStatus.not_found
+    assert rpc.get_status(info_hash) == DownloadStatus.downloading

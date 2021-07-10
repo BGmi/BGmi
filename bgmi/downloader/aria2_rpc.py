@@ -50,7 +50,7 @@ class Aria2DownloadRPC(BaseDownloadService):
             old_version = [int(x) for x in version.split(".")] < [1, 18, 4]
             if old_version:
                 print_error(
-                    "you are using old aria2 version," " please upgrade to it >1.18.4"
+                    "you are using old aria2 version, please upgrade to it >1.18.4"
                 )
         else:
             print_warning("Get aria2c version failed")
