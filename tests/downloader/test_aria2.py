@@ -1,7 +1,6 @@
 from unittest import mock
 
 from bgmi.downloader.aria2_rpc import Aria2DownloadRPC
-from bgmi.plugin.status import DownloadStatus
 
 _token = "token:2333"
 
@@ -18,10 +17,3 @@ def test_use_config():
                 mock.call("https://token:t@uuu"),
             ]
         )
-
-
-@mock.patch("bgmi.config.ARIA2_RPC_TOKEN", _token)
-def test_workflow(torrent_url: str):
-    rpc = Aria2DownloadRPC()
-    info_hash = rpc.add_download(url=torrent_url, save_path="/downloads/")
-    assert rpc.get_status(info_hash) == DownloadStatus.downloading

@@ -17,3 +17,15 @@ services:
     ports:
       - 8112:8112
       - 6881:6881
+
+  qbittorrent:
+    image: ghcr.io/linuxserver/qbittorrent
+    container_name: qbittorrent
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - WEBUI_PORT=8080
+    ports:
+      - 8080:8080
+    restart: unless-stopped
