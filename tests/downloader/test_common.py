@@ -12,7 +12,10 @@ from bgmi.plugin.status import DownloadStatus
 )
 @mock.patch("bgmi.config.ARIA2_RPC_TOKEN", "token:2333")
 @mock.patch("bgmi.config.DELUGE_RPC_PASSWORD", "deluge")
+@mock.patch("bgmi.config.TRANSMISSION_RPC_USERNAME", "tr_username")
+@mock.patch("bgmi.config.TRANSMISSION_RPC_PASSWORD", "tr_password")
 def test_workflow(torrent_url: str, cls):
+    config.TRANS
     rpc = cls()
     info_hash = rpc.add_download(url=torrent_url, save_path="/downloads/")
     assert rpc.get_status(info_hash) == DownloadStatus.downloading

@@ -29,3 +29,20 @@ services:
     ports:
       - 8080:8080
     restart: unless-stopped
+
+  transmission:
+    image: ghcr.io/linuxserver/transmission
+    container_name: transmission
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - USER=tr_username #optional
+      - PASS=tr_password #optional
+      - WHITELIST=* #optional
+      - HOST_WHITELIST=* #optional
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    restart: unless-stopped
