@@ -88,8 +88,10 @@ def config_wrapper(ret: Any) -> None:
                 invoke_on_load=False,
             )
         except NoMatches:
-            ava = importlib_metadata.entry_points(group=namespace.DOWNLOAD_DELEGATE)
-            ava = ", ".join([f"'{x.name}'" for x in ava])
+            entry_points = importlib_metadata.entry_points(
+                group=namespace.DOWNLOAD_DELEGATE
+            )
+            ava = ", ".join([f"'{x.name}'" for x in entry_points])
             print_error(
                 f"{ret.value} if not a registered download delegate\n"
                 f"available download delegate are {ava}"
