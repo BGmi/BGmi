@@ -1,8 +1,7 @@
 import transmission_rpc
 
 from bgmi import config
-from bgmi.plugin.base import BaseDownloadService
-from bgmi.plugin.status import DownloadStatus
+from bgmi.plugin.download import BaseDownloadService, DownloadStatus
 
 
 class TransmissionRPC(BaseDownloadService):

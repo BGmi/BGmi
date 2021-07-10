@@ -2,8 +2,7 @@ import xmlrpc.client
 from typing import cast
 
 from bgmi import config
-from bgmi.plugin.base import BaseDownloadService
-from bgmi.plugin.status import DownloadStatus
+from bgmi.plugin.download import BaseDownloadService, DownloadStatus
 from bgmi.utils import print_error, print_warning
 
 

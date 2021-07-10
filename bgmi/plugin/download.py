@@ -1,6 +1,13 @@
 import abc
+from enum import Enum
 
-from bgmi.plugin.status import DownloadStatus
+
+class DownloadStatus(Enum):
+    not_downloading = 0
+    downloading = 1
+    done = 2
+    error = 3
+    not_found = 4
 
 
 class BaseDownloadService(metaclass=abc.ABCMeta):

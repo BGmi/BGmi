@@ -2,8 +2,7 @@ import qbittorrentapi
 from qbittorrentapi import TorrentStates
 
 from bgmi import config
-from bgmi.plugin.base import BaseDownloadService
-from bgmi.plugin.status import DownloadStatus
+from bgmi.plugin.download import BaseDownloadService, DownloadStatus
 
 
 class QBittorrentWebAPI(BaseDownloadService):

@@ -6,6 +6,7 @@ from operator import itemgetter
 from typing import Any, Dict, List, Optional, Tuple
 
 import wcwidth
+from stevedore.exception import NoMatches
 from tornado import template
 
 import bgmi.config
@@ -75,7 +76,28 @@ def source_wrapper(ret: Any) -> None:
     globals()["print_{}".format(result["status"])](result["message"])
 
 
+import importlib_metadata
+import stevedore
+
+from bgmi import namespace
+
+
 def config_wrapper(ret: Any) -> None:
+    if ret.name == "DOWNLOAD_DELEGATE" and ret.value is not None:
+        try:
+            stevedore.DriverManager(
+                namespace=namespace.DOWNLOAD_DELEGATE,
+                name=ret.value,
+                invoke_on_load=False,
+            )
+        except NoMatches:
+            ava = importlib_metadata.entry_points(group=namespace.DOWNLOAD_DELEGATE)
+            ava = ", ".join([f"'{x.name}'" for x in ava])
+            print_error(
+                f"{ret.value} if not a registered download delegate\n"
+                f"available download delegate are {ava}"
+            )
+
     result = config(ret.name, ret.value)
     if (not ret.name) and (not ret.value):
         print(result["message"])

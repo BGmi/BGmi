@@ -3,21 +3,26 @@ import traceback
 from typing import List, cast
 
 import stevedore
+from stevedore.exception import NoMatches
 
+from bgmi import namespace
 from bgmi.config import DOWNLOAD_DELEGATE, SAVE_PATH
 from bgmi.lib.models import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download
-from bgmi.plugin.base import BaseDownloadService
+from bgmi.plugin.download import BaseDownloadService
 from bgmi.utils import normalize_path, print_error, print_info
 from bgmi.website.base import Episode
 
 
 def get_download_driver(delegate: str) -> BaseDownloadService:
-    return cast(
-        BaseDownloadService,
-        stevedore.DriverManager(
-            "bgmi.downloader", name=delegate, invoke_on_load=True
-        ).driver,
-    )
+    try:
+        return cast(
+            BaseDownloadService,
+            stevedore.DriverManager(
+                namespace.DOWNLOAD_DELEGATE, name=delegate, invoke_on_load=True
+            ).driver,
+        )
+    except NoMatches:
+        print_error(f"can't load download delegate {delegate}")
 
 
 def download_prepare(data: List[Episode]) -> None:

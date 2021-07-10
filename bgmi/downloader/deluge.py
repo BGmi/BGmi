@@ -1,8 +1,7 @@
 import requests
 
 from bgmi import config
-from bgmi.plugin.base import BaseDownloadService, RpcError
-from bgmi.plugin.status import DownloadStatus
+from bgmi.plugin.download import BaseDownloadService, DownloadStatus, RpcError
 
 
 class DelugeRPC(BaseDownloadService):

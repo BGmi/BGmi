@@ -9,7 +9,7 @@ import pytest
 
 from bgmi.downloader import DelugeRPC, QBittorrentWebAPI, TransmissionRPC
 from bgmi.downloader.aria2_rpc import Aria2DownloadRPC
-from bgmi.plugin.status import DownloadStatus
+from bgmi.plugin.download import DownloadStatus
 
 
 @pytest.mark.parametrize(

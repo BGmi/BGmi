@@ -31,7 +31,6 @@ __download_delegate__ = (
     __wget__ + __aria2__ + __transmission__ + __deluge__ + __qbittorrent__
 )
 
-
 # fake __all__
 __all__ = (
     "BANGUMI_MOE_URL",
@@ -66,7 +65,6 @@ __writeable__ = tuple(i for i in __all__ if i not in __readonly__)
 
 # the real __all__
 __all__ = __all__ + __download_delegate__ + __readonly__  # type: ignore
-
 
 DOWNLOAD_DELEGATE_MAP = {
     "rr!": __wget__,
@@ -144,9 +142,6 @@ def write_default_config() -> None:
 
         c.set("bgmi", k, str(v))
 
-    if DOWNLOAD_DELEGATE not in DOWNLOAD_DELEGATE_MAP.keys():
-        raise Exception(DOWNLOAD_DELEGATE)
-
     if not c.has_section(DOWNLOAD_DELEGATE):
         c.add_section(DOWNLOAD_DELEGATE)
 
@@ -191,33 +186,25 @@ def write_config(
 
         else:  # config(config, Value)
             if config in __writeable__:
-                if config == "DOWNLOAD_DELEGATE" and value not in DOWNLOAD_DELEGATE_MAP:
-                    result = {
-                        "status": "error",
-                        "message": "{} is not a support download_delegate".format(
-                            value
-                        ),
-                    }
-                else:
-                    c.set("bgmi", config, value)
-                    with open(CONFIG_FILE_PATH, "w", encoding="utf-8") as f:
-                        c.write(f)
+                c.set("bgmi", config, value)
+                with open(CONFIG_FILE_PATH, "w", encoding="utf-8") as f:
+                    c.write(f)
 
-                    read_config()
-                    if config == "DOWNLOAD_DELEGATE":
-                        if not c.has_section(DOWNLOAD_DELEGATE):
-                            c.add_section(DOWNLOAD_DELEGATE)
-                            for i in DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]:
-                                v = globals().get(i, "")
-                                c.set(DOWNLOAD_DELEGATE, i, v)
+                read_config()
+                if config == "DOWNLOAD_DELEGATE":
+                    if not c.has_section(DOWNLOAD_DELEGATE):
+                        c.add_section(DOWNLOAD_DELEGATE)
+                        for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
+                            v = globals().get(i, "")
+                            c.set(DOWNLOAD_DELEGATE, i, v)
 
-                            with open(CONFIG_FILE_PATH, "w", encoding="utf-8") as f:
-                                c.write(f)
+                        with open(CONFIG_FILE_PATH, "w", encoding="utf-8") as f:
+                            c.write(f)
 
-                    result = {
-                        "status": "success",
-                        "message": f"{config} has been set to {value}",
-                    }
+                result = {
+                    "status": "success",
+                    "message": f"{config} has been set to {value}",
+                }
 
             elif config in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
                 c.set(DOWNLOAD_DELEGATE, config, value)
@@ -323,12 +310,13 @@ TORNADO_SERVE_STATIC_FILES = "0"
 read_config()
 # ------------------------------ #
 # will be used in other other models
-__all_writable_now__ = __writeable__ + DOWNLOAD_DELEGATE_MAP[DOWNLOAD_DELEGATE]
+__all_writable_now__ = __writeable__ + DOWNLOAD_DELEGATE_MAP.get(
+    DOWNLOAD_DELEGATE, tuple()
+)
 
 # --------- Read-Only ---------- #
 # platform
 IS_WINDOWS = platform.system() == "Windows"
-
 
 if __name__ == "__main__":
     write_default_config()
