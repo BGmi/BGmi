@@ -48,10 +48,10 @@ class QBittorrentWebAPI(BaseDownloadService):
         state_enum: TorrentStates = torrent[0].state_enum
         if state_enum.is_complete or state_enum.is_uploading:
             return DownloadStatus.done
-        elif state_enum.is_errored:
+        if state_enum.is_errored:
             return DownloadStatus.error
-        elif state_enum.is_paused:
+        if state_enum.is_paused:
             return DownloadStatus.not_downloading
-        elif state_enum.is_downloading or state_enum.is_checking:
+        if state_enum.is_downloading or state_enum.is_checking:
             return DownloadStatus.downloading
         return DownloadStatus.error

@@ -191,15 +191,16 @@ def write_config(
                     c.write(f)
 
                 read_config()
-                if config == "DOWNLOAD_DELEGATE":
-                    if not c.has_section(DOWNLOAD_DELEGATE):
-                        c.add_section(DOWNLOAD_DELEGATE)
-                        for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
-                            v = globals().get(i, "")
-                            c.set(DOWNLOAD_DELEGATE, i, v)
+                if config == "DOWNLOAD_DELEGATE" and not c.has_section(
+                    DOWNLOAD_DELEGATE
+                ):
+                    c.add_section(DOWNLOAD_DELEGATE)
+                    for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
+                        v = globals().get(i, "")
+                        c.set(DOWNLOAD_DELEGATE, i, v)
 
-                        with open(CONFIG_FILE_PATH, "w", encoding="utf-8") as f:
-                            c.write(f)
+                    with open(CONFIG_FILE_PATH, "w", encoding="utf-8") as f:
+                        c.write(f)
 
                 result = {
                     "status": "success",

@@ -50,11 +50,10 @@ peewee = '==3.14.4'
 importlib-metadata = "4.6.1"
 wcwidth = "^0.2.5"
 pydantic = "==1.8.2"
+stevedore = "^3.3.0"
 # RPC library
 transmission-rpc = "==3.2.6"
 qbittorrent-api = "==2021.5.22"
-bencoding = "^0.2.6"
-stevedore = "^3.3.0"
 
 [tool.poetry.dev-dependencies]
 black = { version = "21.6b0", python = '^3.6.2' }
