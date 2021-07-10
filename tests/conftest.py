@@ -11,7 +11,6 @@ import urllib3
 
 from bgmi.config import IS_WINDOWS, SCRIPT_PATH
 from bgmi.lib.models import recreate_source_relatively_table
-from bgmi.main import patch_requests
 
 
 def pytest_addoption(parser):
@@ -30,7 +29,6 @@ def pytest_sessionstart(session):
             backend="sqlite",
             allowable_methods=("GET", "POST"),
         )
-    patch_requests()
     ensure_example_script()
     urllib3.disable_warnings()
     if IS_WINDOWS:
