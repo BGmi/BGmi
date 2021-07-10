@@ -25,7 +25,7 @@ class QBittorrentWebAPI(BaseDownloadService):
         pass
 
     def add_download(self, url: str, save_path: str, overwrite: bool = False):
-        r = self.client.torrents_add(
+        self.client.torrents_add(
             urls=url,
             category=config.QBITTORRENT_CATEGORY,
             save_path=save_path,
