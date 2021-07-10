@@ -11,7 +11,7 @@ class Aria2DownloadRPC(BaseDownloadService):
         self.server = xmlrpc.client.ServerProxy(config.ARIA2_RPC_URL)
         self.check_aria2c_version()
 
-    def add_download(self, url: str, save_path: str, overwrite: bool = False) -> str:
+    def add_download(self, url: str, save_path: str) -> str:
         args = [[url], {"dir": save_path}]
         return cast(str, self.server.aria2.addUri(config.ARIA2_RPC_TOKEN, *args))
 

@@ -28,7 +28,7 @@ class DelugeRPC(BaseDownloadService):
             "Seeding": DownloadStatus.done,
         }.get(status["state"], DownloadStatus.error)
 
-    def add_download(self, url: str, save_path: str, overwrite: bool = False):
+    def add_download(self, url: str, save_path: str):
         options = {
             "add_paused": False,
             "move_completed": False,

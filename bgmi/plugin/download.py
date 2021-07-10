@@ -14,12 +14,11 @@ class BaseDownloadService(metaclass=abc.ABCMeta):
     """Wrapped RPC client."""
 
     @abc.abstractmethod
-    def add_download(self, url: str, save_path: str, overwrite: bool = False) -> str:
+    def add_download(self, url: str, save_path: str) -> str:
         """download episode
 
         :param url: torrent url or magnet link
         :param save_path: should passed to downloader, episode info has been joined.
-        :param overwrite: if downloader could overwrite file content.
         :return: task id
         """
 
