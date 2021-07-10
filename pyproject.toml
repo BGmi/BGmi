@@ -32,6 +32,14 @@ packages = [{ include = "bgmi" }]
 bgmi = 'bgmi.main:main'
 bgmi_http = 'bgmi.front.server:main'
 
+[tool.poetry.plugins] # entry-points
+
+[tool.poetry.plugins."bgmi.downloader"]
+"aria2-rpc" = 'bgmi.downloader:Aria2DownloadRPC'
+"transmission-rpc" = 'bgmi.downloader:TransmissionRPC'
+"deluge-rpc" = 'bgmi.downloader:DelugeRPC'
+"qbittorrent-webapi" = 'bgmi.downloader:QBittorrentWebAPI'
+
 [tool.poetry.dependencies]
 python = "^3.6.1"
 beautifulsoup4 = '==4.9.3'
@@ -42,6 +50,7 @@ peewee = '==3.14.4'
 importlib-metadata = "4.6.1"
 wcwidth = "^0.2.5"
 pydantic = "==1.8.2"
+stevedore = "^3.3.0"
 # RPC library
 transmission-rpc = "==3.2.6"
 qbittorrent-api = "==2021.5.22"
@@ -51,6 +60,7 @@ black = { version = "21.6b0", python = '^3.6.2' }
 # tests
 coverage = { version = "==5.5", extras = ['toml'] }
 pytest = "==6.2.4"
+pytest-github-actions-annotate-failures = "0.1.2"
 pytest-rerunfailures = "10.1"
 requests-cache = "==0.6.4"
 # lint
@@ -136,5 +146,6 @@ disable = [
   'too-many-statements',
   'too-many-arguments',
   'no-self-use',
-  'not-an-iterable'
+  'not-an-iterable',
+  'redefined-builtin',
 ]

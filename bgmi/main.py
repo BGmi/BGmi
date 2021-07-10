@@ -3,9 +3,6 @@ import os
 import signal
 from typing import Any, List, Optional
 
-import requests
-import requests.adapters
-
 from bgmi.config import BGMI_PATH, write_default_config
 from bgmi.lib.cli import controllers
 from bgmi.lib.constants import ACTION_COMPLETE, actions_and_arguments
@@ -31,7 +28,6 @@ signal.signal(signal.SIGINT, signal_handler)
 
 # main function
 def main(argv: Optional[List[str]] = None) -> None:
-    patch_requests()
     setup()
     c = argparse.ArgumentParser()
 
@@ -83,10 +79,6 @@ def setup() -> None:
     if need_to_init:
         install_crontab()
     write_default_config()
-
-
-def patch_requests() -> None:
-    requests.adapters.DEFAULT_RETRIES = 3
 
 
 if __name__ == "__main__":

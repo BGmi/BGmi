@@ -52,7 +52,9 @@ jobs:
           set -ex
           coverage run -a -m bgmi.main install
           bgmi -h
-          coverage run -a -m pytest tests --cache-requests --reruns=2 --reruns-delay=1 --maxfail=2
+          coverage run -a -m pytest tests \
+            --cache-requests --reruns=2 --reruns-delay=1 --maxfail=2\
+            --ignore=tests/downloader
 
       - uses: codecov/codecov-action@v1
         with:

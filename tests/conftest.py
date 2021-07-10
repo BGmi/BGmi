@@ -3,6 +3,7 @@ import os.path
 import shutil
 import sys
 import tempfile
+from unittest import mock
 
 import pytest
 import requests_cache
@@ -10,7 +11,6 @@ import urllib3
 
 from bgmi.config import IS_WINDOWS, SCRIPT_PATH
 from bgmi.lib.models import recreate_source_relatively_table
-from bgmi.main import patch_requests
 
 
 def pytest_addoption(parser):
@@ -29,7 +29,6 @@ def pytest_sessionstart(session):
             backend="sqlite",
             allowable_methods=("GET", "POST"),
         )
-    patch_requests()
     ensure_example_script()
     urllib3.disable_warnings()
     if IS_WINDOWS:
@@ -67,3 +66,12 @@ def _clean_bgmi():
 @pytest.fixture()
 def bangumi_names(data_source_bangumi_name):
     return data_source_bangumi_name["bangumi_moe"]
+
+
+@pytest.fixture()
+def mock_download_driver():
+    mock_downloader = mock.Mock()
+    with mock.patch(
+        "bgmi.lib.download.get_download_driver", mock.Mock(return_value=mock_downloader)
+    ):
+        yield mock_downloader

@@ -1,20 +1,45 @@
 import requests
 
 from bgmi import config
-from bgmi.downloader.base import BaseDownloadService
-from bgmi.utils import print_error, print_info
+from bgmi.plugin.download import BaseDownloadService, DownloadStatus, RpcError
 
 
 class DelugeRPC(BaseDownloadService):
-    old_version = False
-
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         self._id = 0
         self._session = requests.session()
         self._call("auth.login", [config.DELUGE_RPC_PASSWORD])
-        super().__init__(*args, **kwargs)
 
-    def _call(self, methods, params):
+    @staticmethod
+    def check_config() -> None:
+        pass
+
+    @staticmethod
+    def check_dep():
+        pass
+
+    def get_status(self, id: str) -> DownloadStatus:
+        status = self._call("web.get_torrent_status", [id, ["state"]])
+
+        return {
+            "Error": DownloadStatus.error,
+            "Downloading": DownloadStatus.downloading,
+            "Paused": DownloadStatus.not_downloading,
+            "Seeding": DownloadStatus.done,
+        }.get(status["state"], DownloadStatus.error)
+
+    def add_download(self, url: str, save_path: str):
+        options = {
+            "add_paused": False,
+            "move_completed": False,
+            "download_location": save_path,
+        }
+        e = self._call("core.add_torrent_url", [url, options])
+        return e
+
+    def _call(self, methods, params=None):
+        if params is None:
+            params = []
         r = self._session.post(
             config.DELUGE_RPC_URL,
             headers={"Content-Type": "application/json"},
@@ -24,42 +49,8 @@ class DelugeRPC(BaseDownloadService):
 
         self._id += 1
         e = r.json()
-        if not e["result"]:
-            print_error(
-                "deluge error, reason: {}".format(e["error"]["message"]), exit_=False
-            )
 
-        return e
+        if "result" not in e:
+            raise RpcError("deluge error, reason: {}".format(e["error"]["message"]))
 
-    def download(self):
-        if not self.torrent.startswith("magnet:"):
-            e = self._call("web.download_torrent_from_url", [self.torrent])
-            self.torrent = e["result"]
-        options = {
-            "path": self.torrent,
-            "options": {
-                "add_paused": False,
-                "compact_allocation": False,
-                "move_completed": False,
-                "download_location": self.save_path,
-                "max_connections": -1,
-                "max_download_speed": -1,
-                "max_upload_slots": -1,
-                "max_upload_speed": -1,
-            },
-        }
-        e = self._call("web.add_torrents", [[options]])
-        print_info(
-            "Add torrent into the download queue, the file will be saved at {}".format(
-                self.save_path
-            )
-        )
-
-        return e
-
-    def check_download(self, name):
-        pass
-
-    @staticmethod
-    def download_status(status=None):
-        pass
+        return e["result"]

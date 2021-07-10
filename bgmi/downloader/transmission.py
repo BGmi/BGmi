@@ -1,44 +1,38 @@
 import transmission_rpc
 
-from bgmi.config import (
-    TRANSMISSION_RPC_PASSWORD,
-    TRANSMISSION_RPC_PORT,
-    TRANSMISSION_RPC_URL,
-    TRANSMISSION_RPC_USERNAME,
-)
-from bgmi.downloader.base import BaseDownloadService
-from bgmi.utils import print_info
+from bgmi import config
+from bgmi.plugin.download import BaseDownloadService, DownloadStatus
 
 
 class TransmissionRPC(BaseDownloadService):
+    def __init__(self):
+        self.client = transmission_rpc.Client(
+            host=config.TRANSMISSION_RPC_URL,
+            port=config.TRANSMISSION_RPC_PORT,
+            username=config.TRANSMISSION_RPC_USERNAME,
+            password=config.TRANSMISSION_RPC_PASSWORD,
+        )
+
     @staticmethod
-    def get_client():
-        return transmission_rpc.Client(
-            host=TRANSMISSION_RPC_URL,
-            port=TRANSMISSION_RPC_PORT,
-            username=TRANSMISSION_RPC_USERNAME,
-            password=TRANSMISSION_RPC_PASSWORD,
-        )
-
-    def download(self):
-        tc = self.get_client()
-        tc.add_torrent(self.torrent, download_dir=self.save_path, paused=False)
-
-        print_info(
-            "Add torrent into the download queue, the file will be saved at {}".format(
-                self.save_path
-            )
-        )
-
-    def check_download(self, name):
+    def check_config() -> None:
         pass
 
-    @classmethod
-    def download_status(cls, status=None):
-        print_info("Print download status in database")
-        BaseDownloadService.download_status(status=status)
-        print("")
-        print_info("Print download status in transmission-rpc")
-        tc = cls.get_client()
-        for torrent in tc.get_torrents():
-            print_info(f"  * {torrent.status}: {torrent}", indicator=False)
+    @staticmethod
+    def check_dep():
+        pass
+
+    def add_download(self, url: str, save_path: str):
+        torrent = self.client.add_torrent(url, download_dir=save_path, paused=False)
+        return torrent.hashString
+
+    def get_status(self, id: str) -> DownloadStatus:
+        torrent = self.client.get_torrent(id)
+        if torrent.error:
+            return DownloadStatus.not_found
+        return {
+            "check pending": DownloadStatus.downloading,
+            "checking": DownloadStatus.downloading,
+            "downloading": DownloadStatus.downloading,
+            "seeding": DownloadStatus.done,
+            "stopped": DownloadStatus.not_downloading,
+        }.get(torrent.status, DownloadStatus.error)

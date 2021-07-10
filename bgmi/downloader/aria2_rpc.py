@@ -1,34 +1,44 @@
 import xmlrpc.client
+from typing import cast
 
 from bgmi import config
-from bgmi.downloader.base import BaseDownloadService
-from bgmi.lib.models import STATUS_DOWNLOADED, STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD
-from bgmi.utils import print_error, print_info, print_success, print_warning
+from bgmi.plugin.download import BaseDownloadService, DownloadStatus
+from bgmi.utils import print_error, print_warning
 
 
 class Aria2DownloadRPC(BaseDownloadService):
-    old_version = False
-
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         self.server = xmlrpc.client.ServerProxy(config.ARIA2_RPC_URL)
-        Aria2DownloadRPC.check_aria2c_version()
-        super().__init__(*args, **kwargs)
+        self.check_aria2c_version()
 
-    def download(self):
-        if self.old_version:
-            self.server.aria2.addUri([self.torrent], {"dir": self.save_path})
-        else:
-            self.server.aria2.addUri(
-                config.ARIA2_RPC_TOKEN, [self.torrent], {"dir": self.save_path}
-            )
-        print_info(
-            "Add torrent into the download queue, the file will be saved at {}".format(
-                self.save_path
-            )
-        )
+    def add_download(self, url: str, save_path: str) -> str:
+        args = [[url], {"dir": save_path}]
+        return cast(str, self.server.aria2.addUri(config.ARIA2_RPC_TOKEN, *args))
 
     @staticmethod
-    def check_aria2c_version():
+    def check_dep():
+        pass
+
+    @staticmethod
+    def check_config() -> None:
+        if not config.ARIA2_RPC_URL.endswith("/rpc"):
+            print_warning("make sure you are using xml-rpc endpoint of aria2")
+        if not config.ARIA2_RPC_TOKEN.startswith("token:"):
+            print_warning("rpc token should starts with `token:`")
+
+    def get_status(self, id: str) -> DownloadStatus:
+        args = (id, ["status"])
+        r = self.server.aria2.tellStatus(config.ARIA2_RPC_TOKEN, *args)
+
+        return {
+            "active": DownloadStatus.downloading,
+            "waiting": DownloadStatus.downloading,
+            "paused": DownloadStatus.not_downloading,
+            "error": DownloadStatus.error,
+            "complete": DownloadStatus.done,
+        }.get(r["status"], DownloadStatus.error)
+
+    def check_aria2c_version(self):
         url = config.ARIA2_RPC_URL.split("/")
         url[2] = config.ARIA2_RPC_TOKEN + "@" + url[2]
         url = "/".join(url)
@@ -36,49 +46,10 @@ class Aria2DownloadRPC(BaseDownloadService):
         r = s.aria2.getVersion(config.ARIA2_RPC_TOKEN)
         version = r["version"]
         if version:
-            Aria2DownloadRPC.old_version = version < "1.18.4"
+            old_version = [int(x) for x in version.split(".")] < [1, 18, 4]
+            if old_version:
+                print_error(
+                    "you are using old aria2 version, please upgrade to it >1.18.4"
+                )
         else:
             print_warning("Get aria2c version failed")
-
-    def check_download(self, name):
-        pass
-
-    @staticmethod
-    def download_status(status=None):
-        Aria2DownloadRPC.check_aria2c_version()
-
-        print_info("Print download status in database")
-        BaseDownloadService.download_status(status=status)
-        print()
-        print_info("Print download status in aria2c-rpc")
-        try:
-            server = xmlrpc.client.ServerProxy(config.ARIA2_RPC_URL)
-            # self.server.aria2
-            status_dict = {
-                STATUS_DOWNLOADING: ["tellActive"],
-                STATUS_NOT_DOWNLOAD: ["tellWaiting"],
-                STATUS_DOWNLOADED: ["tellStopped"],
-                None: ["tellStopped", "tellWaiting", "tellActive"],
-            }
-            for method in status_dict.get(status):
-                if method not in ("tellActive",):
-                    params = (0, 1000)
-                else:
-                    params = ()
-                if Aria2DownloadRPC.old_version:
-                    data = getattr(server.aria2, method)(*params)
-                else:
-                    data = getattr(server.aria2, method)(
-                        config.ARIA2_RPC_TOKEN, *params
-                    )
-
-                if data:
-                    print_warning(f"RPC {method}:", indicator=False)
-
-                for row in data:
-                    print_success("- {}".format(row["dir"]), indicator=False)
-                    for file_ in row["files"]:
-                        print_info("    * {}".format(file_["path"]), indicator=False)
-
-        except Exception:
-            print_error("Cannot connect to aria2-rpc server")

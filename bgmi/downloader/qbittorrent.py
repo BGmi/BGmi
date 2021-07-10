@@ -1,59 +1,57 @@
 import qbittorrentapi
+from qbittorrentapi import TorrentStates
 
-from bgmi.config import (
-    QBITTORRENT_CATEGORY,
-    QBITTORRENT_HOST,
-    QBITTORRENT_PASSWORD,
-    QBITTORRENT_PORT,
-    QBITTORRENT_USERNAME,
-)
-from bgmi.downloader.base import BaseDownloadService
-from bgmi.utils import print_info
+from bgmi import config
+from bgmi.plugin.download import BaseDownloadService, DownloadStatus
 
 
 class QBittorrentWebAPI(BaseDownloadService):
-    @staticmethod
-    def get_client():
-
-        qc = qbittorrentapi.Client(
-            host=QBITTORRENT_HOST,
-            port=QBITTORRENT_PORT,
-            username=QBITTORRENT_USERNAME,
-            password=QBITTORRENT_PASSWORD,
+    def __init__(self):
+        self.client = qbittorrentapi.Client(
+            host=config.QBITTORRENT_HOST,
+            port=config.QBITTORRENT_PORT,
+            username=config.QBITTORRENT_USERNAME,
+            password=config.QBITTORRENT_PASSWORD,
         )
-        qc.auth_log_in()
-        return qc
+        self.client.auth_log_in()
 
-    def download(self):
-        qc = self.get_client()
-        qc.torrents_add(
-            urls=self.torrent,
-            category=QBITTORRENT_CATEGORY,
-            save_path=self.save_path,
+    @staticmethod
+    def check_config() -> None:
+        pass
+
+    @staticmethod
+    def check_dep():
+        pass
+
+    def add_download(self, url: str, save_path: str):
+        self.client.torrents_add(
+            urls=url,
+            category=config.QBITTORRENT_CATEGORY,
+            save_path=save_path,
             is_paused=False,
             use_auto_torrent_management=False,
         )
-        print_info(
-            "Add torrent into the download queue, the file will be saved at {}".format(
-                self.save_path
-            )
-        )
 
-    def check_download(self, name):
-        pass
+        info = self.client.torrents_info(sort="added_on")
 
-    @classmethod
-    def download_status(cls, status=None):
-        print_info("Print download status in database")
-        BaseDownloadService.download_status(status=status)
-        print("")
-        print_info("Print download status in qbittorrent-webapi")
-        qc = cls.get_client()
-        for torrent in qc.torrents_info(category=QBITTORRENT_CATEGORY):
-            state_enum = qbittorrentapi.TorrentStates(torrent.state)
-            print_info(
-                "  * {}:\t{}\t [{}%]".format(
-                    state_enum.value, torrent.name, torrent.progress * 100
-                ),
-                indicator=False,
-            )
+        if info:
+            for torrent in info:
+                if torrent.save_path == save_path:
+                    return torrent.hash
+            return info[-1].hash
+        return None
+
+    def get_status(self, id: str) -> DownloadStatus:
+        torrent = self.client.torrents.info(torrent_hashes=id)
+        if not torrent:
+            return DownloadStatus.not_found
+        state_enum: TorrentStates = torrent[0].state_enum
+        if state_enum.is_complete or state_enum.is_uploading:
+            return DownloadStatus.done
+        if state_enum.is_errored:
+            return DownloadStatus.error
+        if state_enum.is_paused:
+            return DownloadStatus.not_downloading
+        if state_enum.is_downloading or state_enum.is_checking:
+            return DownloadStatus.downloading
+        return DownloadStatus.error

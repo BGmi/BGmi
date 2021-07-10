@@ -3,10 +3,10 @@ from collections import defaultdict
 from typing import List, Optional
 
 import bs4
-import requests
 from bs4 import BeautifulSoup
 
 from bgmi.config import MAX_PAGE
+from bgmi.session import session as requests
 from bgmi.utils import parse_episode
 from bgmi.website.base import BaseWebsite
 from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
