@@ -12,9 +12,12 @@ BGmi 是一个用来追番的命令行程序.
 
 ## 更新日志
 
-- 你现在看到的 BGmi 版本是最后一个支持 python2 的版本, 快拥抱 python3 吧.
+- 支持[扩展下载方式](./docs/downloader.md)
+- 移除迅雷离线
+- 支持 [qbittorrent-webapi](https://www.qbittorrent.org/)
+- 停止支持 python2，3.4 和 3.5
 - Transmission rpc 认证设置
-- 新的下载方式 [deluge-rpc](https://www.deluge-torrent.org/)
+- 支持 [deluge-rpc](https://www.deluge-torrent.org/)
 - 使用最大和最小集数筛选搜索结果
 
 ## 特性
