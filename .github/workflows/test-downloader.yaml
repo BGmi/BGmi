@@ -1,0 +1,48 @@
+name: test-downloader
+
+on:
+  push:
+    paths:
+      - poetry.lock
+      - bgmi/downloader/**
+      - bgmi/lib/download.py
+      - tests/downloader/**
+      - tests/download.py
+    branches-ignore:
+      - renovate/**
+      - deepsource-*
+  pull_request:
+    branches:
+      - master
+    paths:
+      - poetry.lock
+      - bgmi/downloader/**
+      - bgmi/lib/download.py
+      - tests/downloader/**
+      - tests/download.py
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  downloader:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+      - uses: Trim21/setup-poetry@dist/v1
+      - uses: Trim21/install-poetry-project@dist/v1
+      - name: start daemon
+        run: docker-compose -f tests/downloader/docker-compose.yaml up -d
+      - name: test
+        run: |
+          set -ex
+          coverage run -a -m bgmi.main install
+          coverage run -a tests/downloader/setup.py
+          coverage run -a -m pytest tests/downloader -s
+      - uses: codecov/codecov-action@v1
