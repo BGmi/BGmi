@@ -45,6 +45,7 @@ jobs:
         run: |
           set -ex
           coverage run -a -m bgmi.main install
+          coverage run -a python tests/downloader/setup.py
           coverage run -a -m pytest tests/downloader -s
       - uses: codecov/codecov-action@v1
 

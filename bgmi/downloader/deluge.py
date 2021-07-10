@@ -50,7 +50,9 @@ class DelugeRPC(BaseDownloadService):
 
         return e
 
-    def _call(self, methods, params):
+    def _call(self, methods, params=None):
+        if params is None:
+            params = []
         r = self._session.post(
             config.DELUGE_RPC_URL,
             headers={"Content-Type": "application/json"},
@@ -61,7 +63,8 @@ class DelugeRPC(BaseDownloadService):
         self._id += 1
         e = r.json()
         print(e)
-        if not e["result"]:
+
+        if "result" not in e:
             raise RpcError("deluge error, reason: {}".format(e["error"]["message"]))
 
         return e["result"]
