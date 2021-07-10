@@ -3,7 +3,7 @@ import itertools
 import os
 import sys
 from operator import itemgetter
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 import importlib_metadata
 import stevedore
@@ -59,6 +59,7 @@ from bgmi.lib.models import (
     Followed,
     Subtitle,
 )
+from bgmi.plugin.download import BaseDownloadService
 from bgmi.script import ScriptRunner
 from bgmi.utils import (
     COLOR_END,
@@ -82,11 +83,14 @@ def source_wrapper(ret: Any) -> None:
 def config_wrapper(ret: Any) -> None:
     if ret.name == "DOWNLOAD_DELEGATE" and ret.value is not None:
         try:
-            stevedore.DriverManager(
+            driver_cls: Type[BaseDownloadService] = stevedore.DriverManager(
                 namespace=namespace.DOWNLOAD_DELEGATE,
                 name=ret.value,
                 invoke_on_load=False,
-            )
+            ).driver
+
+            driver_cls.check_dep()
+
         except NoMatches:
             entry_points = importlib_metadata.entry_points(
                 group=namespace.DOWNLOAD_DELEGATE
