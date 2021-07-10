@@ -310,9 +310,7 @@ TORNADO_SERVE_STATIC_FILES = "0"
 read_config()
 # ------------------------------ #
 # will be used in other other models
-__all_writable_now__ = __writeable__ + DOWNLOAD_DELEGATE_MAP.get(
-    DOWNLOAD_DELEGATE, tuple()
-)
+__all_writable_now__ = __writeable__ + DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, ())
 
 # --------- Read-Only ---------- #
 # platform

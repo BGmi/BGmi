@@ -5,11 +5,14 @@ import sys
 from operator import itemgetter
 from typing import Any, Dict, List, Optional, Tuple
 
+import importlib_metadata
+import stevedore
 import wcwidth
 from stevedore.exception import NoMatches
 from tornado import template
 
 import bgmi.config
+from bgmi import namespace
 from bgmi.lib.constants import (
     ACTION_ADD,
     ACTION_CAL,
@@ -74,12 +77,6 @@ from bgmi.utils import (
 def source_wrapper(ret: Any) -> None:
     result = source(data_source=ret.source)
     globals()["print_{}".format(result["status"])](result["message"])
-
-
-import importlib_metadata
-import stevedore
-
-from bgmi import namespace
 
 
 def config_wrapper(ret: Any) -> None:
