@@ -23,6 +23,7 @@ def get_download_driver(delegate: str) -> BaseDownloadService:
         )
     except NoMatches:
         print_error(f"can't load download delegate {delegate}")
+        raise
 
 
 def download_prepare(data: List[Episode]) -> None:
