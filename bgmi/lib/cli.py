@@ -91,10 +91,10 @@ def config_wrapper(ret: Any) -> None:
             entry_points = importlib_metadata.entry_points(
                 group=namespace.DOWNLOAD_DELEGATE
             )
-            ava = ", ".join([f"'{x.name}'" for x in entry_points])
+            available = ", ".join([f"'{x.name}'" for x in entry_points])
             print_error(
                 f"{ret.value} if not a registered download delegate\n"
-                f"available download delegate are {ava}"
+                f"available download delegate are {available}"
             )
 
     result = config(ret.name, ret.value)
