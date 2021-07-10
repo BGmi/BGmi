@@ -36,10 +36,6 @@ class ConfigTest(unittest.TestCase):
         r = config("WRONG_CONFIG_NAME", "233")
         assert r["status"] == "error"
 
-    def test_wrong_DOWNLOAD_DELEGATE(self):
-        r = config("DOWNLOAD_DELEGATE", "WRONG_METHOD")
-        assert r["status"] == "error"
-
     def test_DOWNLOAD_DELEGATE(self):
         config("DOWNLOAD_DELEGATE", "aria2-rpc")
         config("DOWNLOAD_DELEGATE", "rr!")
