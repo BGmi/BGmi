@@ -38,8 +38,7 @@ class QBittorrentWebAPI(BaseDownloadService):
                 if torrent.save_path == save_path:
                     return torrent.hash
             return info[-1].hash
-        else:
-            return ""
+        return None
 
     def get_status(self, id: str) -> DownloadStatus:
         torrent = self.client.torrents.info(torrent_hashes=id)
