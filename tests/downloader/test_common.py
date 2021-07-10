@@ -16,5 +16,6 @@ from bgmi.plugin.status import DownloadStatus
 @mock.patch("bgmi.config.TRANSMISSION_RPC_PASSWORD", "tr_password")
 def test_workflow(torrent_url: str, cls, info_hash: str):
     rpc = cls()
-    rpc.add_download(url=torrent_url, save_path="/downloads/")
-    assert rpc.get_status(info_hash) != DownloadStatus.not_found
+    r = rpc.add_download(url=torrent_url, save_path="/downloads/")
+    # aria2 didn't take info_hash as torrent id
+    assert rpc.get_status(r or info_hash) != DownloadStatus.not_found
