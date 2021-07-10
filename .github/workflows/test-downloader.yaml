@@ -1,4 +1,4 @@
-name: test-downloader
+name: test downloader
 
 on:
   push:
