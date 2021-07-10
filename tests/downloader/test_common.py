@@ -1,3 +1,4 @@
+import time
 from unittest import mock
 
 import pytest
@@ -18,4 +19,12 @@ def test_workflow(torrent_url: str, cls, info_hash: str):
     rpc = cls()
     r = rpc.add_download(url=torrent_url, save_path="/downloads/")
     # aria2 didn't take info_hash as torrent id
-    assert rpc.get_status(r or info_hash) == DownloadStatus.downloading
+    time.sleep(1)
+    now = time.time()
+    while time.time() - now < 10:
+        # wait for 10 second
+        status = rpc.get_status(r or info_hash)
+        if status == DownloadStatus.downloading:
+            return
+        time.sleep(0.5)
+    pytest.fail("can't find download task with timeout 10s")
