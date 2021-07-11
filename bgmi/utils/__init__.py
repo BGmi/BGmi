@@ -600,18 +600,13 @@ def episode_filter_regex(data: List[Episode], regex: str = None) -> List[Episode
             if os.getenv("DEBUG"):  # pragma: no cover
                 traceback.print_exc()
                 raise e
-            return data
+            print_warning(f"can't compile regex {regex}, skipping filter by regex")
 
     if ENABLE_GLOBAL_FILTER != "0":
+        exclude_keywords = [t.strip().lower() for t in GLOBAL_FILTER.split(",")]
         data = list(
             filter(
-                lambda s: all(
-                    map(
-                        lambda t: t.strip().lower() not in s.title.lower(),
-                        GLOBAL_FILTER.split(","),
-                    )
-                ),
-                data,
+                lambda episode: not episode.contains_any_words(exclude_keywords), data
             )
         )
 

@@ -245,8 +245,7 @@ class Filter(NeoDB):
             exclude_list = list(map(lambda s: s.strip(), self.exclude.split(",")))
             result = list(
                 filter(
-                    lambda s: all(map(lambda t: t not in s.title, exclude_list)),
-                    result,
+                    lambda episode: not episode.contains_any_words(exclude_list), result
                 )
             )
 
