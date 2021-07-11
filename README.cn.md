@@ -136,9 +136,10 @@ bgmi update "时钟机关之星" --download
 ```bash
 bgmi list # 列出目前订阅的番剧
 bgmi fetch "Re:CREATORS"
+# include和exclude会忽略大小写。`720p`和`720P`的效果是相同的
 bgmi filter "Re:CREATORS" --subtitle "DHR動研字幕組,豌豆字幕组" --include 720P --exclude BIG5
 bgmi fetch "Re:CREATORS"
-# remove subtitle, include and exclude keyword filter and add regex filter
+# 删除subtitle，include和exclude，添加正则匹配
 bgmi filter "Re:CREATORS" --subtitle "" --include "" --exclude "" --regex
 bgmi filter "Re:CREATORS" --regex "(DHR動研字幕組|豌豆字幕组).*(720P)"
 bgmi fetch "Re:CREATORS"
