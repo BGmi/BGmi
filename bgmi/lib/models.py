@@ -233,21 +233,12 @@ class Filter(NeoDB):
         if self.include:
             # pylint:disable=no-member
             include_list = list(map(lambda s: s.strip(), self.include.split(",")))
-            result = list(
-                filter(
-                    lambda s: all(map(lambda t: t in s.title, include_list)),
-                    result,
-                )
-            )
+            result = [e for e in result if e.contains_any_words(include_list)]
 
         if self.exclude:
             # pylint:disable=no-member
             exclude_list = list(map(lambda s: s.strip(), self.exclude.split(",")))
-            result = list(
-                filter(
-                    lambda episode: not episode.contains_any_words(exclude_list), result
-                )
-            )
+            result = [e for e in result if not e.contains_any_words(exclude_list)]
 
         return episode_filter_regex(data=result, regex=self.regex)
 

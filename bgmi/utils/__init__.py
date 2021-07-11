@@ -604,10 +604,6 @@ def episode_filter_regex(data: List[Episode], regex: str = None) -> List[Episode
 
     if ENABLE_GLOBAL_FILTER != "0":
         exclude_keywords = [t.strip().lower() for t in GLOBAL_FILTER.split(",")]
-        data = list(
-            filter(
-                lambda episode: not episode.contains_any_words(exclude_keywords), data
-            )
-        )
+        data = [x for x in data if not x.contains_any_words(exclude_keywords)]
 
     return data
