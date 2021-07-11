@@ -1,6 +1,7 @@
 name: test downloader
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - poetry.lock
