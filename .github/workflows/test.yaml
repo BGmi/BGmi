@@ -61,4 +61,4 @@ jobs:
 
       - uses: codecov/codecov-action@v1
         with:
-          flags: app,front,tests
+          flags: app,front
