@@ -1,0 +1,28 @@
+name: un-released
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Install git-chglog
+        run: docker pull quay.io/git-chglog/git-chglog:latest
+
+      - name: Generate Changlog
+        run: |
+          docker run -v "$PWD":/workdir quay.io/git-chglog/git-chglog:latest \
+            --template .chglog/unreleased.tpl.md > chglog.md
+
+      - name: Update GitHub Issue
+        run: gh issue edit 297 --body-file chglog.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
