@@ -47,4 +47,4 @@ jobs:
           coverage run -a -m pytest tests/downloader -s
       - uses: codecov/codecov-action@v1
         with:
-          flag: downloader
+          flags: downloader,tests
