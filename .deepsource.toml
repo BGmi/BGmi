@@ -5,7 +5,7 @@ transformers = [
   { name = 'isort', enabled = true },
   { name = 'prettier', enabled = true },
 ]
-exclude_patterns = ["*.tpl.md"]
+exclude_patterns = [".chglog/*.tpl.md"]
 
 [[analyzers]]
 name = "python"
