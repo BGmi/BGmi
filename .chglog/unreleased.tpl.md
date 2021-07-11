@@ -1,4 +1,6 @@
 {{ if .Unreleased.CommitGroups -}}
+## [Full Commits]({{ .Info.RepositoryURL }}/compare/{{ $latest := index .Versions 0 }}{{ $latest.Tag.Name }}...HEAD)
+
 {{ range .Unreleased.CommitGroups -}}
 ### {{ .Title }}
 
@@ -13,6 +15,5 @@
 {{ .Body }}
 {{ end -}}
 {{ end -}}
-{{ end }}
-## [commits]({{ .Info.RepositoryURL }}/compare/{{ $latest := index .Versions 0 }}{{ $latest.Tag.Name }}...HEAD)
+{{ end -}}
 {{ end -}}
