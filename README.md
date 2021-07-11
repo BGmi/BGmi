@@ -24,7 +24,7 @@ BGmi is a cli tool for subscribed bangumi.
 - New download delegate [deluge-rpc](https://www.deluge-torrent.org/)
 - You can filter search results by min and max episode
 
-more details can be found at [changelog.md](./CHANGELOG.md)
+more details can be found at [changelog.md](./CHANGELOG.md) and [unreleased changelog](https://github.com/BGmi/BGmi/issues/297)
 
 ## Feature
 
