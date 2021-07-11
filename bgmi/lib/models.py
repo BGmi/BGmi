@@ -232,12 +232,12 @@ class Filter(NeoDB):
     def apply_on_episodes(self, result: List[Episode]) -> List[Episode]:
         if self.include:
             # pylint:disable=no-member
-            include_list = list(map(lambda s: s.strip(), self.include.split(",")))
+            include_list = [s.strip().lower() for s in self.include.split(",")]
             result = [e for e in result if e.contains_any_words(include_list)]
 
         if self.exclude:
             # pylint:disable=no-member
-            exclude_list = list(map(lambda s: s.strip(), self.exclude.split(",")))
+            exclude_list = [s.strip().lower() for s in self.exclude.split(",")]
             result = [e for e in result if not e.contains_any_words(exclude_list)]
 
         return episode_filter_regex(data=result, regex=self.regex)
