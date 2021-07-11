@@ -285,10 +285,3 @@ def recreate_source_relatively_table() -> None:
     ]  # type: List[Type[NeoDB]]
     for table in table_to_drop:
         table.delete().execute()
-
-
-if __name__ == "__main__":  # pragma:no cover
-    from pprint import pprint
-
-    d = Bangumi.get_updating_bangumi(status=STATUS_FOLLOWED)
-    pprint(d)
