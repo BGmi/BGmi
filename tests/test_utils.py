@@ -71,3 +71,9 @@ def test_episode_regex():
     )
     assert len(e) == 2, e
     assert {x.name for x in e} == {"1"}
+
+
+def test_episode_exclude_word():
+    assert Episode(title="a b c", download="").contains_any_words(["a"])
+    assert Episode(title="A B c", download="").contains_any_words(["a", "b"])
+    assert not Episode(title="a b c", download="").contains_any_words(["d", "ab"])

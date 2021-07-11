@@ -161,9 +161,11 @@ Set up the bangumi subtitle group filter and fetch entries:
 ```bash
 bgmi list
 bgmi fetch "Re:CREATORS"
+# include and exclude are case insensitive.
+# --include '720p' is equal to --include '720P'
 bgmi filter "Re:CREATORS" --subtitle "DHR動研字幕組,豌豆字幕组" --include 720P --exclude BIG5
 bgmi fetch "Re:CREATORS"
-# remove subtitle, include and exclude keyword filter and add regex filter
+# remove subtitle, include and exclude keyword filter and add regex filter.
 bgmi filter "Re:CREATORS" --subtitle "" --include "" --exclude ""
 bgmi filter "Re:CREATORS" --regex "(DHR動研字幕組|豌豆字幕组).*(720P)"
 bgmi fetch "Re:CREATORS"
