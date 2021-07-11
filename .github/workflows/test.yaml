@@ -1,6 +1,9 @@
 name: test
 
 on:
+  schedule:
+    - cron: "1 1 1 * *" # monthly
+  workflow_dispatch:
   push:
     paths-ignore:
       - LICENSE
@@ -58,4 +61,4 @@ jobs:
 
       - uses: codecov/codecov-action@v1
         with:
-          flags: py${{ matrix.python }}
+          flags: app,front
