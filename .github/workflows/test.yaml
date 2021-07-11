@@ -57,3 +57,5 @@ jobs:
             --ignore=tests/downloader
 
       - uses: codecov/codecov-action@v1
+        with:
+          flags: app,front,tests
