@@ -29,6 +29,8 @@ flags:
   downloader:
     paths:
       - bgmi/downloader/
+    carryforward: true
   tests:
     paths:
       - tests/
+    carryforward: true
