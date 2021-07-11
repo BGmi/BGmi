@@ -26,7 +26,7 @@ class Episode(BaseModel):
         return ret
 
     def contains_any_words(self, keywords: List[str]) -> bool:
-        """Keywords should be converted to low case after input to this function."""
+        """Keywords should be converted to low case after passed to this function."""
         title = self.title.lower()
         return any(map(lambda t: t in title, keywords))
 
