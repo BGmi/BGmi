@@ -20,6 +20,8 @@ BGmi 是一个用来追番的命令行程序.
 - 支持 [deluge-rpc](https://www.deluge-torrent.org/)
 - 使用最大和最小集数筛选搜索结果
 
+更多细节可在[changelog.md](./CHANGELOG.md)查询
+
 ## 特性
 
 - 多个数据源可选: [bangumi_moe](https://bangumi.moe), [mikan_project](https://mikanani.me) 或者[dmhy](https://share.dmhy.org/)
@@ -76,15 +78,7 @@ bgmi upgrade
 
 ## 使用
 
-查看可用的命令
-
-```bash
-bgmi -h
-```
-
-**`-h`选项同样适用于所有的子命令，readme 仅介绍了一些基础用法。**
-
-启用命令自动补全
+### 启用命令自动补全
 
 ```bash
 eval "$(bgmi complete)"
@@ -96,7 +90,17 @@ eval "$(bgmi complete)"
 - [mikan_project](https://mikanani.me)
 - [dmhy](https://share.dmhy.org/)
 
-换一个数据源:
+### 帮助
+查看可用的命令
+
+```bash
+bgmi -h
+```
+
+**`-h`选项同样适用于所有的子命令，readme 仅介绍了一些基础用法。**
+
+
+### 换一个数据源
 
 **更换数据源会清空番剧数据库, 但是 bgmi script 不受影响.** 之前下载的视频文件不会删除, 但是不会在前端显示
 
@@ -104,26 +108,32 @@ eval "$(bgmi complete)"
 bgmi source mikan_project
 ```
 
-查看目前正在更新的新番:
+### 查看目前正在更新的新番
 
 ```bash
 bgmi cal
 ```
 
-订阅番剧:
+### 订阅番剧
 
 ```bash
 bgmi add "进击的巨人 第三季" "刃牙" "哆啦A梦"
 bgmi add "高分少女" --episode 0
 ```
 
-退订:
+**不添加`--episode`默认会把最新一集作为已观看,并从这集开始往后订阅**
+若想从头开始订阅需要类似此命令`bgmi add $BANGUMI_NAME --episode 0`
+
+
+### 退订
 
 ```bash
 bgmi delete --name "Re:CREATORS"
 ```
 
-更新番剧列表并且下载番剧:
+### 更新番剧列表并且下载番剧
+
+更新新番数据库 (默认位于 \~/.bgmi/bangumi.db)
 
 ```bash
 bgmi update --download
@@ -131,15 +141,14 @@ bgmi update "从零开始的魔法书" --download 2 3
 bgmi update "时钟机关之星" --download
 ```
 
-设置筛选条件:
+### 设置筛选条件
 
 ```bash
 bgmi list # 列出目前订阅的番剧
 bgmi fetch "Re:CREATORS"
-# include和exclude会忽略大小写。`720p`和`720P`的效果是相同的
 bgmi filter "Re:CREATORS" --subtitle "DHR動研字幕組,豌豆字幕组" --include 720P --exclude BIG5
 bgmi fetch "Re:CREATORS"
-# 删除subtitle，include和exclude，添加正则匹配
+# remove subtitle, include and exclude keyword filter and add regex filter
 bgmi filter "Re:CREATORS" --subtitle "" --include "" --exclude "" --regex
 bgmi filter "Re:CREATORS" --regex "(DHR動研字幕組|豌豆字幕组).*(720P)"
 bgmi fetch "Re:CREATORS"
@@ -147,7 +156,7 @@ bgmi fetch "Re:CREATORS"
 
 最后使用`bgmi fetch`来看看筛选的结果.
 
-搜索番剧并下载:
+### 搜索番剧并下载
 
 ```bash
 bgmi search '为美好的世界献上祝福！' --regex-filter '.*动漫国字幕组.*为美好的世界献上祝福！].*720P.*'
@@ -164,14 +173,17 @@ bgmi search 海贼王 --min-episode 800 --max-episode 820 --download
 
 `bgmi search`命令默认不会显示重复的集数, 如果要显示重复的集数来方便过滤, 在命令后加上`--dupe`来显示全部的搜索结果
 
-手动修改最近下载的剧集
+### 手动修改最近下载的剧集
 
 ```bash
 bgmi list
 bgmi mark "Re:CREATORS" 1
 ```
 
-查看`BGmi`的设置并且修改对应设置:
+**这会告诉bgmi不要下载小于或等于第1集的集数**
+
+
+### 查看`BGmi`的设置并且修改对应设置
 
 ```bash
 bgmi config # 查看当前各项设置默认值.
