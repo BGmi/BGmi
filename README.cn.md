@@ -133,7 +133,7 @@ bgmi delete --name "Re:CREATORS"
 
 ### 更新番剧列表并且下载番剧
 
-更新新番数据库 (默认位于 \~/.bgmi/bangumi.db)
+更新新番数据库 (默认位于 `~/.bgmi/bangumi.db`)
 
 ```bash
 bgmi update --download
