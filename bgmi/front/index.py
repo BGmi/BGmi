@@ -29,9 +29,9 @@ def get_player(bangumi_name: str) -> Dict[int, Dict[str, str]]:
         else:
             episode = -1
 
-        sorted_files = sorted(files,
-                              key=lambda f: os.path.getsize(os.path.join(root, f)),
-                              reverse=True)
+        sorted_files = sorted(
+            files, key=lambda f: os.path.getsize(os.path.join(root, f)), reverse=True
+        )
 
         for bangumi in sorted_files:
             if any(bangumi.lower().endswith(x) for x in [".mp4", ".mkv", ".webm"]):
