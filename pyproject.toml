@@ -126,6 +126,7 @@ disallow_untyped_defs = false
 [tool.pylint.messages_control]
 extension-pkg-whitelist = ['pydantic']
 disable = [
+  "cell-var-from-loop",
   "missing-function-docstring",
   "missing-class-docstring",
   "missing-module-docstring",
