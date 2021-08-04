@@ -20,7 +20,7 @@ jobs:
       - name: Generate Changlog
         run: |
           docker run -v "$PWD":/workdir quay.io/git-chglog/git-chglog:latest \
-            --template .chglog/unreleased.tpl.md > chglog.md
+            --template .chglog/unreleased.tpl.md | sed 's/\/\/github.com\//\/\/togithub.com\//g' > chglog.md
 
       - name: Update GitHub Issue
         run: gh issue edit 297 --body-file chglog.md
