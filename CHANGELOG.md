@@ -1,5 +1,23 @@
 # Changelog
 
+
+## [2.2.3](https://github.com/BGmi/BGmi/compare/2.2.2...2.2.3) - 2021-09-21
+
+### Bug Fixes
+
+- confusing when episode have multiple video files ([#300](https://github.com/BGmi/BGmi/issues/300))
+- **filter**: invalid regex won't disable global filter ([#295](https://github.com/BGmi/BGmi/issues/295))
+
+### Code Refactoring
+
+- remove deprecated `xunlei-lixian` ([#288](https://github.com/BGmi/BGmi/issues/288))
+- **downloader**: `check_deps` when switch download delegate ([#291](https://github.com/BGmi/BGmi/issues/291))
+
+### BREAKING CHANGE
+
+`xunlei-lixian` and its relative configurations will be removed.
+Python 3.6 is removed.
+
 ## [2.2.2](https://github.com/BGmi/BGmi/compare/2.2.1...2.2.2) - 2021-07-07
 
 ### Bug Fixes
