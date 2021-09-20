@@ -23,10 +23,10 @@ def exec_sql(sql: str, db: str = DB_PATH) -> None:
 def update_database() -> None:
     if not os.path.exists(OLD):
         v = "0"
-        with open(OLD, "w") as f:
+        with open(OLD, "w", encoding="utf8") as f:
             f.write(__version__)
     else:
-        with open(OLD, "r+") as f:
+        with open(OLD, "r+", encoding="utf8") as f:
             v = f.read()
             f.seek(0)
             f.write(__version__)

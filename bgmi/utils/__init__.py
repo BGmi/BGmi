@@ -257,7 +257,7 @@ def check_update(mark: bool = True) -> None:
                 "https://pypi.python.org/pypi/bgmi/json", verify=False
             ).json()["info"]["version"]
 
-            with open(os.path.join(BGMI_PATH, "latest"), "w") as f:
+            with open(os.path.join(BGMI_PATH, "latest"), "w", encoding="utf8") as f:
                 f.write(version)
 
             if version > __version__:
@@ -295,11 +295,11 @@ def check_update(mark: bool = True) -> None:
             f.write(str(int(time.time())))
         update()
 
-    with open(version_file) as f:
+    with open(version_file, encoding="utf8") as f:
         try:
             data = int(f.read())
             if time.time() - 7 * 24 * 3600 > data:
-                with open(version_file, "w") as f:
+                with open(version_file, "w", encoding="utf8") as f:
                     f.write(str(int(time.time())))
                 update()
         except ValueError:
@@ -536,7 +536,9 @@ def get_web_admin(method: str) -> None:
             os.path.join(FRONT_STATIC_PATH, "package", "dist", file),
             os.path.join(FRONT_STATIC_PATH, file),
         )
-    with open(os.path.join(FRONT_STATIC_PATH, "package.json"), "w+") as pkg:
+    with open(
+        os.path.join(FRONT_STATIC_PATH, "package.json"), "w+", encoding="utf8"
+    ) as pkg:
         pkg.write(json.dumps(version))
     print_success(
         "Web admin page {} successfully. version: {}".format(method, version["version"])

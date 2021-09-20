@@ -331,7 +331,7 @@ def complete(ret: Any) -> None:
         print(f"unsupported shell {current_shell}", file=sys.stderr)
         return
 
-    with open(template_file_path) as template_file:
+    with open(template_file_path, encoding="utf8") as template_file:
         shell_template = template.Template(template_file.read(), autoescape="")
 
     template_with_content = shell_template.generate(

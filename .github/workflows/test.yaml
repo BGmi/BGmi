@@ -32,10 +32,10 @@ defaults:
 
 jobs:
   test:
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ${{ format('{0}-latest', matrix.os) }}
     strategy:
       matrix:
-        python: ["3.6", "3.9"]
+        python: ["3.7", "3.9"]
         os: [macos, windows, ubuntu]
     steps:
       - uses: actions/checkout@v2
