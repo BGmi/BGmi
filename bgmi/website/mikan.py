@@ -86,7 +86,7 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
 
     for subtitle_id, container in episode_container_list.items():
         _container = container
-        if subtitle_id in expand_subtitle_map.keys():
+        if subtitle_id in expand_subtitle_map:
             expand_r = requests.get(
                 bangumi_episode_expand_api,
                 params={

@@ -50,7 +50,7 @@ def create_dir() -> None:
         OLD = os.path.join(BGMI_PATH, "old")
         # create OLD if not exist oninstall
         if not os.path.exists(OLD):
-            with open(OLD, "w") as f:
+            with open(OLD, "w", encoding="utf8") as f:
                 f.write(__version__)
     except OSError as e:
         print_error(f"Error: {str(e)}")

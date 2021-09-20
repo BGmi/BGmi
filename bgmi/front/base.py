@@ -45,7 +45,7 @@ class BaseHandler(tornado.web.RequestHandler):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         if self.latest_version is None:
             if os.path.exists(os.path.join(BGMI_PATH, "latest")):
-                with open(os.path.join(BGMI_PATH, "latest")) as f:
+                with open(os.path.join(BGMI_PATH, "latest"), encoding="utf8") as f:
                     self.latest_version = f.read().strip()
 
         runner = ScriptRunner()

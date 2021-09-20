@@ -273,7 +273,9 @@ def check_update(mark: bool = True) -> None:
             package_json = requests.get(PACKAGE_JSON_URL).json()
             admin_version = package_json["version"]
             if glob.glob(os.path.join(FRONT_STATIC_PATH, "package.json")):
-                with open(os.path.join(FRONT_STATIC_PATH, "package.json")) as f:
+                with open(
+                    os.path.join(FRONT_STATIC_PATH, "package.json"), encoding="utf8"
+                ) as f:
                     local_version = json.loads(f.read())["version"]
                 if [int(x) for x in admin_version.split(".")] > [
                     int(x) for x in local_version.split(".")
@@ -291,7 +293,7 @@ def check_update(mark: bool = True) -> None:
 
     version_file = os.path.join(BGMI_PATH, "version")
     if not os.path.exists(version_file):
-        with open(version_file, "w") as f:
+        with open(version_file, "w", encoding="utf8") as f:
             f.write(str(int(time.time())))
         update()
 
