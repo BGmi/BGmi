@@ -253,9 +253,8 @@ def check_update(mark: bool = True) -> None:
     def update() -> None:
         try:
             print_info("Checking update ...")
-            version = requests.get(
-                "https://pypi.python.org/pypi/bgmi/json", verify=False
-            ).json()["info"]["version"]
+            pypi = requests.get("https://pypi.org/pypi/bgmi/json").json()
+            version = pypi["info"]["version"]
 
             with open(os.path.join(BGMI_PATH, "latest"), "w", encoding="utf8") as f:
                 f.write(version)
