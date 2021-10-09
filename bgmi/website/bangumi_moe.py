@@ -42,9 +42,20 @@ def get_response(url, method="GET", **kwargs):
     raise ValueError
 
 
+_AVAILABLE_LANG = ("zh_cn", "zh_tw", "en", "ja")
+
+
 def process_name(data):
-    lang = "zh_cn" if LANG not in ("zh_cn", "zh_tw", "ja", "en") else LANG
-    return {i["_id"]: i["locale"][lang] for i in data}
+    if LANG in _AVAILABLE_LANG:
+        lang = LANG
+    else:
+        lang = "zh_cn"
+
+    return {
+        i["_id"]: i["locale"].get(lang)
+        or next(i["locale"].get(x) for x in _AVAILABLE_LANG)
+        for i in data
+    }
 
 
 def process_subtitle(data):
