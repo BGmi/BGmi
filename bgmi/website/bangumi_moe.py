@@ -42,7 +42,7 @@ def get_response(url, method="GET", **kwargs):
     raise ValueError
 
 
-_AVAILABLE_LANG = {"zh_cn", "zh_tw", "ja", "en"}
+_AVAILABLE_LANG = ("zh_cn", "zh_tw", "en", "ja")
 
 
 def process_name(data):
