@@ -646,7 +646,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
 
 [[package]]
 name = "qbittorrent-api"
-version = "2021.8.23"
+version = "2022.1.27"
 description = "Python client for qBittorrent v4.1+ Web API"
 category = "main"
 optional = false
@@ -887,7 +887,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "ae8721ca2e75536aab03b3b73fd1482c7731df5bb0c56bc80513da031c9d8141"
+content-hash = "9434fb2ebe76898292b4e03535dc27f798a0b986ec2bea9d2564a793c924172b"
 
 [metadata.files]
 appdirs = [
@@ -1250,8 +1250,8 @@ pyyaml = [
     {file = "PyYAML-5.4.1.tar.gz", hash = "sha256:607774cbba28732bfa802b54baa7484215f530991055bb562efbed5b2f20a45e"},
 ]
 qbittorrent-api = [
-    {file = "qbittorrent-api-2021.8.23.tar.gz", hash = "sha256:596ad4ee47e0a9f2be8af17fba62caf2ee666b41f256b26155aca0487e10df11"},
-    {file = "qbittorrent_api-2021.8.23-py3-none-any.whl", hash = "sha256:470f9deb539853f952707372ad840306c88b65c4ae761a7566500018e863fc94"},
+    {file = "qbittorrent-api-2022.1.27.tar.gz", hash = "sha256:8c0cda361a1b7bed0c4e5e42c2a6e9eb6911701d82c738dd8cab4b785ab15d03"},
+    {file = "qbittorrent_api-2022.1.27-py3-none-any.whl", hash = "sha256:c8b9c1badea9b63a123432bd536f0c7896410c1a3a82d086dfaa587c08249ebf"},
 ]
 regex = [
     {file = "regex-2021.10.8-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:981c786293a3115bc14c103086ae54e5ee50ca57f4c02ce7cf1b60318d1e8072"},
