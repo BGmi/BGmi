@@ -97,7 +97,7 @@ indicator_map = {
 NPM_REGISTER_DOMAIN = (
     "registry.npmjs.com"
     if os.environ.get("TRAVIS_CI", False)
-    else "registry.npm.taobao.org"
+    else "registry.cnpmjs.org"
 )
 FRONTEND_NPM_URL = f"https://{NPM_REGISTER_DOMAIN}/bgmi-frontend/"
 PACKAGE_JSON_URL = "https://{}/bgmi-frontend/{}".format(
