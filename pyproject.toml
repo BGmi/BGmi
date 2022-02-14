@@ -76,7 +76,7 @@ flake8-2020 = "==1.6.1"
 flake8-pytest-style = "==1.6.0"
 pylint = "==2.12.2"
 # stubs
-types-requests = "==2.27.8"
+types-requests = "==2.27.9"
 
 [tool.coverage.report]
 exclude_lines = [
