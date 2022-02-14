@@ -46,6 +46,8 @@ jobs:
           coverage run -a -m bgmi.main install
           coverage run -a tests/downloader/setup.py
           coverage run -a -m pytest tests/downloader -s
-      - uses: codecov/codecov-action@v1
+
+      - run: coverage xml
+      - uses: codecov/codecov-action@v2
         with:
           flags: downloader

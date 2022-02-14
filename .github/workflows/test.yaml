@@ -59,6 +59,7 @@ jobs:
             --cache-requests --reruns=2 --reruns-delay=1 --maxfail=2\
             --ignore=tests/downloader
 
-      - uses: codecov/codecov-action@v1
+      - run: coverage xml
+      - uses: codecov/codecov-action@v2
         with:
           flags: app,front
