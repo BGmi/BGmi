@@ -1,5 +1,6 @@
 import xmlrpc.client
 from typing import cast
+from urllib.parse import quote
 
 from bgmi import config
 from bgmi.plugin.download import BaseDownloadService, DownloadStatus
@@ -40,7 +41,7 @@ class Aria2DownloadRPC(BaseDownloadService):
 
     def check_aria2c_version(self):
         url = config.ARIA2_RPC_URL.split("/")
-        url[2] = config.ARIA2_RPC_TOKEN + "@" + url[2]
+        url[2] = quote(config.ARIA2_RPC_TOKEN) + "@" + url[2]
         url = "/".join(url)
         s = xmlrpc.client.ServerProxy(url)
         r = s.aria2.getVersion(config.ARIA2_RPC_TOKEN)
