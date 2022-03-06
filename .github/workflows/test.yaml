@@ -59,7 +59,7 @@ jobs:
             --cache-requests --reruns=2 --reruns-delay=1 --maxfail=2\
             --ignore=tests/downloader
 
-      - run: coverage xml
+      - run: coverage xml --omit templates/download_xml.generated.py
       - uses: codecov/codecov-action@v2
         with:
           flags: app,front
