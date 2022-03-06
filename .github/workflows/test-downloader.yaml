@@ -40,6 +40,8 @@ jobs:
       - uses: Trim21/install-poetry-project@dist/v1
       - name: start daemon
         run: docker-compose -f tests/downloader/docker-compose.yaml up -d
+      - run: sleep 10
+        name: wait container ready
       - name: test
         run: |
           set -ex

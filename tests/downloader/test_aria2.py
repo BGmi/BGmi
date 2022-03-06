@@ -14,6 +14,7 @@ def test_use_config():
         m1.assert_has_calls(
             [
                 mock.call("https://uuu"),
-                mock.call("https://token:t@uuu"),
+                mock.call("https://uuu"),
+                mock.call().aria2.getVersion("token:t"),
             ]
         )
