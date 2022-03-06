@@ -94,11 +94,7 @@ indicator_map = {
     "print_error": "[x] ",
 }
 
-NPM_REGISTER_DOMAIN = (
-    "registry.npmjs.com"
-    if os.environ.get("TRAVIS_CI", False)
-    else "registry.cnpmjs.org"
-)
+NPM_REGISTER_DOMAIN = "registry.npmjs.com"
 FRONTEND_NPM_URL = f"https://{NPM_REGISTER_DOMAIN}/bgmi-frontend/"
 PACKAGE_JSON_URL = "https://{}/bgmi-frontend/{}".format(
     NPM_REGISTER_DOMAIN, __admin_version__
