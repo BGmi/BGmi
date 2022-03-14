@@ -38,7 +38,7 @@ jobs:
         python: ["3.7", "3.10"]
         os: [macos, windows, ubuntu]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 2
 
