@@ -38,7 +38,7 @@ def make_app() -> tornado.web.Application:
         (r"^/resource/feed.xml$", RssHandler),
         (r"^/resource/calendar.ics$", CalendarHandler),
         (r"^/api/update", UpdateHandler),
-        (fr"^/api/(?P<action>{api_actions})", AdminApiHandler),
+        (rf"^/api/(?P<action>{api_actions})", AdminApiHandler),
     ]
 
     if TORNADO_SERVE_STATIC_FILES != "0":
