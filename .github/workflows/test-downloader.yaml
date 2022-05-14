@@ -50,6 +50,6 @@ jobs:
           coverage run -a -m pytest tests/downloader -s
 
       - run: coverage xml
-      - uses: codecov/codecov-action@v2
+      - uses: codecov/codecov-action@v3
         with:
           flags: downloader

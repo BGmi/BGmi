@@ -60,6 +60,6 @@ jobs:
             --ignore=tests/downloader
 
       - run: coverage xml --omit templates/download_xml.generated.py
-      - uses: codecov/codecov-action@v2
+      - uses: codecov/codecov-action@v3
         with:
           flags: app,front
