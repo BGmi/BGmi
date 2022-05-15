@@ -6,7 +6,7 @@ repos:
       - id: find-trailing-comma
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 8fe62d14e0b4d7d845a7022c5c2c3ae41bdd3f26  # frozen: v4.1.0
+    rev: db7346d375eda68a0174f2c057dd97f2fbffe030  # frozen: v4.2.0
     hooks:
       - id: check-merge-conflict
         exclude: \.rst$
@@ -31,7 +31,7 @@ repos:
         args: [--remove]
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: 0b37fd8e3b95981ff3d04b1351d2252a540e0cfc  # frozen: v2.31.1
+    rev: 4d35c00c9ff5a51a853a89137db5fdd2bdf0ca95  # frozen: v2.32.1
     hooks:
       - id: pyupgrade
         args: [--py37-plus]
@@ -52,6 +52,6 @@ repos:
       - id: isort
 
   - repo: https://github.com/psf/black
-    rev: fc0be6eb1e2a96091e6f64009ee5e9081bf8b6c6  # frozen: 22.1.0
+    rev: ae2c0758c9e61a385df9700dc9c231bf54887041  # frozen: 22.3.0
     hooks:
       - id: black
