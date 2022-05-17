@@ -42,7 +42,7 @@ bgmi_http = 'bgmi.front.server:main'
 
 [tool.poetry.dependencies]
 python = "^3.7"
-beautifulsoup4 = '==4.10.0'
+beautifulsoup4 = '==4.11.1'
 requests = '==2.27.1'
 tornado = '==6.1'
 icalendar = '==4.0.9'
@@ -53,7 +53,7 @@ pydantic = "==1.9.0"
 stevedore = "==3.5.0"
 # RPC library
 transmission-rpc = "3.3.0"
-qbittorrent-api = "==2022.2.28"
+qbittorrent-api = "==2022.4.30"
 
 [tool.poetry.dev-dependencies]
 black = "==22.3.0"
