@@ -1,6 +1,7 @@
 import os
 import re
 import time as Time
+import urllib.parse
 from typing import List
 
 import requests
@@ -34,6 +35,8 @@ def fetch_url(url, **kwargs):
 def parse_bangumi_with_week_days(
     content, update_time, array_name
 ) -> List[WebsiteBangumi]:
+    content = re.sub("'\\+encodeURIComponent\\('(.*?)'\\)\\+'", "\\1", content)
+    content = re.sub("encodeURIComponent\\('(.*?)'\\)", "'URLE#\\1'", content)
     r = re.compile(
         array_name + "\\.push\\(\\['(.*?)','(.*?)','(.*?)','(.*?)','(.*?)'\\]\\)"
     )
@@ -43,6 +46,8 @@ def parse_bangumi_with_week_days(
 
     for bangumi_row in ret:
         (cover_url, name, keyword, subtitle_raw, _) = bangumi_row
+        if keyword.startswith("URLE#"):
+            keyword = urllib.parse.quote(keyword[5:])
         bangumi = WebsiteBangumi(keyword=keyword)
         cover = re.findall("(/images/.*)$", cover_url)[0]
 
