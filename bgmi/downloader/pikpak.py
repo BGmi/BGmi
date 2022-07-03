@@ -5,7 +5,7 @@ from bgmi import config
 from bgmi.plugin.download import BaseDownloadService, DownloadStatus
 
 
-class QBittorrentWebAPI(BaseDownloadService):
+class PikPak(BaseDownloadService):
     def __init__(self):
         self.client = PikPakAPI(
             username=config.PIKPAK_USERNAME,
