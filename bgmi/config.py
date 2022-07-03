@@ -21,6 +21,12 @@ __qbittorrent__ = (
     "QBITTORRENT_PASSWORD",
     "QBITTORRENT_CATEGORY",
 )
+
+__pikpak__ = (
+    "PIKPAK_USERNAME",
+    "PIKPAK_PASSWORD",
+)
+
 __aria2__ = (
     "ARIA2_RPC_URL",
     "ARIA2_RPC_TOKEN",
@@ -293,6 +299,10 @@ QBITTORRENT_PORT = "8080"
 QBITTORRENT_USERNAME = "admin"
 QBITTORRENT_PASSWORD = "adminadmin"
 QBITTORRENT_CATEGORY = ""
+
+# pikpak api
+PIKPAK_USERNAME = "your_username"
+PIKPAK_PASSWORD = "your_password"
 
 # tag of bangumi on bangumi.moe
 BANGUMI_TAG = "549ef207fe682f7549f1ea90"

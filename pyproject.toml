@@ -54,6 +54,7 @@ stevedore = "==3.5.0"
 # RPC library
 transmission-rpc = "3.3.0"
 qbittorrent-api = "==2022.4.30"
+pikpakapi = "^0.0.1"
 
 [tool.poetry.dev-dependencies]
 black = "==22.3.0"
