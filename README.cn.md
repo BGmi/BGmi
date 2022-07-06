@@ -146,6 +146,13 @@ bgmi filter "Re:CREATORS" --regex "(DHR動研字幕組|豌豆字幕组).*(720P)"
 bgmi fetch "Re:CREATORS"
 ```
 
+全局过滤：
+
+默认会过滤以下关键词 `Leopard-Raws`, `hevc`, `x265`, `c-a Raws`, `U3-Web`
+可以使用 `bgmi config ENABLE_GLOBAL_FILTER 0` 禁止过滤全局关键词，
+或者使用 `bgmi config GLOBAL_FILTER "Leopard-Raws, hevc, x265, c-a Raws, U3-Web"`
+修改全局关键词。
+
 最后使用`bgmi fetch`来看看筛选的结果.
 
 搜索番剧并下载:

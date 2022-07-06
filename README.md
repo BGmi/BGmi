@@ -170,6 +170,14 @@ bgmi filter "Re:CREATORS" --regex "(DHR動研字幕組|豌豆字幕组).*(720P)"
 bgmi fetch "Re:CREATORS"
 ```
 
+#### Global Filter (exclude)
+
+These words are pre-set as global filter (exclude keywords) `Leopard-Raws`, `hevc`, `x265`, `c-a Raws`, `U3-Web`.
+
+You can disable global filter with `bgmi config ENABLE_GLOBAL_FILTER 0`.
+
+Or change global filter with `bgmi config GLOBAL_FILTER "Leopard-Raws, hevc, x265, c-a Raws, U3-Web"`
+
 ### Search episodes
 
 ```bash
