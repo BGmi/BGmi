@@ -243,14 +243,12 @@ def cal(
     for day, value in weekly_list.items():
         for index, bangumi in enumerate(value):
             bangumi["cover"] = normalize_path(bangumi["cover"])
-            subtitle_group = list(
-                map(
-                    lambda x: {"name": x["name"], "id": x["id"]},
-                    Subtitle.get_subtitle_by_id(
-                        bangumi["subtitle_group"].split(", " "")
-                    ),
+            subtitle_group = [
+                {"name": x["name"], "id": x["id"]}
+                for x in Subtitle.get_subtitle_by_id(
+                    bangumi["subtitle_group"].split(", " "")
                 )
-            )
+            ]
 
             r[day][index]["subtitle_group"] = subtitle_group
     logger.debug(r)

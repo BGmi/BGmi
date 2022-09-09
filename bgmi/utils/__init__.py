@@ -121,7 +121,7 @@ def colorize(f):  # type: ignore
             color_map.get(func_name, ""),
             COLOR_END if color_map.get(func_name) else "",
         )
-        args = tuple(map(lambda s: b + s + e, args))
+        args = tuple(b + s + e for s in args)
         return f(*args, **kwargs)
 
     return wrapper
