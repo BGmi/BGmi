@@ -121,7 +121,7 @@ def colorize(f):  # type: ignore
             color_map.get(func_name, ""),
             COLOR_END if color_map.get(func_name) else "",
         )
-        args = tuple(map(lambda s: b + s + e, args))
+        args = tuple(b + s + e for s in args)
         return f(*args, **kwargs)
 
     return wrapper
@@ -249,7 +249,7 @@ def check_update(mark: bool = True) -> None:
     def update() -> None:
         try:
             print_info("Checking update ...")
-            pypi = requests.get("https://pypi.org/pypi/bgmi/json").json()
+            pypi = requests.get("https://pypi.org/pypi/bgmi/json", timeout=60).json()
             version = pypi["info"]["version"]
 
             with open(os.path.join(BGMI_PATH, "latest"), "w", encoding="utf8") as f:
@@ -265,7 +265,7 @@ def check_update(mark: bool = True) -> None:
             else:
                 print_success("Your BGmi is the latest version.")
 
-            package_json = requests.get(PACKAGE_JSON_URL).json()
+            package_json = requests.get(PACKAGE_JSON_URL, timeout=60).json()
             admin_version = package_json["version"]
             if glob.glob(os.path.join(FRONT_STATIC_PATH, "package.json")):
                 with open(
@@ -500,8 +500,8 @@ def get_web_admin(method: str) -> None:
     print_info(f"{method[0].upper() + method[1:]}ing BGmi frontend")
 
     try:
-        r = requests.get(FRONTEND_NPM_URL).json()
-        version = requests.get(PACKAGE_JSON_URL).json()
+        r = requests.get(FRONTEND_NPM_URL, timeout=60).json()
+        version = requests.get(PACKAGE_JSON_URL, timeout=60).json()
         if (
             "error" in version and version["reason"] == "document not found"
         ):  # pragma: no cover
@@ -511,7 +511,7 @@ def get_web_admin(method: str) -> None:
             )
             return
         tar_url = r["versions"][version["version"]]["dist"]["tarball"]
-        r = requests.get(tar_url)
+        r = requests.get(tar_url, timeout=60)
     except requests.exceptions.ConnectionError:
         print_warning("failed to download web admin")
         return
@@ -565,7 +565,7 @@ def convert_cover_url_to_path(cover_url: str) -> Tuple[str, str]:
 def download_file(url: str) -> Optional[requests.Response]:
     if url.startswith("https://") or url.startswith("http://"):
         print_info(f"Download: {url}")
-        return requests.get(url)
+        return requests.get(url, timeout=60)
     return None
 
 

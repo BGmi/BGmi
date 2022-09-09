@@ -1,4 +1,4 @@
-from importlib_metadata import version
+from importlib.metadata import version
 
 __author__ = "RicterZ"
 __email__ = "ricterzheng@gmail.com"

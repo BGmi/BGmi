@@ -28,7 +28,7 @@ def get_response(url, method="GET", **kwargs):
     if os.environ.get("DEBUG"):  # pragma: no cover
         print_info(f"Request URL: {url}")
     try:
-        r = requests.request(method.lower(), url, **kwargs)
+        r = requests.request(method.lower(), url, timeout=60, **kwargs)
         if os.environ.get("DEBUG"):  # pragma: no cover
             print(r.text)
         return r.json()
@@ -69,7 +69,7 @@ def process_subtitle(data):
 def parser_bangumi(data):
     """match weekly bangumi list from data"""
 
-    ids = list(map(lambda b: b["tag_id"], data))
+    ids = [b["tag_id"] for b in data]
     subtitle = get_response(TEAM_URL, "POST", json={"tag_ids": ids})
     name = process_name(get_response(NAME_URL, "POST", json={"_ids": ids}))
 

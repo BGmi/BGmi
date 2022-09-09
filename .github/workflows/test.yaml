@@ -35,14 +35,14 @@ jobs:
     runs-on: ${{ format('{0}-latest', matrix.os) }}
     strategy:
       matrix:
-        python: ["3.7", "3.10"]
+        python: ["3.8", "3.10"]
         os: [macos, windows, ubuntu]
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 2
 
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
 

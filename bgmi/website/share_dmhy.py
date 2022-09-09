@@ -18,7 +18,7 @@ base_url = SHARE_DMHY_URL
 def fetch_url(url, **kwargs):
     ret = None
     try:
-        ret = requests.get(url, **kwargs).text
+        ret = requests.get(url, timeout=60, **kwargs).text
     except requests.ConnectionError:
         print_error(
             f"Create connection to {SHARE_DMHY_URL}... failed",
