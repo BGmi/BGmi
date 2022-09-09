@@ -41,7 +41,7 @@ bgmi_http = 'bgmi.front.server:main'
 "qbittorrent-webapi" = 'bgmi.downloader:QBittorrentWebAPI'
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.7.2"
 beautifulsoup4 = '==4.11.1'
 requests = '==2.27.1'
 tornado = '==6.1'
