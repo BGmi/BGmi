@@ -28,7 +28,7 @@ def get_response(url, method="GET", **kwargs):
     if os.environ.get("DEBUG"):  # pragma: no cover
         print_info(f"Request URL: {url}")
     try:
-        r = requests.request(method.lower(), url, **kwargs)
+        r = requests.request(method.lower(), url, timeout=60, **kwargs)
         if os.environ.get("DEBUG"):  # pragma: no cover
             print(r.text)
         return r.json()
