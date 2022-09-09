@@ -30,7 +30,9 @@ def get_player(bangumi_name: str) -> Dict[int, Dict[str, str]]:
             episode = -1
 
         sorted_files = sorted(
-            files, key=lambda f: os.path.getsize(os.path.join(root, f)), reverse=True
+            files,
+            key=lambda f: os.path.getsize(os.path.join(root, f)),  # noqa: B023
+            reverse=True,
         )
 
         for bangumi in sorted_files:
