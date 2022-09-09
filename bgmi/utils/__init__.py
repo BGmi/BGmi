@@ -565,7 +565,7 @@ def convert_cover_url_to_path(cover_url: str) -> Tuple[str, str]:
 def download_file(url: str) -> Optional[requests.Response]:
     if url.startswith("https://") or url.startswith("http://"):
         print_info(f"Download: {url}")
-        return requests.get(url)
+        return requests.get(url, timeout=60)
     return None
 
 
