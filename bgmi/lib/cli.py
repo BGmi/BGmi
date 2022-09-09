@@ -1,11 +1,11 @@
 import datetime
+import importlib.metadata
 import itertools
 import os
 import sys
 from operator import itemgetter
 from typing import Any, Dict, List, Optional, Tuple, Type
 
-import importlib_metadata
 import stevedore
 import wcwidth
 from stevedore.exception import NoMatches
@@ -92,7 +92,7 @@ def config_wrapper(ret: Any) -> None:
             driver_cls.check_dep()
 
         except NoMatches:
-            entry_points = importlib_metadata.entry_points(
+            entry_points = importlib.metadata.entry_points(
                 group=namespace.DOWNLOAD_DELEGATE
             )
             available = ", ".join([f"'{x.name}'" for x in entry_points])

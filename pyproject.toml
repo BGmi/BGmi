@@ -45,7 +45,6 @@ beautifulsoup4 = '==4.11.1'
 requests = '==2.28.1'
 tornado = '==6.2'
 icalendar = '==4.1.0'
-importlib_metadata = ">=4.12.0"
 peewee = '==3.15.2'
 wcwidth = "^0.2.5"
 pydantic = "==1.10.2"
