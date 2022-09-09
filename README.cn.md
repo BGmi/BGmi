@@ -12,7 +12,8 @@ BGmi 是一个用来追番的命令行程序.
 
 ## 更新日志
 
-- 移除 python3.6
+- 不再支持 python3.7
+- 不再支持 python3.6
 - 支持[扩展下载方式](./docs/downloader.md)
 - 移除迅雷离线
 - 支持 [qbittorrent-webapi](https://www.qbittorrent.org/)
