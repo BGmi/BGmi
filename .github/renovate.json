@@ -13,6 +13,11 @@
   "baseBranches": ["master"],
   "rangeStrategy": "pin",
   "separateMajorMinor": true,
+  "lockFileMaintenance": {
+    "extends": [
+      "schedule:earlyMondays"
+    ]
+  },
   "packageRules": [
     {
       "groupName": "pre-commit hooks",
