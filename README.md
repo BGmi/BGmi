@@ -6,7 +6,7 @@ BGmi is a cli tool for subscribed bangumi.
 
 [![pypi](https://img.shields.io/pypi/v/bgmi.svg)](https://pypi.python.org/pypi/bgmi)
 [![download](https://pepy.tech/badge/bgmi/month)](https://pepy.tech/project/bgmi)
-[![test](https://img.shields.io/github/checks-status/BGmi/BGmi/master?label=ci)](https://github.com/BGmi/BGmi/actions?query=branch%3Amaster)
+[![test](https://github.com/BGmi/BGmi/actions/workflows/test.yaml/badge.svg)](https://github.com/BGmi/BGmi/actions/workflows/test.yaml)
 [![coverage](https://codecov.io/gh/BGmi/BGmi/branch/master/graph/badge.svg)](https://codecov.io/gh/BGmi/BGmi)
 [![license](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/BGmi/BGmi/blob/master/LICENSE)
 
