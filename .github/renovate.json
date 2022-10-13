@@ -7,6 +7,9 @@
     "github>Trim21/renovate-config:app"
   ],
   "enabledManagers": ["pre-commit", "poetry", "github-actions"],
+  "pre-commit": {
+    "enabled": true
+  },
   "baseBranches": ["master"],
   "rangeStrategy": "pin",
   "separateMajorMinor": true,
