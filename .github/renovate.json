@@ -34,7 +34,7 @@
       "matchManagers": ["poetry"],
       "matchUpdateTypes": ["minor", "patch"],
       "matchDepTypes": ["dev-dependencies"],
-      "semanticCommitScope": "deps-dev"
+      "semanticCommitScope": "dev"
     }
   ]
 }
