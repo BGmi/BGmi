@@ -14,9 +14,7 @@
   "rangeStrategy": "pin",
   "separateMajorMinor": true,
   "lockFileMaintenance": {
-    "extends": [
-      "schedule:earlyMondays"
-    ]
+    "schedule": ["before 5am on monday"]
   },
   "packageRules": [
     {
