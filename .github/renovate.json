@@ -6,40 +6,26 @@
     "github>Trim21/renovate-config:poetry",
     "github>Trim21/renovate-config:app"
   ],
-  "baseBranches": [
-    "master"
-  ],
+  "enabledManagers": ["pre-commit"],
+  "baseBranches": ["master"],
   "rangeStrategy": "pin",
   "separateMajorMinor": true,
   "packageRules": [
     {
-      "matchPackageNames": [
-        "wcwidth"
-      ],
+      "matchPackageNames": ["wcwidth"],
       "rangeStrategy": "bump"
     },
     {
       "groupName": "deps-prod",
-      "matchManagers": [
-        "poetry"
-      ],
-      "matchDepTypes": [
-        "dependencies"
-      ],
+      "matchManagers": ["poetry"],
+      "matchDepTypes": ["dependencies"],
       "semanticCommitScope": "deps"
     },
     {
       "groupName": "deps-dev",
-      "matchManagers": [
-        "poetry"
-      ],
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
-      "matchDepTypes": [
-        "dev-dependencies"
-      ],
+      "matchManagers": ["poetry"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchDepTypes": ["dev-dependencies"],
       "semanticCommitScope": "deps-dev"
     }
   ]
