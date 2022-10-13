@@ -1,9 +1,4 @@
 repos:
-  - repo: https://github.com/trim21/pre-commit-hooks
-    rev: 2cd566d7d05582364aaa111f4522efd33857346c  # frozen: v0.5.1
-    hooks:
-      - id: find-trailing-comma
-
   - repo: https://github.com/python-poetry/poetry
     rev: '1.2.2'
     hooks:
