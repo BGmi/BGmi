@@ -15,6 +15,12 @@
   "separateMajorMinor": true,
   "packageRules": [
     {
+      "groupName": "pre-commit hooks",
+      "matchManagers": ["pre-commit"],
+      "semanticCommitType": "style",
+      "semanticCommitScope": "pre-commit"
+    },
+    {
       "matchPackageNames": ["wcwidth"],
       "rangeStrategy": "bump"
     },
