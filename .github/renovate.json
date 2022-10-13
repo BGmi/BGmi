@@ -17,7 +17,8 @@
     {
       "groupName": "pre-commit hooks",
       "matchManagers": ["pre-commit"],
-      "semanticCommitType": "style"
+      "semanticCommitType": "style",
+      "semanticCommitScope": ""
     },
     {
       "matchPackageNames": ["wcwidth"],
