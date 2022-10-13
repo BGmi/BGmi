@@ -1,0 +1,46 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>Trim21/renovate-config",
+    "github>Trim21/renovate-config:monthly",
+    "github>Trim21/renovate-config:poetry",
+    "github>Trim21/renovate-config:app"
+  ],
+  "baseBranches": [
+    "master"
+  ],
+  "rangeStrategy": "pin",
+  "separateMajorMinor": true,
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "wcwidth"
+      ],
+      "rangeStrategy": "bump"
+    },
+    {
+      "groupName": "deps-prod",
+      "matchManagers": [
+        "poetry"
+      ],
+      "matchDepTypes": [
+        "dependencies"
+      ],
+      "semanticCommitScope": "deps"
+    },
+    {
+      "groupName": "deps-dev",
+      "matchManagers": [
+        "poetry"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "matchDepTypes": [
+        "dev-dependencies"
+      ],
+      "semanticCommitScope": "deps-dev"
+    }
+  ]
+}
