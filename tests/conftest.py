@@ -1,7 +1,6 @@
 import asyncio
 import os.path
 import shutil
-import sys
 import tempfile
 from unittest import mock
 
@@ -32,8 +31,7 @@ def pytest_sessionstart(session):
     ensure_example_script()
     urllib3.disable_warnings()
     if IS_WINDOWS:
-        if sys.version_info >= (3, 8):
-            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 def ensure_example_script():

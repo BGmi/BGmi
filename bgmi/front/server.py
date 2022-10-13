@@ -1,5 +1,4 @@
 import asyncio
-import sys
 from itertools import chain
 from typing import Any, List
 
@@ -65,8 +64,7 @@ def make_app() -> tornado.web.Application:
 
 def main() -> None:
     if IS_WINDOWS:
-        if sys.version_info >= (3, 8):
-            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
     tornado.options.parse_command_line()
     print(f"BGmi HTTP Server listening on {options.address}:{options.port:d}")
