@@ -45,12 +45,12 @@ beautifulsoup4 = '==4.11.1'
 requests = '==2.28.1'
 tornado = '==6.2'
 icalendar = '==4.1.0'
-peewee = '==3.15.2'
+peewee = '==3.15.3'
 wcwidth = "^0.2.5"
 pydantic = "==1.10.2"
-stevedore = "==4.0.0"
+stevedore = "==4.0.1"
 # RPC library
-transmission-rpc = "==3.3.2"
+transmission-rpc = "==3.4.0"
 qbittorrent-api = "==2022.8.38"
 
 [tool.poetry.dev-dependencies]

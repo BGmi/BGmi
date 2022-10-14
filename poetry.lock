@@ -437,7 +437,7 @@ python-versions = ">=2.6"
 
 [[package]]
 name = "peewee"
-version = "3.15.2"
+version = "3.15.3"
 description = "a little orm"
 category = "main"
 optional = false
@@ -720,7 +720,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "stevedore"
-version = "4.0.0"
+version = "4.0.1"
 description = "Manage dynamic plugins for Python applications"
 category = "main"
 optional = false
@@ -763,11 +763,11 @@ python-versions = ">= 3.7"
 
 [[package]]
 name = "transmission-rpc"
-version = "3.3.2"
+version = "3.4.0"
 description = "Python module that implements the Transmission bittorent client JSON-RPC protocol"
 category = "main"
 optional = false
-python-versions = ">=3.7,<4.0"
+python-versions = ">=3.7.2,<4.0.0"
 
 [package.dependencies]
 requests = ">=2.23.0,<3.0.0"
@@ -863,7 +863,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8.0"
-content-hash = "e2b7bb10152bf4ba0580ad856463a9f857973e18a9cd7546a023152083b46cc2"
+content-hash = "799c54d32deaa28972450ca856ef7d3d5af5b8878fe8280bc9e383b84493d747"
 
 [metadata.files]
 appdirs = [
@@ -1147,7 +1147,7 @@ pbr = [
     {file = "pbr-5.10.0.tar.gz", hash = "sha256:cfcc4ff8e698256fc17ea3ff796478b050852585aa5bae79ecd05b2ab7b39b9a"},
 ]
 peewee = [
-    {file = "peewee-3.15.2.tar.gz", hash = "sha256:94d8eb7fc2b8d97d6216382bf5961239645dc9e2473b0e732eb6c79c920c4768"},
+    {file = "peewee-3.15.3.tar.gz", hash = "sha256:cc934286d0c0842203abe66a3c6583d1463371e633b03d6da054d0f74e70706f"},
 ]
 platformdirs = [
     {file = "platformdirs-2.5.2-py3-none-any.whl", hash = "sha256:027d8e83a2d7de06bbac4e5ef7e023c02b863d7ea5d079477e722bb41ab25788"},
@@ -1306,8 +1306,8 @@ soupsieve = [
     {file = "soupsieve-2.3.2.post1.tar.gz", hash = "sha256:fc53893b3da2c33de295667a0e19f078c14bf86544af307354de5fcf12a3f30d"},
 ]
 stevedore = [
-    {file = "stevedore-4.0.0-py3-none-any.whl", hash = "sha256:87e4d27fe96d0d7e4fc24f0cbe3463baae4ec51e81d95fbe60d2474636e0c7d8"},
-    {file = "stevedore-4.0.0.tar.gz", hash = "sha256:f82cc99a1ff552310d19c379827c2c64dd9f85a38bcd5559db2470161867b786"},
+    {file = "stevedore-4.0.1-py3-none-any.whl", hash = "sha256:01645addb67beff04c7cfcbb0a6af8327d2efc3380b0f034aa316d4576c4d470"},
+    {file = "stevedore-4.0.1.tar.gz", hash = "sha256:9a23111a6e612270c591fd31ff3321c6b5f3d5f3dabb1427317a5ab608fc261a"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
@@ -1335,8 +1335,8 @@ tornado = [
     {file = "tornado-6.2.tar.gz", hash = "sha256:9b630419bde84ec666bfd7ea0a4cb2a8a651c2d5cccdbdd1972a0c859dfc3c13"},
 ]
 transmission-rpc = [
-    {file = "transmission-rpc-3.3.2.tar.gz", hash = "sha256:288500a3d9663786110476245824d94e0731ff6ea20eec582892e95ca304ba0e"},
-    {file = "transmission_rpc-3.3.2-py3-none-any.whl", hash = "sha256:600aeaf1470749bfb64d78f25fc541a05972eeb124a6c2c654f1303ff653f975"},
+    {file = "transmission-rpc-3.4.0.tar.gz", hash = "sha256:1f1d8d1bda148955a03f759d121059b2cb8c5d288b892c34f7982b5e9df591dc"},
+    {file = "transmission_rpc-3.4.0-py3-none-any.whl", hash = "sha256:777016b0a8031aafc070706e9ee78176c23b38b6ffe784fc3ce7cbfa0bb50b6e"},
 ]
 types-requests = [
     {file = "types-requests-2.28.11.2.tar.gz", hash = "sha256:fdcd7bd148139fb8eef72cf4a41ac7273872cad9e6ada14b11ff5dfdeee60ed3"},
