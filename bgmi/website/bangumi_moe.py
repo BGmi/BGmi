@@ -1,7 +1,7 @@
 import datetime
 import os
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, TypedDict
 
 import requests
 
@@ -66,7 +66,14 @@ def process_subtitle(data):
     return result
 
 
-def parser_bangumi(data):
+class BangumiData(TypedDict):
+    tag_id: str
+    cover: str
+    showOn: int
+    name: str
+
+
+def parser_bangumi(data: List[BangumiData]):
     """match weekly bangumi list from data"""
 
     ids = [b["tag_id"] for b in data]
