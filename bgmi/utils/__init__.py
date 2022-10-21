@@ -92,9 +92,8 @@ indicator_map = {
     "print_error": "[x] ",
 }
 
-NPM_REGISTER_DOMAIN = "registry.npmjs.com"
-FRONTEND_NPM_URL = f"https://{NPM_REGISTER_DOMAIN}/bgmi-frontend/"
-PACKAGE_JSON_URL = f"https://{NPM_REGISTER_DOMAIN}/bgmi-frontend/{__admin_version__}"
+FRONTEND_NPM_URL = f"https://registry.npmjs.com/bgmi-frontend/"
+PACKAGE_JSON_URL = f"https://registry.npmjs.com/bgmi-frontend/{__admin_version__}"
 
 
 def _indicator(f):  # type: ignore
