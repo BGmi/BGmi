@@ -484,10 +484,9 @@ def get_web_admin(method: str) -> None:
     try:
         r = requests.get(FRONTEND_NPM_URL, timeout=60).json()
         version = requests.get(PACKAGE_JSON_URL, timeout=60).json()
-        if "error" in version and version["reason"] == "document not found":  # pragma: no cover
-            print_error(
-                "Cnpm has not synchronized the latest version of BGmi-frontend from " "npm, please try it later"
-            )
+        if "error" in version:  # pragma: no cover
+            print(json.dumps(version, indent=2, ensure_ascii=False))
+            print_error("unexpected npm error")
             return
         tar_url = r["versions"][version["version"]]["dist"]["tarball"]
         r = requests.get(tar_url, timeout=60)
