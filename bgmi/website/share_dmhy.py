@@ -25,7 +25,7 @@ def fetch_url(url, **kwargs):
             exit_=False,
         )
         print_error(
-            "Check internet connection or try to set a DMHY mirror site via: " "bgmi config SHARE_DMHY_URL <site url>"
+            "Check internet connection or try to set a DMHY mirror site via: bgmi config SHARE_DMHY_URL <site url>"
         )
 
     return ret

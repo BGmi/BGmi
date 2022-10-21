@@ -120,6 +120,9 @@ disallow_untyped_defs = false
 
 [tool.pylint]
 
+[tool.pylint.format]
+max-line-length = 120
+
 [tool.pylint.messages_control]
 extension-pkg-whitelist = ['pydantic']
 disable = [

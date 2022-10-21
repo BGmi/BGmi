@@ -92,7 +92,7 @@ indicator_map = {
     "print_error": "[x] ",
 }
 
-FRONTEND_NPM_URL = f"https://registry.npmjs.com/bgmi-frontend/"
+FRONTEND_NPM_URL = "https://registry.npmjs.com/bgmi-frontend/"
 PACKAGE_JSON_URL = f"https://registry.npmjs.com/bgmi-frontend/{__admin_version__}"
 
 

@@ -339,7 +339,7 @@ def source(data_source: str) -> ControllerResult:
 
 def config(name: Optional[str] = None, value: Optional[str] = None) -> ControllerResult:
     if name == "DATA_SOURCE":
-        error_message = "you can't change data source in this way. " "please use `bgmi source ${data source}` in cli"
+        error_message = "you can't change data source in this way. please use `bgmi source ${data source}` in cli"
         result = {
             "status": "error",
             "message": error_message,
