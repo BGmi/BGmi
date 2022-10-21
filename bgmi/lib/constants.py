@@ -95,9 +95,7 @@ actions_and_arguments = [
         "arguments": [
             {
                 "dest": "name",
-                "kwargs": dict(
-                    metavar="name", type=str, nargs="+", help="Bangumi name"
-                ),
+                "kwargs": dict(metavar="name", type=str, nargs="+", help="Bangumi name"),
             },
             {
                 "dest": "--episode",
@@ -133,8 +131,7 @@ actions_and_arguments = [
                 "dest": "--clear-all",
                 "kwargs": dict(
                     action="store_true",
-                    help="Clear all the subscriptions, name will be ignored If you "
-                    "provide this flag.",
+                    help="Clear all the subscriptions, name will be ignored If you " "provide this flag.",
                 ),
             },
             {
@@ -150,9 +147,7 @@ actions_and_arguments = [
         "arguments": [
             {
                 "dest": "name",
-                "kwargs": dict(
-                    metavar="name", type=str, help="Bangumi name to set the filter."
-                ),
+                "kwargs": dict(metavar="name", type=str, help="Bangumi name to set the filter."),
             },
             {
                 "dest": "--subtitle",
@@ -180,9 +175,7 @@ actions_and_arguments = [
             },
             {
                 "dest": "--regex",
-                "kwargs": dict(
-                    metavar="regex", type=str, help="Filter by regular expression"
-                ),
+                "kwargs": dict(metavar="regex", type=str, help="Filter by regular expression"),
             },
         ],
     },
@@ -224,9 +217,7 @@ actions_and_arguments = [
         "arguments": [
             {
                 "dest": "--today",
-                "kwargs": dict(
-                    action="store_true", help="Show bangumi calendar for today."
-                ),
+                "kwargs": dict(action="store_true", help="Show bangumi calendar for today."),
             },
             {
                 "dest": ["-f", "--force-update"],
@@ -285,16 +276,13 @@ actions_and_arguments = [
             },
             {
                 "dest": "--mark",
-                "kwargs": dict(
-                    help="Mark download status with a specific id.", dest="id", type=int
-                ),
+                "kwargs": dict(help="Mark download status with a specific id.", dest="id", type=int),
             },
             {
                 "dest": "--status",
                 "kwargs": dict(
                     type=int,
-                    help="Download items status (0: not download, 1: "
-                    "downloading, 2: already downloaded).",
+                    help="Download items status (0: not download, 1: " "downloading, 2: already downloaded).",
                     choices=[0, 1, 2],
                 ),
             },
@@ -377,9 +365,7 @@ actions_and_arguments = [
             },
             {
                 "dest": "--server-name",
-                "kwargs": dict(
-                    metavar="server_name", help="server name", type=str, required=True
-                ),
+                "kwargs": dict(metavar="server_name", help="server name", type=str, required=True),
             },
         ],
     },

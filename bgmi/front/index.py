@@ -38,9 +38,7 @@ def get_player(bangumi_name: str) -> Dict[int, Dict[str, str]]:
         for bangumi in sorted_files:
             if any(bangumi.lower().endswith(x) for x in [".mp4", ".mkv", ".webm"]):
                 video_file_path = os.path.join(base_path, bangumi)
-                video_file_path = os.path.join(
-                    os.path.dirname(video_file_path), os.path.basename(video_file_path)
-                )
+                video_file_path = os.path.join(os.path.dirname(video_file_path), os.path.basename(video_file_path))
                 video_file_path = video_file_path.replace(os.path.sep, "/")
                 episode_list[episode] = {"path": video_file_path}
                 break
@@ -68,9 +66,7 @@ class IndexHandler(BaseHandler):
 
 class BangumiListHandler(BaseHandler):
     def get(self, type_: str = "") -> None:
-        data: List[dict] = Followed.get_all_followed(
-            STATUS_DELETED, STATUS_END if type_ == "old" else STATUS_UPDATING
-        )
+        data: List[dict] = Followed.get_all_followed(STATUS_DELETED, STATUS_END if type_ == "old" else STATUS_UPDATING)
 
         def sorter(_: Dict[str, int]) -> int:
             return _["updated_time"] if _["updated_time"] else 1
@@ -80,9 +76,7 @@ class BangumiListHandler(BaseHandler):
             data.sort(key=sorter)
 
         for bangumi in data:
-            bangumi["cover"] = "{}/{}".format(
-                COVER_URL, normalize_path(bangumi["cover"])
-            )
+            bangumi["cover"] = "{}/{}".format(COVER_URL, normalize_path(bangumi["cover"]))
 
         data.reverse()
 

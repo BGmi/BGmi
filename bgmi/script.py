@@ -73,11 +73,7 @@ class ScriptRunner:
         return m
 
     def get_models_dict(self) -> List[dict]:
-        return [
-            dict(script.Model())
-            for script in self.scripts
-            if script.bangumi_name is not None
-        ]
+        return [dict(script.Model()) for script in self.scripts if script.bangumi_name is not None]
 
     @staticmethod
     def make_dict(script: "ScriptBase") -> List[Dict[str, Any]]:
@@ -220,9 +216,7 @@ class ScriptBase:
                 source = DATA_SOURCE_MAP[self.source]()
             except KeyError:
                 raise Exception(
-                    "Script data source is invalid, usable sources: {}".format(
-                        ", ".join(DATA_SOURCE_MAP.keys())
-                    )
+                    "Script data source is invalid, usable sources: {}".format(", ".join(DATA_SOURCE_MAP.keys()))
                 )
             ret = {}
             data = source.fetch_episode_of_bangumi(**self._data)

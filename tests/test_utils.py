@@ -22,10 +22,7 @@ _episode_cases: List[Tuple[str, int]] = [
     ("不知道什么片 全二十话", 0),
     ("不知道什么片 全20话", 0),
     (
-        (
-            "[Lilith-Raws] 如果究极进化的完全沉浸 RPG 比现实还更像垃圾游戏的话 / Full Dive - 02 "
-            "[Baha][WEB-DL][1080p][AVC AAC][CHT][MP4]"
-        ),
+        ("[Lilith-Raws] 如果究极进化的完全沉浸 RPG 比现实还更像垃圾游戏的话 / Full Dive - 02 " "[Baha][WEB-DL][1080p][AVC AAC][CHT][MP4]"),
         2,
     ),
     (

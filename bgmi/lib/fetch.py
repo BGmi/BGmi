@@ -14,8 +14,4 @@ DATA_SOURCE_MAP: Dict[str, Type[base.BaseWebsite]] = {
 try:
     website = DATA_SOURCE_MAP[DATA_SOURCE]()
 except KeyError:
-    print_error(
-        'date source "{}" in config is wrong, please edit it manually'.format(
-            DATA_SOURCE
-        )
-    )
+    print_error(f'date source "{DATA_SOURCE}" in config is wrong, please edit it manually')

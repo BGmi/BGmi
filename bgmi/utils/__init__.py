@@ -66,9 +66,7 @@ def log_utils_function(func: F) -> F:
 
 
 if (
-    IS_WINDOWS
-    and "bash" not in os.getenv("SHELL", "").lower()
-    and "zsh" not in os.getenv("SHELL", "").lower()
+    IS_WINDOWS and "bash" not in os.getenv("SHELL", "").lower() and "zsh" not in os.getenv("SHELL", "").lower()
 ):  # pragma: no cover
     GREEN = ""
     YELLOW = ""
@@ -96,9 +94,7 @@ indicator_map = {
 
 NPM_REGISTER_DOMAIN = "registry.npmjs.com"
 FRONTEND_NPM_URL = f"https://{NPM_REGISTER_DOMAIN}/bgmi-frontend/"
-PACKAGE_JSON_URL = "https://{}/bgmi-frontend/{}".format(
-    NPM_REGISTER_DOMAIN, __admin_version__
-)
+PACKAGE_JSON_URL = f"https://{NPM_REGISTER_DOMAIN}/bgmi-frontend/{__admin_version__}"
 
 
 def _indicator(f):  # type: ignore
@@ -197,10 +193,7 @@ def get_terminal_col() -> int:  # pragma: no cover
         import termios
 
         try:
-            col = struct.unpack(
-                "HHHH",
-                fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack("HHHH", 0, 0, 0, 0)),
-            )[
+            col = struct.unpack("HHHH", fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack("HHHH", 0, 0, 0, 0)),)[
                 1
             ]  # type: int
 
@@ -209,10 +202,7 @@ def get_terminal_col() -> int:  # pragma: no cover
             return _DEFAULT_TERMINAL_WIDTH
     else:
         try:
-            from ctypes import (  # type: ignore[attr-defined]
-                create_string_buffer,
-                windll,
-            )
+            from ctypes import create_string_buffer, windll  # type: ignore[attr-defined]
 
             # stdin handle is -10
             # stdout handle is -11
@@ -258,9 +248,7 @@ def check_update(mark: bool = True) -> None:
             if version > __version__:
                 print_warning(
                     "Please update bgmi to the latest version {}{}{}."
-                    "\nThen execute `bgmi upgrade` to migrate database".format(
-                        GREEN, version, COLOR_END
-                    )
+                    "\nThen execute `bgmi upgrade` to migrate database".format(GREEN, version, COLOR_END)
                 )
             else:
                 print_success("Your BGmi is the latest version.")
@@ -268,18 +256,12 @@ def check_update(mark: bool = True) -> None:
             package_json = requests.get(PACKAGE_JSON_URL, timeout=60).json()
             admin_version = package_json["version"]
             if glob.glob(os.path.join(FRONT_STATIC_PATH, "package.json")):
-                with open(
-                    os.path.join(FRONT_STATIC_PATH, "package.json"), encoding="utf8"
-                ) as f:
+                with open(os.path.join(FRONT_STATIC_PATH, "package.json"), encoding="utf8") as f:
                     local_version = json.loads(f.read())["version"]
-                if [int(x) for x in admin_version.split(".")] > [
-                    int(x) for x in local_version.split(".")
-                ]:
+                if [int(x) for x in admin_version.split(".")] > [int(x) for x in local_version.split(".")]:
                     get_web_admin(method="update")
             else:
-                print_info(
-                    "Use 'bgmi install' to install BGmi frontend / download delegate"
-                )
+                print_info("Use 'bgmi install' to install BGmi frontend / download delegate")
             if not mark:
                 update()
                 raise SystemExit
@@ -502,12 +484,9 @@ def get_web_admin(method: str) -> None:
     try:
         r = requests.get(FRONTEND_NPM_URL, timeout=60).json()
         version = requests.get(PACKAGE_JSON_URL, timeout=60).json()
-        if (
-            "error" in version and version["reason"] == "document not found"
-        ):  # pragma: no cover
+        if "error" in version and version["reason"] == "document not found":  # pragma: no cover
             print_error(
-                "Cnpm has not synchronized the latest version of BGmi-frontend from "
-                "npm, please try it later"
+                "Cnpm has not synchronized the latest version of BGmi-frontend from " "npm, please try it later"
             )
             return
         tar_url = r["versions"][version["version"]]["dist"]["tarball"]
@@ -533,13 +512,9 @@ def get_web_admin(method: str) -> None:
             os.path.join(FRONT_STATIC_PATH, "package", "dist", file),
             os.path.join(FRONT_STATIC_PATH, file),
         )
-    with open(
-        os.path.join(FRONT_STATIC_PATH, "package.json"), "w+", encoding="utf8"
-    ) as pkg:
+    with open(os.path.join(FRONT_STATIC_PATH, "package.json"), "w+", encoding="utf8") as pkg:
         pkg.write(json.dumps(version))
-    print_success(
-        "Web admin page {} successfully. version: {}".format(method, version["version"])
-    )
+    print_success("Web admin page {} successfully. version: {}".format(method, version["version"]))
 
 
 @log_utils_function

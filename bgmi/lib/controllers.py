@@ -108,16 +108,12 @@ def filter_(
         Followed.get(bangumi_name=bangumi_obj.name)
     except Followed.DoesNotExist:
         result["status"] = "error"
-        result[
-            "message"
-        ] = "Bangumi {name} has not subscribed, try 'bgmi add \"{name}\"'.".format(
+        result["message"] = "Bangumi {name} has not subscribed, try 'bgmi add \"{name}\"'.".format(
             name=bangumi_obj.name
         )
         return result
 
-    followed_filter_obj, is_this_obj_created = Filter.get_or_create(
-        bangumi_name=bangumi_obj.name
-    )
+    followed_filter_obj, is_this_obj_created = Filter.get_or_create(bangumi_name=bangumi_obj.name)
 
     if is_this_obj_created:
         followed_filter_obj.save()
@@ -125,13 +121,9 @@ def filter_(
     if subtitle is not None:
         _subtitle = [s.strip() for s in subtitle.split(",")]
         _subtitle = [s["id"] for s in Subtitle.get_subtitle_by_name(_subtitle)]
-        subtitle_list = [
-            s.split(".")[0] for s in bangumi_obj.subtitle_group.split(", ") if "." in s
-        ]
+        subtitle_list = [s.split(".")[0] for s in bangumi_obj.subtitle_group.split(", ") if "." in s]
         subtitle_list.extend(bangumi_obj.subtitle_group.split(", "))
-        followed_filter_obj.subtitle = ", ".join(
-            filter(lambda s: s in subtitle_list, _subtitle)
-        )
+        followed_filter_obj.subtitle = ", ".join(filter(lambda s: s in subtitle_list, _subtitle))
 
     if include is not None:
         followed_filter_obj.include = include
@@ -143,20 +135,12 @@ def filter_(
         followed_filter_obj.regex = regex
 
     followed_filter_obj.save()
-    subtitle_list = [
-        s["name"]
-        for s in Subtitle.get_subtitle_by_id(bangumi_obj.subtitle_group.split(", "))
-    ]
+    subtitle_list = [s["name"] for s in Subtitle.get_subtitle_by_id(bangumi_obj.subtitle_group.split(", "))]
 
     result["data"] = {
         "name": bangumi_obj.name,
         "subtitle_group": subtitle_list,
-        "followed": [
-            s["name"]
-            for s in Subtitle.get_subtitle_by_id(
-                followed_filter_obj.subtitle.split(", ")
-            )
-        ]
+        "followed": [s["name"] for s in Subtitle.get_subtitle_by_id(followed_filter_obj.subtitle.split(", "))]
         if followed_filter_obj.subtitle
         else [],
         "include": followed_filter_obj.include,
@@ -167,9 +151,7 @@ def filter_(
     return result
 
 
-def delete(
-    name: str = "", clear_all: bool = False, batch: bool = False
-) -> ControllerResult:
+def delete(name: str = "", clear_all: bool = False, batch: bool = False) -> ControllerResult:
     """
     :param name:
     :param clear_all:
@@ -245,9 +227,7 @@ def cal(
             bangumi["cover"] = normalize_path(bangumi["cover"])
             subtitle_group = [
                 {"name": x["name"], "id": x["id"]}
-                for x in Subtitle.get_subtitle_by_id(
-                    bangumi["subtitle_group"].split(", " "")
-                )
+                for x in Subtitle.get_subtitle_by_id(bangumi["subtitle_group"].split(", " ""))
             ]
 
             r[day][index]["subtitle_group"] = subtitle_group
@@ -256,9 +236,7 @@ def cal(
 
 
 def download(name: str, title: str, episode: int, download_url: str) -> None:
-    download_prepare(
-        [Episode(name=name, title=title, episode=episode, download=download_url)]
-    )
+    download_prepare([Episode(name=name, title=title, episode=episode, download=download_url)])
 
 
 def mark(name: str, episode: int) -> ControllerResult:
@@ -350,14 +328,10 @@ def source(data_source: str) -> ControllerResult:
         write_config("DATA_SOURCE", data_source)
         print_success("data source switch succeeds")
         result["status"] = "success"
-        result[
-            "message"
-        ] = f"you have successfully change your data source to {data_source}"
+        result["message"] = f"you have successfully change your data source to {data_source}"
     else:
         result["status"] = "error"
-        result[
-            "message"
-        ] = "please check your input. data source should be one of {}".format(
+        result["message"] = "please check your input. data source should be one of {}".format(
             [x["id"] for x in SUPPORT_WEBSITE]
         )
     return result
@@ -365,10 +339,7 @@ def source(data_source: str) -> ControllerResult:
 
 def config(name: Optional[str] = None, value: Optional[str] = None) -> ControllerResult:
     if name == "DATA_SOURCE":
-        error_message = (
-            "you can't change data source in this way. "
-            "please use `bgmi source ${data source}` in cli"
-        )
+        error_message = "you can't change data source in this way. " "please use `bgmi source ${data source}` in cli"
         result = {
             "status": "error",
             "message": error_message,
@@ -381,9 +352,7 @@ def config(name: Optional[str] = None, value: Optional[str] = None) -> Controlle
     return r
 
 
-def update(
-    name: List[str], download: Any = None, not_ignore: bool = False
-) -> ControllerResult:
+def update(name: List[str], download: Any = None, not_ignore: bool = False) -> ControllerResult:
     logger.debug("updating bangumi info with args: download: %r", download)
     result: Dict[str, Any] = {
         "status": "info",
@@ -463,16 +432,12 @@ def update(
                 episode_range = download
             else:
                 episode_range = range(subscribe["episode"] + 1, episode + 1)
-                print_success(
-                    f"{subscribe['bangumi_name']} updated, episode: {episode:d}"
-                )
+                print_success(f"{subscribe['bangumi_name']} updated, episode: {episode:d}")
                 followed_obj.episode = episode
                 followed_obj.status = STATUS_UPDATED
                 followed_obj.updated_time = int(time.time())
                 followed_obj.save()
-                result["data"]["updated"].append(
-                    {"bangumi": subscribe["bangumi_name"], "episode": episode}
-                )
+                result["data"]["updated"].append({"bangumi": subscribe["bangumi_name"], "episode": episode})
 
             for i in episode_range:
                 for epi in all_episode_data:
@@ -487,13 +452,7 @@ def update(
         print_info("Re-downloading ...")
         download_prepare(
             [
-                Episode(
-                    **{
-                        key: value
-                        for key, value in x.items()
-                        if key not in ["id", "status"]
-                    }
-                )
+                Episode(**{key: value for key, value in x.items() if key not in ["id", "status"]})
                 for x in Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD)
             ]
         )
@@ -545,16 +504,11 @@ def list_() -> ControllerResult:
         if followed_bangumi[weekday.lower()]:
             result["message"] += f"{GREEN}{weekday}. {COLOR_END}"
             for j, bangumi in enumerate(followed_bangumi[weekday.lower()]):
-                if (
-                    bangumi["status"] in (STATUS_UPDATED, STATUS_FOLLOWED)
-                    and "episode" in bangumi
-                ):
+                if bangumi["status"] in (STATUS_UPDATED, STATUS_FOLLOWED) and "episode" in bangumi:
                     bangumi["name"] = f"{bangumi['name']}({bangumi['episode']:d})"
                 if j > 0:
                     result["message"] += " " * 5
                 f = [x["name"] for x in bangumi["subtitle_group"]]
-                result["message"] += "{}: {}\n".format(
-                    bangumi["name"], ", ".join(f) if f else "<None>"
-                )
+                result["message"] += "{}: {}\n".format(bangumi["name"], ", ".join(f) if f else "<None>")
 
     return result

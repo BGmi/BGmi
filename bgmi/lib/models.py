@@ -87,18 +87,14 @@ class Bangumi(NeoDB):
             Followed.updated_time > (int(time.time()) - 2 * 7 * 24 * 3600)
         )
         if os.getenv("DEBUG"):  # pragma: no cover
-            print(
-                "ignore updating bangumi", [x.bangumi_name for x in un_updated_bangumi]
-            )
+            print("ignore updating bangumi", [x.bangumi_name for x in un_updated_bangumi])
 
         cls.update(status=STATUS_END).where(
             cls.name.not_in([x.bangumi_name for x in un_updated_bangumi])
         ).execute()  # do not mark updating bangumi as STATUS_END
 
     @classmethod
-    def get_updating_bangumi(
-        cls, status: Optional[int] = None, order: bool = True
-    ) -> Any:
+    def get_updating_bangumi(cls, status: Optional[int] = None, order: bool = True) -> Any:
         if status is None:
             data = (
                 cls.select(Followed.status, Followed.episode, cls)
@@ -125,9 +121,7 @@ class Bangumi(NeoDB):
         if order:
             weekly_list = defaultdict(list)
             for bangumi_item in data:
-                weekly_list[bangumi_item["update_time"].lower()].append(
-                    dict(bangumi_item)
-                )
+                weekly_list[bangumi_item["update_time"].lower()].append(dict(bangumi_item))
         else:
             weekly_list = list(data)  # type: ignore
 
@@ -166,19 +160,14 @@ class Followed(NeoDB):
     def delete_followed(cls, batch: bool = True) -> bool:
         q = cls.delete()
         if not batch:
-            if (
-                not input("[+] are you sure want to CLEAR ALL THE BANGUMI? (y/N): ")
-                == "y"
-            ):
+            if not input("[+] are you sure want to CLEAR ALL THE BANGUMI? (y/N): ") == "y":
                 return False
 
         q.execute(None)
         return True
 
     @classmethod
-    def get_all_followed(
-        cls, status: int = STATUS_DELETED, bangumi_status: int = STATUS_UPDATING
-    ) -> List[dict]:
+    def get_all_followed(cls, status: int = STATUS_DELETED, bangumi_status: int = STATUS_UPDATING) -> List[dict]:
         join_cond = Bangumi.name == cls.bangumi_name
         d = (
             cls.select(Bangumi.name, Bangumi.update_time, Bangumi.cover, cls)

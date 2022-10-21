@@ -20,17 +20,7 @@ from bgmi.lib.constants import (
     ACTION_MARK,
     ACTION_SEARCH,
 )
-from bgmi.lib.controllers import (
-    add,
-    cal,
-    config,
-    delete,
-    filter_,
-    mark,
-    search,
-    status_,
-    update,
-)
+from bgmi.lib.controllers import add, cal, config, delete, filter_, mark, search, status_, update
 from bgmi.lib.download import download_prepare
 
 ACTION_AUTH = "auth"

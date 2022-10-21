@@ -69,7 +69,5 @@ def bangumi_names(data_source_bangumi_name):
 @pytest.fixture()
 def mock_download_driver():
     mock_downloader = mock.Mock()
-    with mock.patch(
-        "bgmi.lib.download.get_download_driver", mock.Mock(return_value=mock_downloader)
-    ):
+    with mock.patch("bgmi.lib.download.get_download_driver", mock.Mock(return_value=mock_downloader)):
         yield mock_downloader

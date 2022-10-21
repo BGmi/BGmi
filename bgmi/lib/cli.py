@@ -36,29 +36,10 @@ from bgmi.lib.constants import (
     SUPPORT_WEBSITE,
     actions_and_arguments,
 )
-from bgmi.lib.controllers import (
-    add,
-    cal,
-    config,
-    delete,
-    filter_,
-    list_,
-    mark,
-    search,
-    source,
-    update,
-)
+from bgmi.lib.controllers import add, cal, config, delete, filter_, list_, mark, search, source, update
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
-from bgmi.lib.models import (
-    STATUS_DELETED,
-    STATUS_FOLLOWED,
-    STATUS_UPDATED,
-    Bangumi,
-    Filter,
-    Followed,
-    Subtitle,
-)
+from bgmi.lib.models import STATUS_DELETED, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, Filter, Followed, Subtitle
 from bgmi.plugin.download import BaseDownloadService
 from bgmi.script import ScriptRunner
 from bgmi.utils import (
@@ -93,17 +74,12 @@ def config_wrapper(ret: Any) -> None:
 
         except NoMatches:
             if sys.version_info >= (3, 10):
-                entry_points = importlib.metadata.entry_points().select(
-                    name=namespace.DOWNLOAD_DELEGATE
-                )
+                entry_points = importlib.metadata.entry_points().select(name=namespace.DOWNLOAD_DELEGATE)
             else:
-                entry_points = importlib.metadata.entry_points()[
-                    namespace.DOWNLOAD_DELEGATE
-                ]
+                entry_points = importlib.metadata.entry_points()[namespace.DOWNLOAD_DELEGATE]
             available = ", ".join([f"'{x.name}'" for x in entry_points])
             print_error(
-                f"{ret.value} if not a registered download delegate\n"
-                f"available download delegate are {available}"
+                f"{ret.value} if not a registered download delegate\n" f"available download delegate are {available}"
             )
 
     result = config(ret.name, ret.value)
@@ -175,19 +151,11 @@ def cal_wrapper(ret: Any) -> None:
 
     order_without_unknown = BANGUMI_UPDATE_TIME[:-1]
     if today:
-        weekday_order = (
-            order_without_unknown[datetime.datetime.today().weekday()],
-        )  # type: Tuple[str, ...]
+        weekday_order = (order_without_unknown[datetime.datetime.today().weekday()],)  # type: Tuple[str, ...]
     else:
-        weekday_order = shift(
-            order_without_unknown, datetime.datetime.today().weekday()
-        )
+        weekday_order = shift(order_without_unknown, datetime.datetime.today().weekday())
 
-    col = max(
-        wcwidth.wcswidth(bangumi["name"])
-        for value in weekly_list.values()
-        for bangumi in value
-    )
+    col = max(wcwidth.wcswidth(bangumi["name"]) for value in weekly_list.values() for bangumi in value)
     env_columns = col if os.environ.get("TRAVIS_CI", False) else get_terminal_col()
 
     if env_columns < col:
@@ -214,13 +182,8 @@ def cal_wrapper(ret: Any) -> None:
             print()
             print_line()
             for i, bangumi in enumerate(weekly_list[weekday.lower()]):
-                if (
-                    bangumi["status"] in (STATUS_UPDATED, STATUS_FOLLOWED)
-                    and "episode" in bangumi
-                ):
-                    bangumi["name"] = "{}({:d})".format(
-                        bangumi["name"], bangumi["episode"]
-                    )
+                if bangumi["status"] in (STATUS_UPDATED, STATUS_FOLLOWED) and "episode" in bangumi:
+                    bangumi["name"] = "{}({:d})".format(bangumi["name"], bangumi["episode"])
 
                 width = wcwidth.wcswidth(bangumi["name"])
                 space_count = col - 2 - width
@@ -234,9 +197,7 @@ def cal_wrapper(ret: Any) -> None:
                         space_count -= bangumi["name"].count(s)
 
                 if bangumi["status"] == STATUS_FOLLOWED:
-                    bangumi["name"] = "{}{}{}".format(
-                        YELLOW, bangumi["name"], COLOR_END
-                    )
+                    bangumi["name"] = "{}{}{}".format(YELLOW, bangumi["name"], COLOR_END)
 
                 if bangumi["status"] == STATUS_UPDATED:
                     bangumi["name"] = "{}{}{}".format(GREEN, bangumi["name"], COLOR_END)
@@ -261,11 +222,7 @@ def filter_wrapper(ret: Any) -> None:
     if "data" not in result:
         globals()["print_{}".format(result["status"])](result["message"])
     else:
-        print_info(
-            "Usable subtitle group: {}".format(
-                ", ".join(result["data"]["subtitle_group"])
-            )
-        )
+        print_info("Usable subtitle group: {}".format(", ".join(result["data"]["subtitle_group"])))
         followed_filter_obj = Filter.get(bangumi_name=result["data"]["name"])
         print_filter(followed_filter_obj)
 
@@ -295,9 +252,7 @@ def fetch_(ret: Any) -> None:
     print_filter(followed_filter_obj)
 
     print_info(f"Fetch bangumi {bangumi_obj.name} ...")
-    _, data = website.get_maximum_episode(
-        bangumi_obj, ignore_old_row=not bool(ret.not_ignore)
-    )
+    _, data = website.get_maximum_episode(bangumi_obj, ignore_old_row=not bool(ret.not_ignore))
 
     if not data:
         print_warning("Nothing.")
@@ -308,9 +263,7 @@ def fetch_(ret: Any) -> None:
 def complete(ret: Any) -> None:
     # coding=utf-8
     """eval "$(bgmi complete)" to complete bgmi in bash"""
-    updating_bangumi_names = [
-        x["name"] for x in Bangumi.get_updating_bangumi(order=False)
-    ]
+    updating_bangumi_names = [x["name"] for x in Bangumi.get_updating_bangumi(order=False)]
 
     all_config = [x for x in bgmi.config.__all__ if not x == "DATA_SOURCE"]
 
@@ -377,9 +330,7 @@ def history(ret: Any) -> None:
     year = None
     month = None
 
-    updating_bangumi = list(
-        map(itemgetter("name"), itertools.chain(*bangumi_data.values()))
-    )
+    updating_bangumi = list(map(itemgetter("name"), itertools.chain(*bangumi_data.values())))
 
     print_info("Bangumi Timeline")
     for i in data:
@@ -405,24 +356,14 @@ def history(ret: Any) -> None:
                 year = date.year
 
             if date.year == year and date.month != month:
-                print(
-                    "  |\n  |--- {}{}{}\n  |      |".format(
-                        YELLOW, m[date.month - 1], COLOR_END
-                    )
-                )
+                print(f"  |\n  |--- {YELLOW}{m[date.month - 1]}{COLOR_END}\n  |      |")
                 month = date.month
 
-            print(
-                "  |      |--- [{}{:<9}{}] ({:<2}) {}".format(
-                    color, slogan, COLOR_END, i.episode, i.bangumi_name
-                )
-            )
+            print(f"  |      |--- [{color}{slogan:<9}{COLOR_END}] ({i.episode:<2}) {i.bangumi_name}")
 
 
 def config_gen(ret: Any) -> None:
-    template_file_path = os.path.join(
-        os.path.dirname(__file__), "..", "others", "nginx.conf"
-    )
+    template_file_path = os.path.join(os.path.dirname(__file__), "..", "others", "nginx.conf")
 
     with open(template_file_path, encoding="utf8") as template_file:
         shell_template = template.Template(template_file.read(), autoescape="")
@@ -469,12 +410,7 @@ def controllers(ret: Any) -> None:
 def print_filter(followed_filter_obj: Filter) -> None:
     print_info(
         "Followed subtitle group: {}".format(
-            ", ".join(
-                x["name"]
-                for x in Subtitle.get_subtitle_by_id(
-                    followed_filter_obj.subtitle.split(", ")
-                )
-            )
+            ", ".join(x["name"] for x in Subtitle.get_subtitle_by_id(followed_filter_obj.subtitle.split(", ")))
             if followed_filter_obj.subtitle
             else "None"
         )

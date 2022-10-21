@@ -58,9 +58,7 @@ class CalendarHandler(BaseHandler):
             bangumi = defaultdict(list)
 
             for j in data:
-                bangumi[BANGUMI_UPDATE_TIME.index(j["update_time"]) + 1].append(
-                    j["bangumi_name"]
-                )
+                bangumi[BANGUMI_UPDATE_TIME.index(j["update_time"]) + 1].append(j["bangumi_name"])
 
             weekday = datetime.datetime.now().weekday()
             for i, k in enumerate(range(weekday, weekday + 7)):

@@ -9,13 +9,7 @@ from bgmi.lib.constants import ACTION_COMPLETE, actions_and_arguments
 from bgmi.lib.update import update_database
 from bgmi.setup import create_dir, install_crontab
 from bgmi.sql import init_db
-from bgmi.utils import (
-    check_update,
-    get_web_admin,
-    print_error,
-    print_version,
-    print_warning,
-)
+from bgmi.utils import check_update, get_web_admin, print_error, print_version, print_warning
 
 
 # global Ctrl-C signal handler
@@ -41,9 +35,7 @@ def main(argv: Optional[List[str]] = None) -> None:
     sub_parser = c.add_subparsers(help="BGmi actions", dest="action")
 
     for action in actions_and_arguments:
-        tmp_sub_parser = sub_parser.add_parser(
-            action["action"], help=action.get("help", "")
-        )
+        tmp_sub_parser = sub_parser.add_parser(action["action"], help=action.get("help", ""))
         for sub_action in action.get("arguments", []):
             if isinstance(sub_action["dest"], str):
                 tmp_sub_parser.add_argument(sub_action["dest"], **sub_action["kwargs"])
@@ -52,8 +44,7 @@ def main(argv: Optional[List[str]] = None) -> None:
 
     sub_parser.add_parser(
         ACTION_COMPLETE,
-        help='Gen completion, `eval "$(bgmi complete)"` '
-        'or `eval "$(bgmi complete|dos2unix)"`',
+        help='Gen completion, `eval "$(bgmi complete)"` ' 'or `eval "$(bgmi complete|dos2unix)"`',
     )
 
     ret = c.parse_args(argv)

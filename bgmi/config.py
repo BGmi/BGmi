@@ -27,9 +27,7 @@ __aria2__ = (
 )
 __deluge__ = ("DELUGE_RPC_URL", "DELUGE_RPC_PASSWORD")
 
-__download_delegate__ = (
-    __wget__ + __aria2__ + __transmission__ + __deluge__ + __qbittorrent__
-)
+__download_delegate__ = __wget__ + __aria2__ + __transmission__ + __deluge__ + __qbittorrent__
 
 # fake __all__
 __all__ = (
@@ -76,9 +74,7 @@ DOWNLOAD_DELEGATE_MAP = {
 
 if not os.environ.get("BGMI_PATH"):  # pragma: no cover
     if platform.system() == "Windows":
-        BGMI_PATH = os.path.join(
-            os.environ.get("USERPROFILE", tempfile.gettempdir()), ".bgmi"
-        )
+        BGMI_PATH = os.path.join(os.environ.get("USERPROFILE", tempfile.gettempdir()), ".bgmi")
         if not BGMI_PATH:
             raise SystemExit
     else:
@@ -156,9 +152,7 @@ def write_default_config() -> None:
         print("[-] Error writing to config file and ignored")
 
 
-def write_config(
-    config: Optional[str] = None, value: Optional[str] = None
-) -> Dict[str, Any]:
+def write_config(config: Optional[str] = None, value: Optional[str] = None) -> Dict[str, Any]:
     if not os.path.exists(CONFIG_FILE_PATH):
         write_default_config()
         return {
@@ -178,9 +172,7 @@ def write_config(
             result = {"status": "info"}
 
             if config in __download_delegate__:
-                result["message"] = "{}={}".format(
-                    config, c.get(DOWNLOAD_DELEGATE, config)
-                )
+                result["message"] = f"{config}={c.get(DOWNLOAD_DELEGATE, config)}"
             else:
                 result["message"] = "{}={}".format(config, c.get("bgmi", config))
 
@@ -191,9 +183,7 @@ def write_config(
                     c.write(f)
 
                 read_config()
-                if config == "DOWNLOAD_DELEGATE" and not c.has_section(
-                    DOWNLOAD_DELEGATE
-                ):
+                if config == "DOWNLOAD_DELEGATE" and not c.has_section(DOWNLOAD_DELEGATE):
                     c.add_section(DOWNLOAD_DELEGATE)
                     for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
                         v = globals().get(i, "")
@@ -229,9 +219,9 @@ def write_config(
             "message": "Error in config file, try rerun `bgmi config`",
         }
 
-    result["data"] = [
-        {"writable": True, "name": x, "value": globals()[x]} for x in __writeable__
-    ] + [{"writable": False, "name": x, "value": globals()[x]} for x in __readonly__]
+    result["data"] = [{"writable": True, "name": x, "value": globals()[x]} for x in __writeable__] + [
+        {"writable": False, "name": x, "value": globals()[x]} for x in __readonly__
+    ]
     return result
 
 

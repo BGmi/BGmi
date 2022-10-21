@@ -25,21 +25,16 @@ def fetch_url(url, **kwargs):
             exit_=False,
         )
         print_error(
-            "Check internet connection or try to set a DMHY mirror site via: "
-            "bgmi config SHARE_DMHY_URL <site url>"
+            "Check internet connection or try to set a DMHY mirror site via: " "bgmi config SHARE_DMHY_URL <site url>"
         )
 
     return ret
 
 
-def parse_bangumi_with_week_days(
-    content, update_time, array_name
-) -> List[WebsiteBangumi]:
+def parse_bangumi_with_week_days(content, update_time, array_name) -> List[WebsiteBangumi]:
     content = re.sub("'\\+encodeURIComponent\\('(.*?)'\\)\\+'", "\\1", content)
     content = re.sub("encodeURIComponent\\('(.*?)'\\)", "'URLE#\\1'", content)
-    r = re.compile(
-        array_name + "\\.push\\(\\['(.*?)','(.*?)','(.*?)','(.*?)','(.*?)'\\]\\)"
-    )
+    r = re.compile(array_name + "\\.push\\(\\['(.*?)','(.*?)','(.*?)','(.*?)','(.*?)'\\]\\)")
     ret = r.findall(content)
 
     bangumi_list = []
@@ -63,9 +58,7 @@ def parse_bangumi_with_week_days(
 
             subtitle_group_id = subtitle_group_id_raw[0]
 
-            bangumi.subtitle_group.append(
-                SubtitleGroup(id=subtitle_group_id, name=subtitle_group_name)
-            )
+            bangumi.subtitle_group.append(SubtitleGroup(id=subtitle_group_id, name=subtitle_group_name))
 
         bangumi.name = name
         bangumi.update_time = update_time
@@ -200,9 +193,7 @@ class DmhySource(BaseWebsite):
 
         return bangumi_list
 
-    def fetch_episode_of_bangumi(
-        self, bangumi_id, max_page=MAX_PAGE, subtitle_list=None
-    ):
+    def fetch_episode_of_bangumi(self, bangumi_id, max_page=MAX_PAGE, subtitle_list=None):
         """
         get all episode by bangumi id
         example

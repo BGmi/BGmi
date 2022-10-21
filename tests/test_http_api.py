@@ -35,9 +35,7 @@ class ApiTestCase(AsyncHTTPTestCase):
         return self.app
 
     def test_a_auth(self):
-        r = self.fetch(
-            "/api/auth", method="POST", body=json.dumps({"token": ADMIN_TOKEN})
-        )
+        r = self.fetch("/api/auth", method="POST", body=json.dumps({"token": ADMIN_TOKEN}))
         assert r.code == 200
         res = self.parse_response(r)
         assert res["status"] == "success"
@@ -139,9 +137,7 @@ class ApiTestCase(AsyncHTTPTestCase):
                 {"bangumi_name": "2333", "updated_time": 20000000000, "cover": "2333"},
             ]
         )
-        with mock.patch("bgmi.front.index.get_player", m), mock.patch(
-            "bgmi.lib.models.Followed.get_all_followed", m2
-        ):
+        with mock.patch("bgmi.front.index.get_player", m), mock.patch("bgmi.lib.models.Followed.get_all_followed", m2):
             response = self.fetch("/api/index", method="GET")
         assert response.code == 200
         r = self.parse_response(response)
@@ -165,9 +161,7 @@ class ApiTestCase(AsyncHTTPTestCase):
         assert r.code == 200
 
     def test_no_auth(self):
-        r = self.fetch(
-            "/api/add", method="POST", body=json.dumps({"name": self.bangumi_1})
-        )
+        r = self.fetch("/api/add", method="POST", body=json.dumps({"name": self.bangumi_1}))
         assert r.code == 401
 
     @staticmethod
@@ -192,9 +186,7 @@ def test_get_player():
     bangumi_dict = {"player": get_player(bangumi_name)}
 
     assert 1 in bangumi_dict["player"]
-    assert bangumi_dict["player"][1]["path"] == "/{}/1/episode1/1.mp4".format(
-        bangumi_name
-    )
+    assert bangumi_dict["player"][1]["path"] == f"/{bangumi_name}/1/episode1/1.mp4"
 
     assert 2 in bangumi_dict["player"]
     assert bangumi_dict["player"][2]["path"] == f"/{bangumi_name}/2/2.mkv"

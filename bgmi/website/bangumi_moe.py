@@ -51,11 +51,7 @@ def process_name(data):
     else:
         lang = "zh_cn"
 
-    return {
-        i["_id"]: i["locale"].get(lang)
-        or next(i["locale"].get(x) for x in _AVAILABLE_LANG)
-        for i in data
-    }
+    return {i["_id"]: i["locale"].get(lang) or next(i["locale"].get(x) for x in _AVAILABLE_LANG) for i in data}
 
 
 def process_subtitle(data):
@@ -86,10 +82,7 @@ def parser_bangumi(data: List[BangumiData]):
         subtitle_of_bangumi = process_subtitle(subtitle.get(bangumi_item["tag_id"], []))
         item = {
             "status": 0,
-            "subtitle_group": [
-                SubtitleGroup(id=id, name=name)
-                for id, name in subtitle_of_bangumi.items()
-            ],
+            "subtitle_group": [SubtitleGroup(id=id, name=name) for id, name in subtitle_of_bangumi.items()],
             "name": name[bangumi_item["tag_id"]],
             "keyword": bangumi_item["tag_id"],
             "update_time": bangumi_update_time_known[(bangumi_item["showOn"] + 7) % 7],
@@ -117,9 +110,7 @@ class BangumiMoe(BaseWebsite):
         ret = []
         if subtitle_list:
             for subtitle_id in subtitle_list:
-                data = {
-                    "tag_id": [bangumi_id, subtitle_id, BANGUMI_TAG]
-                }  # type: Dict[str, Any]
+                data = {"tag_id": [bangumi_id, subtitle_id, BANGUMI_TAG]}  # type: Dict[str, Any]
                 response = get_response(DETAIL_URL, "POST", json=data)
                 response_data.extend(response["torrents"])
         else:

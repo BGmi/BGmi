@@ -48,9 +48,7 @@ def get_weekly_bangumi():
     r = get_text(server_root)
     soup = bs4.BeautifulSoup(r, "html.parser")
     for day_of_week in [x for x in range(0, 9) if x != 7]:
-        d = soup.find(
-            "div", attrs={"class": "sk-bangumi", "data-dayofweek": str(day_of_week)}
-        )
+        d = soup.find("div", attrs={"class": "sk-bangumi", "data-dayofweek": str(day_of_week)})
         if d:
             try:
                 yield _CN_WEEK[_DAY_OF_WEEK[day_of_week]], d
@@ -75,14 +73,10 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
         subtitle_id = tag.attrs.get("id", False)
         if subtitle_list:
             if subtitle_id in subtitle_list:
-                episode_container_list[
-                    tag.attrs.get("id", None)
-                ] = tag.find_next_sibling("table")
+                episode_container_list[tag.attrs.get("id", None)] = tag.find_next_sibling("table")
         else:
             if subtitle_id:
-                episode_container_list[
-                    tag.attrs.get("id", None)
-                ] = tag.find_next_sibling("table")
+                episode_container_list[tag.attrs.get("id", None)] = tag.find_next_sibling("table")
 
     for subtitle_id, container in episode_container_list.items():
         _container = container
@@ -104,14 +98,11 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
             result.append(
                 Episode(
                     **{
-                        "download": server_root[:-1]
-                        + tr.find_all("td")[-1].find("a").attrs.get("href", ""),
+                        "download": server_root[:-1] + tr.find_all("td")[-1].find("a").attrs.get("href", ""),
                         "subtitle_group": str(subtitle_id),
                         "title": title,
                         "episode": parse_episode(title),
-                        "time": int(
-                            time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M"))
-                        ),
+                        "time": int(time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M"))),
                     }
                 )
             )
@@ -134,11 +125,7 @@ def parser_day_bangumi(soup) -> List[WebsiteBangumi]:
             url = url["href"]
             bangumi_id = url.split("/")[-1]
             s.find("li")
-            li.append(
-                WebsiteBangumi(
-                    name=name, keyword=bangumi_id, cover=_COVER_URL + span["data-src"]
-                )
-            )
+            li.append(WebsiteBangumi(name=name, keyword=bangumi_id, cover=_COVER_URL + span["data-src"]))
     return li
 
 
@@ -170,9 +157,7 @@ class Mikanani(BaseWebsite):
                 continue
             subtitle_id = tag.attrs.get("id", False)
             if subtitle_id:
-                episode_container_list[tag.attrs.get("id")] = tag.find_next_sibling(
-                    "table"
-                )
+                episode_container_list[tag.attrs.get("id")] = tag.find_next_sibling("table")
 
         for subtitle_id, container in episode_container_list.items():
             subtitle_groups[str(subtitle_id)]["episode"] = []
@@ -181,15 +166,11 @@ class Mikanani(BaseWebsite):
                 time_string = tr.find_all("td")[2].string
                 subtitle_groups[str(subtitle_id)]["episode"].append(
                     {
-                        "download": tr.find("a", class_="magnet-link").attrs.get(
-                            "data-clipboard-text", ""
-                        ),
+                        "download": tr.find("a", class_="magnet-link").attrs.get("data-clipboard-text", ""),
                         "subtitle_group": str(subtitle_id),
                         "title": title,
                         "episode": self.parse_episode(title),
-                        "time": int(
-                            time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M"))
-                        ),
+                        "time": int(time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M"))),
                     }
                 )
 
@@ -219,23 +200,17 @@ class Mikanani(BaseWebsite):
             result.append(
                 Episode(
                     **{
-                        "download": tr.find("a", class_="magnet-link").attrs.get(
-                            "data-clipboard-text", ""
-                        ),
+                        "download": tr.find("a", class_="magnet-link").attrs.get("data-clipboard-text", ""),
                         "name": keyword,
                         "title": title,
                         "episode": self.parse_episode(title),
-                        "time": int(
-                            time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M"))
-                        ),
+                        "time": int(time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M"))),
                     }
                 )
             )
         return result
 
-    def fetch_episode_of_bangumi(
-        self, bangumi_id, max_page=MAX_PAGE, subtitle_list=None
-    ):
+    def fetch_episode_of_bangumi(self, bangumi_id, max_page=MAX_PAGE, subtitle_list=None):
         r = get_text(server_root + f"Home/Bangumi/{bangumi_id}")
         return parse_episodes(r, bangumi_id, subtitle_list)
 

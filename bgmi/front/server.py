@@ -10,12 +10,7 @@ import tornado.template
 import tornado.web
 from tornado.options import define, options
 
-from bgmi.config import (
-    FRONT_STATIC_PATH,
-    IS_WINDOWS,
-    SAVE_PATH,
-    TORNADO_SERVE_STATIC_FILES,
-)
+from bgmi.config import FRONT_STATIC_PATH, IS_WINDOWS, SAVE_PATH, TORNADO_SERVE_STATIC_FILES
 from bgmi.front.admin import API_MAP_GET, API_MAP_POST, AdminApiHandler, UpdateHandler
 from bgmi.front.index import BangumiListHandler, IndexHandler
 from bgmi.front.resources import BangumiHandler, CalendarHandler, RssHandler

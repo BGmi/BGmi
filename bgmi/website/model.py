@@ -52,7 +52,5 @@ class WebsiteBangumi(BaseModel):
     @validator("update_time")
     def validate_update_time(cls, v: str) -> str:
         # pylint: disable=no-self-argument
-        assert v in BANGUMI_UPDATE_TIME, "update time can be only one of {}".format(
-            BANGUMI_UPDATE_TIME
-        )
+        assert v in BANGUMI_UPDATE_TIME, f"update time can be only one of {BANGUMI_UPDATE_TIME}"
         return v

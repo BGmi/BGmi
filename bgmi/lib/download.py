@@ -17,9 +17,7 @@ def get_download_driver(delegate: str) -> BaseDownloadService:
     try:
         return cast(
             BaseDownloadService,
-            stevedore.DriverManager(
-                namespace.DOWNLOAD_DELEGATE, name=delegate, invoke_on_load=True
-            ).driver,
+            stevedore.DriverManager(namespace.DOWNLOAD_DELEGATE, name=delegate, invoke_on_load=True).driver,
         )
     except NoMatches:
         print_error(f"can't load download delegate {delegate}")
@@ -42,10 +40,7 @@ def download_prepare(data: List[Episode]) -> None:
         download.save()
         try:
             driver.add_download(url=download.download, save_path=save_path)
-            print_info(
-                "Add torrent into the download queue, "
-                f"the file will be saved at {save_path}"
-            )
+            print_info("Add torrent into the download queue, " f"the file will be saved at {save_path}")
         except Exception as e:
             if os.getenv("DEBUG"):  # pragma: no cover
 
