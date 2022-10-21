@@ -85,7 +85,7 @@ def parser_bangumi(data):
             ],
             "name": name[bangumi_item["tag_id"]],
             "keyword": bangumi_item["tag_id"],
-            "update_time": bangumi_update_time_known[bangumi_item["showOn"] - 1],
+            "update_time": bangumi_update_time_known[(bangumi_item["showOn"] + 7) % 7],
             "cover": COVER_URL + bangumi_item["cover"],
         }
 
