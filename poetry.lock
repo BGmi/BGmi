@@ -437,7 +437,7 @@ python-versions = ">=2.6"
 
 [[package]]
 name = "peewee"
-version = "3.15.3"
+version = "3.15.4"
 description = "a little orm"
 category = "main"
 optional = false
@@ -628,7 +628,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "qbittorrent-api"
-version = "2022.8.38"
+version = "2022.10.39"
 description = "Python client for qBittorrent v4.1+ Web API."
 category = "main"
 optional = false
@@ -642,7 +642,7 @@ urllib3 = ">=1.24.2"
 
 [package.extras]
 dev = ["black", "build", "flake8", "furo", "pre-commit", "sphinx", "sphinx-copybutton"]
-test = ["build", "codecov", "coveralls", "mock", "pytest", "pytest-cov"]
+test = ["build", "codecov", "coverage[toml]", "coveralls", "mock", "pytest", "pytest-cov"]
 
 [[package]]
 name = "requests"
@@ -720,7 +720,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "stevedore"
-version = "4.0.1"
+version = "4.1.1"
 description = "Manage dynamic plugins for Python applications"
 category = "main"
 optional = false
@@ -863,7 +863,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8.0"
-content-hash = "799c54d32deaa28972450ca856ef7d3d5af5b8878fe8280bc9e383b84493d747"
+content-hash = "d823eb9553e432cb7b874e8a58b7976d4a62b370f9cf7ceb9ee5b4fe61ac9b65"
 
 [metadata.files]
 appdirs = [
@@ -1129,7 +1129,7 @@ pbr = [
     {file = "pbr-5.11.0.tar.gz", hash = "sha256:b97bc6695b2aff02144133c2e7399d5885223d42b7912ffaec2ca3898e673bfe"},
 ]
 peewee = [
-    {file = "peewee-3.15.3.tar.gz", hash = "sha256:cc934286d0c0842203abe66a3c6583d1463371e633b03d6da054d0f74e70706f"},
+    {file = "peewee-3.15.4.tar.gz", hash = "sha256:2581520c8dfbacd9d580c2719ae259f0637a9e46eda47dfc0ce01864c6366205"},
 ]
 platformdirs = [
     {file = "platformdirs-2.5.4-py3-none-any.whl", hash = "sha256:af0276409f9a02373d540bf8480021a048711d572745aef4b7842dad245eba10"},
@@ -1264,8 +1264,8 @@ pyyaml = [
     {file = "PyYAML-6.0.tar.gz", hash = "sha256:68fb519c14306fec9720a2a5b45bc9f0c8d1b9c72adf45c37baedfcd949c35a2"},
 ]
 qbittorrent-api = [
-    {file = "qbittorrent-api-2022.8.38.tar.gz", hash = "sha256:179e349259d60cd0ae301049f6a020e28ea1d809d88a945a4369ff701eff0406"},
-    {file = "qbittorrent_api-2022.8.38-py2.py3-none-any.whl", hash = "sha256:43ef0227e41d644f9db88d40ea590eda35f89545b84cf6977ac1d2b9c748ff96"},
+    {file = "qbittorrent-api-2022.10.39.tar.gz", hash = "sha256:e2f3d7f857a047a47160c61b1e664843d0cd14a82184679d371e2ac7b46faaad"},
+    {file = "qbittorrent_api-2022.10.39-py2.py3-none-any.whl", hash = "sha256:0e0728cbc9fc0c97668379d5261ed5e807829274ee982d446120d4a843e88b11"},
 ]
 requests = [
     {file = "requests-2.28.1-py3-none-any.whl", hash = "sha256:8fefa2a1a1365bf5520aac41836fbee479da67864514bdb821f31ce07ce65349"},
@@ -1288,8 +1288,8 @@ soupsieve = [
     {file = "soupsieve-2.3.2.post1.tar.gz", hash = "sha256:fc53893b3da2c33de295667a0e19f078c14bf86544af307354de5fcf12a3f30d"},
 ]
 stevedore = [
-    {file = "stevedore-4.0.1-py3-none-any.whl", hash = "sha256:01645addb67beff04c7cfcbb0a6af8327d2efc3380b0f034aa316d4576c4d470"},
-    {file = "stevedore-4.0.1.tar.gz", hash = "sha256:9a23111a6e612270c591fd31ff3321c6b5f3d5f3dabb1427317a5ab608fc261a"},
+    {file = "stevedore-4.1.1-py3-none-any.whl", hash = "sha256:aa6436565c069b2946fe4ebff07f5041e0c8bf18c7376dd29edf80cf7d524e4e"},
+    {file = "stevedore-4.1.1.tar.gz", hash = "sha256:7f8aeb6e3f90f96832c301bff21a7eb5eefbe894c88c506483d355565d88cc1a"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
