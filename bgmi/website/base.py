@@ -124,7 +124,7 @@ class BaseWebsite:
         self,
         _id: str,
         name: str = "",
-        subtitle_list: str = None,
+        subtitle_list: Optional[str] = None,
         max_page: int = MAX_PAGE,
     ) -> List[Episode]:
         result = []

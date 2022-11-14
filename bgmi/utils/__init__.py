@@ -558,7 +558,7 @@ def download_cover(cover_url_list: List[str]) -> None:
             f.write(r.content)
 
 
-def episode_filter_regex(data: List[Episode], regex: str = None) -> List[Episode]:
+def episode_filter_regex(data: List[Episode], regex: Optional[str] = None) -> List[Episode]:
     """
 
     :param data: list of bangumi dict
