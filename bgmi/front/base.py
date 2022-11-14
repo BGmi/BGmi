@@ -1,7 +1,7 @@
 import json
 import json.decoder
 import os
-from typing import Any, List
+from typing import Any, List, Optional
 
 import tornado.web
 from tornado.web import HTTPError
@@ -25,7 +25,7 @@ class BaseHandler(tornado.web.RequestHandler):
         except json.decoder.JSONDecodeError:
             raise HTTPError(400)
 
-    def jsonify(self, data: Any = None, **kwargs: Any) -> str:
+    def jsonify(self, data: Optional[Any] = None, **kwargs: Any) -> str:
         j = {
             "version": __version__,
             "latest_version": self.latest_version,

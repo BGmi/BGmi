@@ -43,7 +43,7 @@ from bgmi.utils import (
 ControllerResult = Dict[str, Any]
 
 
-def add(name: str, episode: int = None) -> ControllerResult:
+def add(name: str, episode: Optional[int] = None) -> ControllerResult:
     """
     ret.name :str
     """
@@ -270,10 +270,10 @@ def mark(name: str, episode: int) -> ControllerResult:
 def search(
     keyword: str,
     count: Union[str, int] = MAX_PAGE,
-    regex: str = None,
+    regex: Optional[str] = None,
     dupe: bool = False,
-    min_episode: int = None,
-    max_episode: int = None,
+    min_episode: Optional[int] = None,
+    max_episode: Optional[int] = None,
 ) -> ControllerResult:
     try:
         count = int(count)
@@ -352,7 +352,7 @@ def config(name: Optional[str] = None, value: Optional[str] = None) -> Controlle
     return r
 
 
-def update(name: List[str], download: Any = None, not_ignore: bool = False) -> ControllerResult:
+def update(name: List[str], download: Optional[Any] = None, not_ignore: bool = False) -> ControllerResult:
     logger.debug("updating bangumi info with args: download: %r", download)
     result: Dict[str, Any] = {
         "status": "info",
