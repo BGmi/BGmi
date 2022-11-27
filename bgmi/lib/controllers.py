@@ -1,9 +1,9 @@
-import imghdr
 import os.path
 import time
 from operator import itemgetter
 from typing import Any, Dict, List, Optional, Union
 
+import filetype
 import requests.exceptions
 
 from bgmi.config import MAX_PAGE, write_config
@@ -207,7 +207,7 @@ def cal(
             for bangumi in daily_bangumi:
                 _, file_path = convert_cover_url_to_path(bangumi["cover"])
 
-                if not (os.path.exists(file_path) and bool(imghdr.what(file_path))):
+                if not (os.path.exists(file_path) and filetype.is_image(file_path)):
                     cover_to_be_download.append(bangumi["cover"])
 
         if cover_to_be_download:
