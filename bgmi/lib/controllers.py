@@ -3,6 +3,7 @@ import time
 from operator import itemgetter
 from typing import Any, Dict, List, Optional, Union
 
+import filetype
 import requests.exceptions
 
 from bgmi.config import MAX_PAGE, write_config
@@ -181,9 +182,6 @@ def delete(name: str = "", clear_all: bool = False, batch: bool = False) -> Cont
         result["message"] = "Nothing has been done."
     logger.debug(result)
     return result
-
-
-import filetype
 
 
 def cal(
