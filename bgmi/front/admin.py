@@ -31,7 +31,7 @@ def auth_(token: str = "") -> Dict[str, str]:
     return {"status": "success" if token == ADMIN_TOKEN else "error"}
 
 
-API_MAP_POST = {
+API_MAP_POST: Dict[str, Callable] = {
     ACTION_ADD: add,
     ACTION_DELETE: delete,
     ACTION_SEARCH: search,
@@ -41,7 +41,7 @@ API_MAP_POST = {
     ACTION_MARK: mark,
     ACTION_STATUS: status_,
     ACTION_FILTER: filter_,
-}  # type: Dict[str, Callable]
+}
 
 API_MAP_GET = {
     ACTION_CAL: lambda: {"data": cal()},

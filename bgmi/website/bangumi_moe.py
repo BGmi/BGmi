@@ -110,7 +110,7 @@ class BangumiMoe(BaseWebsite):
         ret = []
         if subtitle_list:
             for subtitle_id in subtitle_list:
-                data = {"tag_id": [bangumi_id, subtitle_id, BANGUMI_TAG]}  # type: Dict[str, Any]
+                data: Dict[str, Any] = {"tag_id": [bangumi_id, subtitle_id, BANGUMI_TAG]}
                 response = get_response(DETAIL_URL, "POST", json=data)
                 response_data.extend(response["torrents"])
         else:

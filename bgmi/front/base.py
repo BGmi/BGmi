@@ -16,7 +16,7 @@ WEEK = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
 
 class BaseHandler(tornado.web.RequestHandler):
-    patch_list = []  # type: List[dict]
+    patch_list: List[dict] = []
     latest_version = None
 
     def get_json(self) -> Any:

@@ -80,7 +80,7 @@ STATUS_ERROR = "error"
 STATUS_INFO = "info"
 
 SPACIAL_APPEND_CHARS = ["Ⅱ", "Ⅲ", "♪", "Δ", "×", "☆", "É", "·", "♭", "★"]
-SPACIAL_REMOVE_CHARS = []  # type: List[str]
+SPACIAL_REMOVE_CHARS: List[str] = []
 
 UNSUPPORTED_VIDEO_CODING = [
     "hevc",
@@ -88,7 +88,7 @@ UNSUPPORTED_VIDEO_CODING = [
 COMMON_EXCLUDE_KEYWORD = UNSUPPORTED_VIDEO_CODING
 
 # There should be no `'` in any help message
-actions_and_arguments = [
+actions_and_arguments: List[dict] = [
     {
         "action": ACTION_ADD,
         "help": "Subscribe bangumi.",
@@ -372,7 +372,6 @@ actions_and_arguments = [
     {"action": "install", "help": "Install BGmi front / admin / download delegate"},
     {"action": "upgrade", "help": "Check update."},
     {"action": "history", "help": "List your history of following bangumi"},
-]  # type: List[dict]
-
+]
 
 BANGUMI_UPDATE_TIME = ("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Unknown")
