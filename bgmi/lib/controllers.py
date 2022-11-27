@@ -1,4 +1,3 @@
-import imghdr
 import os.path
 import time
 from operator import itemgetter
@@ -184,6 +183,9 @@ def delete(name: str = "", clear_all: bool = False, batch: bool = False) -> Cont
     return result
 
 
+import filetype
+
+
 def cal(
     force_update: bool = False, save: bool = False, cover: Optional[List[str]] = None
 ) -> Dict[str, List[Dict[str, Any]]]:
@@ -207,7 +209,7 @@ def cal(
             for bangumi in daily_bangumi:
                 _, file_path = convert_cover_url_to_path(bangumi["cover"])
 
-                if not (os.path.exists(file_path) and bool(imghdr.what(file_path))):
+                if not (os.path.exists(file_path) and filetype.is_image(file_path)):
                     cover_to_be_download.append(bangumi["cover"])
 
         if cover_to_be_download:
