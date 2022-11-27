@@ -138,7 +138,7 @@ def cal_wrapper(ret: Any) -> None:
     save = not ret.no_save
 
     runner = ScriptRunner()
-    cover = None  # type: Optional[List[str]]
+    cover: Optional[List[str]] = None
 
     if ret.download_cover:
         cover = runner.get_download_cover()
@@ -267,7 +267,7 @@ def complete(ret: Any) -> None:
 
     all_config = [x for x in bgmi.config.__all__ if not x == "DATA_SOURCE"]
 
-    actions_and_opts = {}  # type: Dict[str,list]
+    actions_and_opts: Dict[str, list] = {}
     helper = {}
     for action_dict in actions_and_arguments:
         actions_and_opts[action_dict["action"]] = []

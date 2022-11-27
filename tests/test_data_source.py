@@ -8,7 +8,7 @@ from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
 
 @pytest.mark.parametrize("source", DATA_SOURCE_MAP.keys())
 def test_info(source, data_source_bangumi_name):
-    w = DATA_SOURCE_MAP[source]()  # type: BaseWebsite
+    w: BaseWebsite = DATA_SOURCE_MAP[source]()
     bangumi_result = w.fetch_bangumi_calendar()
     assert bangumi_result, f"website {source} should return bangumi list"
     for bangumi in bangumi_result:
@@ -40,5 +40,5 @@ def test_mikan_fetch_all_episode():
     https://mikanani.me/Home/Bangumi/2242
     """
     w = mikan.Mikanani()
-    results = w.fetch_episode_of_bangumi("2242", ["34"])
+    results = w.fetch_episode_of_bangumi("2242", subtitle_list=["34"])
     assert len(results) > 15, "should fetch more episode in expand button"
