@@ -537,7 +537,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "pylint"
-version = "2.15.5"
+version = "2.15.6"
 description = "python code static checker"
 category = "dev"
 optional = false
@@ -602,15 +602,15 @@ pytest = ">=4.0.0"
 
 [[package]]
 name = "pytest-rerunfailures"
-version = "10.2"
+version = "10.3"
 description = "pytest plugin to re-run tests to eliminate flaky failures"
 category = "dev"
 optional = false
-python-versions = ">= 3.6"
+python-versions = ">=3.6"
 
 [package.dependencies]
+packaging = ">=17.1"
 pytest = ">=5.3"
-setuptools = ">=40.0"
 
 [[package]]
 name = "python-dateutil"
@@ -791,7 +791,7 @@ docs = ["sphinx (==4.3.2)", "sphinx-rtd-theme (==1.0.0)"]
 
 [[package]]
 name = "types-requests"
-version = "2.28.11.4"
+version = "2.28.11.5"
 description = "Typing stubs for requests"
 category = "dev"
 optional = false
@@ -876,7 +876,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8.0"
-content-hash = "0b1837e9c9fe72b5ea79e6ecb238df5e6a818633954bb9d96213a98bd43b9bfc"
+content-hash = "d171da07bc8e780453af3de2cc0cf7227289b350f97fdac3e0cd0511bd70dcc2"
 
 [metadata.files]
 appdirs = [
@@ -1231,8 +1231,8 @@ pyflakes = [
     {file = "pyflakes-2.5.0.tar.gz", hash = "sha256:491feb020dca48ccc562a8c0cbe8df07ee13078df59813b83959cbdada312ea3"},
 ]
 pylint = [
-    {file = "pylint-2.15.5-py3-none-any.whl", hash = "sha256:c2108037eb074334d9e874dc3c783752cc03d0796c88c9a9af282d0f161a1004"},
-    {file = "pylint-2.15.5.tar.gz", hash = "sha256:3b120505e5af1d06a5ad76b55d8660d44bf0f2fc3c59c2bdd94e39188ee3a4df"},
+    {file = "pylint-2.15.6-py3-none-any.whl", hash = "sha256:15060cc22ed6830a4049cf40bc24977744df2e554d38da1b2657591de5bcd052"},
+    {file = "pylint-2.15.6.tar.gz", hash = "sha256:25b13ddcf5af7d112cf96935e21806c1da60e676f952efb650130f2a4483421c"},
 ]
 pyparsing = [
     {file = "pyparsing-3.0.9-py3-none-any.whl", hash = "sha256:5026bae9a10eeaefb61dab2f09052b9f4307d44aee4eda64b309723d8d206bbc"},
@@ -1247,8 +1247,8 @@ pytest-github-actions-annotate-failures = [
     {file = "pytest_github_actions_annotate_failures-0.1.7-py2.py3-none-any.whl", hash = "sha256:c4a7346d1d95f731a6b53e9a45f10ca56593978149266dd7526876cce403ea38"},
 ]
 pytest-rerunfailures = [
-    {file = "pytest-rerunfailures-10.2.tar.gz", hash = "sha256:9e1e1bad51e07642c5bbab809fc1d4ec8eebcb7de86f90f1a26e6ef9de446697"},
-    {file = "pytest_rerunfailures-10.2-py3-none-any.whl", hash = "sha256:d31d8e828dfd39363ad99cd390187bf506c7a433a89f15c3126c7d16ab723fe2"},
+    {file = "pytest-rerunfailures-10.3.tar.gz", hash = "sha256:d8244d799f89a6edb5e57301ddaeb3b6f10d6691638d51e80b371311592e28c6"},
+    {file = "pytest_rerunfailures-10.3-py3-none-any.whl", hash = "sha256:6be6f96510bf94b54198bf15bc5568fe2cdff88e83875912e22d29810acf65ff"},
 ]
 python-dateutil = [
     {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
@@ -1358,8 +1358,8 @@ transmission-rpc = [
     {file = "transmission_rpc-3.4.0-py3-none-any.whl", hash = "sha256:777016b0a8031aafc070706e9ee78176c23b38b6ffe784fc3ce7cbfa0bb50b6e"},
 ]
 types-requests = [
-    {file = "types-requests-2.28.11.4.tar.gz", hash = "sha256:d4f342b0df432262e9e326d17638eeae96a5881e78e7a6aae46d33870d73952e"},
-    {file = "types_requests-2.28.11.4-py3-none-any.whl", hash = "sha256:bdb1f9811e53d0642c8347b09137363eb25e1a516819e190da187c29595a1df3"},
+    {file = "types-requests-2.28.11.5.tar.gz", hash = "sha256:a7df37cc6fb6187a84097da951f8e21d335448aa2501a6b0a39cbd1d7ca9ee2a"},
+    {file = "types_requests-2.28.11.5-py3-none-any.whl", hash = "sha256:091d4a5a33c1b4f20d8b1b952aa8fa27a6e767c44c3cf65e56580df0b05fd8a9"},
 ]
 types-urllib3 = [
     {file = "types-urllib3-1.26.25.3.tar.gz", hash = "sha256:1807b87b8ee1ae0226813ba2c52330eff20fb2bf6359b1de24df08eb3090e442"},
