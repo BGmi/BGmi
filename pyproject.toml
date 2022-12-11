@@ -53,7 +53,7 @@ stevedore = "==4.1.1"
 filetype = "1.2.0"
 # RPC library
 transmission-rpc = "==3.4.0"
-qbittorrent-api = "==2022.10.39"
+qbittorrent-api = "==2022.11.40"
 
 [tool.poetry.dev-dependencies]
 black = "==22.10.0"
