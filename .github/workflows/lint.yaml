@@ -1,6 +1,11 @@
 name: lint
 
-on: [push, pull_request]
+on:
+  push:
+    branches-ignore:
+      - renovate/**
+      - deepsource-*
+  pull_request: {}
 
 defaults:
   run:
