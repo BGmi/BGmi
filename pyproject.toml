@@ -58,7 +58,7 @@ qbittorrent-api = "==2022.11.40"
 [tool.poetry.dev-dependencies]
 black = "==22.12.0"
 # tests
-coverage = { version = "==6.5.0", extras = ['toml'] }
+coverage = { version = "==7.0.0", extras = ['toml'] }
 pytest = "==7.2.0"
 pytest-github-actions-annotate-failures = "==0.1.7"
 pytest-rerunfailures = "==10.3"
