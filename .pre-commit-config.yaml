@@ -49,7 +49,7 @@ repos:
           - --expand-star-imports
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.11.2
+    rev: 5.11.3
     hooks:
       - id: isort
 
