@@ -6,38 +6,68 @@
     "github>Trim21/renovate-config:poetry",
     "github>Trim21/renovate-config:app"
   ],
-  "enabledManagers": ["pre-commit", "poetry", "github-actions"],
+  "enabledManagers": [
+    "pre-commit",
+    "poetry",
+    "github-actions"
+  ],
   "pre-commit": {
     "enabled": true
   },
-  "baseBranches": ["master"],
+  "baseBranches": [
+    "master"
+  ],
   "rangeStrategy": "pin",
   "separateMajorMinor": true,
   "lockFileMaintenance": {
-    "schedule": ["before 5am on monday"]
+    "schedule": [
+      "before 5am on monday"
+    ]
   },
   "packageRules": [
     {
+      "automerge": true,
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ]
+    },
+    {
       "groupName": "pre-commit hooks",
-      "matchManagers": ["pre-commit"],
+      "matchManagers": [
+        "pre-commit"
+      ],
       "semanticCommitType": "style",
       "semanticCommitScope": ""
     },
     {
-      "matchPackageNames": ["wcwidth"],
+      "matchPackageNames": [
+        "wcwidth"
+      ],
       "rangeStrategy": "bump"
     },
     {
       "groupName": "deps-prod",
-      "matchManagers": ["poetry"],
-      "matchDepTypes": ["dependencies"],
+      "matchManagers": [
+        "poetry"
+      ],
+      "matchDepTypes": [
+        "dependencies"
+      ],
       "semanticCommitScope": "deps"
     },
     {
       "groupName": "deps-dev",
-      "matchManagers": ["poetry"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "matchDepTypes": ["dev-dependencies"],
+      "matchManagers": [
+        "poetry"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "matchDepTypes": [
+        "dev-dependencies"
+      ],
       "semanticCommitScope": "dev"
     }
   ]
