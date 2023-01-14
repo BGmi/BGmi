@@ -59,7 +59,7 @@ qbittorrent-api = "==2022.11.40"
 black = "==22.12.0"
 # tests
 coverage = { version = "==7.0.5", extras = ['toml'] }
-pytest = "==7.2.0"
+pytest = "==7.2.1"
 pytest-github-actions-annotate-failures = "==0.1.8"
 pytest-rerunfailures = "==10.3"
 requests-cache = "==0.9.8"
