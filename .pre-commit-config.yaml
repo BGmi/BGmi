@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/python-poetry/poetry
-    rev: "1.3.1"
+    rev: "1.3.2"
     hooks:
       - id: poetry-check
       - id: poetry-lock
@@ -49,7 +49,7 @@ repos:
           - --expand-star-imports
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.11.3
+    rev: 5.11.4
     hooks:
       - id: isort
 
