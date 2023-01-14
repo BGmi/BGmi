@@ -43,12 +43,12 @@ bgmi_http = 'bgmi.front.server:main'
 [tool.poetry.dependencies]
 python = "^3.8.0"
 beautifulsoup4 = '==4.11.1'
-requests = '==2.28.1'
+requests = '==2.28.2'
 tornado = '==6.2'
-icalendar = '==5.0.3'
+icalendar = '==5.0.4'
 peewee = '==3.15.4'
 wcwidth = "^0.2.5"
-pydantic = "==1.10.2"
+pydantic = "==1.10.4"
 stevedore = "==4.1.1"
 filetype = "1.2.0"
 # RPC library
