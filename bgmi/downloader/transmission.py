@@ -11,6 +11,7 @@ class TransmissionRPC(BaseDownloadService):
             port=config.TRANSMISSION_RPC_PORT,
             username=config.TRANSMISSION_RPC_USERNAME,
             password=config.TRANSMISSION_RPC_PASSWORD,
+            path=config.TRANSMISSION_RPC_PATH,
         )
 
     @staticmethod
