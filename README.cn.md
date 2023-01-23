@@ -218,6 +218,7 @@ Transmission-rpc:
 - `TRANSMISSION_RPC_PORT`: transmission rpc port
 - `TRANSMISSION_RPC_USERNAME`: transmission rpc username
 - `TRANSMISSION_RPC_PASSWORD`: transmission rpc password
+- `TRANSMISSION_RPC_PATH`: transmission rpc path (对应 transmission 配置文件中的`"rpc-url": "/transmission/",`)
 
 Deluge-rpc:
 
