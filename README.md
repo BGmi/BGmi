@@ -240,6 +240,7 @@ Transmission-rpc configure:
 - `TRANSMISSION_RPC_PORT`: transmission rpc port
 - `TRANSMISSION_RPC_USERNAME`: transmission rpc username (leave it default if you don't set rpc authentication)
 - `TRANSMISSION_RPC_PASSWORD`: transmission rpc password (leave it default if you don't set rpc authentication)
+- `TRANSMISSION_RPC_PATH`: transmission rpc path (For `"rpc-url": "/transmission/",` in the transmission configuration file)
 
 Deluge-rpc configure:
 
