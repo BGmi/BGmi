@@ -56,19 +56,19 @@ transmission-rpc = "==3.4.0"
 qbittorrent-api = "==2022.11.40"
 
 [tool.poetry.dev-dependencies]
-black = "==22.12.0"
+black = "==23.1.0"
 # tests
 coverage = { version = "==7.0.5", extras = ['toml'] }
 pytest = "==7.2.1"
 pytest-github-actions-annotate-failures = "==0.1.8"
-pytest-rerunfailures = "==10.3"
+pytest-rerunfailures = "==11.0"
 requests-cache = "==0.9.8"
 # lint
-pre-commit = '==2.21.0'
+pre-commit = '==3.0.3'
 mypy = "==0.991"
-flake8 = "==5.0.4"
+flake8 = "==6.0.0"
 flake8-comprehensions = "==3.10.1"
-flake8-bugbear = "==22.12.6"
+flake8-bugbear = "==23.1.20"
 flake8-mutable = "1.2.0"
 flake8-eradicate = "==1.4.0"
 flake8-pep3101 = "==2.0.0"
