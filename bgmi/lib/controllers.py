@@ -274,7 +274,7 @@ def search(
     dupe: bool = False,
     min_episode: Optional[int] = None,
     max_episode: Optional[int] = None,
-    tag: Optional[str] = None,
+    tag: bool = False,
     subtitle: Optional[str] = None,
 ) -> ControllerResult:
     try:
