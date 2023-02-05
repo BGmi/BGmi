@@ -331,19 +331,13 @@ actions_and_arguments: List[dict] = [
                     help="Minimum episode filter of title.",
                 ),
             },
-            {
-                "dest": "--tag",
-                "kwargs": dict(
-                    action="store_true",
-                    help="Use tag to search"
-                )
-            },
+            {"dest": "--tag", "kwargs": dict(action="store_true", help="Use tag to search")},
             {
                 "dest": "--subtitle",
                 "kwargs": dict(
                     type=str,
                     help="Subtitle group filter of title (Need --tag enabled)",
-                )
+                ),
             },
             {
                 "dest": "--max-episode",

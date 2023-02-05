@@ -180,18 +180,14 @@ class BangumiMoe(BaseWebsite):
 
     def search_by_tag(self, tag: str, subtitle: Optional[str] = None, count: Optional[int] = None) -> List[Episode]:
         def query_tag(query: str) -> tuple[str, str]:
-            data = get_response(SEARCH_TAG_URL, "POST", json={
-                "name": query,
-                "keywords": True,
-                "multi": False
-            })
+            data = get_response(SEARCH_TAG_URL, "POST", json={"name": query, "keywords": True, "multi": False})
 
-            if not data['success'] or not data['found']:
+            if not data["success"] or not data["found"]:
                 raise Exception("Search tag failed, keyword: " + query)
-            tag: dict = data['tag']
+            tag: dict = data["tag"]
 
-            tag_id = tag['_id']
-            name = tag['name']
+            tag_id = tag["_id"]
+            name = tag["name"]
 
             return (tag_id, name)
 

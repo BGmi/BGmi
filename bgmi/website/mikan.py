@@ -1,5 +1,5 @@
-import time
 import datetime
+import time
 from collections import defaultdict
 from typing import List, Optional
 
@@ -9,10 +9,9 @@ from strsimpy.normalized_levenshtein import NormalizedLevenshtein
 
 from bgmi.config import MAX_PAGE
 from bgmi.session import session as requests
-from bgmi.utils import parse_episode
+from bgmi.utils import parse_episode, print_info
 from bgmi.website.base import BaseWebsite
 from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
-from bgmi.utils import print_info
 
 server_root = "https://mikanani.me/"
 
@@ -227,9 +226,9 @@ class Mikanani(BaseWebsite):
                         subgroup_links.append(link[len(subgroup_link_prefix):])
 
                     if link.startswith(rss_link_prefix):
-                        req: str = link[len(rss_link_prefix) + 1:]
-                        for r in req.split('&'):
-                            key, val = r.split('=', maxsplit=1)
+                        req: str = link[len(rss_link_prefix) + 1 :]
+                        for r in req.split("&"):
+                            key, val = r.split("=", maxsplit=1)
                             sub_info[key] = val
             if not subgroup_names:
                 continue
@@ -250,7 +249,7 @@ class Mikanani(BaseWebsite):
         bangumiId, subgroupid = sub_info["bangumiId"], sub_info["subgroupid"]
         rss_url = f"{server_root}RSS/Bangumi?bangumiId={bangumiId}&subgroupid={subgroupid}"
 
-        subtitle_group = ' '.join(subgroup_names)
+        subtitle_group = " ".join(subgroup_names)
         if subtitle:
             print_info(f"Matched subtitle: {subtitle_group} ({subgroupid})")
         else:
@@ -260,19 +259,21 @@ class Mikanani(BaseWebsite):
         s = BeautifulSoup(r, "xml")
 
         result = []
-        for item in s.find_all('item'):
+        for item in s.find_all("item"):
             link = item.link.text
             title = item.title.text
             pub_date = int(datetime.datetime.fromisoformat(item.torrent.pubDate.text).timestamp())
 
-            result.append(Episode(
-                download=link,
-                name=animate_name,
-                title=title,
-                subtitle_group=subtitle_group,
-                episode=self.parse_episode(title),
-                time=pub_date,
-            ))
+            result.append(
+                Episode(
+                    download=link,
+                    name=animate_name,
+                    title=title,
+                    subtitle_group=subtitle_group,
+                    episode=self.parse_episode(title),
+                    time=pub_date,
+                )
+            )
         result = result[::-1]
         return result
 

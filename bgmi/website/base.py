@@ -161,7 +161,7 @@ class BaseWebsite:
         :param count: how many page to fetch from website
         :return: list of episode search result
         """
-        # Not implemented for some website
+        # Not implemented for some websites
         # Return empty list directly
         return []
 
