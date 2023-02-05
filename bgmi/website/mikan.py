@@ -272,7 +272,7 @@ class Mikanani(BaseWebsite):
             pub_date = pub_date_el.text if pub_date_el is not None else None
 
             if link and title and pub_date:
-                pub_date = int(datetime.datetime.fromisoformat(pub_date).timestamp())
+                pub_date_ts = int(datetime.datetime.fromisoformat(pub_date).timestamp())
 
                 result.append(
                     Episode(
@@ -281,7 +281,7 @@ class Mikanani(BaseWebsite):
                         title=title,
                         subtitle_group=subtitle_group,
                         episode=self.parse_episode(title),
-                        time=pub_date,
+                        time=pub_date_ts,
                     )
                 )
         result = result[::-1]
