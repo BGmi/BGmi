@@ -205,9 +205,9 @@ class BangumiMoe(BaseWebsite):
 
         subtitle_id = None
         if subtitle:
-            subtitle_id, _ = query_tag(subtitle)
+            subtitle_id, subtitle_name = query_tag(subtitle)
 
-            print_info(f"Matched subtitle: {subtitle} ({subtitle_id})")
+            print_info(f"Matched subtitle: {subtitle_name} ({subtitle_id})")
 
         tag_id = [anime_id, BANGUMI_TAG]
         if subtitle_id:
