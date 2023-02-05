@@ -10,6 +10,9 @@ from bgmi.session import session as requests
 from bgmi.utils import parse_episode
 from bgmi.website.base import BaseWebsite
 from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
+from bgmi.utils import print_info
+import datetime
+from strsimpy.normalized_levenshtein import NormalizedLevenshtein
 
 server_root = "https://mikanani.me/"
 
@@ -188,6 +191,90 @@ class Mikanani(BaseWebsite):
 
         bangumi_info["subtitle_group"] = [SubtitleGroup(**x) for x in nr]
         return bangumi_info
+
+    def search_by_tag(self, tag: str, subtitle: Optional[str] = None, count: Optional[int] = None) -> list:
+        r = get_text(server_root + "Home/Search", params={"searchstr": tag})
+        s = BeautifulSoup(r, "html.parser")
+        animate = s.find_all("div", attrs={"class": "an-info-group"})[0]
+        animate_name = animate.text.strip()
+        animate_link = animate.parent.parent.attrs["href"]
+        animate_id = animate_link.split("/")[-1]
+        print_info(f"Matched animate: {animate_name} ({animate_id})")
+        animate_link = animate_link.lstrip("/")
+
+        r = get_text(server_root + animate_link)
+        s = BeautifulSoup(r, "html.parser")
+
+        lowest_distance = 1.0
+        best_sim_match_group = None
+
+        normalized_levenshtein = NormalizedLevenshtein()
+
+        subgroup_list = s.find_all("div", attrs={"class": "subgroup-text"})
+        for subgroup in subgroup_list:
+            subgroup_names = []
+            subgroup_links = []
+            sub_info = {}
+
+            for href_ele in subgroup.find_all("a", href=True):
+                link = href_ele["href"]
+
+                subgroup_link_prefix = "/Home/PublishGroup/"
+                rss_link_prefix = "/RSS/Bangumi"
+                if link:
+                    if link.startswith(subgroup_link_prefix):
+                        subgroup_names.append(href_ele.text)
+                        subgroup_links.append(link[len(subgroup_link_prefix):])
+
+                    if link.startswith(rss_link_prefix):
+                        req: str = link[len(rss_link_prefix) + 1:]
+                        for r in req.split('&'):
+                            key, val = r.split('=', maxsplit=1)
+                            sub_info[key] = val
+            if not subgroup_names:
+                continue
+
+            if subtitle:
+                cmp_text = ' '.join(subgroup_names)
+                sim_distance = normalized_levenshtein.distance(cmp_text, subtitle)
+                if sim_distance < lowest_distance:
+                    lowest_distance = sim_distance
+                    best_sim_match_group = (subgroup, subgroup_names, subgroup_links, sub_info)
+            else:
+                best_sim_match_group = (subgroup, subgroup_names, subgroup_links, sub_info)
+                break
+
+        if not best_sim_match_group:
+            return []
+        subgroup, subgroup_names, subgroup_links, sub_info = best_sim_match_group
+        bangumiId, subgroupid = sub_info["bangumiId"], sub_info["subgroupid"]
+        rss_url = f"{server_root}RSS/Bangumi?bangumiId={bangumiId}&subgroupid={subgroupid}"
+
+        subtitle_group = ' '.join(subgroup_names)
+        if subtitle:
+            print_info(f"Matched subtitle: {subtitle_group} ({subgroupid})")
+        else:
+            print_info(f"Use first subtitle: {subtitle_group} ({subgroupid})")
+
+        r = get_text(rss_url)
+        s = BeautifulSoup(r, "xml")
+
+        result = []
+        for item in s.find_all('item'):
+            link = item.link.text
+            title = item.title.text
+            pub_date = int(datetime.datetime.fromisoformat(item.torrent.pubDate.text).timestamp())
+
+            result.append(Episode(
+                download=link,
+                name=animate_name,
+                title=title,
+                subtitle_group=subtitle_group,
+                episode=self.parse_episode(title),
+                time=pub_date,
+            ))
+        result = result[::-1]
+        return result
 
     def search_by_keyword(self, keyword, count=None):
         result = []
