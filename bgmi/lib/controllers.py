@@ -274,13 +274,18 @@ def search(
     dupe: bool = False,
     min_episode: Optional[int] = None,
     max_episode: Optional[int] = None,
+    tag: Optional[str] = None,
+    subtitle: Optional[str] = None,
 ) -> ControllerResult:
     try:
         count = int(count)
     except (TypeError, ValueError):
         count = 3
     try:
-        data = website.search_by_keyword(keyword, count=count)
+        if tag:
+            data = website.search_by_tag(keyword, subtitle=subtitle, count=count)
+        else:
+            data = website.search_by_keyword(keyword, count=count)
         data = episode_filter_regex(data, regex=regex)
         if min_episode is not None:
             data = [x for x in data if x.episode >= min_episode]

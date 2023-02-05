@@ -10,6 +10,7 @@ from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.utils import bug_report, print_error, print_info, print_warning
 from bgmi.website.base import BaseWebsite
 from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
+from bgmi.lib.models import Bangumi
 
 # tag of bangumi on bangumi.moe
 BANGUMI_TAG = "549ef207fe682f7549f1ea90"
@@ -20,6 +21,7 @@ TEAM_URL = f"{BANGUMI_MOE_URL}{__split}api/team/working"
 NAME_URL = f"{BANGUMI_MOE_URL}{__split}api/tag/fetch"
 DETAIL_URL = f"{BANGUMI_MOE_URL}{__split}api/torrent/search"
 SEARCH_URL = f"{BANGUMI_MOE_URL}{__split}api/v2/torrent/search"
+SEARCH_TAG_URL = f"{BANGUMI_MOE_URL}{__split}api/tag/search"
 TORRENT_URL = f"{BANGUMI_MOE_URL}{__split}download/torrent/"
 COVER_URL = "https://bangumi.moe/"
 
@@ -151,20 +153,8 @@ class BangumiMoe(BaseWebsite):
         bangumi_result = parser_bangumi(response)
         return [WebsiteBangumi(**x) for x in bangumi_result]
 
-    def search_by_keyword(self, keyword: str, count: Optional[int] = None) -> list:
-        if not count:
-            count = 3
-
-        rows = []
+    def process_search_result(self, keyword, rows) -> list:
         result = []
-
-        for i in range(count):
-            data = get_response(SEARCH_URL, "POST", json={"query": keyword, "p": i + 1})
-            if "torrents" not in data:
-                print_warning("No torrents in response data, please re-run")
-                return []
-            rows.extend(data["torrents"])
-
         for info in rows:
             result.append(
                 Episode(
@@ -186,4 +176,68 @@ class BangumiMoe(BaseWebsite):
         # Avoid bangumi collection.
         # It's ok but it will waste your traffic and bandwidth.
         result = result[::-1]
+
+        return result
+
+    def search_by_tag(self, tag: str, subtitle: Optional[str] = None, count: Optional[int] = None) -> list:
+        def query_tag(query: str) -> tuple[str, str]:
+            data = get_response(SEARCH_TAG_URL, "POST", json={
+                "name": query,
+                "keywords": True,
+                "multi": False
+            })
+
+            if not data['success'] or not data['found']:
+                raise Exception("Search tag failed, keyword: " + query)
+            tag: dict = data['tag']
+
+            tag_id = tag['_id']
+            name = tag['name']
+
+            return (tag_id, name)
+
+        if not count:
+            count = 3
+
+        anime_id, anime_name = query_tag(tag)
+
+        subtitle_id = None
+        if subtitle:
+            subtitle_id, _ = query_tag(subtitle)
+
+        tag_id = [anime_id, BANGUMI_TAG]
+        if subtitle_id:
+            tag_id.append(subtitle_id)
+
+        rows = []
+
+        for i in range(count):
+            data = get_response(DETAIL_URL, "POST", json={"tag_id": tag_id, "p": i + 1})
+            if "torrents" not in data:
+                print_warning("No torrents in response data, please re-run")
+                return []
+            rows.extend(data["torrents"])
+
+            if "page_count" in data:
+                page_count = data["page_count"]
+                if page_count - 1 == i:
+                    break
+
+        result = self.process_search_result(anime_name, rows)
+        return result
+
+    def search_by_keyword(self, keyword: str, count: Optional[int] = None) -> list:
+        if not count:
+            count = 3
+
+        rows = []
+
+        for i in range(count):
+            data = get_response(SEARCH_URL, "POST", json={"query": keyword, "p": i + 1})
+            if "torrents" not in data:
+                print_warning("No torrents in response data, please re-run")
+                return []
+            rows.extend(data["torrents"])
+
+        result = self.process_search_result(keyword, rows)
         return result

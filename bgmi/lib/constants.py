@@ -332,6 +332,20 @@ actions_and_arguments: List[dict] = [
                 ),
             },
             {
+                "dest": "--tag",
+                "kwargs": dict(
+                    action="store_true",
+                    help="Use tag to search (For bangumi_moe only)"
+                )
+            },
+            {
+                "dest": "--subtitle",
+                "kwargs": dict(
+                    type=str,
+                    help="Subtitle group filter of title (Need --tag enabled, for bangumi_moe only)",
+                )
+            },
+            {
                 "dest": "--max-episode",
                 "kwargs": dict(
                     metavar="max_episode",

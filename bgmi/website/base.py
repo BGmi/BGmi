@@ -153,6 +153,16 @@ class BaseWebsite:
         """
         raise NotImplementedError
 
+    def search_by_tag(self, tag: str, subtitle: Optional[str] = None, count: Optional[int] = None) -> list:
+        """
+
+        :param tag: search tag
+        :param subtitle: search subtitle group name
+        :param count: how many page to fetch from website
+        :return: list of episode search result
+        """
+        raise NotImplementedError
+
     def fetch_bangumi_calendar(self) -> List[WebsiteBangumi]:  # pragma: no cover
         """
         return a list of all bangumi and a list of all subtitle group
