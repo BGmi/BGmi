@@ -2,6 +2,7 @@ import datetime
 import time
 from collections import defaultdict
 from typing import List, Optional
+from xml.etree import ElementTree
 
 import bs4
 from bs4 import BeautifulSoup
@@ -256,24 +257,33 @@ class Mikanani(BaseWebsite):
             print_info(f"Use first subtitle: {subtitle_group} ({subgroupid})")
 
         r = get_text(rss_url)
-        s = BeautifulSoup(r, "xml")
+        rss_root = ElementTree.fromstring(r)
 
         result = []
-        for item in s.find_all("item"):
-            link = item.link.text
-            title = item.title.text
-            pub_date = int(datetime.datetime.fromisoformat(item.torrent.pubDate.text).timestamp())
+        for item in rss_root[0].findall("item"):
+            link = item.find('link')
+            link = link.text if link is not None else None
+            title = item.find('title')
+            title = title.text if title is not None else None
 
-            result.append(
-                Episode(
-                    download=link,
-                    name=animate_name,
-                    title=title,
-                    subtitle_group=subtitle_group,
-                    episode=self.parse_episode(title),
-                    time=pub_date,
+            xmlns = '{https://mikanani.me/0.1/}'
+            torrent = item.find(f'{xmlns}torrent')
+            pub_date = torrent.find(f'{xmlns}pubDate') if torrent is not None else None
+            pub_date = pub_date.text if pub_date is not None else None
+
+            if link and title and pub_date:
+                pub_date = int(datetime.datetime.fromisoformat(pub_date).timestamp())
+
+                result.append(
+                    Episode(
+                        download=link,
+                        name=animate_name,
+                        title=title,
+                        subtitle_group=subtitle_group,
+                        episode=self.parse_episode(title),
+                        time=pub_date,
+                    )
                 )
-            )
         result = result[::-1]
         return result
 
