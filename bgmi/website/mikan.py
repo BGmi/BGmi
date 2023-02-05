@@ -1,9 +1,11 @@
 import time
+import datetime
 from collections import defaultdict
 from typing import List, Optional
 
 import bs4
 from bs4 import BeautifulSoup
+from strsimpy.normalized_levenshtein import NormalizedLevenshtein
 
 from bgmi.config import MAX_PAGE
 from bgmi.session import session as requests
@@ -11,8 +13,6 @@ from bgmi.utils import parse_episode
 from bgmi.website.base import BaseWebsite
 from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
 from bgmi.utils import print_info
-import datetime
-from strsimpy.normalized_levenshtein import NormalizedLevenshtein
 
 server_root = "https://mikanani.me/"
 
@@ -192,7 +192,7 @@ class Mikanani(BaseWebsite):
         bangumi_info["subtitle_group"] = [SubtitleGroup(**x) for x in nr]
         return bangumi_info
 
-    def search_by_tag(self, tag: str, subtitle: Optional[str] = None, count: Optional[int] = None) -> list:
+    def search_by_tag(self, tag: str, subtitle: Optional[str] = None, count: Optional[int] = None) -> List[Episode]:
         r = get_text(server_root + "Home/Search", params={"searchstr": tag})
         s = BeautifulSoup(r, "html.parser")
         animate = s.find_all("div", attrs={"class": "an-info-group"})[0]

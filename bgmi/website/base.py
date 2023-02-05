@@ -153,7 +153,7 @@ class BaseWebsite:
         """
         raise NotImplementedError
 
-    def search_by_tag(self, tag: str, subtitle: Optional[str] = None, count: Optional[int] = None) -> list:
+    def search_by_tag(self, tag: str, subtitle: Optional[str] = None, count: Optional[int] = None) -> List[Episode]:
         """
 
         :param tag: search tag
@@ -161,7 +161,9 @@ class BaseWebsite:
         :param count: how many page to fetch from website
         :return: list of episode search result
         """
-        raise NotImplementedError
+        # Not implemented for some website
+        # Return empty list directly
+        return []
 
     def fetch_bangumi_calendar(self) -> List[WebsiteBangumi]:  # pragma: no cover
         """

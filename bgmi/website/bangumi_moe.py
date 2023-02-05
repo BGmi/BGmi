@@ -10,7 +10,6 @@ from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.utils import bug_report, print_error, print_info, print_warning
 from bgmi.website.base import BaseWebsite
 from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
-from bgmi.lib.models import Bangumi
 
 # tag of bangumi on bangumi.moe
 BANGUMI_TAG = "549ef207fe682f7549f1ea90"
@@ -179,7 +178,7 @@ class BangumiMoe(BaseWebsite):
 
         return result
 
-    def search_by_tag(self, tag: str, subtitle: Optional[str] = None, count: Optional[int] = None) -> list:
+    def search_by_tag(self, tag: str, subtitle: Optional[str] = None, count: Optional[int] = None) -> List[Episode]:
         def query_tag(query: str) -> tuple[str, str]:
             data = get_response(SEARCH_TAG_URL, "POST", json={
                 "name": query,
