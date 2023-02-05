@@ -224,7 +224,7 @@ class Mikanani(BaseWebsite):
                 if link:
                     if link.startswith(subgroup_link_prefix):
                         subgroup_names.append(href_ele.text)
-                        subgroup_links.append(link[len(subgroup_link_prefix):])
+                        subgroup_links.append(link[len(subgroup_link_prefix) :])
 
                     if link.startswith(rss_link_prefix):
                         req: str = link[len(rss_link_prefix) + 1 :]
@@ -235,7 +235,7 @@ class Mikanani(BaseWebsite):
                 continue
 
             if subtitle:
-                cmp_text = ' '.join(subgroup_names)
+                cmp_text = " ".join(subgroup_names)
                 sim_distance = normalized_levenshtein.distance(cmp_text, subtitle)
                 if sim_distance < lowest_distance:
                     lowest_distance = sim_distance
