@@ -261,15 +261,15 @@ class Mikanani(BaseWebsite):
 
         result = []
         for item in rss_root[0].findall("item"):
-            link = item.find("link")
-            link = link.text if link is not None else None
-            title = item.find("title")
-            title = title.text if title is not None else None
+            link_el = item.find("link")
+            link = link_el.text if link_el is not None else None
+            title_el = item.find("title")
+            title = title_el.text if title_el is not None else None
 
             xmlns = "{https://mikanani.me/0.1/}"
             torrent = item.find(f"{xmlns}torrent")
-            pub_date = torrent.find(f"{xmlns}pubDate") if torrent is not None else None
-            pub_date = pub_date.text if pub_date is not None else None
+            pub_date_el = torrent.find(f"{xmlns}pubDate") if torrent is not None else None
+            pub_date = pub_date_el.text if pub_date_el is not None else None
 
             if link and title and pub_date:
                 pub_date = int(datetime.datetime.fromisoformat(pub_date).timestamp())
