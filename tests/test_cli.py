@@ -58,7 +58,7 @@ def test_search(bangumi_names):
 
 @pytest.mark.usefixtures("_clean_bgmi")
 def test_search_tag(bangumi_names, bangumi_subtitles):
-    name = bangumi_names[2]
+    name = bangumi_names[0]
     subtitle = bangumi_subtitles[0]
     main(["search", "--tag", "--subtitle", subtitle, name, "--regex-filter", ".*720P.*"])
 

@@ -40,7 +40,7 @@ def test_search_tag(source, data_source_bangumi_name, data_source_subtitle_name)
     if source not in data_source_bangumi_name.keys() or source not in data_source_subtitle_name:
         return
 
-    search_result = w.search_by_tag(data_source_bangumi_name[source][2], data_source_subtitle_name[source][0], count=1)
+    search_result = w.search_by_tag(data_source_bangumi_name[source][0], data_source_subtitle_name[source][0], count=1)
     assert search_result
     for episode in search_result:
         assert isinstance(episode, Episode)
