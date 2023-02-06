@@ -272,7 +272,8 @@ class Mikanani(BaseWebsite):
             pub_date = pub_date_el.text if pub_date_el is not None else None
 
             if link and title and pub_date:
-                pub_date_ts = int(datetime.datetime.strptime(pub_date, "%Y-%m-%dT%H:%M:%S.%f").timestamp())
+                pub_date = pub_date.split('.')[0]
+                pub_date_ts = int(datetime.datetime.strptime(pub_date, "%Y-%m-%dT%H:%M:%S").timestamp())
 
                 result.append(
                     Episode(
