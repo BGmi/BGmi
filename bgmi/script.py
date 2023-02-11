@@ -23,7 +23,6 @@ class ScriptRunner:
 
     def __new__(cls, *args, **kwargs):  # type: ignore
         if cls._defined is None:
-
             script_files = glob.glob(f"{SCRIPT_PATH}{os.path.sep}*.py")
             for i in script_files:
                 try:

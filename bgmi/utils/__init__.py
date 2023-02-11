@@ -192,7 +192,10 @@ def get_terminal_col() -> int:  # pragma: no cover
         import termios
 
         try:
-            col = struct.unpack("HHHH", fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack("HHHH", 0, 0, 0, 0)),)[
+            col = struct.unpack(
+                "HHHH",
+                fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack("HHHH", 0, 0, 0, 0)),
+            )[
                 1
             ]  # type: int
 
@@ -226,7 +229,6 @@ def get_terminal_col() -> int:  # pragma: no cover
                 sizex = right - left + 1  # type: int
                 return sizex
             else:
-
                 cols = int(subprocess.check_output("tput cols"))
                 return cols
         except Exception:

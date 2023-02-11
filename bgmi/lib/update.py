@@ -38,7 +38,6 @@ def update_database() -> None:
         exec_sql("ALTER TABLE scripts ADD COLUMN update_time INTEGER", SCRIPT_DB_PATH)
 
     if v < "2.0.6":
-
         copy(
             os.path.join(os.path.dirname(__file__), "../others/cron.vbs"),
             os.path.join(BGMI_PATH, "cron.vbs"),

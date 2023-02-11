@@ -54,7 +54,6 @@ class CalendarHandler(BaseHandler):
         data.extend(self.patch_list)
 
         if type_ is None:
-
             bangumi = defaultdict(list)
 
             for j in data:

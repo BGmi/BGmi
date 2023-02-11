@@ -131,7 +131,6 @@ class DmhySource(BaseWebsite):
         result = []
         search_url = base_url + "/topics/list/"
         for i in range(count):
-
             params = {"keyword": keyword, "page": i + 1}
 
             if os.environ.get("DEBUG", False):  # pragma: no cover
@@ -145,7 +144,6 @@ class DmhySource(BaseWebsite):
                 break
             tr_list = table.tbody.find_all("tr", {"class": ""})
             for tr in tr_list:
-
                 td_list = tr.find_all("td")
 
                 if td_list[1].a["class"][0] != "sort-2":
@@ -225,7 +223,6 @@ class DmhySource(BaseWebsite):
         keyword = bangumi_id
         search_url = base_url + "/topics/list/"
         for i in range(max_page):
-
             url = search_url + "?keyword=" + keyword + "&page=" + str(i + 1)
 
             if os.environ.get("DEBUG", False):  # pragma: no cover
@@ -239,7 +236,6 @@ class DmhySource(BaseWebsite):
                 break
             tr_list = table.tbody.find_all("tr", {"class": ""})
             for tr in tr_list:
-
                 td_list = tr.find_all("td")
 
                 if td_list[1].a["class"][0] != "sort-2":
@@ -256,7 +252,6 @@ class DmhySource(BaseWebsite):
                 tag_list = td_list[2].find_all("span", {"class": "tag"})
 
                 for tag in tag_list:
-
                     href = tag.a.get("href")
                     if href is None:
                         continue

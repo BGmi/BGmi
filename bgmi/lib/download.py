@@ -43,7 +43,6 @@ def download_prepare(data: List[Episode]) -> None:
             print_info("Add torrent into the download queue, " f"the file will be saved at {save_path}")
         except Exception as e:
             if os.getenv("DEBUG"):  # pragma: no cover
-
                 traceback.print_exc()
                 raise e
 

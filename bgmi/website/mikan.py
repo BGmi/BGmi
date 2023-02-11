@@ -138,7 +138,6 @@ def get_text(url, params=None):
 
 class Mikanani(BaseWebsite):
     def parse_bangumi_details_page(self, r):
-
         subtitle_groups = defaultdict(dict)
 
         soup = BeautifulSoup(r, "html.parser")
