@@ -39,7 +39,7 @@ repos:
         args: [--py38-plus]
 
   - repo: https://github.com/PyCQA/autoflake
-    rev: v2.0.0
+    rev: v2.0.1
     hooks:
       - id: autoflake
         args:
@@ -49,7 +49,7 @@ repos:
           - --expand-star-imports
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.11.4
+    rev: 5.12.0
     hooks:
       - id: isort
 
