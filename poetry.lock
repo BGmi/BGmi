@@ -1141,14 +1141,14 @@ files = [
 
 [[package]]
 name = "qbittorrent-api"
-version = "2022.11.40"
+version = "2023.2.41"
 description = "Python client for qBittorrent v4.1+ Web API."
 category = "main"
 optional = false
 python-versions = "*"
 files = [
-    {file = "qbittorrent-api-2022.11.40.tar.gz", hash = "sha256:64c6ae4eacbfd35d6d2ff22c963dca6d33604bcd986f188148d0826ed92217bb"},
-    {file = "qbittorrent_api-2022.11.40-py2.py3-none-any.whl", hash = "sha256:cd8f82801645421118ce8f53f2e8ca018d8d8db40c32adb19b51de43633f217b"},
+    {file = "qbittorrent-api-2023.2.41.tar.gz", hash = "sha256:187e7c35fb9f2e5c73b1c8329941302b25072a7c92529f54263dc6361cd7d32c"},
+    {file = "qbittorrent_api-2023.2.41-py2.py3-none-any.whl", hash = "sha256:2570189ded72e833a212e47d0c8093c968bb10305093012be94e101707c08903"},
 ]
 
 [package.dependencies]
@@ -1257,14 +1257,14 @@ files = [
 
 [[package]]
 name = "stevedore"
-version = "4.1.1"
+version = "5.0.0"
 description = "Manage dynamic plugins for Python applications"
 category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "stevedore-4.1.1-py3-none-any.whl", hash = "sha256:aa6436565c069b2946fe4ebff07f5041e0c8bf18c7376dd29edf80cf7d524e4e"},
-    {file = "stevedore-4.1.1.tar.gz", hash = "sha256:7f8aeb6e3f90f96832c301bff21a7eb5eefbe894c88c506483d355565d88cc1a"},
+    {file = "stevedore-5.0.0-py3-none-any.whl", hash = "sha256:bd5a71ff5e5e5f5ea983880e4a1dd1bb47f8feebbb3d95b592398e2f02194771"},
+    {file = "stevedore-5.0.0.tar.gz", hash = "sha256:2c428d2338976279e8eb2196f7a94910960d9f7ba2f41f3988511e95ca447021"},
 ]
 
 [package.dependencies]
@@ -1527,4 +1527,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.0"
-content-hash = "1ca400e2aeafa7ef9c1403cea7bfba8c141b13211b05b26ae0c31b7c81dc8229"
+content-hash = "650d7a5970f988081398e29228dd40cf73e09381452bb861c6f4292c702832a3"
