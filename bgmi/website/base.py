@@ -161,9 +161,7 @@ class BaseWebsite:
         :param count: how many page to fetch from website
         :return: list of episode search result
         """
-        # Not implemented for some websites
-        # Return empty list directly
-        return []
+        raise NotImplementedError
 
     def fetch_bangumi_calendar(self) -> List[WebsiteBangumi]:  # pragma: no cover
         """

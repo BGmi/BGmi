@@ -2,7 +2,7 @@ import os
 import re
 import time as Time
 import urllib.parse
-from typing import List
+from typing import List, Optional
 
 import requests
 from bs4 import BeautifulSoup
@@ -192,6 +192,10 @@ class DmhySource(BaseWebsite):
             bangumi_list.extend(b_list)
 
         return bangumi_list
+
+    def search_by_tag(self, tag: str, subtitle: Optional[str] = None, count: Optional[int] = None) -> List[Episode]:
+        print_error("dmhy not support search by tag")
+        return []
 
     def fetch_episode_of_bangumi(self, bangumi_id, max_page=MAX_PAGE, subtitle_list=None):
         """
