@@ -36,7 +36,7 @@ jobs:
       - name: Generate Changelog
         run: |
           git-chglog "$TAG" | node -p 'require("fs").readFileSync(0).toString().trim()
-            .split("\n").slice(4).join("\n").trim()' > chglog.md
+            .split("\n").slice(4).join("\n").trim()' | tee chglog.md
 
       - name: Upload Github Release
         run: gh release create "$TAG" -F chglog.md ./dist/*
