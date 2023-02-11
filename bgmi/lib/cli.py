@@ -97,6 +97,8 @@ def search_wrapper(ret: Any) -> None:
         dupe=ret.dupe,
         min_episode=ret.min_episode,
         max_episode=ret.max_episode,
+        tag=ret.tag,
+        subtitle=ret.subtitle,
     )
     if result["status"] != "success":
         globals()["print_{}".format(result["status"])](result["message"])

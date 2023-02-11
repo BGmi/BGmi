@@ -55,6 +55,14 @@ def data_source_bangumi_name():
 
 
 @pytest.fixture()
+def data_source_subtitle_name():
+    return {
+        "bangumi_moe": ["LoliHouse"],
+        "mikan_project": ["LoliHouse"],
+    }
+
+
+@pytest.fixture()
 def _clean_bgmi():
     recreate_source_relatively_table()
     yield
@@ -64,6 +72,11 @@ def _clean_bgmi():
 @pytest.fixture()
 def bangumi_names(data_source_bangumi_name):
     return data_source_bangumi_name["bangumi_moe"]
+
+
+@pytest.fixture()
+def bangumi_subtitles(data_source_subtitle_name):
+    return data_source_subtitle_name["bangumi_moe"]
 
 
 @pytest.fixture()

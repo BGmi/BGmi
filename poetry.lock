@@ -1271,6 +1271,18 @@ files = [
 pbr = ">=2.0.0,<2.1.0 || >2.1.0"
 
 [[package]]
+name = "strsimpy"
+version = "0.2.1"
+description = "A library implementing different string similarity and distance measures"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "strsimpy-0.2.1-py3-none-any.whl", hash = "sha256:d676a440d5d3dbcf5ba92d01814a03a218776ce07bd7a8185da7019e04cf9ba7"},
+    {file = "strsimpy-0.2.1.tar.gz", hash = "sha256:0842eb57f7af86c882a59a1bc8721ec2580a267e563fd0503ced2972040372c9"},
+]
+
+[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
@@ -1515,4 +1527,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.0"
-content-hash = "200b689b41355d865c40c77394f6d911d987166c4301b586a8534f26e8218bff"
+content-hash = "1ca400e2aeafa7ef9c1403cea7bfba8c141b13211b05b26ae0c31b7c81dc8229"

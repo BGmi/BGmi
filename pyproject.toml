@@ -54,6 +54,7 @@ filetype = "1.2.0"
 # RPC library
 transmission-rpc = "==3.4.0"
 qbittorrent-api = "==2022.11.40"
+strsimpy = "^0.2.1"
 
 [tool.poetry.dev-dependencies]
 black = "==22.12.0"
