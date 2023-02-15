@@ -58,7 +58,7 @@ strsimpy = "0.2.1"
 
 [tool.poetry.dev-dependencies]
 # tests
-coverage = { version = "==7.0.5", extras = ['toml'] }
+coverage = { version = "==7.1.0", extras = ['toml'] }
 pytest = "==7.2.1"
 pytest-github-actions-annotate-failures = "==0.1.8"
 pytest-rerunfailures = "==10.3"
@@ -73,10 +73,10 @@ flake8-mutable = "1.2.0"
 flake8-eradicate = "==1.4.0"
 flake8-pep3101 = "==2.0.0"
 flake8-2020 = "==1.7.0"
-flake8-pytest-style = "==1.6.0"
-pylint = "==2.15.10"
+flake8-pytest-style = "==1.7.2"
+pylint = "==2.16.2"
 # stubs
-types-requests = "==2.28.11.7"
+types-requests = "==2.28.11.13"
 [tool.coverage.report]
 exclude_lines = [
   'pragma: no cover',

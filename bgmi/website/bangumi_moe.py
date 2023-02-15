@@ -183,7 +183,7 @@ class BangumiMoe(BaseWebsite):
             data = get_response(SEARCH_TAG_URL, "POST", json={"name": query, "keywords": True, "multi": False})
 
             if not data["success"] or not data["found"]:
-                raise Exception("Search tag failed, keyword: " + query)
+                raise ValueError("Search tag failed, keyword: " + query)
             tag: dict = data["tag"]
 
             tag_id = tag["_id"]
