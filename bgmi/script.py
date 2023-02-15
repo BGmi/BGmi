@@ -214,7 +214,7 @@ class ScriptBase:
             try:
                 source = DATA_SOURCE_MAP[self.source]()
             except KeyError:
-                raise Exception(
+                raise ValueError(
                     "Script data source is invalid, usable sources: {}".format(", ".join(DATA_SOURCE_MAP.keys()))
                 )
             ret = {}
