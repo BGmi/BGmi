@@ -95,22 +95,15 @@ actions_and_arguments: List[dict] = [
         "arguments": [
             {
                 "dest": "name",
-                "kwargs": dict(metavar="name", type=str, nargs="+", help="Bangumi name"),
+                "kwargs": {"metavar": "name", "type": str, "nargs": "+", "help": "Bangumi name"},
             },
             {
                 "dest": "--episode",
-                "kwargs": dict(
-                    metavar="episode",
-                    help="Add bangumi and mark it as specified episode.",
-                    type=int,
-                ),
+                "kwargs": {"metavar": "episode", "help": "Add bangumi and mark it as specified episode.", "type": int},
             },
             {
                 "dest": "--not-ignore",
-                "kwargs": dict(
-                    action="store_true",
-                    help="Do not ignore the old bangumi detail rows (3 month ago).",
-                ),
+                "kwargs": {"action": "store_true", "help": "Do not ignore the old bangumi detail rows (3 month ago)."},
             },
         ],
     },
@@ -120,23 +113,18 @@ actions_and_arguments: List[dict] = [
         "arguments": [
             {
                 "dest": "--name",
-                "kwargs": dict(
-                    metavar="name",
-                    nargs="+",
-                    type=str,
-                    help="Bangumi name to unsubscribe.",
-                ),
+                "kwargs": {"metavar": "name", "nargs": "+", "type": str, "help": "Bangumi name to unsubscribe."},
             },
             {
                 "dest": "--clear-all",
-                "kwargs": dict(
-                    action="store_true",
-                    help="Clear all the subscriptions, name will be ignored If you " "provide this flag.",
-                ),
+                "kwargs": {
+                    "action": "store_true",
+                    "help": "Clear all the subscriptions, name will be ignored If you " "provide this flag.",
+                },
             },
             {
                 "dest": "--batch",
-                "kwargs": dict(action="store_true", help="No confirmation."),
+                "kwargs": {"action": "store_true", "help": "No confirmation."},
             },
         ],
     },
@@ -147,35 +135,31 @@ actions_and_arguments: List[dict] = [
         "arguments": [
             {
                 "dest": "name",
-                "kwargs": dict(metavar="name", type=str, help="Bangumi name to set the filter."),
+                "kwargs": {"metavar": "name", "type": str, "help": "Bangumi name to set the filter."},
             },
             {
                 "dest": "--subtitle",
-                "kwargs": dict(
-                    metavar="subtitle",
-                    type=str,
-                    help='Subtitle group name, split by ",".',
-                ),
+                "kwargs": {"metavar": "subtitle", "type": str, "help": 'Subtitle group name, split by ",".'},
             },
             {
                 "dest": "--include",
-                "kwargs": dict(
-                    metavar="include",
-                    type=str,
-                    help='Filter by keywords which in the title, split by ",".',
-                ),
+                "kwargs": {
+                    "metavar": "include",
+                    "type": str,
+                    "help": 'Filter by keywords which in the title, split by ",".',
+                },
             },
             {
                 "dest": "--exclude",
-                "kwargs": dict(
-                    metavar="exclude",
-                    type=str,
-                    help='Filter by keywords which not int the title, split by ",".',
-                ),
+                "kwargs": {
+                    "metavar": "exclude",
+                    "type": str,
+                    "help": 'Filter by keywords which not int the title, split by ",".',
+                },
             },
             {
                 "dest": "--regex",
-                "kwargs": dict(metavar="regex", type=str, help="Filter by regular expression"),
+                "kwargs": {"metavar": "regex", "type": str, "help": "Filter by regular expression"},
             },
         ],
     },
@@ -185,29 +169,21 @@ actions_and_arguments: List[dict] = [
         "arguments": [
             {
                 "dest": "name",
-                "kwargs": dict(
-                    metavar="name",
-                    type=str,
-                    nargs="*",
-                    help="Update specified bangumi.",
-                ),
+                "kwargs": {"metavar": "name", "type": str, "nargs": "*", "help": "Update specified bangumi."},
             },
             {
                 "dest": ["--download", "-d"],
-                "kwargs": dict(
-                    action="store",
-                    nargs="*",
-                    type=int,
-                    metavar="episode",
-                    help="Download specified episode of the bangumi when updated.",
-                ),
+                "kwargs": {
+                    "action": "store",
+                    "nargs": "*",
+                    "type": int,
+                    "metavar": "episode",
+                    "help": "Download specified episode of the bangumi when updated.",
+                },
             },
             {
                 "dest": "--not-ignore",
-                "kwargs": dict(
-                    action="store_true",
-                    help="Do not ignore the old bangumi detail rows (3 month ago).",
-                ),
+                "kwargs": {"action": "store_true", "help": "Do not ignore the old bangumi detail rows (3 month ago)."},
             },
         ],
     },
@@ -217,25 +193,19 @@ actions_and_arguments: List[dict] = [
         "arguments": [
             {
                 "dest": "--today",
-                "kwargs": dict(action="store_true", help="Show bangumi calendar for today."),
+                "kwargs": {"action": "store_true", "help": "Show bangumi calendar for today."},
             },
             {
                 "dest": ["-f", "--force-update"],
-                "kwargs": dict(
-                    action="store_true",
-                    help="Get the newest bangumi calendar from current data source.",
-                ),
+                "kwargs": {"action": "store_true", "help": "Get the newest bangumi calendar from current data source."},
             },
             {
                 "dest": "--download-cover",
-                "kwargs": dict(action="store_true", help="Download the cover to local"),
+                "kwargs": {"action": "store_true", "help": "Download the cover to local"},
             },
             {
                 "dest": "--no-save",
-                "kwargs": dict(
-                    action="store_true",
-                    help="Do not save the bangumi data when force update.",
-                ),
+                "kwargs": {"action": "store_true", "help": "Do not save the bangumi data when force update."},
             },
         ],
     },
@@ -245,16 +215,16 @@ actions_and_arguments: List[dict] = [
         "arguments": [
             {
                 "dest": "name",
-                "kwargs": dict(
-                    nargs="?",
-                    type=str,
-                    help="Config name",
-                    choices=bgmi.config.__all_writable_now__,
-                ),
+                "kwargs": {
+                    "nargs": "?",
+                    "type": str,
+                    "help": "Config name",
+                    "choices": bgmi.config.__all_writable_now__,
+                },
             },
             {
                 "dest": "value",
-                "kwargs": dict(nargs="?", type=str, help="Config value"),
+                "kwargs": {"nargs": "?", "type": str, "help": "Config value"},
             },
         ],
     },
@@ -262,8 +232,8 @@ actions_and_arguments: List[dict] = [
         "action": ACTION_MARK,
         "help": "Mark bangumi episode.",
         "arguments": [
-            {"dest": "name", "kwargs": dict(type=str, help="Bangumi name")},
-            {"dest": "episode", "kwargs": dict(help="Bangumi episode", type=int)},
+            {"dest": "name", "kwargs": {"type": str, "help": "Bangumi name"}},
+            {"dest": "episode", "kwargs": {"help": "Bangumi episode", "type": int}},
         ],
     },
     {
@@ -272,19 +242,19 @@ actions_and_arguments: List[dict] = [
         "arguments": [
             {
                 "dest": "--list",
-                "kwargs": dict(help="List download queue.", action="store_true"),
+                "kwargs": {"help": "List download queue.", "action": "store_true"},
             },
             {
                 "dest": "--mark",
-                "kwargs": dict(help="Mark download status with a specific id.", dest="id", type=int),
+                "kwargs": {"help": "Mark download status with a specific id.", "dest": "id", "type": int},
             },
             {
                 "dest": "--status",
-                "kwargs": dict(
-                    type=int,
-                    help="Download items status (0: not download, 1: " "downloading, 2: already downloaded).",
-                    choices=[0, 1, 2],
-                ),
+                "kwargs": {
+                    "type": int,
+                    "help": "Download items status (0: not download, 1: " "downloading, 2: already downloaded).",
+                    "choices": [0, 1, 2],
+                },
             },
         ],
     },
@@ -292,13 +262,10 @@ actions_and_arguments: List[dict] = [
         "action": ACTION_FETCH,
         "help": "Fetch bangumi.",
         "arguments": [
-            {"dest": "name", "kwargs": dict(help="Bangumi name", type=str)},
+            {"dest": "name", "kwargs": {"help": "Bangumi name", "type": str}},
             {
                 "dest": "--not-ignore",
-                "kwargs": dict(
-                    action="store_true",
-                    help="Do not ignore the old bangumi detail rows (3 month ago).",
-                ),
+                "kwargs": {"action": "store_true", "help": "Do not ignore the old bangumi detail rows (3 month ago)."},
             },
         ],
     },
@@ -306,46 +273,35 @@ actions_and_arguments: List[dict] = [
         "action": ACTION_SEARCH,
         "help": "Search torrents from data source by keyword",
         "arguments": [
-            {"dest": "keyword", "kwargs": dict(help="Search keyword", type=str)},
+            {"dest": "keyword", "kwargs": {"help": "Search keyword", "type": str}},
             {
                 "dest": "--count",
-                "kwargs": dict(type=int, help="The max page count of search result."),
+                "kwargs": {"type": int, "help": "The max page count of search result."},
             },
             {
                 "dest": "--regex-filter",
-                "kwargs": dict(type=str, help="Regular expression filter of title."),
+                "kwargs": {"type": str, "help": "Regular expression filter of title."},
             },
             {
                 "dest": "--download",
-                "kwargs": dict(action="store_true", help="Download search result."),
+                "kwargs": {"action": "store_true", "help": "Download search result."},
             },
             {
                 "dest": "--dupe",
-                "kwargs": dict(action="store_true", help="Show duplicated episode"),
+                "kwargs": {"action": "store_true", "help": "Show duplicated episode"},
             },
             {
                 "dest": "--min-episode",
-                "kwargs": dict(
-                    metavar="min_episode",
-                    type=int,
-                    help="Minimum episode filter of title.",
-                ),
+                "kwargs": {"metavar": "min_episode", "type": int, "help": "Minimum episode filter of title."},
             },
-            {"dest": "--tag", "kwargs": dict(action="store_true", help="Use tag to search")},
+            {"dest": "--tag", "kwargs": {"action": "store_true", "help": "Use tag to search"}},
             {
                 "dest": "--subtitle",
-                "kwargs": dict(
-                    type=str,
-                    help="Subtitle group filter of title (Need --tag enabled)",
-                ),
+                "kwargs": {"type": str, "help": "Subtitle group filter of title (Need --tag enabled)"},
             },
             {
                 "dest": "--max-episode",
-                "kwargs": dict(
-                    metavar="max_episode",
-                    type=int,
-                    help="Maximum episode filter of title.",
-                ),
+                "kwargs": {"metavar": "max_episode", "type": int, "help": "Maximum episode filter of title."},
             },
         ],
     },
@@ -355,11 +311,11 @@ actions_and_arguments: List[dict] = [
         "arguments": [
             {
                 "dest": "source",
-                "kwargs": dict(
-                    help="bangumi_moe or mikan_project",
-                    type=str,
-                    choices=[x["id"] for x in SUPPORT_WEBSITE],
-                ),
+                "kwargs": {
+                    "help": "bangumi_moe or mikan_project",
+                    "type": str,
+                    "choices": [x["id"] for x in SUPPORT_WEBSITE],
+                },
             },
         ],
     },
@@ -369,11 +325,11 @@ actions_and_arguments: List[dict] = [
         "arguments": [
             {
                 "dest": "config",
-                "kwargs": dict(help="gen nginx.conf", type=str, choices=["nginx.conf"]),
+                "kwargs": {"help": "gen nginx.conf", "type": str, "choices": ["nginx.conf"]},
             },
             {
                 "dest": "--server-name",
-                "kwargs": dict(metavar="server_name", help="server name", type=str, required=True),
+                "kwargs": {"metavar": "server_name", "help": "server name", "type": str, "required": True},
             },
         ],
     },
