@@ -28,6 +28,10 @@ classifiers = [
 ]
 packages = [{ include = "bgmi" }]
 
+[tool.poetry-plugin-bump]
+commit_msg = 'bump: v{version}'
+tag_name = 'v{version}'
+
 [tool.poetry.scripts]
 bgmi = 'bgmi.main:main'
 bgmi_http = 'bgmi.front.server:main'
