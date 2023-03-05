@@ -32,6 +32,7 @@ def get_response(url, method="GET", **kwargs):
         r = requests.request(method.lower(), url, timeout=60, **kwargs)
         if os.environ.get("DEBUG"):  # pragma: no cover
             print(r.text)
+        r.raise_for_status()
         return r.json()
     except requests.ConnectionError:
         print_error("error: failed to establish a new connection")
@@ -72,7 +73,6 @@ class BangumiData(TypedDict):
 
 def parser_bangumi(data: List[BangumiData]):
     """match weekly bangumi list from data"""
-
     ids = [b["tag_id"] for b in data]
     subtitle = get_response(TEAM_URL, "POST", json={"tag_ids": ids})
     name = process_name(get_response(NAME_URL, "POST", json={"_ids": ids}))
