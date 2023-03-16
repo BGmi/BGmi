@@ -62,7 +62,7 @@ strsimpy = "0.2.1"
 
 [tool.poetry.dev-dependencies]
 # tests
-coverage = { version = "==7.1.0", extras = ['toml'] }
+coverage = { version = "==7.2.2", extras = ['toml'] }
 pytest = "==7.2.2"
 pytest-github-actions-annotate-failures = "==0.1.8"
 pytest-rerunfailures = "==11.1.2"
