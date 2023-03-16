@@ -204,6 +204,7 @@ BGmi:
 - `ENABLE_GLOBAL_FILTER`: 是否启用全局排除关键词, 这些关键词将在所有番剧中启用.
 - `GLOBAL_FILTER`: 默认全局排除的关键词. 现在包括了浏览器不支持的 x265 压制方式和生肉
 - `TORNADO_SERVE_STATIC_FILES`: 是否使用 bgmi 自带的 http 服务器代理静态文件. 启用后 bgmi_http 会直接使用`tornado.web.StaticFileHandler`代理静态文件.
+- `MIKAN_COOKIE`: mikanani.me 的 cookie（部份番剧未登录访问 404）
 - `BANGUMI_MOE_URL`: bangumi.moe 的官方网站或者镜像站链接
 - `SHARE_DMHY_URL`: 动漫花园的官方网站或者镜像站链接
 

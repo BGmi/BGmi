@@ -8,7 +8,7 @@ import bs4
 from bs4 import BeautifulSoup
 from strsimpy.normalized_levenshtein import NormalizedLevenshtein
 
-from bgmi.config import MAX_PAGE
+from bgmi.config import MAX_PAGE,MIKAN_COOKIE
 from bgmi.session import session as requests
 from bgmi.utils import parse_episode, print_info
 from bgmi.website.base import BaseWebsite
@@ -133,7 +133,11 @@ def parser_day_bangumi(soup) -> List[WebsiteBangumi]:
 
 
 def get_text(url, params=None):
-    return requests.get(url, params=params).text
+    cookies = {}
+    for line in MIKAN_COOKIE.split(';'):
+        name,value = line.strip().split('=',1)
+        cookies[name] = value
+    return requests.get(url, cookies=cookies, params=params).text
 
 
 class Mikanani(BaseWebsite):

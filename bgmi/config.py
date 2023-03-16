@@ -46,6 +46,7 @@ __all__ = (
     "GLOBAL_FILTER",
     "ENABLE_GLOBAL_FILTER",
     "TORNADO_SERVE_STATIC_FILES",
+    "MIKAN_COOKIE",
 )
 
 # cannot be rewrite
@@ -298,6 +299,8 @@ ENABLE_GLOBAL_FILTER = "1"
 # use tornado serving video files
 TORNADO_SERVE_STATIC_FILES = "0"
 
+# cookie of mikanani.me
+MIKAN_COOKIE = ""
 # ------------------------------ #
 # !!! Read config from file and write to globals() !!!
 read_config()
