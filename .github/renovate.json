@@ -45,30 +45,6 @@
         "wcwidth"
       ],
       "rangeStrategy": "bump"
-    },
-    {
-      "groupName": "deps-prod",
-      "matchManagers": [
-        "poetry"
-      ],
-      "matchDepTypes": [
-        "dependencies"
-      ],
-      "semanticCommitScope": "deps"
-    },
-    {
-      "groupName": "deps-dev",
-      "matchManagers": [
-        "poetry"
-      ],
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
-      "matchDepTypes": [
-        "dev-dependencies"
-      ],
-      "semanticCommitScope": "dev"
     }
   ]
 }
