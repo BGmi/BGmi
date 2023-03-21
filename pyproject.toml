@@ -71,7 +71,7 @@ requests-cache = "==1.0.0"
 pre-commit = '==3.1.1'
 mypy = "==1.0.0"
 flake8 = { version = "==6.0.0", python = "^3.9" }
-flake8-comprehensions = "==3.10.1"
+flake8-comprehensions = "==3.11.0"
 flake8-bugbear = "==23.3.12"
 flake8-mutable = "1.2.0"
 flake8-pep3101 = "==2.0.0"
