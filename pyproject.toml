@@ -113,6 +113,7 @@ warn_return_any = true
 warn_unused_configs = true
 show_error_codes = true
 pretty = true
+plugins = ['pydantic.mypy']
 
 [[tool.mypy.overrides]]
 module = [
