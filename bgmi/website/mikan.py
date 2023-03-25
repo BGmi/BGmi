@@ -8,13 +8,14 @@ import bs4
 from bs4 import BeautifulSoup
 from strsimpy.normalized_levenshtein import NormalizedLevenshtein
 
-from bgmi.config import MAX_PAGE
+from bgmi.config import MAX_PAGE, MIKAN_COOKIE, MIKAN_USERNAME, MIKAN_PASSWORD, write_config
 from bgmi.session import session as requests
 from bgmi.utils import parse_episode, print_info
 from bgmi.website.base import BaseWebsite
 from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
 
 server_root = "https://mikanani.me/"
+login_url = f"{server_root}Account/Login"
 
 _COVER_URL = server_root[:-1]
 
@@ -132,8 +133,49 @@ def parser_day_bangumi(soup) -> List[WebsiteBangumi]:
     return li
 
 
+def mikan_login() -> Optional[dict]:
+    try:
+        r = requests.get(login_url)
+        soup = BeautifulSoup(r.text, "html.parser")
+        token = soup.find("input", attrs={"name": "__RequestVerificationToken"})["value"]
+
+        r = requests.post(
+            login_url,
+            data={
+                "UserName": MIKAN_USERNAME,
+                "Password": MIKAN_PASSWORD,
+                "__RequestVerificationToken": token,
+            },
+            headers={"Referer": server_root},
+            allow_redirects=False 
+        )
+
+        return r.cookies.get_dict()
+    except Exception as e:
+        print('mikan_login error: ', e)
+        return None
+    
+
+def check_login_status(cookies):
+    r = requests.get(server_root, cookies=eval(cookies))
+    soup = BeautifulSoup(r.text, "html.parser")
+    if "欢迎回来" in soup.text:
+        return True
+    else:
+        return False
+
+
 def get_text(url, params=None):
-    return requests.get(url, params=params).text
+    cookies = None
+
+    if not MIKAN_COOKIE or not check_login_status(MIKAN_COOKIE):
+        cookies = mikan_login()
+        if cookies is not None:
+            write_config("MIKAN_COOKIE", cookies.__str__())
+        else:
+            return None
+
+    return requests.get(url, cookies=cookies, params=params).text
 
 
 class Mikanani(BaseWebsite):
