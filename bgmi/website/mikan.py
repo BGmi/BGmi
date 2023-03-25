@@ -8,7 +8,7 @@ import bs4
 from bs4 import BeautifulSoup
 from strsimpy.normalized_levenshtein import NormalizedLevenshtein
 
-from bgmi.config import MAX_PAGE, MIKAN_USERNAME, MIKAN_PASSWORD
+from bgmi.config import MAX_PAGE, MIKAN_PASSWORD, MIKAN_USERNAME
 from bgmi.session import session as requests
 from bgmi.utils import parse_episode, print_info
 from bgmi.website.base import BaseWebsite
@@ -146,17 +146,17 @@ def mikan_login():
             "__RequestVerificationToken": token,
         },
         headers={"Referer": server_root},
-        allow_redirects=False
+        allow_redirects=False,
     )
 
 
 def get_text(url, params=None):
     if not MIKAN_USERNAME or not MIKAN_PASSWORD:
-        raise ValueError('mikan username or password is empty')
+        raise ValueError("mikan username or password is empty")
 
     for _ in range(2):
         r = requests.get(url, params=params)
-        if r.headers.get('content-type').startswith('text/html'):
+        if r.headers.get("content-type").startswith("text/html"):
             if "退出" in r.text:
                 return r.text
             else:
@@ -164,7 +164,7 @@ def get_text(url, params=None):
         else:
             return r.text
 
-    raise ValueError('mikan login failed')
+    raise ValueError("mikan login failed")
 
 
 class Mikanani(BaseWebsite):

@@ -47,7 +47,7 @@ __all__ = (
     "ENABLE_GLOBAL_FILTER",
     "TORNADO_SERVE_STATIC_FILES",
     "MIKAN_USERNAME",
-    "MIKAN_PASSWORD"
+    "MIKAN_PASSWORD",
 )
 
 # cannot be rewrite
