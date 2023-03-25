@@ -46,7 +46,6 @@ __all__ = (
     "GLOBAL_FILTER",
     "ENABLE_GLOBAL_FILTER",
     "TORNADO_SERVE_STATIC_FILES",
-    "MIKAN_COOKIE",
     "MIKAN_USERNAME",
     "MIKAN_PASSWORD"
 )
@@ -245,9 +244,6 @@ FRONT_STATIC_PATH = os.path.join(BGMI_PATH, "front_static")
 
 # admin token
 ADMIN_TOKEN = None
-
-# mikan cookie
-MIKAN_COOKIE = ""
 
 # mikan username
 MIKAN_USERNAME = ""

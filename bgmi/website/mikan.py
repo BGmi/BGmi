@@ -1,5 +1,4 @@
 import datetime
-import json
 import time
 from collections import defaultdict
 from typing import List, Optional
@@ -9,7 +8,7 @@ import bs4
 from bs4 import BeautifulSoup
 from strsimpy.normalized_levenshtein import NormalizedLevenshtein
 
-from bgmi.config import MAX_PAGE, MIKAN_COOKIE, MIKAN_USERNAME, MIKAN_PASSWORD, write_config
+from bgmi.config import MAX_PAGE, MIKAN_USERNAME, MIKAN_PASSWORD
 from bgmi.session import session as requests
 from bgmi.utils import parse_episode, print_info
 from bgmi.website.base import BaseWebsite
@@ -135,48 +134,37 @@ def parser_day_bangumi(soup) -> List[WebsiteBangumi]:
 
 
 def mikan_login() -> Optional[dict]:
-    try:
-        r = requests.get(login_url)
-        soup = BeautifulSoup(r.text, "html.parser")
-        token = soup.find("input", attrs={"name": "__RequestVerificationToken"})["value"]
-
-        r = requests.post(
-            login_url,
-            data={
-                "UserName": MIKAN_USERNAME,
-                "Password": MIKAN_PASSWORD,
-                "__RequestVerificationToken": token,
-            },
-            headers={"Referer": server_root},
-            allow_redirects=False 
-        )
-
-        return r.cookies.get_dict()
-    except Exception as e:
-        print('mikan_login error: ', e)
-        return None
-    
-
-def check_login_status(cookies):
-    r = requests.get(server_root, cookies=json.loads(cookies))
+    r = requests.get(login_url)
     soup = BeautifulSoup(r.text, "html.parser")
-    if "欢迎回来" in soup.text:
-        return True
-    else:
-        return False
+    token = soup.find("input", attrs={"name": "__RequestVerificationToken"})["value"]
+
+    r = requests.post(
+        login_url,
+        data={
+            "UserName": MIKAN_USERNAME,
+            "Password": MIKAN_PASSWORD,
+            "__RequestVerificationToken": token,
+        },
+        headers={"Referer": server_root},
+        allow_redirects=False 
+    )
 
 
 def get_text(url, params=None):
-    cookies = None
+    if not MIKAN_USERNAME or not MIKAN_PASSWORD:
+        raise('mikan username or password is empty')
 
-    if not MIKAN_COOKIE or not check_login_status(MIKAN_COOKIE):
-        cookies = mikan_login()
-        if cookies is not None:
-            write_config("MIKAN_COOKIE", json.dumps(cookies))
+    for _ in range(2):
+        r = requests.get(url, params=params)
+        if r.headers.get('content-type').startswith('text/html'): 
+            if "退出" in r.text:
+                return r.text
+            else:
+                mikan_login()
         else:
-            return None
+            return r.text
 
-    return requests.get(url, cookies=cookies, params=params).text
+    raise('mikan login failed')
 
 
 class Mikanani(BaseWebsite):
