@@ -1,4 +1,5 @@
 import datetime
+import json
 import time
 from collections import defaultdict
 from typing import List, Optional
@@ -157,7 +158,7 @@ def mikan_login() -> Optional[dict]:
     
 
 def check_login_status(cookies):
-    r = requests.get(server_root, cookies=eval(cookies))
+    r = requests.get(server_root, cookies=json.loads(cookies))
     soup = BeautifulSoup(r.text, "html.parser")
     if "欢迎回来" in soup.text:
         return True
@@ -171,7 +172,7 @@ def get_text(url, params=None):
     if not MIKAN_COOKIE or not check_login_status(MIKAN_COOKIE):
         cookies = mikan_login()
         if cookies is not None:
-            write_config("MIKAN_COOKIE", cookies.__str__())
+            write_config("MIKAN_COOKIE", json.dumps(cookies))
         else:
             return None
 
