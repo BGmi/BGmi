@@ -133,7 +133,7 @@ def parser_day_bangumi(soup) -> List[WebsiteBangumi]:
     return li
 
 
-def mikan_login() -> Optional[dict]:
+def mikan_login():
     r = requests.get(login_url)
     soup = BeautifulSoup(r.text, "html.parser")
     token = soup.find("input", attrs={"name": "__RequestVerificationToken"})["value"]
@@ -146,17 +146,17 @@ def mikan_login() -> Optional[dict]:
             "__RequestVerificationToken": token,
         },
         headers={"Referer": server_root},
-        allow_redirects=False 
+        allow_redirects=False
     )
 
 
 def get_text(url, params=None):
     if not MIKAN_USERNAME or not MIKAN_PASSWORD:
-        raise('mikan username or password is empty')
+        raise ValueError('mikan username or password is empty')
 
     for _ in range(2):
         r = requests.get(url, params=params)
-        if r.headers.get('content-type').startswith('text/html'): 
+        if r.headers.get('content-type').startswith('text/html'):
             if "退出" in r.text:
                 return r.text
             else:
@@ -164,7 +164,7 @@ def get_text(url, params=None):
         else:
             return r.text
 
-    raise('mikan login failed')
+    raise ValueError('mikan login failed')
 
 
 class Mikanani(BaseWebsite):
