@@ -24,11 +24,13 @@ BGmi is a cli tool for subscribed bangumi.
 - New download delegate [deluge-rpc](https://www.deluge-torrent.org/)
 - You can filter search results by min and max episode
 
-more details can be found at [releases](https://github.com/BGmi/BGmi/releases) and [unreleased changelog](https://github.com/BGmi/BGmi/issues/297)
+more details can be found at [releases](https://github.com/BGmi/BGmi/releases)
+and [unreleased changelog](https://github.com/BGmi/BGmi/issues/297)
 
 ## Feature
 
-- Multi data sources supported: [bangumi_moe](https://bangumi.moe), [mikan_project](https://mikanani.me) or [dmhy](https://share.dmhy.org/)
+- Multi data sources supported: [bangumi_moe](https://bangumi.moe), [mikan_project](https://mikanani.me)
+  or [dmhy](https://share.dmhy.org/)
 - Use aria2, transmission, deluge or qbittorrent to download bangumi
 - Web interface to manage bangumi with HTTP API
 - Play bangumi online with danmaku
@@ -112,13 +114,76 @@ Supported data source:
 
 you can add `--help` to all `BGmi` sub command to show full options, some of them are not mentioned here.
 
+### Show BGmi configure
+
+```bash
+bgmi config
+```
+
+bgmi config files is located at `${BGMI_PATH}/config.toml`
+
+Example of configure file:
+
+```toml
+data_source = "bangumi_moe" # bangumi source
+download_delegate = "aria2-rpc" # download delegate
+tmp_path = "tmp/tmp" # tmp dir
+save_path = "tmp/bangumi" # dir to save bangumi video files
+front_static_path = "tmp/front_static" # dir to save webui static files
+db_path = "tmp/bangumi.db" # file path of bangumi sqlite database
+script_path = "tmp/scripts" # tools for bgmi scripts
+tools_path = "tmp/tools" # tmp dir to download some binary tools
+max_path = 3 # max page for fetching bangumi information
+bangumi_moe_url = "https://bangumi.moe"
+share_dmhy_url = "https://share.dmhy.org"
+mikan_username = "" # The username for Mikan Project website
+mikan_password = "" # The password for Mikan Project website
+lang = "zh_cn" # banugmi moe lang filter
+enable_global_filters = true
+global_filters = [
+  "Leopard-Raws",
+  "hevc",
+  "x265",
+  "c-a Raws",
+  "U3-Web",
+]
+
+[bgmi_http]
+admin_token = "dYMj-Z4bDRoQfd3x" # web admin token, generated on install
+danmaku_api_url = ""
+serve_static_files = false # serve static files with python server, used in bgmi_http
+
+[aria2]
+rpc_url = "http://localhost:6800/rpc"
+rpc_token = "token:"
+
+[transmission]
+rpc_url = "127.0.0.1"
+rpc_port = 9091
+rpc_username = "your_username"
+rpc_password = "your_password"
+rpc_path = "/transmission/"
+
+[qbittorrent]
+rpc_host = "127.0.0.1"
+rpc_port = 8080
+rpc_username = "admin"
+rpc_password = "adminadmin"
+category = ""
+
+[deluge]
+rpc_url = "http://127.0.0.1:8112/json"
+rpc_password = "deluge"
+```
+
 ### Change data source
 
 **All bangumi info in database will be deleted when changing data source!** but scripts won't be affected
 
 video files will still be stored on the disk, but won't be shown on website.
 
-**If the source to be switched is `mikan_project`, please configure `MIKAN_USERNAME` and `MIKAN_PASSWORD` first**, other sources are not affected.
+**If the source to be switched is `mikan_project`, please configure `MIKAN_USERNAME` and `MIKAN_PASSWORD` first**, other
+sources are not affected.
 
 ```console
 bgmi source mikan_project
@@ -177,9 +242,18 @@ bgmi fetch "Re:CREATORS"
 
 These words are pre-set as global filter (exclude keywords) `Leopard-Raws`, `hevc`, `x265`, `c-a Raws`, `U3-Web`.
 
-You can disable global filter with `bgmi config ENABLE_GLOBAL_FILTER 0`.
+You can disable global filter with `enable_global_filters = false`.
 
-Or change global filter with `bgmi config GLOBAL_FILTER "Leopard-Raws, hevc, x265, c-a Raws, U3-Web"`
+```toml
+enable_global_filters = true
+global_filters = [
+  "Leopard-Raws",
+  "hevc",
+  "x265",
+  "c-a Raws",
+  "U3-Web",
+]
+```
 
 ### Search episodes
 
@@ -212,53 +286,6 @@ Status code:
 - 1 - Downloading items
 - 2 - Downloaded items
 
-### Show BGmi configure and modify it
-
-```bash
-bgmi config
-bgmi config ARIA2_RPC_TOKEN 'token:token233'
-```
-
-Fields of configure file:
-
-BGmi configure:
-
-- `BANGUMI_MOE_URL`: url of bangumi.moe mirror
-- `SAVE_PATH`: bangumi saving path
-- `DOWNLOAD_DELEGATE`: the ways of downloading bangumi (aria2-rpc, transmission-rpc, deluge-rpc, qbittorrent-webapi)
-- `MAX_PAGE`: max page for fetching bangumi information
-- `TMP_PATH`: just a temporary path
-- `DANMAKU_API_URL`: url of danmaku api
-- `LANG`: language
-- `MIKAN_USERNAME`: The username for Mikan Project website
-- `MIKAN_PASSWORD`: The password for Mikan Project website
-
-Aria2-rpc configure:
-
-- `ARIA2_RPC_URL`: aria2c daemon RPC url, not jsonrpc url.("<http://localhost:6800/rpc>" for localhost)
-- `ARIA2_RPC_TOKEN`: aria2c daemon RPC token("token:" for no token)
-
-Transmission-rpc configure:
-
-- `TRANSMISSION_RPC_URL`: transmission rpc host
-- `TRANSMISSION_RPC_PORT`: transmission rpc port
-- `TRANSMISSION_RPC_USERNAME`: transmission rpc username (leave it default if you don't set rpc authentication)
-- `TRANSMISSION_RPC_PASSWORD`: transmission rpc password (leave it default if you don't set rpc authentication)
-- `TRANSMISSION_RPC_PATH`: transmission rpc path (Corresponding to `"rpc-url": "/transmission/",` in the transmission configuration file)
-
-Deluge-rpc configure:
-
-- `DELUGE_RPC_URL`: deluge rpc url
-- `DELUGE_RPC_PASSWORD`: deluge rpc password
-
-qbittorrent-webapi configure:
-
-- `QBITTORRENT_HOST`: qbittorrent WebAPI host
-- `QBITTORRENT_PORT`: qbittorrent WebAPI port
-- `QBITTORRENT_USERNAME`: qbittorrent WebUI username
-- `QBITTORRENT_PASSWORD`: qbittorrent WebUI password
-- `QBITTORRENT_CATEGORY`: qbittorrent new task category (leave it default if you don't need to set category)
-
 ### Usage of bgmi_http
 
 Download all bangumi cover first:
@@ -283,7 +310,8 @@ bgmi_http --port=8888 --address=0.0.0.0
 
 Just start your bgmi_http and open [<http://localhost:8888/>](http://localhost:8888/) in your browser.
 
-Consider most people won't use Nginx on Windows, bgmi_http use tornado.web.StaticFileHandler to serve static files(frontend, bangumi covers, bangumi files) without Nginx.
+Consider most people won't use Nginx on Windows, bgmi_http use tornado.web.StaticFileHandler to serve static files(
+frontend, bangumi covers, bangumi files) without Nginx.
 
 ### Use bgmi_http on Linux
 
@@ -329,10 +357,10 @@ server {
 }
 ```
 
-Of cause you can use [yaaw](https://github.com/binux/yaaw/) to manage download items if you use aria2c to download bangumi.
+Of cause you can use [yaaw](https://github.com/binux/yaaw/) to manage download items if you use aria2c to download
+bangumi.
 
 ```nginx
-...
 location /yaaw {
     alias /path/to/yaaw;
 }
@@ -341,7 +369,6 @@ location /jsonrpc {
     # aria2c rpc
     proxy_pass http://127.0.0.1:6800;
 }
-...
 ```
 
 Example file: [bgmi.conf](https://github.com/BGmi/BGmi/blob/dev/bgmi.conf)
@@ -350,27 +377,31 @@ Example file: [bgmi.conf](https://github.com/BGmi/BGmi/blob/dev/bgmi.conf)
 
 BGmi use [DPlayer](https://github.com/DIYgod/DPlayer) to play bangumi.
 
-First, setup nginx to access bangumi files. Second, choose one danmaku backend at [DPlayer\#related-projects](https://github.com/DIYgod/DPlayer#related-projects).
+First, setup nginx to access bangumi files. Second, choose one danmaku backend
+at [DPlayer\#related-projects](https://github.com/DIYgod/DPlayer#related-projects).
 
-Use bgmi config to setup the url of danmaku api.
+Edit bgmi config file to setup the url of danmaku api.
 
-```bash
-bgmi config DANMAKU_API_URL https://api.prprpr.me/dplayer/ # This api is provided by dplayer official
+```toml
+[bgmi_http]
+danmaku_api_url = "https://api.prprpr.me/dplayer/"  # This api is provided by dplayer official
 ```
 
 ...restart your bgmi_http and enjoy :D
 
 #### macOS launchctl service controller
 
-see [issue \#77](https://github.com/BGmi/BGmi/pull/77)
+see [issue #77](https://github.com/BGmi/BGmi/pull/77)
 
 [me.ricterz.bgmi.plist](https://github.com/BGmi/BGmi/blob/master/bgmi/others/me.ricterz.bgmi.plist)
 
 ## Bangumi Script
 
-Bangumi Script is a script which you can write the bangumi parser own. BGmi will load the script and call the method you write before the native functionality.
+Bangumi Script is a script which you can write the bangumi parser own. BGmi will load the script and call the method you
+write before the native functionality.
 
-Bangumi Script Runner will catch the data you returned, update the database, and download the bangumi. You only just write the parser and return the data.
+Bangumi Script Runner will catch the data you returned, update the database, and download the bangumi. You only just
+write the parser and return the data.
 
 Bangumi Script is located at BGMI_PATH/script, inherited ScriptBase class.
 
@@ -380,9 +411,9 @@ examples: [script_example.py](./script_example.py)
 
 ```python
 {
-    1: 'http://example.com/Bangumi/1/1.torrent',
-    2: 'http://example.com/Bangumi/1/2.torrent',
-    3: 'http://example.com/Bangumi/1/3.torrent'
+  1: 'http://example.com/Bangumi/1/1.torrent',
+  2: 'http://example.com/Bangumi/1/2.torrent',
+  3: 'http://example.com/Bangumi/1/3.torrent'
 }
 ```
 
@@ -400,51 +431,50 @@ from bgmi.website.model import WebsiteBangumi, Episode
 
 
 class DataSource(BaseWebsite):
-    def search_by_keyword(
-        self, keyword: str, count: int
-    ) -> List[Episode]:  # pragma: no cover
-        """
+  def search_by_keyword(
+    self, keyword: str, count: int
+  ) -> List[Episode]:  # pragma: no cover
+    """
 
-        :param keyword: search key word
-        :param count: how many page to fetch from website
-        :return: list of episode search result
-        """
-        raise NotImplementedError
+    :param keyword: search key word
+    :param count: how many page to fetch from website
+    :return: list of episode search result
+    """
+    raise NotImplementedError
 
-    def fetch_bangumi_calendar(self,) -> List[WebsiteBangumi]:  # pragma: no cover
-        """
-        return a list of all bangumi and a list of all subtitle group
+  def fetch_bangumi_calendar(self, ) -> List[WebsiteBangumi]:  # pragma: no cover
+    """
+    return a list of all bangumi and a list of all subtitle group
 
-        list of bangumi dict:
-        update time should be one of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Unknown']
-        """
-        raise NotImplementedError
+    list of bangumi dict:
+    update time should be one of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Unknown']
+    """
+    raise NotImplementedError
 
-    def fetch_episode_of_bangumi(
-        self, bangumi_id: str, max_page: int, subtitle_list: Optional[List[str]] = None
-    ) -> List[Episode]:  # pragma: no cover
-        """
-        get all episode by bangumi id
+  def fetch_episode_of_bangumi(
+    self, bangumi_id: str, max_page: int, subtitle_list: Optional[List[str]] = None
+  ) -> List[Episode]:  # pragma: no cover
+    """
+    get all episode by bangumi id
 
-        :param bangumi_id: bangumi_id
-        :param subtitle_list: list of subtitle group
-        :type subtitle_list: list
-        :param max_page: how many page you want to crawl if there is no subtitle list
-        :type max_page: int
-        :return: list of bangumi
-        """
-        raise NotImplementedError
+    :param bangumi_id: bangumi_id
+    :param subtitle_list: list of subtitle group
+    :type subtitle_list: list
+    :param max_page: how many page you want to crawl if there is no subtitle list
+    :type max_page: int
+    :return: list of bangumi
+    """
+    raise NotImplementedError
 
+  def fetch_single_bangumi(self, bangumi_id: str) -> WebsiteBangumi:
+    """
+    fetch bangumi info when updating
 
-    def fetch_single_bangumi(self, bangumi_id: str) -> WebsiteBangumi:
-        """
-        fetch bangumi info when updating
-
-        :param bangumi_id: bangumi_id, or bangumi['keyword']
-        :type bangumi_id: str
-        :rtype: WebsiteBangumi
-        """
-        # return WebsiteBangumi(keyword=bangumi_id) if website don't has a page contains episodes and info
+    :param bangumi_id: bangumi_id, or bangumi['keyword']
+    :type bangumi_id: str
+    :rtype: WebsiteBangumi
+    """
+    # return WebsiteBangumi(keyword=bangumi_id) if website don't has a page contains episodes and info
 ```
 
 ## Debug

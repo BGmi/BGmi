@@ -11,7 +11,7 @@ import pydantic
 import strenum
 import tomli
 import tomli_w
-from pydantic import BaseSettings, Extra, Field, HttpUrl
+from pydantic import BaseModel, Extra, Field, HttpUrl
 
 
 class Source(strenum.StrEnum):
@@ -41,7 +41,7 @@ BGMI_PATH = get_bgmi_home()
 CONFIG_FILE_PATH = BGMI_PATH / "config.toml"
 
 
-class BaseSetting(BaseSettings):
+class BaseSetting(BaseModel):
     class Config:
         validate_assignment = True
         extra = Extra.ignore
@@ -73,12 +73,21 @@ class DelugeConfig(BaseSetting):
     rpc_password: str = "deluge"
 
 
+class HTTP(BaseSetting):
+    admin_token: str = Field(default_factory=lambda: secrets.token_urlsafe(12), description="webui admin token")
+    danmaku_api_url: str = Field("", description="danmaku api url, https://github.com/DIYgod/DPlayer#related-projects")
+    serve_static_files: bool = Field(False, description="use tornado serving video files")
+
+
 class Config(BaseSetting):
     data_source: Source = Field(Source.BangumiMoe, description="data source")  # type: ignore
     download_delegate: str = Field("aria2-rpc", description="download delegate")
 
     tmp_path: Path = BGMI_PATH.joinpath("tmp")
-    log_path = tmp_path.joinpath("bgmi.log")
+
+    @property
+    def log_path(self):
+        return self.tmp_path.joinpath("bgmi.log")
 
     save_path: Path = Field(BGMI_PATH.joinpath("bangumi"), description="bangumi save path")
     front_static_path: Path = BGMI_PATH.joinpath("front_static")
@@ -89,18 +98,13 @@ class Config(BaseSetting):
 
     max_path: int = 3
 
-    serve_static_files: bool = Field(False, description="use tornado serving video files")
-
     bangumi_moe_url: HttpUrl = Field("https://bangumi.moe", description="Setting bangumi.moe url")  # type: ignore
     share_dmhy_url: HttpUrl = Field("https://share.dmhy.org", description="Setting share.dmhy.org url")  # type: ignore
 
     mikan_username: str = ""
     mikan_password: str = ""
 
-    # admin token
-    admin_token: str = Field(default_factory=lambda: secrets.token_urlsafe(12), description="webui admin token")
-
-    danmaku_api_url: str = Field("", description="danmaku api url, https://github.com/DIYgod/DPlayer#related-projects")
+    bgmi_http: HTTP = HTTP()
 
     # language
     lang: str = "zh_cn"
