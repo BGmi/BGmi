@@ -102,6 +102,8 @@ eval "$(bgmi complete)"
 
 **更换数据源会清空番剧数据库, 但是 bgmi script 不受影响.** 之前下载的视频文件不会删除, 但是不会在前端显示
 
+**如果更换的源为 `mikan_project`, 请先配置 `MIKAN_USERNAME` 和 `MIKAN_PASSWORD`**, 其它源不受影响
+
 ```bash
 bgmi source mikan_project
 ```
