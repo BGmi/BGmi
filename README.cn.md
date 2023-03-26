@@ -114,14 +114,18 @@ mikan_username = "" # 蜜柑计划的用户名
 mikan_password = "" # 蜜柑计划的密码
 enable_global_filters = true
 global_filters = [
-  "Leopard-Raws",
-  "hevc",
-  "x265",
-  "c-a Raws",
-  "U3-Web",
+    "Leopard-Raws",
+    "hevc",
+    "x265",
+    "c-a Raws",
+    "U3-Web",
 ]
 
-[bgmi_http]
+[save_path_map] # 针对每部番剧设置下载路径
+'致不灭的你 第二季' = '/home/trim21/downloads/bangumi/致不灭的你/s2/' # 如果使用绝对路径，可能导致 web-ui 无法正确显示视频文件。
+'致不灭的你 第三季' = './致不灭的你/s3/' # 以 save_path 为基础路径的相对路径
+
+[http]
 admin_token = "dYMj-Z4bDRoQfd3x" # web ui 的密码
 danmaku_api_url = ""
 serve_static_files = false

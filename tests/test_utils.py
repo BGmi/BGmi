@@ -1,7 +1,11 @@
+import shutil
+from pathlib import Path
 from typing import List, Tuple
 
 import pytest
 
+from bgmi.config import cfg
+from bgmi.front.index import get_player
 from bgmi.utils import episode_filter_regex, parse_episode
 from bgmi.website.model import Episode
 
@@ -74,3 +78,17 @@ def test_episode_exclude_word():
     assert Episode(title="a b c", download="").contains_any_words(["a"])
     assert Episode(title="A B c", download="").contains_any_words(["a", "b"])
     assert not Episode(title="a b c", download="").contains_any_words(["d", "ab"])
+
+
+def test_get_player():
+    shutil.rmtree(cfg.save_path.joinpath("test-save-path"), ignore_errors=True)
+
+    cfg.save_path.joinpath("test-save-path")
+    cfg.save_path_map["test-save-path"] = Path("./test-save-path/ss/")
+
+    shutil.copytree(Path(__file__).joinpath("../fixtures/test-save-path"), cfg.save_path.joinpath("test-save-path"))
+
+    assert get_player("test-save-path") == {
+        1: {"path": "test-save-path/ss/1/q/bigger.mkv"},
+        2: {"path": "test-save-path/ss/2/2.mp4"},
+    }

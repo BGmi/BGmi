@@ -104,12 +104,6 @@ class ScriptRunner:
             if episode <= script_obj.episode:
                 continue
 
-            print_success(f"{script.bangumi_name} updated, episode: {episode}")
-            script_obj.episode = episode
-            script_obj.status = STATUS_UPDATED
-            script_obj.updated_time = int(time.time())
-            script_obj.save()
-
             download_queue = []
             for i in episode_range:
                 for e in download_item:
@@ -123,6 +117,12 @@ class ScriptRunner:
             if download:
                 print_success(f"Start downloading of {script}")
                 download_prepare([Episode(**x) for x in download_queue])
+
+            print_success(f"{script.bangumi_name} updated, episode: {episode}")
+            script_obj.episode = episode
+            script_obj.status = STATUS_UPDATED
+            script_obj.updated_time = int(time.time())
+            script_obj.save()
 
         return self.download_queue
 
