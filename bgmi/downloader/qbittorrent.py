@@ -19,10 +19,6 @@ class QBittorrentWebAPI(BaseDownloadService):
     def check_config() -> None:
         pass
 
-    @staticmethod
-    def check_dep():
-        pass
-
     def add_download(self, url: str, save_path: str):
         self.client.torrents_add(
             urls=url,

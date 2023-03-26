@@ -14,10 +14,6 @@ class DelugeRPC(BaseDownloadService):
     def check_config() -> None:
         pass
 
-    @staticmethod
-    def check_dep():
-        pass
-
     def get_status(self, id: str) -> DownloadStatus:
         status = self._call("web.get_torrent_status", [id, ["state"]])
 

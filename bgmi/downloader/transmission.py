@@ -18,10 +18,6 @@ class TransmissionRPC(BaseDownloadService):
     def check_config() -> None:
         pass
 
-    @staticmethod
-    def check_dep():
-        pass
-
     def add_download(self, url: str, save_path: str):
         torrent = self.client.add_torrent(url, download_dir=save_path, paused=False)
         return torrent.hashString

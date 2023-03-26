@@ -29,10 +29,6 @@ class Aria2DownloadRPC(BaseDownloadService):
         return cast(str, self.server.aria2.addUri(self.token, *args))
 
     @staticmethod
-    def check_dep():
-        pass
-
-    @staticmethod
     def check_config() -> None:
         if not cfg.aria2.rpc_url.endswith("/rpc"):
             print_warning("make sure you are using xml-rpc endpoint of aria2")
