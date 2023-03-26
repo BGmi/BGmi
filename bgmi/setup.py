@@ -1,8 +1,12 @@
 import os
+from pathlib import Path
 from shutil import copy
+from typing import List, Type
 
 from bgmi import __version__
-from bgmi.config import BGMI_PATH, FRONT_STATIC_PATH, IS_WINDOWS, SAVE_PATH, SCRIPT_PATH, TMP_PATH, TOOLS_PATH
+from bgmi.config import BGMI_PATH, IS_WINDOWS, cfg
+from bgmi.lib import models
+from bgmi.lib.models import NeoDB
 from bgmi.utils import print_error, print_info, print_success, print_warning
 
 
@@ -21,14 +25,14 @@ def install_crontab() -> None:
 
 
 def create_dir() -> None:
-    path_to_create = (
+    path_to_create: List[Path] = [
         BGMI_PATH,
-        SAVE_PATH,
-        TMP_PATH,
-        SCRIPT_PATH,
-        TOOLS_PATH,
-        FRONT_STATIC_PATH,
-    )
+        cfg.save_path,
+        cfg.tmp_path,
+        cfg.script_path,
+        cfg.tools_path,
+        cfg.front_static_path,
+    ]
 
     if not os.environ.get("HOME", os.environ.get("USERPROFILE", "")):
         print_warning("$HOME not set, use '/tmp/'")
@@ -37,7 +41,7 @@ def create_dir() -> None:
     try:
         for path in path_to_create:
             if not os.path.exists(path):
-                os.makedirs(path)
+                os.makedirs(path, exist_ok=True)
                 print_success(f"{path} created successfully")
         OLD = os.path.join(BGMI_PATH, "old")
         # create OLD if not exist oninstall
@@ -46,3 +50,17 @@ def create_dir() -> None:
                 f.write(__version__)
     except OSError as e:
         print_error(f"Error: {str(e)}")
+
+
+def init_db() -> None:
+    tables: List[Type[NeoDB]] = [
+        models.Scripts,
+        models.Bangumi,
+        models.Followed,
+        models.Subtitle,
+        models.Filter,
+        models.Download,
+    ]
+
+    for t in tables:
+        t.create_table()

@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Union
 import filetype
 import requests.exceptions
 
-from bgmi.config import MAX_PAGE, write_config
+from bgmi.config import Source, cfg
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SUPPORT_WEBSITE
 from bgmi.lib.download import Episode, download_prepare
 from bgmi.lib.fetch import website
@@ -77,7 +77,7 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
 
     Filter.get_or_create(bangumi_name=name)
 
-    max_episode, _ = website.get_maximum_episode(bangumi_obj, max_page=int(MAX_PAGE))
+    max_episode, _ = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)
     followed_obj.episode = max_episode if episode is None else episode
 
     followed_obj.save()
@@ -269,7 +269,7 @@ def mark(name: str, episode: int) -> ControllerResult:
 
 def search(
     keyword: str,
-    count: Union[str, int] = MAX_PAGE,
+    count: Union[str, int] = cfg.max_path,
     regex: Optional[str] = None,
     dupe: bool = False,
     min_episode: Optional[int] = None,
@@ -330,7 +330,8 @@ def source(data_source: str) -> ControllerResult:
     result = {}
     if data_source in list(map(itemgetter("id"), SUPPORT_WEBSITE)):
         recreate_source_relatively_table()
-        write_config("DATA_SOURCE", data_source)
+        cfg.data_source = Source(data_source)
+        cfg.save()
         print_success("data source switch succeeds")
         result["status"] = "success"
         result["message"] = f"you have successfully change your data source to {data_source}"
@@ -340,21 +341,6 @@ def source(data_source: str) -> ControllerResult:
             [x["id"] for x in SUPPORT_WEBSITE]
         )
     return result
-
-
-def config(name: Optional[str] = None, value: Optional[str] = None) -> ControllerResult:
-    if name == "DATA_SOURCE":
-        error_message = "you can't change data source in this way. please use `bgmi source ${data source}` in cli"
-        result = {
-            "status": "error",
-            "message": error_message,
-            "data": write_config()["data"],
-        }
-        return result
-    r = write_config(name, value)
-    if name == "ADMIN_TOKEN":
-        r["message"] = "you need to restart your bgmi_http to make new token work"
-    return r
 
 
 def update(name: List[str], download: Optional[Any] = None, not_ignore: bool = False) -> ControllerResult:
@@ -426,7 +412,7 @@ def update(name: List[str], download: Optional[Any] = None, not_ignore: bool = F
 
         try:
             episode, all_episode_data = website.get_maximum_episode(
-                bangumi=bangumi_obj, ignore_old_row=ignore, max_page=int(MAX_PAGE)
+                bangumi=bangumi_obj, ignore_old_row=ignore, max_page=cfg.max_path
             )
         except requests.exceptions.ConnectionError as e:
             print_warning(f"error {e} to fetch {bangumi_obj.name}, skip")

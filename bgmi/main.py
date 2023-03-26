@@ -1,23 +1,13 @@
 import argparse
 import os
-import signal
-from typing import Any, List, Optional
+from typing import List, Optional
 
 from bgmi.config import BGMI_PATH, write_default_config
 from bgmi.lib.cli import controllers
 from bgmi.lib.constants import ACTION_COMPLETE, actions_and_arguments
 from bgmi.lib.update import update_database
-from bgmi.setup import create_dir, install_crontab
-from bgmi.sql import init_db
-from bgmi.utils import check_update, get_web_admin, print_error, print_version, print_warning
-
-
-# global Ctrl-C signal handler
-def signal_handler(signal: int, frame: Any) -> None:  # pragma: no cover
-    print_error("User aborted, quit")
-
-
-signal.signal(signal.SIGINT, signal_handler)
+from bgmi.setup import create_dir, init_db, install_crontab
+from bgmi.utils import check_update, get_web_admin, print_version, print_warning
 
 
 # main function

@@ -3,7 +3,7 @@ _bgmi() {
     local actions bangumi config
     actions="{{ ' '.join(actions) }}"
     bangumi="{{' '.join(bangumi)}}"
-    config="{{' '.join(config)}}"
+    config=""
     COMPREPLY=()
     #${COMP_WORDS[0]} if bgmi
     # echo "$COMP_CWORD"

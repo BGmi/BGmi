@@ -13,10 +13,10 @@ from bgmi.plugin.download import DownloadStatus
 
 
 @pytest.mark.parametrize("cls", [Aria2DownloadRPC, DelugeRPC, QBittorrentWebAPI, TransmissionRPC])
-@mock.patch("bgmi.config.ARIA2_RPC_TOKEN", "token:2333")
-@mock.patch("bgmi.config.DELUGE_RPC_PASSWORD", "deluge")
-@mock.patch("bgmi.config.TRANSMISSION_RPC_USERNAME", "tr_username")
-@mock.patch("bgmi.config.TRANSMISSION_RPC_PASSWORD", "tr_password")
+@mock.patch("bgmi.config.cfg.aria2.rpc_token", "token:2333")
+@mock.patch("bgmi.config.cfg.deluge.rpc_password", "deluge")
+@mock.patch("bgmi.config.cfg.transmission.rpc_username", "tr_username")
+@mock.patch("bgmi.config.cfg.transmission.rpc_password", "tr_password")
 def test_workflow(torrent_url: str, cls, info_hash: str):
     rpc = cls()
     r = rpc.add_download(url=torrent_url, save_path="/downloads/")

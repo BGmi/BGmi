@@ -1,21 +1,21 @@
 import xmlrpc.client
 from typing import cast
 
-from bgmi import config
+from bgmi.config import cfg
 from bgmi.plugin.download import BaseDownloadService, DownloadStatus
 from bgmi.utils import print_error, print_warning
 
 
 class Aria2DownloadRPC(BaseDownloadService):
     def __init__(self):
-        self.server = xmlrpc.client.ServerProxy(config.ARIA2_RPC_URL)
-        if config.ARIA2_RPC_TOKEN.startswith("token:"):
-            self.token = config.ARIA2_RPC_TOKEN
+        self.server = xmlrpc.client.ServerProxy(cfg.aria2.rpc_url)
+        if cfg.aria2.rpc_token.startswith("token:"):
+            self.token = cfg.aria2.rpc_token
         else:
-            self.token = "token:" + config.ARIA2_RPC_TOKEN
+            self.token = "token:" + cfg.aria2.rpc_token
 
-        s = xmlrpc.client.ServerProxy(config.ARIA2_RPC_URL)
-        r = s.aria2.getVersion(config.ARIA2_RPC_TOKEN)
+        s = xmlrpc.client.ServerProxy(cfg.aria2.rpc_url)
+        r = s.aria2.getVersion(cfg.aria2.rpc_token)
         version = r["version"]
         if version:
             old_version = [int(x) for x in version.split(".")] < [1, 18, 4]
@@ -29,14 +29,10 @@ class Aria2DownloadRPC(BaseDownloadService):
         return cast(str, self.server.aria2.addUri(self.token, *args))
 
     @staticmethod
-    def check_dep():
-        pass
-
-    @staticmethod
     def check_config() -> None:
-        if not config.ARIA2_RPC_URL.endswith("/rpc"):
+        if not cfg.aria2.rpc_url.endswith("/rpc"):
             print_warning("make sure you are using xml-rpc endpoint of aria2")
-        if not config.ARIA2_RPC_TOKEN.startswith("token:"):
+        if not cfg.aria2.rpc_token.startswith("token:"):
             print_warning("rpc token should starts with `token:`")
 
     def get_status(self, id: str) -> DownloadStatus:

@@ -2,7 +2,7 @@ import os
 from pprint import pformat
 from typing import Dict, List
 
-from bgmi.config import FRONT_STATIC_PATH, SAVE_PATH
+from bgmi.config import cfg
 from bgmi.front.base import COVER_URL, BaseHandler
 from bgmi.lib.models import STATUS_DELETED, STATUS_END, STATUS_UPDATING, Followed
 from bgmi.utils import logger, normalize_path
@@ -11,17 +11,17 @@ from bgmi.utils import logger, normalize_path
 def get_player(bangumi_name: str) -> Dict[int, Dict[str, str]]:
     episode_list = {}
     # new path
-    if os.path.exists(os.path.join(SAVE_PATH, normalize_path(bangumi_name))):
+    if cfg.save_path.joinpath(normalize_path(bangumi_name)).exists():
         bangumi_name = normalize_path(bangumi_name)
-    bangumi_path = os.path.join(SAVE_PATH, bangumi_name)
+    bangumi_path = cfg.save_path.joinpath(bangumi_name)
     path_walk = os.walk(bangumi_path)
 
     logger.debug("os.walk(bangumi_path) => %s", pformat(path_walk))
     for root, _, files in path_walk:
-        _ = root.replace(bangumi_path, "").split(os.path.sep)
-        base_path = root.replace(SAVE_PATH, "")
+        _ = root.replace(str(bangumi_path), "").split(os.path.sep)
+        base_path = root.replace(str(cfg.save_path), "")
         if len(_) >= 2:
-            episode_path = root.replace(os.path.join(SAVE_PATH, bangumi_name), "")
+            episode_path = root.replace(os.path.join(cfg.save_path, bangumi_name), "")
             if episode_path.split(os.path.sep)[1].isdigit():
                 episode = int(episode_path.split(os.path.sep)[1])
             else:
@@ -48,16 +48,17 @@ def get_player(bangumi_name: str) -> Dict[int, Dict[str, str]]:
 
 class IndexHandler(BaseHandler):
     def get(self, path: str) -> None:
-        if not os.path.exists(FRONT_STATIC_PATH):
+        if not os.path.exists(cfg.front_static_path):
             msg = """<h1>Thanks for your using BGmi</h1>
             <p>It seems you have not install BGmi Frontend,
              please run <code>bgmi install</code> to install.</p>
             """
         else:
             msg = """<h1>Thanks for your using BGmi</h1>
-            <p>If use want to use Tornado to serve static files, please run
-            <code>bgmi config TORNADO_SERVE_STATIC_FILES 1</code>,
-             and do not forget install bgmi-frontend by
+            <p>If use want to use Tornado to serve static files, please enable
+            <code>[bgmi_http]</code>,
+            <code>serve_static_files = false</code>,
+            and do not forget install bgmi-frontend by
             running <code>bgmi install</code></p>"""
 
         self.write(msg)

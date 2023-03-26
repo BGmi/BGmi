@@ -92,6 +92,63 @@ bgmi -h
 eval "$(bgmi complete)"
 ```
 
+## 配置 BGmi
+
+bgmi 的配置文件位于 `${BGMI_PATH}/config.toml`, 在未设置 `BGMI_PATH` 环境变量是，`${BGMI_PATH}` 默认为 `~/.bgmi/`。
+
+查看当前 `BGmi` 设置:
+
+```bash
+bgmi config # 查看当前各项设置默认值.
+```
+
+```toml
+data_source = "bangumi_moe" # bangumi source
+download_delegate = "aria2-rpc" # 番剧下载工具 (aria2-rpc, transmission-rpc, deluge-rpc, qbittorrent-webapi)
+tmp_path = "tmp/tmp" # tmp dir
+save_path = "tmp/bangumi" # 下载番剧保存地址
+max_path = 3 # 抓取数据时每个番剧最大抓取页数
+bangumi_moe_url = "https://bangumi.moe"
+share_dmhy_url = "https://share.dmhy.org"
+mikan_username = "" # 蜜柑计划的用户名
+mikan_password = "" # 蜜柑计划的密码
+enable_global_filters = true
+global_filters = [
+  "Leopard-Raws",
+  "hevc",
+  "x265",
+  "c-a Raws",
+  "U3-Web",
+]
+
+[bgmi_http]
+admin_token = "dYMj-Z4bDRoQfd3x" # web ui 的密码
+danmaku_api_url = ""
+serve_static_files = false
+
+[aria2]
+rpc_url = "http://localhost:6800/rpc" # aria2c RPC URL (不是 jsonrpc URL, 如果你的 aria2c 运行在 localhost:6800, 对应的链接为 `http://localhost:6800/rpc`)
+rpc_token = "token:" # aria2c RPC token (如果没有设置 token, 留空或者设置为 `token:`)
+
+[transmission]
+rpc_url = "127.0.0.1"
+rpc_port = 9091
+rpc_username = "your_username"
+rpc_password = "your_password"
+rpc_path = "/transmission/" # 对应 transmission 配置文件中的`"rpc-url": "/transmission/",`
+
+[qbittorrent]
+rpc_host = "127.0.0.1"
+rpc_port = 8080
+rpc_username = "admin"
+rpc_password = "adminadmin"
+category = ""
+
+[deluge]
+rpc_url = "http://127.0.0.1:8112/json"
+rpc_password = "deluge"
+```
+
 支持的数据源:
 
 - [bangumi_moe(default)](https://bangumi.moe)
@@ -152,9 +209,7 @@ bgmi fetch "Re:CREATORS"
 全局过滤：
 
 默认会过滤以下关键词 `Leopard-Raws`, `hevc`, `x265`, `c-a Raws`, `U3-Web`
-可以使用 `bgmi config ENABLE_GLOBAL_FILTER 0` 禁止过滤全局关键词，
-或者使用 `bgmi config GLOBAL_FILTER "Leopard-Raws, hevc, x265, c-a Raws, U3-Web"`
-修改全局关键词。
+可以使用 `enable_global_filters = false` 禁止过滤全局关键词，
 
 最后使用`bgmi fetch`来看看筛选的结果.
 
@@ -181,53 +236,6 @@ bgmi search 海贼王 --min-episode 800 --max-episode 820 --download
 bgmi list
 bgmi mark "Re:CREATORS" 1
 ```
-
-查看`BGmi`的设置并且修改对应设置:
-
-```bash
-bgmi config # 查看当前各项设置默认值.
-bgmi config KEY # 查看某项设置的默认值
-bgmi config KEY value # 修改某项设置
-# example:
-bgmi config ARIA2_RPC_TOKEN 'token:token233'
-```
-
-各项设置的含义.
-
-BGmi:
-
-- `SAVE_PATH`: 下载番剧保存地址
-- `DOWNLOAD_DELEGATE`: 番剧下载工具 (aria2-rpc, transmission-rpc, deluge-rpc)
-- `MAX_PAGE`: 抓取数据时每个番剧最大抓取页数
-- `TMP_PATH`: 临时文件夹
-- `DANMAKU_API_URL`: danmaku api 服务器地址
-- `LANG`: 语言
-- `ADMIN_TOKEN`: 管理
-- `ENABLE_GLOBAL_FILTER`: 是否启用全局排除关键词, 这些关键词将在所有番剧中启用.
-- `GLOBAL_FILTER`: 默认全局排除的关键词. 现在包括了浏览器不支持的 x265 压制方式和生肉
-- `TORNADO_SERVE_STATIC_FILES`: 是否使用 bgmi 自带的 http 服务器代理静态文件. 启用后 bgmi_http 会直接使用`tornado.web.StaticFileHandler`代理静态文件.
-- `BANGUMI_MOE_URL`: bangumi.moe 的官方网站或者镜像站链接
-- `SHARE_DMHY_URL`: 动漫花园的官方网站或者镜像站链接
-- `MIKAN_USERNAME`: Mikan Project 网站的用户名
-- `MIKAN_PASSWORD`: Mikan Project 网站的密码
-
-Aria2-rpc:
-
-- :code:`ARIA2_RPC_URL`: aria2c RPC URL (**不是 jsonrpc URL, 如果你的 aria2c 运行在 localhost:6800, 对应的链接为 `http://localhost:6800/rpc`**)
-- :code:`ARIA2_RPC_TOKEN`: aria2c RPC token(如果没有设置 token, 留空或者设置为 `token:`)
-
-Transmission-rpc:
-
-- `TRANSMISSION_RPC_URL`: transmission rpc host
-- `TRANSMISSION_RPC_PORT`: transmission rpc port
-- `TRANSMISSION_RPC_USERNAME`: transmission rpc username
-- `TRANSMISSION_RPC_PASSWORD`: transmission rpc password
-- `TRANSMISSION_RPC_PATH`: transmission rpc path (对应 transmission 配置文件中的`"rpc-url": "/transmission/",`)
-
-Deluge-rpc:
-
-- `DELUGE_RPC_URL`: deluge rpc url
-- `DELUGE_RPC_PASSWORD`: deluge rpc password
 
 ## 使用`bgmi_http`
 
@@ -308,10 +316,11 @@ BGmi 使用[`DPlayer`](https://github.com/DIYgod/DPlayer)做为前端播放器
 
 如果你想要添加弹幕支持, 在这里[DPlayer#related-projects](https://github.com/DIYgod/DPlayer#related-projects)选择一个后端自行搭建, 或者使用`DPlayer`提供的现成接口`https://api.prprpr.me/dplayer/`
 
-然后使用 `bgmi config` 来设置你的后端 api 地址
+然后修改配置文件：
 
-```bash
-bgmi config DANMAKU_API_URL https://api.prprpr.me/dplayer/
+```toml
+[bgmi_http]
+danmaku_api_url = "https://api.prprpr.me/dplayer/"  # This api is provided by dplayer official
 ```
 
 设置你的`bgmi_http`, 享受弹幕支援吧.

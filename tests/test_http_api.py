@@ -7,7 +7,7 @@ from unittest import mock
 
 from tornado.testing import AsyncHTTPTestCase
 
-from bgmi.config import ADMIN_TOKEN, SAVE_PATH
+from bgmi.config import cfg
 from bgmi.front.base import COVER_URL
 from bgmi.front.index import get_player
 from bgmi.front.server import make_app
@@ -25,7 +25,7 @@ logger.setLevel(logging.ERROR)
 
 
 class ApiTestCase(AsyncHTTPTestCase):
-    headers = {"BGmi-Token": ADMIN_TOKEN, "Content-Type": "application/json"}
+    headers = {"BGmi-Token": cfg.http.admin_token, "Content-Type": "application/json"}
     bangumi_1 = "名侦探柯南"
     bangumi_2 = "海贼王"
     bangumi_3 = "黑色五叶草"
@@ -35,7 +35,7 @@ class ApiTestCase(AsyncHTTPTestCase):
         return self.app
 
     def test_a_auth(self):
-        r = self.fetch("/api/auth", method="POST", body=json.dumps({"token": ADMIN_TOKEN}))
+        r = self.fetch("/api/auth", method="POST", body=json.dumps({"token": cfg.http.admin_token}))
         assert r.code == 200
         res = self.parse_response(r)
         assert res["status"] == "success"
@@ -172,7 +172,7 @@ class ApiTestCase(AsyncHTTPTestCase):
 
 def test_get_player():
     bangumi_name = "test"
-    save_dir = os.path.join(SAVE_PATH)
+    save_dir = os.path.join(cfg.save_path)
     episode1_dir = os.path.join(save_dir, bangumi_name, "1", "episode1")
     if not os.path.exists(episode1_dir):
         os.makedirs(episode1_dir)

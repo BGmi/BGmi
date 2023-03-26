@@ -1,9 +1,7 @@
-from argparse import Namespace
 from unittest import mock
 
 import pytest
 
-from bgmi.lib.cli import config_wrapper
 from bgmi.lib.models import Bangumi, Filter, Followed
 from bgmi.main import main
 from bgmi.website.bangumi_moe import BangumiMoe
@@ -29,9 +27,7 @@ def test_cal_force_update():
 
 
 def test_cal_config():
-    main("config".split())
-    main("config ADMIN_TOKEN 233".split())
-    main("config BANGUMI_MOE_URL https://bangumi.moe".split())
+    main(["config"])
 
 
 def test_add(bangumi_names):
@@ -99,9 +95,3 @@ def test_mark(bangumi_names):
     main(f"add {name} --episode 0".split())
     main(f"mark {name} 1".split())
     assert Followed.get(bangumi_name=name).episode == 1
-
-
-@mock.patch("bgmi.lib.cli.print_error")
-def test_wrong_download_delegate(m: mock.Mock):
-    config_wrapper(Namespace(name="DOWNLOAD_DELEGATE", value="rrr"))
-    m.assert_called_once()

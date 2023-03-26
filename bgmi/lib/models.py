@@ -7,7 +7,7 @@ import peewee
 from peewee import FixedCharField, IntegerField, TextField
 from playhouse.shortcuts import model_to_dict
 
-import bgmi.config
+from bgmi.config import cfg
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.utils import episode_filter_regex
 from bgmi.website.model import Episode
@@ -31,10 +31,10 @@ DOWNLOAD_STATUS = (STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, STATUS_DOWNLOADED)
 
 DoesNotExist = peewee.DoesNotExist
 
-db = peewee.SqliteDatabase(bgmi.config.DB_PATH)
+db = peewee.SqliteDatabase(cfg.db_path)
 
 if os.environ.get("DEV"):
-    print("using", bgmi.config.DB_PATH)
+    print(f"using database {cfg.db_path}")
 
 _Cls = TypeVar("_Cls")
 
@@ -205,10 +205,10 @@ class Download(NeoDB):
 
 class Filter(NeoDB):
     bangumi_name = TextField(unique=True)  # type: Optional[str]
-    subtitle = TextField()  # type: Optional[str]
-    include = TextField()  # type: Optional[str]
-    exclude = TextField()  # type: Optional[str]
-    regex = TextField()  # type: Optional[str]
+    subtitle = TextField(null=True)  # type: Optional[str]
+    include = TextField(null=True)  # type: Optional[str]
+    exclude = TextField(null=True)  # type: Optional[str]
+    regex = TextField(null=True)  # type: Optional[str]
 
     @property
     def subtitle_group_split(self) -> List[str]:
@@ -251,17 +251,11 @@ class Subtitle(NeoDB):
         return data
 
 
-script_db = peewee.SqliteDatabase(bgmi.config.SCRIPT_DB_PATH)
-
-
-class Scripts(peewee.Model):
+class Scripts(NeoDB):
     bangumi_name = TextField(null=False, unique=True)
     episode = IntegerField(default=0)
     status = IntegerField(default=0)
     updated_time = IntegerField(default=0)
-
-    class Meta:
-        database = script_db
 
 
 def recreate_source_relatively_table() -> None:

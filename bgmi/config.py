@@ -1,321 +1,148 @@
-import configparser
-import hashlib
+import json
 import os
+import pathlib
 import platform
-import random
+import secrets
 import tempfile
-from typing import Any, Dict, Optional
+from pathlib import Path
+from typing import List
 
-# download delegate
-__wget__ = ("WGET_PATH",)
-__transmission__ = (
-    "TRANSMISSION_RPC_URL",
-    "TRANSMISSION_RPC_PORT",
-    "TRANSMISSION_RPC_USERNAME",
-    "TRANSMISSION_RPC_PASSWORD",
-    "TRANSMISSION_RPC_PATH",
-)
-__qbittorrent__ = (
-    "QBITTORRENT_HOST",
-    "QBITTORRENT_PORT",
-    "QBITTORRENT_USERNAME",
-    "QBITTORRENT_PASSWORD",
-    "QBITTORRENT_CATEGORY",
-)
-__aria2__ = (
-    "ARIA2_RPC_URL",
-    "ARIA2_RPC_TOKEN",
-)
-__deluge__ = ("DELUGE_RPC_URL", "DELUGE_RPC_PASSWORD")
+import pydantic
+import strenum
+import tomli
+import tomli_w
+from pydantic import BaseModel, Extra, Field, HttpUrl
 
-__download_delegate__ = __wget__ + __aria2__ + __transmission__ + __deluge__ + __qbittorrent__
 
-# fake __all__
-__all__ = (
-    "BANGUMI_MOE_URL",
-    "SAVE_PATH",
-    "DOWNLOAD_DELEGATE",
-    "MAX_PAGE",
-    "DATA_SOURCE",
-    "TMP_PATH",
-    "DANMAKU_API_URL",
-    "LANG",
-    "FRONT_STATIC_PATH",
-    "ADMIN_TOKEN",
-    "SHARE_DMHY_URL",
-    "GLOBAL_FILTER",
-    "ENABLE_GLOBAL_FILTER",
-    "TORNADO_SERVE_STATIC_FILES",
-    "MIKAN_USERNAME",
-    "MIKAN_PASSWORD",
-)
+class Source(strenum.StrEnum):
+    Mikan = "mikan_project"
+    BangumiMoe = "bangumi_moe"
+    Dmhy = "dmhy"
 
-# cannot be rewrite
-__readonly__ = (
-    "BGMI_PATH",
-    "DB_PATH",
-    "CONFIG_FILE_PATH",
-    "TOOLS_PATH",
-    "SCRIPT_PATH",
-    "SCRIPT_DB_PATH",
-    "FRONT_STATIC_PATH",
-)
 
-# writeable
-__writeable__ = tuple(i for i in __all__ if i not in __readonly__)
+IS_WINDOWS = platform.system() == "Windows"
 
-# the real __all__
-__all__ = __all__ + __download_delegate__ + __readonly__  # type: ignore
 
-DOWNLOAD_DELEGATE_MAP = {
-    "rr!": __wget__,
-    "aria2-rpc": __aria2__,
-    "transmission-rpc": __transmission__,
-    "deluge-rpc": __deluge__,
-    "qbittorrent-webapi": __qbittorrent__,
-}
+def get_bgmi_home() -> Path:
+    h = os.environ.get("BGMI_PATH")
 
-if not os.environ.get("BGMI_PATH"):  # pragma: no cover
-    if platform.system() == "Windows":
-        BGMI_PATH = os.path.join(os.environ.get("USERPROFILE", tempfile.gettempdir()), ".bgmi")
-        if not BGMI_PATH:
-            raise SystemExit
-    else:
-        BGMI_PATH = os.path.join(os.environ.get("HOME", "/tmp"), ".bgmi")
+    if h:
+        return Path(h)
+
+    if IS_WINDOWS:
+        home_dir = os.environ.get("USERPROFILE") or os.environ.get("HOME") or tempfile.gettempdir()
+        return Path(home_dir).joinpath(".bgmi")
+
+    return Path(os.environ.get("HOME", "/tmp")).joinpath(".bgmi")
+
+
+BGMI_PATH = get_bgmi_home()
+
+CONFIG_FILE_PATH = BGMI_PATH / "config.toml"
+
+
+class BaseSetting(BaseModel):
+    class Config:
+        validate_assignment = True
+        extra = Extra.ignore
+
+
+class Aria2Config(BaseSetting):
+    rpc_url = "http://localhost:6800/rpc"
+    rpc_token = "token:"
+
+
+class TransmissionConfig(BaseSetting):
+    rpc_url: str = "127.0.0.1"
+    rpc_port: int = 9091
+    rpc_username: str = "your_username"
+    rpc_password: str = "your_password"
+    rpc_path: str = "/transmission/"
+
+
+class QBittorrentConfig(BaseSetting):
+    rpc_host: str = "127.0.0.1"
+    rpc_port: int = 8080
+    rpc_username: str = "admin"
+    rpc_password: str = "adminadmin"
+    category: str = ""
+
+
+class DelugeConfig(BaseSetting):
+    rpc_url: HttpUrl = "http://127.0.0.1:8112/json"  # type: ignore
+    rpc_password: str = "deluge"
+
+
+class HTTP(BaseSetting):
+    admin_token: str = Field(default_factory=lambda: secrets.token_urlsafe(12), description="webui admin token")
+    danmaku_api_url: str = Field("", description="danmaku api url, https://github.com/DIYgod/DPlayer#related-projects")
+    serve_static_files: bool = Field(False, description="use tornado serving video files")
+
+
+class Config(BaseSetting):
+    data_source: Source = Field(Source.BangumiMoe, description="data source")  # type: ignore
+    download_delegate: str = Field("aria2-rpc", description="download delegate")
+
+    tmp_path: Path = BGMI_PATH.joinpath("tmp")
+
+    @property
+    def log_path(self) -> Path:
+        return self.tmp_path.joinpath("bgmi.log")
+
+    save_path: Path = Field(BGMI_PATH.joinpath("bangumi"), description="bangumi save path")
+    front_static_path: Path = BGMI_PATH.joinpath("front_static")
+
+    db_path: pathlib.Path = BGMI_PATH.joinpath("bangumi.db")
+    script_path: pathlib.Path = BGMI_PATH.joinpath("scripts")
+    tools_path: pathlib.Path = BGMI_PATH.joinpath("tools")
+
+    max_path: int = 3
+
+    bangumi_moe_url: HttpUrl = Field("https://bangumi.moe", description="Setting bangumi.moe url")  # type: ignore
+    share_dmhy_url: HttpUrl = Field("https://share.dmhy.org", description="Setting share.dmhy.org url")  # type: ignore
+
+    mikan_username: str = ""
+    mikan_password: str = ""
+
+    http: HTTP = HTTP()
+
+    # language
+    lang: str = "zh_cn"
+
+    aria2: Aria2Config = Aria2Config()
+    transmission: TransmissionConfig = TransmissionConfig()
+    qbittorrent: QBittorrentConfig = QBittorrentConfig()
+    deluge: DelugeConfig = DelugeConfig()
+
+    enable_global_filters: bool = Field(True, description="enable global filter")
+    global_filters: List[str] = Field(
+        ["Leopard-Raws", "hevc", "x265", "c-a Raws", "U3-Web"], description="Global exclude keywords"
+    )
+
+    def save(self) -> None:
+        CONFIG_FILE_PATH.write_text(tomli_w.dumps(json.loads(self.json())), encoding="utf8")
+
+
+if CONFIG_FILE_PATH.exists():
+    try:
+        cfg = Config.parse_obj(tomli.loads(CONFIG_FILE_PATH.read_text()))
+    except pydantic.ValidationError as e:
+        print("配置文件错误，请手动编辑配置文件后重试")
+        print("配置文件位置：", CONFIG_FILE_PATH)
+        print(e)
+        raise SystemExit
 else:
-    BGMI_PATH = os.environ["BGMI_PATH"]
-
-DB_PATH = os.path.join(BGMI_PATH, "bangumi.db")
-CONFIG_FILE_PATH = os.path.join(BGMI_PATH, "bgmi.cfg")
-
-SCRIPT_DB_PATH = os.path.join(BGMI_PATH, "script.db")
-SCRIPT_PATH = os.path.join(BGMI_PATH, "scripts")
-TOOLS_PATH = os.path.join(BGMI_PATH, "tools")
+    cfg = Config()
 
 
-def read_config() -> None:
-    c = configparser.ConfigParser(interpolation=None)
-    if not os.path.exists(CONFIG_FILE_PATH):
-        write_default_config()
-        return
-    c.read(CONFIG_FILE_PATH, encoding="utf-8")
-
-    for i in __writeable__:
-        if c.has_option("bgmi", i):
-            v: Any = c.get("bgmi", i)
-            if i == "MAX_PAGE":
-                v = int(v)
-            globals().update({i: v})
-
-    for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
-        if c.has_option(DOWNLOAD_DELEGATE, i):
-            globals().update({i: c.get(DOWNLOAD_DELEGATE, i)})
-
-
-def print_config() -> Optional[str]:
-    c = configparser.ConfigParser(interpolation=None)
-    if not os.path.exists(CONFIG_FILE_PATH):
-        return None
-
-    c.read(CONFIG_FILE_PATH, encoding="utf-8")
-    string = ""
-    string += "[bgmi]\n"
-    for i in __writeable__:
-        string += "{}={}\n".format(i, c.get("bgmi", i))
-
-    string += f"\n[{DOWNLOAD_DELEGATE}]\n"
-    for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
-        string += f"{i}={c.get(DOWNLOAD_DELEGATE, i)}\n"
-    return string
+def print_config() -> str:
+    return tomli_w.dumps(json.loads(cfg.json()))
 
 
 def write_default_config() -> None:
-    c = configparser.ConfigParser(interpolation=None)
-    if not c.has_section("bgmi"):
-        c.add_section("bgmi")
+    if not CONFIG_FILE_PATH.exists():
+        Config().save()
 
-    for k in __writeable__:
-        v = globals().get(k, "0")
-        if k == "ADMIN_TOKEN" and v is None:
-            v = hashlib.md5(str(random.random()).encode("utf-8")).hexdigest()
-
-        c.set("bgmi", k, str(v))
-
-    if not c.has_section(DOWNLOAD_DELEGATE):
-        c.add_section(DOWNLOAD_DELEGATE)
-
-    for k in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
-        v = globals().get(k, None)
-        c.set(DOWNLOAD_DELEGATE, k, v)
-
-    try:
-        with open(CONFIG_FILE_PATH, "w+", encoding="utf-8") as f:
-            c.write(f)
-    except OSError:
-        print("[-] Error writing to config file and ignored")
-
-
-def write_config(config: Optional[str] = None, value: Optional[str] = None) -> Dict[str, Any]:
-    if not os.path.exists(CONFIG_FILE_PATH):
-        write_default_config()
-        return {
-            "status": "error",
-            "message": "Config file does not exists, writing default config file",
-            "data": [],
-        }
-
-    c = configparser.ConfigParser(interpolation=None)
-    c.read(CONFIG_FILE_PATH, encoding="utf-8")
-    result = {}  # type: Dict[str, Any]
-    try:
-        if config is None:
-            result = {"status": "info", "message": print_config()}
-
-        elif value is None:  # config(config, None)
-            result = {"status": "info"}
-
-            if config in __download_delegate__:
-                result["message"] = f"{config}={c.get(DOWNLOAD_DELEGATE, config)}"
-            else:
-                result["message"] = "{}={}".format(config, c.get("bgmi", config))
-
-        else:  # config(config, Value)
-            if config in __writeable__:
-                c.set("bgmi", config, value)
-                with open(CONFIG_FILE_PATH, "w", encoding="utf-8") as f:
-                    c.write(f)
-
-                read_config()
-                if config == "DOWNLOAD_DELEGATE" and not c.has_section(DOWNLOAD_DELEGATE):
-                    c.add_section(DOWNLOAD_DELEGATE)
-                    for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
-                        v = globals().get(i, "")
-                        c.set(DOWNLOAD_DELEGATE, i, v)
-
-                    with open(CONFIG_FILE_PATH, "w", encoding="utf-8") as f:
-                        c.write(f)
-
-                result = {
-                    "status": "success",
-                    "message": f"{config} has been set to {value}",
-                }
-
-            elif config in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
-                c.set(DOWNLOAD_DELEGATE, config, value)
-                with open(CONFIG_FILE_PATH, "w", encoding="utf-8") as f:
-                    c.write(f)
-
-                result = {
-                    "status": "success",
-                    "message": f"{config} has been set to {value}",
-                }
-            else:
-                result = {
-                    "status": "error",
-                    "message": f"{config} does not exist or not writeable",
-                }
-
-    except configparser.NoOptionError:
-        write_default_config()
-        result = {
-            "status": "error",
-            "message": "Error in config file, try rerun `bgmi config`",
-        }
-
-    result["data"] = [{"writable": True, "name": x, "value": globals()[x]} for x in __writeable__] + [
-        {"writable": False, "name": x, "value": globals()[x]} for x in __readonly__
-    ]
-    return result
-
-
-# --------- Writeable ---------- #
-# Setting bangumi.moe url
-BANGUMI_MOE_URL = "https://bangumi.moe"
-
-# Setting share.dmhy.org url
-SHARE_DMHY_URL = "https://share.dmhy.org"
-
-# Setting bangumi.moe url
-DATA_SOURCE = "bangumi_moe"
-
-# BGmi user path
-SAVE_PATH = os.path.join(BGMI_PATH, "bangumi")
-FRONT_STATIC_PATH = os.path.join(BGMI_PATH, "front_static")
-
-# admin token
-ADMIN_TOKEN = None
-
-# mikan username
-MIKAN_USERNAME = ""
-
-# mikan password
-MIKAN_PASSWORD = ""
-
-# temp path
-TMP_PATH = os.path.join(BGMI_PATH, "tmp")
-
-# log path
-LOG_PATH = os.path.join(TMP_PATH, "bgmi.log")
-
-# Download delegate
-DOWNLOAD_DELEGATE = "aria2-rpc"
-
-# danmaku api url, https://github.com/DIYgod/DPlayer#related-projects
-DANMAKU_API_URL = ""
-
-# language
-LANG = "zh_cn"
-
-# max page
-MAX_PAGE = 3
-
-# aria2
-ARIA2_RPC_URL = "http://localhost:6800/rpc"
-ARIA2_RPC_TOKEN = "token:"
-
-# deluge
-DELUGE_RPC_URL = "http://127.0.0.1:8112/json"
-DELUGE_RPC_PASSWORD = "deluge"
-
-# path of wget
-WGET_PATH = "/usr/bin/wget"
-
-# transmission-rpc
-TRANSMISSION_RPC_URL = "127.0.0.1"
-TRANSMISSION_RPC_PORT = "9091"
-TRANSMISSION_RPC_USERNAME = "your_username"
-TRANSMISSION_RPC_PASSWORD = "your_password"
-TRANSMISSION_RPC_PATH = "/transmission/"
-
-# qbittorrent-webapi
-QBITTORRENT_HOST = "127.0.0.1"
-QBITTORRENT_PORT = "8080"
-QBITTORRENT_USERNAME = "admin"
-QBITTORRENT_PASSWORD = "adminadmin"
-QBITTORRENT_CATEGORY = ""
-
-# tag of bangumi on bangumi.moe
-BANGUMI_TAG = "549ef207fe682f7549f1ea90"
-
-# Global blocked keyword
-GLOBAL_FILTER = "Leopard-Raws, hevc, x265, c-a Raws, U3-Web"
-
-# enable global filter
-ENABLE_GLOBAL_FILTER = "1"
-
-# use tornado serving video files
-TORNADO_SERVE_STATIC_FILES = "0"
-
-# ------------------------------ #
-# !!! Read config from file and write to globals() !!!
-read_config()
-# ------------------------------ #
-# will be used in other other models
-__all_writable_now__ = __writeable__ + DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, ())
-
-# --------- Read-Only ---------- #
-# platform
-IS_WINDOWS = platform.system() == "Windows"
 
 if __name__ == "__main__":
     write_default_config()

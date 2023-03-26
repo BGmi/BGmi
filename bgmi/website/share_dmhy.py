@@ -1,18 +1,18 @@
 import os
 import re
-import time as Time
+import time
 import urllib.parse
 from typing import List, Optional
 
 import requests
 from bs4 import BeautifulSoup
 
-from bgmi.config import MAX_PAGE, SHARE_DMHY_URL
+from bgmi.config import cfg
 from bgmi.utils import print_error
 from bgmi.website.base import BaseWebsite
 from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
 
-base_url = SHARE_DMHY_URL
+base_url = cfg.share_dmhy_url
 
 
 def fetch_url(url, **kwargs):
@@ -21,7 +21,7 @@ def fetch_url(url, **kwargs):
         ret = requests.get(url, timeout=60, **kwargs).text
     except requests.ConnectionError:
         print_error(
-            f"Create connection to {SHARE_DMHY_URL}... failed",
+            f"Create connection to {base_url}... failed",
             exit_=False,
         )
         print_error(
@@ -63,7 +63,7 @@ def parse_bangumi_with_week_days(content, update_time, array_name) -> List[Websi
         bangumi.name = name
         bangumi.update_time = update_time
         bangumi.keyword = keyword
-        bangumi.cover = SHARE_DMHY_URL + cover
+        bangumi.cover = base_url + cover
 
         # append to bangumi_list
         bangumi_list.append(bangumi)
@@ -154,7 +154,7 @@ class DmhySource(BaseWebsite):
                 title = td_list[2].find("a", {"target": "_blank"}).get_text(strip=True)
                 download = td_list[3].a["href"]
                 episode = self.parse_episode(title)
-                time = int(Time.mktime(Time.strptime(time_string, "%Y/%m/%d %H:%M")))
+                t = int(time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M")))
 
                 result.append(
                     Episode(
@@ -162,7 +162,7 @@ class DmhySource(BaseWebsite):
                         title=title,
                         download=download,
                         episode=episode,
-                        time=time,
+                        time=t,
                     )
                 )
 
@@ -195,7 +195,7 @@ class DmhySource(BaseWebsite):
         print_error("dmhy not support search by tag")
         return []
 
-    def fetch_episode_of_bangumi(self, bangumi_id, max_page=MAX_PAGE, subtitle_list=None):
+    def fetch_episode_of_bangumi(self, bangumi_id, max_page=cfg.max_path, subtitle_list=None):
         """
         get all episode by bangumi id
         example
@@ -246,7 +246,7 @@ class DmhySource(BaseWebsite):
                 title = td_list[2].find("a", {"target": "_blank"}).get_text(strip=True)
                 download = td_list[3].a["href"]
                 episode = self.parse_episode(title)
-                time = int(Time.mktime(Time.strptime(time_string, "%Y/%m/%d %H:%M")))
+                t = int(time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M")))
                 subtitle_group = ""
 
                 tag_list = td_list[2].find_all("span", {"class": "tag"})
@@ -266,7 +266,7 @@ class DmhySource(BaseWebsite):
                         continue
 
                 if os.environ.get("DEBUG", False):  # pragma: no cover
-                    print(name, title, subtitle_group, download, episode, time)
+                    print(name, title, subtitle_group, download, episode, t)
 
                 result.append(
                     Episode(
@@ -274,7 +274,7 @@ class DmhySource(BaseWebsite):
                         subtitle_group=subtitle_group,
                         download=download,
                         episode=episode,
-                        time=time,
+                        time=t,
                     )
                 )
 

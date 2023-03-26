@@ -1,18 +1,15 @@
 import datetime
-import importlib.metadata
 import itertools
 import os
 import sys
 from operator import itemgetter
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, Dict, List, Optional, Tuple
 
-import stevedore
 import wcwidth
-from stevedore.exception import NoMatches
 from tornado import template
 
 import bgmi.config
-from bgmi import namespace
+from bgmi.config import CONFIG_FILE_PATH, print_config
 from bgmi.lib.constants import (
     ACTION_ADD,
     ACTION_CAL,
@@ -36,11 +33,10 @@ from bgmi.lib.constants import (
     SUPPORT_WEBSITE,
     actions_and_arguments,
 )
-from bgmi.lib.controllers import add, cal, config, delete, filter_, list_, mark, search, source, update
+from bgmi.lib.controllers import add, cal, delete, filter_, list_, mark, search, source, update
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
 from bgmi.lib.models import STATUS_DELETED, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, Filter, Followed, Subtitle
-from bgmi.plugin.download import BaseDownloadService
 from bgmi.script import ScriptRunner
 from bgmi.utils import (
     COLOR_END,
@@ -62,31 +58,14 @@ def source_wrapper(ret: Any) -> None:
 
 
 def config_wrapper(ret: Any) -> None:
-    if ret.name == "DOWNLOAD_DELEGATE" and ret.value is not None:
-        try:
-            driver_cls: Type[BaseDownloadService] = stevedore.DriverManager(
-                namespace=namespace.DOWNLOAD_DELEGATE,
-                name=ret.value,
-                invoke_on_load=False,
-            ).driver
+    name = ret.name
+    value = ret.value
 
-            driver_cls.check_dep()
-
-        except NoMatches:
-            if sys.version_info >= (3, 10):
-                entry_points = importlib.metadata.entry_points().select(name=namespace.DOWNLOAD_DELEGATE)
-            else:
-                entry_points = importlib.metadata.entry_points()[namespace.DOWNLOAD_DELEGATE]
-            available = ", ".join([f"'{x.name}'" for x in entry_points])
-            print_error(
-                f"{ret.value} if not a registered download delegate\n" f"available download delegate are {available}"
-            )
-
-    result = config(ret.name, ret.value)
-    if (not ret.name) and (not ret.value):
-        print(result["message"])
+    if name or value:
+        print("use config command to change config has been removed, please edit config file directly")
+        print(f"config file location: {str(CONFIG_FILE_PATH)!r}")
     else:
-        globals()["print_{}".format(result["status"])](result["message"])
+        print(print_config())
 
 
 def search_wrapper(ret: Any) -> None:
@@ -267,8 +246,6 @@ def complete(ret: Any) -> None:
     """eval "$(bgmi complete)" to complete bgmi in bash"""
     updating_bangumi_names = [x["name"] for x in Bangumi.get_updating_bangumi(order=False)]
 
-    all_config = [x for x in bgmi.config.__all__ if not x == "DATA_SOURCE"]
-
     actions_and_opts: Dict[str, list] = {}
     helper = {}
     for action_dict in actions_and_arguments:
@@ -297,7 +274,6 @@ def complete(ret: Any) -> None:
     template_with_content = shell_template.generate(
         actions=ACTIONS,
         bangumi=updating_bangumi_names,
-        config=all_config,
         actions_and_opts=actions_and_opts,
         source=[x["id"] for x in SUPPORT_WEBSITE],
         helper=helper,
@@ -374,8 +350,8 @@ def config_gen(ret: Any) -> None:
         actions=ACTIONS,
         server_name=ret.server_name,
         os_sep=os.sep,
-        front_static_path=bgmi.config.FRONT_STATIC_PATH,
-        save_path=bgmi.config.SAVE_PATH,
+        front_static_path=bgmi.config.cfg.front_static_path,
+        save_path=bgmi.config.cfg.save_path,
     )  # type: bytes
 
     print(template_with_content.decode("utf-8"))

@@ -10,7 +10,7 @@ import tornado.template
 import tornado.web
 from tornado.options import define, options
 
-from bgmi.config import FRONT_STATIC_PATH, IS_WINDOWS, SAVE_PATH, TORNADO_SERVE_STATIC_FILES
+from bgmi.config import IS_WINDOWS, cfg
 from bgmi.front.admin import API_MAP_GET, API_MAP_POST, AdminApiHandler, UpdateHandler
 from bgmi.front.index import BangumiListHandler, IndexHandler
 from bgmi.front.resources import BangumiHandler, CalendarHandler, RssHandler
@@ -35,14 +35,14 @@ def make_app() -> tornado.web.Application:
         (rf"^/api/(?P<action>{api_actions})", AdminApiHandler),
     ]
 
-    if TORNADO_SERVE_STATIC_FILES != "0":
+    if cfg.http.serve_static_files:
         handlers.extend(
             [
-                (r"/bangumi/(.*)", tornado.web.StaticFileHandler, {"path": SAVE_PATH}),
+                (r"/bangumi/(.*)", tornado.web.StaticFileHandler, {"path": cfg.save_path}),
                 (
                     r"^/(.*)$",
                     tornado.web.StaticFileHandler,
-                    {"path": FRONT_STATIC_PATH, "default_filename": "index.html"},
+                    {"path": cfg.front_static_path, "default_filename": "index.html"},
                 ),
             ]
         )

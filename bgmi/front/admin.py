@@ -1,4 +1,5 @@
 import functools
+import json
 import traceback
 from concurrent.futures.thread import ThreadPoolExecutor
 from threading import Lock
@@ -8,7 +9,6 @@ from tornado.concurrent import run_on_executor
 from tornado.ioloop import IOLoop
 from tornado.web import HTTPError, RequestHandler
 
-from bgmi.config import ADMIN_TOKEN
 from bgmi.front.base import BaseHandler
 from bgmi.lib.constants import (
     ACTION_ADD,
@@ -20,7 +20,7 @@ from bgmi.lib.constants import (
     ACTION_MARK,
     ACTION_SEARCH,
 )
-from bgmi.lib.controllers import add, cal, config, delete, filter_, mark, search, status_, update
+from bgmi.lib.controllers import add, cal, cfg, delete, filter_, mark, search, status_, update
 from bgmi.lib.download import download_prepare
 
 ACTION_AUTH = "auth"
@@ -28,14 +28,13 @@ ACTION_STATUS = "status"
 
 
 def auth_(token: str = "") -> Dict[str, str]:
-    return {"status": "success" if token == ADMIN_TOKEN else "error"}
+    return {"status": "success" if token == cfg.http.admin_token else "error"}
 
 
 API_MAP_POST: Dict[str, Callable] = {
     ACTION_ADD: add,
     ACTION_DELETE: delete,
     ACTION_SEARCH: search,
-    ACTION_CONFIG: config,
     ACTION_DOWNLOAD: download_prepare,
     ACTION_AUTH: auth_,
     ACTION_MARK: mark,
@@ -45,7 +44,7 @@ API_MAP_POST: Dict[str, Callable] = {
 
 API_MAP_GET = {
     ACTION_CAL: lambda: {"data": cal()},
-    ACTION_CONFIG: lambda: config(None, None),
+    ACTION_CONFIG: lambda: {"data": json.loads(cfg.json())},
 }
 
 NO_AUTH_ACTION = (ACTION_CAL, ACTION_AUTH)
@@ -58,7 +57,7 @@ def auth(f):  # type: ignore
             return f(self, *args, **kwargs)
 
         token = self.request.headers.get("bgmi-token")
-        if token == ADMIN_TOKEN:
+        if token == cfg.http.admin_token:
             return f(self, *args, **kwargs)
         else:
             # HTTPError will be except in `BaseHandler.write_error`

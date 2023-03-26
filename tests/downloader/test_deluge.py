@@ -5,7 +5,7 @@ from bgmi.downloader.deluge import DelugeRPC
 _token = "ttttt"
 
 
-@mock.patch("bgmi.config.DELUGE_RPC_PASSWORD", _token)
+@mock.patch("bgmi.config.cfg.deluge.rpc_password", _token)
 @mock.patch.object(DelugeRPC, "_call")
 def test_use_config(mock_call: mock.Mock):
     DelugeRPC()

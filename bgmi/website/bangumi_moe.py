@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Tuple, TypedDict
 
 import requests
 
-from bgmi.config import BANGUMI_MOE_URL, LANG
+from bgmi.config import cfg
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.utils import bug_report, print_error, print_info, print_warning
 from bgmi.website.base import BaseWebsite
@@ -13,6 +13,8 @@ from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
 
 # tag of bangumi on bangumi.moe
 BANGUMI_TAG = "549ef207fe682f7549f1ea90"
+BANGUMI_MOE_URL = cfg.bangumi_moe_url
+LANG = cfg.lang
 
 __split = "/" if not BANGUMI_MOE_URL.endswith("/") else ""
 FETCH_URL = f"{BANGUMI_MOE_URL}{__split}api/bangumi/current"

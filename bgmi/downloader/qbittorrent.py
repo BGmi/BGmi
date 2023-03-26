@@ -1,17 +1,17 @@
 import qbittorrentapi
 from qbittorrentapi import TorrentStates
 
-from bgmi import config
+from bgmi.config import cfg
 from bgmi.plugin.download import BaseDownloadService, DownloadStatus
 
 
 class QBittorrentWebAPI(BaseDownloadService):
     def __init__(self):
         self.client = qbittorrentapi.Client(
-            host=config.QBITTORRENT_HOST,
-            port=config.QBITTORRENT_PORT,
-            username=config.QBITTORRENT_USERNAME,
-            password=config.QBITTORRENT_PASSWORD,
+            host=cfg.qbittorrent.rpc_host,
+            port=cfg.qbittorrent.rpc_port,
+            username=cfg.qbittorrent.rpc_username,
+            password=cfg.qbittorrent.rpc_password,
         )
         self.client.auth_log_in()
 
@@ -19,14 +19,10 @@ class QBittorrentWebAPI(BaseDownloadService):
     def check_config() -> None:
         pass
 
-    @staticmethod
-    def check_dep():
-        pass
-
     def add_download(self, url: str, save_path: str):
         self.client.torrents_add(
             urls=url,
-            category=config.QBITTORRENT_CATEGORY,
+            category=cfg.qbittorrent.category,
             save_path=save_path,
             is_paused=False,
             use_auto_torrent_management=False,

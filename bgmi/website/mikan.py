@@ -8,7 +8,7 @@ import bs4
 from bs4 import BeautifulSoup
 from strsimpy.normalized_levenshtein import NormalizedLevenshtein
 
-from bgmi.config import MAX_PAGE, MIKAN_PASSWORD, MIKAN_USERNAME
+from bgmi.config import cfg
 from bgmi.session import session as requests
 from bgmi.utils import parse_episode, print_info
 from bgmi.website.base import BaseWebsite
@@ -141,8 +141,8 @@ def mikan_login():
     r = requests.post(
         login_url,
         data={
-            "UserName": MIKAN_USERNAME,
-            "Password": MIKAN_PASSWORD,
+            "UserName": cfg.mikan_username,
+            "Password": cfg.mikan_password,
             "__RequestVerificationToken": token,
         },
         headers={"Referer": server_root},
@@ -154,7 +154,7 @@ def mikan_login():
 
 
 def get_text(url, params=None):
-    if not MIKAN_USERNAME or not MIKAN_PASSWORD:
+    if not cfg.mikan_username or not cfg.mikan_password:
         return requests.get(url, params=params).text
 
     for _ in range(2):
@@ -342,7 +342,7 @@ class Mikanani(BaseWebsite):
             )
         return result
 
-    def fetch_episode_of_bangumi(self, bangumi_id, max_page=MAX_PAGE, subtitle_list=None):
+    def fetch_episode_of_bangumi(self, bangumi_id, max_page=cfg.max_path, subtitle_list=None):
         r = get_text(server_root + f"Home/Bangumi/{bangumi_id}")
         return parse_episodes(r, bangumi_id, subtitle_list)
 
