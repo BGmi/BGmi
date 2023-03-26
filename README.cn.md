@@ -156,13 +156,13 @@ rpc_url = "http://127.0.0.1:8112/json"
 rpc_password = "deluge"
 ```
 
-支持的数据源:
+## 支持的数据源
 
 - [bangumi_moe(default)](https://bangumi.moe)
 - [mikan_project](https://mikanani.me)
 - [dmhy](https://share.dmhy.org/)
 
-换一个数据源:
+### 更换换数据源
 
 **更换数据源会清空番剧数据库, 但是 bgmi script 不受影响.** 之前下载的视频文件不会删除, 但是不会在前端显示
 
@@ -172,7 +172,18 @@ rpc_password = "deluge"
 bgmi source mikan_project
 ```
 
-查看目前正在更新的新番:
+
+### 设置下载方式
+
+修改配置文件和对应的配置项
+
+```toml
+download_delegate = "aria2-rpc" # download delegate
+```
+
+内置可用的选项包括 `aria2-rpc`, `transmission-rpc`, `qbittorrent-webapi` 以及 `deluge-rpc`。
+
+### 查看目前正在更新的新番
 
 ```bash
 bgmi cal

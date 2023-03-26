@@ -196,6 +196,14 @@ sources are not affected.
 bgmi source mikan_project
 ```
 
+### download delegate
+
+```toml
+download_delegate = "aria2-rpc" # download delegate
+```
+
+supported options are `aria2-rpc`, `transmission-rpc`, `qbittorrent-webapi` and `deluge-rpc`
+
 ### Show bangumi calendar
 
 ```bash
