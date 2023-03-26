@@ -94,6 +94,9 @@ class Config(BaseSetting):
     bangumi_moe_url: HttpUrl = Field("https://bangumi.moe", description="Setting bangumi.moe url")  # type: ignore
     share_dmhy_url: HttpUrl = Field("https://share.dmhy.org", description="Setting share.dmhy.org url")  # type: ignore
 
+    mikan_username: str = ""
+    mikan_password: str = ""
+
     # admin token
     admin_token: str = Field(default_factory=lambda: secrets.token_urlsafe(12), description="webui admin token")
 

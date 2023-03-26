@@ -118,6 +118,8 @@ you can add `--help` to all `BGmi` sub command to show full options, some of the
 
 video files will still be stored on the disk, but won't be shown on website.
 
+**If the source to be switched is `mikan_project`, please configure `MIKAN_USERNAME` and `MIKAN_PASSWORD` first**, other sources are not affected.
+
 ```console
 bgmi source mikan_project
 ```
@@ -228,6 +230,8 @@ BGmi configure:
 - `TMP_PATH`: just a temporary path
 - `DANMAKU_API_URL`: url of danmaku api
 - `LANG`: language
+- `MIKAN_USERNAME`: The username for Mikan Project website
+- `MIKAN_PASSWORD`: The password for Mikan Project website
 
 Aria2-rpc configure:
 
