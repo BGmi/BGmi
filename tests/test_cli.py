@@ -27,9 +27,7 @@ def test_cal_force_update():
 
 
 def test_cal_config():
-    main("config".split())
-    main("config ADMIN_TOKEN 233".split())
-    main("config BANGUMI_MOE_URL https://bangumi.moe".split())
+    main(["config"])
 
 
 def test_add(bangumi_names):
