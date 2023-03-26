@@ -94,7 +94,7 @@ TOOLS_PATH = os.path.join(BGMI_PATH, "tools")
 
 
 def read_config() -> None:
-    c = configparser.ConfigParser()
+    c = configparser.ConfigParser(interpolation=None)
     if not os.path.exists(CONFIG_FILE_PATH):
         write_default_config()
         return
@@ -113,7 +113,7 @@ def read_config() -> None:
 
 
 def print_config() -> Optional[str]:
-    c = configparser.ConfigParser()
+    c = configparser.ConfigParser(interpolation=None)
     if not os.path.exists(CONFIG_FILE_PATH):
         return None
 
@@ -130,7 +130,7 @@ def print_config() -> Optional[str]:
 
 
 def write_default_config() -> None:
-    c = configparser.ConfigParser()
+    c = configparser.ConfigParser(interpolation=None)
     if not c.has_section("bgmi"):
         c.add_section("bgmi")
 
@@ -164,7 +164,7 @@ def write_config(config: Optional[str] = None, value: Optional[str] = None) -> D
             "data": [],
         }
 
-    c = configparser.ConfigParser()
+    c = configparser.ConfigParser(interpolation=None)
     c.read(CONFIG_FILE_PATH, encoding="utf-8")
     result = {}  # type: Dict[str, Any]
     try:
