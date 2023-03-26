@@ -1078,14 +1078,14 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "requests-cache"
-version = "1.0.0"
+version = "1.0.1"
 description = "A persistent cache for python requests"
 category = "dev"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "requests_cache-1.0.0-py3-none-any.whl", hash = "sha256:558e335bf1c0f42ecbcf1abb8e7c8e679845ee522d75d1c50b77d4fbf5434012"},
-    {file = "requests_cache-1.0.0.tar.gz", hash = "sha256:162f591ed9ad0ea601cefd898770f499d473cb056466e85494299a1b0ca61cbf"},
+    {file = "requests_cache-1.0.1-py3-none-any.whl", hash = "sha256:55c5765c26fd98a38c633d6e3931a507b7708cdd07c0afb48773d0718ac15969"},
+    {file = "requests_cache-1.0.1.tar.gz", hash = "sha256:d42e6c2f11de54e6a134c9a00c5ca2a3c8edde3c3f2bdfd942586fafa8990e14"},
 ]
 
 [package.dependencies]
@@ -1099,7 +1099,7 @@ urllib3 = ">=1.25.5"
 [package.extras]
 all = ["boto3 (>=1.15)", "botocore (>=1.18)", "itsdangerous (>=2.0)", "pymongo (>=3)", "pyyaml (>=5.4)", "redis (>=3)", "ujson (>=5.4)"]
 bson = ["bson (>=0.5)"]
-docs = ["furo (>=2022.12.7,<2023.0.0)", "linkify-it-py (>=2.0)", "myst-parser (>=0.17)", "sphinx (>=5.0.2,<6.0.0)", "sphinx-autodoc-typehints (>=1.19)", "sphinx-automodapi (>=0.14)", "sphinx-copybutton (>=0.5)", "sphinx-design (>=0.2)", "sphinx-notfound-page (>=0.8)", "sphinxcontrib-apidoc (>=0.3)", "sphinxext-opengraph (>=0.6)"]
+docs = ["furo (>=2022.12.7,<2023.0.0)", "linkify-it-py (>=2.0,<3.0)", "myst-parser (>=1.0,<2.0)", "sphinx (>=5.0.2,<6.0.0)", "sphinx-autodoc-typehints (>=1.19)", "sphinx-automodapi (>=0.14)", "sphinx-copybutton (>=0.5)", "sphinx-design (>=0.2)", "sphinx-notfound-page (>=0.8)", "sphinxcontrib-apidoc (>=0.3)", "sphinxext-opengraph (>=0.6)"]
 dynamodb = ["boto3 (>=1.15)", "botocore (>=1.18)"]
 json = ["ujson (>=5.4)"]
 mongodb = ["pymongo (>=3)"]
@@ -1459,4 +1459,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.0"
-content-hash = "872ce53a3f8972b7be764c9b888bd94a04aa3c7e91a8a9fbbcda0d0200a84cb4"
+content-hash = "592d7abea59a791ff525babb225dc0245ca5e6d9dfc80f97608b5b4941127aeb"
