@@ -33,7 +33,7 @@ def find_largest_video_file(top_dir: Path) -> Optional[str]:
                 video_files.append((p.stat().st_size, p))
 
     if not video_files:
-        return
+        return None
 
     video_files.sort(key=lambda x: -x[0])
 
