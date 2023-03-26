@@ -926,22 +926,6 @@ files = [
 pytest = ">=4.0.0"
 
 [[package]]
-name = "pytest-rerunfailures"
-version = "11.1.2"
-description = "pytest plugin to re-run tests to eliminate flaky failures"
-category = "dev"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "pytest-rerunfailures-11.1.2.tar.gz", hash = "sha256:55611661e873f1cafa384c82f08d07883954f4b76435f4b8a5b470c1954573de"},
-    {file = "pytest_rerunfailures-11.1.2-py3-none-any.whl", hash = "sha256:d21fe2e46d9774f8ad95f1aa799544ae95cac3a223477af94aa985adfae92b7e"},
-]
-
-[package.dependencies]
-packaging = ">=17.1"
-pytest = ">=5.3"
-
-[[package]]
 name = "python-dateutil"
 version = "2.8.2"
 description = "Extensions to the standard Python datetime module"
@@ -1445,4 +1429,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.0"
-content-hash = "65ea6a8cbdb42dcad7b35b0ad24595f6c54fa748752e7845b1ec5a1c8eed6201"
+content-hash = "8dacb5faa53df0ba3045c445db274486b522b92156f01742a384a61d688e86d9"
