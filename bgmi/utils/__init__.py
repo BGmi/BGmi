@@ -15,7 +15,7 @@ from io import BytesIO
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from shutil import move, rmtree
-from typing import Any, Callable, List, Optional, Tuple, TypeVar, Union
+from typing import Any, Callable, List, Optional, Tuple, TypeVar
 
 import requests
 
@@ -372,85 +372,17 @@ FETCH_EPISODE = (
     FETCH_EPISODE_WITH_VERSION,
 )
 
+from anime_episode_parser import parse_episode as _parse_episode
 
-@log_utils_function
+
 def parse_episode(episode_title: str) -> int:
-    """
-    parse episode from title
-    :param episode_title: episode title
-    :type episode_title: str
-    :return: episode of this title
-    :rtype: int
-    """
-    spare = None
+    s, c = _parse_episode(episode_title)
+    if c != 1:
+        return 0
 
-    def get_real_episode(episode_list: Union[List[str], List[int]]) -> int:
-        return min(int(x) for x in episode_list)
-
-    for pattern in (FETCH_EPISODE_RANGE_ALL_ZH_1, FETCH_EPISODE_RANGE_ALL_ZH_2):
-        _ = pattern.findall(episode_title)
-        if _ and _[0]:
-            logger.debug("return episode range all zh '%s'", pattern.pattern)
-            return int(0)
-
-    _ = FETCH_EPISODE_RANGE.findall(episode_title)
-    if _ and _[0]:
-        logger.debug("return episode range")
-        return int(0)
-
-    _ = FETCH_EPISODE_RANGE_ZH.findall(episode_title)
-    if _ and _[0]:
-        logger.debug("return episode range zh")
-        return int(0)
-
-    _ = FETCH_EPISODE_ZH.findall(episode_title)
-    if _ and _[0].isdigit():
-        logger.debug("return episode zh")
-        return int(_[0])
-
-    _ = FETCH_EPISODE_ALL_ZH.findall(episode_title)
-    if _ and _[0]:
-        try:
-            logger.debug("try return episode all zh %s", _)
-            e = chinese_to_arabic(_[0])
-            logger.debug("return episode all zh")
-            return e
-        except Exception:
-            logger.debug("can't convert %s to int", _[0])
-
-    _ = FETCH_EPISODE_WITH_VERSION.findall(episode_title)
-    if _ and _[0].isdigit():
-        logger.debug("return episode range with version")
-        return int(_[0])
-
-    _ = FETCH_EPISODE_WITH_BRACKETS.findall(episode_title)
-    if _:
-        logger.debug("return episode with brackets")
-        return get_real_episode(_)
-
-    logger.debug("don't match any regex, try match after split")
-    rest: List[int] = []
-    for i in episode_title.replace("[", " ").replace("【", ",").split(" "):
-        for regexp in FETCH_EPISODE:
-            match = regexp.findall(i)
-            if match and match[0].isdigit():
-                m = int(match[0])
-                if m > 1000:
-                    spare = m
-                else:
-                    logger.debug("match %s '%s' %d", i, regexp.pattern, m)
-                    rest.append(m)
-
-    if rest:
-        return get_real_episode(rest)
-
-    if spare:
-        return spare
-
-    return 0
+    return s or 0
 
 
-@log_utils_function
 def normalize_path(url: str) -> str:
     """
     normalize link to path
