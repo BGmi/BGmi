@@ -41,31 +41,29 @@ CONFIG_FILE_PATH = BGMI_PATH / "config.toml"
 
 
 class Aria2Config(BaseSettings):
-    # aria2
-    ARIA2_RPC_URL = "http://localhost:6800/rpc"
-    ARIA2_RPC_TOKEN = "token:"
+    rpc_url = "http://localhost:6800/rpc"
+    rpc_token = "token:"
 
 
 class TransmissionConfig(BaseSettings):
-    # transmission-rpc
-    TRANSMISSION_RPC_URL: str = "127.0.0.1"
-    TRANSMISSION_RPC_PORT: int = 9091
-    TRANSMISSION_RPC_USERNAME: str = "your_username"
-    TRANSMISSION_RPC_PASSWORD: str = "your_password"
-    TRANSMISSION_RPC_PATH: str = "/transmission/"
+    rpc_url: str = "127.0.0.1"
+    rpc_port: int = 9091
+    rpc_username: str = "your_username"
+    rpc_password: str = "your_password"
+    rpc_path: str = "/transmission/"
 
 
 class QBittorrentConfig(BaseSettings):
-    QBITTORRENT_HOST: str = "127.0.0.1"
-    QBITTORRENT_PORT: int = 8080
-    QBITTORRENT_USERNAME: str = "admin"
-    QBITTORRENT_PASSWORD: str = "adminadmin"
-    QBITTORRENT_CATEGORY: str = ""
+    rpc_host: str = "127.0.0.1"
+    rpc_port: int = 8080
+    rpc_username: str = "admin"
+    rpc_password: str = "adminadmin"
+    category: str = ""
 
 
 class DelugeConfig(BaseSettings):
-    DELUGE_RPC_URL: HttpUrl = "http://127.0.0.1:8112/json"  # type: ignore
-    DELUGE_RPC_PASSWORD: str = "deluge"
+    rpc_url: HttpUrl = "http://127.0.0.1:8112/json"  # type: ignore
+    rpc_password: str = "deluge"
 
 
 class Config(BaseSettings):
