@@ -47,10 +47,11 @@ def test_update_download(mock_download_driver: mock.Mock):
     )
 
     Bangumi(name=name, subtitle_group="", keyword=name, cover="").save()
+
     Followed(bangumi_name=name, episode=2).save()
 
     with mock.patch("bgmi.lib.controllers.website", mock_website):
-        update([], download=name, not_ignore=False)
+        update([name], download=[3, 4], not_ignore=False)
 
     mock_download_driver.add_download.assert_has_calls(
         [
