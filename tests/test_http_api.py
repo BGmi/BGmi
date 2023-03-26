@@ -25,7 +25,7 @@ logger.setLevel(logging.ERROR)
 
 
 class ApiTestCase(AsyncHTTPTestCase):
-    headers = {"BGmi-Token": cfg.admin_token, "Content-Type": "application/json"}
+    headers = {"BGmi-Token": cfg.http.admin_token, "Content-Type": "application/json"}
     bangumi_1 = "名侦探柯南"
     bangumi_2 = "海贼王"
     bangumi_3 = "黑色五叶草"
@@ -35,7 +35,7 @@ class ApiTestCase(AsyncHTTPTestCase):
         return self.app
 
     def test_a_auth(self):
-        r = self.fetch("/api/auth", method="POST", body=json.dumps({"token": cfg.admin_token}))
+        r = self.fetch("/api/auth", method="POST", body=json.dumps({"token": cfg.http.admin_token}))
         assert r.code == 200
         res = self.parse_response(r)
         assert res["status"] == "success"

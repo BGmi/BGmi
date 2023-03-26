@@ -104,7 +104,7 @@ class Config(BaseSetting):
     mikan_username: str = ""
     mikan_password: str = ""
 
-    bgmi_http: HTTP = HTTP()
+    http: HTTP = HTTP()
 
     # language
     lang: str = "zh_cn"
