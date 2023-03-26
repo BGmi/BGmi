@@ -34,7 +34,6 @@ def test_search_download(mock_download_driver: mock.Mock):
 
 @pytest.mark.usefixtures("_clean_bgmi")
 def test_update_download(mock_download_driver: mock.Mock):
-    """TODO: mock HTTP requests in this test"""
     name = "hello world"
     mock_website = mock.Mock()
     mock_website.get_maximum_episode = mock.Mock(
@@ -51,7 +50,7 @@ def test_update_download(mock_download_driver: mock.Mock):
     Followed(bangumi_name=name, episode=2).save()
 
     with mock.patch("bgmi.lib.controllers.website", mock_website):
-        update([], download=True, not_ignore=False)
+        update([], download=name, not_ignore=False)
 
     mock_download_driver.add_download.assert_has_calls(
         [
