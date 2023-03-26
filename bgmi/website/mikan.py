@@ -155,7 +155,7 @@ def mikan_login():
 
 def get_text(url, params=None):
     if not MIKAN_USERNAME or not MIKAN_PASSWORD:
-        raise ValueError("mikan username or password is empty")
+        return requests.get(url, params=params).text
 
     for _ in range(2):
         r = requests.get(url, params=params)
