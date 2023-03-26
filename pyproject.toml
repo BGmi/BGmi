@@ -69,7 +69,7 @@ anime-episode-parser = "^0.0.8"
 coverage = { version = "==7.2.2", extras = ['toml'] }
 pytest = "==7.2.2"
 pytest-github-actions-annotate-failures = "==0.1.8"
-requests-cache = "==1.0.0"
+requests-cache = "==1.0.1"
 # lint
 pre-commit = '==3.2.1'
 mypy = "==1.1.1"
