@@ -83,7 +83,7 @@ flake8-pytest-style = "==1.7.2"
 flake8-pyproject = "^1.2.3"
 pylint = "==2.17.1"
 # stubs
-types-requests = "==2.28.11.15"
+types-requests = "==2.28.11.16"
 [tool.coverage.report]
 exclude_lines = [
   'pragma: no cover',
