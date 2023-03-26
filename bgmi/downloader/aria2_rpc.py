@@ -14,7 +14,7 @@ class Aria2DownloadRPC(BaseDownloadService):
         else:
             self.token = "token:" + cfg.aria2.rpc_token
 
-        s = xmlrpc.client.ServerProxy(cfg.rpc_url)
+        s = xmlrpc.client.ServerProxy(cfg.aria2.rpc_url)
         r = s.aria2.getVersion(cfg.aria2.rpc_token)
         version = r["version"]
         if version:
