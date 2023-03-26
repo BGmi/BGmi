@@ -14,6 +14,8 @@ BGmi is a cli tool for subscribed bangumi.
 
 ## Update Log
 
+- add `save_path_map` option for per-bangumi save path
+- Use [TOML](https://github.com/toml-lang/toml) as config file language
 - Remove Python3.7 support
 - Remove Python3.6 support as it has reached its end-of-life
 - [Allow adding new download delegate without modifying the source code](./docs/downloader.md)
