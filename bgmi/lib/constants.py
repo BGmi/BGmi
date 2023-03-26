@@ -210,7 +210,7 @@ actions_and_arguments: List[dict] = [
     },
     {
         "action": ACTION_CONFIG,
-        "help": "Config BGmi.",
+        "help": "Show bgmi config.",
         "arguments": [
             {
                 "dest": "name",
