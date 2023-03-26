@@ -1,17 +1,17 @@
 import transmission_rpc
 
-from bgmi import config
+from bgmi.config import cfg
 from bgmi.plugin.download import BaseDownloadService, DownloadStatus
 
 
 class TransmissionRPC(BaseDownloadService):
     def __init__(self):
         self.client = transmission_rpc.Client(
-            host=config.TRANSMISSION_RPC_URL,
-            port=config.TRANSMISSION_RPC_PORT,
-            username=config.TRANSMISSION_RPC_USERNAME,
-            password=config.TRANSMISSION_RPC_PASSWORD,
-            path=config.TRANSMISSION_RPC_PATH,
+            host=cfg.transmission.rpc_url,
+            port=cfg.transmission.rpc_port,
+            username=cfg.transmission.rpc_username,
+            password=cfg.transmission.rpc_password,
+            path=cfg.transmission.rpc_path,
         )
 
     @staticmethod
