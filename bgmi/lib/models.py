@@ -224,6 +224,10 @@ class Filter(NeoDB):
             include_list = [s.strip().lower() for s in self.include.split(",")]
             result = [e for e in result if e.contains_any_words(include_list)]
 
+        if cfg.enable_global_include_keywords:
+            include_list = [s.strip().lower() for s in cfg.global_include_keywords]
+            result = [e for e in result if e.contains_any_words(include_list)]
+
         if self.exclude:
             # pylint:disable=no-member
             exclude_list = [s.strip().lower() for s in self.exclude.split(",")]

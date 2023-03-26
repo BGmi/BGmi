@@ -244,9 +244,22 @@ bgmi filter "Re:CREATORS" --regex "(DHR動研字幕組|豌豆字幕组).*(720P)"
 bgmi fetch "Re:CREATORS"
 ```
 
-#### Global Filter (exclude)
+#### Global Filter
 
-These words are pre-set as global filter (exclude keywords) `Leopard-Raws`, `hevc`, `x265`, `c-a Raws`, `U3-Web`.
+##### include
+
+You can set global include keywords.
+
+It's disabled by default, You need to enable global include keywords with `enable_global_include_keywords = true`
+
+```toml
+enable_global_include_keywords = true
+global_include_keywords = ['1080']
+```
+
+##### exclude
+
+Some words are pre-set as global exclude keywords
 
 You can disable global filter with `enable_global_filters = false`.
 

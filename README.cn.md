@@ -212,10 +212,34 @@ bgmi filter "Re:CREATORS" --regex "(DHR動研字幕組|豌豆字幕组).*(720P)"
 bgmi fetch "Re:CREATORS"
 ```
 
-全局过滤：
+## 设置全局过滤关键词
 
-默认会过滤以下关键词 `Leopard-Raws`, `hevc`, `x265`, `c-a Raws`, `U3-Web`
+
+### 包含
+
+默认不启用全局包含关键词，你可以设置 `enable_global_include_keywords = true` 启动此功能。
+
+```toml
+enable_global_include_keywords = true
+global_include_keywords = ['1080']
+```
+
+
+### 排除
+
+有一些默认定义的全局过滤关键词，默认会排除标题包含以下关键词的种子。
 可以使用 `enable_global_filters = false` 禁止过滤全局关键词，
+
+```toml
+enable_global_filters = true
+global_filters = [
+  "Leopard-Raws",
+  "hevc",
+  "x265",
+  "c-a Raws",
+  "U3-Web",
+]
+```
 
 最后使用`bgmi fetch`来看看筛选的结果.
 
