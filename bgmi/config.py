@@ -86,7 +86,7 @@ class Config(BaseSetting):
     tmp_path: Path = BGMI_PATH.joinpath("tmp")
 
     @property
-    def log_path(self):
+    def log_path(self) -> Path:
         return self.tmp_path.joinpath("bgmi.log")
 
     save_path: Path = Field(BGMI_PATH.joinpath("bangumi"), description="bangumi save path")
