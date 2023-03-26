@@ -208,6 +208,8 @@ BGmi:
 - `TORNADO_SERVE_STATIC_FILES`: 是否使用 bgmi 自带的 http 服务器代理静态文件. 启用后 bgmi_http 会直接使用`tornado.web.StaticFileHandler`代理静态文件.
 - `BANGUMI_MOE_URL`: bangumi.moe 的官方网站或者镜像站链接
 - `SHARE_DMHY_URL`: 动漫花园的官方网站或者镜像站链接
+- `MIKAN_USERNAME`: Mikan Project 网站的用户名
+- `MIKAN_PASSWORD`: Mikan Project 网站的密码
 
 Aria2-rpc:
 
