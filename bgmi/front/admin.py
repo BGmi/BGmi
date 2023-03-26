@@ -1,4 +1,5 @@
 import functools
+import json
 import traceback
 from concurrent.futures.thread import ThreadPoolExecutor
 from threading import Lock
@@ -43,7 +44,7 @@ API_MAP_POST: Dict[str, Callable] = {
 
 API_MAP_GET = {
     ACTION_CAL: lambda: {"data": cal()},
-    ACTION_CONFIG: lambda: {"data": cfg.dict()},
+    ACTION_CONFIG: lambda: {"data": json.loads(cfg.json())},
 }
 
 NO_AUTH_ACTION = (ACTION_CAL, ACTION_AUTH)
