@@ -205,10 +205,10 @@ class Download(NeoDB):
 
 class Filter(NeoDB):
     bangumi_name = TextField(unique=True)  # type: Optional[str]
-    subtitle = TextField()  # type: Optional[str]
-    include = TextField()  # type: Optional[str]
-    exclude = TextField()  # type: Optional[str]
-    regex = TextField()  # type: Optional[str]
+    subtitle = TextField(null=True)  # type: Optional[str]
+    include = TextField(null=True)  # type: Optional[str]
+    exclude = TextField(null=True)  # type: Optional[str]
+    regex = TextField(null=True)  # type: Optional[str]
 
     @property
     def subtitle_group_split(self) -> List[str]:
