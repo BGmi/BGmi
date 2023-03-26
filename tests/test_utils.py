@@ -86,9 +86,11 @@ def test_get_player():
     cfg.save_path.joinpath("test-save-path")
     cfg.save_path_map["test-save-path"] = Path("./test-save-path/ss/")
 
-    shutil.copytree(Path(__file__).joinpath("../fixtures/test-save-path"), cfg.save_path.joinpath("test-save-path"))
+    shutil.copytree(
+        Path(__file__).joinpath("../fixtures/test-save-path").resolve(), cfg.save_path.joinpath("test-save-path")
+    )
 
     assert get_player("test-save-path") == {
-        1: {"path": "test-save-path/ss/1/q/bigger.mkv"},
-        2: {"path": "test-save-path/ss/2/2.mp4"},
+        1: {"path": "/test-save-path/ss/1/q/bigger.mkv"},
+        2: {"path": "/test-save-path/ss/2/2.mp4"},
     }

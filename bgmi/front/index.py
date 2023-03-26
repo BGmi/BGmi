@@ -18,7 +18,7 @@ def get_player(bangumi_name: str) -> Dict[int, Dict[str, str]]:
     for episode in episodes:
         e = find_largest_video_file(bangumi_path.joinpath(episode))
         if e:
-            episode_list[int(episode)] = {"path": e}
+            episode_list[int(episode)] = {"path": "/" + e}
 
     return episode_list
 
