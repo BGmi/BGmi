@@ -8,7 +8,7 @@ import pytest
 import requests_cache
 import urllib3
 
-from bgmi.config import IS_WINDOWS, SCRIPT_PATH
+from bgmi.config import IS_WINDOWS, cfg
 from bgmi.lib.models import recreate_source_relatively_table
 
 
@@ -36,12 +36,12 @@ def pytest_sessionstart(session):
 
 def ensure_example_script():
     test_script = "script_example.py"
-    p = os.listdir(SCRIPT_PATH)
+    p = os.listdir(cfg.script_path)
     if test_script not in p:
         print("copy script_example.py to SCRIPT_PATH")
         shutil.copy(
             os.path.join(os.path.dirname(__file__), "..", test_script),
-            os.path.join(SCRIPT_PATH, test_script),
+            os.path.join(cfg.script_path, test_script),
         )
 
 
