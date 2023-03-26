@@ -18,6 +18,7 @@ from shutil import move, rmtree
 from typing import Any, Callable, List, Optional, Tuple, TypeVar
 
 import requests
+from anime_episode_parser import parse_episode as _parse_episode
 
 from bgmi import __admin_version__, __version__
 from bgmi.config import BGMI_PATH, IS_WINDOWS, cfg
