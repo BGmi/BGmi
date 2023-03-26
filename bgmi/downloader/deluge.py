@@ -1,6 +1,6 @@
 import requests
 
-from bgmi import config
+from bgmi.config import cfg
 from bgmi.plugin.download import BaseDownloadService, DownloadStatus, RpcError
 
 
@@ -8,7 +8,7 @@ class DelugeRPC(BaseDownloadService):
     def __init__(self):
         self._id = 0
         self._session = requests.session()
-        self._call("auth.login", [config.DELUGE_RPC_PASSWORD])
+        self._call("auth.login", [cfg.deluge.rpc_password])
 
     @staticmethod
     def check_config() -> None:
@@ -41,7 +41,7 @@ class DelugeRPC(BaseDownloadService):
         if params is None:
             params = []
         r = self._session.post(
-            config.DELUGE_RPC_URL,
+            cfg.deluge.rpc_url,
             headers={"Content-Type": "application/json"},
             json={"method": methods, "params": params, "id": self._id},
             timeout=10,
