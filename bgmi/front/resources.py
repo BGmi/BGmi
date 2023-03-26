@@ -12,7 +12,7 @@ from bgmi.lib.models import Download, Followed
 
 class BangumiHandler(BaseHandler):
     def get(self, _: str) -> None:
-        if os.environ.get("DEV", False):  # pragma: no cover
+        if os.environ.get("DEV"):  # pragma: no cover
             with open(os.path.join(cfg.save_path, _), "rb") as f:
                 self.write(f.read())
                 self.finish()
@@ -30,7 +30,8 @@ class BangumiHandler(BaseHandler):
                 "}\n"
                 "...\n\n"
                 "If use want to use Tornado to serve static files, please run\n"
-                "<code>`bgmi config TORNADO_SERVE_STATIC_FILES 1`</code></pre>"
+                "<code>[http]</code>"
+                "<code>serve_static_files = false</code></pre>"
             )
             self.finish()
 

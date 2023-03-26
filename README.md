@@ -14,6 +14,8 @@ BGmi is a cli tool for subscribed bangumi.
 
 ## Update Log
 
+- add `save_path_map` option for per-bangumi save path
+- Use [TOML](https://github.com/toml-lang/toml) as config file language
 - Remove Python3.7 support
 - Remove Python3.6 support as it has reached its end-of-life
 - [Allow adding new download delegate without modifying the source code](./docs/downloader.md)
@@ -141,14 +143,18 @@ mikan_password = "" # The password for Mikan Project website
 lang = "zh_cn" # banugmi moe lang filter
 enable_global_filters = true
 global_filters = [
-  "Leopard-Raws",
-  "hevc",
-  "x265",
-  "c-a Raws",
-  "U3-Web",
+    "Leopard-Raws",
+    "hevc",
+    "x265",
+    "c-a Raws",
+    "U3-Web",
 ]
 
-[bgmi_http]
+[save_path_map] # per-bangumi save path
+'致不灭的你 第二季' = '/home/trim21/downloads/bangumi/致不灭的你/s2/' # abs path may not work with web-ui
+'致不灭的你 第三季' = './致不灭的你/s3/' # relative related to save_path
+
+[http]
 admin_token = "dYMj-Z4bDRoQfd3x" # web admin token, generated on install
 danmaku_api_url = ""
 serve_static_files = false # serve static files with python server, used in bgmi_http

@@ -9,7 +9,7 @@ from bgmi import namespace
 from bgmi.config import cfg
 from bgmi.lib.models import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download
 from bgmi.plugin.download import BaseDownloadService
-from bgmi.utils import normalize_path, print_error, print_info
+from bgmi.utils import bangumi_save_path, print_error, print_info
 from bgmi.website.base import Episode
 
 
@@ -28,7 +28,7 @@ def download_prepare(data: List[Episode]) -> None:
     queue = save_to_bangumi_download_queue(data)
     driver = get_download_driver(cfg.download_delegate)
     for download in queue:
-        save_path = cfg.save_path.joinpath(normalize_path(download.name), str(download.episode))
+        save_path = bangumi_save_path(download.name).joinpath(str(download.episode))
         if not save_path.exists():
             os.makedirs(save_path)
 

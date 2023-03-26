@@ -13,6 +13,7 @@ import time
 import traceback
 from io import BytesIO
 from multiprocessing.pool import ThreadPool
+from pathlib import Path
 from shutil import move, rmtree
 from typing import Any, Callable, List, Optional, Tuple, TypeVar, Union
 
@@ -470,6 +471,19 @@ def normalize_path(url: str) -> str:
         return url
 
 
+def bangumi_save_path(bangumi_name: str) -> Path:
+    name = normalize_path(bangumi_name)
+
+    r = cfg.save_path_map.get(name)
+    if r is None:
+        return cfg.save_path.joinpath(name)
+
+    if r.is_absolute():
+        return r
+
+    return cfg.save_path.joinpath(r)
+
+
 def get_web_admin(method: str) -> None:
     print_info(f"{method[0].upper() + method[1:]}ing BGmi frontend")
 
@@ -535,7 +549,6 @@ def download_file(url: str) -> Optional[requests.Response]:
     return None
 
 
-@log_utils_function
 def download_cover(cover_url_list: List[str]) -> None:
     p = ThreadPool(4)
     content_list = p.map(download_file, cover_url_list)

@@ -5,7 +5,7 @@ import platform
 import secrets
 import tempfile
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
 import pydantic
 import strenum
@@ -36,7 +36,7 @@ def get_bgmi_home() -> Path:
     return Path(os.environ.get("HOME", "/tmp")).joinpath(".bgmi")
 
 
-BGMI_PATH = get_bgmi_home()
+BGMI_PATH = get_bgmi_home().absolute()
 
 CONFIG_FILE_PATH = BGMI_PATH / "config.toml"
 
@@ -48,7 +48,7 @@ class BaseSetting(BaseModel):
 
 
 class Aria2Config(BaseSetting):
-    rpc_url = "http://localhost:6800/rpc"
+    rpc_url = "http://127.0.0.1:6800/rpc"
     rpc_token = "token:"
 
 
@@ -119,13 +119,15 @@ class Config(BaseSetting):
         ["Leopard-Raws", "hevc", "x265", "c-a Raws", "U3-Web"], description="Global exclude keywords"
     )
 
+    save_path_map: Dict[str, Path] = Field(default_factory=dict, description="per-bangumi save path")
+
     def save(self) -> None:
         CONFIG_FILE_PATH.write_text(tomli_w.dumps(json.loads(self.json())), encoding="utf8")
 
 
 if CONFIG_FILE_PATH.exists():
     try:
-        cfg = Config.parse_obj(tomli.loads(CONFIG_FILE_PATH.read_text()))
+        cfg = Config.parse_obj(tomli.loads(CONFIG_FILE_PATH.read_text(encoding="utf8")))
     except pydantic.ValidationError as e:
         print("配置文件错误，请手动编辑配置文件后重试")
         print("配置文件位置：", CONFIG_FILE_PATH)

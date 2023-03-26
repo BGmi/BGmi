@@ -1,49 +1,47 @@
 import os
-from pprint import pformat
-from typing import Dict, List
+from pathlib import Path
+from typing import Dict, List, Optional
 
 from bgmi.config import cfg
 from bgmi.front.base import COVER_URL, BaseHandler
 from bgmi.lib.models import STATUS_DELETED, STATUS_END, STATUS_UPDATING, Followed
-from bgmi.utils import logger, normalize_path
+from bgmi.utils import bangumi_save_path, normalize_path
 
 
 def get_player(bangumi_name: str) -> Dict[int, Dict[str, str]]:
+    bangumi_path = bangumi_save_path(bangumi_name)
+
     episode_list = {}
-    # new path
-    if cfg.save_path.joinpath(normalize_path(bangumi_name)).exists():
-        bangumi_name = normalize_path(bangumi_name)
-    bangumi_path = cfg.save_path.joinpath(bangumi_name)
-    path_walk = os.walk(bangumi_path)
 
-    logger.debug("os.walk(bangumi_path) => %s", pformat(path_walk))
-    for root, _, files in path_walk:
-        _ = root.replace(str(bangumi_path), "").split(os.path.sep)
-        base_path = root.replace(str(cfg.save_path), "")
-        if len(_) >= 2:
-            episode_path = root.replace(os.path.join(cfg.save_path, bangumi_name), "")
-            if episode_path.split(os.path.sep)[1].isdigit():
-                episode = int(episode_path.split(os.path.sep)[1])
-            else:
-                continue
-        else:
-            episode = -1
+    episodes = [episode.name for episode in bangumi_path.iterdir() if episode.name.isdigit()]
 
-        sorted_files = sorted(
-            files,
-            key=lambda f: os.path.getsize(os.path.join(root, f)),  # noqa: B023
-            reverse=True,
-        )
-
-        for bangumi in sorted_files:
-            if any(bangumi.lower().endswith(x) for x in [".mp4", ".mkv", ".webm"]):
-                video_file_path = os.path.join(base_path, bangumi)
-                video_file_path = os.path.join(os.path.dirname(video_file_path), os.path.basename(video_file_path))
-                video_file_path = video_file_path.replace(os.path.sep, "/")
-                episode_list[episode] = {"path": video_file_path}
-                break
+    for episode in episodes:
+        e = find_largest_video_file(bangumi_path.joinpath(episode))
+        if e:
+            episode_list[int(episode)] = {"path": "/" + e}
 
     return episode_list
+
+
+def find_largest_video_file(top_dir: Path) -> Optional[str]:
+    video_files = []
+    for root, _, files in os.walk(top_dir):
+        for file in files:
+            _, ext = os.path.splitext(file)
+            if ext.lower() in [".mp4", ".mkv", ".webm"]:
+                p = Path(root).joinpath(file)
+                video_files.append((p.stat().st_size, p))
+
+    if not video_files:
+        return None
+
+    video_files.sort(key=lambda x: -x[0])
+
+    return video_files[0][1].relative_to(cfg.save_path).as_posix()
+
+
+if __name__ == "__main__":
+    print(get_player("test-save-path"))
 
 
 class IndexHandler(BaseHandler):
@@ -56,7 +54,7 @@ class IndexHandler(BaseHandler):
         else:
             msg = """<h1>Thanks for your using BGmi</h1>
             <p>If use want to use Tornado to serve static files, please enable
-            <code>[bgmi_http]</code>,
+            <code>[http]</code>,
             <code>serve_static_files = false</code>,
             and do not forget install bgmi-frontend by
             running <code>bgmi install</code></p>"""
