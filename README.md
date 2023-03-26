@@ -391,7 +391,7 @@ location /jsonrpc {
 }
 ```
 
-Example file: [bgmi.conf](https://github.com/BGmi/BGmi/blob/dev/bgmi.conf)
+Example file: [bgmi.conf](https://github.com/BGmi/BGmi/blob/dev/docs/bgmi.conf)
 
 #### DPlayer and Danmaku
 
@@ -425,7 +425,7 @@ write the parser and return the data.
 
 Bangumi Script is located at BGMI_PATH/script, inherited ScriptBase class.
 
-examples: [script_example.py](./script_example.py)
+examples: [script_example.py](tests/script_example.py)
 
 `get_download_url` returns a dict as follows.
 

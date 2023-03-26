@@ -40,7 +40,7 @@ def ensure_example_script():
     if test_script not in p:
         print("copy script_example.py to SCRIPT_PATH")
         shutil.copy(
-            os.path.join(os.path.dirname(__file__), "..", test_script),
+            os.path.join(os.path.dirname(__file__), test_script),
             os.path.join(cfg.script_path, test_script),
         )
 
