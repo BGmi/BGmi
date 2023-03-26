@@ -149,6 +149,11 @@ def mikan_login():
         allow_redirects=False,
     )
 
+    if r.status_code == 401:
+        raise ValueError("mikan login failed with wrong username or password")
+    elif "&#x767B;&#x5F55;&#x5931;&#x8D25;&#xFF0C;&#x8BF7;&#x91CD;&#x8BD5;" in r.text: # 实际为 "登录失败，请重试"
+        raise ValueError("mikan login failed with wrong username or password")
+
 
 def get_text(url, params=None):
     if not MIKAN_USERNAME or not MIKAN_PASSWORD:
