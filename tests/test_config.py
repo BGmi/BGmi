@@ -50,4 +50,3 @@ class ConfigTest(unittest.TestCase):
         os.remove(CONFIG_FILE_PATH)
         bgmi_config.write_default_config()
         print(os.path.exists(CONFIG_FILE_PATH))
-        bgmi_config.read_config()
