@@ -12,7 +12,8 @@ BGmi 是一个用来追番的命令行程序.
 
 ## 更新日志
 
-- 新增配置文件选项 `save_path_map` ，用于设置不同动画的下载路径。
+- 新增配置项 `global_include_keywords` ，用于设置全局包含关键词。
+- 新增配置项 `save_path_map` ，用于设置不同动画的下载路径。
 - 使用 [TOML](https://github.com/toml-lang/toml) 作为配置文件
 - 不再支持 python3.7
 - 不再支持 python3.6

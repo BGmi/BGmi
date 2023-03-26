@@ -14,6 +14,7 @@ BGmi is a cli tool for subscribed bangumi.
 
 ## Update Log
 
+- add `global_include_keywords` option
 - add `save_path_map` option for per-bangumi save path
 - Use [TOML](https://github.com/toml-lang/toml) as config file language
 - Remove Python3.7 support
