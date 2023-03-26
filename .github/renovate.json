@@ -42,8 +42,8 @@
     },
     {
       "matchPackageNames": [
-        "wcwidth"，
-        “anime-episode-parser”
+        "wcwidth",
+        "anime-episode-parser"
       ],
       "rangeStrategy": "bump"
     }
