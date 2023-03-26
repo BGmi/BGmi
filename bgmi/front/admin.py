@@ -28,7 +28,7 @@ ACTION_STATUS = "status"
 
 
 def auth_(token: str = "") -> Dict[str, str]:
-    return {"status": "success" if token == cfg.ADMIN_TOKEN else "error"}
+    return {"status": "success" if token == cfg.admin_token else "error"}
 
 
 API_MAP_POST: Dict[str, Callable] = {
@@ -57,7 +57,7 @@ def auth(f):  # type: ignore
             return f(self, *args, **kwargs)
 
         token = self.request.headers.get("bgmi-token")
-        if token == cfg.ADMIN_TOKEN:
+        if token == cfg.admin_token:
             return f(self, *args, **kwargs)
         else:
             # HTTPError will be except in `BaseHandler.write_error`

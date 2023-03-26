@@ -26,9 +26,9 @@ def get_download_driver(delegate: str) -> BaseDownloadService:
 
 def download_prepare(data: List[Episode]) -> None:
     queue = save_to_bangumi_download_queue(data)
-    driver = get_download_driver(cfg.DOWNLOAD_DELEGATE)
+    driver = get_download_driver(cfg.download_delegate)
     for download in queue:
-        save_path = cfg.SAVE_PATH.joinpath(normalize_path(download.name), str(download.episode))
+        save_path = cfg.save_path.joinpath(normalize_path(download.name), str(download.episode))
         if not save_path.exists():
             os.makedirs(save_path)
 

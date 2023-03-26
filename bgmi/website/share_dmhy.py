@@ -12,7 +12,7 @@ from bgmi.utils import print_error
 from bgmi.website.base import BaseWebsite
 from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
 
-base_url = cfg.SHARE_DMHY_URL
+base_url = cfg.share_dmhy_url
 
 
 def fetch_url(url, **kwargs):
@@ -195,7 +195,7 @@ class DmhySource(BaseWebsite):
         print_error("dmhy not support search by tag")
         return []
 
-    def fetch_episode_of_bangumi(self, bangumi_id, max_page=cfg.MAX_PAGE, subtitle_list=None):
+    def fetch_episode_of_bangumi(self, bangumi_id, max_page=cfg.max_path, subtitle_list=None):
         """
         get all episode by bangumi id
         example

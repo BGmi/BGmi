@@ -27,11 +27,11 @@ def install_crontab() -> None:
 def create_dir() -> None:
     path_to_create: List[Path] = [
         BGMI_PATH,
-        cfg.SAVE_PATH,
-        cfg.TMP_PATH,
-        cfg.SCRIPT_PATH,
-        cfg.TOOLS_PATH,
-        cfg.FRONT_STATIC_PATH,
+        cfg.save_path,
+        cfg.tmp_path,
+        cfg.script_path,
+        cfg.tools_path,
+        cfg.front_static_path,
     ]
 
     if not os.environ.get("HOME", os.environ.get("USERPROFILE", "")):

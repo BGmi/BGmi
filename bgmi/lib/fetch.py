@@ -11,6 +11,6 @@ DATA_SOURCE_MAP: Dict[str, Type[base.BaseWebsite]] = {
 }
 
 try:
-    website = DATA_SOURCE_MAP[cfg.DATA_SOURCE]()
+    website = DATA_SOURCE_MAP[cfg.data_source]()
 except KeyError:
-    print_error(f'date source "{cfg.DATA_SOURCE}" in config is wrong, please edit it manually')
+    print_error(f'date source "{cfg.data_source}" in config is wrong, please edit it manually')

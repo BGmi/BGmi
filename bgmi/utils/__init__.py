@@ -32,7 +32,7 @@ if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR"]:
     sys.exit(1)
 logger = logging.getLogger("BGmi")
 try:
-    h = logging.FileHandler(cfg.LOG_PATH, "a+", "utf-8")
+    h = logging.FileHandler(cfg.log_path, "a+", "utf-8")
     handlers = [h]
     fs = logging.BASIC_FORMAT
     fmt = logging.Formatter(fs)
@@ -157,7 +157,7 @@ Blog: https://ricterz.me""".format(
 def test_connection() -> bool:
     try:
         for website in SUPPORT_WEBSITE:
-            if cfg.DATA_SOURCE == website["id"]:
+            if cfg.data_source == website["id"]:
                 requests.request("head", website["url"], timeout=10)
     except requests.RequestException:
         return False
@@ -247,8 +247,8 @@ def check_update(mark: bool = True) -> None:
 
             package_json = requests.get(PACKAGE_JSON_URL, timeout=60).json()
             admin_version = package_json["version"]
-            if glob.glob(os.path.join(cfg.FRONT_STATIC_PATH, "package.json")):
-                with open(os.path.join(cfg.FRONT_STATIC_PATH, "package.json"), encoding="utf8") as f:
+            if glob.glob(os.path.join(cfg.front_static_path, "package.json")):
+                with open(os.path.join(cfg.front_static_path, "package.json"), encoding="utf8") as f:
                     local_version = json.loads(f.read())["version"]
                 if [int(x) for x in admin_version.split(".")] > [int(x) for x in local_version.split(".")]:
                     get_web_admin(method="update")
@@ -492,18 +492,18 @@ def get_web_admin(method: str) -> None:
     with gzip.GzipFile(fileobj=admin_zip) as f:
         tar_file = BytesIO(f.read())
 
-    rmtree(cfg.FRONT_STATIC_PATH)
-    os.makedirs(cfg.FRONT_STATIC_PATH)
+    rmtree(cfg.front_static_path)
+    os.makedirs(cfg.front_static_path)
 
     with tarfile.open(fileobj=tar_file) as tar_file_obj:
-        tar_file_obj.extractall(path=cfg.FRONT_STATIC_PATH)
+        tar_file_obj.extractall(path=cfg.front_static_path)
 
-    for file in os.listdir(os.path.join(cfg.FRONT_STATIC_PATH, "package", "dist")):
+    for file in os.listdir(os.path.join(cfg.front_static_path, "package", "dist")):
         move(
-            os.path.join(cfg.FRONT_STATIC_PATH, "package", "dist", file),
-            os.path.join(cfg.FRONT_STATIC_PATH, file),
+            os.path.join(cfg.front_static_path, "package", "dist", file),
+            os.path.join(cfg.front_static_path, file),
         )
-    with open(os.path.join(cfg.FRONT_STATIC_PATH, "package.json"), "w+", encoding="utf8") as pkg:
+    with open(os.path.join(cfg.front_static_path, "package.json"), "w+", encoding="utf8") as pkg:
         pkg.write(json.dumps(version))
     print_success("Web admin page {} successfully. version: {}".format(method, version["version"]))
 
@@ -520,7 +520,7 @@ def convert_cover_url_to_path(cover_url: str) -> Tuple[str, str]:
     """
 
     cover_url = normalize_path(cover_url)
-    file_path = os.path.join(cfg.SAVE_PATH, "cover")
+    file_path = os.path.join(cfg.save_path, "cover")
     file_path = os.path.join(file_path, cover_url)
     dir_path = os.path.dirname(file_path)
 
@@ -567,8 +567,8 @@ def episode_filter_regex(data: List[Episode], regex: Optional[str] = None) -> Li
                 raise e
             print_warning(f"can't compile regex {regex}, skipping filter by regex")
 
-    if cfg.ENABLE_GLOBAL_FILTER:
-        exclude_keywords = [t.strip().lower() for t in cfg.GLOBAL_FILTER]
+    if cfg.enable_global_filters:
+        exclude_keywords = [t.strip().lower() for t in cfg.global_filters]
         data = [x for x in data if not x.contains_any_words(exclude_keywords)]
 
     return data

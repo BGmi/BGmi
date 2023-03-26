@@ -13,7 +13,7 @@ from bgmi.lib.models import Download, Followed
 class BangumiHandler(BaseHandler):
     def get(self, _: str) -> None:
         if os.environ.get("DEV", False):  # pragma: no cover
-            with open(os.path.join(cfg.SAVE_PATH, _), "rb") as f:
+            with open(os.path.join(cfg.save_path, _), "rb") as f:
                 self.write(f.read())
                 self.finish()
         else:
@@ -21,12 +21,12 @@ class BangumiHandler(BaseHandler):
             self.write("<h1>BGmi HTTP Service</h1>")
             self.write(
                 "<pre>Please modify your web server configure file\n"
-                f"to server this path to '{cfg.SAVE_PATH}'.\n"
+                f"to server this path to '{cfg.save_path}'.\n"
                 "e.g.\n\n"
                 "...\n"
                 "autoindex on;\n"
                 "location /bangumi {\n"
-                f"    alias {cfg.SAVE_PATH};\n"
+                f"    alias {cfg.save_path};\n"
                 "}\n"
                 "...\n\n"
                 "If use want to use Tornado to serve static files, please run\n"

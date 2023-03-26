@@ -9,7 +9,7 @@ from bgmi.utils import print_error, print_info
 OLD = BGMI_PATH.joinpath("old")
 
 
-def exec_sql(sql: str, db: Path = cfg.DB_PATH) -> None:
+def exec_sql(sql: str, db: Path = cfg.db_path) -> None:
     try:
         print_info(f"Execute {sql}")
         conn = sqlite3.connect(db)

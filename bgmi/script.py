@@ -23,10 +23,10 @@ class ScriptRunner:
 
     def __new__(cls, *args, **kwargs):  # type: ignore
         if cls._defined is None:
-            script_files = glob.glob(f"{cfg.SCRIPT_PATH}{os.path.sep}*.py")
+            script_files = glob.glob(f"{cfg.script_path}{os.path.sep}*.py")
             for i in script_files:
                 try:
-                    loader = SourceFileLoader("script", os.path.join(cfg.SCRIPT_PATH, i))
+                    loader = SourceFileLoader("script", os.path.join(cfg.script_path, i))
                     mod = types.ModuleType(loader.name)
                     loader.exec_module(mod)
                     script_class = mod.Script()  # pylint:disable=no-member
@@ -145,7 +145,7 @@ class ScriptBase:
 
         bangumi_id = None
         subtitle_list = []  # type: list
-        max_page = cfg.MAX_PAGE
+        max_page = cfg.max_path
 
         def __init__(self) -> None:
             if self.bangumi_name is not None:

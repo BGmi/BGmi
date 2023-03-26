@@ -11,17 +11,17 @@ from bgmi.utils import logger, normalize_path
 def get_player(bangumi_name: str) -> Dict[int, Dict[str, str]]:
     episode_list = {}
     # new path
-    if cfg.SAVE_PATH.joinpath(normalize_path(bangumi_name)).exists():
+    if cfg.save_path.joinpath(normalize_path(bangumi_name)).exists():
         bangumi_name = normalize_path(bangumi_name)
-    bangumi_path = cfg.SAVE_PATH.joinpath(bangumi_name)
+    bangumi_path = cfg.save_path.joinpath(bangumi_name)
     path_walk = os.walk(bangumi_path)
 
     logger.debug("os.walk(bangumi_path) => %s", pformat(path_walk))
     for root, _, files in path_walk:
         _ = root.replace(str(bangumi_path), "").split(os.path.sep)
-        base_path = root.replace(str(cfg.SAVE_PATH), "")
+        base_path = root.replace(str(cfg.save_path), "")
         if len(_) >= 2:
-            episode_path = root.replace(os.path.join(cfg.SAVE_PATH, bangumi_name), "")
+            episode_path = root.replace(os.path.join(cfg.save_path, bangumi_name), "")
             if episode_path.split(os.path.sep)[1].isdigit():
                 episode = int(episode_path.split(os.path.sep)[1])
             else:
@@ -48,7 +48,7 @@ def get_player(bangumi_name: str) -> Dict[int, Dict[str, str]]:
 
 class IndexHandler(BaseHandler):
     def get(self, path: str) -> None:
-        if not os.path.exists(cfg.FRONT_STATIC_PATH):
+        if not os.path.exists(cfg.front_static_path):
             msg = """<h1>Thanks for your using BGmi</h1>
             <p>It seems you have not install BGmi Frontend,
              please run <code>bgmi install</code> to install.</p>

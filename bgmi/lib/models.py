@@ -31,10 +31,10 @@ DOWNLOAD_STATUS = (STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, STATUS_DOWNLOADED)
 
 DoesNotExist = peewee.DoesNotExist
 
-db = peewee.SqliteDatabase(cfg.DB_PATH)
+db = peewee.SqliteDatabase(cfg.db_path)
 
 if os.environ.get("DEV"):
-    print(f"using database {cfg.DB_PATH}")
+    print(f"using database {cfg.db_path}")
 
 _Cls = TypeVar("_Cls")
 

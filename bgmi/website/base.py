@@ -88,7 +88,7 @@ class BaseWebsite:
         self,
         bangumi: Bangumi,
         ignore_old_row: bool = True,
-        max_page: int = cfg.MAX_PAGE,
+        max_page: int = cfg.max_path,
     ) -> Tuple[int, List[Episode]]:
         followed_filter_obj, _ = Filter.get_or_create(bangumi_name=bangumi.name)
 
@@ -125,7 +125,7 @@ class BaseWebsite:
         _id: str,
         name: str = "",
         subtitle_list: Optional[str] = None,
-        max_page: int = cfg.MAX_PAGE,
+        max_page: int = cfg.max_path,
     ) -> List[Episode]:
         result = []
 
@@ -189,7 +189,7 @@ class BaseWebsite:
         self,
         bangumi_id: str,
         subtitle_list: Optional[List[str]] = None,
-        max_page: int = cfg.MAX_PAGE,
+        max_page: int = cfg.max_path,
     ) -> Optional[WebsiteBangumi]:
         """
         fetch bangumi info when updating, return ``None``

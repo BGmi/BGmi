@@ -65,13 +65,13 @@ FOLLOWED_ACTION_LIST = "list"
 FOLLOWED_ACTION_MARK = "mark"
 FOLLOWED_CHOICE = (FOLLOWED_ACTION_LIST, FOLLOWED_ACTION_MARK)
 SUPPORT_WEBSITE = [
-    {"view": "萌番组 https://bangumi.moe/", "id": "bangumi_moe", "url": cfg.BANGUMI_MOE_URL},
+    {"view": "萌番组 https://bangumi.moe/", "id": "bangumi_moe", "url": cfg.bangumi_moe_url},
     {
         "view": "蜜柑计划 https://mikanani.me/",
         "id": "mikan_project",
         "url": "https://mikanani.me/",
     },
-    {"view": "动漫花园 http://share.dmhy.org/", "id": "dmhy", "url": cfg.SHARE_DMHY_URL},
+    {"view": "动漫花园 http://share.dmhy.org/", "id": "dmhy", "url": cfg.share_dmhy_url},
 ]
 STATUS_SUCCESS = "success"
 STATUS_WARNING = "warning"

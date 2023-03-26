@@ -35,14 +35,14 @@ def make_app() -> tornado.web.Application:
         (rf"^/api/(?P<action>{api_actions})", AdminApiHandler),
     ]
 
-    if cfg.TORNADO_SERVE_STATIC_FILES:
+    if cfg.serve_static_files:
         handlers.extend(
             [
-                (r"/bangumi/(.*)", tornado.web.StaticFileHandler, {"path": cfg.SAVE_PATH}),
+                (r"/bangumi/(.*)", tornado.web.StaticFileHandler, {"path": cfg.save_path}),
                 (
                     r"^/(.*)$",
                     tornado.web.StaticFileHandler,
-                    {"path": cfg.FRONT_STATIC_PATH, "default_filename": "index.html"},
+                    {"path": cfg.front_static_path, "default_filename": "index.html"},
                 ),
             ]
         )

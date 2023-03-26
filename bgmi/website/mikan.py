@@ -308,7 +308,7 @@ class Mikanani(BaseWebsite):
             )
         return result
 
-    def fetch_episode_of_bangumi(self, bangumi_id, max_page=cfg.MAX_PAGE, subtitle_list=None):
+    def fetch_episode_of_bangumi(self, bangumi_id, max_page=cfg.max_path, subtitle_list=None):
         r = get_text(server_root + f"Home/Bangumi/{bangumi_id}")
         return parse_episodes(r, bangumi_id, subtitle_list)
 

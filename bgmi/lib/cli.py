@@ -350,8 +350,8 @@ def config_gen(ret: Any) -> None:
         actions=ACTIONS,
         server_name=ret.server_name,
         os_sep=os.sep,
-        front_static_path=bgmi.config.cfg.FRONT_STATIC_PATH,
-        save_path=bgmi.config.cfg.SAVE_PATH,
+        front_static_path=bgmi.config.cfg.front_static_path,
+        save_path=bgmi.config.cfg.save_path,
     )  # type: bytes
 
     print(template_with_content.decode("utf-8"))

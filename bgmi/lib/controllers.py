@@ -77,7 +77,7 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
 
     Filter.get_or_create(bangumi_name=name)
 
-    max_episode, _ = website.get_maximum_episode(bangumi_obj, max_page=cfg.MAX_PAGE)
+    max_episode, _ = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)
     followed_obj.episode = max_episode if episode is None else episode
 
     followed_obj.save()
@@ -269,7 +269,7 @@ def mark(name: str, episode: int) -> ControllerResult:
 
 def search(
     keyword: str,
-    count: Union[str, int] = cfg.MAX_PAGE,
+    count: Union[str, int] = cfg.max_path,
     regex: Optional[str] = None,
     dupe: bool = False,
     min_episode: Optional[int] = None,
@@ -330,7 +330,7 @@ def source(data_source: str) -> ControllerResult:
     result = {}
     if data_source in list(map(itemgetter("id"), SUPPORT_WEBSITE)):
         recreate_source_relatively_table()
-        cfg.DATA_SOURCE = Source(data_source)
+        cfg.data_source = Source(data_source)
         cfg.save()
         print_success("data source switch succeeds")
         result["status"] = "success"
@@ -412,7 +412,7 @@ def update(name: List[str], download: Optional[Any] = None, not_ignore: bool = F
 
         try:
             episode, all_episode_data = website.get_maximum_episode(
-                bangumi=bangumi_obj, ignore_old_row=ignore, max_page=cfg.MAX_PAGE
+                bangumi=bangumi_obj, ignore_old_row=ignore, max_page=cfg.max_path
             )
         except requests.exceptions.ConnectionError as e:
             print_warning(f"error {e} to fetch {bangumi_obj.name}, skip")

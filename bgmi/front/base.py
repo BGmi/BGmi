@@ -31,8 +31,8 @@ class BaseHandler(tornado.web.RequestHandler):
             "latest_version": self.latest_version,
             "frontend_version": __admin_version__,
             "status": "success",
-            "lang": cfg.LANG,
-            "danmaku_api": cfg.DANMAKU_API_URL,
+            "lang": cfg.lang,
+            "danmaku_api": cfg.danmaku_api_url,
             "data": data,
         }
         j.update(kwargs)
