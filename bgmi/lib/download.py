@@ -43,7 +43,7 @@ def download_prepare(data: List[Episode]) -> None:
                 traceback.print_exc()
                 raise e
 
-            print_error(f"Error: {e}", exit_=False)
+            print_error(f"Error when downloading {download.title}: {e}", exit_=False)
             download.status = STATUS_NOT_DOWNLOAD
             download.save()
 
