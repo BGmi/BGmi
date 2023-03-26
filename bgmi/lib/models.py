@@ -4,10 +4,11 @@ from collections import defaultdict
 from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
 
 import peewee
+from loguru import logger
 from peewee import FixedCharField, IntegerField, TextField
 from playhouse.shortcuts import model_to_dict
 
-import bgmi.config
+from bgmi.config import cfg
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.utils import episode_filter_regex
 from bgmi.website.model import Episode
@@ -31,10 +32,9 @@ DOWNLOAD_STATUS = (STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, STATUS_DOWNLOADED)
 
 DoesNotExist = peewee.DoesNotExist
 
-db = peewee.SqliteDatabase(bgmi.config.DB_PATH)
+db = peewee.SqliteDatabase(cfg.DB_PATH)
 
-if os.environ.get("DEV"):
-    print("using", bgmi.config.DB_PATH)
+logger.debug(f"using database {cfg.DB_PATH}")
 
 _Cls = TypeVar("_Cls")
 
@@ -251,7 +251,7 @@ class Subtitle(NeoDB):
         return data
 
 
-script_db = peewee.SqliteDatabase(bgmi.config.SCRIPT_DB_PATH)
+script_db = peewee.SqliteDatabase(cfg.SCRIPT_DB_PATH)
 
 
 class Scripts(peewee.Model):

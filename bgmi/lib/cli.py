@@ -36,7 +36,7 @@ from bgmi.lib.constants import (
     SUPPORT_WEBSITE,
     actions_and_arguments,
 )
-from bgmi.lib.controllers import add, cal, config, delete, filter_, list_, mark, search, source, update
+from bgmi.lib.controllers import add, cal, cfg, delete, filter_, list_, mark, search, source, update
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
 from bgmi.lib.models import STATUS_DELETED, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, Filter, Followed, Subtitle
@@ -82,7 +82,7 @@ def config_wrapper(ret: Any) -> None:
                 f"{ret.value} if not a registered download delegate\n" f"available download delegate are {available}"
             )
 
-    result = config(ret.name, ret.value)
+    result = cfg(ret.name, ret.value)
     if (not ret.name) and (not ret.value):
         print(result["message"])
     else:
@@ -267,8 +267,6 @@ def complete(ret: Any) -> None:
     """eval "$(bgmi complete)" to complete bgmi in bash"""
     updating_bangumi_names = [x["name"] for x in Bangumi.get_updating_bangumi(order=False)]
 
-    all_config = [x for x in bgmi.config.__all__ if not x == "DATA_SOURCE"]
-
     actions_and_opts: Dict[str, list] = {}
     helper = {}
     for action_dict in actions_and_arguments:
@@ -297,7 +295,6 @@ def complete(ret: Any) -> None:
     template_with_content = shell_template.generate(
         actions=ACTIONS,
         bangumi=updating_bangumi_names,
-        config=all_config,
         actions_and_opts=actions_and_opts,
         source=[x["id"] for x in SUPPORT_WEBSITE],
         helper=helper,
@@ -374,8 +371,8 @@ def config_gen(ret: Any) -> None:
         actions=ACTIONS,
         server_name=ret.server_name,
         os_sep=os.sep,
-        front_static_path=bgmi.config.FRONT_STATIC_PATH,
-        save_path=bgmi.config.SAVE_PATH,
+        front_static_path=bgmi.config.cfg.FRONT_STATIC_PATH,
+        save_path=bgmi.config.cfg.SAVE_PATH,
     )  # type: bytes
 
     print(template_with_content.decode("utf-8"))

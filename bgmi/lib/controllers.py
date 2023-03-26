@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Union
 import filetype
 import requests.exceptions
 
-from bgmi.config import MAX_PAGE, write_config
+from bgmi.config import cfg, write_config
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SUPPORT_WEBSITE
 from bgmi.lib.download import Episode, download_prepare
 from bgmi.lib.fetch import website
@@ -77,7 +77,7 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
 
     Filter.get_or_create(bangumi_name=name)
 
-    max_episode, _ = website.get_maximum_episode(bangumi_obj, max_page=int(MAX_PAGE))
+    max_episode, _ = website.get_maximum_episode(bangumi_obj, max_page=cfg.MAX_PAGE)
     followed_obj.episode = max_episode if episode is None else episode
 
     followed_obj.save()
@@ -269,7 +269,7 @@ def mark(name: str, episode: int) -> ControllerResult:
 
 def search(
     keyword: str,
-    count: Union[str, int] = MAX_PAGE,
+    count: Union[str, int] = cfg.MAX_PAGE,
     regex: Optional[str] = None,
     dupe: bool = False,
     min_episode: Optional[int] = None,
@@ -426,7 +426,7 @@ def update(name: List[str], download: Optional[Any] = None, not_ignore: bool = F
 
         try:
             episode, all_episode_data = website.get_maximum_episode(
-                bangumi=bangumi_obj, ignore_old_row=ignore, max_page=int(MAX_PAGE)
+                bangumi=bangumi_obj, ignore_old_row=ignore, max_page=cfg.MAX_PAGE
             )
         except requests.exceptions.ConnectionError as e:
             print_warning(f"error {e} to fetch {bangumi_obj.name}, skip")

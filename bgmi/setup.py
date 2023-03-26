@@ -1,8 +1,10 @@
 import os
+from pathlib import Path
 from shutil import copy
+from typing import List
 
 from bgmi import __version__
-from bgmi.config import BGMI_PATH, FRONT_STATIC_PATH, IS_WINDOWS, SAVE_PATH, SCRIPT_PATH, TMP_PATH, TOOLS_PATH
+from bgmi.config import BGMI_PATH, IS_WINDOWS, cfg
 from bgmi.utils import print_error, print_info, print_success, print_warning
 
 
@@ -21,14 +23,14 @@ def install_crontab() -> None:
 
 
 def create_dir() -> None:
-    path_to_create = (
+    path_to_create: List[Path] = [
         BGMI_PATH,
-        SAVE_PATH,
-        TMP_PATH,
-        SCRIPT_PATH,
-        TOOLS_PATH,
-        FRONT_STATIC_PATH,
-    )
+        cfg.SAVE_PATH,
+        cfg.TMP_PATH,
+        cfg.SCRIPT_PATH,
+        cfg.TOOLS_PATH,
+        cfg.FRONT_STATIC_PATH,
+    ]
 
     if not os.environ.get("HOME", os.environ.get("USERPROFILE", "")):
         print_warning("$HOME not set, use '/tmp/'")

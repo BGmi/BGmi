@@ -22,7 +22,7 @@ def pytest_sessionstart(session):
     before performing collection and entering the run test loop.
     """
     "session start"
-    if session.config.getoption("--cache-requests"):
+    if session.cfg.getoption("--cache-requests"):
         requests_cache.install_cache(
             os.path.join(tempfile.gettempdir(), "requests.cache"),
             backend="sqlite",

@@ -1,7 +1,6 @@
 from typing import List
 
-import bgmi.config
-from bgmi.config import BANGUMI_MOE_URL, SHARE_DMHY_URL
+from bgmi.config import cfg
 
 ACTION_ADD = "add"
 ACTION_FETCH = "fetch"
@@ -66,13 +65,13 @@ FOLLOWED_ACTION_LIST = "list"
 FOLLOWED_ACTION_MARK = "mark"
 FOLLOWED_CHOICE = (FOLLOWED_ACTION_LIST, FOLLOWED_ACTION_MARK)
 SUPPORT_WEBSITE = [
-    {"view": "萌番组 https://bangumi.moe/", "id": "bangumi_moe", "url": BANGUMI_MOE_URL},
+    {"view": "萌番组 https://bangumi.moe/", "id": "bangumi_moe", "url": cfg.BANGUMI_MOE_URL},
     {
         "view": "蜜柑计划 https://mikanani.me/",
         "id": "mikan_project",
         "url": "https://mikanani.me/",
     },
-    {"view": "动漫花园 http://share.dmhy.org/", "id": "dmhy", "url": SHARE_DMHY_URL},
+    {"view": "动漫花园 http://share.dmhy.org/", "id": "dmhy", "url": cfg.SHARE_DMHY_URL},
 ]
 STATUS_SUCCESS = "success"
 STATUS_WARNING = "warning"
@@ -219,7 +218,6 @@ actions_and_arguments: List[dict] = [
                     "nargs": "?",
                     "type": str,
                     "help": "Config name",
-                    "choices": bgmi.config.__all_writable_now__,
                 },
             },
             {

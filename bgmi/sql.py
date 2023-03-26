@@ -1,6 +1,6 @@
 import sqlite3
 
-from bgmi.config import BGMI_PATH, DB_PATH, SCRIPT_DB_PATH
+from bgmi.config import BGMI_PATH, cfg
 from bgmi.utils import print_error
 
 CREATE_TABLE_BANGUMI = """CREATE TABLE IF NOT EXISTS bangumi (
@@ -58,7 +58,7 @@ CLEAR_TABLE_ = "DELETE  FROM {}"
 def init_db() -> None:
     try:
         # bangumi.db
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(cfg.DB_PATH)
         conn.execute(CREATE_TABLE_BANGUMI)
         conn.execute(CREATE_TABLE_FOLLOWED)
         conn.execute(CREATE_TABLE_DOWNLOAD)
@@ -68,7 +68,7 @@ def init_db() -> None:
         conn.close()
 
         # script.db
-        conn = sqlite3.connect(SCRIPT_DB_PATH)
+        conn = sqlite3.connect(cfg.SCRIPT_DB_PATH)
         conn.execute(CREATE_TABLE_SCRIPT)
         conn.commit()
         conn.close()

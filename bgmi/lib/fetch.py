@@ -1,6 +1,6 @@
 from typing import Dict, Type
 
-from bgmi.config import DATA_SOURCE
+from bgmi.config import cfg
 from bgmi.utils import print_error
 from bgmi.website import bangumi_moe, base, mikan, share_dmhy
 
@@ -10,8 +10,7 @@ DATA_SOURCE_MAP: Dict[str, Type[base.BaseWebsite]] = {
     "dmhy": share_dmhy.DmhySource,
 }
 
-
 try:
-    website = DATA_SOURCE_MAP[DATA_SOURCE]()
+    website = DATA_SOURCE_MAP[cfg.DATA_SOURCE]()
 except KeyError:
-    print_error(f'date source "{DATA_SOURCE}" in config is wrong, please edit it manually')
+    print_error(f'date source "{cfg.DATA_SOURCE}" in config is wrong, please edit it manually')

@@ -8,7 +8,7 @@ import bs4
 from bs4 import BeautifulSoup
 from strsimpy.normalized_levenshtein import NormalizedLevenshtein
 
-from bgmi.config import MAX_PAGE
+from bgmi.config import cfg
 from bgmi.session import session as requests
 from bgmi.utils import parse_episode, print_info
 from bgmi.website.base import BaseWebsite
@@ -308,7 +308,7 @@ class Mikanani(BaseWebsite):
             )
         return result
 
-    def fetch_episode_of_bangumi(self, bangumi_id, max_page=MAX_PAGE, subtitle_list=None):
+    def fetch_episode_of_bangumi(self, bangumi_id, max_page=cfg.MAX_PAGE, subtitle_list=None):
         r = get_text(server_root + f"Home/Bangumi/{bangumi_id}")
         return parse_episodes(r, bangumi_id, subtitle_list)
 

@@ -1,15 +1,16 @@
 import os
 import sqlite3
+from pathlib import Path
 from shutil import copy
 
 from bgmi import __version__
-from bgmi.config import BGMI_PATH, DB_PATH, SCRIPT_DB_PATH
+from bgmi.config import BGMI_PATH, cfg
 from bgmi.utils import print_error, print_info
 
 OLD = os.path.join(BGMI_PATH, "old")
 
 
-def exec_sql(sql: str, db: str = DB_PATH) -> None:
+def exec_sql(sql: str, db: Path = cfg.DB_PATH) -> None:
     try:
         print_info(f"Execute {sql}")
         conn = sqlite3.connect(db)
@@ -35,7 +36,7 @@ def update_database() -> None:
         exec_sql("ALTER TABLE filter ADD COLUMN regex")
 
     if v < "1.4.1":
-        exec_sql("ALTER TABLE scripts ADD COLUMN update_time INTEGER", SCRIPT_DB_PATH)
+        exec_sql("ALTER TABLE scripts ADD COLUMN update_time INTEGER", cfg.SCRIPT_DB_PATH)
 
     if v < "2.0.6":
         copy(

@@ -3,7 +3,7 @@ from collections import defaultdict
 from itertools import chain
 from typing import Any, Dict, List, Optional, Tuple, TypeVar
 
-from bgmi.config import MAX_PAGE
+from bgmi.config import cfg
 from bgmi.lib.models import STATUS_FOLLOWED, STATUS_UPDATED, STATUS_UPDATING, Bangumi, Filter, Subtitle
 from bgmi.utils import parse_episode
 from bgmi.website.model import Episode, WebsiteBangumi
@@ -88,7 +88,7 @@ class BaseWebsite:
         self,
         bangumi: Bangumi,
         ignore_old_row: bool = True,
-        max_page: int = MAX_PAGE,
+        max_page: int = cfg.MAX_PAGE,
     ) -> Tuple[int, List[Episode]]:
         followed_filter_obj, _ = Filter.get_or_create(bangumi_name=bangumi.name)
 
@@ -125,7 +125,7 @@ class BaseWebsite:
         _id: str,
         name: str = "",
         subtitle_list: Optional[str] = None,
-        max_page: int = MAX_PAGE,
+        max_page: int = cfg.MAX_PAGE,
     ) -> List[Episode]:
         result = []
 
@@ -189,7 +189,7 @@ class BaseWebsite:
         self,
         bangumi_id: str,
         subtitle_list: Optional[List[str]] = None,
-        max_page: int = MAX_PAGE,
+        max_page: int = cfg.MAX_PAGE,
     ) -> Optional[WebsiteBangumi]:
         """
         fetch bangumi info when updating, return ``None``
