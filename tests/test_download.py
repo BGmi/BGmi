@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 
-from bgmi.config import MAX_PAGE, SAVE_PATH
+from bgmi.config import cfg
 from bgmi.lib.controllers import update
 from bgmi.lib.models import Bangumi, Followed
 from bgmi.main import main
@@ -22,12 +22,12 @@ def test_search_download(mock_download_driver: mock.Mock):
     with mock.patch("bgmi.lib.controllers.website", mock_website):
         main("search 海贼王 --download".split())
 
-    mock_website.search_by_keyword.assert_called_once_with("海贼王", count=MAX_PAGE)
+    mock_website.search_by_keyword.assert_called_once_with("海贼王", count=cfg.max_path)
 
     mock_download_driver.add_download.assert_has_calls(
         [
-            mock.call(url="magnet:mm", save_path=os.path.join(SAVE_PATH, "海贼王", "3")),
-            mock.call(url="magnet:4", save_path=os.path.join(SAVE_PATH, "海贼王", "4")),
+            mock.call(url="magnet:mm", save_path=os.path.join(cfg.save_path, "海贼王", "3")),
+            mock.call(url="magnet:4", save_path=os.path.join(cfg.save_path, "海贼王", "4")),
         ]
     )
 
@@ -55,8 +55,8 @@ def test_update_download(mock_download_driver: mock.Mock):
 
     mock_download_driver.add_download.assert_has_calls(
         [
-            mock.call(url="magnet:mm", save_path=os.path.join(SAVE_PATH, name, "3")),
-            mock.call(url="magnet:4", save_path=os.path.join(SAVE_PATH, name, "4")),
+            mock.call(url="magnet:mm", save_path=os.path.join(cfg.save_path, name, "3")),
+            mock.call(url="magnet:4", save_path=os.path.join(cfg.save_path, name, "4")),
         ]
     )
 
@@ -73,8 +73,8 @@ def test_search_with_filter(mock_download_driver: mock.Mock):
     with mock.patch("bgmi.lib.controllers.website", mock_website):
         main("search 海贼王 --download --regex .*720.*".split())
 
-    mock_website.search_by_keyword.assert_called_once_with("海贼王", count=MAX_PAGE)
+    mock_website.search_by_keyword.assert_called_once_with("海贼王", count=cfg.max_path)
 
     mock_download_driver.add_download.assert_called_once_with(
-        url="magnet:mm", save_path=os.path.join(SAVE_PATH, "海贼王", "3")
+        url="magnet:mm", save_path=os.path.join(cfg.save_path, "海贼王", "3")
     )
