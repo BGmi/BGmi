@@ -59,10 +59,10 @@ filetype = "1.2.0"
 transmission-rpc = "==4.1.3"
 qbittorrent-api = "==2023.3.44"
 strsimpy = "0.2.1"
-tomli = "^2.0.1"
-tomli-w = "^1.0.0"
-strenum = "^0.4.10"
-anime-episode-parser = "^0.0.8"
+tomli = "2.0.1"
+tomli-w = "1.0.0"
+strenum = "0.4.10"
+anime-episode-parser = "0.0.8"
 
 [tool.poetry.dev-dependencies]
 # tests
