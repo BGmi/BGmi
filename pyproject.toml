@@ -63,6 +63,7 @@ tomli = "^2.0.1"
 tomli-w = "^1.0.0"
 strenum = "^0.4.10"
 anime-episode-parser = "^0.0.8"
+flake8-pyproject = "^1.2.3"
 
 [tool.poetry.dev-dependencies]
 # tests
@@ -163,3 +164,20 @@ disable = [
 [tool.black]
 line-length = 120
 target-version = ['py38', 'py39', 'py310']
+
+
+[tool.flake8]
+max-line-length = 120
+ignore = ['W503', 'E203']
+
+exclude = [
+  '.git',
+  '__pycache__',
+  '.venv',
+  'build',
+  'dist',
+]
+
+per-file-ignores = [
+  'bgmi/lib/constants.py:C408'
+]
