@@ -35,7 +35,7 @@ def make_app() -> tornado.web.Application:
         (rf"^/api/(?P<action>{api_actions})", AdminApiHandler),
     ]
 
-    if cfg.TORNADO_SERVE_STATIC_FILES != "0":
+    if cfg.TORNADO_SERVE_STATIC_FILES:
         handlers.extend(
             [
                 (r"/bangumi/(.*)", tornado.web.StaticFileHandler, {"path": cfg.SAVE_PATH}),

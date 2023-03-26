@@ -30,15 +30,10 @@ def auth_(token: str = "") -> Dict[str, str]:
     return {"status": "success" if token == cfg.ADMIN_TOKEN else "error"}
 
 
-def config_post():
-    pass
-
-
 API_MAP_POST: Dict[str, Callable] = {
     ACTION_ADD: add,
     ACTION_DELETE: delete,
     ACTION_SEARCH: search,
-    ACTION_CONFIG: cfg,
     ACTION_DOWNLOAD: download_prepare,
     ACTION_AUTH: auth_,
     ACTION_MARK: mark,

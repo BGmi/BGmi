@@ -1,10 +1,11 @@
+import json
 import os
 import pathlib
 import platform
 import secrets
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import List
 
 import strenum
 import tomli
@@ -47,24 +48,24 @@ class Aria2Config(BaseSettings):
 
 class TransmissionConfig(BaseSettings):
     # transmission-rpc
-    TRANSMISSION_RPC_URL = "127.0.0.1"
-    TRANSMISSION_RPC_PORT = "9091"
-    TRANSMISSION_RPC_USERNAME = "your_username"
-    TRANSMISSION_RPC_PASSWORD = "your_password"
-    TRANSMISSION_RPC_PATH = "/transmission/"
+    TRANSMISSION_RPC_URL: str = "127.0.0.1"
+    TRANSMISSION_RPC_PORT: int = 9091
+    TRANSMISSION_RPC_USERNAME: str = "your_username"
+    TRANSMISSION_RPC_PASSWORD: str = "your_password"
+    TRANSMISSION_RPC_PATH: str = "/transmission/"
 
 
 class QBittorrentConfig(BaseSettings):
-    QBITTORRENT_HOST = "127.0.0.1"
-    QBITTORRENT_PORT = "8080"
-    QBITTORRENT_USERNAME = "admin"
-    QBITTORRENT_PASSWORD = "adminadmin"
-    QBITTORRENT_CATEGORY = ""
+    QBITTORRENT_HOST: str = "127.0.0.1"
+    QBITTORRENT_PORT: int = 8080
+    QBITTORRENT_USERNAME: str = "admin"
+    QBITTORRENT_PASSWORD: str = "adminadmin"
+    QBITTORRENT_CATEGORY: str = ""
 
 
 class DelugeConfig(BaseSettings):
-    DELUGE_RPC_URL = "http://127.0.0.1:8112/json"
-    DELUGE_RPC_PASSWORD = "deluge"
+    DELUGE_RPC_URL: HttpUrl = "http://127.0.0.1:8112/json"  # type: ignore
+    DELUGE_RPC_PASSWORD: str = "deluge"
 
 
 class Config(BaseSettings):
@@ -74,10 +75,10 @@ class Config(BaseSettings):
     SAVE_PATH: Path = Field(BGMI_PATH.joinpath("bangumi"), description="bangumi save path")
     FRONT_STATIC_PATH: Path = BGMI_PATH.joinpath("front_static")
 
-    DB_PATH: pathlib.Path
-    SCRIPT_DB_PATH: pathlib.Path
-    SCRIPT_PATH: pathlib.Path
-    TOOLS_PATH: pathlib.Path
+    DB_PATH: pathlib.Path = BGMI_PATH.joinpath("bangumi.db")
+    SCRIPT_DB_PATH: pathlib.Path = BGMI_PATH.joinpath("bangumi-scripts.db")
+    SCRIPT_PATH: pathlib.Path = BGMI_PATH.joinpath("scripts")
+    TOOLS_PATH: pathlib.Path = BGMI_PATH.joinpath("tools")
 
     MAX_PAGE: int = 3
 
@@ -85,8 +86,8 @@ class Config(BaseSettings):
 
     TORNADO_SERVE_STATIC_FILES: bool = Field(False, description="use tornado serving video files")
 
-    BANGUMI_MOE_URL: HttpUrl = Field(HttpUrl("https://bangumi.moe"), description="Setting bangumi.moe url")
-    SHARE_DMHY_URL: HttpUrl = Field(HttpUrl("https://share.dmhy.org"), description="Setting share.dmhy.org url")
+    BANGUMI_MOE_URL: HttpUrl = Field("https://bangumi.moe", description="Setting bangumi.moe url")  # type: ignore
+    SHARE_DMHY_URL: HttpUrl = Field("https://share.dmhy.org", description="Setting share.dmhy.org url")  # type: ignore
     DATA_SOURCE: Source = Field(Source.BangumiMoe, description="data source")  # type: ignore
 
     # admin token
@@ -95,7 +96,7 @@ class Config(BaseSettings):
     # Download delegate
     DOWNLOAD_DELEGATE = "aria2-rpc"
 
-    DANMAKU_API_URL: str = Field(description="danmaku api url, https://github.com/DIYgod/DPlayer#related-projects")
+    DANMAKU_API_URL: str = Field("", description="danmaku api url, https://github.com/DIYgod/DPlayer#related-projects")
 
     # language
     LANG: str = "zh_cn"
@@ -119,6 +120,9 @@ class Config(BaseSettings):
     class Config:
         validate_assignment = True
 
+    def save(self) -> None:
+        CONFIG_FILE_PATH.write_text(tomli_w.dumps(json.loads(self.json())), encoding="utf8")
+
 
 if CONFIG_FILE_PATH.exists():
     cfg = Config.parse_obj(tomli.loads(CONFIG_FILE_PATH.read_text()))
@@ -127,82 +131,11 @@ else:
 
 
 def print_config() -> str:
-    return tomli_w.dumps(cfg.dict())
+    return tomli_w.dumps(json.loads(cfg.json()))
 
 
 def write_default_config() -> None:
-    CONFIG_FILE_PATH.write_text(tomli_w.dumps(Config().dict()), encoding="utf8")
-
-
-def write_config(key: Optional[str] = None, value: Optional[str] = None) -> Dict[str, Any]:
-    if not CONFIG_FILE_PATH.exists():
-        CONFIG_FILE_PATH.write_text(tomli_w.dumps(Config().dict()), encoding="utf8")
-        return {
-            "status": "error",
-            "message": "Config file does not exists, writing default config file. please try again",
-            "data": [],
-        }
-    #
-    # result = {}  # type: Dict[str, Any]
-    # try:
-    #     if c is None:
-    #         result = {"status": "info", "message": print_config()}
-    #
-    #     elif value is None:  # config(config, None)
-    #         result = {"status": "info"}
-    #
-    #         if c in __download_delegate__:
-    #             result["message"] = f"{c}={c.get(DOWNLOAD_DELEGATE, c)}"
-    #         else:
-    #             result["message"] = "{}={}".format(c, c.get("bgmi", c))
-    #
-    #     else:  # config(config, Value)
-    #         if c in __writeable__:
-    #             c.set("bgmi", c, value)
-    #             with open(CONFIG_FILE_PATH, "w", encoding="utf-8") as f:
-    #                 c.write(f)
-    #
-    #             read_config()
-    #             if c == "DOWNLOAD_DELEGATE" and not c.has_section(DOWNLOAD_DELEGATE):
-    #                 c.add_section(DOWNLOAD_DELEGATE)
-    #                 for i in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
-    #                     v = globals().get(i, "")
-    #                     c.set(DOWNLOAD_DELEGATE, i, v)
-    #
-    #                 with open(CONFIG_FILE_PATH, "w", encoding="utf-8") as f:
-    #                     c.write(f)
-    #
-    #             result = {
-    #                 "status": "success",
-    #                 "message": f"{c} has been set to {value}",
-    #             }
-    #
-    #         elif c in DOWNLOAD_DELEGATE_MAP.get(DOWNLOAD_DELEGATE, []):
-    #             c.set(DOWNLOAD_DELEGATE, c, value)
-    #             with open(CONFIG_FILE_PATH, "w", encoding="utf-8") as f:
-    #                 c.write(f)
-    #
-    #             result = {
-    #                 "status": "success",
-    #                 "message": f"{c} has been set to {value}",
-    #             }
-    #         else:
-    #             result = {
-    #                 "status": "error",
-    #                 "message": f"{c} does not exist or not writeable",
-    #             }
-    #
-    # except configparser.NoOptionError:
-    #     write_default_config()
-    #     result = {
-    #         "status": "error",
-    #         "message": "Error in config file, try rerun `bgmi config`",
-    #     }
-    #
-    # result["data"] = [{"writable": True, "name": x, "value": globals()[x]} for x in __writeable__] + [
-    #     {"writable": False, "name": x, "value": globals()[x]} for x in __readonly__
-    # ]
-    # return result
+    Config().save()
 
 
 if __name__ == "__main__":

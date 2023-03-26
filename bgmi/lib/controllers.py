@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Union
 import filetype
 import requests.exceptions
 
-from bgmi.config import cfg, write_config
+from bgmi.config import Source, cfg
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SUPPORT_WEBSITE
 from bgmi.lib.download import Episode, download_prepare
 from bgmi.lib.fetch import website
@@ -330,7 +330,8 @@ def source(data_source: str) -> ControllerResult:
     result = {}
     if data_source in list(map(itemgetter("id"), SUPPORT_WEBSITE)):
         recreate_source_relatively_table()
-        write_config("DATA_SOURCE", data_source)
+        cfg.DATA_SOURCE = Source(data_source)
+        cfg.save()
         print_success("data source switch succeeds")
         result["status"] = "success"
         result["message"] = f"you have successfully change your data source to {data_source}"
@@ -340,21 +341,6 @@ def source(data_source: str) -> ControllerResult:
             [x["id"] for x in SUPPORT_WEBSITE]
         )
     return result
-
-
-def config(name: Optional[str] = None, value: Optional[str] = None) -> ControllerResult:
-    if name == "DATA_SOURCE":
-        error_message = "you can't change data source in this way. please use `bgmi source ${data source}` in cli"
-        result = {
-            "status": "error",
-            "message": error_message,
-            "data": write_config()["data"],
-        }
-        return result
-    r = write_config(name, value)
-    if name == "ADMIN_TOKEN":
-        r["message"] = "you need to restart your bgmi_http to make new token work"
-    return r
 
 
 def update(name: List[str], download: Optional[Any] = None, not_ignore: bool = False) -> ControllerResult:

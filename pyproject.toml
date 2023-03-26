@@ -62,7 +62,6 @@ strsimpy = "0.2.1"
 tomli = "^2.0.1"
 tomli-w = "^1.0.0"
 strenum = "^0.4.10"
-loguru = "^0.6.0"
 
 [tool.poetry.dev-dependencies]
 # tests

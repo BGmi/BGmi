@@ -24,14 +24,6 @@ class BaseDownloadService(metaclass=abc.ABCMeta):
 
     @staticmethod
     @abc.abstractmethod
-    def check_dep() -> None:
-        """check dependencies like rpc library
-
-        :raises MissingDependencyError:
-        """
-
-    @staticmethod
-    @abc.abstractmethod
     def check_config() -> None:
         """check current config, don't try to connect."""
 

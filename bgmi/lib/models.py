@@ -4,7 +4,6 @@ from collections import defaultdict
 from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
 
 import peewee
-from loguru import logger
 from peewee import FixedCharField, IntegerField, TextField
 from playhouse.shortcuts import model_to_dict
 
@@ -34,7 +33,8 @@ DoesNotExist = peewee.DoesNotExist
 
 db = peewee.SqliteDatabase(cfg.DB_PATH)
 
-logger.debug(f"using database {cfg.DB_PATH}")
+if os.environ.get("DEV"):
+    print(f"using database {cfg.DB_PATH}")
 
 _Cls = TypeVar("_Cls")
 
@@ -251,17 +251,11 @@ class Subtitle(NeoDB):
         return data
 
 
-script_db = peewee.SqliteDatabase(cfg.SCRIPT_DB_PATH)
-
-
-class Scripts(peewee.Model):
+class Scripts(NeoDB):
     bangumi_name = TextField(null=False, unique=True)
     episode = IntegerField(default=0)
     status = IntegerField(default=0)
     updated_time = IntegerField(default=0)
-
-    class Meta:
-        database = script_db
 
 
 def recreate_source_relatively_table() -> None:
