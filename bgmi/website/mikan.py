@@ -8,13 +8,14 @@ import bs4
 from bs4 import BeautifulSoup
 from strsimpy.normalized_levenshtein import NormalizedLevenshtein
 
-from bgmi.config import MAX_PAGE
+from bgmi.config import MAX_PAGE, MIKAN_PASSWORD, MIKAN_USERNAME
 from bgmi.session import session as requests
 from bgmi.utils import parse_episode, print_info
 from bgmi.website.base import BaseWebsite
 from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
 
 server_root = "https://mikanani.me/"
+login_url = f"{server_root}Account/Login"
 
 _COVER_URL = server_root[:-1]
 
@@ -132,8 +133,41 @@ def parser_day_bangumi(soup) -> List[WebsiteBangumi]:
     return li
 
 
+def mikan_login():
+    r = requests.get(login_url)
+    soup = BeautifulSoup(r.text, "html.parser")
+    token = soup.find("input", attrs={"name": "__RequestVerificationToken"})["value"]
+
+    r = requests.post(
+        login_url,
+        data={
+            "UserName": MIKAN_USERNAME,
+            "Password": MIKAN_PASSWORD,
+            "__RequestVerificationToken": token,
+        },
+        headers={"Referer": server_root},
+        allow_redirects=False,
+    )
+
+    if "&#x767B;&#x5F55;&#x5931;&#x8D25;&#xFF0C;&#x8BF7;&#x91CD;&#x8BD5;" in r.text:  # 实际为 "登录失败，请重试"
+        raise ValueError("mikan login failed with wrong username or password")
+
+
 def get_text(url, params=None):
-    return requests.get(url, params=params).text
+    if not MIKAN_USERNAME or not MIKAN_PASSWORD:
+        return requests.get(url, params=params).text
+
+    for _ in range(2):
+        r = requests.get(url, params=params)
+        if r.headers.get("content-type").startswith("text/html"):
+            if "退出" in r.text:
+                return r.text
+            else:
+                mikan_login()
+        else:
+            return r.text
+
+    raise ValueError("mikan login failed")
 
 
 class Mikanani(BaseWebsite):
