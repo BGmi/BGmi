@@ -11,6 +11,9 @@ from bgmi.utils import bangumi_save_path, normalize_path
 def get_player(bangumi_name: str) -> Dict[int, Dict[str, str]]:
     bangumi_path = bangumi_save_path(bangumi_name)
 
+    if not bangumi_path.exists():
+        return {}
+
     episode_list = {}
 
     episodes = [episode.name for episode in bangumi_path.iterdir() if episode.name.isdigit()]
