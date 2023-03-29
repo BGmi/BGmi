@@ -48,66 +48,66 @@ class BaseSetting(BaseModel):
 
 
 class Aria2Config(BaseSetting):
-    rpc_url = os.getenv("BGMI_ARIA2_RPC_URL", "http://127.0.0.1:6800/rpc")
-    rpc_token = os.getenv("BGMI_ARIA2_RPC_TOKEN", "token:")
+    rpc_url = os.getenv("BGMI_ARIA2_RPC_URL") or "http://127.0.0.1:6800/rpc"
+    rpc_token = os.getenv("BGMI_ARIA2_RPC_TOKEN") or "token:"
 
 
 class TransmissionConfig(BaseSetting):
-    rpc_url: str = os.getenv("BGMI_TRANSMISSION_RPC_URL", "127.0.0.1")
-    rpc_port: int = int(os.getenv("BGMI_TRANSMISSION_RPC_PORT", "9091"))
-    rpc_username: str = os.getenv("BGMI_TRANSMISSION_RPC_USERNAME","your_username")
-    rpc_password: str = os.getenv("BGMI_TRANSMISSION_RPC_PASSWORD","your_password")
-    rpc_path: str = os.getenv("BGMI_TRANSMISSION_RPC_PATH", "/transmission/")
+    rpc_url: str = os.getenv("BGMI_TRANSMISSION_RPC_URL") or "127.0.0.1"
+    rpc_port: int = int(os.getenv("BGMI_TRANSMISSION_RPC_PORT") or "9091")
+    rpc_username: str = os.getenv("BGMI_TRANSMISSION_RPC_USERNAME") or "your_username"
+    rpc_password: str = os.getenv("BGMI_TRANSMISSION_RPC_PASSWORD") or "your_password"
+    rpc_path: str = os.getenv("BGMI_TRANSMISSION_RPC_PATH") or "/transmission/"
 
 
 class QBittorrentConfig(BaseSetting):
-    rpc_host: str = os.getenv("BGMI_QBITTORRENT_RPC_HOST", "127.0.0.1")
-    rpc_port: int = int(os.getenv("BGMI_QBITTORRENT_RPC_PORT","8080"))
-    rpc_username: str = os.getenv("BGMI_QBITTORRENT_RPC_USERNAME","admin")
-    rpc_password: str = os.getenv("BGMI_QBITTORRENT_RPC_PASSWORD","adminadmin")
-    category: str = os.getenv("BGMI_QBITTORRENT_RPC_CATEGORY","")
+    rpc_host: str = os.getenv("BGMI_QBITTORRENT_RPC_HOST") or "127.0.0.1"
+    rpc_port: int = int(os.getenv("BGMI_QBITTORRENT_RPC_PORT") or "8080")
+    rpc_username: str = os.getenv("BGMI_QBITTORRENT_RPC_USERNAME") or "admin"
+    rpc_password: str = os.getenv("BGMI_QBITTORRENT_RPC_PASSWORD") or "adminadmin"
+    category: str = os.getenv("BGMI_QBITTORRENT_RPC_CATEGORY") or ""
 
 
 class DelugeConfig(BaseSetting):
-    rpc_url: HttpUrl = os.getenv("BGMI_DELUGE_RPC_URL", "http://127.0.0.1:8112/json")  # type: ignore
-    rpc_password: str = os.getenv("BGMI_DELUGE_RPC_PASSWORD", "deluge")
+    rpc_url: HttpUrl = os.getenv("BGMI_DELUGE_RPC_URL") or "http://127.0.0.1:8112/json"  # type: ignore
+    rpc_password: str = os.getenv("BGMI_DELUGE_RPC_PASSWORD") or "deluge"
 
 
 class HTTP(BaseSetting):
-    admin_token: str = Field(default_factory=lambda: os.getenv("BGMI_HTTP_ADMIN_TOKEN", secrets.token_urlsafe(12)), description="webui admin token")
-    danmaku_api_url: str = Field(os.getenv("BGMI_HTTP_DANMAKU_API_URL", ""), description="danmaku api url, https://github.com/DIYgod/DPlayer#related-projects")
-    serve_static_files: bool = Field(os.getenv("BGMI_HTTP_SERVE_STATIC_FILES", "false") == "true", description="use tornado serving video files")
+    admin_token: str = Field(default_factory=lambda: os.getenv("BGMI_HTTP_ADMIN_TOKEN") or secrets.token_urlsafe(12), description="webui admin token")
+    danmaku_api_url: str = Field(os.getenv("BGMI_HTTP_DANMAKU_API_URL") or "", description="danmaku api url, https://github.com/DIYgod/DPlayer#related-projects")
+    serve_static_files: bool = Field(bool(os.getenv("BGMI_HTTP_SERVE_STATIC_FILES") or ""), description="use tornado serving video files")
 
 
 class Config(BaseSetting):
-    data_source: Source = Field(os.getenv("BGMI_DATA_SOURCE", Source.BangumiMoe), description="data source")  # type: ignore
-    download_delegate: str = Field(os.getenv("BGMI_DOWNLOAD_DELEGATE", "aria2-rpc"), description="download delegate")
+    data_source: Source = Field(os.getenv("BGMI_DATA_SOURCE") or Source.BangumiMoe, description="data source")  # type: ignore
+    download_delegate: str = Field(os.getenv("BGMI_DOWNLOAD_DELEGATE") or "aria2-rpc", description="download delegate")
 
-    tmp_path: Path = os.getenv("BGMI_TMP_PATH", BGMI_PATH.joinpath("tmp"))
+    tmp_path: Path = os.getenv("BGMI_TMP_PATH") or BGMI_PATH.joinpath("tmp")
 
     @property
     def log_path(self) -> Path:
         return self.tmp_path.joinpath("bgmi.log")
 
-    save_path: Path = Field(os.getenv("BGMI_SAVE_PATH", BGMI_PATH.joinpath("bangumi")), description="bangumi save path")
-    front_static_path: Path = os.getenv("BGMI_FRONT_STATIC_PATH", BGMI_PATH.joinpath("front_static"))
+    save_path: Path = Field(os.getenv("BGMI_SAVE_PATH") or BGMI_PATH.joinpath("bangumi"), description="bangumi save path")
+    front_static_path: Path = os.getenv("BGMI_FRONT_STATIC_PATH") or BGMI_PATH.joinpath("front_static")
 
-    db_path: pathlib.Path = os.getenv("BGMI_DB_PATH", BGMI_PATH.joinpath("bangumi.db"))
-    script_path: pathlib.Path = os.getenv("BGMI_SCRIPT_PATH", BGMI_PATH.joinpath("scripts"))
-    tools_path: pathlib.Path = os.getenv("BGMI_TOOLS_PATH", BGMI_PATH.joinpath("tools"))
+    db_path: pathlib.Path = os.getenv("BGMI_DB_PATH") or BGMI_PATH.joinpath("bangumi.db")
+    script_path: pathlib.Path = os.getenv("BGMI_SCRIPT_PATH") or BGMI_PATH.joinpath("scripts")
+    tools_path: pathlib.Path = os.getenv("BGMI_TOOLS_PATH") or BGMI_PATH.joinpath("tools")
 
     max_path: int = 3
 
-    bangumi_moe_url: HttpUrl = Field(os.getenv("BGMI_BANGUMI_MOE_URL", "https://bangumi.moe"), description="Setting bangumi.moe url")  # type: ignore
-    share_dmhy_url: HttpUrl = Field(os.getenv("BGMI_SHARE_DMHY_URL", "https://share.dmhy.org"), description="Setting share.dmhy.org url")  # type: ignore
+    bangumi_moe_url: HttpUrl = Field(os.getenv("BGMI_BANGUMI_MOE_URL") or "https://bangumi.moe", description="Setting bangumi.moe url")  # type: ignore
+    share_dmhy_url: HttpUrl = Field(os.getenv("BGMI_SHARE_DMHY_URL") or "https://share.dmhy.org", description="Setting share.dmhy.org url")  # type: ignore
 
-    mikan_username: str = os.getenv("BGMI_MIKAN_USERNAME", "")
-    mikan_password: str = os.getenv("BGMI_MIKAN_PASSWORD", "")
+    mikan_username: str = os.getenv("BGMI_MIKAN_USERNAME") or ""
+    mikan_password: str = os.getenv("BGMI_MIKAN_PASSWORD") or ""
 
     http: HTTP = HTTP()
 
     # language
-    lang: str =  os.getenv("BGMI_LANG", "zh_cn")
+    lang: str =  os.getenv("BGMI_LANG") or "zh_cn"
 
     aria2: Aria2Config = Aria2Config()
     transmission: TransmissionConfig = TransmissionConfig()
