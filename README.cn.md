@@ -97,6 +97,9 @@ eval "$(bgmi complete)"
 
 ## 配置 BGmi
 
+BGmi 提供两种方式配置BGmi的各项运行参数，分别为配置文件与环境变量。
+
+### 配置文件
 bgmi 的配置文件位于 `${BGMI_PATH}/config.toml`, 在未设置 `BGMI_PATH` 环境变量是，`${BGMI_PATH}` 默认为 `~/.bgmi/`。
 
 查看当前 `BGmi` 设置:
@@ -155,6 +158,26 @@ category = ""
 rpc_url = "http://127.0.0.1:8112/json"
 rpc_password = "deluge"
 ```
+
+### 环境变量
+当 BGmi 的配置文件还未初始化时，各项运行参数可由环境变量进行配置
+
+环境变量以 `BGMI_` 开头，全大写命名，且各级配置以 `_` 进行分割，如:
+```
+BGMI_DATA_SOURCE=bangumi_moe    # 对应配置文件中的 data_source = "bangumi_moe"
+BGMI_HTTP_ADMIN_TOKEN=dYMj-Z4bDRoQfd3x    # 对应配置文件 [http] 分段中的 admin_token = "dYMj-Z4bDRoQfd3x"
+...
+```
+
+环境变量 *暂不支持* 配置以下项目
+```
+enable_global_include_keywords
+enable_global_filters
+global_include_keywords
+global_filters
+[save_path_map]
+```
+注: 当配置文件生成完毕后，运行配置将会以配置文件为准，环境变量仅用于生成第一份配置文件。
 
 ## 支持的数据源
 

@@ -123,6 +123,9 @@ you can add `--help` to all `BGmi` sub command to show full options, some of the
 bgmi config
 ```
 
+There are two ways to configure BGmi, configuration files and environment variables.
+
+#### Configuration file
 bgmi config files is located at `${BGMI_PATH}/config.toml`
 
 Example of configure file:
@@ -182,6 +185,26 @@ category = ""
 rpc_url = "http://127.0.0.1:8112/json"
 rpc_password = "deluge"
 ```
+
+#### Environment Variables
+When BGmi’s configuration file has not been initialized, the configuration parameters can be configured by environment variables.
+
+Environment variables start with BGMI_, are named in all uppercase letters, and are separated by _ for each level of configuration, such as:
+```
+BGMI_DATA_SOURCE=bangumi_moe    # means data_source = "bangumi_moe" in the configuration file
+BGMI_HTTP_ADMIN_TOKEN=dYMj-Z4bDRoQfd3x    # means admin_token = "dYMj-Z4bDRoQfd3x" in the [http] section of the configuration file
+...
+```
+Environment variables do not support configuring the following items:
+```
+enable_global_include_keywords
+enable_global_filters
+global_include_keywords
+global_filters
+[save_path_map]
+```
+Note: After the configuration file is generated, running configuration will be based on the configuration file, and environment variables are only used to generate the first configuration file.
+
 
 ### Change data source
 
