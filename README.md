@@ -189,7 +189,7 @@ rpc_password = "deluge"
 #### Environment Variables
 When BGmi’s configuration file has not been initialized, the configuration parameters can be configured by environment variables.
 
-Environment variables start with BGMI_, are named in all uppercase letters, and are separated by _ for each level of configuration, such as:
+Environment variables start with `BGMI_`, are named in all uppercase letters, and are separated by `_` for each level of configuration, such as:
 ```
 BGMI_DATA_SOURCE=bangumi_moe    # means data_source = "bangumi_moe" in the configuration file
 BGMI_HTTP_ADMIN_TOKEN=dYMj-Z4bDRoQfd3x    # means admin_token = "dYMj-Z4bDRoQfd3x" in the [http] section of the configuration file
