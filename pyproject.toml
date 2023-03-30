@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "bgmi"
-version = "3.2.2"
+version = "3.3.0"
 description = 'BGmi is a cli tool for subscribed bangumi.'
 authors = ["RicterZ <ricterzheng@gmail.com>"]
 readme = 'README.md'
