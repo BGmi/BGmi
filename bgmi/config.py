@@ -74,32 +74,48 @@ class DelugeConfig(BaseSetting):
 
 
 class HTTP(BaseSetting):
-    admin_token: str = Field(default_factory=lambda: os.getenv("BGMI_HTTP_ADMIN_TOKEN") or secrets.token_urlsafe(12), description="webui admin token")
-    danmaku_api_url: str = Field(os.getenv("BGMI_HTTP_DANMAKU_API_URL") or "", description="danmaku api url, https://github.com/DIYgod/DPlayer#related-projects")
-    serve_static_files: bool = Field(bool(os.getenv("BGMI_HTTP_SERVE_STATIC_FILES") or ""), description="use tornado serving video files")
+    admin_token: str = Field(
+        default_factory=lambda: os.getenv("BGMI_HTTP_ADMIN_TOKEN") or secrets.token_urlsafe(12),
+        description="webui admin token",
+    )
+    danmaku_api_url: str = Field(
+        os.getenv("BGMI_HTTP_DANMAKU_API_URL") or "",
+        description="danmaku api url, https://github.com/DIYgod/DPlayer#related-projects",
+    )
+    serve_static_files: bool = Field(
+        bool(os.getenv("BGMI_HTTP_SERVE_STATIC_FILES")), description="use tornado serving video files"
+    )
 
 
 class Config(BaseSetting):
-    data_source: Source = Field(os.getenv("BGMI_DATA_SOURCE") or Source.BangumiMoe, description="data source")  # type: ignore
+    data_source: Source = Field(
+        os.getenv("BGMI_DATA_SOURCE") or Source.BangumiMoe, description="data source"
+    )  # type: ignore
     download_delegate: str = Field(os.getenv("BGMI_DOWNLOAD_DELEGATE") or "aria2-rpc", description="download delegate")
 
-    tmp_path: Path = os.getenv("BGMI_TMP_PATH") or BGMI_PATH.joinpath("tmp")
+    tmp_path: Path = Path(os.getenv("BGMI_TMP_PATH") or str(BGMI_PATH.joinpath("tmp")))
 
     @property
     def log_path(self) -> Path:
         return self.tmp_path.joinpath("bgmi.log")
 
-    save_path: Path = Field(os.getenv("BGMI_SAVE_PATH") or BGMI_PATH.joinpath("bangumi"), description="bangumi save path")
-    front_static_path: Path = os.getenv("BGMI_FRONT_STATIC_PATH") or BGMI_PATH.joinpath("front_static")
+    save_path: Path = Field(
+        Path(os.getenv("BGMI_SAVE_PATH") or str(BGMI_PATH.joinpath("bangumi"))), description="bangumi save path"
+    )
+    front_static_path: Path = Path(os.getenv("BGMI_FRONT_STATIC_PATH") or str(BGMI_PATH.joinpath("front_static")))
 
-    db_path: pathlib.Path = os.getenv("BGMI_DB_PATH") or BGMI_PATH.joinpath("bangumi.db")
-    script_path: pathlib.Path = os.getenv("BGMI_SCRIPT_PATH") or BGMI_PATH.joinpath("scripts")
-    tools_path: pathlib.Path = os.getenv("BGMI_TOOLS_PATH") or BGMI_PATH.joinpath("tools")
+    db_path: pathlib.Path = Path(os.getenv("BGMI_DB_PATH") or str(BGMI_PATH.joinpath("bangumi.db")))
+    script_path: pathlib.Path = Path(os.getenv("BGMI_SCRIPT_PATH") or str(BGMI_PATH.joinpath("scripts")))
+    tools_path: pathlib.Path = Path(os.getenv("BGMI_TOOLS_PATH") or str(BGMI_PATH.joinpath("tools")))
 
     max_path: int = 3
 
-    bangumi_moe_url: HttpUrl = Field(os.getenv("BGMI_BANGUMI_MOE_URL") or "https://bangumi.moe", description="Setting bangumi.moe url")  # type: ignore
-    share_dmhy_url: HttpUrl = Field(os.getenv("BGMI_SHARE_DMHY_URL") or "https://share.dmhy.org", description="Setting share.dmhy.org url")  # type: ignore
+    bangumi_moe_url: HttpUrl = Field(
+        os.getenv("BGMI_BANGUMI_MOE_URL") or "https://bangumi.moe", description="Setting bangumi.moe url"
+    )  # type: ignore
+    share_dmhy_url: HttpUrl = Field(
+        os.getenv("BGMI_SHARE_DMHY_URL") or "https://share.dmhy.org", description="Setting share.dmhy.org url"
+    )  # type: ignore
 
     mikan_username: str = os.getenv("BGMI_MIKAN_USERNAME") or ""
     mikan_password: str = os.getenv("BGMI_MIKAN_PASSWORD") or ""
@@ -107,7 +123,7 @@ class Config(BaseSetting):
     http: HTTP = HTTP()
 
     # language
-    lang: str =  os.getenv("BGMI_LANG") or "zh_cn"
+    lang: str = os.getenv("BGMI_LANG") or "zh_cn"
 
     aria2: Aria2Config = Aria2Config()
     transmission: TransmissionConfig = TransmissionConfig()
