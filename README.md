@@ -14,6 +14,13 @@ BGmi is a cli tool for subscribed bangumi.
 
 ## Update Log
 
+### V4
+
+- rename option `transmission.rpc_url` to `transmission.rpc_host`.
+- fix transmission default config.
+
+### V3
+
 - add `global_include_keywords` option
 - add `save_path_map` option for per-bangumi save path
 - Use [TOML](https://github.com/toml-lang/toml) as config file language
@@ -168,7 +175,7 @@ rpc_url = "http://localhost:6800/rpc"
 rpc_token = "token:"
 
 [transmission]
-rpc_url = "127.0.0.1"
+rpc_host = "127.0.0.1"
 rpc_port = 9091
 rpc_username = "your_username"
 rpc_password = "your_password"

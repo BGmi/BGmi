@@ -7,7 +7,7 @@ from bgmi.plugin.download import BaseDownloadService, DownloadStatus
 class TransmissionRPC(BaseDownloadService):
     def __init__(self):
         self.client = transmission_rpc.Client(
-            host=cfg.transmission.rpc_url,
+            host=cfg.transmission.rpc_host,
             port=cfg.transmission.rpc_port,
             username=cfg.transmission.rpc_username,
             password=cfg.transmission.rpc_password,

@@ -12,6 +12,13 @@ BGmi 是一个用来追番的命令行程序.
 
 ## 更新日志
 
+### v4
+
+- 讲配置项 `transmission.rpc_url` 重命名为 `transmission.rpc_host`.
+- 修复 Transmission 配置的默认值.
+
+### v3
+
 - 新增配置项 `global_include_keywords` ，用于设置全局包含关键词。
 - 新增配置项 `save_path_map` ，用于设置不同动画的下载路径。
 - 使用 [TOML](https://github.com/toml-lang/toml) 作为配置文件
@@ -141,7 +148,7 @@ rpc_url = "http://localhost:6800/rpc" # aria2c RPC URL (不是 jsonrpc URL, 如�
 rpc_token = "token:" # aria2c RPC token (如果没有设置 token, 留空或者设置为 `token:`)
 
 [transmission]
-rpc_url = "127.0.0.1"
+rpc_host = "127.0.0.1"
 rpc_port = 9091
 rpc_username = "your_username"
 rpc_password = "your_password"
