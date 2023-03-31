@@ -179,7 +179,7 @@ rpc_host = "127.0.0.1"
 rpc_port = 9091
 rpc_username = "your_username"
 rpc_password = "your_password"
-rpc_path = "/transmission/"
+rpc_path = "/transmission/rpc" # http url path of transmission rpc requests
 
 [qbittorrent]
 rpc_host = "127.0.0.1"
