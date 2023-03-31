@@ -57,7 +57,6 @@ class TransmissionConfig(BaseSetting):
     rpc_port: int = int(os.getenv("BGMI_TRANSMISSION_RPC_PORT") or "9091")
     rpc_username: str = os.getenv("BGMI_TRANSMISSION_RPC_USERNAME") or "your_username"
     rpc_password: str = os.getenv("BGMI_TRANSMISSION_RPC_PASSWORD") or "your_password"
-    rpc_path: str = os.getenv("BGMI_TRANSMISSION_RPC_PATH") or "/transmission/"
 
 
 class QBittorrentConfig(BaseSetting):

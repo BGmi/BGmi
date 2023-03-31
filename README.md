@@ -172,7 +172,6 @@ rpc_url = "127.0.0.1"
 rpc_port = 9091
 rpc_username = "your_username"
 rpc_password = "your_password"
-rpc_path = "/transmission/"
 
 [qbittorrent]
 rpc_host = "127.0.0.1"
