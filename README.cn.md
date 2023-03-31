@@ -52,6 +52,12 @@ BGmi 是一个用来追番的命令行程序.
 
 ## 安装
 
+使用 [pipx](https://pypa.github.io/pipx/) 安装(推荐):
+
+```bash
+pipx install bgmi
+```
+
 ### 使用 pip 安装稳定版本:
 
 ```bash
@@ -72,6 +78,13 @@ pip install .
 
 ```bash
 bgmi install
+```
+
+## 升级（仅 pipx 安装）
+
+```bash
+pipx upgrade bgmi
+bgmi upgrade
 ```
 
 ## 升级（仅 pip 安装）

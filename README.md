@@ -61,6 +61,12 @@ and [unreleased changelog](https://github.com/BGmi/BGmi/issues/297)
 
 ## Installation
 
+Using [pipx](https://pypa.github.io/pipx/) (recommended):
+
+```bash
+pipx install bgmi
+```
+
 Using pip:
 
 ```bash
@@ -83,6 +89,15 @@ bgmi install
 ```
 
 ## Upgrade
+
+### pipx
+
+```bash
+pipx upgrade bgmi
+bgmi upgrade
+```
+
+### pip
 
 ```bash
 pip install bgmi -U
