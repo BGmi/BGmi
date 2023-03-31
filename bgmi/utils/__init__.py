@@ -233,7 +233,7 @@ FRONTEND_NPM_URL = "https://registry.npmjs.com/bgmi-frontend/"
 def npm_package_manifest() -> Dict[str, Any]:
     r = requests.get(FRONTEND_NPM_URL, timeout=60)
     r.raise_for_status()
-    return r.json()
+    return r.json()  # type: ignore
 
 
 @functools.lru_cache
@@ -348,16 +348,18 @@ def get_web_admin(method: str) -> None:
 
     try:
         r = npm_package_manifest()
-        tar_url = r["versions"][str(admin_version)]["dist"]["tarball"]
-        version = requests.get(f"{FRONTEND_NPM_URL}{admin_version}").json()
-        r = requests.get(tar_url, timeout=60)
+        version = r["versions"][str(admin_version)]
+        tar_url = version["dist"]["tarball"]
     except requests.exceptions.ConnectionError:
         print_warning("failed to download web admin")
         return
     except json.JSONDecodeError:
         print_warning("failed to download web admin")
         return
-    admin_zip = BytesIO(r.content)
+
+    tar = requests.get(tar_url, timeout=60)
+    tar.raise_for_status()
+    admin_zip = BytesIO(tar.content)
     with gzip.GzipFile(fileobj=admin_zip) as f:
         tar_file = BytesIO(f.read())
 
@@ -372,6 +374,7 @@ def get_web_admin(method: str) -> None:
             os.path.join(cfg.front_static_path, "package", "dist", file),
             os.path.join(cfg.front_static_path, file),
         )
+
     with open(os.path.join(cfg.front_static_path, "package.json"), "w+", encoding="utf8") as pkg:
         pkg.write(json.dumps(version, ensure_ascii=False, indent=2))
     print_success("Web admin page {} successfully. version: {}".format(method, version["version"]))
