@@ -53,11 +53,11 @@ class Aria2Config(BaseSetting):
 
 
 class TransmissionConfig(BaseSetting):
-    rpc_url: str = os.getenv("BGMI_TRANSMISSION_RPC_URL") or "127.0.0.1"
+    rpc_host: str = os.getenv("BGMI_TRANSMISSION_RPC_HOST") or "127.0.0.1"
     rpc_port: int = int(os.getenv("BGMI_TRANSMISSION_RPC_PORT") or "9091")
     rpc_username: str = os.getenv("BGMI_TRANSMISSION_RPC_USERNAME") or "your_username"
     rpc_password: str = os.getenv("BGMI_TRANSMISSION_RPC_PASSWORD") or "your_password"
-    rpc_path: str = os.getenv("BGMI_TRANSMISSION_RPC_PATH") or "/transmission/"
+    rpc_path: str = os.getenv("BGMI_TRANSMISSION_RPC_PATH") or "/transmission/rpc"
 
 
 class QBittorrentConfig(BaseSetting):
