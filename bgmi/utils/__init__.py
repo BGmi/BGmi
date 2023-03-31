@@ -15,9 +15,10 @@ from io import BytesIO
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from shutil import move, rmtree
-from typing import Any, Callable, List, Optional, Tuple, TypeVar
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar
 
 import requests
+import semver
 from anime_episode_parser import parse_episode as _parse_episode
 
 from bgmi import __admin_version__, __version__
@@ -84,9 +85,6 @@ indicator_map = {
     "print_warning": "[-] ",
     "print_error": "[x] ",
 }
-
-FRONTEND_NPM_URL = "https://registry.npmjs.com/bgmi-frontend/"
-PACKAGE_JSON_URL = f"https://registry.npmjs.com/bgmi-frontend/{__admin_version__}"
 
 
 def _indicator(f):  # type: ignore
@@ -228,6 +226,29 @@ def get_terminal_col() -> int:  # pragma: no cover
             return _DEFAULT_TERMINAL_WIDTH
 
 
+FRONTEND_NPM_URL = "https://registry.npmjs.com/bgmi-frontend/"
+
+
+@functools.lru_cache
+def npm_package_manifest() -> Dict[str, Any]:
+    r = requests.get(FRONTEND_NPM_URL, timeout=60)
+    r.raise_for_status()
+    return r.json()
+
+
+@functools.lru_cache
+def latest_npm_package_version() -> semver.VersionInfo:
+    r = npm_package_manifest()
+    versions = sorted([semver.VersionInfo.parse(x) for x in r["versions"]])
+
+    available_versions = [v for v in versions if all(v.match(r) for r in __admin_version__)]
+
+    if not available_versions:
+        print_error("failed to find available web-ui versions")
+
+    return max(available_versions)
+
+
 @log_utils_function
 def check_update(mark: bool = True) -> None:
     def update() -> None:
@@ -247,12 +268,13 @@ def check_update(mark: bool = True) -> None:
             else:
                 print_success("Your BGmi is the latest version.")
 
-            package_json = requests.get(PACKAGE_JSON_URL, timeout=60).json()
-            admin_version = package_json["version"]
-            if glob.glob(os.path.join(cfg.front_static_path, "package.json")):
+            if cfg.front_static_path.joinpath("package.json").exists():
+                admin_version = latest_npm_package_version()
+
                 with open(os.path.join(cfg.front_static_path, "package.json"), encoding="utf8") as f:
-                    local_version = json.loads(f.read())["version"]
-                if [int(x) for x in admin_version.split(".")] > [int(x) for x in local_version.split(".")]:
+                    local_version = semver.VersionInfo.parse(json.loads(f.read())["version"])
+
+                if admin_version > local_version:
                     get_web_admin(method="update")
             else:
                 print_info("Use 'bgmi install' to install BGmi frontend / download delegate")
@@ -322,15 +344,12 @@ def bangumi_save_path(bangumi_name: str) -> Path:
 
 def get_web_admin(method: str) -> None:
     print_info(f"{method[0].upper() + method[1:]}ing BGmi frontend")
+    admin_version = latest_npm_package_version()
 
     try:
-        r = requests.get(FRONTEND_NPM_URL, timeout=60).json()
-        version = requests.get(PACKAGE_JSON_URL, timeout=60).json()
-        if "error" in version:  # pragma: no cover
-            print(json.dumps(version, indent=2, ensure_ascii=False))
-            print_error("unexpected npm error")
-            return
-        tar_url = r["versions"][version["version"]]["dist"]["tarball"]
+        r = npm_package_manifest()
+        tar_url = r["versions"][str(admin_version)]["dist"]["tarball"]
+        version = requests.get(f"{FRONTEND_NPM_URL}{admin_version}").json()
         r = requests.get(tar_url, timeout=60)
     except requests.exceptions.ConnectionError:
         print_warning("failed to download web admin")
@@ -354,7 +373,7 @@ def get_web_admin(method: str) -> None:
             os.path.join(cfg.front_static_path, file),
         )
     with open(os.path.join(cfg.front_static_path, "package.json"), "w+", encoding="utf8") as pkg:
-        pkg.write(json.dumps(version))
+        pkg.write(json.dumps(version, ensure_ascii=False, indent=2))
     print_success("Web admin page {} successfully. version: {}".format(method, version["version"]))
 
 
