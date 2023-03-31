@@ -16,6 +16,7 @@ BGmi is a cli tool for subscribed bangumi.
 
 ### V4
 
+- new WEB UI
 - rename option `transmission.rpc_url` to `transmission.rpc_host`.
 - fix transmission default config.
 
