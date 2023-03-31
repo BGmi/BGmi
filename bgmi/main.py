@@ -43,7 +43,7 @@ def main(argv: Optional[List[str]] = None) -> None:
     elif ret.action == "upgrade":
         create_dir()
         update_database()
-        check_update(mark=False)
+        check_update()
     else:
         check_update()
         controllers(ret)
