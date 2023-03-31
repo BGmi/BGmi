@@ -14,7 +14,7 @@ BGmi 是一个用来追番的命令行程序.
 
 ### v4
 
-- 讲配置项 `transmission.rpc_url` 重命名为 `transmission.rpc_host`.
+- 将配置项 `transmission.rpc_url` 重命名为 `transmission.rpc_host`.
 - 修复 Transmission 配置的默认值.
 
 ### v3
