@@ -10,16 +10,6 @@ from tornado.ioloop import IOLoop
 from tornado.web import HTTPError, RequestHandler
 
 from bgmi.front.base import BaseHandler
-from bgmi.lib.constants import (
-    ACTION_ADD,
-    ACTION_CAL,
-    ACTION_CONFIG,
-    ACTION_DELETE,
-    ACTION_DOWNLOAD,
-    ACTION_FILTER,
-    ACTION_MARK,
-    ACTION_SEARCH,
-)
 from bgmi.lib.controllers import add, cal, cfg, delete, filter_, mark, search, status_, update
 from bgmi.lib.download import download_prepare
 
@@ -32,22 +22,22 @@ def auth_(token: str = "") -> Dict[str, str]:
 
 
 API_MAP_POST: Dict[str, Callable] = {
-    ACTION_ADD: add,
-    ACTION_DELETE: delete,
-    ACTION_SEARCH: search,
-    ACTION_DOWNLOAD: download_prepare,
-    ACTION_AUTH: auth_,
-    ACTION_MARK: mark,
-    ACTION_STATUS: status_,
-    ACTION_FILTER: filter_,
+    "add": add,
+    "delete": delete,
+    "search": search,
+    "download": download_prepare,
+    "auth": auth_,
+    "mark": mark,
+    "status": status_,
+    "filter": filter_,
 }
 
 API_MAP_GET = {
-    ACTION_CAL: lambda: {"data": cal()},
-    ACTION_CONFIG: lambda: {"data": json.loads(cfg.json())},
+    "cak": lambda: {"data": cal()},
+    "config": lambda: {"data": json.loads(cfg.json())},
 }
 
-NO_AUTH_ACTION = (ACTION_CAL, ACTION_AUTH)
+NO_AUTH_ACTION = ("cal", ACTION_AUTH)
 
 
 def auth(f):  # type: ignore
