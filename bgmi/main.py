@@ -6,7 +6,7 @@ from operator import itemgetter
 from typing import Any, List, Optional, Tuple
 
 import click as click
-import wcwidth as wcwidth
+import wcwidth
 from loguru import logger
 from tornado import template
 
@@ -187,7 +187,7 @@ def delete(name: List[str], clear: bool, yes: bool) -> None:
         ctl.delete("", clear_all=clear, batch=yes)
     else:
         for bangumi_name in name:
-            result = delete(name=bangumi_name)
+            result = ctl.delete(name=bangumi_name)
             globals()["print_{}".format(result["status"])](result["message"])
 
 
