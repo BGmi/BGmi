@@ -353,9 +353,9 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
     print_info("marking bangumi status ...")
     now = int(time.time())
 
-    for i in Followed.get_all_followed():
-        if i["updated_time"] and int(i["updated_time"] + 60 * 60 * 24) < now:
-            followed_obj = Followed.get(bangumi_name=i["bangumi_name"])
+    for follow in Followed.get_all_followed():
+        if follow["updated_time"] and int(follow["updated_time"] + 60 * 60 * 24) < now:
+            followed_obj = Followed.get(bangumi_name=follow["bangumi_name"])
             followed_obj.status = STATUS_FOLLOWED
             followed_obj.save()
 
@@ -366,7 +366,6 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             obj.save()
 
     print_info("updating subscriptions ...")
-    download_queue = []
 
     if not names:
         updated_bangumi_obj = Followed.get_all_followed()
@@ -384,6 +383,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
     script_download_queue = runner.run()
 
     for subscribe in updated_bangumi_obj:
+        download_queue = []
         print_info(f"fetching {subscribe['bangumi_name']} ...")
         try:
             bangumi_obj = Bangumi.get(name=subscribe["bangumi_name"])
