@@ -35,14 +35,14 @@ from bgmi.utils import (
 )
 
 
-def main() -> None:
+def main(args=None) -> None:
     logger.remove()
     logger.add(
         sys.stderr, format="<blue>{time:YYYY-MM-DD HH:mm:ss}</blue> {level:7} | <level>{message}</level>", level="INFO"
     )
     logger.add(cfg.log_path.parent.joinpath("{time:YYYY-MM-DD}.log"), format="{time} {level} {message}", level="INFO")
 
-    cli.main(prog_name="bgmi")
+    cli.main(args=args, prog_name="bgmi")
 
 
 @click.group(name="bgmi")
