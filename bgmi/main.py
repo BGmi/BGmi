@@ -5,7 +5,7 @@ import sys
 from operator import itemgetter
 from typing import Any, List, Optional, Tuple
 
-import click as click
+import click
 import wcwidth
 from loguru import logger
 from tornado import template
