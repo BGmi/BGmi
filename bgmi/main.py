@@ -3,15 +3,17 @@ import itertools
 import os
 import sys
 from operator import itemgetter
-from typing import Any, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 import click
+import pydantic
+import tomlkit
 import wcwidth
 from loguru import logger
 from tornado import template
 
 from bgmi import __version__
-from bgmi.config import BGMI_PATH, CONFIG_FILE_PATH, cfg, print_config, write_default_config
+from bgmi.config import BGMI_PATH, CONFIG_FILE_PATH, Config, cfg, print_config, write_default_config
 from bgmi.lib import controllers as ctl
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE
 from bgmi.lib.download import download_prepare
@@ -83,17 +85,6 @@ def upgrade() -> None:
     check_update()
 
 
-def config_wrapper(ret: Any) -> None:
-    name = ret.name
-    value = ret.value
-
-    if name or value:
-        print("use config command to change config has been removed, please edit config file directly")
-        print(f"config file location: {str(CONFIG_FILE_PATH)!r}")
-    else:
-        print(print_config())
-
-
 @cli.command(
     help="Select date source bangumi_moe or mikan_project",
 )
@@ -103,9 +94,51 @@ def source(bangumi_source: str) -> None:
     globals()["print_{}".format(result["status"])](result["message"])
 
 
-@cli.command()
+@cli.group()
 def config() -> None:
+    ...
+
+
+@config.command("print")
+def config_print() -> None:
     print(print_config())
+
+
+@config.command("set")
+@click.argument("keys", nargs=-1)
+@click.argument("value", nargs=1)
+def config_set(keys: List[str], value: str) -> None:
+    doc = tomlkit.loads(CONFIG_FILE_PATH.read_text(encoding="utf-8"))
+
+    if keys[0] == "source":
+        print_error("you can't change source with this command, use `bgmi source ...`", stop=True)
+
+    res = doc
+    for key in keys[:-1]:
+        res = res.setdefault(key, {})
+
+    res[keys[-1]] = value
+
+    try:
+        Config.parse_obj(doc)
+    except pydantic.ValidationError as e:
+        print(e)
+        print("config is not valid after change, won't write to config file")
+        return
+
+    return CONFIG_FILE_PATH.write_text(tomlkit.dumps(doc))
+
+
+@config.command("get")
+@click.argument("keys", nargs=-1)
+def config_set(keys: List[str]) -> None:
+    doc = tomlkit.loads(CONFIG_FILE_PATH.read_text(encoding="utf-8"))
+    res = doc
+
+    for key in keys:
+        res = doc.get(key, {})
+
+    print("config", ".".join(keys), res)
 
 
 @cli.command(help="Search torrents from data source by keyword")
