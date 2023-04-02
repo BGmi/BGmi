@@ -7,6 +7,7 @@ import requests
 
 from bgmi.config import cfg
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
+from bgmi.session import session
 from bgmi.utils import bug_report, print_error, print_info, print_warning
 from bgmi.website.base import BaseWebsite
 from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
@@ -31,7 +32,7 @@ def get_response(url, method="GET", **kwargs):
     if os.environ.get("DEBUG"):  # pragma: no cover
         print_info(f"Request URL: {url}")
     try:
-        r = requests.request(method.lower(), url, timeout=60, **kwargs)
+        r = session.request(method.lower(), url, timeout=60, **kwargs)
         if os.environ.get("DEBUG"):  # pragma: no cover
             print(r.text)
         r.raise_for_status()

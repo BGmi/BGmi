@@ -5,7 +5,7 @@ import platform
 import secrets
 import tempfile
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, cast
 
 import pydantic
 import strenum
@@ -94,6 +94,8 @@ class Config(BaseSetting):
     download_delegate: str = Field(os.getenv("BGMI_DOWNLOAD_DELEGATE") or "aria2-rpc", description="download delegate")
 
     tmp_path: Path = Path(os.getenv("BGMI_TMP_PATH") or str(BGMI_PATH.joinpath("tmp")))
+
+    proxy: str = cast(str, os.getenv("BGMI_PROXY") or "")
 
     @property
     def log_path(self) -> Path:

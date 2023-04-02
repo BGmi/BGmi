@@ -1,173 +1,145 @@
 # BGmi
 
-BGmi is a cli tool for subscribed bangumi.
+BGmi 是一个用来追番的命令行程序.
 
-[中文说明](./README.cn.md)
-
-[![pypi](https://img.shields.io/pypi/v/bgmi.svg)](https://pypi.python.org/pypi/bgmi)
-[![download](https://pepy.tech/badge/bgmi/month)](https://pepy.tech/project/bgmi)
+[![](https://img.shields.io/pypi/v/bgmi.svg)](https://pypi.python.org/pypi/bgmi)
+[![Downloads](https://pepy.tech/badge/bgmi/month)](https://pepy.tech/project/bgmi/month)
 [![test](https://github.com/BGmi/BGmi/actions/workflows/test.yaml/badge.svg)](https://github.com/BGmi/BGmi/actions/workflows/test.yaml)
-[![coverage](https://codecov.io/gh/BGmi/BGmi/branch/master/graph/badge.svg)](https://codecov.io/gh/BGmi/BGmi)
-[![license](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/BGmi/BGmi/blob/master/LICENSE)
+[![](https://codecov.io/gh/BGmi/BGmi/branch/master/graph/badge.svg)](https://codecov.io/gh/BGmi/BGmi/branch/master/graph/badge.svg)
+[![](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/BGmi/BGmi/blob/master/LICENSE)
 
 ## TODO
 
-## Update Log
+## 更新日志
 
-### V4
+### v4
 
-- new WEB UI
-- rename option `transmission.rpc_url` to `transmission.rpc_host`.
-- fix transmission default config.
+- 添加 `proxy` 设置
+- 新 WEB UI
+- 将配置项 `transmission.rpc_url` 重命名为 `transmission.rpc_host`.
+- 修复 Transmission 配置的默认值.
 
-### V3
+### v3
 
-- add `global_include_keywords` option
-- add `save_path_map` option for per-bangumi save path
-- Use [TOML](https://github.com/toml-lang/toml) as config file language
-- Remove Python3.7 support
-- Remove Python3.6 support as it has reached its end-of-life
-- [Allow adding new download delegate without modifying the source code](./docs/downloader.md)
-- Remove xunlei-lixian support
-- New download delegate [qbittorrent-webapi](https://www.qbittorrent.org/)
-- Remove Python2 support
-- Transmission RPC authentication configuration
-- New download delegate [deluge-rpc](https://www.deluge-torrent.org/)
-- You can filter search results by min and max episode
+- 新增配置项 `global_include_keywords` ，用于设置全局包含关键词。
+- 新增配置项 `save_path_map` ，用于设置不同动画的下载路径。
+- 使用 [TOML](https://github.com/toml-lang/toml) 作为配置文件
+- 不再支持 python3.7
+- 不再支持 python3.6
+- 支持[扩展下载方式](./docs/downloader.md)
+- 移除迅雷离线
+- 支持 [qbittorrent-webapi](https://www.qbittorrent.org/)
+- 停止支持 python2，3.4 和 3.5
+- Transmission rpc 认证设置
+- 支持 [deluge-rpc](https://www.deluge-torrent.org/)
+- 使用最大和最小集数筛选搜索结果
 
-more details can be found at [releases](https://github.com/BGmi/BGmi/releases)
-and [unreleased changelog](https://github.com/BGmi/BGmi/issues/297)
+## 特性
 
-## Feature
+- 多个数据源可选: [bangumi_moe](https://bangumi.moe), [mikan_project](https://mikanani.me) 或者[dmhy](https://share.dmhy.org/)
+- 使用 aria2, transmission 或者 deluge 来下载你的番剧.
+- 提供一个管理和观看订阅番剧的前端.
+- 弹幕支持
+- 提供 uTorrent 支持的 RSS Feed 和移动设备支持的 ICS 格式日历.
+- Bangumi Script: 添加自己的番剧解析器
+- 番剧放松列表和剧集信息
+- 下载番剧时的过滤器(支持关键词,字幕组和正则)
+- 多平台支持: Windows, \*nux 以及 Router system
 
-- Multi data sources supported: [bangumi_moe](https://bangumi.moe), [mikan_project](https://mikanani.me)
-  or [dmhy](https://share.dmhy.org/)
-- Use aria2, transmission, deluge or qbittorrent to download bangumi
-- Web interface to manage bangumi with HTTP API
-- Play bangumi online with danmaku
-- RSS feed for uTorrent, ICS calendar for mobile devices
-- Bangumi Script: Write your own bangumi parser!
-- Bangumi calendar / episode information
-- Keyword, subtitle group, regular expression filters for download bangumi
-- Windows, Linux and Router system supported, BGmi everywhere
+![](./images/bgmi_cli.png?raw=true)
+![](./images/bgmi_http.png?raw=true)
+![](./images/bgmi_player.png?raw=true)
+![](./images/bgmi_admin.png?raw=true)
 
-![image](./images/bgmi_cli.png?raw=true%0A%20:alt:%20BGmi%0A%20:align:%20center)
+## 安装
 
-![image](./images/bgmi_http.png?raw=true%0A%20:alt:%20BGmi%20HTTP%20Service%0A%20:align:%20center)
-
-![image](./images/bgmi_player.png?raw=true%0A%20:alt:%20BGmi%20HTTP%20Service%0A%20:align:%20center)
-
-![image](./images/bgmi_admin.png?raw=true%0A%20:alt:%20BGmi%20HTTP%20Service%0A%20:align:%20center)
-
-## Installation
-
-Using [pipx](https://pypa.github.io/pipx/) (recommended):
+使用 [pipx](https://pypa.github.io/pipx/) 安装(推荐):
 
 ```bash
 pipx install bgmi
 ```
 
-Using pip:
+### 使用 pip 安装稳定版本:
 
 ```bash
 pip install bgmi
 ```
 
-Or from source(not recommended):
+### 或者从源码安装（不推荐）
 
 ```bash
 git clone https://github.com/BGmi/BGmi
 cd BGmi
+git checkout master
 python -m pip install -U pip
 pip install .
 ```
 
-Init BGmi database and install BGmi web interface:
+### 初始化`BGmi`
 
 ```bash
 bgmi install
 ```
 
-## Upgrade
-
-### pipx
+## 升级（仅 pipx 安装）
 
 ```bash
 pipx upgrade bgmi
 bgmi upgrade
 ```
 
-### pip
+## 升级（仅 pip 安装）
 
 ```bash
 pip install bgmi -U
 bgmi upgrade
 ```
 
-Make sure to run bgmi upgrade after you upgrade your bgmi
+在升级后请确保运行`bgmi upgrade`
 
-## Docker
+## 使用 Docker
 
-go to [BGmi/bgmi-docker-all-in-one](https://github.com/BGmi/bgmi-docker-all-in-one)
+见 [BGmi/bgmi-docker-all-in-one](https://github.com/BGmi/bgmi-docker-all-in-one)
 
-## Usage of bgmi
+## 使用
 
-Cli completion(bash and zsh. Shell was detected from your env \$SHELL)
+查看可用的命令
+
+```bash
+bgmi -h
+```
+
+**`-h`选项同样适用于所有的子命令，readme 仅介绍了一些基础用法。**
+
+启用命令自动补全
 
 ```bash
 eval "$(bgmi complete)"
 ```
 
-If you want to setup a custom BGMI_PATH instead of default `$HOME/.bgmi`:
+## 配置 BGmi
+
+BGmi 提供两种方式配置BGmi的各项运行参数，分别为配置文件与环境变量。
+
+### 配置文件
+bgmi 的配置文件位于 `${BGMI_PATH}/config.toml`, 在未设置 `BGMI_PATH` 环境变量是，`${BGMI_PATH}` 默认为 `~/.bgmi/`。
+
+查看当前 `BGmi` 设置:
 
 ```bash
-BGMI_PATH=/bgmi bgmi -h
+bgmi config # 查看当前各项设置默认值.
 ```
-
-Or add this code to your .bashrc file:
-
-```bash
-alias bgmi='BGMI_PATH=/tmp bgmi'
-```
-
-Supported data source:
-
-- [bangumi_moe(default)](https://bangumi.moe)
-- [mikan_project](https://mikanani.me)
-- [dmhy](https://share.dmhy.org/)
-
-### Help
-
-you can add `--help` to all `BGmi` sub command to show full options, some of them are not mentioned here.
-
-### Show BGmi configure
-
-```bash
-bgmi config
-```
-
-There are two ways to configure BGmi, configuration files and environment variables.
-
-#### Configuration file
-bgmi config files is located at `${BGMI_PATH}/config.toml`
-
-Example of configure file:
 
 ```toml
 data_source = "bangumi_moe" # bangumi source
-download_delegate = "aria2-rpc" # download delegate
+download_delegate = "aria2-rpc" # 番剧下载工具 (aria2-rpc, transmission-rpc, deluge-rpc, qbittorrent-webapi)
 tmp_path = "tmp/tmp" # tmp dir
-save_path = "tmp/bangumi" # dir to save bangumi video files
-front_static_path = "tmp/front_static" # dir to save webui static files
-db_path = "tmp/bangumi.db" # file path of bangumi sqlite database
-script_path = "tmp/scripts" # tools for bgmi scripts
-tools_path = "tmp/tools" # tmp dir to download some binary tools
-max_path = 3 # max page for fetching bangumi information
+save_path = "tmp/bangumi" # 下载番剧保存地址
+max_path = 3 # 抓取数据时每个番剧最大抓取页数
 bangumi_moe_url = "https://bangumi.moe"
 share_dmhy_url = "https://share.dmhy.org"
-mikan_username = "" # The username for Mikan Project website
-mikan_password = "" # The password for Mikan Project website
-lang = "zh_cn" # banugmi moe lang filter
+mikan_username = "" # 蜜柑计划的用户名
+mikan_password = "" # 蜜柑计划的密码
 enable_global_filters = true
 global_filters = [
     "Leopard-Raws",
@@ -177,25 +149,27 @@ global_filters = [
     "U3-Web",
 ]
 
-[save_path_map] # per-bangumi save path
-'致不灭的你 第二季' = '/home/trim21/downloads/bangumi/致不灭的你/s2/' # abs path may not work with web-ui
-'致不灭的你 第三季' = './致不灭的你/s3/' # relative related to save_path
+proxy = '' # http proxy example: http://127.0.0.1:1080
+
+[save_path_map] # 针对每部番剧设置下载路径
+'致不灭的你 第二季' = '/home/trim21/downloads/bangumi/致不灭的你/s2/' # 如果使用绝对路径，可能导致 web-ui 无法正确显示视频文件。
+'致不灭的你 第三季' = './致不灭的你/s3/' # 以 save_path 为基础路径的相对路径
 
 [http]
-admin_token = "dYMj-Z4bDRoQfd3x" # web admin token, generated on install
+admin_token = "dYMj-Z4bDRoQfd3x" # web ui 的密码
 danmaku_api_url = ""
-serve_static_files = false # serve static files with python server, used in bgmi_http
+serve_static_files = false
 
 [aria2]
-rpc_url = "http://localhost:6800/rpc"
-rpc_token = "token:"
+rpc_url = "http://localhost:6800/rpc" # aria2c RPC URL (不是 jsonrpc URL, 如果你的 aria2c 运行在 localhost:6800, 对应的链接为 `http://localhost:6800/rpc`)
+rpc_token = "token:" # aria2c RPC token (如果没有设置 token, 留空或者设置为 `token:`)
 
 [transmission]
 rpc_host = "127.0.0.1"
 rpc_port = 9091
 rpc_username = "your_username"
 rpc_password = "your_password"
-rpc_path = "/transmission/rpc" # http url path of transmission rpc requests
+rpc_path = "/transmission/rpc" # transmission http rpc 的请求路径
 
 [qbittorrent]
 rpc_host = "127.0.0.1"
@@ -209,16 +183,17 @@ rpc_url = "http://127.0.0.1:8112/json"
 rpc_password = "deluge"
 ```
 
-#### Environment Variables
-When BGmi’s configuration file has not been initialized, the configuration parameters can be configured by environment variables.
+### 环境变量
+当 BGmi 的配置文件还未初始化时，各项运行参数可由环境变量进行配置
 
-Environment variables start with `BGMI_`, are named in all uppercase letters, and are separated by `_` for each level of configuration, such as:
+环境变量以 `BGMI_` 开头，全大写命名，且各级配置以 `_` 进行分割，如:
 ```
-BGMI_DATA_SOURCE=bangumi_moe    # means data_source = "bangumi_moe" in the configuration file
-BGMI_HTTP_ADMIN_TOKEN=dYMj-Z4bDRoQfd3x    # means admin_token = "dYMj-Z4bDRoQfd3x" in the [http] section of the configuration file
+BGMI_DATA_SOURCE=bangumi_moe    # 对应配置文件中的 data_source = "bangumi_moe"
+BGMI_HTTP_ADMIN_TOKEN=dYMj-Z4bDRoQfd3x    # 对应配置文件 [http] 分段中的 admin_token = "dYMj-Z4bDRoQfd3x"
 ...
 ```
-Environment variables do not support configuring the following items:
+
+环境变量 *暂不支持* 配置以下项目
 ```
 enable_global_include_keywords
 enable_global_filters
@@ -226,97 +201,93 @@ global_include_keywords
 global_filters
 [save_path_map]
 ```
-Note: After the configuration file is generated, running configuration will be based on the configuration file, and environment variables are only used to generate the first configuration file.
+注: 当配置文件生成完毕后，运行配置将会以配置文件为准，环境变量仅用于生成第一份配置文件。
 
+## 支持的数据源
 
-### Change data source
+- [bangumi_moe(default)](https://bangumi.moe)
+- [mikan_project](https://mikanani.me)
+- [dmhy](https://share.dmhy.org/)
 
-**All bangumi info in database will be deleted when changing data source!** but scripts won't be affected
+### 更换换数据源
 
-video files will still be stored on the disk, but won't be shown on website.
+**更换数据源会清空番剧数据库, 但是 bgmi script 不受影响.** 之前下载的视频文件不会删除, 但是不会在前端显示
 
-**If the source to be switched is `mikan_project`, please configure `MIKAN_USERNAME` and `MIKAN_PASSWORD` first**, other
-sources are not affected.
+**如果更换的源为 `mikan_project`, 请先配置 `MIKAN_USERNAME` 和 `MIKAN_PASSWORD`**, 其它源不受影响
 
-```console
+```bash
 bgmi source mikan_project
 ```
 
-### download delegate
+
+### 设置下载方式
+
+修改配置文件和对应的配置项
 
 ```toml
 download_delegate = "aria2-rpc" # download delegate
 ```
 
-supported options are `aria2-rpc`, `transmission-rpc`, `qbittorrent-webapi` and `deluge-rpc`
+内置可用的选项包括 `aria2-rpc`, `transmission-rpc`, `qbittorrent-webapi` 以及 `deluge-rpc`。
 
-### Show bangumi calendar
+### 查看目前正在更新的新番
 
 ```bash
 bgmi cal
 ```
 
-### Subscribe bangumi
+订阅番剧:
 
 ```bash
-bgmi add "Re:CREATORS" "夏目友人帐 陆" "进击的巨人 season 2"
-bgmi add "樱花任务" --episode 0
+bgmi add "进击的巨人 第三季" "刃牙" "哆啦A梦"
+bgmi add "高分少女" --episode 0
 ```
 
-Default episode will be the latest episode.
-If you just add a bangumi that you haven't watched any episodes, considering `bgmi add $BANGUMI_NAME --episode 0`.
-
-### Unsubscribe bangumi
+退订:
 
 ```bash
 bgmi delete --name "Re:CREATORS"
 ```
 
-### Update bangumi
-
-Update bangumi database (which locates at \~/.bgmi/bangumi.db acquiescently):
+更新番剧列表并且下载番剧:
 
 ```bash
-bgmi update --download # download all undownloaded episode fo all followed bangumi
-bgmi update "从零开始的魔法书" --download 2 3 # will download specific episide 2 and 3
-bgmi update "时钟机关之星" --download # will download all undownloaded episode for specific bangumi
+bgmi update --download
+bgmi update "从零开始的魔法书" --download 2 3
+bgmi update "时钟机关之星" --download
 ```
 
-### Filter download
-
-Set up the bangumi subtitle group filter and fetch entries:
+设置筛选条件:
 
 ```bash
-bgmi list
+bgmi list # 列出目前订阅的番剧
 bgmi fetch "Re:CREATORS"
-# include and exclude are case insensitive.
-# --include '720p' is equal to --include '720P'
+# include和exclude会忽略大小写。`720p`和`720P`的效果是相同的
 bgmi filter "Re:CREATORS" --subtitle "DHR動研字幕組,豌豆字幕组" --include 720P --exclude BIG5
 bgmi fetch "Re:CREATORS"
-# remove subtitle, include and exclude keyword filter and add regex filter.
-bgmi filter "Re:CREATORS" --subtitle "" --include "" --exclude ""
+# 删除subtitle，include和exclude，添加正则匹配
+bgmi filter "Re:CREATORS" --subtitle "" --include "" --exclude "" --regex
 bgmi filter "Re:CREATORS" --regex "(DHR動研字幕組|豌豆字幕组).*(720P)"
 bgmi fetch "Re:CREATORS"
 ```
 
-#### Global Filter
+## 设置全局过滤关键词
 
-##### include
 
-You can set global include keywords.
+### 包含
 
-It's disabled by default, You need to enable global include keywords with `enable_global_include_keywords = true`
+默认不启用全局包含关键词，你可以设置 `enable_global_include_keywords = true` 启动此功能。
 
 ```toml
 enable_global_include_keywords = true
 global_include_keywords = ['1080']
 ```
 
-##### exclude
 
-Some words are pre-set as global exclude keywords
+### 排除
 
-You can disable global filter with `enable_global_filters = false`.
+有一些默认定义的全局过滤关键词，默认会排除标题包含以下关键词的种子。
+可以使用 `enable_global_filters = false` 禁止过滤全局关键词，
 
 ```toml
 enable_global_filters = true
@@ -329,94 +300,84 @@ global_filters = [
 ]
 ```
 
-### Search episodes
+最后使用`bgmi fetch`来看看筛选的结果.
+
+搜索番剧并下载:
 
 ```bash
-bgmi search '为美好的世界献上祝福！' --regex-filter '.*动漫国字幕组.*为美好的世界献上祝福！.*720P.*'
-# download
-bgmi search '为美好的世界献上祝福！' --regex-filter '.*合集.*' --download
+bgmi search '为美好的世界献上祝福！' --regex-filter '.*动漫国字幕组.*为美好的世界献上祝福！].*720P.*'
+
 ```
 
-### Modify downloaded bangumi episode
+使用`--min-episode`和`--max-episode`来根据集数筛选下载结果
+
+```bash
+bgmi search 海贼王 --min-episode 800 --max-episode 820
+# 下载
+bgmi search 海贼王 --min-episode 800 --max-episode 820 --download
+```
+
+`bgmi search`命令默认不会显示重复的集数, 如果要显示重复的集数来方便过滤, 在命令后加上`--dupe`来显示全部的搜索结果
+
+手动修改最近下载的剧集
 
 ```bash
 bgmi list
 bgmi mark "Re:CREATORS" 1
 ```
 
-This will tell bgmi to not need to download episode less than or equal to 1.
+## 使用`bgmi_http`
 
-### Manage download items
-
-```bash
-bgmi download --list
-bgmi download --list --status 0
-bgmi download --mark 1 --status 2
-```
-
-Status code:
-
-- 0 - Not downloaded items
-- 1 - Downloading items
-- 2 - Downloaded items
-
-### Usage of bgmi_http
-
-Download all bangumi cover first:
+1.先下载所有更新中番剧的封面
 
 ```bash
 bgmi cal --download-cover
 ```
 
-Download frontend static files(you may have done it before):
+2.根据你是否使用 nginx, 设置`TORNADO_SERVE_STATIC_FILES`(使用 nginx 的情况下使用默认设置`0`, 不使用的情况下设置为`1`)
+
+3.下载前端的静态文件(你可能在安装的时候已经下载过了):
 
 ```bash
 bgmi install
 ```
 
-Start BGmi HTTP Service bind on 0.0.0.0:8888:
+4.在`8888`端口启动 BGmi HTTP 服务器:
 
 ```bash
 bgmi_http --port=8888 --address=0.0.0.0
 ```
 
-### Use bgmi_http on Windows
+### 在 Windows 上使用`bgmi_http`
 
-Just start your bgmi_http and open [<http://localhost:8888/>](http://localhost:8888/) in your browser.
+参照上面启动服务器, 然后访问[http://localhost:8888/](http://localhost:8888/).
 
-Consider most people won't use Nginx on Windows, bgmi_http use tornado.web.StaticFileHandler to serve static files(
-frontend, bangumi covers, bangumi files) without Nginx.
+### 在\*nux 上使用 bgmi_http
 
-### Use bgmi_http on Linux
-
-Generate Nginx config
+可以让`BGmi`帮助你生成对应的 nginx 配置文件
 
 ```bash
-bgmi gen nginx.conf --server-name bgmi.whatever.com > bgmi.whatever.com
+bgmi gen nginx.conf --server-name bgmi.whatever.com
 ```
 
-Or write your config file manually.
+你也可以手动写一份 nginx 配置, 来满足你的更多需求(比如启用 https), 这是一份例子
 
-```nginx
+```bash
 server {
     listen 80;
     server_name bgmi;
 
-    root /path/to/bgmi;
     autoindex on;
     charset utf-8;
 
     location /bangumi {
         # ~/.bgmi/bangumi
-        alias /path/to/bangumi;
+        # alias到你的`SAVE_PATH` 注意以/结尾
+        alias /path/to/bangumi/;
     }
 
     location /api {
         proxy_pass http://127.0.0.1:8888;
-        # Requests to api/update may take more than 60s
-        proxy_connect_timeout 500s;
-        proxy_read_timeout 500s;
-        proxy_send_timeout 500s;
     }
 
     location /resource {
@@ -424,153 +385,136 @@ server {
     }
 
     location / {
-        # ~/.bgmi/front_static/;
+        # alias到你的`BGMI_PATH/front_static/`注意以/结尾
         alias /path/to/front_static/;
     }
-
 }
 ```
 
-Of cause you can use [yaaw](https://github.com/binux/yaaw/) to manage download items if you use aria2c to download
-bangumi.
+或者添加一个 aria2c 前端之类的, 具体办法百度上有很多,不在此赘述.
 
-```nginx
-location /yaaw {
-    alias /path/to/yaaw;
-}
+macOS launchctl service controller
 
-location /jsonrpc {
-    # aria2c rpc
-    proxy_pass http://127.0.0.1:6800;
-}
-```
+参照 [issue #77](https://github.com/BGmi/BGmi/pull/77)自行设置
 
-Example file: [bgmi.conf](https://github.com/BGmi/BGmi/blob/dev/docs/bgmi.conf)
+[me.ricterz.bgmi.plist](https://github.com/BGmi/BGmi/blob/master/bgmi/others/me.ricterz.bgmi.plist)
 
-#### DPlayer and Danmaku
+## 弹幕支持
 
-BGmi use [DPlayer](https://github.com/DIYgod/DPlayer) to play bangumi.
+BGmi 使用[`DPlayer`](https://github.com/DIYgod/DPlayer)做为前端播放器
 
-First, setup nginx to access bangumi files. Second, choose one danmaku backend
-at [DPlayer\#related-projects](https://github.com/DIYgod/DPlayer#related-projects).
+如果你想要添加弹幕支持, 在这里[DPlayer#related-projects](https://github.com/DIYgod/DPlayer#related-projects)选择一个后端自行搭建, 或者使用`DPlayer`提供的现成接口`https://api.prprpr.me/dplayer/`
 
-Edit bgmi config file to setup the url of danmaku api.
+然后修改配置文件：
 
 ```toml
 [bgmi_http]
 danmaku_api_url = "https://api.prprpr.me/dplayer/"  # This api is provided by dplayer official
 ```
 
-...restart your bgmi_http and enjoy :D
+设置你的`bgmi_http`, 享受弹幕支援吧.
 
-#### macOS launchctl service controller
+## 调试
 
-see [issue #77](https://github.com/BGmi/BGmi/pull/77)
+设置环境变量`BGMI_LOG`为`debug`, `info`, `warning`, 或者`error`
 
-[me.ricterz.bgmi.plist](https://github.com/BGmi/BGmi/blob/master/bgmi/others/me.ricterz.bgmi.plist)
+log 文件位于`{TMP_PATH}/bgmi.log`
+
+## 卸载
+
+由于 pip 的限制, 你需要手动清理`BGmi`产生的位于`~/.bgmi`的文件
+
+同样, `BMmi`添加到你系统的定时任务也不会被自动删除, 请手动删除.
+
+\*nix:
+
+    请手动清理crontab
+
+windows:
+
+```bash
+schtasks /Delete /TN 'bgmi updater'
+```
+
+## 如果你对 python 有一点了解, 并且觉得还不够的话, 下面是为你准备的.
 
 ## Bangumi Script
 
-Bangumi Script is a script which you can write the bangumi parser own. BGmi will load the script and call the method you
-write before the native functionality.
+你可以写一个`BGmi Script`来解析你自己的想看的番剧或者美剧. BGmi 会加载你的 script, 视作一个番剧来对待. 而你所需要做的只是继承`ScriptBase`类, 然后实现特定的方法, 再把你的 script 文件放到`BGMI_PATH/script`文件夹内.
 
-Bangumi Script Runner will catch the data you returned, update the database, and download the bangumi. You only just
-write the parser and return the data.
+Example: <./script_example.py>
 
-Bangumi Script is located at BGMI_PATH/script, inherited ScriptBase class.
-
-examples: [script_example.py](tests/script_example.py)
-
-`get_download_url` returns a dict as follows.
+`get_download_url()`返回一个`dict`, 以对应集数为键, 对应的下载链接为值
 
 ```python
 {
-  1: 'http://example.com/Bangumi/1/1.torrent',
-  2: 'http://example.com/Bangumi/1/2.torrent',
-  3: 'http://example.com/Bangumi/1/3.torrent'
+    1: 'http://example.com/Bangumi/1/1.mp4',
+    2: 'http://example.com/Bangumi/1/2.torrent',
+    3: 'http://example.com/Bangumi/1/3.mp4'
 }
 ```
 
-The keys 1, 2, 3 is the episode, the value is the url of bangumi, make sure your download delegate support it..
+## BGmi 数据源
 
-## BGmi Data Source
+通过扩展`bgmi.website.base.BaseWebsite`类并且实现对应的三个方法,你也可以简单的添加一个数据源
 
-You can easily add your own BGmi data source by extending BGmi website base class and implement all the method.
+每个方法具体的意义和返回值格式请参照每个方法对应的注释
 
 ```python
 from typing import List, Optional
 
 from bgmi.website.base import BaseWebsite
-from bgmi.website.model import WebsiteBangumi, Episode
+from bgmi.website.model import Episode, WebsiteBangumi
 
 
 class DataSource(BaseWebsite):
-  def search_by_keyword(
-    self, keyword: str, count: int
-  ) -> List[Episode]:  # pragma: no cover
-    """
+    def search_by_keyword(
+        self, keyword: str, count: int
+    ) -> List[Episode]:  # pragma: no cover
+        """
 
-    :param keyword: search key word
-    :param count: how many page to fetch from website
-    :return: list of episode search result
-    """
-    raise NotImplementedError
+        :param keyword: search key word
+        :param count: how many page to fetch from website
+        :return: list of episode search result
+        """
+        raise NotImplementedError
 
-  def fetch_bangumi_calendar(self, ) -> List[WebsiteBangumi]:  # pragma: no cover
-    """
-    return a list of all bangumi and a list of all subtitle group
+    def fetch_bangumi_calendar(self,) -> List[WebsiteBangumi]:  # pragma: no cover
+        """
+        return a list of all bangumi and a list of all subtitle group
 
-    list of bangumi dict:
-    update time should be one of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Unknown']
-    """
-    raise NotImplementedError
+        list of bangumi dict:
+        update time should be one of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Unknown']
+        """
+        raise NotImplementedError
 
-  def fetch_episode_of_bangumi(
-    self, bangumi_id: str, max_page: int, subtitle_list: Optional[List[str]] = None
-  ) -> List[Episode]:  # pragma: no cover
-    """
-    get all episode by bangumi id
+    def fetch_episode_of_bangumi(
+        self, bangumi_id: str, max_page: int, subtitle_list: Optional[List[str]] = None
+    ) -> List[Episode]:  # pragma: no cover
+        """
+        get all episode by bangumi id
 
-    :param bangumi_id: bangumi_id
-    :param subtitle_list: list of subtitle group
-    :type subtitle_list: list
-    :param max_page: how many page you want to crawl if there is no subtitle list
-    :type max_page: int
-    :return: list of bangumi
-    """
-    raise NotImplementedError
+        :param bangumi_id: bangumi_id
+        :param subtitle_list: list of subtitle group
+        :type subtitle_list: list
+        :param max_page: how many page you want to crawl if there is no subtitle list
+        :type max_page: int
+        :return: list of bangumi
+        """
+        raise NotImplementedError
 
-  def fetch_single_bangumi(self, bangumi_id: str) -> WebsiteBangumi:
-    """
-    fetch bangumi info when updating
 
-    :param bangumi_id: bangumi_id, or bangumi['keyword']
-    :type bangumi_id: str
-    :rtype: WebsiteBangumi
-    """
-    # return WebsiteBangumi(keyword=bangumi_id) if website don't has a page contains episodes and info
-```
+    def fetch_single_bangumi(self, bangumi_id: str) -> WebsiteBangumi:
+        """
+        fetch bangumi info when updating
 
-## Debug
-
-Set env BGMI_LOG to debug, info, warning, error for different log level
-
-log file will locate at {TMP_PATH}/bgmi.log
-
-## Uninstall
-
-Scheduled task will not be delete automatically, you will have to remove them manually.
-
-`*nix`:
-
-remove them from your crontab
-
-`windows`:
-
-```powershell
-schtasks /Delete /TN 'bgmi updater'
+        :param bangumi_id: bangumi_id, or bangumi['keyword']
+        :type bangumi_id: str
+        :rtype: WebsiteBangumi
+        """
+        # return WebsiteBangumi(keyword=bangumi_id) if website don't has a page contains episodes and info
 ```
 
 ## License
 
-[MIT License](https://github.com/BGmi/BGmi/blob/master/LICENSE)
+[MIT License](./LICENSE)

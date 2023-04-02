@@ -9,6 +9,9 @@ from bgmi.config import cfg
 
 session = requests.Session()
 
+if cfg.proxy:
+    session.proxies = {"http": cfg.proxy, "https": cfg.proxy}
+
 retries = Retry(total=3, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
 session.mount("https://mikanani.me/", HTTPAdapter(max_retries=retries))
 

@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 from loguru import logger
 
 from bgmi.config import cfg
+from bgmi.session import session
 from bgmi.utils import print_error
 from bgmi.website.base import BaseWebsite
 from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
@@ -19,7 +20,7 @@ base_url = cfg.share_dmhy_url
 def fetch_url(url, **kwargs):
     ret = None
     try:
-        ret = requests.get(url, timeout=60, **kwargs).text
+        ret = session.get(url, timeout=60, **kwargs).text
     except requests.ConnectionError:
         logger.error("Create connection to {}... failed", base_url)
         print_error("Check internet connection or try to set a DMHY mirror site with share_dmhy_url in config")

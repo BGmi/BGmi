@@ -20,10 +20,12 @@ import requests
 import semver
 from anime_episode_parser import parse_episode as _parse_episode
 from loguru import logger
+from requests import Response
 
 from bgmi import __admin_version__, __version__
 from bgmi.config import BGMI_PATH, IS_WINDOWS, cfg
 from bgmi.lib.constants import SUPPORT_WEBSITE
+from bgmi.session import session
 from bgmi.website.model import Episode
 
 F = TypeVar("F", bound=Callable[..., Any])
@@ -88,7 +90,7 @@ def test_connection() -> bool:
     try:
         for website in SUPPORT_WEBSITE:
             if cfg.data_source == website["id"]:
-                requests.request("head", website["url"], timeout=10)
+                session.request("head", website["url"], timeout=10)
     except requests.RequestException:
         return False
     return True
@@ -160,7 +162,7 @@ FRONTEND_NPM_URL = "https://registry.npmjs.com/bgmi-frontend/"
 
 @functools.lru_cache
 def npm_package_manifest() -> Dict[str, Any]:
-    r = requests.get(FRONTEND_NPM_URL, timeout=60)
+    r = session.get(FRONTEND_NPM_URL, timeout=60)
     r.raise_for_status()
     return r.json()  # type: ignore
 
@@ -182,7 +184,7 @@ def check_update(mark: bool = True) -> None:
     def update() -> None:
         try:
             print_info("Checking update ...")
-            pypi = requests.get("https://pypi.org/pypi/bgmi/json", timeout=60).json()
+            pypi = session.get("https://pypi.org/pypi/bgmi/json", timeout=60).json()
             version = pypi["info"]["version"]
 
             with open(os.path.join(BGMI_PATH, "latest"), "w", encoding="utf8") as f:
@@ -285,7 +287,7 @@ def get_web_admin(method: str) -> None:
         print_warning("failed to download web admin")
         return
 
-    tar = requests.get(tar_url, timeout=60)
+    tar = session.get(tar_url, timeout=60)
     tar.raise_for_status()
     admin_zip = BytesIO(tar.content)
     with gzip.GzipFile(fileobj=admin_zip) as f:
@@ -326,11 +328,11 @@ def convert_cover_url_to_path(cover_url: str) -> Tuple[str, str]:
     return dir_path, file_path
 
 
-def download_file(url: str) -> Optional[requests.Response]:
+def download_file(url: str) -> Optional[Response]:
     logger.debug("downloading {}", url)
     if url.startswith("https://") or url.startswith("http://"):
         print_info(f"Download: {url}")
-        return requests.get(url, timeout=60)
+        return session.get(url, timeout=60)
     return None
 
 
