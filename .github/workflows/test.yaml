@@ -53,9 +53,8 @@ jobs:
       - name: test
         run: |
           set -ex
-          coverage run -a -m bgmi.main install
+          coverage run -a -m bgmi install
           bgmi --help
-          bgmi install
           coverage run -a -m pytest tests --cache-requests --ignore=tests/downloader
 
       - run: coverage xml --omit templates/download_xml.generated.py

@@ -55,7 +55,6 @@ def cli(ctx: click.Context) -> None:
 
 @cli.command(help="Install BGmi and frontend")
 def install() -> None:
-    get_web_admin(method="install")
     need_to_init = False
     if not os.path.exists(BGMI_PATH):
         need_to_init = True
@@ -67,6 +66,7 @@ def install() -> None:
         install_crontab()
 
     write_default_config()
+    get_web_admin(method="install")
 
 
 @cli.command(help="upgrade from previous version")
