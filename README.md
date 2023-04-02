@@ -334,7 +334,7 @@ bgmi mark "Re:CREATORS" 1
 bgmi cal --download-cover
 ```
 
-2.根据你是否使用 nginx, 设置`TORNADO_SERVE_STATIC_FILES`(使用 nginx 的情况下使用默认设置`0`, 不使用的情况下设置为`1`)
+2.根据你是否使用 nginx, 设置`serve_static_files`(使用 nginx 的情况下使用默认设置`false`, 不使用的情况下设置为`true`)
 
 3.下载前端的静态文件(你可能在安装的时候已经下载过了):
 
