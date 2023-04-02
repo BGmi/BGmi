@@ -46,10 +46,8 @@ BGmi 是一个用来追番的命令行程序.
 - 下载番剧时的过滤器(支持关键词,字幕组和正则)
 - 多平台支持: Windows, \*nux 以及 Router system
 
-![](./images/bgmi_cli.png?raw=true)
-![](./images/bgmi_http.png?raw=true)
-![](./images/bgmi_player.png?raw=true)
-![](./images/bgmi_admin.png?raw=true)
+![](https://github.com/BGmi/BGmi-frontend/raw/master/.github/images/example.png)
+![](https://github.com/BGmi/BGmi-frontend/raw/master/.github/images/example2.png)
 
 ## 安装
 
