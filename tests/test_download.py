@@ -71,7 +71,7 @@ def test_search_with_filter(mock_download_driver: mock.Mock):
     )
 
     with mock.patch("bgmi.lib.controllers.website", mock_website):
-        main_for_test("search 海贼王 --download --regex .*720.*".split())
+        main_for_test("search 海贼王 --download --regex-filter .*720.*".split())
 
     mock_website.search_by_keyword.assert_called_once_with("海贼王", count=cfg.max_path)
 
