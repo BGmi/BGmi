@@ -196,6 +196,25 @@ global_filters
 ```
 注: 当配置文件生成完毕后，运行配置将会以配置文件为准，环境变量仅用于生成第一份配置文件。
 
+## 修改配置
+
+使用 `bgmi config set ...keys  --value '...'` 命令可以修改配置。
+
+如：
+
+```shell
+bgmi config set http admin_token --value 'my super secret token'
+```
+
+或者
+
+```shell
+bgmi config set max_path --value '3'
+
+```
+
+不能用来修改复杂配置，如 `global_filters`，请手动修改配置文件。
+
 ## 支持的数据源
 
 - [bangumi_moe(default)](https://bangumi.moe)
