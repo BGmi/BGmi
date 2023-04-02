@@ -45,7 +45,7 @@ jobs:
       - name: test
         run: |
           set -ex
-          coverage run -a -m bgmi.main install
+          coverage run -a -m bgmi install
           coverage run -a tests/downloader/setup.py
           coverage run -a -m pytest tests/downloader -s
 
