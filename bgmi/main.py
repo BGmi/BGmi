@@ -1,35 +1,61 @@
+import datetime
 import os
 import sys
-from typing import Any
+from typing import Any, List, Optional, Tuple
 
 import click as click
+import wcwidth as wcwidth
 from loguru import logger
 
 from bgmi import __version__
 from bgmi.config import BGMI_PATH, CONFIG_FILE_PATH, cfg, print_config, write_default_config
 from bgmi.lib import controllers as ctl
-from bgmi.lib.constants import ACTION_COMPLETE, SUPPORT_WEBSITE
+from bgmi.lib.cli import print_filter
+from bgmi.lib.constants import (
+    ACTION_COMPLETE,
+    BANGUMI_UPDATE_TIME,
+    SPACIAL_APPEND_CHARS,
+    SPACIAL_REMOVE_CHARS,
+    SUPPORT_WEBSITE,
+)
 from bgmi.lib.download import download_prepare
+from bgmi.lib.models import STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, Filter, Followed
 from bgmi.lib.update import update_database
+from bgmi.script import ScriptRunner
 from bgmi.setup import create_dir, init_db, install_crontab
-from bgmi.utils import check_update, get_web_admin, print_version, print_warning
+from bgmi.utils import (
+    COLOR_END,
+    GREEN,
+    YELLOW,
+    check_update,
+    get_terminal_col,
+    get_web_admin,
+    print_error,
+    print_info,
+    print_version,
+    print_warning,
+)
 
 
-@click.group()
-@click.version_option(__version__, prog_name="bgmi", message=print_version())
-@click.pass_context
-def cli(ctx: click.Context):
+def main():
     logger.remove()
     logger.add(
         sys.stderr, format="<blue>{time:YYYY-MM-DD HH:mm:ss}</blue> {level:7} | <level>{message}</level>", level="INFO"
     )
     logger.add(cfg.log_path.parent.joinpath("{time:YYYY-MM-DD}.log"), format="{time} {level} {message}", level="INFO")
 
+    cli.main(prog_name="bgmi")
+
+
+@click.group(name="bgmi")
+@click.version_option(__version__, package_name="bgmi", prog_name="bgmi", message=print_version())
+@click.pass_context
+def cli(ctx: click.Context):
     if ctx.command not in ["install", "upgrade", ACTION_COMPLETE]:
         check_update()
 
 
-@cli.command()
+@cli.command(help="Install BGmi and frontend")
 def install():
     get_web_admin(method="install")
     need_to_init = False
@@ -45,7 +71,7 @@ def install():
     write_default_config()
 
 
-@cli.command()
+@cli.command(help="upgrade from previous version")
 def upgrade():
     create_dir()
     update_database()
@@ -63,7 +89,9 @@ def config_wrapper(ret: Any) -> None:
         print(print_config())
 
 
-@cli.command()
+@cli.command(
+    help="Select date source bangumi_moe or mikan_project",
+)
 @click.argument("bangumi_source", required=True, type=click.Choice([x["id"] for x in SUPPORT_WEBSITE]))
 def source(bangumi_source: str) -> None:
     result = ctl.source(data_source=bangumi_source)
@@ -115,3 +143,237 @@ def search(
         print(i.title)
     if download:
         download_prepare(data)
+
+
+@cli.command("mark")
+@click.argument("name", required=True)
+@click.argument("episode", type=int, required=True)
+def mark(name: str, episode: int) -> None:
+    result = ctl.mark(name=name, episode=episode)
+    globals()["print_{}".format(result["status"])](result["message"])
+
+
+@cli.command()
+@click.argument("names", nargs=-1)
+@click.option(
+    "--episode",
+    type=int,
+    help="add bangumi and mark it as specified episode",
+)
+def add(names: List[str], episode: Optional[int]) -> None:
+    """
+    subscribe bangumi
+
+    names: list of bangumi names to subscribe
+    """
+    for name in names:
+        result = ctl.add(name=name, episode=episode)
+        globals()["print_{}".format(result["status"])](result["message"])
+
+
+@cli.command()
+@click.argument("name", nargs=-1)
+@click.option(
+    "--clear-all",
+    "clear",
+    is_flag=True,
+    default=False,
+    help="Clear all the subscriptions, name will be ignored If you provide this flag",
+)
+@click.option("--yes", is_flag=True, default=False, help="No confirmation")
+def delete(name: List[str], clear: bool, yes: bool) -> None:
+    """
+    name: list of bangumi names to unsubscribe
+    """
+    if clear:
+        ctl.delete("", clear_all=clear, batch=yes)
+    else:
+        for bangumi_name in name:
+            result = delete(name=bangumi_name)
+            globals()["print_{}".format(result["status"])](result["message"])
+
+
+@cli.command("list", help="list subscribed bangumi")
+def list_command():
+    result = ctl.list_()
+    print(result["message"])
+
+
+@cli.command("filter", help="set bangumi episode filters")
+@click.argument("name", required=True)
+@click.option("--subtitle", help='Subtitle group name, split by ",".')
+@click.option(
+    "--include",
+    help='Filter by keywords which in the title, split by ",".',
+)
+@click.option("--exclude", help='Filter by keywords which not int the title, split by ",".')
+@click.option("--regex", help="Filter by regular expression")
+def filter_cmd(
+    name: str,
+    subtitle: Optional[str],
+    regex: Optional[str],
+    include: Optional[str],
+    exclude: Optional[str],
+) -> None:
+    """
+    name: bangumi name to update filter
+    """
+    result = ctl.filter_(
+        name=name,
+        subtitle=subtitle,
+        include=include,
+        exclude=exclude,
+        regex=regex,
+    )
+    if "data" not in result:
+        globals()["print_{}".format(result["status"])](result["message"])
+    else:
+        print_info("Usable subtitle group: {}".format(", ".join(result["data"]["subtitle_group"])))
+        followed_filter_obj = Filter.get(bangumi_name=result["data"]["name"])
+        print_filter(followed_filter_obj)
+
+
+@cli.command("cal")
+@click.option(
+    "-f",
+    "--force-update",
+    "force_update",
+    is_flag=True,
+    show_default=True,
+    default=False,
+    type=bool,
+    help="get latest bangumi calendar",
+)
+@click.option(
+    "--today",
+    "today",
+    is_flag=True,
+    show_default=True,
+    default=False,
+    type=bool,
+    help="show bangumi calendar for today.",
+)
+@click.option(
+    "--download-cover",
+    "download_cover",
+    is_flag=True,
+    show_default=True,
+    default=False,
+    type=bool,
+    help="download the cover to local",
+)
+def calendar(force_update: bool, today: bool, download_cover: bool):
+    runner = ScriptRunner()
+    cover: Optional[List[str]] = None
+
+    if download_cover:
+        cover = runner.get_download_cover()
+
+    weekly_list = ctl.cal(force_update=force_update, cover=cover)
+
+    def shift(seq: Tuple[str, ...], n: int) -> Tuple[str, ...]:
+        n %= len(seq)
+        return seq[n:] + seq[:n]
+
+    order_without_unknown = BANGUMI_UPDATE_TIME[:-1]
+    if today:
+        weekday_order = (order_without_unknown[datetime.datetime.today().weekday()],)  # type: Tuple[str, ...]
+    else:
+        weekday_order = shift(order_without_unknown, datetime.datetime.today().weekday())
+
+    col = max(wcwidth.wcswidth(bangumi["name"]) for value in weekly_list.values() for bangumi in value)
+    env_columns = col if os.environ.get("TRAVIS_CI", False) else get_terminal_col()
+
+    if env_columns < col:
+        print_warning("terminal window is too small.")
+        env_columns = col
+
+    row = int(env_columns / col if env_columns / col <= 3 else 3)
+
+    def print_line() -> None:
+        num = col - 3
+        split = "-" * num + "   "
+        print(split * row)
+
+    for weekday in weekday_order + ("Unknown",):
+        if weekly_list[weekday.lower()]:
+            print(
+                "{}{}. {}".format(
+                    GREEN,
+                    weekday if not today else f"Bangumi Schedule for Today ({weekday})",
+                    COLOR_END,
+                ),
+                end="",
+            )
+            print()
+            print_line()
+            for i, bangumi in enumerate(weekly_list[weekday.lower()]):
+                if bangumi["status"] in (STATUS_UPDATED, STATUS_FOLLOWED) and "episode" in bangumi:
+                    bangumi["name"] = "{}({:d})".format(bangumi["name"], bangumi["episode"])
+
+                width = wcwidth.wcswidth(bangumi["name"])
+                space_count = col - 2 - width
+
+                for s in SPACIAL_APPEND_CHARS:
+                    if s in bangumi["name"]:
+                        space_count += bangumi["name"].count(s)
+
+                for s in SPACIAL_REMOVE_CHARS:
+                    if s in bangumi["name"]:
+                        space_count -= bangumi["name"].count(s)
+
+                if bangumi["status"] == STATUS_FOLLOWED:
+                    bangumi["name"] = "{}{}{}".format(YELLOW, bangumi["name"], COLOR_END)
+
+                if bangumi["status"] == STATUS_UPDATED:
+                    bangumi["name"] = "{}{}{}".format(GREEN, bangumi["name"], COLOR_END)
+                try:
+                    print(" " + bangumi["name"], " " * space_count, end="")
+                except UnicodeEncodeError:
+                    continue
+
+                if (i + 1) % row == 0 or i + 1 == len(weekly_list[weekday.lower()]):
+                    print()
+            print()
+
+
+from bgmi.lib.fetch import website
+
+
+@cli.command("fetch")
+@click.argument("name")
+@click.option(
+    "--not-ignore", "not_ignore", is_flag=True, help="Do not ignore the old bangumi detail rows (3 month ago)"
+)
+def fetch(name: str, not_ignore: bool) -> None:
+    """
+    name: bangumi name to fetch
+    """
+
+    try:
+        bangumi_obj = Bangumi.get(name=name)
+    except Bangumi.DoesNotExist:
+        print_error(f"Bangumi {name} not exist", stop=True)
+        return
+
+    try:
+        Followed.get(bangumi_name=bangumi_obj.name)
+    except Followed.DoesNotExist:
+        print_error(f"Bangumi {name} is not followed")
+        return
+
+    followed_filter_obj = Filter.get(bangumi_name=name)
+    print_filter(followed_filter_obj)
+
+    print_info(f"Fetch bangumi {bangumi_obj.name} ...")
+    _, data = website.get_maximum_episode(bangumi_obj, ignore_old_row=not bool(not_ignore))
+
+    if not data:
+        print_warning("Nothing.")
+
+    max_episode = max(i.episode for i in data)
+    digest = len(str(max_episode))
+
+    for i in data:
+        episode = str(i.episode).rjust(digest)
+        print(f"{episode} | {i.title}")

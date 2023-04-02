@@ -51,7 +51,7 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
     # add bangumi by a list of bangumi name
     logger.debug("add name: %s episode: %d", name, episode)
     if not Bangumi.get_updating_bangumi():
-        website.fetch(save=True, group_by_weekday=False)
+        website.fetch(group_by_weekday=False)
 
     try:
         bangumi_obj = Bangumi.fuzzy_get(name=name)
@@ -184,10 +184,8 @@ def delete(name: str = "", clear_all: bool = False, batch: bool = False) -> Cont
     return result
 
 
-def cal(
-    force_update: bool = False, save: bool = False, cover: Optional[List[str]] = None
-) -> Dict[str, List[Dict[str, Any]]]:
-    logger.debug("cal force_update: %r save: %r", force_update, save)
+def cal(force_update: bool = False, cover: Optional[List[str]] = None) -> Dict[str, List[Dict[str, Any]]]:
+    logger.debug("cal force_update: {}", force_update)
 
     weekly_list = Bangumi.get_updating_bangumi()
     if not weekly_list:
@@ -196,7 +194,7 @@ def cal(
 
     if force_update:
         print_info("Fetching bangumi info ...")
-        website.fetch(save=save)
+        website.fetch()
 
     weekly_list = Bangumi.get_updating_bangumi()
 

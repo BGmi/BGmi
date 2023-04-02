@@ -1,3 +1,3 @@
-from bgmi.main import cli
+from bgmi.main import main
 
-cli()
+main()

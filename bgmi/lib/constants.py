@@ -89,80 +89,6 @@ COMMON_EXCLUDE_KEYWORD = UNSUPPORTED_VIDEO_CODING
 # There should be no `'` in any help message
 actions_and_arguments: List[dict] = [
     {
-        "action": ACTION_ADD,
-        "help": "Subscribe bangumi.",
-        "arguments": [
-            {
-                "dest": "name",
-                "kwargs": {"metavar": "name", "type": str, "nargs": "+", "help": "Bangumi name"},
-            },
-            {
-                "dest": "--episode",
-                "kwargs": {"metavar": "episode", "help": "Add bangumi and mark it as specified episode.", "type": int},
-            },
-            {
-                "dest": "--not-ignore",
-                "kwargs": {"action": "store_true", "help": "Do not ignore the old bangumi detail rows (3 month ago)."},
-            },
-        ],
-    },
-    {
-        "action": ACTION_DELETE,
-        "help": "Unsubscribe bangumi.",
-        "arguments": [
-            {
-                "dest": "--name",
-                "kwargs": {"metavar": "name", "nargs": "+", "type": str, "help": "Bangumi name to unsubscribe."},
-            },
-            {
-                "dest": "--clear-all",
-                "kwargs": {
-                    "action": "store_true",
-                    "help": "Clear all the subscriptions, name will be ignored If you " "provide this flag.",
-                },
-            },
-            {
-                "dest": "--batch",
-                "kwargs": {"action": "store_true", "help": "No confirmation."},
-            },
-        ],
-    },
-    {"action": ACTION_LIST, "help": "List subscribed bangumi."},
-    {
-        "action": ACTION_FILTER,
-        "help": "Set bangumi fetch filter.",
-        "arguments": [
-            {
-                "dest": "name",
-                "kwargs": {"metavar": "name", "type": str, "help": "Bangumi name to set the filter."},
-            },
-            {
-                "dest": "--subtitle",
-                "kwargs": {"metavar": "subtitle", "type": str, "help": 'Subtitle group name, split by ",".'},
-            },
-            {
-                "dest": "--include",
-                "kwargs": {
-                    "metavar": "include",
-                    "type": str,
-                    "help": 'Filter by keywords which in the title, split by ",".',
-                },
-            },
-            {
-                "dest": "--exclude",
-                "kwargs": {
-                    "metavar": "exclude",
-                    "type": str,
-                    "help": 'Filter by keywords which not int the title, split by ",".',
-                },
-            },
-            {
-                "dest": "--regex",
-                "kwargs": {"metavar": "regex", "type": str, "help": "Filter by regular expression"},
-            },
-        ],
-    },
-    {
         "action": ACTION_UPDATE,
         "help": "Update bangumi calendar and subscribed bangumi episode.",
         "arguments": [
@@ -184,54 +110,6 @@ actions_and_arguments: List[dict] = [
                 "dest": "--not-ignore",
                 "kwargs": {"action": "store_true", "help": "Do not ignore the old bangumi detail rows (3 month ago)."},
             },
-        ],
-    },
-    {
-        "action": ACTION_CAL,
-        "help": "Print bangumi calendar.",
-        "arguments": [
-            {
-                "dest": "--today",
-                "kwargs": {"action": "store_true", "help": "Show bangumi calendar for today."},
-            },
-            {
-                "dest": ["-f", "--force-update"],
-                "kwargs": {"action": "store_true", "help": "Get the newest bangumi calendar from current data source."},
-            },
-            {
-                "dest": "--download-cover",
-                "kwargs": {"action": "store_true", "help": "Download the cover to local"},
-            },
-            {
-                "dest": "--no-save",
-                "kwargs": {"action": "store_true", "help": "Do not save the bangumi data when force update."},
-            },
-        ],
-    },
-    {
-        "action": ACTION_CONFIG,
-        "help": "Show bgmi config.",
-        "arguments": [
-            {
-                "dest": "name",
-                "kwargs": {
-                    "nargs": "?",
-                    "type": str,
-                    "help": "Config name",
-                },
-            },
-            {
-                "dest": "value",
-                "kwargs": {"nargs": "?", "type": str, "help": "Config value"},
-            },
-        ],
-    },
-    {
-        "action": ACTION_MARK,
-        "help": "Mark bangumi episode.",
-        "arguments": [
-            {"dest": "name", "kwargs": {"type": str, "help": "Bangumi name"}},
-            {"dest": "episode", "kwargs": {"help": "Bangumi episode", "type": int}},
         ],
     },
     {
@@ -257,67 +135,6 @@ actions_and_arguments: List[dict] = [
         ],
     },
     {
-        "action": ACTION_FETCH,
-        "help": "Fetch bangumi.",
-        "arguments": [
-            {"dest": "name", "kwargs": {"help": "Bangumi name", "type": str}},
-            {
-                "dest": "--not-ignore",
-                "kwargs": {"action": "store_true", "help": "Do not ignore the old bangumi detail rows (3 month ago)."},
-            },
-        ],
-    },
-    {
-        "action": ACTION_SEARCH,
-        "help": "Search torrents from data source by keyword",
-        "arguments": [
-            {"dest": "keyword", "kwargs": {"help": "Search keyword", "type": str}},
-            {
-                "dest": "--count",
-                "kwargs": {"type": int, "help": "The max page count of search result."},
-            },
-            {
-                "dest": "--regex-filter",
-                "kwargs": {"type": str, "help": "Regular expression filter of title."},
-            },
-            {
-                "dest": "--download",
-                "kwargs": {"action": "store_true", "help": "Download search result."},
-            },
-            {
-                "dest": "--dupe",
-                "kwargs": {"action": "store_true", "help": "Show duplicated episode"},
-            },
-            {
-                "dest": "--min-episode",
-                "kwargs": {"metavar": "min_episode", "type": int, "help": "Minimum episode filter of title."},
-            },
-            dict(dest="--tag", kwargs=dict(action="store_true", help="Use tag to search")),
-            {
-                "dest": "--subtitle",
-                "kwargs": {"type": str, "help": "Subtitle group filter of title (Need --tag enabled)"},
-            },
-            {
-                "dest": "--max-episode",
-                "kwargs": {"metavar": "max_episode", "type": int, "help": "Maximum episode filter of title."},
-            },
-        ],
-    },
-    {
-        "action": ACTION_SOURCE,
-        "help": "Select date source bangumi_moe or mikan_project",
-        "arguments": [
-            {
-                "dest": "source",
-                "kwargs": {
-                    "help": "bangumi_moe or mikan_project",
-                    "type": str,
-                    "choices": [x["id"] for x in SUPPORT_WEBSITE],
-                },
-            },
-        ],
-    },
-    {
         "action": ACTION_CONFIG_GEN,
         "help": "Generate config for nginx",
         "arguments": [
@@ -331,8 +148,6 @@ actions_and_arguments: List[dict] = [
             },
         ],
     },
-    {"action": "install", "help": "Install BGmi front / admin / download delegate"},
-    {"action": "upgrade", "help": "Check update."},
     {"action": "history", "help": "List your history of following bangumi"},
 ]
 
