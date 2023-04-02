@@ -2,7 +2,6 @@ import unittest
 
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.lib.controllers import add, cal, delete, mark, recreate_source_relatively_table, search
-from bgmi.main import setup
 
 
 class ControllersTest(unittest.TestCase):
@@ -57,6 +56,5 @@ class ControllersTest(unittest.TestCase):
         search(self.bangumi_name_1, dupe=False)
 
     @staticmethod
-    def setUpClass():
-        setup()
+    def setUpClass(*args):
         recreate_source_relatively_table()
