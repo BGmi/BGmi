@@ -198,7 +198,7 @@ global_filters
 
 ## 修改配置
 
-使用 `bgmi config set ...` 命令可以修改配置。
+使用 `bgmi config set [...keys...] value` 命令可以修改配置。
 
 如：
 
