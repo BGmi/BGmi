@@ -30,9 +30,12 @@ from bgmi.utils import (
     get_web_admin,
     print_error,
     print_info,
+    print_success,
     print_version,
     print_warning,
 )
+
+__all__ = ["test_main", "main", "print_success"]
 
 
 def main() -> None:
