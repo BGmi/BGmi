@@ -51,7 +51,7 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
     # add bangumi by a list of bangumi name
     logger.debug("add name: %s episode: %d", name, episode)
     if not Bangumi.get_updating_bangumi():
-        website.fetch(save=True, group_by_weekday=False)
+        website.fetch(group_by_weekday=False)
 
     try:
         bangumi_obj = Bangumi.fuzzy_get(name=name)
@@ -184,10 +184,8 @@ def delete(name: str = "", clear_all: bool = False, batch: bool = False) -> Cont
     return result
 
 
-def cal(
-    force_update: bool = False, save: bool = False, cover: Optional[List[str]] = None
-) -> Dict[str, List[Dict[str, Any]]]:
-    logger.debug("cal force_update: %r save: %r", force_update, save)
+def cal(force_update: bool = False, cover: Optional[List[str]] = None) -> Dict[str, List[Dict[str, Any]]]:
+    logger.debug("cal force_update: {}", force_update)
 
     weekly_list = Bangumi.get_updating_bangumi()
     if not weekly_list:
@@ -196,7 +194,7 @@ def cal(
 
     if force_update:
         print_info("Fetching bangumi info ...")
-        website.fetch(save=save)
+        website.fetch()
 
     weekly_list = Bangumi.get_updating_bangumi()
 
@@ -343,7 +341,7 @@ def source(data_source: str) -> ControllerResult:
     return result
 
 
-def update(name: List[str], download: Optional[Any] = None, not_ignore: bool = False) -> ControllerResult:
+def update(names: List[str], download: Optional[bool] = False, not_ignore: bool = False) -> ControllerResult:
     logger.debug("updating bangumi info with args: download: %r", download)
     result: Dict[str, Any] = {
         "status": "info",
@@ -355,9 +353,9 @@ def update(name: List[str], download: Optional[Any] = None, not_ignore: bool = F
     print_info("marking bangumi status ...")
     now = int(time.time())
 
-    for i in Followed.get_all_followed():
-        if i["updated_time"] and int(i["updated_time"] + 60 * 60 * 24) < now:
-            followed_obj = Followed.get(bangumi_name=i["bangumi_name"])
+    for follow in Followed.get_all_followed():
+        if follow["updated_time"] and int(follow["updated_time"] + 60 * 60 * 24) < now:
+            followed_obj = Followed.get(bangumi_name=follow["bangumi_name"])
             followed_obj.status = STATUS_FOLLOWED
             followed_obj.save()
 
@@ -368,19 +366,12 @@ def update(name: List[str], download: Optional[Any] = None, not_ignore: bool = F
             obj.save()
 
     print_info("updating subscriptions ...")
-    download_queue = []
 
-    if download:
-        if not name:
-            print_warning("No specified bangumi, ignore `--download` option")
-        if len(name) > 1:
-            print_warning("Multiple specified bangumi, ignore `--download` option")
-
-    if not name:
+    if not names:
         updated_bangumi_obj = Followed.get_all_followed()
     else:
         updated_bangumi_obj = []
-        for n in name:
+        for n in names:
             try:
                 f = Followed.get(bangumi_name=n)
                 f = model_to_dict(f)
@@ -392,6 +383,7 @@ def update(name: List[str], download: Optional[Any] = None, not_ignore: bool = F
     script_download_queue = runner.run()
 
     for subscribe in updated_bangumi_obj:
+        download_queue = []
         print_info(f"fetching {subscribe['bangumi_name']} ...")
         try:
             bangumi_obj = Bangumi.get(name=subscribe["bangumi_name"])
@@ -412,17 +404,14 @@ def update(name: List[str], download: Optional[Any] = None, not_ignore: bool = F
             print_warning(f"error {e} to fetch {bangumi_obj.name}, skip")
             continue
 
-        if (episode > subscribe["episode"]) or (len(name) == 1 and download):
-            if len(name) == 1 and download:
-                episode_range = download
-            else:
-                episode_range = range(subscribe["episode"] + 1, episode + 1)
-                print_success(f"{subscribe['bangumi_name']} updated, episode: {episode:d}")
-                followed_obj.episode = episode
-                followed_obj.status = STATUS_UPDATED
-                followed_obj.updated_time = int(time.time())
-                followed_obj.save()
-                result["data"]["updated"].append({"bangumi": subscribe["bangumi_name"], "episode": episode})
+        if episode > subscribe["episode"]:
+            episode_range = range(subscribe["episode"] + 1, episode + 1)
+            print_success(f"{subscribe['bangumi_name']} updated, episode: {episode:d}")
+            followed_obj.episode = episode
+            followed_obj.status = STATUS_UPDATED
+            followed_obj.updated_time = int(time.time())
+            followed_obj.save()
+            result["data"]["updated"].append({"bangumi": subscribe["bangumi_name"], "episode": episode})
 
             for i in episode_range:
                 for epi in all_episode_data:
@@ -430,17 +419,17 @@ def update(name: List[str], download: Optional[Any] = None, not_ignore: bool = F
                         download_queue.append(epi)
                         break
 
-    if download is not None:
-        result["data"]["downloaded"] = download_queue
-        download_prepare(download_queue)
-        download_prepare(script_download_queue)
-        print_info("Re-downloading ...")
-        download_prepare(
-            [
-                Episode(**{key: value for key, value in x.items() if key not in ["id", "status"]})
-                for x in Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD)
-            ]
-        )
+        if download:
+            result["data"]["downloaded"] = download_queue
+            download_prepare(download_queue)
+            download_prepare(script_download_queue)
+            print_info("Re-downloading ...")
+            download_prepare(
+                [
+                    Episode(**{key: value for key, value in x.items() if key not in ["id", "status"]})
+                    for x in Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD)
+                ]
+            )
 
     return result
 

@@ -48,15 +48,14 @@ class BaseWebsite:
                 ).on_conflict_replace()
             ).execute()
 
-    def fetch(self, save: bool = False, group_by_weekday: bool = True) -> Any:
+    def fetch(self, group_by_weekday: bool = True) -> Any:
         bangumi_result = self.fetch_bangumi_calendar()
         if not bangumi_result:
             print("can't fetch anything from website")
             return []
         Bangumi.delete_all()
-        if save:
-            for bangumi in bangumi_result:
-                self.save_bangumi(bangumi)
+        for bangumi in bangumi_result:
+            self.save_bangumi(bangumi)
 
         if group_by_weekday:
             result_group_by_weekday = defaultdict(list)

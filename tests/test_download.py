@@ -6,7 +6,7 @@ import pytest
 from bgmi.config import cfg
 from bgmi.lib.controllers import update
 from bgmi.lib.models import Bangumi, Followed
-from bgmi.main import main
+from bgmi.main import main_for_test
 from bgmi.website.model import Episode
 
 
@@ -20,7 +20,7 @@ def test_search_download(mock_download_driver: mock.Mock):
         ]
     )
     with mock.patch("bgmi.lib.controllers.website", mock_website):
-        main("search 海贼王 --download".split())
+        main_for_test("search 海贼王 --download".split())
 
     mock_website.search_by_keyword.assert_called_once_with("海贼王", count=cfg.max_path)
 
@@ -71,7 +71,7 @@ def test_search_with_filter(mock_download_driver: mock.Mock):
     )
 
     with mock.patch("bgmi.lib.controllers.website", mock_website):
-        main("search 海贼王 --download --regex .*720.*".split())
+        main_for_test("search 海贼王 --download --regex-filter .*720.*".split())
 
     mock_website.search_by_keyword.assert_called_once_with("海贼王", count=cfg.max_path)
 
