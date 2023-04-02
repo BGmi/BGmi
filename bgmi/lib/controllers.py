@@ -423,7 +423,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             result["data"]["downloaded"] = download_queue
             download_prepare(download_queue)
             download_prepare(script_download_queue)
-            print_info("Re-downloading ...")
+            print_info("downloading ...")
             download_prepare(
                 [
                     Episode(**{key: value for key, value in x.items() if key not in ["id", "status"]})
