@@ -29,6 +29,6 @@ if cookies_file.exists():
 
 @atexit.register
 def save_cookies() -> None:
-    if cookies_file.parent.exists() and cookies_file.exists():
+    if cookies_file.parent.exists() and cookies_file.parent.is_dir():
         with open(cookies_file, "wb") as f:
             pickle.dump(session.cookies, f)
