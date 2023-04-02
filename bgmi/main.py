@@ -75,6 +75,7 @@ def install() -> None:
         install_crontab()
 
     write_default_config()
+    update_database()
     get_web_admin(method="install")
 
 

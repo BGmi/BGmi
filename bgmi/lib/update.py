@@ -1,12 +1,13 @@
-import os
 import sqlite3
 from pathlib import Path
 
+import semver
+
 from bgmi import __version__
 from bgmi.config import BGMI_PATH, cfg
-from bgmi.utils import print_error, print_info
+from bgmi.utils import COLOR_END, RED, print_error, print_info
 
-OLD = BGMI_PATH.joinpath("old")
+old_version_file = BGMI_PATH.joinpath("old")
 
 
 def exec_sql(sql: str, db: Path = cfg.db_path) -> None:
@@ -21,14 +22,22 @@ def exec_sql(sql: str, db: Path = cfg.db_path) -> None:
 
 
 def update_database() -> None:
-    if not os.path.exists(OLD):
-        with open(OLD, "w", encoding="utf8") as f:
-            f.write(__version__)
-    else:
-        with open(OLD, "r+", encoding="utf8") as f:
-            f.read()
-            f.seek(0)
-            f.write(__version__)
+    if not old_version_file.exists():
+        old_version_file.write_text(__version__, encoding="utf8")
+        return
 
-    # if v < "1.0.25":
-    #     pass
+    previous = semver.VersionInfo.parse(old_version_file.read_text(encoding="utf8"))
+    if previous < semver.VersionInfo(major=4):
+        print_error(
+            (
+                "can't automatically upgrade from <4.0.0 version, "
+                + " please backup your .bgmi files, remove them and use `bgmi install`\n"
+                + RED
+                + "All Data will lost, you will need to re-add your bangumi after re-install"
+                + COLOR_END
+            ),
+            stop=True,
+        )
+
+    # all upgrade done, write current version
+    old_version_file.write_text(__version__, encoding="utf8")
