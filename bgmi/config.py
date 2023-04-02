@@ -154,7 +154,7 @@ def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
 
     for name, field in obj.__fields__.items():
         if issubclass(field.type_, BaseModel):
-            doc.add(name, pydantic_to_toml(getattr(obj, name)))
+            doc.add(name, pydantic_to_toml(getattr(obj, name)))  # type: ignore
             continue
 
         value = d[name]
@@ -162,7 +162,7 @@ def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
         if isinstance(value, Path):
             item = tomlkit.item(str(value))
         else:
-            item = tomlkit.item(value)
+            item = tomlkit.item(value)  # type: ignore
 
         desc: Optional[str] = field.field_info.description
         if desc:
