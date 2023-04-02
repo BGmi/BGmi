@@ -35,17 +35,17 @@ from bgmi.utils import (
 )
 
 
-def main(args=None, standalone_mode=True) -> None:
+def main() -> None:
     logger.remove()
     logger.add(
         sys.stderr, format="<blue>{time:YYYY-MM-DD HH:mm:ss}</blue> {level:7} | <level>{message}</level>", level="INFO"
     )
     logger.add(cfg.log_path.parent.joinpath("{time:YYYY-MM-DD}.log"), format="{time} {level} {message}", level="INFO")
 
-    cli.main(args=args, prog_name="bgmi", standalone_mode=standalone_mode)
+    cli.main(prog_name="bgmi")
 
 
-def test_main(args=None) -> None:
+def test_main(args: Optional[List[str]] = None) -> None:
     cli.main(args=args, prog_name="bgmi", standalone_mode=False)
 
 
