@@ -237,8 +237,13 @@ def fetch_(ret: Any) -> None:
 
     if not data:
         print_warning("Nothing.")
+
+    max_episode = max(i.episode for i in data)
+    digest = len(str(max_episode))
+
     for i in data:
-        print_success(i.title)
+        episode = str(i.episode).rjust(digest)
+        print(f"{episode} | {i.title}")
 
 
 def complete(ret: Any) -> None:
