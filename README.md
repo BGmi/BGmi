@@ -416,9 +416,7 @@ danmaku_api_url = "https://api.prprpr.me/dplayer/"  # This api is provided by dp
 
 ## 调试
 
-设置环境变量`BGMI_LOG`为`debug`, `info`, `warning`, 或者`error`
-
-log 文件位于`{TMP_PATH}/bgmi.log`
+log 文件位于`{BGMI_PATH}/tmp/`
 
 ## 卸载
 
