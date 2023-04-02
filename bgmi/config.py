@@ -5,12 +5,11 @@ import platform
 import secrets
 import tempfile
 from pathlib import Path
-from typing import Dict, List, cast
+from typing import Dict, List, Optional, cast
 
 import pydantic
 import strenum
-import tomli
-import tomli_w
+import tomlkit
 from pydantic import BaseModel, Extra, Field, HttpUrl
 
 
@@ -143,12 +142,40 @@ class Config(BaseSetting):
     save_path_map: Dict[str, Path] = Field(default_factory=dict, description="per-bangumi save path")
 
     def save(self) -> None:
-        CONFIG_FILE_PATH.write_text(tomli_w.dumps(json.loads(self.json())), encoding="utf8")
+        s = tomlkit.dumps(json.loads(self.json()))
+
+        CONFIG_FILE_PATH.write_text(s, encoding="utf8")
+
+
+def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
+    doc = tomlkit.document()
+
+    d = obj.dict()
+
+    for name, field in obj.__fields__.items():
+        if issubclass(field.type_, BaseModel):
+            doc.add(name, pydantic_to_toml(getattr(obj, name)))
+            continue
+
+        value = d[name]
+
+        if isinstance(value, Path):
+            item = tomlkit.item(str(value))
+        else:
+            item = tomlkit.item(value)
+
+        desc: Optional[str] = field.field_info.description
+        if desc:
+            item.comment(desc)
+
+        doc.add(name, item)
+
+    return doc
 
 
 if CONFIG_FILE_PATH.exists():
     try:
-        cfg = Config.parse_obj(tomli.loads(CONFIG_FILE_PATH.read_text(encoding="utf8")))
+        cfg = Config.parse_obj(tomlkit.loads(CONFIG_FILE_PATH.read_text(encoding="utf8")))
     except pydantic.ValidationError as e:
         print("配置文件错误，请手动编辑配置文件后重试")
         print("配置文件位置：", CONFIG_FILE_PATH)
@@ -159,13 +186,15 @@ else:
 
 
 def print_config() -> str:
-    return tomli_w.dumps(json.loads(cfg.json()))
+    return tomlkit.dumps(json.loads(cfg.json()))
 
 
 def write_default_config() -> None:
     if not CONFIG_FILE_PATH.exists():
-        Config().save()
+        doc = pydantic_to_toml(Config())
+
+        CONFIG_FILE_PATH.write_text(tomlkit.dumps(doc))
 
 
 if __name__ == "__main__":
-    write_default_config()
+    Config().save()
