@@ -35,7 +35,7 @@ from bgmi.utils import (
 )
 
 
-def main():
+def main() -> None:
     logger.remove()
     logger.add(
         sys.stderr, format="<blue>{time:YYYY-MM-DD HH:mm:ss}</blue> {level:7} | <level>{message}</level>", level="INFO"
@@ -48,13 +48,13 @@ def main():
 @click.group(name="bgmi")
 @click.version_option(__version__, package_name="bgmi", prog_name="bgmi", message=print_version())
 @click.pass_context
-def cli(ctx: click.Context):
+def cli(ctx: click.Context) -> None:
     if ctx.command not in ["install", "upgrade", "complete"]:
         check_update()
 
 
 @cli.command(help="Install BGmi and frontend")
-def install():
+def install() -> None:
     get_web_admin(method="install")
     need_to_init = False
     if not os.path.exists(BGMI_PATH):
@@ -70,7 +70,7 @@ def install():
 
 
 @cli.command(help="upgrade from previous version")
-def upgrade():
+def upgrade() -> None:
     create_dir()
     update_database()
     check_update()
@@ -97,7 +97,7 @@ def source(bangumi_source: str) -> None:
 
 
 @cli.command()
-def config():
+def config() -> None:
     print(print_config())
 
 
@@ -123,7 +123,7 @@ def search(
     max_episode: int,
     tag: bool,
     subtitle: str,
-):
+) -> None:
     result = ctl.search(
         keyword=keyword,
         count=count,
@@ -192,7 +192,7 @@ def delete(name: List[str], clear: bool, yes: bool) -> None:
 
 
 @cli.command("list", help="list subscribed bangumi")
-def list_command():
+def list_command() -> None:
     result = ctl.list_()
     print(result["message"])
 
@@ -273,7 +273,7 @@ def print_filter(followed_filter_obj: Filter) -> None:
     type=bool,
     help="download the cover to local",
 )
-def calendar(force_update: bool, today: bool, download_cover: bool):
+def calendar(force_update: bool, today: bool, download_cover: bool) -> None:
     runner = ScriptRunner()
     cover: Optional[List[str]] = None
 
@@ -398,7 +398,7 @@ def fetch(name: str, not_ignore: bool) -> None:
 @click.option(
     "--not-ignore", "not_ignore", is_flag=True, help="Do not ignore the old bangumi detail rows (3 month ago)"
 )
-def update(names: List[str], download: bool, not_ignore: bool):
+def update(names: List[str], download: bool, not_ignore: bool) -> None:
     """
     name: optional bangumi name list you want to update
     """
@@ -408,7 +408,7 @@ def update(names: List[str], download: bool, not_ignore: bool):
 @cli.command("gen")
 @click.argument("tpl", type=click.Choice(["nginx.conf"]))
 @click.option("--server-name", "server_name")
-def generate_config(tpl: str, server_name: str):
+def generate_config(tpl: str, server_name: str) -> None:
     template_file_path = os.path.join(os.path.dirname(__file__), "others", "nginx.conf")
 
     with open(template_file_path, encoding="utf8") as template_file:
