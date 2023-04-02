@@ -37,7 +37,7 @@ BGmi 是一个用来追番的命令行程序.
 ## 特性
 
 - 多个数据源可选: [bangumi_moe](https://bangumi.moe), [mikan_project](https://mikanani.me) 或者[dmhy](https://share.dmhy.org/)
-- 使用 aria2, transmission 或者 deluge 来下载你的番剧.
+- 使用 aria2, transmission, qbittorrent 或者 deluge 来下载你的番剧.
 - 提供一个管理和观看订阅番剧的前端.
 - 弹幕支持
 - 提供 uTorrent 支持的 RSS Feed 和移动设备支持的 ICS 格式日历.
