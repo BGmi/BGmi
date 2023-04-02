@@ -198,18 +198,19 @@ global_filters
 
 ## 修改配置
 
-使用 `bgmi config set [...keys...] value` 命令可以修改配置。
+使用 `bgmi config set ...keys  --value '...'` 命令可以修改配置。
 
 如：
 
 ```shell
-bgmi config set http admin_token 'my super secret token'
+bgmi config set http admin_token --value 'my super secret token'
 ```
 
 或者
 
 ```shell
-bgmi config set max_path '3'
+bgmi config set max_path --value '3'
+
 ```
 
 不能用来修改复杂配置，如 `global_filters`，请手动修改配置文件。

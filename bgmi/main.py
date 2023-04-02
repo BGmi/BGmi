@@ -3,7 +3,7 @@ import itertools
 import os
 import sys
 from operator import itemgetter
-from typing import List, Optional, Tuple
+from typing import List, Mapping, Optional, Tuple
 
 import click
 import pydantic
@@ -106,7 +106,7 @@ def config_print() -> None:
 
 @config.command("set")
 @click.argument("keys", nargs=-1)
-@click.argument("value", nargs=1)
+@click.option("--value", required=True)
 def config_set(keys: List[str], value: str) -> None:
     doc = tomlkit.loads(CONFIG_FILE_PATH.read_text(encoding="utf-8"))
 
@@ -116,6 +116,10 @@ def config_set(keys: List[str], value: str) -> None:
     res = doc
     for key in keys[:-1]:
         res = res.setdefault(key, {})
+        if isinstance(res, Mapping):
+            continue
+        else:
+            print_error(f"value of key '{key}' is not object, can't update its attribute")
 
     res[keys[-1]] = value
 
@@ -131,7 +135,7 @@ def config_set(keys: List[str], value: str) -> None:
 
 @config.command("get")
 @click.argument("keys", nargs=-1)
-def config_set(keys: List[str]) -> None:
+def config_get(keys: List[str]) -> None:
     doc = tomlkit.loads(CONFIG_FILE_PATH.read_text(encoding="utf-8"))
     res = doc
 
