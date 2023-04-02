@@ -116,9 +116,7 @@ def config_set(keys: List[str], value: str) -> None:
     res = doc
     for key in keys[:-1]:
         res = res.setdefault(key, {})
-        if isinstance(res, Mapping):
-            continue
-        else:
+        if not isinstance(res, Mapping):
             print_error(f"value of key '{key}' is not object, can't update its attribute")
 
     res[keys[-1]] = value
@@ -130,7 +128,7 @@ def config_set(keys: List[str], value: str) -> None:
         print("config is not valid after change, won't write to config file")
         return
 
-    return CONFIG_FILE_PATH.write_text(tomlkit.dumps(doc))
+    CONFIG_FILE_PATH.write_text(tomlkit.dumps(doc))
 
 
 @config.command("get")
