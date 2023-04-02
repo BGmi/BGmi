@@ -396,18 +396,12 @@ def update(name: List[str], download: Optional[Any] = None, not_ignore: bool = F
         try:
             bangumi_obj = Bangumi.get(name=subscribe["bangumi_name"])
         except Bangumi.DoesNotExist:
-            print_error(
-                "Bangumi<{}> does not exists.".format(subscribe["bangumi_name"]),
-                exit_=False,
-            )
+            logger.error("Bangumi<{}> does not exists.", subscribe["bangumi_name"])
             continue
         try:
             followed_obj = Followed.get(bangumi_name=subscribe["bangumi_name"])
         except Followed.DoesNotExist:
-            print_error(
-                "Bangumi<{}> is not followed.".format(subscribe["bangumi_name"]),
-                exit_=False,
-            )
+            logger.error("Bangumi<{}> is not followed.", subscribe["bangumi_name"])
             continue
 
         try:

@@ -2,7 +2,6 @@ import functools
 import glob
 import gzip
 import json
-import logging
 import os
 import re
 import struct
@@ -20,6 +19,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar
 import requests
 import semver
 from anime_episode_parser import parse_episode as _parse_episode
+from loguru import logger
 
 from bgmi import __admin_version__, __version__
 from bgmi.config import BGMI_PATH, IS_WINDOWS, cfg
@@ -27,37 +27,6 @@ from bgmi.lib.constants import SUPPORT_WEBSITE
 from bgmi.website.model import Episode
 
 F = TypeVar("F", bound=Callable[..., Any])
-
-log_level = os.environ.get("BGMI_LOG") or "ERROR"
-log_level = log_level.upper()
-if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR"]:
-    print("log level error, doing nothing and exit")
-    sys.exit(1)
-logger = logging.getLogger("BGmi")
-try:
-    h = logging.FileHandler(cfg.log_path, "a+", "utf-8")
-    handlers = [h]
-    fs = logging.BASIC_FORMAT
-    fmt = logging.Formatter(fs)
-    h.setFormatter(fmt)
-    logging.root.addHandler(h)
-    logging.root.setLevel(log_level)
-except OSError:
-    logging.basicConfig(stream=sys.stdout, level=logging.getLevelName(log_level))
-
-
-def log_utils_function(func: F) -> F:
-    @functools.wraps(func)
-    def echo_func(*func_args, **func_kwargs):  # type: ignore
-        logger.debug("")
-        logger.debug("start function %s %r %r", func.__name__, func_args, func_kwargs)
-        r = func(*func_args, **func_kwargs)
-        logger.debug("return function %s %r", func.__name__, r)
-        logger.debug("")
-        return r
-
-    return echo_func  # type: ignore
-
 
 if (
     IS_WINDOWS and "bash" not in os.getenv("SHELL", "").lower() and "zsh" not in os.getenv("SHELL", "").lower()
@@ -87,59 +56,21 @@ indicator_map = {
 }
 
 
-def _indicator(f):  # type: ignore
-    @functools.wraps(f)
-    def wrapper(*args, **kwargs):  # type: ignore
-        if kwargs.get("indicator", True):
-            func_name = f.__qualname__
-            args = (indicator_map.get(func_name, "") + args[0],)
-        f(*args, **kwargs)
-        sys.stdout.flush()
-
-    return wrapper
-
-
-def colorize(f):  # type: ignore
-    @functools.wraps(f)
-    def wrapper(*args, **kwargs):  # type: ignore
-        func_name = f.__qualname__
-        b, e = (
-            color_map.get(func_name, ""),
-            COLOR_END if color_map.get(func_name) else "",
-        )
-        args = tuple(b + s + e for s in args)
-        return f(*args, **kwargs)
-
-    return wrapper
-
-
-@_indicator
-@colorize
 def print_info(message: str, indicator: bool = True) -> None:
     logger.info(message)
-    print(message + "\n", end="")
 
 
-@_indicator
-@colorize
 def print_success(message: str, indicator: bool = True) -> None:
     logger.info(message)
-    print(message)
 
 
-@_indicator
-@colorize
 def print_warning(message: str, indicator: bool = True) -> None:
     logger.warning(message)
-    print(message)
 
 
-@_indicator
-@colorize
-def print_error(message: str, exit_: bool = True, indicator: bool = True) -> None:
+def print_error(message: str, stop: bool = True, indicator: bool = True) -> None:
     logger.error(message)
-    print(message)
-    if exit_:
+    if stop:
         sys.exit(1)
 
 
@@ -153,7 +84,6 @@ Blog: https://ricterz.me""".format(
     )
 
 
-@log_utils_function
 def test_connection() -> bool:
     try:
         for website in SUPPORT_WEBSITE:
@@ -174,7 +104,6 @@ def bug_report() -> None:  # pragma: no cover
 _DEFAULT_TERMINAL_WIDTH = 80
 
 
-@log_utils_function
 def get_terminal_col() -> int:  # pragma: no cover
     # pylint: disable=import-outside-toplevel,import-error
     # https://gist.github.com/jtriley/1108174
@@ -249,7 +178,6 @@ def latest_npm_package_version() -> semver.VersionInfo:
     return max(available_versions)
 
 
-@log_utils_function
 def check_update(mark: bool = True) -> None:
     def update() -> None:
         try:
@@ -380,7 +308,6 @@ def get_web_admin(method: str) -> None:
     print_success("Web admin page {} successfully. version: {}".format(method, version["version"]))
 
 
-@log_utils_function
 def convert_cover_url_to_path(cover_url: str) -> Tuple[str, str]:
     """
     convert bangumi cover to file path
@@ -399,8 +326,8 @@ def convert_cover_url_to_path(cover_url: str) -> Tuple[str, str]:
     return dir_path, file_path
 
 
-@log_utils_function
 def download_file(url: str) -> Optional[requests.Response]:
+    logger.debug("downloading {}", url)
     if url.startswith("https://") or url.startswith("http://"):
         print_info(f"Download: {url}")
         return requests.get(url, timeout=60)

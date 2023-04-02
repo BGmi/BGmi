@@ -377,7 +377,7 @@ CONTROLLERS_DICT = {
 
 
 def controllers(ret: Any) -> None:
-    logger.info(ret)
+    logger.debug(ret)
     func = CONTROLLERS_DICT.get(ret.action, None)
     if not callable(func):
         return

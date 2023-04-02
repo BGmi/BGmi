@@ -1,8 +1,11 @@
 import argparse
 import os
+import sys
 from typing import List, Optional
 
-from bgmi.config import BGMI_PATH, write_default_config
+from loguru import logger
+
+from bgmi.config import BGMI_PATH, cfg, write_default_config
 from bgmi.lib.cli import controllers
 from bgmi.lib.constants import ACTION_COMPLETE, actions_and_arguments
 from bgmi.lib.update import update_database
@@ -50,6 +53,12 @@ def main(argv: Optional[List[str]] = None) -> None:
 
 
 def setup() -> None:
+    logger.remove()
+    # logger.add(sys.stderr, format="<blue>{time}</blue> {level} <level>{message}</level>", level="ERROR")
+    logger.add(
+        sys.stdout, format="<blue>{time:YYYY-MM-DD HH:mm:ss}</blue> {level:7} | <level>{message}</level>", level="INFO"
+    )
+    logger.add(cfg.log_path.parent.joinpath("{time:YYYY-MM-DD}.log"), format="{time} {level} {message}", level="INFO")
     need_to_init = False
     if not os.path.exists(BGMI_PATH):
         need_to_init = True

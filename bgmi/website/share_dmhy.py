@@ -6,6 +6,7 @@ from typing import List, Optional
 
 import requests
 from bs4 import BeautifulSoup
+from loguru import logger
 
 from bgmi.config import cfg
 from bgmi.utils import print_error
@@ -20,13 +21,8 @@ def fetch_url(url, **kwargs):
     try:
         ret = requests.get(url, timeout=60, **kwargs).text
     except requests.ConnectionError:
-        print_error(
-            f"Create connection to {base_url}... failed",
-            exit_=False,
-        )
-        print_error(
-            "Check internet connection or try to set a DMHY mirror site via: bgmi config SHARE_DMHY_URL <site url>"
-        )
+        logger.error("Create connection to {}... failed", base_url)
+        print_error("Check internet connection or try to set a DMHY mirror site with share_dmhy_url in config")
 
     return ret
 

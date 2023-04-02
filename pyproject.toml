@@ -64,6 +64,7 @@ tomli-w = "1.0.0"
 strenum = "0.4.10"
 anime-episode-parser = "^0.0.8"
 semver = "2.13.0"
+loguru = "^0.6.0"
 
 [tool.poetry.dev-dependencies]
 # tests

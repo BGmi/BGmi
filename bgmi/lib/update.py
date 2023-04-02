@@ -17,7 +17,7 @@ def exec_sql(sql: str, db: Path = cfg.db_path) -> None:
         conn.commit()
         conn.close()
     except sqlite3.OperationalError:  # pragma: no cover
-        print_error("Execute SQL statement failed", exit_=False)
+        print_error("Execute SQL statement failed", stop=False)
 
 
 def update_database() -> None:
