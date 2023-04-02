@@ -440,7 +440,7 @@ schtasks /Delete /TN 'bgmi updater'
 
 你可以写一个`BGmi Script`来解析你自己的想看的番剧或者美剧. BGmi 会加载你的 script, 视作一个番剧来对待. 而你所需要做的只是继承`ScriptBase`类, 然后实现特定的方法, 再把你的 script 文件放到`BGMI_PATH/script`文件夹内.
 
-Example: <./tests/script_example.py>
+Example: [./tests/script_example.py](./tests/script_example.py)
 
 `get_download_url()`返回一个`dict`, 以对应集数为键, 对应的下载链接为值
 
