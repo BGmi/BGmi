@@ -1,31 +1,29 @@
 import datetime
+import itertools
 import os
 import sys
+from operator import itemgetter
 from typing import Any, List, Optional, Tuple
 
 import click as click
 import wcwidth as wcwidth
 from loguru import logger
+from tornado import template
 
 from bgmi import __version__
 from bgmi.config import BGMI_PATH, CONFIG_FILE_PATH, cfg, print_config, write_default_config
 from bgmi.lib import controllers as ctl
-from bgmi.lib.cli import print_filter
-from bgmi.lib.constants import (
-    ACTION_COMPLETE,
-    BANGUMI_UPDATE_TIME,
-    SPACIAL_APPEND_CHARS,
-    SPACIAL_REMOVE_CHARS,
-    SUPPORT_WEBSITE,
-)
+from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE
 from bgmi.lib.download import download_prepare
-from bgmi.lib.models import STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, Filter, Followed
+from bgmi.lib.fetch import website
+from bgmi.lib.models import STATUS_DELETED, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, Filter, Followed, Subtitle
 from bgmi.lib.update import update_database
 from bgmi.script import ScriptRunner
 from bgmi.setup import create_dir, init_db, install_crontab
 from bgmi.utils import (
     COLOR_END,
     GREEN,
+    RED,
     YELLOW,
     check_update,
     get_terminal_col,
@@ -51,7 +49,7 @@ def main():
 @click.version_option(__version__, package_name="bgmi", prog_name="bgmi", message=print_version())
 @click.pass_context
 def cli(ctx: click.Context):
-    if ctx.command not in ["install", "upgrade", ACTION_COMPLETE]:
+    if ctx.command not in ["install", "upgrade", "complete"]:
         check_update()
 
 
@@ -233,6 +231,19 @@ def filter_cmd(
         print_filter(followed_filter_obj)
 
 
+def print_filter(followed_filter_obj: Filter) -> None:
+    print(
+        "Followed subtitle group: {}".format(
+            ", ".join(x["name"] for x in Subtitle.get_subtitle_by_id(followed_filter_obj.subtitle.split(", ")))
+            if followed_filter_obj.subtitle
+            else "None"
+        )
+    )
+    print(f"Include keywords: {followed_filter_obj.include}")
+    print(f"Exclude keywords: {followed_filter_obj.exclude}")
+    print(f"Regular expression: {followed_filter_obj.regex}")
+
+
 @cli.command("cal")
 @click.option(
     "-f",
@@ -337,9 +348,6 @@ def calendar(force_update: bool, today: bool, download_cover: bool):
             print()
 
 
-from bgmi.lib.fetch import website
-
-
 @cli.command("fetch")
 @click.argument("name")
 @click.option(
@@ -377,3 +385,93 @@ def fetch(name: str, not_ignore: bool) -> None:
     for i in data:
         episode = str(i.episode).rjust(digest)
         print(f"{episode} | {i.title}")
+
+
+@cli.command("update", help="Update bangumi calendar and subscribed bangumi episode.")
+@click.argument(
+    "names",
+    nargs=-1,
+)
+@click.option(
+    "-d", "--download", is_flag=True, default=False, help="Download specified episode of the bangumi when updated"
+)
+@click.option(
+    "--not-ignore", "not_ignore", is_flag=True, help="Do not ignore the old bangumi detail rows (3 month ago)"
+)
+def update(names: List[str], download: bool, not_ignore: bool):
+    """
+    name: optional bangumi name list you want to update
+    """
+    ctl.update(names, download=download, not_ignore=not_ignore)
+
+
+@cli.command("gen")
+@click.argument("tpl", type=click.Choice(["nginx.conf"]))
+@click.option("--server-name", "server_name")
+def generate_config(tpl: str, server_name: str):
+    template_file_path = os.path.join(os.path.dirname(__file__), "others", "nginx.conf")
+
+    with open(template_file_path, encoding="utf8") as template_file:
+        shell_template = template.Template(template_file.read(), autoescape="")
+
+    template_with_content = shell_template.generate(
+        server_name=server_name,
+        os_sep=os.sep,
+        front_static_path=str(cfg.front_static_path.as_posix()),
+        save_path=str(cfg.save_path.as_posix()),
+    )
+
+    print(template_with_content.decode("utf-8"))
+
+
+@cli.command("history", help="list your history of following bangumi")
+def history() -> None:
+    m = (
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+    )
+    data = Followed.select(Followed).order_by(Followed.updated_time.asc())
+    bangumi_data = Bangumi.get_updating_bangumi()
+    year = None
+    month = None
+
+    updating_bangumi = list(map(itemgetter("name"), itertools.chain(*bangumi_data.values())))
+
+    print("Bangumi Timeline")
+    for i in data:
+        if i.status == STATUS_DELETED:
+            slogan = "ABANDON"
+            color = RED
+        else:
+            if i.bangumi_name in updating_bangumi:
+                slogan = "FOLLOWING"
+                color = YELLOW
+            else:
+                slogan = "FINISHED"
+                color = GREEN
+
+        if not i.updated_time:
+            date = datetime.datetime.fromtimestamp(0)
+        else:
+            date = datetime.datetime.fromtimestamp(int(i.updated_time))
+
+        if date.year != 1970:
+            if date.year != year:
+                print(f"{GREEN}{str(date.year)}{COLOR_END}")
+                year = date.year
+
+            if date.year == year and date.month != month:
+                print(f"  |\n  |--- {YELLOW}{m[date.month - 1]}{COLOR_END}\n  |      |")
+                month = date.month
+
+            print(f"  |      |--- [{color}{slogan:<9}{COLOR_END}] ({i.episode:<2}) {i.bangumi_name}")
