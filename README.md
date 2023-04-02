@@ -105,7 +105,7 @@ bgmi upgrade
 查看可用的命令
 
 ```bash
-bgmi -h
+bgmi --help
 ```
 
 **`-h`选项同样适用于所有的子命令，readme 仅介绍了一些基础用法。**
