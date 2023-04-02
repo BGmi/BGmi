@@ -63,13 +63,13 @@ def test_search_tag(bangumi_names, bangumi_subtitles):
 def test_delete(bangumi_names):
     name = bangumi_names[0]
     main_for_test(f"add {name} --episode 0".split())
-    main_for_test(f"delete --name {name}".split())
+    main_for_test(f"delete {name}".split())
 
 
 @pytest.mark.usefixtures("_clean_bgmi")
 def test_delete_batch(bangumi_names):
     main_for_test(["add", *bangumi_names, "--episode", "0"])
-    main_for_test("delete  --clear-all --batch".split())
+    main_for_test("delete  --clear-all --yes".split())
 
 
 @pytest.mark.usefixtures("_clean_bgmi")
