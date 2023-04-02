@@ -292,7 +292,7 @@ actions_and_arguments: List[dict] = [
                 "dest": "--min-episode",
                 "kwargs": {"metavar": "min_episode", "type": int, "help": "Minimum episode filter of title."},
             },
-            {"dest": "--tag", "kwargs": {"action": "store_true", "help": "Use tag to search"}},
+            dict(dest="--tag", kwargs=dict(action="store_true", help="Use tag to search")),
             {
                 "dest": "--subtitle",
                 "kwargs": {"type": str, "help": "Subtitle group filter of title (Need --tag enabled)"},

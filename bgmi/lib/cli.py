@@ -33,7 +33,7 @@ from bgmi.lib.constants import (
     SUPPORT_WEBSITE,
     actions_and_arguments,
 )
-from bgmi.lib.controllers import add, cal, delete, filter_, list_, mark, search, source, update
+from bgmi.lib.controllers import add, cal, delete, filter_, list_, mark, search, update
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
 from bgmi.lib.models import STATUS_DELETED, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, Filter, Followed, Subtitle
@@ -50,11 +50,6 @@ from bgmi.utils import (
     print_success,
     print_warning,
 )
-
-
-def source_wrapper(ret: Any) -> None:
-    result = source(data_source=ret.source)
-    globals()["print_{}".format(result["status"])](result["message"])
 
 
 def config_wrapper(ret: Any) -> None:
