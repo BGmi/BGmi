@@ -343,10 +343,11 @@ def source(data_source: str) -> ControllerResult:
 
 def update(names: List[str], download: Optional[bool] = False, not_ignore: bool = False) -> ControllerResult:
     logger.debug("updating bangumi info with args: download: %r", download)
+    downloaded: List[Episode] = []
     result: Dict[str, Any] = {
         "status": "info",
         "message": "",
-        "data": {"updated": [], "downloaded": []},
+        "data": {"updated": [], "downloaded": downloaded},
     }
 
     ignore = not bool(not_ignore)
@@ -381,6 +382,16 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
 
     runner = ScriptRunner()
     script_download_queue = runner.run()
+    if script_download_queue and download:
+        download_prepare(script_download_queue)
+        downloaded.extend(script_download_queue)
+        print_info("downloading ...")
+        download_prepare(
+            [
+                Episode(**{key: value for key, value in x.items() if key not in ["id", "status"]})
+                for x in Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD)
+            ]
+        )
 
     for subscribe in updated_bangumi_obj:
         download_queue = []
@@ -420,16 +431,12 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
                         break
 
         if download:
-            result["data"]["downloaded"] = download_queue
             download_prepare(download_queue)
-            download_prepare(script_download_queue)
-            print_info("downloading ...")
-            download_prepare(
-                [
-                    Episode(**{key: value for key, value in x.items() if key not in ["id", "status"]})
-                    for x in Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD)
-                ]
-            )
+            downloaded.extend(download_queue)
+
+    if downloaded:
+        print_info("try to re-downloading previous failed torrents ...")
+        download_prepare([Episode.parse_obj(x) for x in Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD)])
 
     return result
 
