@@ -239,15 +239,14 @@ bgmi add "高分少女" --episode 0
 退订:
 
 ```bash
-bgmi delete --name "Re:CREATORS"
+bgmi delete "Re:CREATORS"
 ```
 
 更新番剧列表并且下载番剧:
 
 ```bash
-bgmi update --download
-bgmi update "从零开始的魔法书" --download 2 3
-bgmi update "时钟机关之星" --download
+bgmi update --download # update all
+bgmi update "从零开始的魔法书" --download
 ```
 
 设置筛选条件:
@@ -259,7 +258,7 @@ bgmi fetch "Re:CREATORS"
 bgmi filter "Re:CREATORS" --subtitle "DHR動研字幕組,豌豆字幕组" --include 720P --exclude BIG5
 bgmi fetch "Re:CREATORS"
 # 删除subtitle，include和exclude，添加正则匹配
-bgmi filter "Re:CREATORS" --subtitle "" --include "" --exclude "" --regex
+bgmi filter "Re:CREATORS" --subtitle "" --include "" --exclude "" --regex "..."
 bgmi filter "Re:CREATORS" --regex "(DHR動研字幕組|豌豆字幕组).*(720P)"
 bgmi fetch "Re:CREATORS"
 ```
