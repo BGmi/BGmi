@@ -108,13 +108,7 @@ bgmi upgrade
 bgmi --help
 ```
 
-**`-h`选项同样适用于所有的子命令，readme 仅介绍了一些基础用法。**
-
-启用命令自动补全
-
-```bash
-eval "$(bgmi complete)"
-```
+**`--help`选项同样适用于所有的子命令，readme 仅介绍了一些基础用法。**
 
 ## 配置 BGmi
 
