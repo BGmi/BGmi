@@ -115,7 +115,7 @@ bgmi --help
 BGmi 提供两种方式配置BGmi的各项运行参数，分别为配置文件与环境变量。
 
 ### 配置文件
-bgmi 的配置文件位于 `${BGMI_PATH}/config.toml`, 在未设置 `BGMI_PATH` 环境变量是，`${BGMI_PATH}` 默认为 `~/.bgmi/`。
+bgmi 的配置文件位于 `${BGMI_PATH}/config.toml`, 在未设置 `BGMI_PATH` 环境变量时，`${BGMI_PATH}` 默认为 `~/.bgmi/`。
 
 查看当前 `BGmi` 设置:
 
