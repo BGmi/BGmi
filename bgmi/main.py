@@ -35,7 +35,7 @@ from bgmi.utils import (
     print_warning,
 )
 
-__all__ = ["test_main", "main", "print_success"]
+__all__ = ["main_for_test", "main", "print_success"]
 
 
 def main() -> None:
@@ -48,7 +48,7 @@ def main() -> None:
     cli.main(prog_name="bgmi")
 
 
-def test_main(args: Optional[List[str]] = None) -> None:
+def main_for_test(args: Optional[List[str]] = None) -> None:
     cli.main(args=args, prog_name="bgmi", standalone_mode=False)
 
 
