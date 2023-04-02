@@ -33,7 +33,7 @@ API_MAP_POST: Dict[str, Callable] = {
 }
 
 API_MAP_GET = {
-    "cak": lambda: {"data": cal()},
+    "cal": lambda: {"data": cal()},
     "config": lambda: {"data": json.loads(cfg.json())},
 }
 
