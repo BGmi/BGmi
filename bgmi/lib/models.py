@@ -271,4 +271,12 @@ def recreate_source_relatively_table() -> None:
         Download,
     ]  # type: List[Type[NeoDB]]
     for table in table_to_drop:
-        table.delete().execute()
+        table.delete().execute()  # pylint: disable=no-value-for-parameter
+
+
+def recreate_scripts_table() -> None:
+    table_to_drop = [
+        Scripts,
+    ]  # type: List[Type[NeoDB]]
+    for table in table_to_drop:
+        table.delete().execute()  # pylint: disable=no-value-for-parameter

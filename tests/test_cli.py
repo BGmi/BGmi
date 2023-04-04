@@ -4,6 +4,7 @@ import pytest
 
 from bgmi.lib.models import Bangumi, Filter, Followed
 from bgmi.main import main_for_test
+from bgmi.script import ScriptRunner
 from bgmi.website.bangumi_moe import BangumiMoe
 
 
@@ -38,6 +39,13 @@ def test_add(bangumi_names):
 def test_update(bangumi_names):
     main_for_test(["add", *bangumi_names])
     main_for_test(["update"])
+
+
+@pytest.mark.usefixtures("_clean_bgmi")
+def test_update_script():
+    main_for_test(["update"])
+    script_obj = ScriptRunner().get_model("TEST_BANGUMI")
+    assert script_obj.episode == 3, "TEST_BANGUMI from script_example.py episode should be 3 after update"
 
 
 @pytest.mark.usefixtures("_clean_bgmi")
