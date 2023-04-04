@@ -9,7 +9,7 @@ import requests_cache
 import urllib3
 
 from bgmi.config import IS_WINDOWS, cfg
-from bgmi.lib.models import recreate_source_relatively_table
+from bgmi.lib.models import recreate_scripts_table, recreate_source_relatively_table
 
 
 def pytest_addoption(parser):
@@ -64,9 +64,11 @@ def data_source_subtitle_name():
 
 @pytest.fixture()
 def _clean_bgmi():
+    recreate_scripts_table()
     recreate_source_relatively_table()
     yield
     recreate_source_relatively_table()
+    recreate_scripts_table()
 
 
 @pytest.fixture()
