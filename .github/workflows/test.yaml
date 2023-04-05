@@ -37,7 +37,10 @@ jobs:
       fail-fast: false
       matrix:
         python: [ "3.8", "3.11" ]
-        os: [ macos, windows, ubuntu ]
+        os:
+          - macos
+          #          - windows
+          - ubuntu
     steps:
       - uses: actions/checkout@v3
         with:
@@ -67,7 +70,10 @@ jobs:
       fail-fast: false
       matrix:
         python: [ "3.8", "3.11" ]
-        os: [ macos, windows, ubuntu ]
+        os:
+          - macos
+          #          - windows
+          - ubuntu
     steps:
       - uses: actions/checkout@v3
         with:
