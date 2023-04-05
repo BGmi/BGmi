@@ -20,8 +20,8 @@ def test_info(source, data_source_bangumi_name):
             assert isinstance(s, SubtitleGroup)
     b = bangumi_result[0]
 
-    w.fetch_episode_of_bangumi(b.keyword, max_page=3)
-    w.fetch_single_bangumi(b.keyword)
+    w.fetch_episode_of_bangumi(b.id, max_page=3)
+    w.fetch_single_bangumi(b.id)
 
 
 @pytest.mark.parametrize("source", DATA_SOURCE_MAP.keys())

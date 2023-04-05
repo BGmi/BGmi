@@ -67,7 +67,7 @@ class ScriptRunner:
                 WebsiteBangumi(
                     name=model.bangumi_name,
                     update_time=model.update_time,
-                    keyword=model.bangumi_name,
+                    id=model.bangumi_name,
                     cover=model.cover,
                 )
             )

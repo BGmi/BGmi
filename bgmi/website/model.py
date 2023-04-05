@@ -37,7 +37,7 @@ class SubtitleGroup(BaseModel):
 
 
 class WebsiteBangumi(BaseModel):
-    keyword: str
+    id: str
     update_time: str = "Unknown"
     name: str = ""
     status: int = 0
