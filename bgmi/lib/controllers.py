@@ -50,7 +50,7 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
     """
     # action add
     # add bangumi by a list of bangumi name
-    logger.debug("add name: %s episode: %d", name, episode)
+    logger.debug("add name: {} episode: {}", name, episode)
     if not Bangumi.get_updating_bangumi():
         website.fetch(group_by_weekday=False)
 
