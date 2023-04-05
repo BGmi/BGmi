@@ -62,7 +62,7 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
         }
         return result
     followed_obj, this_obj_created = Followed.get_or_create(
-        bangumi_name=bangumi_obj.name, defaults={"status": STATUS_FOLLOWED}
+        bangumi_name=bangumi_obj.name, defaults={"status": STATUS_FOLLOWED, "episode": 0}
     )
     if not this_obj_created:
         if followed_obj.status == STATUS_FOLLOWED:
