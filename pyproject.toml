@@ -138,6 +138,7 @@ max-line-length = 120
 [tool.pylint.messages_control]
 extension-pkg-whitelist = ['pydantic']
 disable = [
+  'fixme',
   "consider-using-f-string",
   "cell-var-from-loop",
   "missing-function-docstring",
