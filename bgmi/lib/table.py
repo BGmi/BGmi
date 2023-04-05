@@ -64,7 +64,6 @@ class Base(DeclarativeBase):
             session.add(self)
 
 
-metadata = Base.metadata
 if os.environ.get("DEV"):
     print(f"using database {cfg.db_path}")
 
@@ -178,7 +177,7 @@ class Download(Base):
     __tablename__ = "download"
 
     id: Mapped[int] = Column(Integer, primary_key=True)  # type: ignore
-    name: Mapped[str] = Column(Text, nullable=False)  # type: ignore
+    bangumi_name: Mapped[str] = Column("name", Text, nullable=False)  # type: ignore
     title: Mapped[str] = Column(Text, nullable=False)  # type: ignore
     episode: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
     download: Mapped[str] = Column(Text, nullable=False)  # type: ignore
