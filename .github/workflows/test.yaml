@@ -36,8 +36,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.8", "3.11"]
-        os: [macos, windows, ubuntu]
+        python: [ "3.8", "3.11" ]
+        os: [ macos, windows, ubuntu ]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -56,9 +56,37 @@ jobs:
           set -ex
           coverage run -a -m bgmi install
           bgmi --help
-          coverage run -a -m pytest tests --cache-requests --ignore=tests/downloader
+          coverage run -a -m pytest tests --cache-requests --ignore=tests/downloader --ignore=tests/e2e
 
       - run: coverage xml --omit templates/download_xml.generated.py
       - uses: codecov/codecov-action@v3
+
+  e2e:
+    runs-on: ${{ format('{0}-latest', matrix.os) }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python: [ "3.8", "3.11" ]
+        os: [ macos, windows, ubuntu ]
+    steps:
+      - uses: actions/checkout@v3
         with:
-          flags: app,front
+          fetch-depth: 2
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+
+      - uses: Trim21/setup-poetry@dist/v1
+
+      - uses: Trim21/install-poetry-project@dist/v1
+
+      - name: test
+        run: |
+          set -ex
+          coverage run -a -m bgmi install
+          bgmi --help
+          coverage run -a -m pytest tests/e2e --cache-requests
+
+      - run: coverage xml --omit templates/download_xml.generated.py
+      - uses: codecov/codecov-action@v3
