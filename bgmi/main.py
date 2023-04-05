@@ -295,14 +295,14 @@ def filter_cmd(
 def print_filter(followed_filter_obj: Followed) -> None:
     print(
         "Followed subtitle group: {}".format(
-            ", ".join(x.name for x in Subtitle.get_subtitle_by_id(followed_filter_obj.subtitle))
+            [x.name for x in Subtitle.get_subtitle_by_id(followed_filter_obj.subtitle)]
             if followed_filter_obj.subtitle
-            else "None"
+            else None
         )
     )
-    print(f"Include keywords: {followed_filter_obj.include}")
-    print(f"Exclude keywords: {followed_filter_obj.exclude}")
-    print(f"Regular expression: {followed_filter_obj.regex}")
+    print(f"Include keywords: {followed_filter_obj.include or None}")
+    print(f"Exclude keywords: {followed_filter_obj.exclude or None}")
+    print(f"Regular expression: {followed_filter_obj.regex or None}")
 
 
 @cli.command("cal")
