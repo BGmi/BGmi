@@ -23,6 +23,7 @@ jobs:
   test:
     runs-on: ${{ format('{0}-latest', matrix.os) }}
     strategy:
+      fail-fast: false
       matrix:
         python: ["3.10", "3.14"]
         os: [macos, windows, ubuntu]

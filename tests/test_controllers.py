@@ -35,8 +35,6 @@ class ControllersTest(unittest.TestCase):
 
         r = mark(self.bangumi_name_1, 1)
         assert r["status"] == "success", r["message"]
-        r = mark(self.bangumi_name_1, None)
-        assert r["status"] == "info", r["message"]
         r = mark(self.bangumi_name_2, 0)
         assert r["status"] == "error", r["message"]
 

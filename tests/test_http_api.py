@@ -137,7 +137,7 @@ class ApiTestCase(AsyncHTTPTestCase):
                 {"bangumi_name": "2333", "updated_time": 20000000000, "cover": "2333"},
             ]
         )
-        with mock.patch("bgmi.front.index.get_player", m), mock.patch("bgmi.lib.models.Followed.get_all_followed", m2):
+        with mock.patch("bgmi.front.index.get_player", m), mock.patch("bgmi.lib.table.Followed.get_all_followed", m2):
             response = self.fetch("/api/index", method="GET")
         assert response.code == 200
         r = self.parse_response(response)
