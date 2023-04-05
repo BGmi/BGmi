@@ -71,14 +71,20 @@ if os.environ.get("DEV"):
 
 class Bangumi(Base):
     __tablename__ = "bangumi"
+    STATUS_UPDATING = 0
+    STATUS_END = 1
 
     id: Mapped[int] = Column(Integer, primary_key=True)  # type: ignore
     name: Mapped[str] = Column(Text, nullable=False, unique=True)  # type: ignore
     subtitle_group: Mapped[str] = Column(Text, nullable=False)  # type: ignore
     keyword: Mapped[str] = Column(Text, nullable=False)  # type: ignore
-    update_time: Mapped[str] = Column(CHAR(5), nullable=False)  # type: ignore
+    update_time: Mapped[str] = Column(
+        CHAR(5), nullable=False, default="Unknown", server_default="Unknown"
+    )  # type: ignore
     cover: Mapped[str] = Column(Text, nullable=False)  # type: ignore
-    status: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
+    status: Mapped[int] = Column(
+        Integer, nullable=False, default=STATUS_UPDATING, server_default=str(STATUS_UPDATING)
+    )  # type: ignore
 
     @classmethod
     def delete_all(cls) -> None:
