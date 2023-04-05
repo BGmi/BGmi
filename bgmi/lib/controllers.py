@@ -251,8 +251,9 @@ def mark(name: str, episode: int) -> ControllerResult:
     """
     result = {}
 
-    followed_obj = Followed.get(Followed.bangumi_name == name)
-    if not followed_obj:
+    try:
+        followed_obj = Followed.get(Followed.bangumi_name == name)
+    except Followed.NotFoundError:
         runner = ScriptRunner()
         followed_obj = runner.get_model(name)  # type: ignore
         if not followed_obj:
