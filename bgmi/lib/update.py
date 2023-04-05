@@ -26,7 +26,7 @@ def update_database() -> None:
         old_version_file.write_text(__version__, encoding="utf8")
         return
 
-    previous = packaging.version.parse(old_version_file.read_text(encoding="utf8"))
+    previous = packaging.version.parse(old_version_file.read_text(encoding="utf8").strip())
     if previous < packaging.version.Version("4.0.0"):
         print_error(
             (
