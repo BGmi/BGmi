@@ -20,7 +20,7 @@ from bgmi.lib import controllers as ctl
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE
 from bgmi.lib.download import download_episodes
 from bgmi.lib.fetch import website
-from bgmi.lib.table import STATUS_DELETED, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, Filter, Followed, Session, Subtitle
+from bgmi.lib.table import STATUS_DELETED, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, Followed, Session, Subtitle
 from bgmi.lib.update import update_database
 from bgmi.script import ScriptRunner
 from bgmi.setup import create_dir, init_db, install_crontab
@@ -288,11 +288,11 @@ def filter_cmd(
         globals()["print_{}".format(result["status"])](result["message"])
     else:
         print_info("Usable subtitle group: {}".format(", ".join(result["data"]["subtitle_group"])))
-        followed_filter_obj = Filter.get(Filter.bangumi_name == result["data"]["name"])
-        print_filter(followed_filter_obj)
+        filter_obj = Followed.get(Followed.bangumi_name == result["data"]["name"])
+        print_filter(filter_obj)
 
 
-def print_filter(followed_filter_obj: Filter) -> None:
+def print_filter(followed_filter_obj: Followed) -> None:
     print(
         "Followed subtitle group: {}".format(
             ", ".join(x.name for x in Subtitle.get_subtitle_by_id(followed_filter_obj.subtitle))
@@ -425,12 +425,11 @@ def fetch(name: str, not_ignore: bool) -> None:
         print_error(f"Bangumi {name} not exist", stop=True)
         return
 
-    if not Followed.get(Followed.bangumi_name == bangumi_obj.name):
+    try:
+        Followed.get(Followed.bangumi_name == name)
+    except Followed.NotFoundError:
         print_error(f"Bangumi {name} is not followed")
         return
-
-    followed_filter_obj = Filter.get(Filter.bangumi_name == name)
-    print_filter(followed_filter_obj)
 
     print_info(f"Fetch bangumi {bangumi_obj.name} ...")
     data = website.get_maximum_episode(bangumi_obj, ignore_old_row=not bool(not_ignore))

@@ -20,7 +20,6 @@ from bgmi.lib.table import (
     STATUS_UPDATED,
     Bangumi,
     Download,
-    Filter,
     Followed,
     NotFoundError,
     Session,
@@ -82,11 +81,6 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
             else:
                 followed_obj.status = STATUS_FOLLOWED
 
-        try:
-            Filter.get(Filter.bangumi_name == name)
-        except Filter.NotFoundError:
-            session.add(Filter(bangumi_name=name))
-
     if episode is None:
         episodes = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)
         if episodes:
@@ -122,14 +116,14 @@ def filter_(
         result["message"] = f"Bangumi {name} does not exist."
         return result
 
-    if not Followed.get(Followed.bangumi_name == bangumi_obj.name):
+    try:
+        followed_filter_obj = Followed.get(Followed.bangumi_name == bangumi_obj.name)
+    except Followed.NotFoundError:
         result["status"] = "error"
         result["message"] = "Bangumi {name} has not subscribed, try 'bgmi add \"{name}\"'.".format(
             name=bangumi_obj.name
         )
         return result
-
-    followed_filter_obj = Filter.get(Filter.bangumi_name == bangumi_obj.name)
 
     if subtitle is not None:
         _subtitle = [s.strip() for s in subtitle.split(",")]

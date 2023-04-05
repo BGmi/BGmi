@@ -27,10 +27,10 @@ def update_database() -> None:
         return
 
     previous = packaging.version.parse(old_version_file.read_text(encoding="utf8").strip())
-    if previous < packaging.version.Version("4.0.0"):
+    if previous < packaging.version.Version("5.0.0"):
         print_error(
             (
-                "can't automatically upgrade from <4.0.0 version, "
+                "can't automatically upgrade from <5.0.0 version, "
                 + " please backup your .bgmi files, remove them and use `bgmi install`\n"
                 + RED
                 + "All Data will lost, you will need to re-add your bangumi after re-install"
