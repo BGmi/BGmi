@@ -97,7 +97,7 @@ class Bangumi(Base):
             cover: str = "",
             status: int = STATUS_UPDATING,
         ):
-            ...
+            super().__init__()
 
     @classmethod
     def delete_all(cls) -> None:

@@ -3,7 +3,6 @@ from pathlib import Path
 from shutil import copy
 from typing import List
 
-from bgmi import __version__
 from bgmi.config import BGMI_PATH, IS_WINDOWS, cfg
 from bgmi.lib.table import Base, engine
 from bgmi.utils import print_error, print_info, print_success, print_warning
@@ -42,11 +41,6 @@ def create_dir() -> None:
             if not os.path.exists(path):
                 os.makedirs(path, exist_ok=True)
                 print_success(f"{path} created successfully")
-        OLD = os.path.join(BGMI_PATH, "old")
-        # create OLD if not exist oninstall
-        if not os.path.exists(OLD):
-            with open(OLD, "w", encoding="utf8") as f:
-                f.write(__version__)
     except OSError as e:
         print_error(f"Error: {str(e)}")
 
