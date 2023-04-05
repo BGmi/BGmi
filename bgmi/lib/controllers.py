@@ -56,7 +56,7 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
 
     try:
         bangumi_obj = Bangumi.fuzzy_get(name=name)
-    except DoesNotExist:
+    except Bangumi.NotFoundError:
         result = {
             "status": "error",
             "message": f"{name} not found, please check the name",
@@ -80,7 +80,7 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
             else:
                 followed_obj.status = STATUS_FOLLOWED
 
-    Filter.get_or_create(bangumi_name=name)
+        session.add(Filter(bangumi_name=name))
 
     max_episode, _ = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)
     followed_obj.episode = max_episode if episode is None else episode
@@ -106,7 +106,7 @@ def filter_(
     result = {"status": "success", "message": ""}  # type: Dict[str, Any]
     try:
         bangumi_obj = Bangumi.fuzzy_get(name=name)
-    except DoesNotExist:
+    except Bangumi.NotFoundError:
         result["status"] = "error"
         result["message"] = f"Bangumi {name} does not exist."
         return result
@@ -118,14 +118,11 @@ def filter_(
         )
         return result
 
-    followed_filter_obj, is_this_obj_created = Filter.get_or_create(bangumi_name=bangumi_obj.name)
-
-    if is_this_obj_created:
-        followed_filter_obj.save()
+    followed_filter_obj = Filter.get(Filter.bangumi_name == bangumi_obj.name)
 
     if subtitle is not None:
         _subtitle = [s.strip() for s in subtitle.split(",")]
-        _subtitle = [s["id"] for s in Subtitle.get_subtitle_by_name(_subtitle)]
+        _subtitle = [s.id for s in Subtitle.get_subtitle_by_name(_subtitle)]
         subtitle_list = [s.split(".")[0] for s in bangumi_obj.subtitle_group.split(", ") if "." in s]
         subtitle_list.extend(bangumi_obj.subtitle_group.split(", "))
         followed_filter_obj.subtitle = ", ".join(filter(lambda s: s in subtitle_list, _subtitle))
@@ -140,12 +137,12 @@ def filter_(
         followed_filter_obj.regex = regex
 
     followed_filter_obj.save()
-    subtitle_list = [s["name"] for s in Subtitle.get_subtitle_by_id(bangumi_obj.subtitle_group.split(", "))]
+    subtitle_list = [s.name for s in Subtitle.get_subtitle_by_id(bangumi_obj.subtitle_group.split(", "))]
 
     result["data"] = {
         "name": bangumi_obj.name,
         "subtitle_group": subtitle_list,
-        "followed": [s["name"] for s in Subtitle.get_subtitle_by_id(followed_filter_obj.subtitle.split(", "))]
+        "followed": [s.name for s in Subtitle.get_subtitle_by_id(followed_filter_obj.subtitle.split(", "))]
         if followed_filter_obj.subtitle
         else [],
         "include": followed_filter_obj.include,
@@ -229,7 +226,7 @@ def cal(force_update: bool = False, cover: Optional[List[str]] = None) -> Dict[s
         for index, bangumi in enumerate(value):
             bangumi["cover"] = normalize_path(bangumi["cover"])
             subtitle_group = [
-                {"name": x["name"], "id": x["id"]}
+                {"name": x.name, "id": x.id}
                 for x in Subtitle.get_subtitle_by_id(bangumi["subtitle_group"].split(", " ""))
             ]
 
@@ -381,7 +378,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             try:
                 f = Followed.get(Followed.bangumi_name == n)
                 updated_bangumi_obj.append(f)
-            except DoesNotExist:
+            except Followed.NotFoundError:
                 logger.warning("missing followed bangumi '{}'", n)
 
     runner = ScriptRunner()

@@ -295,7 +295,7 @@ def filter_cmd(
 def print_filter(followed_filter_obj: Filter) -> None:
     print(
         "Followed subtitle group: {}".format(
-            ", ".join(x["name"] for x in Subtitle.get_subtitle_by_id(followed_filter_obj.subtitle.split(", ")))
+            ", ".join(x.name for x in Subtitle.get_subtitle_by_id(followed_filter_obj.subtitle.split(", ")))
             if followed_filter_obj.subtitle
             else "None"
         )

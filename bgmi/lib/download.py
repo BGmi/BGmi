@@ -7,7 +7,7 @@ from stevedore.exception import NoMatches
 
 from bgmi import namespace
 from bgmi.config import cfg
-from bgmi.lib.table import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download
+from bgmi.lib.table import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download, Session
 from bgmi.plugin.download import BaseDownloadService
 from bgmi.utils import bangumi_save_path, print_error, print_info
 from bgmi.website.base import Episode
@@ -62,13 +62,16 @@ def save_to_bangumi_download_queue(data: List[Episode]) -> List[Download]:
     """
     queue = []
     for i in data:
-        download, _ = Download.get_or_create(
-            title=i.title,
-            download=i.download,
-            name=i.name,
-            episode=i.episode,
-            status=STATUS_NOT_DOWNLOAD,
-        )
+        with Session.begin() as session:
+            download = Download(
+                title=i.title,
+                download=i.download,
+                name=i.name,
+                episode=i.episode,
+                status=STATUS_NOT_DOWNLOAD,
+            )
+
+            session.add(download)
 
         queue.append(download)
 

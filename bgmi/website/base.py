@@ -43,14 +43,8 @@ class BaseWebsite:
                 session.add(Bangumi(**data.dict(), subtitle_group=subtitle_group))
 
         for subtitle in data.subtitle_group:
-            (
-                Subtitle.insert(
-                    {
-                        Subtitle.id: str(subtitle.id),
-                        Subtitle.name: str(subtitle.name),
-                    }
-                ).on_conflict_replace()
-            ).execute()
+            with Session.begin() as session:
+                session.add(Subtitle(id=str(subtitle.id), name=str(subtitle.name)))
 
     def fetch(self, group_by_weekday: bool = True) -> Any:
         bangumi_result = self.fetch_bangumi_calendar()
@@ -82,7 +76,7 @@ class BaseWebsite:
         for bangumi_list in weekly_list.values():
             for bangumi in bangumi_list:
                 bangumi["subtitle_group"] = [
-                    {"name": x["name"], "id": x["id"]}
+                    {"name": x.name, "id": x.id}
                     for x in Subtitle.get_subtitle_by_id(bangumi["subtitle_group"].split(", "))
                 ]
         return weekly_list

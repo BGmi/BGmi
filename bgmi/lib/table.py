@@ -34,12 +34,13 @@ engine = create_engine(f"sqlite:///{cfg.db_path.absolute().as_posix()}")
 
 Session = sessionmaker(engine, expire_on_commit=False)
 
-T = TypeVar("T")
-
 
 class NotFoundError(Exception):
-    def __init__(self, cls):
+    def __init__(self, cls: Type["Base"]) -> None:
         super().__init__(f"{cls} not found")
+
+
+T = TypeVar("T", bound="Base")
 
 
 class Base(DeclarativeBase):
