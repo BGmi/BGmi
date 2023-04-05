@@ -11,7 +11,7 @@ from tornado.web import HTTPError, RequestHandler
 
 from bgmi.front.base import BaseHandler
 from bgmi.lib.controllers import add, cal, cfg, delete, filter_, mark, search, status_, update
-from bgmi.lib.download import download_prepare
+from bgmi.lib.download import download_episodes
 
 ACTION_AUTH = "auth"
 ACTION_STATUS = "status"
@@ -25,7 +25,7 @@ API_MAP_POST: Dict[str, Callable] = {
     "add": add,
     "delete": delete,
     "search": search,
-    "download": download_prepare,
+    "download": download_episodes,
     "auth": auth_,
     "mark": mark,
     "status": status_,
