@@ -231,12 +231,12 @@ class Subtitle(Base):
     @classmethod
     def get_subtitle_by_id(cls, id_list: List[str]) -> List["Subtitle"]:
         with Session.begin() as session:
-            return [x for x in session.scalars(sa.select(cls).where(cls.id.in_(id_list)))]
+            return list(session.scalars(sa.select(cls).where(cls.id.in_(id_list))))
 
     @classmethod
     def get_subtitle_by_name(cls, name_list: List[str]) -> List["Subtitle"]:
         with Session.begin() as session:
-            return [x for x in session.scalars(sa.select(cls).where(cls.name.in_(name_list)))]
+            return list(session.scalars(sa.select(cls).where(cls.name.in_(name_list))))
 
 
 class Scripts(Base):
