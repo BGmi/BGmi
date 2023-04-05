@@ -66,7 +66,7 @@ def save_to_bangumi_download_queue(data: List[Episode]) -> List[Download]:
             download = Download(
                 title=i.title,
                 download=i.download,
-                name=i.name,
+                bangumi_name=i.name,
                 episode=i.episode,
                 status=STATUS_NOT_DOWNLOAD,
             )
