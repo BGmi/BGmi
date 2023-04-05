@@ -5,8 +5,8 @@ from typing import List, Type
 
 from bgmi import __version__
 from bgmi.config import BGMI_PATH, IS_WINDOWS, cfg
-from bgmi.lib import models
-from bgmi.lib.models import NeoDB
+from bgmi.lib import table
+from bgmi.lib.table import Base, NeoDB, engine
 from bgmi.utils import print_error, print_info, print_success, print_warning
 
 
@@ -53,14 +53,14 @@ def create_dir() -> None:
 
 
 def init_db() -> None:
-    tables: List[Type[NeoDB]] = [
-        models.Scripts,
-        models.Bangumi,
-        models.Followed,
-        models.Subtitle,
-        models.Filter,
-        models.Download,
-    ]
+    Base.metadata.create_all(engine, checkfirst=True)
 
+    tables: List[Type[NeoDB]] = [
+        table.Scripts,
+        table.Bangumi,
+        table.Subtitle,
+        table.Filter,
+        table.Download,
+    ]
     for t in tables:
         t.create_table()

@@ -4,7 +4,7 @@ from typing import Dict, Optional
 
 from bgmi.config import cfg
 from bgmi.front.base import COVER_URL, BaseHandler
-from bgmi.lib.models import STATUS_DELETED, STATUS_END, STATUS_UPDATING, Followed
+from bgmi.lib.table import STATUS_DELETED, STATUS_END, STATUS_UPDATING, Followed
 from bgmi.utils import bangumi_save_path, normalize_path
 
 

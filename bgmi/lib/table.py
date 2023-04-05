@@ -1,7 +1,7 @@
 import os
 import time
 from collections import defaultdict
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, TypeVar
+from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
 
 import peewee
 import sqlalchemy as sa
@@ -11,7 +11,6 @@ from sqlalchemy import CHAR, Column, Integer, Text, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, sessionmaker
 
 from bgmi.config import cfg
-from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.utils import episode_filter_regex
 from bgmi.website.model import Episode
 
@@ -57,7 +56,7 @@ class Base(DeclarativeBase):
                 raise NotFoundError()
             return o
 
-    def save(self):
+    def save(self) -> None:
         with Session.begin() as session:
             session.add(self)
 
@@ -90,41 +89,6 @@ class Bangumi(NeoDB):
     update_time = FixedCharField(5, null=False)
     cover = TextField()
     status = IntegerField(default=0)
-
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-
-        update_time = kwargs.get("update_time", "").title()
-        if update_time and update_time not in BANGUMI_UPDATE_TIME:
-            raise ValueError(f"unexpected update time {update_time}")
-        self.update_time = update_time
-        if isinstance(kwargs.get("subtitle_group"), list):
-            s = []
-            for sub in kwargs["subtitle_group"]:
-                if isinstance(sub, str):
-                    s.append(sub)
-                elif isinstance(sub, dict):
-                    s.append(sub["id"])
-                else:
-                    s.append(sub.id)
-            self.subtitle_group = ", ".join(sorted(s))
-
-    @staticmethod
-    def serialize_subtitle_group(subtitle_group: Any) -> str:
-        s = []
-
-        if isinstance(subtitle_group, list):
-            for sub in subtitle_group:
-                if isinstance(sub, str):
-                    s.append(sub)
-                elif isinstance(sub, dict):
-                    s.append(sub["id"])
-                else:
-                    s.append(sub.id)
-        else:
-            return str(subtitle_group)
-
-        return ", ".join(sorted(s))
 
     @classmethod
     def delete_all(cls) -> None:
@@ -192,36 +156,23 @@ class _Followed(NeoDB):
 class SaBangumi(Base):
     __tablename__ = "bangumi"
 
-    id = Column(Integer, primary_key=True)
-    name: Mapped[str] = Column(Text, nullable=False, unique=True)
-    subtitle_group = Column(Text, nullable=False)
-    keyword = Column(Text, nullable=False)
-    update_time = Column(CHAR(5), nullable=False)
-    cover = Column(Text, nullable=False)
-    status: Mapped[int] = Column(Integer, nullable=False)
+    id: Mapped[int] = Column(Integer, primary_key=True)  # type: ignore
+    name: Mapped[str] = Column(Text, nullable=False, unique=True)  # type: ignore
+    subtitle_group: Mapped[str] = Column(Text, nullable=False)  # type: ignore
+    keyword: Mapped[str] = Column(Text, nullable=False)  # type: ignore
+    update_time: Mapped[str] = Column(CHAR(5), nullable=False)  # type: ignore
+    cover: Mapped[str] = Column(Text, nullable=False)  # type: ignore
+    status: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
 
 
 class Followed(Base):
     __tablename__ = "followed"
 
-    id = Column(Integer, primary_key=True)
-    bangumi_name = Column(Text, nullable=False, unique=True)
-    episode = Column(Integer, default=0, server_default="0")
-    status: Mapped[int] = Column(Integer)
-    updated_time: Mapped[int] = Column(Integer, default=0, server_default="0")
-
-    if TYPE_CHECKING:
-
-        def __init__(
-            self,
-            *,
-            bangumi_name: str,
-            episode: int = 0,
-            status: int,
-            updated_time: int = 0,
-            id: Optional[int] = id,
-        ):
-            ...
+    id: Mapped[int] = Column(Integer, primary_key=True)  # type: ignore
+    bangumi_name: Mapped[str] = Column(Text, nullable=False, unique=True)  # type: ignore
+    episode: Mapped[int] = Column(Integer, default=0, server_default="0")  # type: ignore
+    status: Mapped[int] = Column(Integer)  # type: ignore
+    updated_time: Mapped[int] = Column(Integer, default=0, server_default="0")  # type: ignore
 
     @classmethod
     def delete_followed(cls, batch: bool = True) -> bool:
@@ -235,12 +186,12 @@ class Followed(Base):
 
     @classmethod
     def get_all_followed(
-        cls: "Followed", status: int = STATUS_DELETED, bangumi_status: int = STATUS_UPDATING
+        cls: Type["Followed"], status: int = STATUS_DELETED, bangumi_status: int = STATUS_UPDATING
     ) -> List["Followed"]:
         sql = (
-            sa.select(cls)
+            sa.select(Followed)
             .join(SaBangumi, cls.bangumi_name == SaBangumi.name)
-            .where(cls.status != status, SaBangumi.status == bangumi_status)
+            .where(cls.status.isnot(status), SaBangumi.status == bangumi_status)
             .order_by(cls.updated_time.desc())
         )
 

@@ -2,7 +2,7 @@ from unittest import mock
 
 import pytest
 
-from bgmi.lib.models import Bangumi, Filter, Followed
+from bgmi.lib.table import Bangumi, Filter, Followed
 from bgmi.main import main_for_test
 from bgmi.script import ScriptRunner
 from bgmi.website.bangumi_moe import BangumiMoe

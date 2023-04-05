@@ -4,7 +4,7 @@ from itertools import chain
 from typing import Any, Dict, List, Optional, Tuple, TypeVar
 
 from bgmi.config import cfg
-from bgmi.lib.models import (
+from bgmi.lib.table import (
     STATUS_FOLLOWED,
     STATUS_UPDATED,
     STATUS_UPDATING,
@@ -27,9 +27,9 @@ class BaseWebsite:
     @staticmethod
     def save_bangumi(data: WebsiteBangumi) -> None:
         """save bangumi to database"""
-        subtitle_group = ", ".join([x.id for x in data.subtitle_group])
 
         with Session.begin() as session:
+            subtitle_group = ", ".join([x.id for x in data.subtitle_group])
             try:
                 b = SaBangumi.get(SaBangumi.keyword == data.keyword)
                 b.cover = data.cover
@@ -43,12 +43,12 @@ class BaseWebsite:
             except NotFoundError:
                 session.add(SaBangumi(**data.dict(), subtitle_group=subtitle_group))
 
-        for subtitle_group in data.subtitle_group:
+        for subtitle in data.subtitle_group:
             (
                 Subtitle.insert(
                     {
-                        Subtitle.id: str(subtitle_group.id),
-                        Subtitle.name: str(subtitle_group.name),
+                        Subtitle.id: str(subtitle.id),
+                        Subtitle.name: str(subtitle.name),
                     }
                 ).on_conflict_replace()
             ).execute()
@@ -90,7 +90,7 @@ class BaseWebsite:
 
     def get_maximum_episode(
         self,
-        bangumi: Bangumi,
+        bangumi: SaBangumi,
         ignore_old_row: bool = True,
         max_page: int = cfg.max_path,
     ) -> Tuple[int, List[Episode]]:

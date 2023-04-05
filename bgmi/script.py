@@ -11,7 +11,7 @@ from typing import Any, Dict, Iterator, List, Optional, Tuple
 from bgmi.config import cfg
 from bgmi.lib.download import Episode, download_prepare
 from bgmi.lib.fetch import DATA_SOURCE_MAP
-from bgmi.lib.models import STATUS_FOLLOWED, STATUS_UPDATED, Scripts
+from bgmi.lib.table import STATUS_FOLLOWED, STATUS_UPDATED, Scripts
 from bgmi.utils import print_info, print_success, print_warning
 from bgmi.website.model import WebsiteBangumi
 

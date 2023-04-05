@@ -1,4 +1,4 @@
-from bgmi.lib.models import Filter
+from bgmi.lib.table import Filter
 from bgmi.website.model import Episode
 
 

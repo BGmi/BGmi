@@ -11,7 +11,7 @@ from bgmi.config import Source, cfg
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SUPPORT_WEBSITE
 from bgmi.lib.download import Episode, download_prepare
 from bgmi.lib.fetch import website
-from bgmi.lib.models import (
+from bgmi.lib.table import (
     FOLLOWED_STATUS,
     STATUS_DELETED,
     STATUS_FOLLOWED,
@@ -26,7 +26,6 @@ from bgmi.lib.models import (
     SaBangumi,
     Session,
     Subtitle,
-    model_to_dict,
     recreate_source_relatively_table,
 )
 from bgmi.script import ScriptRunner
@@ -363,8 +362,8 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
     now = int(time.time())
 
     for follow in Followed.get_all_followed():
-        if follow["updated_time"] and int(follow["updated_time"] + 60 * 60 * 24) < now:
-            followed_obj = Followed.get(bangumi_name=follow["bangumi_name"])
+        if follow.updated_time and int(follow.updated_time + 60 * 60 * 24) < now:
+            followed_obj = Followed.get(Followed.bangumi_name == follow.bangumi_name)
             followed_obj.status = STATUS_FOLLOWED
             followed_obj.save()
 
@@ -382,11 +381,10 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
         updated_bangumi_obj = []
         for n in names:
             try:
-                f = Followed.get(bangumi_name=n)
-                f = model_to_dict(f)
+                f = Followed.get(Followed.bangumi_name == n)
                 updated_bangumi_obj.append(f)
             except DoesNotExist:
-                pass
+                logger.warning("missing followed bangumi '{}'", n)
 
     runner = ScriptRunner()
     script_download_queue = runner.run()
@@ -403,16 +401,16 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
 
     for subscribe in updated_bangumi_obj:
         download_queue = []
-        print_info(f"fetching {subscribe['bangumi_name']} ...")
+        print_info(f"fetching {subscribe.bangumi_name} ...")
         try:
-            bangumi_obj = SaBangumi.get(SaBangumi.name == subscribe["bangumi_name"])
+            bangumi_obj = SaBangumi.get(SaBangumi.name == subscribe.bangumi_name)
         except NotFoundError:
-            logger.error("Bangumi<{}> does not exists.", subscribe["bangumi_name"])
+            logger.error("Bangumi<{}> does not exists.", subscribe.bangumi_name)
             continue
         try:
-            followed_obj = Followed.get(Followed.bangumi_name == subscribe["bangumi_name"])
+            followed_obj = Followed.get(Followed.bangumi_name == subscribe.bangumi_name)
         except NotFoundError:
-            logger.error("Followed<{}> is not followed.", subscribe["bangumi_name"])
+            logger.error("Followed<{}> is not followed.", subscribe.bangumi_name)
             continue
 
         try:
@@ -424,15 +422,15 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             continue
 
         # TODO(v5): add default to column and remove this
-        saved_episode = subscribe.get("episode") or 0
+        saved_episode = subscribe.episode or 0
         if episode > saved_episode:
             episode_range = range(saved_episode, episode + 1)
-            print_success(f"{subscribe['bangumi_name']} updated, episode: {episode:d}")
+            print_success(f"{subscribe.bangumi_name} updated, episode: {episode:d}")
             followed_obj.episode = episode
             followed_obj.status = STATUS_UPDATED
             followed_obj.updated_time = int(time.time())
             followed_obj.save()
-            result["data"]["updated"].append({"bangumi": subscribe["bangumi_name"], "episode": episode})
+            result["data"]["updated"].append({"bangumi": subscribe.bangumi_name, "episode": episode})
 
             for i in episode_range:
                 for epi in all_episode_data:

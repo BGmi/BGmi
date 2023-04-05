@@ -7,7 +7,7 @@ from stevedore.exception import NoMatches
 
 from bgmi import namespace
 from bgmi.config import cfg
-from bgmi.lib.models import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download
+from bgmi.lib.table import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download
 from bgmi.plugin.download import BaseDownloadService
 from bgmi.utils import bangumi_save_path, print_error, print_info
 from bgmi.website.base import Episode
