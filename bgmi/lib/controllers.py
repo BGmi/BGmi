@@ -260,14 +260,11 @@ def mark(name: str, episode: int) -> ControllerResult:
             result["message"] = f"Subscribe or Script <{name}> does not exist."
             return result
 
-    if episode is not None:
-        followed_obj.episode = episode
-        followed_obj.save()
-        result["status"] = "success"
-        result["message"] = f"{name} has been mark as episode: {episode}"
-    else:  # episode is None
-        result["status"] = "info"
-        result["message"] = f"{name}, episode: {followed_obj.episode}"
+    followed_obj.episode = episode
+    followed_obj.save()
+
+    result["status"] = "success"
+    result["message"] = f"{name} has been mark as episode: {episode}"
     return result
 
 
