@@ -2,8 +2,6 @@ import shutil
 from pathlib import Path
 from typing import List, Tuple
 
-import pytest
-
 from bgmi.config import cfg
 from bgmi.front.index import get_player
 from bgmi.utils import episode_filter_regex, parse_episode
@@ -38,11 +36,11 @@ _episode_cases: List[Tuple[str, int]] = [
 ]
 
 
-@pytest.mark.parametrize(("title", "episode"), _episode_cases)
-def test_episode_parse(title, episode):
-    assert (
-        parse_episode(title) == episode
-    ), f"\ntitle: {title!r}\nepisode: {episode}\nparsed episode: {parse_episode(title)}"
+def test_episode_parse():
+    for title, episode in _episode_cases:
+        assert (
+            parse_episode(title) == episode
+        ), f"\ntitle: {title!r}\nepisode: {episode}\nparsed episode: {parse_episode(title)}"
 
 
 def test_remove_dupe():
