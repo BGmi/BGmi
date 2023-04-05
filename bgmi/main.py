@@ -380,6 +380,9 @@ def calendar(force_update: bool, today: bool, download_cover: bool) -> None:
             )
             print()
             print_line()
+
+            weekly_list[weekday.lower()].sort(key=lambda x: x["episode"] or -999, reverse=True)
+
             for i, bangumi in enumerate(weekly_list[weekday.lower()]):
                 if bangumi["status"] in (STATUS_UPDATED, STATUS_FOLLOWED) and "episode" in bangumi:
                     bangumi["name"] = "{}({:d})".format(bangumi["name"], bangumi["episode"])
