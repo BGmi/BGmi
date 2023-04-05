@@ -220,9 +220,10 @@ def add(names: List[str], episode: Optional[int], save_path: Optional[str]) -> N
     for name in names:
         result = ctl.add(name=name, episode=episode)
         globals()["print_{}".format(result["status"])](result["message"])
-        if result["status"] in ["success", "warning"]:
-            bangumi = Bangumi.fuzzy_get(name=name)
-            config_set(["save_path_map", bangumi.name], value=save_path.format(bangumi_name=bangumi.name))
+        if save_path:
+            if result["status"] in ["success", "warning"]:
+                bangumi = Bangumi.fuzzy_get(name=name)
+                config_set(["save_path_map", bangumi.name], value=save_path.format(bangumi_name=bangumi.name))
 
 
 @cli.command()
