@@ -87,9 +87,8 @@ class Bangumi(Base):
 
         def __init__(
             self,
-            # id: int = None,
+            id: str,
             name: str,
-            keyword: str,
             update_time: str = "Unknown",
             subtitle_group: Optional[List[str]] = None,
             cover: str = "",
