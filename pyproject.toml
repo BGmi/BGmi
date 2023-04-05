@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "bgmi"
-version = "4.4.0-alpha.1"
+version = "4.4.0-alpha.2"
 description = 'BGmi is a cli tool for subscribed bangumi.'
 authors = [{ name = "RicterZ", email = "ricterzheng@gmail.com" }]
 readme = 'README.md'
