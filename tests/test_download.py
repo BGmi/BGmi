@@ -22,7 +22,7 @@ def test_search_download(mock_download_driver: mock.Mock):
     with mock.patch("bgmi.lib.controllers.website", mock_website):
         main_for_test("search 海贼王 --download".split())
 
-    mock_website.search_by_keyword.assert_called_once_with("海贼王", count=cfg.max_path)
+    mock_website.search_by_keyword.assert_called_once_with("海贼王", count=None)
 
     mock_download_driver.add_download.assert_has_calls(
         [
@@ -80,7 +80,7 @@ def test_search_with_filter(mock_download_driver: mock.Mock):
     with mock.patch("bgmi.lib.controllers.website", mock_website):
         main_for_test("search 海贼王 --download --regex-filter .*720.*".split())
 
-    mock_website.search_by_keyword.assert_called_once_with("海贼王", count=cfg.max_path)
+    mock_website.search_by_keyword.assert_called_once_with("海贼王", count=None)
 
     mock_download_driver.add_download.assert_called_once_with(
         url="magnet:mm", save_path=os.path.join(cfg.save_path, "海贼王", "3")

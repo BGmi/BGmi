@@ -2,7 +2,7 @@ import itertools
 import os.path
 import time
 from operator import itemgetter
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import filetype
 import requests.exceptions
@@ -276,7 +276,7 @@ def mark(name: str, episode: int) -> ControllerResult:
 
 def search(
     keyword: str,
-    count: Union[str, int] = cfg.max_path,
+    count: int = cfg.max_path,
     regex: Optional[str] = None,
     dupe: bool = False,
     min_episode: Optional[int] = None,
@@ -284,10 +284,6 @@ def search(
     tag: bool = False,
     subtitle: Optional[str] = None,
 ) -> ControllerResult:
-    try:
-        count = int(count)
-    except (TypeError, ValueError):
-        count = 3
     try:
         if tag:
             data = website.search_by_tag(keyword, subtitle=subtitle, count=count)

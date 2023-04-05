@@ -1,4 +1,5 @@
 import unittest
+from unittest import mock
 
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.lib.controllers import add, cal, delete, mark, recreate_source_relatively_table, search
@@ -52,7 +53,9 @@ class ControllersTest(unittest.TestCase):
         assert r["status"] == "warning", r["message"]
 
     def test_e_search(self):
-        search(self.bangumi_name_1, dupe=False)
+        with mock.patch("bgmi.lib.fetch.website.search_by_keyword") as m:
+            m.return_value = []
+            search(self.bangumi_name_1, dupe=False)
 
     @staticmethod
     def setUpClass(*args):
