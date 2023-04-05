@@ -109,6 +109,10 @@ def config_print() -> None:
 @config.command("set")
 @click.argument("keys", nargs=-1)
 @click.option("--value", required=True)
+def _config_set(keys: List[str], value: str) -> None:
+    config_set(keys, value)
+
+
 def config_set(keys: List[str], value: str) -> None:
     doc = tomlkit.loads(CONFIG_FILE_PATH.read_text(encoding="utf-8"))
 
@@ -130,7 +134,7 @@ def config_set(keys: List[str], value: str) -> None:
         print("config is not valid after change, won't write to config file")
         return
 
-    CONFIG_FILE_PATH.write_text(tomlkit.dumps(doc))
+    CONFIG_FILE_PATH.write_text(tomlkit.dumps(doc), encoding="utf-8")
 
 
 @config.command("get")
@@ -202,15 +206,23 @@ def mark(name: str, episode: int) -> None:
     type=int,
     help="add bangumi and mark it as specified episode",
 )
-def add(names: List[str], episode: Optional[int]) -> None:
+@click.option(
+    "--save-path", type=str, help='add config.save_path_map for bangumi, example: "./{bangumi_name}/S1/" "./名侦探柯南/S1/"'
+)
+def add(names: List[str], episode: Optional[int], save_path: Optional[str]) -> None:
     """
     subscribe bangumi
 
     names: list of bangumi names to subscribe
+
+    --save-path 同时修改 config 中的 `save_path_map`。
     """
     for name in names:
         result = ctl.add(name=name, episode=episode)
         globals()["print_{}".format(result["status"])](result["message"])
+        if result["status"] in ["success", "warning"]:
+            bangumi = Bangumi.fuzzy_get(name=name)
+            config_set(["save_path_map", bangumi.name], value=save_path.format(bangumi_name=bangumi.name))
 
 
 @cli.command()

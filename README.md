@@ -255,6 +255,12 @@ bgmi add "进击的巨人 第三季" "刃牙" "哆啦A梦"
 bgmi add "高分少女" --episode 0
 ```
 
+添加番剧的同时设置下载路径:
+
+```bash
+bgmi add "高分少女" --episode 0 --save-path './高分少女/S1/'
+```
+
 退订:
 
 ```bash
