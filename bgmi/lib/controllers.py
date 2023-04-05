@@ -1,3 +1,4 @@
+import itertools
 import os.path
 import time
 from operator import itemgetter
@@ -429,11 +430,14 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             followed_obj.save()
             result["data"]["updated"].append({"bangumi": subscribe.bangumi_name, "episode": episode})
 
+            groups: Dict[int, List[Episode]] = {
+                key: list(value) for key, value in itertools.groupby(all_episode_data, lambda x: x.episode)
+            }
+
             for i in episode_range:
-                for epi in all_episode_data:
-                    if epi.episode == i:
-                        download_queue.append(epi)
-                        break
+                episodes = groups.get(i)
+                if episodes:
+                    download_queue.append(episodes.pop())
 
         if download:
             download_episodes(download_queue)
