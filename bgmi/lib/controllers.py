@@ -9,7 +9,7 @@ import sqlalchemy as sa
 
 from bgmi.config import Source, cfg
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SUPPORT_WEBSITE
-from bgmi.lib.download import Episode, download_prepare
+from bgmi.lib.download import Episode, download_episodes
 from bgmi.lib.fetch import website
 from bgmi.lib.table import (
     FOLLOWED_STATUS,
@@ -244,10 +244,6 @@ def cal(force_update: bool = False, cover: Optional[List[str]] = None) -> Dict[s
     return r
 
 
-def download(name: str, title: str, episode: int, download_url: str) -> None:
-    download_prepare([Episode(name=name, title=title, episode=episode, download=download_url)])
-
-
 def mark(name: str, episode: int) -> ControllerResult:
     """
 
@@ -387,18 +383,18 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             except Followed.NotFoundError:
                 logger.warning("missing followed bangumi '{}'", n)
 
+    if download:
+        failed = [Episode.parse_obj(x) for x in Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD)]
+        if failed:
+            print_info("try to re-downloading previous failed torrents ...")
+            download_episodes(failed)
+
     runner = ScriptRunner()
     script_download_queue = runner.run()
     if script_download_queue and download:
-        download_prepare(script_download_queue)
+        download_episodes(script_download_queue)
         downloaded.extend(script_download_queue)
         print_info("downloading ...")
-        download_prepare(
-            [
-                Episode(**{key: value for key, value in x.items() if key not in ["id", "status"]})
-                for x in Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD)
-            ]
-        )
 
     for subscribe in updated_bangumi_obj:
         download_queue = []
@@ -440,14 +436,8 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
                         break
 
         if download:
-            download_prepare(download_queue)
+            download_episodes(download_queue)
             downloaded.extend(download_queue)
-
-    if downloaded:
-        failed = [Episode.parse_obj(x) for x in Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD)]
-        if failed:
-            print_info("try to re-downloading previous failed torrents ...")
-            download_prepare(failed)
 
     return result
 

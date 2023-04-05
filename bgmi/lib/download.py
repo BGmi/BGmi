@@ -24,7 +24,7 @@ def get_download_driver(delegate: str) -> BaseDownloadService:
         raise
 
 
-def download_prepare(data: List[Episode]) -> None:
+def download_episodes(data: List[Episode]) -> None:
     driver = get_download_driver(cfg.download_delegate)
 
     for episode in data:

@@ -11,7 +11,7 @@ from typing import Any, Dict, Iterator, List, Optional, Tuple
 import sqlalchemy as sa
 
 from bgmi.config import cfg
-from bgmi.lib.download import Episode, download_prepare
+from bgmi.lib.download import Episode, download_episodes
 from bgmi.lib.fetch import DATA_SOURCE_MAP
 from bgmi.lib.table import STATUS_FOLLOWED, STATUS_UPDATED, Scripts, Session
 from bgmi.utils import print_info, print_success, print_warning
@@ -124,7 +124,7 @@ class ScriptRunner:
 
             if download:
                 print_success(f"Start downloading of {script}")
-                download_prepare([Episode(**x) for x in download_queue])
+                download_episodes([Episode(**x) for x in download_queue])
 
         return self.download_queue
 
