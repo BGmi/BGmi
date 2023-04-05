@@ -5,7 +5,7 @@ import pytest
 from bgmi.lib import controllers as ctl
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.lib.controllers import cal, recreate_source_relatively_table
-from bgmi.lib.table import Bangumi, Filter, Followed, NotFoundError, Session, Subtitle
+from bgmi.lib.table import Bangumi, Followed, NotFoundError, Session, Subtitle
 
 bangumi_name_1 = "名侦探柯南"
 bangumi_name_2 = "海贼王"
@@ -15,7 +15,6 @@ def ensure_data():
     with Session.begin() as tx:
         tx.query(Bangumi).delete()
         tx.query(Followed).delete()
-        tx.query(Filter).delete()
         tx.query(Subtitle).delete()
         tx.add(Bangumi(name=bangumi_name_1, keyword="1", subtitle_group=["id1", "id2"]))
         tx.add(Bangumi(name=bangumi_name_2, keyword="2"))
@@ -27,7 +26,6 @@ def ensure_data():
             ]
         )
         tx.add(Followed(bangumi_name=bangumi_name_1, episode=2))
-        tx.add(Filter(bangumi_name=bangumi_name_1))
 
 
 def test_add():
@@ -62,7 +60,7 @@ def test_filter():
         regex="regex",
     )
 
-    f = Filter.get(Filter.bangumi_name == bangumi_name_1)
+    f = Followed.get(Followed.bangumi_name == bangumi_name_1)
 
     assert f.subtitle == ["id1"]
     assert f.include == ["include"]
