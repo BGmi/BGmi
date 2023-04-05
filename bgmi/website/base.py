@@ -3,6 +3,8 @@ from collections import defaultdict
 from itertools import chain
 from typing import Any, Dict, List, Optional, Tuple, TypeVar
 
+import sqlalchemy as sa
+
 from bgmi.config import cfg
 from bgmi.lib.table import (
     STATUS_FOLLOWED,
@@ -26,31 +28,34 @@ class BaseWebsite:
     @staticmethod
     def save_bangumi(data: WebsiteBangumi) -> None:
         """save bangumi to database"""
-
         with Session.begin() as session:
             subtitle_group = ", ".join([x.id for x in data.subtitle_group])
             try:
                 b = Bangumi.get(Bangumi.keyword == data.keyword)
+
                 b.cover = data.cover
                 b.update_time = data.update_time
                 b.status = STATUS_UPDATING
-
                 b.subtitle_group = subtitle_group
 
                 session.add(b)
-
             except NotFoundError:
                 session.add(Bangumi(**data.dict(), subtitle_group=subtitle_group))
 
         for subtitle in data.subtitle_group:
             with Session.begin() as session:
-                session.add(Subtitle(id=str(subtitle.id), name=str(subtitle.name)))
+                s = session.scalar(sa.select(Subtitle).where(Subtitle.id == subtitle.id))
+                if s:
+                    s.name = subtitle.name
+                else:
+                    session.add(Subtitle(id=subtitle.id, name=subtitle.name))
 
     def fetch(self, group_by_weekday: bool = True) -> Any:
         bangumi_result = self.fetch_bangumi_calendar()
         if not bangumi_result:
             print("can't fetch anything from website")
             return []
+
         Bangumi.delete_all()
         for bangumi in bangumi_result:
             self.save_bangumi(bangumi)
