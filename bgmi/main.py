@@ -287,7 +287,8 @@ def filter_cmd(
     if "data" not in result:
         globals()["print_{}".format(result["status"])](result["message"])
     else:
-        print_info("Usable subtitle group: {}".format(", ".join(result["data"]["subtitle_group"])))
+        print("Usable subtitle group: {}".format(", ".join(result["data"]["subtitle_group"])))
+        print()
         filter_obj = Followed.get(Followed.bangumi_name == result["data"]["name"])
         print_filter(filter_obj)
 
