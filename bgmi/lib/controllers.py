@@ -469,9 +469,7 @@ def followed_bangumi() -> Dict[str, list]:
         weekly_list[k].extend(v)
     for bangumi_list in weekly_list.values():
         for bangumi in bangumi_list:
-            bangumi["subtitle_group"] = [
-                {"name": x.name, "id": x.id} for x in Subtitle.get_subtitle_by_id(bangumi["subtitle_group"])
-            ]
+            bangumi["subtitle_group"] = Subtitle.get_subtitle_by_id(bangumi["subtitle_group"])
     return weekly_list
 
 
@@ -501,7 +499,7 @@ def list_() -> ControllerResult:
                     bangumi["name"] = f"{bangumi['name']}({bangumi['episode']:d})"
                 if j > 0:
                     result["message"] += " " * 5
-                f = [x["name"] for x in bangumi["subtitle_group"]]
+                f = [x.name for x in bangumi["subtitle_group"]]
                 result["message"] += "{}: {}\n".format(bangumi["name"], ", ".join(f) if f else "<None>")
 
     return result
