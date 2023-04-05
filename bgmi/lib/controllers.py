@@ -56,7 +56,7 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
         website.fetch(group_by_weekday=False)
 
     try:
-        bangumi_obj = Bangumi.fuzzy_get(name=name)
+        bangumi_obj = Bangumi.get(Bangumi.name.contains(name))
         name = bangumi_obj.name
     except Bangumi.NotFoundError:
         result = {
@@ -104,7 +104,7 @@ def filter_(
 ) -> ControllerResult:
     result = {"status": "success", "message": ""}  # type: Dict[str, Any]
     try:
-        bangumi_obj = Bangumi.fuzzy_get(name=name)
+        bangumi_obj = Bangumi.get(Bangumi.name.contains(name))
     except Bangumi.NotFoundError:
         result["status"] = "error"
         result["message"] = f"Bangumi {name} does not exist."

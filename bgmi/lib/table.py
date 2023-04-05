@@ -141,10 +141,6 @@ class Bangumi(Base):
 
         return weekly_list
 
-    @classmethod
-    def fuzzy_get(cls, name: str) -> "Bangumi":
-        return cls.get(cls.name.contains(name))
-
 
 class Followed(Base):
     __tablename__ = "followed"
