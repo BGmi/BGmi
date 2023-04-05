@@ -89,7 +89,7 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
 
     followed_obj.save()
 
-    result = {"status": "success", "message": f"{bangumi_obj.name} has been followed"}
+    result = {"status": "success", "message": f"add {bangumi_obj.name} to subscribing bangumi list"}
     logger.debug(result)
     return result
 
