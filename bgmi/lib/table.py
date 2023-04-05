@@ -153,14 +153,16 @@ class Followed(Base):
     STATUS_FOLLOWED = 1
     STATUS_UPDATED = 2
 
-    bangumi_name: Mapped[str] = Column(Text, primary_key=True)  # type: ignore
-    episode: Mapped[int] = Column(Integer, default=0, server_default="0")  # type: ignore
-    status: Mapped[int] = Column(Integer, default=STATUS_UPDATING, server_default=str(STATUS_UPDATING))  # type: ignore
-    updated_time: Mapped[int] = Column(Integer, default=0, server_default="0")  # type: ignore
-    subtitle: List[str] = Column(sa.JSON, default=[], server_default="[]")  # type: ignore
-    include: Mapped[List[str]] = Column(sa.JSON, default=[], server_default="[]")  # type: ignore
-    exclude: Mapped[List[str]] = Column(sa.JSON, default=[], server_default="[]")  # type: ignore
-    regex: Mapped[str] = Column(Text, default="", server_default="")  # type: ignore
+    bangumi_name: Mapped[str] = Column(Text, nullable=False, primary_key=True)  # type: ignore
+    episode: Mapped[int] = Column(Integer, nullable=False, default=0, server_default="0")  # type: ignore
+    status: Mapped[int] = Column(
+        Integer, nullable=False, default=STATUS_UPDATING, server_default=str(STATUS_UPDATING)
+    )  # type: ignore
+    updated_time: Mapped[int] = Column(Integer, nullable=False, default=0, server_default="0")  # type: ignore
+    subtitle: List[str] = Column(sa.JSON, nullable=False, default=[], server_default="[]")  # type: ignore
+    include: Mapped[List[str]] = Column(sa.JSON, nullable=False, default=[], server_default="[]")  # type: ignore
+    exclude: Mapped[List[str]] = Column(sa.JSON, nullable=False, default=[], server_default="[]")  # type: ignore
+    regex: Mapped[str] = Column(Text, nullable=False, default="", server_default="")  # type: ignore
 
     @classmethod
     def delete_followed(cls, batch: bool = True) -> bool:
@@ -207,7 +209,7 @@ class Followed(Base):
 class Download(Base):
     __tablename__ = "download"
 
-    id: Mapped[int] = Column(Integer, primary_key=True)  # type: ignore
+    id: Mapped[int] = Column(Integer, nullable=False, primary_key=True)  # type: ignore
     bangumi_name: Mapped[str] = Column("name", Text, nullable=False)  # type: ignore
     title: Mapped[str] = Column(Text, nullable=False)  # type: ignore
     episode: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
@@ -232,7 +234,7 @@ class Download(Base):
 class Subtitle(Base):
     __tablename__ = "subtitle"
 
-    id: Mapped[str] = Column(Text, primary_key=True)  # type: ignore
+    id: Mapped[str] = Column(Text, nullable=False, primary_key=True)  # type: ignore
     name: Mapped[str] = Column(Text, nullable=False)  # type: ignore
 
     @classmethod
