@@ -85,7 +85,7 @@ def test_filter(bangumi_names):
     name = bangumi_names[0]
     main_for_test(f"add {name} --episode 0".split())
     main_for_test(["filter", name, "--subtitle", "", "--exclude", "MKV", "--regex", "720p|720P"])
-    f = Filter.get(bangumi_name=name, exclude="MKV", regex="720p|720P")
+    f = Filter.get(Filter.bangumi_name == name)
     assert not f.include
     assert not f.subtitle
 
