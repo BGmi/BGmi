@@ -88,7 +88,7 @@ def parser_bangumi(data: List[BangumiData]):
             "status": 0,
             "subtitle_group": [SubtitleGroup(id=id, name=name) for id, name in subtitle_of_bangumi.items()],
             "name": name[bangumi_item["tag_id"]],
-            "keyword": bangumi_item["tag_id"],
+            "id": bangumi_item["tag_id"],
             "update_time": bangumi_update_time_known[(bangumi_item["showOn"] + 7) % 7],
             "cover": COVER_URL + bangumi_item["cover"],
         }
