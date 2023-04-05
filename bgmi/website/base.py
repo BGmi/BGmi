@@ -40,7 +40,16 @@ class BaseWebsite:
 
                 session.add(b)
             except NotFoundError:
-                session.add(Bangumi(**data.dict(), subtitle_group=subtitle_group))
+                session.add(
+                    Bangumi(
+                        name=data.name,
+                        keyword=data.keyword,
+                        update_time=data.update_time,
+                        cover=data.cover,
+                        status=STATUS_UPDATING,
+                        subtitle_group=subtitle_group,
+                    )
+                )
 
         for subtitle in data.subtitle_group:
             with Session.begin() as session:

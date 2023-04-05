@@ -23,7 +23,7 @@ def test_cal_force_update():
     with mock.patch("bgmi.lib.controllers.website", MockWebsite()):
         main_for_test("cal -f".split())
         assert [
-            x.name for x in Bangumi.select().where(Bangumi.update_time == "Unknown")
+            x.name for x in Bangumi.all(Bangumi.update_time == "Unknown")
         ], "at least 1 bangumi's update_time is 'Unknown'"
 
 

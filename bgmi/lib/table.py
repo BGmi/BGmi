@@ -54,6 +54,11 @@ class Base(DeclarativeBase):
                 raise NotFoundError(cls)
             return o
 
+    @classmethod
+    def all(cls: Type[T], *where: Any) -> List[T]:
+        with Session.begin() as session:
+            return list(session.scalar(sa.select(cls).where(*where)).all())
+
     def save(self) -> None:
         with Session.begin() as session:
             session.add(self)
@@ -246,7 +251,7 @@ class Scripts(Base):
     bangumi_name: Mapped[str] = Column(Text, nullable=False, unique=True)  # type: ignore
     episode: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
     status: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
-    updated_time: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
+    updated_time: Mapped[int] = Column(Integer, nullable=False, default=0, server_default="0")  # type: ignore
 
 
 def recreate_source_relatively_table() -> None:

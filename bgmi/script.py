@@ -158,6 +158,7 @@ class ScriptBase:
                             bangumi_name=self.bangumi_name,
                             episode=0,
                             status=STATUS_FOLLOWED,
+                            updated_time=0,
                         )
                         session.add(s)
 
