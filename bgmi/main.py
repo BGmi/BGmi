@@ -433,7 +433,7 @@ def fetch(name: str, not_ignore: bool) -> None:
     print_filter(followed_filter_obj)
 
     print_info(f"Fetch bangumi {bangumi_obj.name} ...")
-    _, data = website.get_maximum_episode(bangumi_obj, ignore_old_row=not bool(not_ignore))
+    data = website.get_maximum_episode(bangumi_obj, ignore_old_row=not bool(not_ignore))
 
     if not data:
         print_warning("Nothing.")

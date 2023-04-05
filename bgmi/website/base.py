@@ -1,7 +1,7 @@
 import time
 from collections import defaultdict
 from itertools import chain
-from typing import Any, Dict, List, Optional, Tuple, TypeVar
+from typing import Any, Dict, List, Optional, TypeVar
 
 import sqlalchemy as sa
 
@@ -100,7 +100,7 @@ class BaseWebsite:
         bangumi: Bangumi,
         ignore_old_row: bool = True,
         max_page: int = cfg.max_path,
-    ) -> Tuple[int, List[Episode]]:
+    ) -> List[Episode]:
         followed_filter_obj = Filter.get(Filter.bangumi_name == bangumi.name)
 
         info = self.fetch_single_bangumi(
@@ -125,11 +125,7 @@ class BaseWebsite:
         if ignore_old_row:
             data = [row for row in data if row.time > int(time.time()) - 3600 * 24 * 30 * 3]  # three month
 
-        if data:
-            b = max(data, key=lambda _i: _i.episode)
-            return b.episode, data
-        else:
-            return 0, []
+        return data
 
     def fetch_episode(
         self,

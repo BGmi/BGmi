@@ -88,8 +88,11 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
             session.add(Filter(bangumi_name=name))
 
     if episode is None:
-        max_episode, _ = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)
-        followed_obj.episode = max_episode
+        episodes = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)
+        if episodes:
+            followed_obj.episode = max(e.episode for e in episodes)
+        else:
+            followed_obj.episode = 0
     else:
         followed_obj.episode = episode
 
@@ -412,12 +415,17 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             continue
 
         try:
-            episode, all_episode_data = website.get_maximum_episode(
+            all_episode_data = website.get_maximum_episode(
                 bangumi=bangumi_obj, ignore_old_row=ignore, max_page=cfg.max_path
             )
         except requests.exceptions.ConnectionError as e:
             print_warning(f"error {e} to fetch {bangumi_obj.name}, skip")
             continue
+
+        if all_episode_data:
+            episode = max(e.episode for e in all_episode_data)
+        else:
+            episode = 0
 
         # TODO(v5): add default to column and remove this
         saved_episode = subscribe.episode or 0
