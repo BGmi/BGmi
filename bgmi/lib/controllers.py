@@ -56,6 +56,7 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
 
     try:
         bangumi_obj = Bangumi.fuzzy_get(name=name)
+        name = bangumi_obj.name
     except Bangumi.NotFoundError:
         result = {
             "status": "error",
@@ -80,7 +81,10 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
             else:
                 followed_obj.status = STATUS_FOLLOWED
 
-        session.add(Filter(bangumi_name=name))
+        try:
+            Filter.get(Filter.bangumi_name == name)
+        except Filter.NotFoundError:
+            session.add(Filter(bangumi_name=name))
 
     max_episode, _ = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)
     followed_obj.episode = max_episode if episode is None else episode
