@@ -148,7 +148,7 @@ class Bangumi(NeoDB):
 
 class Followed(NeoDB):
     bangumi_name = TextField(unique=True)
-    episode = IntegerField(null=True)
+    episode = IntegerField(null=True, default=0)
     status = IntegerField(null=True)
     updated_time = IntegerField(null=True)
 
