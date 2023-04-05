@@ -83,20 +83,13 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
 
     if episode is None:
         episodes = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)
-        if episodes:
-            followed_obj.episode = max(e.episode for e in episodes)
-        else:
-            followed_obj.episode = 0
+        followed_obj.episode = max(e.episode for e in episodes) if episodes else 0
     else:
         followed_obj.episode = episode
 
-    with Session.begin() as session:
-        session.add(followed_obj)
+    followed_obj.save()
 
-    result = {
-        "status": "success",
-        "message": f"{bangumi_obj.name} has been followed",
-    }
+    result = {"status": "success", "message": f"{bangumi_obj.name} has been followed"}
     logger.debug(result)
     return result
 
