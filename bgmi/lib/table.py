@@ -1,7 +1,7 @@
 import os
 import time
 from collections import defaultdict
-from typing import Any, Dict, List, Optional, Type, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, TypeVar
 
 import sqlalchemy as sa
 from sqlalchemy import CHAR, Column, Integer, Text, create_engine
@@ -75,15 +75,29 @@ class Bangumi(Base):
 
     id: Mapped[int] = Column(Integer, primary_key=True)  # type: ignore
     name: Mapped[str] = Column(Text, nullable=False, unique=True)  # type: ignore
-    subtitle_group: Mapped[str] = Column(Text, nullable=False)  # type: ignore
+    subtitle_group: Mapped[List[str]] = Column(sa.JSON, nullable=False, default=[], server_default="[]")  # type: ignore
     keyword: Mapped[str] = Column(Text, nullable=False)  # type: ignore
     update_time: Mapped[str] = Column(
         CHAR(5), nullable=False, default="Unknown", server_default="Unknown"
     )  # type: ignore
-    cover: Mapped[str] = Column(Text, nullable=False)  # type: ignore
+    cover: Mapped[str] = Column(Text, nullable=False, default="", server_default="")  # type: ignore
     status: Mapped[int] = Column(
         Integer, nullable=False, default=STATUS_UPDATING, server_default=str(STATUS_UPDATING)
     )  # type: ignore
+
+    if TYPE_CHECKING:
+
+        def __init__(
+            self,
+            # id: int = None,
+            name: str,
+            keyword: str,
+            update_time: str = "Unknown",
+            subtitle_group: Optional[List[str]] = None,
+            cover: str = "",
+            status: int = STATUS_UPDATING,
+        ):
+            ...
 
     @classmethod
     def delete_all(cls) -> None:
@@ -203,23 +217,15 @@ class Filter(Base):
 
     id: Mapped[int] = Column(Integer, primary_key=True)  # type: ignore
     bangumi_name: Mapped[str] = Column(Text, nullable=False, unique=True)  # type: ignore
-    subtitle: Mapped[str] = Column(Text)  # type: ignore
-    include: Mapped[str] = Column(Text)  # type: ignore
-    exclude: Mapped[str] = Column(Text)  # type: ignore
-    regex: Mapped[str] = Column(Text)  # type: ignore
-
-    @property
-    def subtitle_group_split(self) -> List[str]:
-        if self.subtitle:
-            # pylint:disable=no-member
-            return [x.strip() for x in self.subtitle.split(",")]
-        else:
-            return []
+    subtitle: List[str] = Column(sa.JSON, default=[], server_default="[]")  # type: ignore
+    include: Mapped[List[str]] = Column(sa.JSON, default=[], server_default="[]")  # type: ignore
+    exclude: Mapped[List[str]] = Column(sa.JSON, default=[], server_default="[]")  # type: ignore
+    regex: Mapped[str] = Column(Text, default="", server_default="")  # type: ignore
 
     def apply_on_episodes(self, result: List[Episode]) -> List[Episode]:
         if self.include:
             # pylint:disable=no-member
-            include_list = [s.strip().lower() for s in self.include.split(",")]
+            include_list = [s.strip().lower() for s in self.include]
             result = [e for e in result if e.contains_any_words(include_list)]
 
         if cfg.enable_global_include_keywords:
@@ -228,7 +234,7 @@ class Filter(Base):
 
         if self.exclude:
             # pylint:disable=no-member
-            exclude_list = [s.strip().lower() for s in self.exclude.split(",")]
+            exclude_list = [s.strip().lower() for s in self.exclude]
             result = [e for e in result if not e.contains_any_words(exclude_list)]
 
         return episode_filter_regex(data=result, regex=self.regex)

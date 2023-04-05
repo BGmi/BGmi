@@ -29,7 +29,7 @@ class BaseWebsite:
     def save_bangumi(data: WebsiteBangumi) -> None:
         """save bangumi to database"""
         with Session.begin() as session:
-            subtitle_group = ", ".join([x.id for x in data.subtitle_group])
+            subtitle_group = sorted([x.id for x in data.subtitle_group])
             try:
                 b = Bangumi.get(Bangumi.keyword == data.keyword)
 
@@ -105,7 +105,7 @@ class BaseWebsite:
 
         info = self.fetch_single_bangumi(
             bangumi.keyword,
-            subtitle_list=followed_filter_obj.subtitle_group_split,
+            subtitle_list=followed_filter_obj.subtitle,
             max_page=max_page,
         )
         if info is not None:
@@ -115,7 +115,7 @@ class BaseWebsite:
             data = self.fetch_episode_of_bangumi(
                 bangumi_id=bangumi.keyword,
                 max_page=max_page,
-                subtitle_list=followed_filter_obj.subtitle_group_split,
+                subtitle_list=followed_filter_obj.subtitle,
             )
             data = followed_filter_obj.apply_on_episodes(data)
 
