@@ -226,7 +226,7 @@ def add(names: List[str], episode: Optional[int], save_path: Optional[str]) -> N
         globals()["print_{}".format(result["status"])](result["message"])
         if save_path:
             if result["status"] in ["success", "warning"]:
-                bangumi = Bangumi.fuzzy_get(name=name)
+                bangumi = Bangumi.get(Bangumi.name.contains(name))
                 config_set(["save_path_map", bangumi.name], value=save_path.format(bangumi_name=bangumi.name))
 
 
