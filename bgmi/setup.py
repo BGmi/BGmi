@@ -5,7 +5,7 @@ from typing import List
 
 from bgmi.config import BGMI_PATH, IS_WINDOWS, cfg
 from bgmi.lib.table import Base, engine
-from bgmi.utils import print_error, print_info, print_success, print_warning
+from bgmi.utils import print_error, print_info, print_success
 
 
 def install_crontab() -> None:
@@ -31,9 +31,6 @@ def create_dir() -> None:
         cfg.tools_path,
         cfg.front_static_path,
     ]
-
-    if not os.environ.get("HOME", os.environ.get("USERPROFILE", "")):
-        print_warning("$HOME not set, use '/tmp/'")
 
     # bgmi home dir
     try:
