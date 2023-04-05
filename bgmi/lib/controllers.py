@@ -86,8 +86,11 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
         except Filter.NotFoundError:
             session.add(Filter(bangumi_name=name))
 
-    max_episode, _ = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)
-    followed_obj.episode = max_episode if episode is None else episode
+    if episode is None:
+        max_episode, _ = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)
+        followed_obj.episode = max_episode
+    else:
+        followed_obj.episode = episode
 
     with Session.begin() as session:
         session.add(followed_obj)
@@ -174,19 +177,21 @@ def delete(name: str = "", clear_all: bool = False, batch: bool = False) -> Cont
         else:
             print_error("user canceled")
     elif name:
-        followed = Followed.get(Followed.bangumi_name == name)
-        if not followed:
-            result["status"] = "error"
-            result["message"] = f"Bangumi {name} does not exist"
-        else:
+        try:
+            followed = Followed.get(Followed.bangumi_name == name)
             followed.status = STATUS_DELETED
             followed.save()
             result["status"] = "warning"
             result["message"] = f"Bangumi {name} has been deleted"
+        except Followed.NotFoundError:
+            result["status"] = "error"
+            result["message"] = f"Bangumi {name} does not exist"
     else:
         result["status"] = "warning"
         result["message"] = "Nothing has been done."
+
     logger.debug(result)
+
     return result
 
 

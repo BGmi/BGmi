@@ -135,6 +135,10 @@ class Bangumi(Base):
 class Followed(Base):
     __tablename__ = "followed"
 
+    STATUS_DELETED = 0
+    STATUS_FOLLOWED = 1
+    STATUS_UPDATED = 2
+
     id: Mapped[int] = Column(Integer, primary_key=True)  # type: ignore
     bangumi_name: Mapped[str] = Column(Text, nullable=False, unique=True)  # type: ignore
     episode: Mapped[int] = Column(Integer, default=0, server_default="0")  # type: ignore
