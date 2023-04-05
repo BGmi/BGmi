@@ -1,6 +1,7 @@
 import datetime
 import itertools
 import os
+import platform
 import sys
 from operator import itemgetter
 from typing import List, Mapping, Optional, Tuple
@@ -518,3 +519,16 @@ def history() -> None:
                 month = date.month
 
             print(f"  |      |--- [{color}{slogan:<9}{COLOR_END}] ({i.episode:<2}) {i.bangumi_name}")
+
+
+@cli.group("debug")
+def debug():
+    ...
+
+
+@debug.command("info")
+def debug_info():
+    print(f"bgmi version: `{__version__}`")
+    print(f"python version: `{sys.version}`")
+    print(f"os: `{platform.platform()}`")
+    print(f"arch: `{platform.architecture()}`")

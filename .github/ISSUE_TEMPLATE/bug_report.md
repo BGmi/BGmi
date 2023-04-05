@@ -25,14 +25,8 @@ If applicable, add screenshots to help explain your problem.
 ## System Info:
 
 <!--
-run this in your bash:
-
-python -c 'import sys, bgmi, platform
-print(f"OS: `{platform.platform()}`")
-print(f"python: `{sys.version}`")
-print(f"bgmi: `{bgmi.__version__}`")'
-
-and copy result below:
+Please run `bgmi debug info` and paste output below:
+请运行 `bgmi debug info` 并将输出粘贴到这里:
 -->
 
 
