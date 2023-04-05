@@ -522,12 +522,12 @@ def history() -> None:
 
 
 @cli.group("debug")
-def debug():
+def debug() -> None:
     ...
 
 
 @debug.command("info")
-def debug_info():
+def debug_info() -> None:
     print(f"bgmi version: `{__version__}`")
     print(f"python version: `{sys.version}`")
     print(f"os: `{platform.platform()}`")
