@@ -8,10 +8,12 @@ from importlib.machinery import SourceFileLoader
 from operator import itemgetter
 from typing import Any, Dict, Iterator, List, Optional, Tuple
 
+import sqlalchemy as sa
+
 from bgmi.config import cfg
 from bgmi.lib.download import Episode, download_prepare
 from bgmi.lib.fetch import DATA_SOURCE_MAP
-from bgmi.lib.models import STATUS_FOLLOWED, STATUS_UPDATED, Scripts
+from bgmi.lib.table import STATUS_FOLLOWED, STATUS_UPDATED, Scripts, Session
 from bgmi.utils import print_info, print_success, print_warning
 from bgmi.website.model import WebsiteBangumi
 
@@ -149,10 +151,17 @@ class ScriptBase:
 
         def __init__(self) -> None:
             if self.bangumi_name is not None:
-                s, _ = Scripts.get_or_create(
-                    bangumi_name=self.bangumi_name,
-                    defaults={"episode": 0, "status": STATUS_FOLLOWED},
-                )  # type: Scripts, bool
+                with Session.begin() as session:
+                    s: Scripts = session.scalar(sa.select(Scripts).where(Scripts.bangumi_name == self.bangumi_name))
+                    if not s:
+                        s = Scripts(
+                            bangumi_name=self.bangumi_name,
+                            episode=0,
+                            status=STATUS_FOLLOWED,
+                            updated_time=0,
+                        )
+                        session.add(s)
+
                 self.obj = s
 
         def __iter__(self) -> Iterator[Tuple[str, Any]]:

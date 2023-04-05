@@ -8,6 +8,7 @@ from typing import List, Mapping, Optional, Tuple
 
 import click
 import pydantic
+import sqlalchemy as sa
 import tomlkit
 import wcwidth
 from loguru import logger
@@ -19,7 +20,7 @@ from bgmi.lib import controllers as ctl
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
-from bgmi.lib.models import STATUS_DELETED, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, Filter, Followed, Subtitle
+from bgmi.lib.table import STATUS_DELETED, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, Filter, Followed, Session, Subtitle
 from bgmi.lib.update import update_database
 from bgmi.script import ScriptRunner
 from bgmi.setup import create_dir, init_db, install_crontab
@@ -287,14 +288,14 @@ def filter_cmd(
         globals()["print_{}".format(result["status"])](result["message"])
     else:
         print_info("Usable subtitle group: {}".format(", ".join(result["data"]["subtitle_group"])))
-        followed_filter_obj = Filter.get(bangumi_name=result["data"]["name"])
+        followed_filter_obj = Filter.get(Filter.bangumi_name == result["data"]["name"])
         print_filter(followed_filter_obj)
 
 
 def print_filter(followed_filter_obj: Filter) -> None:
     print(
         "Followed subtitle group: {}".format(
-            ", ".join(x["name"] for x in Subtitle.get_subtitle_by_id(followed_filter_obj.subtitle.split(", ")))
+            ", ".join(x.name for x in Subtitle.get_subtitle_by_id(followed_filter_obj.subtitle.split(", ")))
             if followed_filter_obj.subtitle
             else "None"
         )
@@ -419,18 +420,16 @@ def fetch(name: str, not_ignore: bool) -> None:
     """
 
     try:
-        bangumi_obj = Bangumi.get(name=name)
-    except Bangumi.DoesNotExist:
+        bangumi_obj = Bangumi.get(Bangumi.name == name)
+    except Bangumi.NotFoundError:
         print_error(f"Bangumi {name} not exist", stop=True)
         return
 
-    try:
-        Followed.get(bangumi_name=bangumi_obj.name)
-    except Followed.DoesNotExist:
+    if not Followed.get(Followed.bangumi_name == bangumi_obj.name):
         print_error(f"Bangumi {name} is not followed")
         return
 
-    followed_filter_obj = Filter.get(bangumi_name=name)
+    followed_filter_obj = Filter.get(Filter.bangumi_name == name)
     print_filter(followed_filter_obj)
 
     print_info(f"Fetch bangumi {bangumi_obj.name} ...")
@@ -500,7 +499,8 @@ def history() -> None:
         "November",
         "December",
     )
-    data = Followed.select(Followed).order_by(Followed.updated_time.asc())
+    with Session.begin() as session:
+        data = session.scalars(sa.select(Followed).order_by(Followed.updated_time.asc())).all()
     bangumi_data = Bangumi.get_updating_bangumi()
     year = None
     month = None

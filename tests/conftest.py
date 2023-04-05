@@ -9,7 +9,7 @@ import requests_cache
 import urllib3
 
 from bgmi.config import IS_WINDOWS, cfg
-from bgmi.lib.models import recreate_scripts_table, recreate_source_relatively_table
+from bgmi.lib.table import recreate_scripts_table, recreate_source_relatively_table
 
 
 def pytest_addoption(parser):

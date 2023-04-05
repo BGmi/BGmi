@@ -3,8 +3,19 @@ from collections import defaultdict
 from itertools import chain
 from typing import Any, Dict, List, Optional, Tuple, TypeVar
 
+import sqlalchemy as sa
+
 from bgmi.config import cfg
-from bgmi.lib.models import STATUS_FOLLOWED, STATUS_UPDATED, STATUS_UPDATING, Bangumi, Filter, Subtitle
+from bgmi.lib.table import (
+    STATUS_FOLLOWED,
+    STATUS_UPDATED,
+    STATUS_UPDATING,
+    Bangumi,
+    Filter,
+    NotFoundError,
+    Session,
+    Subtitle,
+)
 from bgmi.utils import parse_episode
 from bgmi.website.model import Episode, WebsiteBangumi
 
@@ -17,42 +28,43 @@ class BaseWebsite:
     @staticmethod
     def save_bangumi(data: WebsiteBangumi) -> None:
         """save bangumi to database"""
-        b, obj_created = Bangumi.get_or_create(keyword=data.keyword, defaults=data.dict())
-        if not obj_created:
-            should_save = False
-            if data.cover and b.cover != data.cover:
+        with Session.begin() as session:
+            subtitle_group = ", ".join([x.id for x in data.subtitle_group])
+            try:
+                b = Bangumi.get(Bangumi.keyword == data.keyword)
+
                 b.cover = data.cover
-                should_save = True
-
-            if data.update_time not in ("Unknown", b.update_time):
                 b.update_time = data.update_time
-                should_save = True
-
-            subtitle_group = Bangumi(subtitle_group=data.subtitle_group).subtitle_group
-
-            if b.status != STATUS_UPDATING or b.subtitle_group != subtitle_group:
                 b.status = STATUS_UPDATING
                 b.subtitle_group = subtitle_group
-                should_save = True
 
-            if should_save:
-                b.save()
+                session.add(b)
+            except NotFoundError:
+                session.add(
+                    Bangumi(
+                        name=data.name,
+                        keyword=data.keyword,
+                        update_time=data.update_time,
+                        cover=data.cover,
+                        status=STATUS_UPDATING,
+                        subtitle_group=subtitle_group,
+                    )
+                )
 
-        for subtitle_group in data.subtitle_group:
-            (
-                Subtitle.insert(
-                    {
-                        Subtitle.id: str(subtitle_group.id),
-                        Subtitle.name: str(subtitle_group.name),
-                    }
-                ).on_conflict_replace()
-            ).execute()
+        for subtitle in data.subtitle_group:
+            with Session.begin() as session:
+                s = session.scalar(sa.select(Subtitle).where(Subtitle.id == subtitle.id))
+                if s:
+                    s.name = subtitle.name
+                else:
+                    session.add(Subtitle(id=subtitle.id, name=subtitle.name))
 
     def fetch(self, group_by_weekday: bool = True) -> Any:
         bangumi_result = self.fetch_bangumi_calendar()
         if not bangumi_result:
             print("can't fetch anything from website")
             return []
+
         Bangumi.delete_all()
         for bangumi in bangumi_result:
             self.save_bangumi(bangumi)
@@ -78,7 +90,7 @@ class BaseWebsite:
         for bangumi_list in weekly_list.values():
             for bangumi in bangumi_list:
                 bangumi["subtitle_group"] = [
-                    {"name": x["name"], "id": x["id"]}
+                    {"name": x.name, "id": x.id}
                     for x in Subtitle.get_subtitle_by_id(bangumi["subtitle_group"].split(", "))
                 ]
         return weekly_list
@@ -89,7 +101,7 @@ class BaseWebsite:
         ignore_old_row: bool = True,
         max_page: int = cfg.max_path,
     ) -> Tuple[int, List[Episode]]:
-        followed_filter_obj, _ = Filter.get_or_create(bangumi_name=bangumi.name)
+        followed_filter_obj = Filter.get(Filter.bangumi_name == bangumi.name)
 
         info = self.fetch_single_bangumi(
             bangumi.keyword,

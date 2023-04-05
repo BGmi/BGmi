@@ -5,7 +5,7 @@ import pytest
 
 from bgmi.config import cfg
 from bgmi.lib.controllers import update
-from bgmi.lib.models import Bangumi, Followed
+from bgmi.lib.table import Bangumi, Followed
 from bgmi.main import main_for_test
 from bgmi.website.model import Episode
 
