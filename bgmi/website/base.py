@@ -11,7 +11,6 @@ from bgmi.lib.table import (
     Bangumi,
     Filter,
     NotFoundError,
-    SaBangumi,
     Session,
     Subtitle,
 )
@@ -31,7 +30,7 @@ class BaseWebsite:
         with Session.begin() as session:
             subtitle_group = ", ".join([x.id for x in data.subtitle_group])
             try:
-                b = SaBangumi.get(SaBangumi.keyword == data.keyword)
+                b = Bangumi.get(Bangumi.keyword == data.keyword)
                 b.cover = data.cover
                 b.update_time = data.update_time
                 b.status = STATUS_UPDATING
@@ -41,7 +40,7 @@ class BaseWebsite:
                 session.add(b)
 
             except NotFoundError:
-                session.add(SaBangumi(**data.dict(), subtitle_group=subtitle_group))
+                session.add(Bangumi(**data.dict(), subtitle_group=subtitle_group))
 
         for subtitle in data.subtitle_group:
             (
@@ -90,11 +89,11 @@ class BaseWebsite:
 
     def get_maximum_episode(
         self,
-        bangumi: SaBangumi,
+        bangumi: Bangumi,
         ignore_old_row: bool = True,
         max_page: int = cfg.max_path,
     ) -> Tuple[int, List[Episode]]:
-        followed_filter_obj, _ = Filter.get_or_create(bangumi_name=bangumi.name)
+        followed_filter_obj = Filter.get(Filter.bangumi_name == bangumi.name)
 
         info = self.fetch_single_bangumi(
             bangumi.keyword,

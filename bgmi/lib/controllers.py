@@ -18,12 +18,10 @@ from bgmi.lib.table import (
     STATUS_NOT_DOWNLOAD,
     STATUS_UPDATED,
     Bangumi,
-    DoesNotExist,
     Download,
     Filter,
     Followed,
     NotFoundError,
-    SaBangumi,
     Session,
     Subtitle,
     recreate_source_relatively_table,
@@ -403,7 +401,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
         download_queue = []
         print_info(f"fetching {subscribe.bangumi_name} ...")
         try:
-            bangumi_obj = SaBangumi.get(SaBangumi.name == subscribe.bangumi_name)
+            bangumi_obj = Bangumi.get(Bangumi.name == subscribe.bangumi_name)
         except NotFoundError:
             logger.error("Bangumi<{}> does not exists.", subscribe.bangumi_name)
             continue

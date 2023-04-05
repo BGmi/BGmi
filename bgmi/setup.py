@@ -1,12 +1,11 @@
 import os
 from pathlib import Path
 from shutil import copy
-from typing import List, Type
+from typing import List
 
 from bgmi import __version__
 from bgmi.config import BGMI_PATH, IS_WINDOWS, cfg
-from bgmi.lib import table
-from bgmi.lib.table import Base, NeoDB, engine
+from bgmi.lib.table import Base, engine
 from bgmi.utils import print_error, print_info, print_success, print_warning
 
 
@@ -54,13 +53,3 @@ def create_dir() -> None:
 
 def init_db() -> None:
     Base.metadata.create_all(engine, checkfirst=True)
-
-    tables: List[Type[NeoDB]] = [
-        table.Scripts,
-        table.Bangumi,
-        table.Subtitle,
-        table.Filter,
-        table.Download,
-    ]
-    for t in tables:
-        t.create_table()

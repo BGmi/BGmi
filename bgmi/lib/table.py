@@ -1,12 +1,9 @@
 import os
 import time
 from collections import defaultdict
-from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
+from typing import Any, Dict, List, Optional, Type, TypeVar
 
-import peewee
 import sqlalchemy as sa
-from peewee import FixedCharField, IntegerField, TextField
-from playhouse.shortcuts import model_to_dict
 from sqlalchemy import CHAR, Column, Integer, Text, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, sessionmaker
 
@@ -31,10 +28,6 @@ STATUS_DOWNLOADING = 1
 STATUS_DOWNLOADED = 2
 DOWNLOAD_STATUS = (STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, STATUS_DOWNLOADED)
 
-DoesNotExist = peewee.DoesNotExist
-
-db = peewee.SqliteDatabase(cfg.db_path)
-
 # engine = create_engine(f"sqlite:///{cfg.db_path.as_posix()}")
 engine = create_engine("sqlite:///./tmp/bangumi.db")
 
@@ -44,16 +37,19 @@ T = TypeVar("T")
 
 
 class NotFoundError(Exception):
-    ...
+    def __init__(self, cls):
+        super().__init__(f"{cls} not found")
 
 
 class Base(DeclarativeBase):
+    NotFoundError = NotFoundError
+
     @classmethod
     def get(cls: Type[T], *where: Any) -> T:
         with Session.begin() as session:
             o = session.scalar(sa.select(cls).where(*where).limit(1))
             if not o:
-                raise NotFoundError()
+                raise NotFoundError(cls)
             return o
 
     def save(self) -> None:
@@ -66,29 +62,16 @@ if os.environ.get("DEV"):
     print(f"using database {cfg.db_path}")
 
 
-class NeoDB(peewee.Model):
-    DoesNotExist: Type[peewee.DoesNotExist]
+class Bangumi(Base):
+    __tablename__ = "bangumi"
 
-    class Meta:
-        database = db
-
-    @classmethod
-    def get(cls: Type[T], *query: Any, **filters: Any) -> T:
-        return super().get(*query, **filters)  # type: ignore
-
-    @classmethod
-    def get_or_create(cls: Type[T], **kwargs: Any) -> Tuple[T, bool]:
-        return super().get_or_create(**kwargs)  # type: ignore
-
-
-class Bangumi(NeoDB):
-    id = IntegerField(primary_key=True)
-    name = TextField(unique=True, null=False)
-    subtitle_group = TextField(null=False)
-    keyword = TextField()
-    update_time = FixedCharField(5, null=False)
-    cover = TextField()
-    status = IntegerField(default=0)
+    id: Mapped[int] = Column(Integer, primary_key=True)  # type: ignore
+    name: Mapped[str] = Column(Text, nullable=False, unique=True)  # type: ignore
+    subtitle_group: Mapped[str] = Column(Text, nullable=False)  # type: ignore
+    keyword: Mapped[str] = Column(Text, nullable=False)  # type: ignore
+    update_time: Mapped[str] = Column(CHAR(5), nullable=False)  # type: ignore
+    cover: Mapped[str] = Column(Text, nullable=False)  # type: ignore
+    status: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
 
     @classmethod
     def delete_all(cls) -> None:
@@ -104,8 +87,8 @@ class Bangumi(NeoDB):
 
             # do not mark updating bangumi as STATUS_END
             session.execute(
-                sa.update(SaBangumi)
-                .where(SaBangumi.name.not_in([x.bangumi_name for x in un_updated_bangumi]))
+                sa.update(cls)
+                .where(cls.name.not_in([x.bangumi_name for x in un_updated_bangumi]))
                 .values(status=STATUS_END)
             )
 
@@ -116,15 +99,15 @@ class Bangumi(NeoDB):
     ) -> Dict[str, List[Dict[str, Any]]]:
         if status is None:
             sql = (
-                sa.select(SaBangumi, Followed.status, Followed.episode)
-                .outerjoin(Followed, SaBangumi.name == Followed.bangumi_name)
-                .where(SaBangumi.status == STATUS_UPDATING)
+                sa.select(cls, Followed.status, Followed.episode)
+                .outerjoin(Followed, cls.name == Followed.bangumi_name)
+                .where(cls.status == STATUS_UPDATING)
             )
         else:
             sql = (
-                sa.select(SaBangumi, Followed.status, Followed.episode)
-                .outerjoin(Followed, SaBangumi.name == Followed.bangumi_name)
-                .where((SaBangumi.status == STATUS_UPDATING) & (Followed.status == status))
+                sa.select(cls, Followed.status, Followed.episode)
+                .outerjoin(Followed, cls.name == Followed.bangumi_name)
+                .where((cls.status == STATUS_UPDATING) & (Followed.status == status))
             )
 
         with Session() as session:
@@ -138,31 +121,8 @@ class Bangumi(NeoDB):
         return weekly_list
 
     @classmethod
-    def fuzzy_get(cls, name: str) -> "SaBangumi":
-        return SaBangumi.get(SaBangumi.name.contains(name))
-
-
-class _Followed(NeoDB):
-    bangumi_name = TextField(unique=True)
-    episode = IntegerField(null=True, default=0)
-    status = IntegerField(null=True)
-    updated_time = IntegerField(null=True)
-
-    class Meta:
-        database = db
-        table_name = "followed"
-
-
-class SaBangumi(Base):
-    __tablename__ = "bangumi"
-
-    id: Mapped[int] = Column(Integer, primary_key=True)  # type: ignore
-    name: Mapped[str] = Column(Text, nullable=False, unique=True)  # type: ignore
-    subtitle_group: Mapped[str] = Column(Text, nullable=False)  # type: ignore
-    keyword: Mapped[str] = Column(Text, nullable=False)  # type: ignore
-    update_time: Mapped[str] = Column(CHAR(5), nullable=False)  # type: ignore
-    cover: Mapped[str] = Column(Text, nullable=False)  # type: ignore
-    status: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
+    def fuzzy_get(cls, name: str) -> "Bangumi":
+        return cls.get(cls.name.contains(name))
 
 
 class Followed(Base):
@@ -190,8 +150,8 @@ class Followed(Base):
     ) -> List["Followed"]:
         sql = (
             sa.select(Followed)
-            .join(SaBangumi, cls.bangumi_name == SaBangumi.name)
-            .where(cls.status.isnot(status), SaBangumi.status == bangumi_status)
+            .join(Bangumi, cls.bangumi_name == Bangumi.name)
+            .where(cls.status.isnot(status), Bangumi.status == bangumi_status)
             .order_by(cls.updated_time.desc())
         )
 
@@ -199,35 +159,40 @@ class Followed(Base):
             return list(s.scalars(sql))
 
 
-class Download(NeoDB):
-    name = TextField(null=False)
-    title = TextField(null=False)
-    episode = IntegerField(default=0)
-    download = TextField()
-    status = IntegerField(default=0)
+class Download(Base):
+    __tablename__ = "download"
+
+    id: Mapped[int] = Column(Integer, primary_key=True)  # type: ignore
+    name: Mapped[str] = Column(Text, nullable=False)  # type: ignore
+    title: Mapped[str] = Column(Text, nullable=False)  # type: ignore
+    episode: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
+    download: Mapped[str] = Column(Text, nullable=False)  # type: ignore
+    status: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
 
     @classmethod
     def get_all_downloads(cls, status: Optional[int] = None) -> List[dict]:
-        if status is None:
-            data = list(cls.select().order_by(cls.status))
-        else:
-            data = list(cls.select().where(cls.status == status).order_by(cls.status))
+        with Session.begin() as session:
+            if status is None:
+                sql = sa.select(cls).where().order_by(cls.status)
+            else:
+                sql = sa.select(cls).where(cls.status == status).order_by(cls.status)
 
-        for index, x in enumerate(data):
-            data[index] = model_to_dict(x)
-        return data
+            return [x.__dict__ for x in session.scalars(sql)]
 
     def downloaded(self) -> None:
         self.status = STATUS_DOWNLOADED
         self.save()
 
 
-class Filter(NeoDB):
-    bangumi_name = TextField(unique=True)  # type: Optional[str]
-    subtitle = TextField(null=True)  # type: Optional[str]
-    include = TextField(null=True)  # type: Optional[str]
-    exclude = TextField(null=True)  # type: Optional[str]
-    regex = TextField(null=True)  # type: Optional[str]
+class Filter(Base):
+    __tablename__ = "filter"
+
+    id: Mapped[int] = Column(Integer, primary_key=True)  # type: ignore
+    bangumi_name: Mapped[str] = Column(Text, nullable=False, unique=True)  # type: ignore
+    subtitle: Mapped[str] = Column(Text)  # type: ignore
+    include: Mapped[str] = Column(Text)  # type: ignore
+    exclude: Mapped[str] = Column(Text)  # type: ignore
+    regex: Mapped[str] = Column(Text)  # type: ignore
 
     @property
     def subtitle_group_split(self) -> List[str]:
@@ -255,49 +220,42 @@ class Filter(NeoDB):
         return episode_filter_regex(data=result, regex=self.regex)
 
 
-class Subtitle(NeoDB):
-    id = TextField(primary_key=True, unique=True)
-    name = TextField()
+class Subtitle(Base):
+    __tablename__ = "subtitle"
+
+    id: Mapped[str] = Column(Text, primary_key=True)  # type: ignore
+    name: Mapped[str] = Column(Text, nullable=False)  # type: ignore
 
     @classmethod
-    def get_subtitle_by_id(cls, id_list: List[str]) -> List[Dict[str, str]]:
-        data = list(cls.select().where(cls.id.in_(id_list)))
-        for index, subtitle in enumerate(data):
-            data[index] = model_to_dict(subtitle)
-        return data
+    def get_subtitle_by_id(cls, id_list: List[str]) -> List["Subtitle"]:
+        with Session.begin() as session:
+            return [x for x in session.scalars(sa.select(cls).where(cls.id.in_(id_list)))]
 
     @classmethod
-    def get_subtitle_by_name(cls, name_list: List[str]) -> List[Dict[str, str]]:
-        data = list(cls.select().where(cls.name.in_(name_list)))
-        for index, subtitle in enumerate(data):
-            data[index] = model_to_dict(subtitle)
-        return data
+    def get_subtitle_by_name(cls, name_list: List[str]) -> List["Subtitle"]:
+        with Session.begin() as session:
+            return [x for x in session.scalars(sa.select(cls).where(cls.name.in_(name_list)))]
 
 
-class Scripts(NeoDB):
-    bangumi_name = TextField(null=False, unique=True)
-    episode = IntegerField(default=0)
-    status = IntegerField(default=0)
-    updated_time = IntegerField(default=0)
+class Scripts(Base):
+    __tablename__ = "scripts"
+
+    id: Mapped[int] = Column(Integer, primary_key=True)  # type: ignore
+    bangumi_name: Mapped[str] = Column(Text, nullable=False, unique=True)  # type: ignore
+    episode: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
+    status: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
+    updated_time: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
 
 
 def recreate_source_relatively_table() -> None:
-    table_to_drop = [
-        Subtitle,
-        Filter,
-        Download,
-    ]  # type: List[Type[NeoDB]]
-    for table in table_to_drop:
-        table.delete().execute()  # pylint: disable=no-value-for-parameter
-
     with Session.begin() as session:
-        session.execute(sa.delete(Followed))
-        session.execute(sa.delete(SaBangumi))
+        for table in [Subtitle, Filter, Download, Followed, Bangumi]:
+            session.execute(sa.delete(table))
 
 
 def recreate_scripts_table() -> None:
-    table_to_drop = [
-        Scripts,
-    ]  # type: List[Type[NeoDB]]
-    for table in table_to_drop:
-        table.delete().execute()  # pylint: disable=no-value-for-parameter
+    with Session.begin() as session:
+        for table in [
+            Scripts,
+        ]:
+            session.execute(sa.delete(table))

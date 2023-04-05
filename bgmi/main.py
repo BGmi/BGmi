@@ -8,6 +8,7 @@ from typing import List, Mapping, Optional, Tuple
 
 import click
 import pydantic
+import sqlalchemy as sa
 import tomlkit
 import wcwidth
 from loguru import logger
@@ -287,7 +288,7 @@ def filter_cmd(
         globals()["print_{}".format(result["status"])](result["message"])
     else:
         print_info("Usable subtitle group: {}".format(", ".join(result["data"]["subtitle_group"])))
-        followed_filter_obj = Filter.get(bangumi_name=result["data"]["name"])
+        followed_filter_obj = Filter.get(Filter.bangumi_name == result["data"]["name"])
         print_filter(followed_filter_obj)
 
 
@@ -419,8 +420,8 @@ def fetch(name: str, not_ignore: bool) -> None:
     """
 
     try:
-        bangumi_obj = Bangumi.get(name=name)
-    except Bangumi.DoesNotExist:
+        bangumi_obj = Bangumi.get(Bangumi.name == name)
+    except Bangumi.NotFoundError:
         print_error(f"Bangumi {name} not exist", stop=True)
         return
 
@@ -428,7 +429,7 @@ def fetch(name: str, not_ignore: bool) -> None:
         print_error(f"Bangumi {name} is not followed")
         return
 
-    followed_filter_obj = Filter.get(bangumi_name=name)
+    followed_filter_obj = Filter.get(Filter.bangumi_name == name)
     print_filter(followed_filter_obj)
 
     print_info(f"Fetch bangumi {bangumi_obj.name} ...")
@@ -480,9 +481,6 @@ def generate_config(tpl: str, server_name: str) -> None:
     )
 
     print(template_with_content.decode("utf-8"))
-
-
-import sqlalchemy as sa
 
 
 @cli.command("history", help="list your history of following bangumi")
