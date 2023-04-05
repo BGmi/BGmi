@@ -252,8 +252,7 @@ class Subtitle(Base):
 class Scripts(Base):
     __tablename__ = "scripts"
 
-    id: Mapped[int] = Column(Integer, primary_key=True)  # type: ignore
-    bangumi_name: Mapped[str] = Column(Text, nullable=False, unique=True)  # type: ignore
+    bangumi_name: Mapped[str] = Column(Text, primary_key=True, nullable=False, unique=True)  # type: ignore
     episode: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
     status: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
     updated_time: Mapped[int] = Column(Integer, nullable=False, default=0, server_default="0")  # type: ignore
