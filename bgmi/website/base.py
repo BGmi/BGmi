@@ -31,7 +31,7 @@ class BaseWebsite:
         with Session.begin() as session:
             subtitle_group = sorted([x.id for x in data.subtitle_group])
             try:
-                b = Bangumi.get(Bangumi.keyword == data.keyword)
+                b = Bangumi.get(Bangumi.id == data.id)
 
                 b.cover = data.cover
                 b.update_time = data.update_time
@@ -43,7 +43,7 @@ class BaseWebsite:
                 session.add(
                     Bangumi(
                         name=data.name,
-                        keyword=data.keyword,
+                        id=data.id,
                         update_time=data.update_time,
                         cover=data.cover,
                         status=STATUS_UPDATING,
@@ -104,7 +104,7 @@ class BaseWebsite:
         followed = Followed.get(Followed.bangumi_name == bangumi.name)
 
         info = self.fetch_single_bangumi(
-            bangumi.keyword,
+            bangumi.id,
             subtitle_list=followed.subtitle,
             max_page=max_page,
         )
@@ -113,7 +113,7 @@ class BaseWebsite:
             data = followed.apply_on_episodes(info.episodes)
         else:
             data = self.fetch_episode_of_bangumi(
-                bangumi_id=bangumi.keyword,
+                bangumi_id=bangumi.id,
                 max_page=max_page,
                 subtitle_list=followed.subtitle,
             )

@@ -129,7 +129,7 @@ def parser_day_bangumi(soup) -> List[WebsiteBangumi]:
             url = url["href"]
             bangumi_id = url.split("/")[-1]
             s.find("li")
-            li.append(WebsiteBangumi(name=name, keyword=bangumi_id, cover=_COVER_URL + span["data-src"]))
+            li.append(WebsiteBangumi(name=name, id=bangumi_id, cover=_COVER_URL + span["data-src"]))
     return li
 
 
@@ -365,7 +365,7 @@ class Mikanani(BaseWebsite):
         info = self.parse_bangumi_details_page(html)
         return WebsiteBangumi(
             name=info["name"],
-            keyword=bangumi_id,
+            id=bangumi_id,
             status=info["status"],
             update_time=info["update_time"],
             subtitle_group=info["subtitle_group"],

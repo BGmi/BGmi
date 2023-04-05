@@ -416,10 +416,8 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
         else:
             episode = 0
 
-        # TODO(v5): add default to column and remove this
-        saved_episode = subscribe.episode or 0
-        if episode > saved_episode:
-            episode_range = range(saved_episode, episode + 1)
+        if episode > subscribe.episode:
+            episode_range = range(subscribe.episode, episode + 1)
             print_success(f"{subscribe.bangumi_name} updated, episode: {episode:d}")
             followed_obj.episode = episode
             followed_obj.status = STATUS_UPDATED
