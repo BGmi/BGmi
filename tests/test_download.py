@@ -47,7 +47,7 @@ def test_update_download(mock_download_driver: mock.Mock):
         ],
     )
 
-    Bangumi(name=name, subtitle_group="", keyword=name, cover="").save()
+    Bangumi(id=name, name=name).save()
 
     Followed(bangumi_name=name, episode=2).save()
 
