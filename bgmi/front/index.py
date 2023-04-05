@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 from bgmi.config import cfg
 from bgmi.front.base import COVER_URL, BaseHandler
@@ -68,7 +68,10 @@ class IndexHandler(BaseHandler):
 
 class BangumiListHandler(BaseHandler):
     def get(self, type_: str = "") -> None:
-        data: List[dict] = Followed.get_all_followed(STATUS_DELETED, STATUS_END if type_ == "old" else STATUS_UPDATING)
+        data = [
+            x.__dict__
+            for x in Followed.get_all_followed(STATUS_DELETED, STATUS_END if type_ == "old" else STATUS_UPDATING)
+        ]
 
         def sorter(_: Dict[str, int]) -> int:
             return _["updated_time"] if _["updated_time"] else 1

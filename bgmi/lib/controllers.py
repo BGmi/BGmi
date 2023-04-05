@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import filetype
 import requests.exceptions
+import sqlalchemy as sa
 
 from bgmi.config import Source, cfg
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SUPPORT_WEBSITE
@@ -21,6 +22,7 @@ from bgmi.lib.models import (
     Download,
     Filter,
     Followed,
+    Session,
     Subtitle,
     model_to_dict,
     recreate_source_relatively_table,
@@ -61,26 +63,33 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
             "message": f"{name} not found, please check the name",
         }
         return result
-    followed_obj, this_obj_created = Followed.get_or_create(
-        bangumi_name=bangumi_obj.name, defaults={"status": STATUS_FOLLOWED, "episode": 0}
-    )
-    if not this_obj_created:
-        if followed_obj.status == STATUS_FOLLOWED:
-            result = {
-                "status": "warning",
-                "message": f"{bangumi_obj.name} already followed",
-            }
-            return result
+
+    with Session.begin() as session:
+        followed_obj: Optional[Followed] = session.scalar(
+            sa.select(Followed).where(Followed.bangumi_name == bangumi_obj.name).limit(1)
+        )
+
+        if followed_obj is None:
+            followed_obj = Followed(status=STATUS_FOLLOWED, bangumi_name=bangumi_obj.name, episode=0)
+            session.add(followed_obj)
         else:
-            followed_obj.status = STATUS_FOLLOWED
-            followed_obj.save()
+            if followed_obj.status == STATUS_FOLLOWED:
+                result = {
+                    "status": "warning",
+                    "message": f"{bangumi_obj.name} already followed",
+                }
+                return result
+            else:
+                followed_obj.status = STATUS_FOLLOWED
 
     Filter.get_or_create(bangumi_name=name)
 
     max_episode, _ = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)
     followed_obj.episode = max_episode if episode is None else episode
 
-    followed_obj.save()
+    with Session.begin() as session:
+        session.add(followed_obj)
+
     result = {
         "status": "success",
         "message": f"{bangumi_obj.name} has been followed",
@@ -104,9 +113,7 @@ def filter_(
         result["message"] = f"Bangumi {name} does not exist."
         return result
 
-    try:
-        Followed.get(bangumi_name=bangumi_obj.name)
-    except Followed.DoesNotExist:
+    if not Followed.get(Followed.bangumi_name == bangumi_obj.name):
         result["status"] = "error"
         result["message"] = "Bangumi {name} has not subscribed, try 'bgmi add \"{name}\"'.".format(
             name=bangumi_obj.name
@@ -168,15 +175,15 @@ def delete(name: str = "", clear_all: bool = False, batch: bool = False) -> Cont
         else:
             print_error("user canceled")
     elif name:
-        try:
-            followed = Followed.get(bangumi_name=name)
+        followed = Followed.get(Followed.bangumi_name == name)
+        if not followed:
+            result["status"] = "error"
+            result["message"] = f"Bangumi {name} does not exist"
+        else:
             followed.status = STATUS_DELETED
             followed.save()
             result["status"] = "warning"
             result["message"] = f"Bangumi {name} has been deleted"
-        except Followed.DoesNotExist:
-            result["status"] = "error"
-            result["message"] = f"Bangumi {name} does not exist"
     else:
         result["status"] = "warning"
         result["message"] = "Nothing has been done."
@@ -244,9 +251,9 @@ def mark(name: str, episode: int) -> ControllerResult:
     :param episode: bangumi episode you want to mark
     """
     result = {}
-    try:
-        followed_obj = Followed.get(bangumi_name=name)
-    except Followed.DoesNotExist:
+
+    followed_obj = Followed.get(Followed.bangumi_name == name)
+    if not followed_obj:
         runner = ScriptRunner()
         followed_obj = runner.get_model(name)  # type: ignore
         if not followed_obj:
@@ -454,9 +461,9 @@ def status_(name: str, status: int = STATUS_DELETED) -> ControllerResult:
         return result
 
     status = int(status)
-    try:
-        followed_obj = Followed.get(bangumi_name=name)
-    except Followed.DoesNotExist:
+
+    followed_obj = Followed.get(Followed.bangumi_name == name)
+    if not followed_obj:
         result["status"] = "error"
         result["message"] = f"Followed<{name}> does not exists"
         return result

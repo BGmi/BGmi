@@ -102,4 +102,4 @@ def test_mark(bangumi_names):
     name = bangumi_names[0]
     main_for_test(f"add {name} --episode 0".split())
     main_for_test(f"mark {name} 1".split())
-    assert Followed.get(bangumi_name=name).episode == 1
+    assert Followed.get(Followed.bangumi_name == name).episode == 1

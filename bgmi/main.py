@@ -19,7 +19,16 @@ from bgmi.lib import controllers as ctl
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE
 from bgmi.lib.download import download_prepare
 from bgmi.lib.fetch import website
-from bgmi.lib.models import STATUS_DELETED, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, Filter, Followed, Subtitle
+from bgmi.lib.models import (
+    STATUS_DELETED,
+    STATUS_FOLLOWED,
+    STATUS_UPDATED,
+    Bangumi,
+    Filter,
+    Followed,
+    Session,
+    Subtitle,
+)
 from bgmi.lib.update import update_database
 from bgmi.script import ScriptRunner
 from bgmi.setup import create_dir, init_db, install_crontab
@@ -424,9 +433,7 @@ def fetch(name: str, not_ignore: bool) -> None:
         print_error(f"Bangumi {name} not exist", stop=True)
         return
 
-    try:
-        Followed.get(bangumi_name=bangumi_obj.name)
-    except Followed.DoesNotExist:
+    if not Followed.get(Followed.bangumi_name == bangumi_obj.name):
         print_error(f"Bangumi {name} is not followed")
         return
 
@@ -484,6 +491,9 @@ def generate_config(tpl: str, server_name: str) -> None:
     print(template_with_content.decode("utf-8"))
 
 
+import sqlalchemy as sa
+
+
 @cli.command("history", help="list your history of following bangumi")
 def history() -> None:
     m = (
@@ -500,7 +510,8 @@ def history() -> None:
         "November",
         "December",
     )
-    data = Followed.select(Followed).order_by(Followed.updated_time.asc())
+    with Session.begin() as session:
+        data = session.scalars(sa.select(Followed).order_by(Followed.updated_time.asc())).all()
     bangumi_data = Bangumi.get_updating_bangumi()
     year = None
     month = None

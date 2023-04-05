@@ -1,11 +1,14 @@
 import os
 import time
 from collections import defaultdict
-from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, TypeVar
 
 import peewee
+import sqlalchemy as sa
 from peewee import FixedCharField, IntegerField, TextField
 from playhouse.shortcuts import model_to_dict
+from sqlalchemy import CHAR, Column, Integer, Text, create_engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, sessionmaker
 
 from bgmi.config import cfg
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
@@ -33,10 +36,28 @@ DoesNotExist = peewee.DoesNotExist
 
 db = peewee.SqliteDatabase(cfg.db_path)
 
+# engine = create_engine(f"sqlite:///{cfg.db_path.as_posix()}")
+engine = create_engine("sqlite:///./tmp/bangumi.db")
+
+Session = sessionmaker(engine)
+
+T = TypeVar("T")
+
+
+class Base(DeclarativeBase):
+    @classmethod
+    def get(cls: Type[T], *where: Any) -> Optional["T"]:
+        with Session.begin() as session:
+            return session.scalar(sa.select(cls).where(*where).limit(1))
+
+    def save(self):
+        with Session.begin() as session:
+            session.add(self)
+
+
+metadata = Base.metadata
 if os.environ.get("DEV"):
     print(f"using database {cfg.db_path}")
-
-_Cls = TypeVar("_Cls")
 
 
 class NeoDB(peewee.Model):
@@ -46,11 +67,11 @@ class NeoDB(peewee.Model):
         database = db
 
     @classmethod
-    def get(cls: Type[_Cls], *query: Any, **filters: Any) -> _Cls:
+    def get(cls: Type[T], *query: Any, **filters: Any) -> T:
         return super().get(*query, **filters)  # type: ignore
 
     @classmethod
-    def get_or_create(cls: Type[_Cls], **kwargs: Any) -> Tuple[_Cls, bool]:
+    def get_or_create(cls: Type[T], **kwargs: Any) -> Tuple[T, bool]:
         return super().get_or_create(**kwargs)  # type: ignore
 
 
@@ -83,9 +104,13 @@ class Bangumi(NeoDB):
 
     @classmethod
     def delete_all(cls) -> None:
-        un_updated_bangumi: List[Followed] = Followed.select().where(
-            Followed.updated_time > (int(time.time()) - 2 * 7 * 24 * 3600)
-        )
+        with Session.begin() as session:
+            un_updated_bangumi: List[Followed] = list(
+                session.scalars(
+                    sa.select(Followed).where(Followed.updated_time > (int(time.time()) - 2 * 7 * 24 * 3600))
+                )
+            )
+
         if os.getenv("DEBUG"):  # pragma: no cover
             print("ignore updating bangumi", [x.bangumi_name for x in un_updated_bangumi])
 
@@ -94,36 +119,30 @@ class Bangumi(NeoDB):
         ).execute()  # do not mark updating bangumi as STATUS_END
 
     @classmethod
-    def get_updating_bangumi(cls, status: Optional[int] = None, order: bool = True) -> Any:
+    def get_updating_bangumi(
+        cls,
+        status: Optional[int] = None,
+    ) -> Dict[str, List[Dict[str, Any]]]:
         if status is None:
-            data = (
-                cls.select(Followed.status, Followed.episode, cls)
-                .join(
-                    Followed,
-                    peewee.JOIN["LEFT_OUTER"],
-                    on=(cls.name == Followed.bangumi_name),
-                )
-                .where(cls.status == STATUS_UPDATING)
-                .dicts()
+            sql = (
+                sa.select(SaBangumi, Followed.status, Followed.episode)
+                .outerjoin(Followed, SaBangumi.name == Followed.bangumi_name)
+                .where(SaBangumi.status == STATUS_UPDATING)
             )
         else:
-            data = (
-                cls.select(Followed.status, Followed.episode, cls)
-                .join(
-                    Followed,
-                    peewee.JOIN["LEFT_OUTER"],
-                    on=(cls.name == Followed.bangumi_name),
-                )
-                .where((cls.status == STATUS_UPDATING) & (Followed.status == status))
-                .dicts()
+            sql = (
+                sa.select(SaBangumi, Followed.status, Followed.episode)
+                .outerjoin(Followed, SaBangumi.name == Followed.bangumi_name)
+                .where((SaBangumi.status == STATUS_UPDATING) & (Followed.status == status))
             )
 
-        if order:
-            weekly_list = defaultdict(list)
-            for bangumi_item in data:
-                weekly_list[bangumi_item["update_time"].lower()].append(dict(bangumi_item))
-        else:
-            weekly_list = list(data)  # type: ignore
+        with Session() as session:
+            # if status is None:
+            data = session.scalars(sql).all()
+
+        weekly_list = defaultdict(list)
+        for bangumi_item in data:
+            weekly_list[bangumi_item.update_time.lower()].append(bangumi_item.__dict__)
 
         return weekly_list
 
@@ -146,7 +165,7 @@ class Bangumi(NeoDB):
         raise cls.DoesNotExist
 
 
-class Followed(NeoDB):
+class _Followed(NeoDB):
     bangumi_name = TextField(unique=True)
     episode = IntegerField(null=True, default=0)
     status = IntegerField(null=True)
@@ -156,28 +175,64 @@ class Followed(NeoDB):
         database = db
         table_name = "followed"
 
+
+class SaBangumi(Base):
+    __tablename__ = "bangumi"
+
+    id = Column(Integer, primary_key=True)
+    name: Mapped[str] = Column(Text, nullable=False, unique=True)
+    subtitle_group = Column(Text, nullable=False)
+    keyword = Column(Text, nullable=False)
+    update_time = Column(CHAR(5), nullable=False)
+    cover = Column(Text, nullable=False)
+    status: Mapped[int] = Column(Integer, nullable=False)
+
+
+class Followed(Base):
+    __tablename__ = "followed"
+
+    id = Column(Integer, primary_key=True)
+    bangumi_name = Column(Text, nullable=False, unique=True)
+    episode = Column(Integer, default=0, server_default="0")
+    status: Mapped[int] = Column(Integer)
+    updated_time: Mapped[int] = Column(Integer, default=0, server_default="0")
+
+    if TYPE_CHECKING:
+
+        def __init__(
+            self,
+            *,
+            bangumi_name: str,
+            episode: int = 0,
+            status: int,
+            updated_time: int = 0,
+            id: Optional[int] = id,
+        ):
+            ...
+
     @classmethod
     def delete_followed(cls, batch: bool = True) -> bool:
-        q = cls.delete()
         if not batch:
             if not input("[+] are you sure want to CLEAR ALL THE BANGUMI? (y/N): ") == "y":
                 return False
 
-        q.execute(None)
+        with Session.begin() as session:
+            session.execute(sa.delete(cls))
         return True
 
     @classmethod
-    def get_all_followed(cls, status: int = STATUS_DELETED, bangumi_status: int = STATUS_UPDATING) -> List[dict]:
-        join_cond = Bangumi.name == cls.bangumi_name
-        d = (
-            cls.select(Bangumi.name, Bangumi.update_time, Bangumi.cover, cls)
-            .join(Bangumi, peewee.JOIN["LEFT_OUTER"], on=join_cond)
-            .where((cls.status != status) & (Bangumi.status == bangumi_status))
+    def get_all_followed(
+        cls: "Followed", status: int = STATUS_DELETED, bangumi_status: int = STATUS_UPDATING
+    ) -> List["Followed"]:
+        sql = (
+            sa.select(cls)
+            .join(SaBangumi, cls.bangumi_name == SaBangumi.name)
+            .where(cls.status != status, SaBangumi.status == bangumi_status)
             .order_by(cls.updated_time.desc())
-            .dicts()
         )
 
-        return list(d)
+        with Session() as s:
+            return list(s.scalars(sql))
 
 
 class Download(NeoDB):
@@ -265,13 +320,15 @@ class Scripts(NeoDB):
 def recreate_source_relatively_table() -> None:
     table_to_drop = [
         Bangumi,
-        Followed,
         Subtitle,
         Filter,
         Download,
     ]  # type: List[Type[NeoDB]]
     for table in table_to_drop:
         table.delete().execute()  # pylint: disable=no-value-for-parameter
+
+    with Session.begin() as session:
+        session.execute(sa.delete(Followed))
 
 
 def recreate_scripts_table() -> None:
