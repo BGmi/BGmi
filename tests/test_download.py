@@ -41,13 +41,10 @@ def test_update_download(mock_download_driver: mock.Mock):
     name = "hello world"
     mock_website = mock.Mock()
     mock_website.get_maximum_episode = mock.Mock(
-        return_value=(
-            4,
-            [
-                Episode(episode=3, download="magnet:mm", title="t 720p", name=name),
-                Episode(episode=4, download="magnet:4", title="t 1080p", name=name),
-            ],
-        )
+        return_value=[
+            Episode(episode=3, download="magnet:mm", title="t 720p", name=name),
+            Episode(episode=4, download="magnet:4", title="t 1080p", name=name),
+        ],
     )
 
     Bangumi(name=name, subtitle_group="", keyword=name, cover="").save()
