@@ -365,9 +365,8 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
 
     for follow in Followed.get_all_followed():
         if follow.updated_time and int(follow.updated_time + 60 * 60 * 24) < now:
-            followed_obj = Followed.get(Followed.bangumi_name == follow.bangumi_name)
-            followed_obj.status = STATUS_FOLLOWED
-            followed_obj.save()
+            follow.status = STATUS_FOLLOWED
+            follow.save()
 
     for script in ScriptRunner().scripts:
         obj = script.Model().obj
