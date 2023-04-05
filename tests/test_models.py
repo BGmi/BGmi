@@ -1,9 +1,9 @@
-from bgmi.lib.table import Filter
+from bgmi.lib.table import Followed
 from bgmi.website.model import Episode
 
 
 def test_include():
-    e = Filter(include="2,3,5").apply_on_episodes(
+    e = Followed(include="2,3,5".split(",")).apply_on_episodes(
         [
             Episode(name="1", title="1", download="1", episode=1),
             Episode(name="1", title="1", download="2", episode=1),
@@ -18,7 +18,7 @@ def test_include():
 
 
 def test_exclude():
-    e = Filter(exclude="2,3,5").apply_on_episodes(
+    e = Followed(exclude="2,3,5".split(",")).apply_on_episodes(
         [
             Episode(title="1", download="1", episode=1),
             Episode(title="1", download="2", episode=2),
