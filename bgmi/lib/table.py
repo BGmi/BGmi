@@ -111,25 +111,23 @@ class Bangumi(Base):
         status: Optional[int] = None,
     ) -> Dict[str, List[Dict[str, Any]]]:
         if status is None:
-            sql = (
-                sa.select(cls, Followed.status, Followed.episode)
-                .outerjoin(Followed, cls.name == Followed.bangumi_name)
-                .where(cls.status == STATUS_UPDATING)
-            )
+            where = cls.status == STATUS_UPDATING
         else:
-            sql = (
-                sa.select(cls, Followed.status, Followed.episode)
-                .outerjoin(Followed, cls.name == Followed.bangumi_name)
-                .where((cls.status == STATUS_UPDATING) & (Followed.status == status))
-            )
+            where = (cls.status == STATUS_UPDATING) & (Followed.status == status)
 
-        with Session() as session:
-            # if status is None:
-            data = session.scalars(sql).all()
+        with Session.begin() as session:
+            data = (
+                session.query(cls, Followed.status, Followed.episode)
+                .outerjoin(Followed, cls.name == Followed.bangumi_name)
+                .where(where)
+                .all()
+            )
 
         weekly_list = defaultdict(list)
-        for bangumi_item in data:
-            weekly_list[bangumi_item.update_time.lower()].append(bangumi_item.__dict__)
+        for bangumi_item, status, episode in data:
+            weekly_list[bangumi_item.update_time.lower()].append(
+                bangumi_item.__dict__ | {"status": status, "episode": episode}
+            )
 
         return weekly_list
 
