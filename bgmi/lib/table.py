@@ -57,7 +57,7 @@ class Base(DeclarativeBase):
     @classmethod
     def all(cls: Type[T], *where: Any) -> List[T]:
         with Session.begin() as session:
-            return list(session.scalar(sa.select(cls).where(*where)).all())
+            return list(session.scalars(sa.select(cls).where(*where)).all())
 
     def save(self) -> None:
         with Session.begin() as session:
