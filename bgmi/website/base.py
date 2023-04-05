@@ -1,21 +1,11 @@
 import time
 from collections import defaultdict
-from itertools import chain
-from typing import Any, Dict, List, Optional, TypeVar
+from typing import Any, List, Optional, TypeVar
 
 import sqlalchemy as sa
 
 from bgmi.config import cfg
-from bgmi.lib.table import (
-    STATUS_FOLLOWED,
-    STATUS_UPDATED,
-    STATUS_UPDATING,
-    Bangumi,
-    Followed,
-    NotFoundError,
-    Session,
-    Subtitle,
-)
+from bgmi.lib.table import STATUS_UPDATING, Bangumi, Followed, NotFoundError, Session, Subtitle
 from bgmi.utils import parse_episode
 from bgmi.website.model import Episode, WebsiteBangumi
 
@@ -75,25 +65,6 @@ class BaseWebsite:
                 result_group_by_weekday[bangumi.update_time.lower()].append(bangumi)
             return result_group_by_weekday
         return bangumi_result
-
-    @staticmethod
-    def followed_bangumi() -> Dict[str, list]:
-        """
-
-        :return: list of bangumi followed
-        """
-        weekly_list_followed = Bangumi.get_updating_bangumi(status=STATUS_FOLLOWED)
-        weekly_list_updated = Bangumi.get_updating_bangumi(status=STATUS_UPDATED)
-        weekly_list = defaultdict(list)
-        for k, v in chain(weekly_list_followed.items(), weekly_list_updated.items()):
-            weekly_list[k].extend(v)
-        for bangumi_list in weekly_list.values():
-            for bangumi in bangumi_list:
-                bangumi["subtitle_group"] = [
-                    {"name": x.name, "id": x.id}
-                    for x in Subtitle.get_subtitle_by_id(bangumi["subtitle_group"].split(", "))
-                ]
-        return weekly_list
 
     def get_maximum_episode(
         self,
