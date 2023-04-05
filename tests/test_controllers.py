@@ -21,6 +21,7 @@ class ControllersTest(unittest.TestCase):
                 assert "name" in bangumi
                 assert "update_time" in bangumi
                 assert "cover" in bangumi
+                assert "episode" in bangumi
 
     def test_b_add(self):
         r = add(self.bangumi_name_1, 0)
