@@ -126,7 +126,7 @@ class Bangumi(Base):
         weekly_list = defaultdict(list)
         for bangumi_item, followed_status, episode in data:
             weekly_list[bangumi_item.update_time.lower()].append(
-                bangumi_item.__dict__ | {"status": followed_status, "episode": episode}
+                {**bangumi_item.__dict__, "status": followed_status, "episode": episode}
             )
 
         return weekly_list
