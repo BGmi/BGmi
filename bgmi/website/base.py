@@ -11,7 +11,7 @@ from bgmi.lib.table import (
     STATUS_UPDATED,
     STATUS_UPDATING,
     Bangumi,
-    Filter,
+    Followed,
     NotFoundError,
     Session,
     Subtitle,
@@ -101,23 +101,23 @@ class BaseWebsite:
         ignore_old_row: bool = True,
         max_page: int = cfg.max_path,
     ) -> List[Episode]:
-        followed_filter_obj = Filter.get(Filter.bangumi_name == bangumi.name)
+        followed = Followed.get(Followed.bangumi_name == bangumi.name)
 
         info = self.fetch_single_bangumi(
             bangumi.keyword,
-            subtitle_list=followed_filter_obj.subtitle,
+            subtitle_list=followed.subtitle,
             max_page=max_page,
         )
         if info is not None:
             self.save_bangumi(info)
-            data = followed_filter_obj.apply_on_episodes(info.episodes)
+            data = followed.apply_on_episodes(info.episodes)
         else:
             data = self.fetch_episode_of_bangumi(
                 bangumi_id=bangumi.keyword,
                 max_page=max_page,
-                subtitle_list=followed_filter_obj.subtitle,
+                subtitle_list=followed.subtitle,
             )
-            data = followed_filter_obj.apply_on_episodes(data)
+            data = followed.apply_on_episodes(data)
 
         for episode in data:
             episode.name = bangumi.name

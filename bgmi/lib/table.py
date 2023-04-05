@@ -162,6 +162,13 @@ class Followed(Base):
     status: Mapped[int] = Column(Integer)  # type: ignore
     updated_time: Mapped[int] = Column(Integer, default=0, server_default="0")  # type: ignore
 
+    id: Mapped[int] = Column(Integer, primary_key=True)  # type: ignore
+    bangumi_name: Mapped[str] = Column(Text, nullable=False, unique=True)  # type: ignore
+    subtitle: List[str] = Column(sa.JSON, default=[], server_default="[]")  # type: ignore
+    include: Mapped[List[str]] = Column(sa.JSON, default=[], server_default="[]")  # type: ignore
+    exclude: Mapped[List[str]] = Column(sa.JSON, default=[], server_default="[]")  # type: ignore
+    regex: Mapped[str] = Column(Text, default="", server_default="")  # type: ignore
+
     @classmethod
     def delete_followed(cls, batch: bool = True) -> bool:
         if not batch:
@@ -185,6 +192,23 @@ class Followed(Base):
 
         with Session() as s:
             return list(s.scalars(sql))
+
+    def apply_on_episodes(self, result: List[Episode]) -> List[Episode]:
+        if self.include:
+            # pylint:disable=no-member
+            include_list = [s.strip().lower() for s in self.include]
+            result = [e for e in result if e.contains_any_words(include_list)]
+
+        if cfg.enable_global_include_keywords:
+            include_list = [s.strip().lower() for s in cfg.global_include_keywords]
+            result = [e for e in result if e.contains_any_words(include_list)]
+
+        if self.exclude:
+            # pylint:disable=no-member
+            exclude_list = [s.strip().lower() for s in self.exclude]
+            result = [e for e in result if not e.contains_any_words(exclude_list)]
+
+        return episode_filter_regex(data=result, regex=self.regex)
 
 
 class Download(Base):
@@ -210,34 +234,6 @@ class Download(Base):
     def downloaded(self) -> None:
         self.status = STATUS_DOWNLOADED
         self.save()
-
-
-class Filter(Base):
-    __tablename__ = "filter"
-
-    id: Mapped[int] = Column(Integer, primary_key=True)  # type: ignore
-    bangumi_name: Mapped[str] = Column(Text, nullable=False, unique=True)  # type: ignore
-    subtitle: List[str] = Column(sa.JSON, default=[], server_default="[]")  # type: ignore
-    include: Mapped[List[str]] = Column(sa.JSON, default=[], server_default="[]")  # type: ignore
-    exclude: Mapped[List[str]] = Column(sa.JSON, default=[], server_default="[]")  # type: ignore
-    regex: Mapped[str] = Column(Text, default="", server_default="")  # type: ignore
-
-    def apply_on_episodes(self, result: List[Episode]) -> List[Episode]:
-        if self.include:
-            # pylint:disable=no-member
-            include_list = [s.strip().lower() for s in self.include]
-            result = [e for e in result if e.contains_any_words(include_list)]
-
-        if cfg.enable_global_include_keywords:
-            include_list = [s.strip().lower() for s in cfg.global_include_keywords]
-            result = [e for e in result if e.contains_any_words(include_list)]
-
-        if self.exclude:
-            # pylint:disable=no-member
-            exclude_list = [s.strip().lower() for s in self.exclude]
-            result = [e for e in result if not e.contains_any_words(exclude_list)]
-
-        return episode_filter_regex(data=result, regex=self.regex)
 
 
 class Subtitle(Base):
@@ -269,7 +265,7 @@ class Scripts(Base):
 
 def recreate_source_relatively_table() -> None:
     with Session.begin() as session:
-        for table in [Subtitle, Filter, Download, Followed, Bangumi]:
+        for table in [Subtitle, Download, Followed, Bangumi]:
             session.execute(sa.delete(table))
 
 
