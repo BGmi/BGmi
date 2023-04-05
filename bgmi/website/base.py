@@ -4,7 +4,17 @@ from itertools import chain
 from typing import Any, Dict, List, Optional, Tuple, TypeVar
 
 from bgmi.config import cfg
-from bgmi.lib.models import STATUS_FOLLOWED, STATUS_UPDATED, STATUS_UPDATING, Bangumi, Filter, Subtitle
+from bgmi.lib.models import (
+    STATUS_FOLLOWED,
+    STATUS_UPDATED,
+    STATUS_UPDATING,
+    Bangumi,
+    Filter,
+    NotFoundError,
+    SaBangumi,
+    Session,
+    Subtitle,
+)
 from bgmi.utils import parse_episode
 from bgmi.website.model import Episode, WebsiteBangumi
 
@@ -17,26 +27,21 @@ class BaseWebsite:
     @staticmethod
     def save_bangumi(data: WebsiteBangumi) -> None:
         """save bangumi to database"""
-        b, obj_created = Bangumi.get_or_create(keyword=data.keyword, defaults=data.dict())
-        if not obj_created:
-            should_save = False
-            if data.cover and b.cover != data.cover:
+        subtitle_group = ", ".join([x.id for x in data.subtitle_group])
+
+        with Session.begin() as session:
+            try:
+                b = SaBangumi.get(SaBangumi.keyword == data.keyword)
                 b.cover = data.cover
-                should_save = True
-
-            if data.update_time not in ("Unknown", b.update_time):
                 b.update_time = data.update_time
-                should_save = True
-
-            subtitle_group = Bangumi(subtitle_group=data.subtitle_group).subtitle_group
-
-            if b.status != STATUS_UPDATING or b.subtitle_group != subtitle_group:
                 b.status = STATUS_UPDATING
-                b.subtitle_group = subtitle_group
-                should_save = True
 
-            if should_save:
-                b.save()
+                b.subtitle_group = subtitle_group
+
+                session.add(b)
+
+            except NotFoundError:
+                session.add(SaBangumi(**data.dict(), subtitle_group=subtitle_group))
 
         for subtitle_group in data.subtitle_group:
             (

@@ -39,16 +39,23 @@ db = peewee.SqliteDatabase(cfg.db_path)
 # engine = create_engine(f"sqlite:///{cfg.db_path.as_posix()}")
 engine = create_engine("sqlite:///./tmp/bangumi.db")
 
-Session = sessionmaker(engine)
+Session = sessionmaker(engine, expire_on_commit=False)
 
 T = TypeVar("T")
 
 
+class NotFoundError(Exception):
+    ...
+
+
 class Base(DeclarativeBase):
     @classmethod
-    def get(cls: Type[T], *where: Any) -> Optional["T"]:
+    def get(cls: Type[T], *where: Any) -> T:
         with Session.begin() as session:
-            return session.scalar(sa.select(cls).where(*where).limit(1))
+            o = session.scalar(sa.select(cls).where(*where).limit(1))
+            if not o:
+                raise NotFoundError()
+            return o
 
     def save(self):
         with Session.begin() as session:
@@ -102,6 +109,23 @@ class Bangumi(NeoDB):
                     s.append(sub.id)
             self.subtitle_group = ", ".join(sorted(s))
 
+    @staticmethod
+    def serialize_subtitle_group(subtitle_group: Any) -> str:
+        s = []
+
+        if isinstance(subtitle_group, list):
+            for sub in subtitle_group:
+                if isinstance(sub, str):
+                    s.append(sub)
+                elif isinstance(sub, dict):
+                    s.append(sub["id"])
+                else:
+                    s.append(sub.id)
+        else:
+            return str(subtitle_group)
+
+        return ", ".join(sorted(s))
+
     @classmethod
     def delete_all(cls) -> None:
         with Session.begin() as session:
@@ -111,12 +135,15 @@ class Bangumi(NeoDB):
                 )
             )
 
-        if os.getenv("DEBUG"):  # pragma: no cover
-            print("ignore updating bangumi", [x.bangumi_name for x in un_updated_bangumi])
+            if os.getenv("DEBUG"):  # pragma: no cover
+                print("ignore updating bangumi", [x.bangumi_name for x in un_updated_bangumi])
 
-        cls.update(status=STATUS_END).where(
-            cls.name.not_in([x.bangumi_name for x in un_updated_bangumi])
-        ).execute()  # do not mark updating bangumi as STATUS_END
+            # do not mark updating bangumi as STATUS_END
+            session.execute(
+                sa.update(SaBangumi)
+                .where(SaBangumi.name.not_in([x.bangumi_name for x in un_updated_bangumi]))
+                .values(status=STATUS_END)
+            )
 
     @classmethod
     def get_updating_bangumi(
@@ -147,22 +174,8 @@ class Bangumi(NeoDB):
         return weekly_list
 
     @classmethod
-    def fuzzy_get(cls, **filters: Any) -> "Bangumi":
-        fuzzy_q = []
-        raw_q = []
-        for key, value in filters.items():
-            raw_q.append(getattr(cls, key) == value)
-            fuzzy_q.append(getattr(cls, key).contains(value))
-
-        raw = list(cls.select().where(*raw_q))  # type: List[Bangumi]
-        if raw:
-            return raw[0]
-
-        fuzzy = list(cls.select().where(*fuzzy_q))  # type: List[Bangumi]
-        if fuzzy:
-            return fuzzy[0]
-
-        raise cls.DoesNotExist
+    def fuzzy_get(cls, name: str) -> "SaBangumi":
+        return SaBangumi.get(SaBangumi.name.contains(name))
 
 
 class _Followed(NeoDB):
@@ -319,7 +332,6 @@ class Scripts(NeoDB):
 
 def recreate_source_relatively_table() -> None:
     table_to_drop = [
-        Bangumi,
         Subtitle,
         Filter,
         Download,
@@ -329,6 +341,7 @@ def recreate_source_relatively_table() -> None:
 
     with Session.begin() as session:
         session.execute(sa.delete(Followed))
+        session.execute(sa.delete(SaBangumi))
 
 
 def recreate_scripts_table() -> None:

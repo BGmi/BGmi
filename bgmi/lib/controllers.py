@@ -22,6 +22,8 @@ from bgmi.lib.models import (
     Download,
     Filter,
     Followed,
+    NotFoundError,
+    SaBangumi,
     Session,
     Subtitle,
     model_to_dict,
@@ -57,7 +59,7 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
 
     try:
         bangumi_obj = Bangumi.fuzzy_get(name=name)
-    except Bangumi.DoesNotExist:
+    except DoesNotExist:
         result = {
             "status": "error",
             "message": f"{name} not found, please check the name",
@@ -68,7 +70,6 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
         followed_obj: Optional[Followed] = session.scalar(
             sa.select(Followed).where(Followed.bangumi_name == bangumi_obj.name).limit(1)
         )
-
         if followed_obj is None:
             followed_obj = Followed(status=STATUS_FOLLOWED, bangumi_name=bangumi_obj.name, episode=0)
             session.add(followed_obj)
@@ -108,7 +109,7 @@ def filter_(
     result = {"status": "success", "message": ""}  # type: Dict[str, Any]
     try:
         bangumi_obj = Bangumi.fuzzy_get(name=name)
-    except Bangumi.DoesNotExist:
+    except DoesNotExist:
         result["status"] = "error"
         result["message"] = f"Bangumi {name} does not exist."
         return result
@@ -404,14 +405,14 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
         download_queue = []
         print_info(f"fetching {subscribe['bangumi_name']} ...")
         try:
-            bangumi_obj = Bangumi.get(name=subscribe["bangumi_name"])
-        except Bangumi.DoesNotExist:
+            bangumi_obj = SaBangumi.get(SaBangumi.name == subscribe["bangumi_name"])
+        except NotFoundError:
             logger.error("Bangumi<{}> does not exists.", subscribe["bangumi_name"])
             continue
         try:
-            followed_obj = Followed.get(bangumi_name=subscribe["bangumi_name"])
-        except Followed.DoesNotExist:
-            logger.error("Bangumi<{}> is not followed.", subscribe["bangumi_name"])
+            followed_obj = Followed.get(Followed.bangumi_name == subscribe["bangumi_name"])
+        except NotFoundError:
+            logger.error("Followed<{}> is not followed.", subscribe["bangumi_name"])
             continue
 
         try:
