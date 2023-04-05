@@ -14,7 +14,7 @@ from io import BytesIO
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from shutil import move, rmtree
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, TypeVar
 
 import requests
 import semver
@@ -336,7 +336,10 @@ def download_file(url: str) -> Optional[Response]:
     return None
 
 
-def chunks(iterable, size):
+T = TypeVar("T")
+
+
+def chunks(iterable: Iterable[T], size: int) -> Iterable[Iterable[T]]:
     it = iter(iterable)
     chunk = tuple(itertools.islice(it, size))
     while chunk:
