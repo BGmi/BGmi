@@ -14,7 +14,7 @@ from loguru import logger
 from tornado import template
 
 from bgmi import __version__
-from bgmi.config import BGMI_PATH, CONFIG_FILE_PATH, Config, cfg, print_config, write_default_config
+from bgmi.config import BGMI_PATH, CONFIG_FILE_PATH, Config, cfg, write_default_config
 from bgmi.lib import controllers as ctl
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE
 from bgmi.lib.download import download_prepare
@@ -103,7 +103,10 @@ def config() -> None:
 
 @config.command("print")
 def config_print() -> None:
-    print(print_config())
+    if CONFIG_FILE_PATH.exists():
+        print(CONFIG_FILE_PATH.read_text(encoding="utf-8"))
+        return
+    print("config file not exist")
 
 
 @config.command("set")
