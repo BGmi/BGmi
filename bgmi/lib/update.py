@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-import semver
+import packaging.version
 
 from bgmi import __version__
 from bgmi.config import BGMI_PATH, cfg
@@ -26,8 +26,8 @@ def update_database() -> None:
         old_version_file.write_text(__version__, encoding="utf8")
         return
 
-    previous = semver.VersionInfo.parse(old_version_file.read_text(encoding="utf8"))
-    if previous < semver.VersionInfo(major=4):
+    previous = packaging.version.parse(old_version_file.read_text(encoding="utf8"))
+    if previous < packaging.version.Version("4.0.0"):
         print_error(
             (
                 "can't automatically upgrade from <4.0.0 version, "
