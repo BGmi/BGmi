@@ -28,7 +28,7 @@ STATUS_DOWNLOADING = 1
 STATUS_DOWNLOADED = 2
 DOWNLOAD_STATUS = (STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, STATUS_DOWNLOADED)
 
-engine = create_engine(f"sqlite:///{cfg.db_path.as_posix()}")
+engine = create_engine(f"sqlite:///{cfg.db_path.absolute().as_posix()}")
 # if os.getenv("DEV")
 # engine = create_engine("sqlite:///./tmp/bangumi.db")
 
