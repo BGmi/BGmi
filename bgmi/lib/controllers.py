@@ -134,28 +134,28 @@ def filter_(
     if subtitle is not None:
         _subtitle = [s.strip() for s in subtitle.split(",")]
         _subtitle = [s.id for s in Subtitle.get_subtitle_by_name(_subtitle)]
-        subtitle_list = [s.split(".")[0] for s in bangumi_obj.subtitle_group.split(", ") if "." in s]
-        subtitle_list.extend(bangumi_obj.subtitle_group.split(", "))
-        followed_filter_obj.subtitle = ", ".join(filter(lambda s: s in subtitle_list, _subtitle))
+        followed_filter_obj.subtitle = [s for s in _subtitle if s in bangumi_obj.subtitle_group]
 
     if include is not None:
-        followed_filter_obj.include = include
+        followed_filter_obj.include = [x.strip() for x in include.split(",")]
 
     if exclude is not None:
-        followed_filter_obj.exclude = exclude
+        followed_filter_obj.exclude = [x.strip() for x in exclude.split(",")]
 
     if regex is not None:
         followed_filter_obj.regex = regex
 
     followed_filter_obj.save()
-    subtitle_list = [s.name for s in Subtitle.get_subtitle_by_id(bangumi_obj.subtitle_group.split(", "))]
+    subtitle_list = [s.name for s in Subtitle.get_subtitle_by_id(bangumi_obj.subtitle_group)]
 
     result["data"] = {
         "name": bangumi_obj.name,
         "subtitle_group": subtitle_list,
-        "followed": [s.name for s in Subtitle.get_subtitle_by_id(followed_filter_obj.subtitle.split(", "))]
-        if followed_filter_obj.subtitle
-        else [],
+        "followed": (
+            [s.name for s in Subtitle.get_subtitle_by_id(followed_filter_obj.subtitle)]
+            if followed_filter_obj.subtitle
+            else []
+        ),
         "include": followed_filter_obj.include,
         "exclude": followed_filter_obj.exclude,
         "regex": followed_filter_obj.regex,
@@ -239,8 +239,7 @@ def cal(force_update: bool = False, cover: Optional[List[str]] = None) -> Dict[s
         for index, bangumi in enumerate(value):
             bangumi["cover"] = normalize_path(bangumi["cover"])
             subtitle_group = [
-                {"name": x.name, "id": x.id}
-                for x in Subtitle.get_subtitle_by_id(bangumi["subtitle_group"].split(", " ""))
+                {"name": x.name, "id": x.id} for x in Subtitle.get_subtitle_by_id(bangumi["subtitle_group"])
             ]
 
             r[day][index]["subtitle_group"] = subtitle_group

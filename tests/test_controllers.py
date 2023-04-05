@@ -1,62 +1,116 @@
-import unittest
 from unittest import mock
 
+import pytest
+
+from bgmi.lib import controllers as ctl
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
-from bgmi.lib.controllers import add, cal, delete, mark, recreate_source_relatively_table, search
+from bgmi.lib.controllers import cal, recreate_source_relatively_table
+from bgmi.lib.table import Bangumi, Filter, Followed, NotFoundError, Session, Subtitle
+
+bangumi_name_1 = "名侦探柯南"
+bangumi_name_2 = "海贼王"
 
 
-class ControllersTest(unittest.TestCase):
-    def setUp(self):
-        self.bangumi_name_1 = "名侦探柯南"
-        self.bangumi_name_2 = "海贼王"
+def ensure_data():
+    with Session.begin() as tx:
+        tx.query(Bangumi).delete()
+        tx.query(Followed).delete()
+        tx.query(Filter).delete()
+        tx.query(Subtitle).delete()
+        tx.add(Bangumi(name=bangumi_name_1, keyword="1", subtitle_group=["id1", "id2"]))
+        tx.add(Bangumi(name=bangumi_name_2, keyword="2"))
+        tx.add_all(
+            [
+                Subtitle(id="id1", name="sg1"),
+                Subtitle(id="id2", name="sg2"),
+                Subtitle(id="id3", name="sg3"),
+            ]
+        )
+        tx.add(Followed(bangumi_name=bangumi_name_1, episode=2))
+        tx.add(Filter(bangumi_name=bangumi_name_1))
 
-    def test_a_cal(self):
-        r = cal()
-        assert isinstance(r, dict)
-        for day in r.keys():
-            assert day.lower() in (x.lower() for x in BANGUMI_UPDATE_TIME)
-            assert isinstance(r[day], list)
-            for bangumi in r[day]:
-                assert "status" in bangumi
-                assert "subtitle_group" in bangumi
-                assert "name" in bangumi
-                assert "update_time" in bangumi
-                assert "cover" in bangumi
-                assert "episode" in bangumi
 
-    def test_b_add(self):
-        r = add(self.bangumi_name_1, 0)
-        assert r["status"] == "success", r["message"]
-        r = add(self.bangumi_name_1, 0)
-        assert r["status"] == "warning", r["message"]
-        r = delete(self.bangumi_name_1)
-        assert r["status"] == "warning", r["message"]
+def test_add():
+    ensure_data()
 
-    def test_c_mark(self):
-        add(self.bangumi_name_1, 0)
+    r = ctl.add(bangumi_name_2, 0)
+    assert r["status"] == "success", r["message"]
 
-        r = mark(self.bangumi_name_1, 1)
-        assert r["status"] == "success", r["message"]
-        r = mark(self.bangumi_name_2, 0)
-        assert r["status"] == "error", r["message"]
+    r = ctl.add(bangumi_name_2, 0)
+    assert r["status"] == "warning", r["message"]
 
-    def test_d_delete(self):
-        r = delete()
-        assert r["status"] == "warning", r["message"]
-        r = delete(self.bangumi_name_1)
-        assert r["status"] == "warning", r["message"]
-        r = delete(self.bangumi_name_1)
-        assert r["status"] == "warning", r["message"]
-        r = delete(self.bangumi_name_2)
-        assert r["status"] == "error", r["message"]
-        r = delete(clear_all=True, batch=True)
-        assert r["status"] == "warning", r["message"]
 
-    def test_e_search(self):
-        with mock.patch("bgmi.lib.fetch.website.search_by_keyword") as m:
-            m.return_value = []
-            search(self.bangumi_name_1, dupe=False)
+def test_mark():
+    ensure_data()
 
-    @staticmethod
-    def setUpClass(*args):
-        recreate_source_relatively_table()
+    ctl.mark(bangumi_name_1, 0)
+
+    assert Followed.get(Followed.bangumi_name == bangumi_name_1).episode == 0
+
+    r = ctl.mark(bangumi_name_2, 0)
+    assert r["status"] == "error", r["message"]
+
+
+def test_filter():
+    ensure_data()
+
+    ctl.filter_(
+        bangumi_name_1,
+        subtitle="sg1",
+        include="include",
+        exclude="exclude",
+        regex="regex",
+    )
+
+    f = Filter.get(Filter.bangumi_name == bangumi_name_1)
+
+    assert f.subtitle == ["id1"]
+    assert f.include == ["include"]
+    assert f.exclude == ["exclude"]
+    assert f.regex == "regex"
+
+
+def test_delete():
+    ensure_data()
+
+    r = ctl.delete(bangumi_name_1)
+    assert r["status"] == "warning", r["message"]
+    r = ctl.delete(bangumi_name_1)
+    assert r["status"] == "warning", r["message"]
+    r = ctl.delete(bangumi_name_1)
+    assert r["status"] == "warning", r["message"]
+
+    r = ctl.delete(bangumi_name_2)
+    assert r["status"] == "error", r["message"]
+
+    r = ctl.delete(clear_all=True, batch=True)
+    assert r["status"] == "warning", r["message"]
+
+    with pytest.raises(NotFoundError):
+        Followed.get(Followed.bangumi_name == bangumi_name_1)
+
+    with pytest.raises(NotFoundError):
+        assert Followed.get(Followed.bangumi_name == bangumi_name_2)
+
+
+def test_search():
+    with mock.patch("bgmi.lib.fetch.website.search_by_keyword") as m:
+        m.return_value = []
+        ctl.search(bangumi_name_1, dupe=False)
+
+
+def test_cal():
+    recreate_source_relatively_table()
+
+    r = cal(force_update=True)
+    assert isinstance(r, dict)
+    for day in r.keys():
+        assert day.lower() in (x.lower() for x in BANGUMI_UPDATE_TIME)
+        assert isinstance(r[day], list)
+        for bangumi in r[day]:
+            assert "status" in bangumi
+            assert "subtitle_group" in bangumi
+            assert "name" in bangumi
+            assert "update_time" in bangumi
+            assert "cover" in bangumi
+            assert "episode" in bangumi
