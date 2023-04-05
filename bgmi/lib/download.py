@@ -25,16 +25,24 @@ def get_download_driver(delegate: str) -> BaseDownloadService:
 
 
 def download_prepare(data: List[Episode]) -> None:
-    queue = save_to_bangumi_download_queue(data)
     driver = get_download_driver(cfg.download_delegate)
-    for download in queue:
-        save_path = bangumi_save_path(download.bangumi_name).joinpath(str(download.episode))
+
+    for episode in data:
+        save_path = bangumi_save_path(episode.name).joinpath(str(episode.episode))
         if not save_path.exists():
             os.makedirs(save_path)
 
-        # mark as downloading
-        download.status = STATUS_DOWNLOADING
-        download.save()
+        download = Download(
+            title=episode.title,
+            download=episode.download,
+            bangumi_name=episode.name,
+            episode=episode.episode,
+            status=STATUS_DOWNLOADING,
+        )
+
+        with Session.begin() as session:
+            session.add(download)
+
         try:
             driver.add_download(url=download.download, save_path=str(save_path))
             print_info("Add torrent into the download queue, " f"the file will be saved at {save_path}")
@@ -46,33 +54,3 @@ def download_prepare(data: List[Episode]) -> None:
             print_error(f"Error when downloading {download.title}: {e}", stop=False)
             download.status = STATUS_NOT_DOWNLOAD
             download.save()
-
-
-def save_to_bangumi_download_queue(data: List[Episode]) -> List[Download]:
-    """
-    list[dict]
-    dict:{
-    name;str, keyword you use when search
-    title:str, title of episode
-    episode:int, episode of bangumi
-    download:str, link to download
-    }
-    :param data:
-    :return:
-    """
-    queue = []
-    for i in data:
-        with Session.begin() as session:
-            download = Download(
-                title=i.title,
-                download=i.download,
-                bangumi_name=i.name,
-                episode=i.episode,
-                status=STATUS_NOT_DOWNLOAD,
-            )
-
-            session.add(download)
-
-        queue.append(download)
-
-    return queue
