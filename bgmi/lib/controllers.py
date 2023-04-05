@@ -1,6 +1,7 @@
 import itertools
 import os.path
 import time
+from collections import defaultdict
 from operator import itemgetter
 from typing import Any, Dict, List, Optional
 
@@ -456,28 +457,46 @@ def status_(name: str, status: int = STATUS_DELETED) -> ControllerResult:
     return result
 
 
+def followed_bangumi() -> Dict[str, list]:
+    """
+
+    :return: list of bangumi followed
+    """
+    weekly_list_followed = Bangumi.get_updating_bangumi(status=STATUS_FOLLOWED)
+    weekly_list_updated = Bangumi.get_updating_bangumi(status=STATUS_UPDATED)
+    weekly_list = defaultdict(list)
+    for k, v in itertools.chain(weekly_list_followed.items(), weekly_list_updated.items()):
+        weekly_list[k].extend(v)
+    for bangumi_list in weekly_list.values():
+        for bangumi in bangumi_list:
+            bangumi["subtitle_group"] = [
+                {"name": x.name, "id": x.id} for x in Subtitle.get_subtitle_by_id(bangumi["subtitle_group"])
+            ]
+    return weekly_list
+
+
 def list_() -> ControllerResult:
     result = {}
     weekday_order = BANGUMI_UPDATE_TIME
-    followed_bangumi = website.followed_bangumi()
+    followed = followed_bangumi()
 
     script_bangumi = ScriptRunner().get_models_dict()
 
-    if not followed_bangumi and not script_bangumi:
+    if not followed and not script_bangumi:
         result["status"] = "warning"
         result["message"] = "you have not subscribed any bangumi"
         return result
 
     for i in script_bangumi:
         i["subtitle_group"] = [{"name": "<BGmi Script>"}]
-        followed_bangumi[i["update_time"].lower()].append(i)
+        followed[i["update_time"].lower()].append(i)
 
     result["status"] = "info"
     result["message"] = ""
     for weekday in weekday_order:
-        if followed_bangumi[weekday.lower()]:
+        if followed[weekday.lower()]:
             result["message"] += f"{GREEN}{weekday}. {COLOR_END}"
-            for j, bangumi in enumerate(followed_bangumi[weekday.lower()]):
+            for j, bangumi in enumerate(followed[weekday.lower()]):
                 if bangumi["status"] in (STATUS_UPDATED, STATUS_FOLLOWED) and "episode" in bangumi:
                     bangumi["name"] = f"{bangumi['name']}({bangumi['episode']:d})"
                 if j > 0:
