@@ -1,6 +1,7 @@
 import functools
 import glob
 import gzip
+import itertools
 import json
 import os
 import re
@@ -336,10 +337,22 @@ def download_file(url: str) -> Optional[Response]:
     return None
 
 
+def chunks(iterable, size):
+    it = iter(iterable)
+    chunk = tuple(itertools.islice(it, size))
+    while chunk:
+        yield chunk
+        chunk = tuple(itertools.islice(it, size))
+
+
 def download_cover(cover_url_list: List[str]) -> None:
-    p = ThreadPool(4)
-    content_list = p.map(download_file, cover_url_list)
+    p = ThreadPool(3)
+    content_list = []
+
+    for chunk in chunks(cover_url_list, 9):
+        content_list.extend(p.map(download_file, chunk))
     p.close()
+
     for index, r in enumerate(content_list):
         if not r:
             continue
