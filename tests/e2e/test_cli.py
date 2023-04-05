@@ -2,7 +2,7 @@ from unittest import mock
 
 import pytest
 
-from bgmi.lib.table import Bangumi, Filter, Followed
+from bgmi.lib.table import Bangumi, Followed
 from bgmi.main import main_for_test
 from bgmi.script import ScriptRunner
 from bgmi.website.bangumi_moe import BangumiMoe
@@ -85,7 +85,7 @@ def test_filter(bangumi_names):
     name = bangumi_names[0]
     main_for_test(f"add {name} --episode 0".split())
     main_for_test(["filter", name, "--subtitle", "", "--exclude", "MKV", "--regex", "720p|720P"])
-    f = Filter.get(Filter.bangumi_name == name)
+    f = Followed.get(Followed.bangumi_name == name)
     assert not f.include
     assert not f.subtitle
 
