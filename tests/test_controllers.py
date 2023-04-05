@@ -16,8 +16,8 @@ def ensure_data():
         tx.query(Bangumi).delete()
         tx.query(Followed).delete()
         tx.query(Subtitle).delete()
-        tx.add(Bangumi(name=bangumi_name_1, keyword="1", subtitle_group=["id1", "id2"]))
-        tx.add(Bangumi(name=bangumi_name_2, keyword="2"))
+        tx.add(Bangumi(name=bangumi_name_1, id="1", subtitle_group=["id1", "id2"]))
+        tx.add(Bangumi(name=bangumi_name_2, id="2"))
         tx.add_all(
             [
                 Subtitle(id="id1", name="sg1"),
