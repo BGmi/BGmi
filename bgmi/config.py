@@ -175,7 +175,7 @@ def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
 
 if CONFIG_FILE_PATH.exists():
     try:
-        cfg = Config.parse_obj(tomlkit.loads(CONFIG_FILE_PATH.read_text(encoding="utf8")))
+        cfg = Config.parse_obj(tomlkit.loads(CONFIG_FILE_PATH.read_text(encoding="utf8")).unwrap())
     except pydantic.ValidationError as e:
         print("配置文件错误，请手动编辑配置文件后重试")
         print("配置文件位置：", CONFIG_FILE_PATH)
