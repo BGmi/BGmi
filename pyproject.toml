@@ -135,6 +135,9 @@ disallow_untyped_defs = false
 
 [tool.pylint]
 
+[tool.pylint.TYPECHECK]
+ignored-classes = ['sqlalchemy.orm.session.sessionmaker']
+
 [tool.pylint.format]
 max-line-length = 120
 
