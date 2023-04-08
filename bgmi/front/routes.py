@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from pydantic.generics import GenericModel
 from starlette.exceptions import HTTPException
 
+from bgmi import __version__
 from bgmi.config import cfg
 from bgmi.front.index import get_player
 from bgmi.lib import table
