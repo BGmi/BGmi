@@ -98,7 +98,7 @@ def bangumi_list(t: str):
 
 async def auth_header(token: str = fastapi.Header("authorization", example="Bearer {token}")):
     if not token.startswith("Bearer "):
-        raise fastapi.HTTPException(400, "bad authorization header, should be `Bearer {token}`")
+        raise fastapi.HTTPException(401, "bad authorization header, should be `Bearer {token}`")
     if token[7:] == cfg.http.admin_token:
         return
     raise fastapi.HTTPException(401, "wrong auth token")
