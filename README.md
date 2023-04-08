@@ -14,11 +14,8 @@ BGmi 是一个用来追番的命令行程序.
 
 ### V5
 
-v5 版本并没有添加任何新功能。
-
-为了方便维护进行了数据库无法兼容的重构。
-
-你可以继续使用 v4。
+- 重构 bgmi_http
+- 移除 '/resource/feed.xml'
 
 ### v4
 
@@ -46,7 +43,8 @@ v5 版本并没有添加任何新功能。
 
 ## 特性
 
-- 多个数据源可选: [bangumi_moe](https://bangumi.moe), [mikan_project](https://mikanani.me) 或者[dmhy](https://share.dmhy.org/)
+- 多个数据源可选: [bangumi_moe](https://bangumi.moe), [mikan_project](https://mikanani.me)
+  或者[dmhy](https://share.dmhy.org/)
 - 使用 aria2, transmission, qbittorrent 或者 deluge 来下载你的番剧.
 - 提供一个管理和观看订阅番剧的前端.
 - 弹幕支持
@@ -142,6 +140,7 @@ bgmi completion zsh > .oh-my-zsh/completions/_bgmi
 BGmi 提供两种方式配置BGmi的各项运行参数，分别为配置文件与环境变量。
 
 ### 配置文件
+
 bgmi 的配置文件位于 `${BGMI_PATH}/config.toml`, 在未设置 `BGMI_PATH` 环境变量时，`${BGMI_PATH}` 默认为 `~/.bgmi/`。
 
 查看当前 `BGmi` 设置:
@@ -163,11 +162,11 @@ mikan_username = "" # 蜜柑计划的用户名
 mikan_password = "" # 蜜柑计划的密码
 enable_global_filters = true
 global_filters = [
-    "Leopard-Raws",
-    "hevc",
-    "x265",
-    "c-a Raws",
-    "U3-Web",
+  "Leopard-Raws",
+  "hevc",
+  "x265",
+  "c-a Raws",
+  "U3-Web",
 ]
 
 proxy = '' # http proxy example: http://127.0.0.1:1080
@@ -205,9 +204,11 @@ rpc_password = "deluge"
 ```
 
 ### 环境变量
+
 当 BGmi 的配置文件还未初始化时，各项运行参数可由环境变量进行配置
 
 环境变量以 `BGMI_` 开头，全大写命名，且各级配置以 `_` 进行分割，如:
+
 ```
 BGMI_DATA_SOURCE=bangumi_moe    # 对应配置文件中的 data_source = "bangumi_moe"
 BGMI_HTTP_ADMIN_TOKEN=dYMj-Z4bDRoQfd3x    # 对应配置文件 [http] 分段中的 admin_token = "dYMj-Z4bDRoQfd3x"
@@ -215,6 +216,7 @@ BGMI_HTTP_ADMIN_TOKEN=dYMj-Z4bDRoQfd3x    # 对应配置文件 [http] 分段中�
 ```
 
 环境变量 *暂不支持* 配置以下项目
+
 ```
 enable_global_include_keywords
 enable_global_filters
@@ -222,11 +224,12 @@ global_include_keywords
 global_filters
 [save_path_map]
 ```
+
 注: 当配置文件生成完毕后，运行配置将会以配置文件为准，环境变量仅用于生成第一份配置文件。
 
 ## 修改配置
 
-使用 `bgmi config set ...keys  --value '...'` 命令可以修改配置。
+使用 `bgmi config set ...keys --value '...'` 命令可以修改配置。
 
 如：
 
@@ -258,8 +261,6 @@ bgmi config set max_path --value '3'
 ```bash
 bgmi source mikan_project
 ```
-
-**切换数据源必需使用bgmi source命令，不能手动修改配置文件。手动修改配置文件会导致 bgmi 报错**
 
 ### 设置下载方式
 
@@ -319,7 +320,6 @@ bgmi fetch "Re:CREATORS"
 
 ## 设置全局过滤关键词
 
-
 ### 包含
 
 默认不启用全局包含关键词，你可以设置 `enable_global_include_keywords = true` 启动此功能。
@@ -328,7 +328,6 @@ bgmi fetch "Re:CREATORS"
 enable_global_include_keywords = true
 global_include_keywords = ['1080']
 ```
-
 
 ### 排除
 
@@ -449,7 +448,8 @@ macOS launchctl service controller
 
 BGmi 使用[`DPlayer`](https://github.com/DIYgod/DPlayer)做为前端播放器
 
-如果你想要添加弹幕支持, 在这里[DPlayer#related-projects](https://github.com/DIYgod/DPlayer#related-projects)选择一个后端自行搭建, 或者使用`DPlayer`提供的现成接口`https://api.prprpr.me/dplayer/`
+如果你想要添加弹幕支持, 在这里[DPlayer#related-projects](https://github.com/DIYgod/DPlayer#related-projects)选择一个后端自行搭建,
+或者使用`DPlayer`提供的现成接口`https://api.prprpr.me/dplayer/`
 
 然后修改配置文件：
 
@@ -484,7 +484,8 @@ schtasks /Delete /TN 'bgmi updater'
 
 ## Bangumi Script
 
-你可以写一个`BGmi Script`来解析你自己的想看的番剧或者美剧. BGmi 会加载你的 script, 视作一个番剧来对待. 而你所需要做的只是继承`ScriptBase`类, 然后实现特定的方法, 再把你的 script 文件放到`BGMI_PATH/script`文件夹内.
+你可以写一个`BGmi Script`来解析你自己的想看的番剧或者美剧. BGmi 会加载你的 script, 视作一个番剧来对待.
+而你所需要做的只是继承`ScriptBase`类, 然后实现特定的方法, 再把你的 script 文件放到`BGMI_PATH/script`文件夹内.
 
 Example: [./tests/script_example.py](./tests/script_example.py)
 
@@ -492,9 +493,9 @@ Example: [./tests/script_example.py](./tests/script_example.py)
 
 ```python
 {
-    1: 'http://example.com/Bangumi/1/1.mp4',
-    2: 'http://example.com/Bangumi/1/2.torrent',
-    3: 'http://example.com/Bangumi/1/3.mp4'
+  1: 'http://example.com/Bangumi/1/1.mp4',
+  2: 'http://example.com/Bangumi/1/2.torrent',
+  3: 'http://example.com/Bangumi/1/3.mp4'
 }
 ```
 
@@ -532,51 +533,50 @@ from bgmi.website.model import Episode, WebsiteBangumi
 
 
 class DataSource(BaseWebsite):
-    def search_by_keyword(
-        self, keyword: str, count: int
-    ) -> List[Episode]:  # pragma: no cover
-        """
+  def search_by_keyword(
+    self, keyword: str, count: int
+  ) -> List[Episode]:  # pragma: no cover
+    """
 
-        :param keyword: search key word
-        :param count: how many page to fetch from website
-        :return: list of episode search result
-        """
-        raise NotImplementedError
+    :param keyword: search key word
+    :param count: how many page to fetch from website
+    :return: list of episode search result
+    """
+    raise NotImplementedError
 
-    def fetch_bangumi_calendar(self,) -> List[WebsiteBangumi]:  # pragma: no cover
-        """
-        return a list of all bangumi and a list of all subtitle group
+  def fetch_bangumi_calendar(self, ) -> List[WebsiteBangumi]:  # pragma: no cover
+    """
+    return a list of all bangumi and a list of all subtitle group
 
-        list of bangumi dict:
-        update time should be one of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Unknown']
-        """
-        raise NotImplementedError
+    list of bangumi dict:
+    update time should be one of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Unknown']
+    """
+    raise NotImplementedError
 
-    def fetch_episode_of_bangumi(
-        self, bangumi_id: str, max_page: int, subtitle_list: Optional[List[str]] = None
-    ) -> List[Episode]:  # pragma: no cover
-        """
-        get all episode by bangumi id
+  def fetch_episode_of_bangumi(
+    self, bangumi_id: str, max_page: int, subtitle_list: Optional[List[str]] = None
+  ) -> List[Episode]:  # pragma: no cover
+    """
+    get all episode by bangumi id
 
-        :param bangumi_id: bangumi_id
-        :param subtitle_list: list of subtitle group
-        :type subtitle_list: list
-        :param max_page: how many page you want to crawl if there is no subtitle list
-        :type max_page: int
-        :return: list of bangumi
-        """
-        raise NotImplementedError
+    :param bangumi_id: bangumi_id
+    :param subtitle_list: list of subtitle group
+    :type subtitle_list: list
+    :param max_page: how many page you want to crawl if there is no subtitle list
+    :type max_page: int
+    :return: list of bangumi
+    """
+    raise NotImplementedError
 
+  def fetch_single_bangumi(self, bangumi_id: str) -> WebsiteBangumi:
+    """
+    fetch bangumi info when updating
 
-    def fetch_single_bangumi(self, bangumi_id: str) -> WebsiteBangumi:
-        """
-        fetch bangumi info when updating
-
-        :param bangumi_id: bangumi_id, or bangumi['keyword']
-        :type bangumi_id: str
-        :rtype: WebsiteBangumi
-        """
-        # return WebsiteBangumi(keyword=bangumi_id) if website don't has a page contains episodes and info
+    :param bangumi_id: bangumi_id, or bangumi['keyword']
+    :type bangumi_id: str
+    :rtype: WebsiteBangumi
+    """
+    # return WebsiteBangumi(keyword=bangumi_id) if website don't has a page contains episodes and info
 ```
 
 ## License
