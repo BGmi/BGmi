@@ -14,7 +14,7 @@ import wcwidth
 from loguru import logger
 
 from bgmi import __version__
-from bgmi.config import BGMI_PATH, CONFIG_FILE_PATH, Config, Source, cfg, write_default_config
+from bgmi.config import CONFIG_FILE_PATH, Config, Source, cfg, write_default_config
 from bgmi.lib import controllers as ctl
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE
 from bgmi.lib.download import download_episodes
@@ -73,11 +73,11 @@ def cli(ctx: click.Context) -> None:
 
 
 @cli.command(help="Install BGmi and frontend")
-def install() -> None:
+@click.option("--no-web", is_flag=True, default=False, help="Do not download web static files")
+def install(no_web: bool) -> None:
     need_to_init = False
-    if not os.path.exists(BGMI_PATH):
+    if not CONFIG_FILE_PATH.exists():
         need_to_init = True
-        print_warning(f"BGMI_PATH {BGMI_PATH} does not exist, installing")
 
     create_dir()
     init_db()
@@ -86,7 +86,9 @@ def install() -> None:
 
     write_default_config()
     update_database()
-    get_web_admin(method="install")
+
+    if not no_web:
+        get_web_admin(method="install")
 
 
 @cli.command(help="upgrade from previous version")
