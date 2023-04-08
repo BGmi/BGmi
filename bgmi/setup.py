@@ -31,8 +31,8 @@ def install_crontab() -> None:
             else:
                 extra.append(line)
 
-        extra.append(f"0 */2 * * * LC_ALL=en_US.UTF-8 {sys.executable} -m bgmi update")
-        extra.append(f"0 */10 * * * LC_ALL=en_US.UTF-8 {sys.executable} -m bgmi cal --force-update --download-cover")
+        extra.append(f"10 */2 * * * LC_ALL=en_US.UTF-8 {sys.executable} -m bgmi update")
+        extra.append(f"0 */12 * * * LC_ALL=en_US.UTF-8 {sys.executable} -m bgmi cal --force-update --download-cover")
 
         p = subprocess.Popen(["crontab", "-"], stdin=subprocess.PIPE)
         for line in extra:
