@@ -87,7 +87,7 @@ class ScriptRunner:
             for k, v in script.get_download_url().items()
         ]
 
-    def run(self, return_: bool = True, download: bool = False) -> List[Episode]:
+    def run(self, return_: bool = True) -> List[Episode]:
         for script in self.scripts:
             print_info(f"fetching {script.bangumi_name} ...")
             download_item = self.make_dict(script)
