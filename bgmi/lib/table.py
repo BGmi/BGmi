@@ -42,7 +42,7 @@ def before_cursor_execute(
 
 
 engine = create_engine(f"sqlite:///{cfg.db_path.absolute().as_posix()}")
-sa.event.listen(engine, "before_cursor_execute", before_cursor_execute)
+sqlalchemy.event.listen(engine, "before_cursor_execute", before_cursor_execute)
 Session = sessionmaker(engine, expire_on_commit=False)
 
 
