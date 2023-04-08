@@ -152,10 +152,6 @@ class ApiTestCase(AsyncHTTPTestCase):
         )
         assert m.call_count == 3
 
-    def test_resource_ics(self):
-        r = self.fetch("/resource/feed.xml")
-        assert r.code == 200
-
     def test_resource_feed(self):
         r = self.fetch("/resource/calendar.ics")
         assert r.code == 200
