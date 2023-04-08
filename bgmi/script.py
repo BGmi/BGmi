@@ -116,6 +116,8 @@ class ScriptRunner:
             script_obj.episode = episode
             script_obj.status = STATUS_UPDATED
             script_obj.updated_time = int(time.time())
+            script_obj.cover = script.Model.cover
+            script_obj.update_day = script.Model.update_time
             script_obj.save()
 
             if return_:
