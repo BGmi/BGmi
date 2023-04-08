@@ -24,7 +24,7 @@ class BaseWebsite:
                 b = Bangumi.get(Bangumi.id == data.id)
 
                 b.cover = data.cover
-                b.update_time = data.update_time
+                b.update_day = data.update_time
                 b.status = STATUS_UPDATING
                 b.subtitle_group = subtitle_group
 
