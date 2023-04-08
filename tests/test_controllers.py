@@ -4,8 +4,8 @@ import pytest
 
 from bgmi.lib import controllers as ctl
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
-from bgmi.lib.controllers import cal, recreate_source_relatively_table
-from bgmi.lib.table import Followed, NotFoundError
+from bgmi.lib.controllers import cal
+from bgmi.lib.table import Followed, NotFoundError, recreate_source_relatively_table
 
 bangumi_name_1 = "名侦探柯南"
 bangumi_name_2 = "海贼王"
