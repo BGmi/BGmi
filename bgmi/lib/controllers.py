@@ -333,14 +333,8 @@ def source(data_source: str) -> ControllerResult:
     return result
 
 
-def update(names: List[str], download: Optional[bool] = False, not_ignore: bool = False) -> ControllerResult:
+def update(names: List[str], download: Optional[bool] = False, not_ignore: bool = False):
     logger.debug("updating bangumi info with args: download: %r", download)
-    downloaded: List[Episode] = []
-    result: Dict[str, Any] = {
-        "status": "info",
-        "message": "",
-        "data": {"updated": [], "downloaded": downloaded},
-    }
 
     ignore = not bool(not_ignore)
     print_info("marking bangumi status ...")
@@ -380,7 +374,6 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
     script_download_queue = runner.run()
     if script_download_queue and download:
         download_episodes(script_download_queue)
-        downloaded.extend(script_download_queue)
         print_info("downloading ...")
 
     for subscribe in updated_bangumi_obj:
@@ -417,7 +410,6 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             followed_obj.status = STATUS_UPDATED
             followed_obj.updated_time = int(time.time())
             followed_obj.save()
-            result["data"]["updated"].append({"bangumi": subscribe.bangumi_name, "episode": episode})
 
             groups: Dict[int, List[Episode]] = {
                 key: list(value) for key, value in itertools.groupby(all_episode_data, lambda x: x.episode)
@@ -430,9 +422,6 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
 
         if download:
             download_episodes(download_queue)
-            downloaded.extend(download_queue)
-
-    return result
 
 
 def status_(name: str, status: int = STATUS_DELETED) -> ControllerResult:
