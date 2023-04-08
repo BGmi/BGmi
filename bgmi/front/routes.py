@@ -275,7 +275,7 @@ class CalendarItem(BaseModel):
     id: str
     cover: str
     name: str
-    update_time: str
+    update_day: str
     status: Optional[int]
     episode: Optional[int]
 

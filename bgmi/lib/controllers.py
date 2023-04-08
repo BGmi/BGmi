@@ -218,7 +218,7 @@ def cal(force_update: bool = False, cover: Optional[List[str]] = None) -> Dict[s
     runner = ScriptRunner()
     patch_list = runner.get_models_dict()
     for i in patch_list:
-        weekly_list[i["update_time"].lower()].append(i)
+        weekly_list[i["update_day"].lower()].append(i)
     logger.debug(weekly_list)
 
     # for web api, return all subtitle group info
