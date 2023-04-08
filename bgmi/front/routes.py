@@ -9,7 +9,7 @@ from bgmi import __version__
 from bgmi.config import cfg
 from bgmi.front.index import get_player
 from bgmi.lib import table
-from bgmi.lib.table import STATUS_END, STATUS_UPDATING, Followed, NotFoundError, Scripts, Session
+from bgmi.lib.table import Followed, NotFoundError, Scripts, Session
 from bgmi.utils import normalize_path
 
 app = fastapi.FastAPI(docs_url="/")
@@ -56,9 +56,9 @@ def bangumi_list(t: str) -> Any:
     ):
         raise HTTPException(404)
 
-    bangumi_status = STATUS_UPDATING
+    bangumi_status = table.Bangumi.STATUS_UPDATING
     if t == "old":
-        bangumi_status = STATUS_END
+        bangumi_status = table.Bangumi.STATUS_END
 
     data: List[Dict[str, Any]] = [
         {

@@ -5,7 +5,7 @@ from typing import Any, List, Optional, TypeVar
 import sqlalchemy as sa
 
 from bgmi.config import cfg
-from bgmi.lib.table import STATUS_UPDATING, Bangumi, Followed, NotFoundError, Session, Subtitle
+from bgmi.lib.table import Bangumi, Followed, NotFoundError, Session, Subtitle
 from bgmi.utils import parse_episode
 from bgmi.website.model import Episode, WebsiteBangumi
 
@@ -25,7 +25,7 @@ class BaseWebsite:
 
                 b.cover = data.cover
                 b.update_day = data.update_day
-                b.status = STATUS_UPDATING
+                b.status = Bangumi.STATUS_UPDATING
                 b.subtitle_group = subtitle_group
 
                 session.add(b)
@@ -36,7 +36,7 @@ class BaseWebsite:
                         id=data.id,
                         update_day=data.update_day,
                         cover=data.cover,
-                        status=STATUS_UPDATING,
+                        status=Bangumi.STATUS_UPDATING,
                         subtitle_group=subtitle_group,
                     )
                 )
