@@ -20,7 +20,7 @@ from bgmi.lib import controllers as ctl
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE
 from bgmi.lib.download import download_episodes
 from bgmi.lib.fetch import website
-from bgmi.lib.table import Bangumi, Followed, Session, Subtitle, recreate_source_relatively_table
+from bgmi.lib.table import Bangumi, Download, Followed, Session, Subtitle, recreate_source_relatively_table
 from bgmi.lib.update import update_database
 from bgmi.script import ScriptRunner
 from bgmi.setup import create_dir, init_db, install_crontab
@@ -202,7 +202,18 @@ def search(
     for i in data:
         print(i.title)
     if download:
-        download_episodes(data)
+        download_episodes(
+            [
+                Download(
+                    bangumi_name=x.name,
+                    episode=x.episode,
+                    status=Download.STATUS_DOWNLOADING,
+                    download=x.download,
+                    title=x.title,
+                )
+                for x in data
+            ]
+        )
 
 
 @cli.command("mark")
