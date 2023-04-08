@@ -31,7 +31,9 @@ STATUS_DOWNLOADED = 2
 DOWNLOAD_STATUS = (STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, STATUS_DOWNLOADED)
 
 
-def before_cursor_execute(_: Any, cursor: Any, statement: str, parameters: List[Any], *args, **kwargs):
+def before_cursor_execute(
+    _: Any, cursor: Any, statement: str, parameters: List[Any], *args: Any, **kwargs: Any
+) -> None:
     logger.debug("executing sql {} {}", statement, parameters)
     if os.getenv("DEBUG") in ["true", "True"]:
         print(statement, parameters)
