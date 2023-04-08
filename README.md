@@ -14,6 +14,7 @@ BGmi 是一个用来追番的命令行程序.
 
 ### V5
 
+- 为 `bgmi update` 命令默认启用 `--download` 参数
 - 重构 bgmi_http
 - 移除 '/resource/feed.xml'
 
@@ -478,6 +479,10 @@ Example: [./tests/script_example.py](./tests/script_example.py)
   3: 'http://example.com/Bangumi/1/3.mp4'
 }
 ```
+
+### 加载 scripts
+
+注意，scripts只会在运行 `bgmi update` 或者 `bgmi cal` 时被加载。如果你在 web ui 找不到对应的内容，请运行前面提到的命令并重试。
 
 ## BGmi 数据源
 
