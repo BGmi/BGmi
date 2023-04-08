@@ -41,7 +41,7 @@ def test_add():
 
 @pytest.mark.usefixtures("ensure_data")
 def test_mark():
-    main_for_test(f"mark {bangumi_name_1} 10".split())
+    main_for_test(f"mark {bangumi_name_1} --episode 10".split())
     assert Followed.get(Followed.bangumi_name == bangumi_name_1).episode == 10
 
 
