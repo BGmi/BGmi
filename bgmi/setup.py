@@ -1,4 +1,6 @@
 import os
+import subprocess
+import sys
 from pathlib import Path
 from shutil import copy
 from typing import List
@@ -18,8 +20,24 @@ def install_crontab() -> None:
             )
         )
     else:
-        path = os.path.join(os.path.dirname(__file__), "others/crontab.sh")
-        os.system(f"bash '{path}'")
+        output = subprocess.getoutput("crontab -l")
+
+        extra = []
+        for line in output.splitlines():
+            if "bgmi update" in line:
+                continue
+            if "bgmi cal" in line:
+                continue
+            else:
+                extra.append(line)
+
+        extra.append(f"0 */2 * * * LC_ALL=en_US.UTF-8 {sys.executable} -m bgmi update")
+        extra.append(f"0 */10 * * * LC_ALL=en_US.UTF-8 {sys.executable} -m bgmi cal --force-update --download-cover")
+
+        p = subprocess.Popen(["crontab", "-"], stdin=subprocess.PIPE)
+        for line in extra:
+            p.stdin.write(f"{line}\n".encode())
+        p.stdin.close()
 
 
 def create_dir() -> None:
