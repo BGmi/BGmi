@@ -4,6 +4,8 @@ from collections import defaultdict
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, TypeVar
 
 import sqlalchemy as sa
+import sqlalchemy.event
+from loguru import logger
 from sqlalchemy import CHAR, Column, Integer, Row, Text, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, sessionmaker
 
@@ -28,8 +30,15 @@ STATUS_DOWNLOADING = 1
 STATUS_DOWNLOADED = 2
 DOWNLOAD_STATUS = (STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, STATUS_DOWNLOADED)
 
-engine = create_engine(f"sqlite:///{cfg.db_path.absolute().as_posix()}")
 
+def before_cursor_execute(_: Any, cursor: Any, statement: str, parameters: List[Any], *args, **kwargs):
+    logger.debug("executing sql {} {}", statement, parameters)
+    if os.getenv("DEBUG") in ["true", "True"]:
+        print(statement, parameters)
+
+
+engine = create_engine(f"sqlite:///{cfg.db_path.absolute().as_posix()}")
+sa.event.listen(engine, "before_cursor_execute", before_cursor_execute)
 Session = sessionmaker(engine, expire_on_commit=False)
 
 
