@@ -9,7 +9,14 @@ import requests_cache
 import urllib3
 
 from bgmi.config import IS_WINDOWS, cfg
-from bgmi.lib.table import recreate_scripts_table, recreate_source_relatively_table
+from bgmi.lib.table import (
+    Bangumi,
+    Followed,
+    Session,
+    Subtitle,
+    recreate_scripts_table,
+    recreate_source_relatively_table,
+)
 
 
 def pytest_addoption(parser):
@@ -86,3 +93,25 @@ def mock_download_driver():
     mock_downloader = mock.Mock()
     with mock.patch("bgmi.lib.download.get_download_driver", mock.Mock(return_value=mock_downloader)):
         yield mock_downloader
+
+
+bangumi_name_1 = "名侦探柯南"
+bangumi_name_2 = "海贼王"
+
+
+@pytest.fixture()
+def ensure_data():
+    with Session.begin() as tx:
+        tx.query(Bangumi).delete()
+        tx.query(Followed).delete()
+        tx.query(Subtitle).delete()
+        tx.add(Bangumi(name=bangumi_name_1, id="1", subtitle_group=["id1", "id2"]))
+        tx.add(Bangumi(name=bangumi_name_2, id="2"))
+        tx.add_all(
+            [
+                Subtitle(id="id1", name="sg1"),
+                Subtitle(id="id2", name="sg2"),
+                Subtitle(id="id3", name="sg3"),
+            ]
+        )
+        tx.add(Followed(bangumi_name=bangumi_name_1, episode=2))

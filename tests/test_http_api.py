@@ -11,6 +11,7 @@ from bgmi.config import cfg
 from bgmi.front.index import get_player
 from bgmi.front.routes import COVER_URL
 from bgmi.front.server import make_app
+from bgmi.lib.table import Followed
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -28,24 +29,23 @@ client = TestClient(make_app())
 headers = {"authorization": f"Bearer {cfg.http.admin_token}"}
 bangumi_1 = "名侦探柯南"
 bangumi_2 = "海贼王"
-bangumi_3 = "黑色五叶草"
 
 
-def test_a_cal():
+def test_a_cal(ensure_data):
     r = client.get("/api/admin/calendar", headers=headers)
-    assert r.status_code == 200
+    assert r.status_code == 200, r.text
 
 
-def test_b_add():
+def test_b_add(ensure_data):
     r = client.post(
-        "/api/add",
+        "/api/admin/add",
         headers=headers,
         json={"bangumi": bangumi_1},
     )
-    assert r.status_code == 200
+    assert r.status_code == 200, r.text
 
 
-def test_c_delete():
+def test_c_delete(ensure_data):
     m = mock.Mock(return_value={"status": "warning"})
     with mock.patch("bgmi.front.admin.API_MAP_POST", {"delete": m}):
         m.return_value = {"status": "warning"}
@@ -60,93 +60,67 @@ def test_c_delete():
         m.assert_called_once_with(name=bangumi_2)
 
 
-def test_e_mark():
-    m = mock.Mock(return_value={"status": "success"})
+def test_e_mark(ensure_data):
     episode = random.randint(0, 10)
-    with mock.patch("bgmi.front.admin.API_MAP_POST", {"mark": m}):
-        r = client.post(
-            "/api/mark",
-            headers=headers,
-            json={"name": bangumi_1, "episode": episode},
-        )
-        m.assert_called_once_with(**{"name": bangumi_1, "episode": episode})
+    r = client.post(
+        "/api/mark",
+        headers=headers,
+        json={"bangumi": bangumi_1, "episode": episode},
+    )
 
-        assert r.status_code == 200
+    assert r.status_code == 200
+    assert Followed.get(Followed.bangumi_name == bangumi_1).episode == episode
 
 
-def test_d_filter():
+def test_d_filter(ensure_data):
     include = random_word(5)
     exclude = random_word(5)
     regex = random_word(5)
 
-    m = mock.Mock(return_value={"status": "success", "data": {"h": "w"}})
-    with mock.patch("bgmi.front.admin.API_MAP_POST", {"filter": m}):
-        r = client.post(
-            "/api/filter",
-            json={"name": bangumi_1},
-            headers=headers,
-        )
+    r = client.get(f"/api/admin/filter/{bangumi_1}", headers=headers)
+    assert r.status_code == 200
 
-        assert r.status_code == 200
-        res = r.json()
-        assert res["data"] == {"h": "w"}
-        assert res["status"] == "success"
-        m.assert_called_once_with(name=bangumi_1)
+    res = r.json()
 
-        data = {
-            "name": bangumi_1,
-            "include": include,
-            "regex": regex,
-            "exclude": exclude,
-            "subtitle": "a,b,c",
-        }
-        client.post(
-            "/api/filter",
-            json=data,
-            headers=headers,
-        )
-        m.assert_called_with(**data)
+    assert res["data"] == {"h": "w"}
+    assert res["status"] == "success"
 
-
-def test_e_index():
-    m = mock.Mock(return_value={"status": "success", "data": {"h": "w"}})
-    m2 = mock.Mock(
-        return_value=[
-            {"bangumi_name": "233", "updated_time": 3, "cover": "233"},
-            {"bangumi_name": "2333", "updated_time": 20000000000, "cover": "2333"},
-        ]
+    data = {
+        "name": bangumi_1,
+        "include": include,
+        "regex": regex,
+        "exclude": exclude,
+        "subtitle": "a,b,c",
+    }
+    client.post(
+        "/api/filter",
+        json=data,
+        headers=headers,
     )
-    with mock.patch("bgmi.front.index.get_player", m), mock.patch("bgmi.lib.table.Followed.get_all_followed", m2):
-        response = client.get("/api/index")
-    assert response.status_code == 200
+
+
+def test_e_index(ensure_data):
+    response = client.get("/api/index")
+    assert response.status_code == 200, response.text
     r = response.json()
     assert COVER_URL + "/2333" == r["data"][0]["cover"], r["data"]
-    m.assert_has_calls(
-        [
-            mock.call("233"),
-            mock.call("2333"),
-            mock.call("TEST_BANGUMI"),
-        ],
-        any_order=True,
-    )
-    assert m.call_count == 3
 
 
-def test_resource_feed():
+def test_resource_feed(ensure_data):
     r = client.get("/resource/calendar.ics")
     assert r.status_code == 200
 
 
-def test_no_auth():
+def test_no_auth(ensure_data):
     r = client.post("/api/admin/add", json={"bangumi": bangumi_1})
-    assert r.status_code == 401
+    assert r.status_code == 401, r.text
 
 
 def parse_response(response: Response):
     return response.json()
 
 
-def test_get_player():
+def test_get_player(ensure_data):
     bangumi_name = "test"
     save_dir = os.path.join(cfg.save_path)
     episode1_dir = os.path.join(save_dir, bangumi_name, "1", "episode1")

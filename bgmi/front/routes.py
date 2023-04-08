@@ -96,7 +96,10 @@ def bangumi_list(t: str):
     return jsonify(data)
 
 
-async def auth_header(token: str = fastapi.Header("authorization", example="Bearer {token}")):
+async def auth_header(token: Optional[str] = fastapi.Header(None, alias="authorization", example="Bearer {token}")):
+    if not token:
+        raise fastapi.HTTPException(401, "missing http header authorization")
+
     if not token.startswith("Bearer "):
         raise fastapi.HTTPException(401, "bad authorization header, should be `Bearer {token}`")
     if token[7:] == cfg.http.admin_token:
@@ -275,13 +278,13 @@ class CalendarItem(BaseModel):
 
 
 class Calendar(BaseModel):
-    sat: List[CalendarItem]
-    sun: List[CalendarItem]
-    mon: List[CalendarItem]
-    tue: List[CalendarItem]
-    thu: List[CalendarItem]
-    wed: List[CalendarItem]
-    fri: List[CalendarItem]
+    sat: Optional[List[CalendarItem]]
+    sun: Optional[List[CalendarItem]]
+    mon: Optional[List[CalendarItem]]
+    tue: Optional[List[CalendarItem]]
+    thu: Optional[List[CalendarItem]]
+    wed: Optional[List[CalendarItem]]
+    fri: Optional[List[CalendarItem]]
 
 
 @admin_router.get(
