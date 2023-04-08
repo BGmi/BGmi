@@ -17,7 +17,7 @@ def test_cal_force_update():
     class MockWebsite(BangumiMoe):
         def fetch_bangumi_calendar(self):
             bangumi = BangumiMoe().fetch_bangumi_calendar()
-            bangumi[0].update_time = "Unknown"
+            bangumi[0].update_day = "Unknown"
             return bangumi
 
     with mock.patch("bgmi.lib.controllers.website", MockWebsite()):

@@ -182,8 +182,8 @@ class DmhySource(BaseWebsite):
 
         r = fetch_url(url)
 
-        for update_time, array_name in week_days_mapping:
-            b_list = parse_bangumi_with_week_days(r, update_time, array_name)
+        for update_day, array_name in week_days_mapping:
+            b_list = parse_bangumi_with_week_days(r, update_day, array_name)
             bangumi_list.extend(b_list)
 
         return bangumi_list
