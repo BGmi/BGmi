@@ -14,6 +14,9 @@ class Episode(BaseModel):
     subtitle_group: Optional[str] = None
     name: str = ""
 
+    class Config:
+        orm_mode = True
+
     @staticmethod
     def remove_duplicated_bangumi(result: List["Episode"]) -> List["Episode"]:
         ret = []
