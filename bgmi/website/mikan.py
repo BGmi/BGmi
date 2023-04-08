@@ -367,7 +367,7 @@ class Mikanani(BaseWebsite):
             name=info["name"],
             id=bangumi_id,
             status=info["status"],
-            update_time=info["update_time"],
+            update_day=info["update_time"],
             subtitle_group=info["subtitle_group"],
             episodes=parse_episodes(html, bangumi_id, subtitle_list),
         )

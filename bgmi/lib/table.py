@@ -225,14 +225,14 @@ class Download(Base):
     status: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
 
     @classmethod
-    def get_all_downloads(cls, status: Optional[int] = None) -> List[dict]:
+    def get_all_downloads(cls, status: Optional[int] = None) -> List["Download"]:
         with Session.begin() as session:
             if status is None:
                 sql = sa.select(cls).where().order_by(cls.status)
             else:
                 sql = sa.select(cls).where(cls.status == status).order_by(cls.status)
 
-            return [x.__dict__ for x in session.scalars(sql)]
+            return list(session.scalars(sql).all())
 
     def downloaded(self) -> None:
         self.status = STATUS_DOWNLOADED

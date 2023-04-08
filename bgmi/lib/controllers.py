@@ -365,7 +365,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
                 logger.warning("missing followed bangumi '{}'", n)
 
     if download:
-        failed = [Episode.parse_obj(x) for x in Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD)]
+        failed = [Episode.from_orm(x) for x in Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD)]
         if failed:
             print_info("try to re-downloading previous failed torrents ...")
             download_episodes(failed)
