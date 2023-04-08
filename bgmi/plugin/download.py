@@ -22,11 +22,6 @@ class BaseDownloadService(metaclass=abc.ABCMeta):
         :return: task id
         """
 
-    @staticmethod
-    @abc.abstractmethod
-    def check_config() -> None:
-        """check current config, don't try to connect."""
-
     @abc.abstractmethod
     def get_status(self, id: str) -> DownloadStatus:
         """status of downloading task"""
