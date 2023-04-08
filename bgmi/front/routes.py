@@ -42,6 +42,7 @@ def jsonify(data):
 class Bangumi(BaseModel):
     status: int
     episode: int
+    cover: str
     bangumi_name: str
     updated_time: int
     player: Dict[int, Player]
@@ -84,6 +85,7 @@ def bangumi_list(t: str):
                         "bangumi_name": s.bangumi_name,
                         "updated_time": s.updated_time,
                         "status": s.status,
+                        "cover": s.cover,
                         "episode": s.episode,
                     }
                 )
@@ -108,12 +110,12 @@ async def auth_header(token: Optional[str] = fastapi.Header(None, alias="authori
     raise fastapi.HTTPException(401, "wrong auth token")
 
 
-admin_router = fastapi.APIRouter(
+admin = fastapi.APIRouter(
     dependencies=[fastapi.Depends(auth_header)], responses={401: {"description": "wrong api token"}}
 )
 
 
-@admin_router.post(
+@admin.post(
     "/add",
     responses={
         200: {"description": "成功添加"},
@@ -137,7 +139,7 @@ def add(bangumi: str = fastapi.Body(embed=True)):
     return {}
 
 
-@admin_router.post(
+@admin.post(
     "/mark",
     responses={
         200: {"description": "成功修改"},
@@ -155,7 +157,7 @@ def mark(bangumi: str = fastapi.Body(embed=True), episode: int = fastapi.Body(em
     return {}
 
 
-@admin_router.post(
+@admin.post(
     "/delete",
     responses={
         200: {"description": "成功删除"},
@@ -185,7 +187,7 @@ class Filter(BaseModel):
     regex: str
 
 
-@admin_router.get(
+@admin.get(
     "/filter/{bangumi}",
     responses={
         200: {"description": "成功"},
@@ -198,14 +200,12 @@ def get_filter(bangumi: str = fastapi.Path()):
             table.Followed.bangumi_name == bangumi, table.Followed.status.isnot(table.Followed.STATUS_DELETED)
         )
     except NotFoundError:
-        raise HTTPException(404, "bangumi not exists or not followed")
+        raise HTTPException(404, "bangumi not followed")
 
     try:
-        b = table.Bangumi.get(
-            table.Bangumi.name == bangumi,
-        )
+        b = table.Bangumi.get(table.Bangumi.name == bangumi)
     except NotFoundError:
-        raise HTTPException(404, "bangumi not exists or not followed")
+        raise HTTPException(404, "bangumi not exists")
 
     available_subtitle = table.Subtitle.get_subtitle_by_id(b.subtitle_group)
 
@@ -218,7 +218,7 @@ def get_filter(bangumi: str = fastapi.Path()):
     }
 
 
-@admin_router.patch(
+@admin.patch(
     "/filter/{bangumi}",
     responses={
         200: {"description": "成功"},
@@ -226,26 +226,26 @@ def get_filter(bangumi: str = fastapi.Path()):
         404: {"description": "番剧不存在或者未订阅"},
     },
 )
-def get_filter(
+def update_filter(
     bangumi: str = fastapi.Path(),
-    selected_subtitle: Optional[List[str]] = fastapi.Body(embed=True),
-    include: Optional[List[str]] = fastapi.Body(embed=True),
-    exclude: Optional[List[str]] = fastapi.Body(embed=True),
-    regex: Optional[str] = fastapi.Body(embed=True),
+    selected_subtitle: Optional[List[str]] = fastapi.Body(None, embed=True),
+    include: Optional[List[str]] = fastapi.Body(None, embed=True),
+    exclude: Optional[List[str]] = fastapi.Body(None, embed=True),
+    regex: Optional[str] = fastapi.Body(None, embed=True),
 ):
     try:
         f = table.Followed.get(
             table.Followed.bangumi_name == bangumi, table.Followed.status.isnot(table.Followed.STATUS_DELETED)
         )
     except NotFoundError:
-        raise HTTPException(404, "bangumi not exists or not followed")
+        raise HTTPException(404, "bangumi not followed")
 
     try:
         b = table.Bangumi.get(
             table.Bangumi.name == bangumi,
         )
     except NotFoundError:
-        raise HTTPException(404, "bangumi not exists or not followed")
+        raise HTTPException(404, "bangumi not exists")
 
     if selected_subtitle is not None:
         available_subtitle = {x.name: x.id for x in table.Subtitle.get_subtitle_by_id(b.subtitle_group)}
@@ -288,7 +288,7 @@ class Calendar(BaseModel):
     fri: Optional[List[CalendarItem]]
 
 
-@admin_router.get(
+@admin.get(
     "/calendar",
     responses={
         200: {"description": "成功"},
@@ -305,4 +305,4 @@ def calendar():
     return weekly_list
 
 
-app.include_router(admin_router, prefix="/admin")
+app.include_router(admin, prefix="/admin")

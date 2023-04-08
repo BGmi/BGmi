@@ -75,7 +75,7 @@ class Bangumi(Base):
 
     name: Mapped[str] = Column(Text, nullable=False, unique=True)  # type: ignore
     subtitle_group: Mapped[List[str]] = Column(sa.JSON, nullable=False, default=[], server_default="[]")  # type: ignore
-    update_time: Mapped[str] = Column(
+    update_day: Mapped[str] = Column(
         CHAR(5), nullable=False, default="Unknown", server_default="Unknown"
     )  # type: ignore
     cover: Mapped[str] = Column(Text, nullable=False, default="", server_default="")  # type: ignore
@@ -89,7 +89,7 @@ class Bangumi(Base):
             self,
             id: str,
             name: str,
-            update_time: str = "Unknown",
+            update_day: str = "Unknown",
             subtitle_group: Optional[List[str]] = None,
             cover: str = "",
             status: int = STATUS_UPDATING,
@@ -135,7 +135,7 @@ class Bangumi(Base):
 
         weekly_list = defaultdict(list)
         for bangumi_item, followed_status, episode in data:
-            weekly_list[bangumi_item.update_time.lower()].append(
+            weekly_list[bangumi_item.update_day.lower()].append(
                 {**bangumi_item.__dict__, "status": followed_status, "episode": episode}
             )
 
@@ -152,7 +152,7 @@ class Followed(Base):
     bangumi_name: Mapped[str] = Column(Text, nullable=False, primary_key=True)  # type: ignore
     episode: Mapped[int] = Column(Integer, nullable=False, default=0, server_default="0")  # type: ignore
     status: Mapped[int] = Column(
-        Integer, nullable=False, default=STATUS_UPDATING, server_default=str(STATUS_UPDATING)
+        Integer, nullable=False, default=STATUS_UPDATED, server_default=str(STATUS_UPDATED)
     )  # type: ignore
     updated_time: Mapped[int] = Column(Integer, nullable=False, default=0, server_default="0")  # type: ignore
     subtitle: List[str] = Column(sa.JSON, nullable=False, default=[], server_default="[]")  # type: ignore
@@ -250,6 +250,8 @@ class Scripts(Base):
     episode: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
     status: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
     updated_time: Mapped[int] = Column(Integer, nullable=False, default=0, server_default="0")  # type: ignore
+    update_day: Mapped[str] = Column(Text, nullable=False, default="Unknown", server_default="Unknown")  # type: ignore
+    cover: Mapped[str] = Column(Text, nullable=False, default="", server_default="")
 
 
 def recreate_source_relatively_table() -> None:
