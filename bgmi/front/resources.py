@@ -19,10 +19,10 @@ class CalendarHandler(HTTPEndpoint):
         cal.add("prodid", "-//BGmi Followed Bangumi Calendar//bangumi.ricterz.me//")
         cal.add("version", "2.0")
 
-        data = [{"update_time": b.update_day.title(), "bangumi_name": b.name} for f, b in Followed.get_all_followed()]
+        data = [{"update_time": b.update_day, "bangumi_name": b.name} for f, b in Followed.get_all_followed()]
 
         for s in Scripts.all():
-            data.append({"update_time": s.updated_time, "bangumi_name": s.bangumi_name})
+            data.append({"update_time": s.update_day, "bangumi_name": s.bangumi_name})
 
         if type_ is None:
             bangumi = defaultdict(list)

@@ -4,7 +4,7 @@ from collections import defaultdict
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, TypeVar
 
 import sqlalchemy as sa
-from sqlalchemy import CHAR, Column, Integer, Text, create_engine
+from sqlalchemy import CHAR, Column, Integer, Row, Text, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, sessionmaker
 
 from bgmi.config import cfg
@@ -173,7 +173,7 @@ class Followed(Base):
     @classmethod
     def get_all_followed(
         cls: Type["Followed"], bangumi_status: int = STATUS_UPDATING
-    ) -> List[Tuple["Followed", "Bangumi"]]:
+    ) -> List[Row[Tuple["Followed", "Bangumi"]]]:
         with Session() as tx:
             return list(
                 tx.query(Followed, Bangumi)
@@ -251,7 +251,7 @@ class Scripts(Base):
     status: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
     updated_time: Mapped[int] = Column(Integer, nullable=False, default=0, server_default="0")  # type: ignore
     update_day: Mapped[str] = Column(Text, nullable=False, default="Unknown", server_default="Unknown")  # type: ignore
-    cover: Mapped[str] = Column(Text, nullable=False, default="", server_default="")
+    cover: Mapped[str] = Column(Text, nullable=False, default="", server_default="")  # type: ignore
 
 
 def recreate_source_relatively_table() -> None:

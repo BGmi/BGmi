@@ -34,7 +34,7 @@ class BaseWebsite:
                     Bangumi(
                         name=data.name,
                         id=data.id,
-                        update_time=data.update_time,
+                        update_day=data.update_time,
                         cover=data.cover,
                         status=STATUS_UPDATING,
                         subtitle_group=subtitle_group,

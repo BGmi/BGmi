@@ -333,7 +333,7 @@ def source(data_source: str) -> ControllerResult:
     return result
 
 
-def update(names: List[str], download: Optional[bool] = False, not_ignore: bool = False):
+def update(names: List[str], download: Optional[bool] = False, not_ignore: bool = False) -> None:
     logger.debug("updating bangumi info with args: download: %r", download)
 
     ignore = not bool(not_ignore)
