@@ -80,4 +80,4 @@ def make_app() -> Starlette:
 
 
 if __name__ == "__main__":
-    main()
+    main(address="127.0.0.1", port=8999)
