@@ -213,12 +213,11 @@ def search(
 
 @cli.command("mark")
 @click.argument("name", required=True)
-@click.argument("episode", type=int, required=True)
-def mark(name: str, episode: int) -> None:
+@click.option("--episode", type=int, help="bangumi episode you want to set")
+def mark(name: str, episode: Optional[int] = None) -> None:
     """
 
     name: name of the bangumi you want to set
-    episode: bangumi episode you want to set
     """
 
     try:
@@ -229,10 +228,10 @@ def mark(name: str, episode: int) -> None:
         if not followed_obj:
             print_error(f"Subscribe or Script <{name}> does not exist.", stop=True)
 
-    followed_obj.episode = episode
-    followed_obj.save()
-
-    print_success(f"{name} has been mark as episode: {episode}")
+    if episode is not None:
+        followed_obj.episode = episode
+        followed_obj.save()
+        print_success(f"{name} has been mark as episode: {episode}")
 
 
 @cli.command()

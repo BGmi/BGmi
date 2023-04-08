@@ -349,7 +349,7 @@ bgmi search 海贼王 --min-episode 800 --max-episode 820 --download
 
 ```bash
 bgmi list
-bgmi mark "Re:CREATORS" 1
+bgmi mark "Re:CREATORS" --episode 1
 ```
 
 ## 使用`bgmi_http`
