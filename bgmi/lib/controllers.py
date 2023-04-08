@@ -8,21 +8,9 @@ import requests.exceptions
 import sqlalchemy as sa
 
 from bgmi.config import cfg
-from bgmi.lib.download import Episode, download_episodes
+from bgmi.lib.download import download_episodes
 from bgmi.lib.fetch import website
-from bgmi.lib.table import (
-    FOLLOWED_STATUS,
-    STATUS_DELETED,
-    STATUS_FOLLOWED,
-    STATUS_NOT_DOWNLOAD,
-    STATUS_UPDATED,
-    Bangumi,
-    Download,
-    Followed,
-    NotFoundError,
-    Session,
-    Subtitle,
-)
+from bgmi.lib.table import Bangumi, Download, Followed, NotFoundError, Session, Subtitle
 from bgmi.script import ScriptRunner
 from bgmi.utils import (
     convert_cover_url_to_path,
@@ -35,6 +23,7 @@ from bgmi.utils import (
     print_success,
     print_warning,
 )
+from bgmi.website.model import Episode
 
 ControllerResult = Dict[str, Any]
 
@@ -64,17 +53,17 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
             sa.select(Followed).where(Followed.bangumi_name == bangumi_obj.name).limit(1)
         )
         if followed_obj is None:
-            followed_obj = Followed(status=STATUS_FOLLOWED, bangumi_name=bangumi_obj.name, episode=0)
+            followed_obj = Followed(status=Followed.STATUS_FOLLOWED, bangumi_name=bangumi_obj.name, episode=0)
             session.add(followed_obj)
         else:
-            if followed_obj.status == STATUS_FOLLOWED:
+            if followed_obj.status == Followed.STATUS_FOLLOWED:
                 result = {
                     "status": "warning",
                     "message": f"{bangumi_obj.name} already followed",
                 }
                 return result
             else:
-                followed_obj.status = STATUS_FOLLOWED
+                followed_obj.status = Followed.STATUS_FOLLOWED
 
     if episode is None:
         episodes = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)
@@ -165,7 +154,7 @@ def delete(name: str = "", clear_all: bool = False, batch: bool = False) -> Cont
     elif name:
         try:
             followed = Followed.get(Followed.bangumi_name == name)
-            followed.status = STATUS_DELETED
+            followed.status = Followed.STATUS_DELETED
             followed.save()
             result["status"] = "warning"
             result["message"] = f"Bangumi {name} has been deleted"
@@ -319,13 +308,13 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
 
     for follow, _ in Followed.get_all_followed():
         if follow.updated_time and int(follow.updated_time + 60 * 60 * 24) < now:
-            follow.status = STATUS_FOLLOWED
+            follow.status = Followed.STATUS_FOLLOWED
             follow.save()
 
     for script in ScriptRunner().scripts:
         obj = script.Model().obj
         if obj.updated_time and int(obj.updated_time + 60 * 60 * 24) < now:
-            obj.status = STATUS_FOLLOWED
+            obj.status = Followed.STATUS_FOLLOWED
             obj.save()
 
     print_info("updating subscriptions ...")
@@ -342,7 +331,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
                 logger.warning("missing followed bangumi '{}'", n)
 
     if download:
-        failed = [Episode.from_orm(x) for x in Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD)]
+        failed = Download.get_all_downloads(status=Download.STATUS_NOT_DOWNLOAD)
         if failed:
             print_info("try to re-downloading previous failed torrents ...")
             download_episodes(failed)
@@ -350,7 +339,18 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
     runner = ScriptRunner()
     script_download_queue = runner.run()
     if script_download_queue and download:
-        download_episodes(script_download_queue)
+        download_episodes(
+            [
+                Download(
+                    bangumi_name=x.name,
+                    episode=x.episode,
+                    status=Download.STATUS_DOWNLOADING,
+                    download=x.download,
+                    title=x.title,
+                )
+                for x in script_download_queue
+            ]
+        )
         print_info("downloading ...")
 
     for subscribe in updated_bangumi_obj:
@@ -384,7 +384,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             episode_range = range(subscribe.episode, episode + 1)
             print_success(f"{subscribe.bangumi_name} updated, episode: {episode:d}")
             followed_obj.episode = episode
-            followed_obj.status = STATUS_UPDATED
+            followed_obj.status = Followed.STATUS_UPDATED
             followed_obj.updated_time = int(time.time())
             followed_obj.save()
 
@@ -398,13 +398,24 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
                     download_queue.append(episodes.pop())
 
         if download:
-            download_episodes(download_queue)
+            download_episodes(
+                [
+                    Download(
+                        bangumi_name=x.name,
+                        episode=x.episode,
+                        status=Download.STATUS_DOWNLOADING,
+                        download=x.download,
+                        title=x.title,
+                    )
+                    for x in download_queue
+                ]
+            )
 
 
-def status_(name: str, status: int = STATUS_DELETED) -> ControllerResult:
+def status_(name: str, status: int = Followed.STATUS_DELETED) -> ControllerResult:
     result = {"status": "success", "message": ""}
 
-    if (status not in FOLLOWED_STATUS) or (not status):
+    if (status not in Followed.FOLLOWED_STATUS) or (not status):
         result["status"] = "error"
         result["message"] = f"Invalid status: {status}"
         return result

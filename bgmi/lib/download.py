@@ -7,10 +7,9 @@ from stevedore.exception import NoMatches
 
 from bgmi import namespace
 from bgmi.config import cfg
-from bgmi.lib.table import STATUS_DOWNLOADING, STATUS_NOT_DOWNLOAD, Download, Session
+from bgmi.lib.table import Download
 from bgmi.plugin.download import BaseDownloadService
 from bgmi.utils import bangumi_save_path, print_error, print_info
-from bgmi.website.base import Episode
 
 
 def get_download_driver(delegate: str) -> BaseDownloadService:
@@ -24,24 +23,16 @@ def get_download_driver(delegate: str) -> BaseDownloadService:
         raise
 
 
-def download_episodes(data: List[Episode]) -> None:
+def download_episodes(data: List[Download]) -> None:
     driver = get_download_driver(cfg.download_delegate)
 
-    for episode in data:
-        save_path = bangumi_save_path(episode.name).joinpath(str(episode.episode))
+    for download in data:
+        save_path = bangumi_save_path(download.bangumi_name).joinpath(str(download.episode))
         if not save_path.exists():
             os.makedirs(save_path)
 
-        download = Download(
-            title=episode.title,
-            download=episode.download,
-            bangumi_name=episode.name,
-            episode=episode.episode,
-            status=STATUS_DOWNLOADING,
-        )
-
-        with Session.begin() as session:
-            session.add(download)
+        download.status = Download.STATUS_DOWNLOADING
+        download.save()
 
         try:
             driver.add_download(url=download.download, save_path=str(save_path))
@@ -52,5 +43,5 @@ def download_episodes(data: List[Episode]) -> None:
                 raise e
 
             print_error(f"Error when downloading {download.title}: {e}", stop=False)
-            download.status = STATUS_NOT_DOWNLOAD
+            download.status = Download.STATUS_NOT_DOWNLOAD
             download.save()

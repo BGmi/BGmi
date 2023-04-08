@@ -11,11 +11,10 @@ from typing import Any, Dict, Iterator, List, Optional, Tuple
 import sqlalchemy as sa
 
 from bgmi.config import cfg
-from bgmi.lib.download import Episode, download_episodes
 from bgmi.lib.fetch import DATA_SOURCE_MAP
-from bgmi.lib.table import STATUS_DELETED, STATUS_FOLLOWED, STATUS_UPDATED, Scripts, Session
+from bgmi.lib.table import Followed, Scripts, Session
 from bgmi.utils import print_info, print_success, print_warning
-from bgmi.website.model import WebsiteBangumi
+from bgmi.website.model import Episode, WebsiteBangumi
 
 
 class ScriptRunner:
@@ -114,21 +113,17 @@ class ScriptRunner:
 
             print_success(f"{script.bangumi_name} updated, episode: {episode}")
             script_obj.episode = episode
-            script_obj.status = STATUS_UPDATED
+            script_obj.status = Followed.STATUS_UPDATED
             script_obj.updated_time = int(time.time())
             script_obj.cover = script.Model.cover
             script_obj.update_day = script.Model.update_time
             if script.Model.due_date and script.Model.due_date <= datetime.datetime.now():
-                script_obj.status = STATUS_DELETED
+                script_obj.status = Followed.STATUS_DELETED
             script_obj.save()
 
             if return_:
                 self.download_queue.extend(Episode(**x) for x in download_queue)
                 continue
-
-            if download:
-                print_success(f"Start downloading of {script}")
-                download_episodes([Episode(**x) for x in download_queue])
 
         return self.download_queue
 
@@ -161,7 +156,7 @@ class ScriptBase:
                         s = Scripts(
                             bangumi_name=self.bangumi_name,
                             episode=0,
-                            status=STATUS_FOLLOWED,
+                            status=Followed.STATUS_FOLLOWED,
                             updated_time=0,
                         )
                         session.add(s)

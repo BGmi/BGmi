@@ -20,16 +20,7 @@ from bgmi.lib import controllers as ctl
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE
 from bgmi.lib.download import download_episodes
 from bgmi.lib.fetch import website
-from bgmi.lib.table import (
-    STATUS_DELETED,
-    STATUS_FOLLOWED,
-    STATUS_UPDATED,
-    Bangumi,
-    Followed,
-    Session,
-    Subtitle,
-    recreate_source_relatively_table,
-)
+from bgmi.lib.table import Bangumi, Followed, Session, Subtitle, recreate_source_relatively_table
 from bgmi.lib.update import update_database
 from bgmi.script import ScriptRunner
 from bgmi.setup import create_dir, init_db, install_crontab
@@ -291,8 +282,8 @@ def followed_bangumi() -> Dict[str, list]:
 
     :return: list of bangumi followed
     """
-    weekly_list_followed = Bangumi.get_updating_bangumi(status=STATUS_FOLLOWED)
-    weekly_list_updated = Bangumi.get_updating_bangumi(status=STATUS_UPDATED)
+    weekly_list_followed = Bangumi.get_updating_bangumi(status=Followed.STATUS_FOLLOWED)
+    weekly_list_updated = Bangumi.get_updating_bangumi(status=Followed.STATUS_UPDATED)
     weekly_list = defaultdict(list)
     for k, v in itertools.chain(weekly_list_followed.items(), weekly_list_updated.items()):
         weekly_list[k].extend(v)
@@ -323,7 +314,7 @@ def list_command() -> None:
         if followed[weekday.lower()]:
             s += f"{GREEN}{weekday}. {COLOR_END}"
             for j, bangumi in enumerate(followed[weekday.lower()]):
-                if bangumi["status"] in (STATUS_UPDATED, STATUS_FOLLOWED) and "episode" in bangumi:
+                if bangumi["status"] in (Followed.STATUS_UPDATED, Followed.STATUS_FOLLOWED) and "episode" in bangumi:
                     bangumi["name"] = f"{bangumi['name']}({bangumi['episode']:d})"
                 if j > 0:
                     s += " " * 5
@@ -461,7 +452,7 @@ def calendar(force_update: bool, today: bool, download_cover: bool) -> None:
             weekly_list[weekday.lower()].sort(key=lambda x: x["episode"] or -999, reverse=True)
 
             for i, bangumi in enumerate(weekly_list[weekday.lower()]):
-                if bangumi["status"] in (STATUS_UPDATED, STATUS_FOLLOWED) and "episode" in bangumi:
+                if bangumi["status"] in (Followed.STATUS_UPDATED, Followed.STATUS_FOLLOWED) and "episode" in bangumi:
                     bangumi["name"] = "{}({:d})".format(bangumi["name"], bangumi["episode"])
 
                 width = wcwidth.wcswidth(bangumi["name"])
@@ -475,10 +466,10 @@ def calendar(force_update: bool, today: bool, download_cover: bool) -> None:
                     if s in bangumi["name"]:
                         space_count -= bangumi["name"].count(s)
 
-                if bangumi["status"] == STATUS_FOLLOWED:
+                if bangumi["status"] == Followed.STATUS_FOLLOWED:
                     bangumi["name"] = "{}{}{}".format(YELLOW, bangumi["name"], COLOR_END)
 
-                if bangumi["status"] == STATUS_UPDATED:
+                if bangumi["status"] == Followed.STATUS_UPDATED:
                     bangumi["name"] = "{}{}{}".format(GREEN, bangumi["name"], COLOR_END)
                 try:
                     print(" " + bangumi["name"], " " * space_count, end="")
@@ -623,7 +614,7 @@ def history() -> None:
 
     print("Bangumi Timeline")
     for i in data:
-        if i.status == STATUS_DELETED:
+        if i.status == Followed.STATUS_DELETED:
             slogan = "ABANDON"
             color = RED
         else:

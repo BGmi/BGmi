@@ -13,22 +13,7 @@ from bgmi.config import cfg
 from bgmi.utils import episode_filter_regex
 from bgmi.website.model import Episode
 
-# bangumi status
-STATUS_UPDATING = 0  # soft delete
-STATUS_END = 1
-BANGUMI_STATUS = (STATUS_UPDATING, STATUS_END)
-
 # subscription status
-STATUS_DELETED = 0
-STATUS_FOLLOWED = 1
-STATUS_UPDATED = 2
-FOLLOWED_STATUS = (STATUS_DELETED, STATUS_FOLLOWED, STATUS_UPDATED)
-
-# download status
-STATUS_NOT_DOWNLOAD = 0
-STATUS_DOWNLOADING = 1
-STATUS_DOWNLOADED = 2
-DOWNLOAD_STATUS = (STATUS_NOT_DOWNLOAD, STATUS_DOWNLOADING, STATUS_DOWNLOADED)
 
 debug = os.getenv("DEBUG") in ["true", "True"]
 
@@ -125,7 +110,7 @@ class Bangumi(Base):
             session.execute(
                 sa.update(cls)
                 .where(cls.name.not_in([x.bangumi_name for x in un_updated_bangumi]))
-                .values(status=STATUS_END)
+                .values(status=cls.STATUS_END)
             )
 
     @classmethod
@@ -134,9 +119,9 @@ class Bangumi(Base):
         status: Optional[int] = None,
     ) -> Dict[str, List[Dict[str, Any]]]:
         if status is None:
-            where = cls.status == STATUS_UPDATING
+            where = cls.status == cls.STATUS_UPDATING
         else:
-            where = (cls.status == STATUS_UPDATING) & (Followed.status == status)
+            where = (cls.status == cls.STATUS_UPDATING) & (Followed.status == status)
 
         with Session.begin() as session:
             data = (
@@ -162,6 +147,12 @@ class Followed(Base):
     STATUS_FOLLOWED = 1
     STATUS_UPDATED = 2
 
+    FOLLOWED_STATUS = (
+        STATUS_DELETED,
+        STATUS_FOLLOWED,
+        STATUS_UPDATED,
+    )
+
     bangumi_name: Mapped[str] = Column(Text, nullable=False, primary_key=True)  # type: ignore
     episode: Mapped[int] = Column(Integer, nullable=False, default=0, server_default="0")  # type: ignore
     status: Mapped[int] = Column(
@@ -185,13 +176,13 @@ class Followed(Base):
 
     @classmethod
     def get_all_followed(
-        cls: Type["Followed"], bangumi_status: int = STATUS_UPDATING
+        cls: Type["Followed"], bangumi_status: int = Bangumi.STATUS_UPDATING
     ) -> List[Row[Tuple["Followed", "Bangumi"]]]:
         with Session() as tx:
             return list(
                 tx.query(Followed, Bangumi)
                 .join(Bangumi, cls.bangumi_name == Bangumi.name)
-                .where(cls.status.isnot(STATUS_DELETED), Bangumi.status == bangumi_status)
+                .where(cls.status.isnot(cls.STATUS_DELETED), Bangumi.status == bangumi_status)
                 .order_by(cls.updated_time.desc())
                 .all()
             )
@@ -217,12 +208,29 @@ class Followed(Base):
 class Download(Base):
     __tablename__ = "download"
 
+    STATUS_NOT_DOWNLOAD = 0
+    STATUS_DOWNLOADING = 1
+    STATUS_DOWNLOADED = 2
+
     id: Mapped[int] = Column(Integer, nullable=False, primary_key=True)  # type: ignore
     bangumi_name: Mapped[str] = Column("name", Text, nullable=False)  # type: ignore
     title: Mapped[str] = Column(Text, nullable=False)  # type: ignore
     episode: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
     download: Mapped[str] = Column(Text, nullable=False)  # type: ignore
     status: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
+
+    if TYPE_CHECKING:
+
+        def __init__(
+            self,
+            bangumi_name: str,
+            title: str,
+            episode: int,
+            download: str,
+            status: int,
+            id: Optional[int] = None,
+        ):
+            super().__init__()
 
     @classmethod
     def get_all_downloads(cls, status: Optional[int] = None) -> List["Download"]:
@@ -235,7 +243,7 @@ class Download(Base):
             return list(session.scalars(sql).all())
 
     def downloaded(self) -> None:
-        self.status = STATUS_DOWNLOADED
+        self.status = self.STATUS_DOWNLOADED
         self.save()
 
 
