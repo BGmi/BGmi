@@ -84,6 +84,6 @@ def test_cal():
             assert "status" in bangumi
             assert "subtitle_group" in bangumi
             assert "name" in bangumi
-            assert "update_time" in bangumi
+            assert "update_day" in bangumi
             assert "cover" in bangumi
             assert "episode" in bangumi

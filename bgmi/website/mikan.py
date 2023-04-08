@@ -350,7 +350,7 @@ class Mikanani(BaseWebsite):
         bangumi_list = []
         for update_time, day in get_weekly_bangumi():
             for obj in parser_day_bangumi(day):
-                obj.update_time = update_time
+                obj.update_day = update_time
                 obj.cover = obj.cover.split("?")[0]
                 bangumi_list.append(obj)
         return bangumi_list

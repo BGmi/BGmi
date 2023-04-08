@@ -38,7 +38,7 @@ class SubtitleGroup(BaseModel):
 
 class WebsiteBangumi(BaseModel):
     id: str
-    update_time: str = "Unknown"
+    update_day: str = "Unknown"
     name: str = ""
     status: int = 0
     subtitle_group: List[SubtitleGroup] = []
@@ -49,7 +49,7 @@ class WebsiteBangumi(BaseModel):
     def max_episode(self) -> int:
         return max(self.episodes, key=attrgetter("episode")).episode
 
-    @validator("update_time")
+    @validator("update_day")
     def validate_update_time(cls, v: str) -> str:
         # pylint: disable=no-self-argument
         assert v in BANGUMI_UPDATE_TIME, f"update time can be only one of {BANGUMI_UPDATE_TIME}"

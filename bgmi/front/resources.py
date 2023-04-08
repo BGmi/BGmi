@@ -19,17 +19,16 @@ class CalendarHandler(HTTPEndpoint):
         cal.add("prodid", "-//BGmi Followed Bangumi Calendar//bangumi.ricterz.me//")
         cal.add("version", "2.0")
 
-        data = [{"update_time": b.update_day, "bangumi_name": b.name} for f, b in Followed.get_all_followed()]
+        data = [{"update_day": b.update_day, "bangumi_name": b.name} for f, b in Followed.get_all_followed()]
 
         for s in Scripts.all():
-            data.append({"update_time": s.update_day, "bangumi_name": s.bangumi_name})
+            data.append({"update_day": s.update_day, "bangumi_name": s.bangumi_name})
 
         if type_ is None:
             bangumi = defaultdict(list)
 
             for j in data:
-                print(j["update_time"])
-                bangumi[BANGUMI_UPDATE_TIME.index(j["update_time"]) + 1].append(j["bangumi_name"])
+                bangumi[BANGUMI_UPDATE_TIME.index(j["update_day"]) + 1].append(j["bangumi_name"])
 
             weekday = datetime.datetime.now().weekday()
             for i, k in enumerate(range(weekday, weekday + 7)):

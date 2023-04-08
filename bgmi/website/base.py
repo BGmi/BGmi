@@ -24,7 +24,7 @@ class BaseWebsite:
                 b = Bangumi.get(Bangumi.id == data.id)
 
                 b.cover = data.cover
-                b.update_day = data.update_time
+                b.update_day = data.update_day
                 b.status = STATUS_UPDATING
                 b.subtitle_group = subtitle_group
 
@@ -34,7 +34,7 @@ class BaseWebsite:
                     Bangumi(
                         name=data.name,
                         id=data.id,
-                        update_day=data.update_time,
+                        update_day=data.update_day,
                         cover=data.cover,
                         status=STATUS_UPDATING,
                         subtitle_group=subtitle_group,
@@ -62,7 +62,7 @@ class BaseWebsite:
         if group_by_weekday:
             result_group_by_weekday = defaultdict(list)
             for bangumi in bangumi_result:
-                result_group_by_weekday[bangumi.update_time.lower()].append(bangumi)
+                result_group_by_weekday[bangumi.update_day.lower()].append(bangumi)
             return result_group_by_weekday
         return bangumi_result
 
