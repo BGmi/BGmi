@@ -6,6 +6,7 @@ from bgmi.lib.table import Bangumi, Followed
 from bgmi.main import main_for_test
 from bgmi.script import ScriptRunner
 from bgmi.website.bangumi_moe import BangumiMoe
+from tests.conftest import bangumi_name_1, bangumi_name_2
 
 
 def test_gen_nginx_conf():
@@ -31,8 +32,17 @@ def test_cal_config():
     main_for_test(["config"])
 
 
-def test_add(bangumi_names):
-    main_for_test(["add", *bangumi_names])
+@pytest.mark.usefixtures("ensure_data")
+def test_add():
+    main_for_test(["add", bangumi_name_2, "--episode", "1"])
+    assert Followed.get(Followed.bangumi_name == bangumi_name_2).status == Followed.STATUS_FOLLOWED
+    assert Followed.get(Followed.bangumi_name == bangumi_name_2).episode == 1
+
+
+@pytest.mark.usefixtures("ensure_data")
+def test_mark():
+    main_for_test(f"mark {bangumi_name_1} 10".split())
+    assert Followed.get(Followed.bangumi_name == bangumi_name_1).episode == 10
 
 
 @pytest.mark.usefixtures("_clean_bgmi")
@@ -95,11 +105,3 @@ def test_fetch(bangumi_names):
     name = bangumi_names[0]
     main_for_test(f"add {name} --episode 0".split())
     main_for_test(f"fetch {name}".split())
-
-
-@pytest.mark.usefixtures("_clean_bgmi")
-def test_mark(bangumi_names):
-    name = bangumi_names[0]
-    main_for_test(f"add {name} --episode 0".split())
-    main_for_test(f"mark {name} 1".split())
-    assert Followed.get(Followed.bangumi_name == name).episode == 1
