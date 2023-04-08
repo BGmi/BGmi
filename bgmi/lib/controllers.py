@@ -346,7 +346,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
     print_info("marking bangumi status ...")
     now = int(time.time())
 
-    for follow in Followed.get_all_followed():
+    for follow, _ in Followed.get_all_followed():
         if follow.updated_time and int(follow.updated_time + 60 * 60 * 24) < now:
             follow.status = STATUS_FOLLOWED
             follow.save()
@@ -360,7 +360,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
     print_info("updating subscriptions ...")
 
     if not names:
-        updated_bangumi_obj = Followed.get_all_followed()
+        updated_bangumi_obj = [x[0] for x in Followed.get_all_followed()]
     else:
         updated_bangumi_obj = []
         for n in names:

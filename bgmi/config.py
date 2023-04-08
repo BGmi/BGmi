@@ -82,7 +82,7 @@ class HTTP(BaseSetting):
         description="danmaku api url, https://github.com/DIYgod/DPlayer#related-projects",
     )
     serve_static_files: bool = Field(
-        bool(os.getenv("BGMI_HTTP_SERVE_STATIC_FILES")), description="use tornado serving video files"
+        bool(os.getenv("BGMI_HTTP_SERVE_STATIC_FILES")), description="serve static files with main"
     )
 
 

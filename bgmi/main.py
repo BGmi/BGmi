@@ -12,7 +12,6 @@ import sqlalchemy as sa
 import tomlkit
 import wcwidth
 from loguru import logger
-from tornado import template
 
 from bgmi import __version__
 from bgmi.config import BGMI_PATH, CONFIG_FILE_PATH, Config, cfg, write_default_config
@@ -467,23 +466,57 @@ def update(names: List[str], download: bool, not_ignore: bool) -> None:
     ctl.update(names, download=download, not_ignore=not_ignore)
 
 
+template = {
+    "nginx.conf": """
+    server {
+    listen 80;
+    server_name { server_name };
+
+    root { front_static_path }{ os_sep };
+    autoindex on;
+    charset utf-8;
+
+    location /bangumi/ {
+        # ~/.bgmi/bangumi/
+        alias {{ save_path }}{{ os_sep }};
+    }
+
+    location /api {
+        proxy_pass http://127.0.0.1:8888;
+    }
+
+    location /resource {
+        proxy_pass http://127.0.0.1:8888;
+    }
+
+    location / {
+        # ~/.bgmi/front_static/;
+        alias { front_static_path }{ os_sep };
+    }
+
+}
+"""
+}
+
+
 @cli.command("gen")
 @click.argument("tpl", type=click.Choice(["nginx.conf"]))
 @click.option("--server-name", "server_name")
 def generate_config(tpl: str, server_name: str) -> None:
-    template_file_path = os.path.join(os.path.dirname(__file__), "others", "nginx.conf")
+    if tpl == "nginx.conf":
+        template_file_path = os.path.join(os.path.dirname(__file__), "others", "nginx.conf")
 
-    with open(template_file_path, encoding="utf8") as template_file:
-        shell_template = template.Template(template_file.read(), autoescape="")
+        with open(template_file_path, encoding="utf8") as template_file:
+            shell_template = template_file.read()
 
-    template_with_content = shell_template.generate(
-        server_name=server_name,
-        os_sep=os.sep,
-        front_static_path=str(cfg.front_static_path.as_posix()),
-        save_path=str(cfg.save_path.as_posix()),
-    )
+        template_with_content = shell_template.format(
+            server_name=server_name,
+            os_sep=os.sep,
+            front_static_path=str(cfg.front_static_path),
+            save_path=str(cfg.save_path),
+        )
 
-    print(template_with_content.decode("utf-8"))
+        print(template_with_content)
 
 
 @cli.command("history", help="list your history of following bangumi")

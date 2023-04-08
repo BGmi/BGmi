@@ -1,58 +1,28 @@
 import datetime
-import os
 from collections import defaultdict
 
 from icalendar import Calendar, Event
+from starlette.endpoints import HTTPEndpoint
+from starlette.requests import Request
+from starlette.responses import PlainTextResponse
 
-from bgmi.config import cfg
-from bgmi.front.base import BaseHandler
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
-from bgmi.lib.table import Download, Followed
+from bgmi.lib.table import Followed, Scripts
 
 
-class BangumiHandler(BaseHandler):
-    def get(self, _: str) -> None:
-        if os.environ.get("DEV"):  # pragma: no cover
-            with open(os.path.join(cfg.save_path, _), "rb") as f:
-                self.write(f.read())
-                self.finish()
-        else:
-            self.set_header("Content-Type", "text/html")
-            self.write("<h1>BGmi HTTP Service</h1>")
-            self.write(
-                "<pre>Please modify your web server configure file\n"
-                f"to server this path to '{cfg.save_path}'.\n"
-                "e.g.\n\n"
-                "...\n"
-                "autoindex on;\n"
-                "location /bangumi {\n"
-                f"    alias {cfg.save_path};\n"
-                "}\n"
-                "...\n\n"
-                "If use want to use Tornado to serve static files, please run\n"
-                "<code>[http]</code>"
-                "<code>serve_static_files = false</code></pre>"
-            )
-            self.finish()
-
-
-class RssHandler(BaseHandler):
-    def get(self) -> None:
-        data = Download.get_all_downloads()
-        self.set_header("Content-Type", "text/xml")
-        self.render("templates/download.xml", data=data)
-
-
-class CalendarHandler(BaseHandler):
-    def get(self) -> None:
-        type_ = self.get_argument("type", None)
+class CalendarHandler(HTTPEndpoint):
+    @staticmethod
+    def get(requests: Request) -> PlainTextResponse:
+        type_ = requests.query_params.get("type", None)
 
         cal = Calendar()
         cal.add("prodid", "-//BGmi Followed Bangumi Calendar//bangumi.ricterz.me//")
         cal.add("version", "2.0")
 
-        data = [x.__dict__ for x in Followed.get_all_followed()]
-        data.extend(self.patch_list)
+        data = [{"update_time": b.update_time, "bangumi_name": b.name} for f, b in Followed.get_all_followed()]
+
+        for s in Scripts.all():
+            data.append({"update_time": s.updated_time, "bangumi_name": s.bangumi_name})
 
         if type_ is None:
             bangumi = defaultdict(list)
@@ -89,5 +59,4 @@ class CalendarHandler(BaseHandler):
         cal.add("description", "Followed Bangumi Calendar")
         cal.add("X-WR-CALDESC", "Followed Bangumi Calendar")
 
-        self.write(cal.to_ical())
-        self.finish()
+        return PlainTextResponse(cal.to_ical())
