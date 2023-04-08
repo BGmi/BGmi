@@ -14,6 +14,7 @@ BGmi 是一个用来追番的命令行程序.
 
 ### V5
 
+- 为 `bgmi update` 命令默认启用 `--download` 参数
 - 重构 bgmi_http
 - 移除 '/resource/feed.xml'
 
@@ -499,25 +500,9 @@ Example: [./tests/script_example.py](./tests/script_example.py)
 }
 ```
 
-## Download hook
+### 加载 scripts
 
-你可以在下载完成前或下载完成后执行一些操作, 比如移动文件, 重命名文件等等. 将你的 hook 文件放到`BGMI_PATH/hooks`文件夹内即可.
-
-```python
-from loguru import logger
-from bgmi.script import HookBase
-
-
-# 只需要继承 HookBase 类，实现里面的方法即可，类名字可任意设置
-class Hook(HookBase):
-    # 在添加了下载任务之后执行
-    def post_add_download(self) -> None:
-        logger.info('post add download')
-
-    # 在更新了状态，下载之前进行执行
-    def pre_add_download(self) -> None:
-        logger.info('pre add download')
-```
+注意，scripts只会在运行 `bgmi update` 或者 `bgmi cal` 时被加载。如果你在 web ui 找不到对应的内容，请运行前面提到的命令并重试。
 
 ## BGmi 数据源
 
