@@ -198,8 +198,24 @@ def search(
 @click.argument("name", required=True)
 @click.argument("episode", type=int, required=True)
 def mark(name: str, episode: int) -> None:
-    result = ctl.mark(name=name, episode=episode)
-    globals()["print_{}".format(result["status"])](result["message"])
+    """
+
+    name: name of the bangumi you want to set
+    episode: bangumi episode you want to set
+    """
+
+    try:
+        followed_obj = Followed.get(Followed.bangumi_name == name)
+    except Followed.NotFoundError:
+        runner = ScriptRunner()
+        followed_obj = runner.get_model(name)  # type: ignore
+        if not followed_obj:
+            print_error(f"Subscribe or Script <{name}> does not exist.", stop=True)
+
+    followed_obj.episode = episode
+    followed_obj.save()
+
+    print_success(f"{name} has been mark as episode: {episode}")
 
 
 @cli.command()

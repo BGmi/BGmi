@@ -19,15 +19,6 @@ def test_add(ensure_data):
     assert r["status"] == "warning", r["message"]
 
 
-def test_mark(ensure_data):
-    ctl.mark(bangumi_name_1, 0)
-
-    assert Followed.get(Followed.bangumi_name == bangumi_name_1).episode == 0
-
-    r = ctl.mark(bangumi_name_2, 0)
-    assert r["status"] == "error", r["message"]
-
-
 def test_filter(ensure_data):
     ctl.filter_(
         bangumi_name_1,
