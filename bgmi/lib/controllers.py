@@ -1,7 +1,6 @@
 import itertools
 import os.path
 import time
-from collections import defaultdict
 from typing import Any, Dict, List, Optional
 
 import filetype
@@ -9,7 +8,6 @@ import requests.exceptions
 import sqlalchemy as sa
 
 from bgmi.config import cfg
-from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.lib.download import Episode, download_episodes
 from bgmi.lib.fetch import website
 from bgmi.lib.table import (
@@ -27,8 +25,6 @@ from bgmi.lib.table import (
 )
 from bgmi.script import ScriptRunner
 from bgmi.utils import (
-    COLOR_END,
-    GREEN,
     convert_cover_url_to_path,
     download_cover,
     episode_filter_regex,
@@ -424,52 +420,4 @@ def status_(name: str, status: int = STATUS_DELETED) -> ControllerResult:
     followed_obj.status = status
     followed_obj.save()
     result["message"] = f"Followed<{name}> has been marked as status {status}"
-    return result
-
-
-def followed_bangumi() -> Dict[str, list]:
-    """
-
-    :return: list of bangumi followed
-    """
-    weekly_list_followed = Bangumi.get_updating_bangumi(status=STATUS_FOLLOWED)
-    weekly_list_updated = Bangumi.get_updating_bangumi(status=STATUS_UPDATED)
-    weekly_list = defaultdict(list)
-    for k, v in itertools.chain(weekly_list_followed.items(), weekly_list_updated.items()):
-        weekly_list[k].extend(v)
-    for bangumi_list in weekly_list.values():
-        for bangumi in bangumi_list:
-            bangumi["subtitle_group"] = Subtitle.get_subtitle_by_id(bangumi["subtitle_group"])
-    return weekly_list
-
-
-def list_() -> ControllerResult:
-    result = {}
-    weekday_order = BANGUMI_UPDATE_TIME
-    followed = followed_bangumi()
-
-    script_bangumi = ScriptRunner().get_models_dict()
-
-    if not followed and not script_bangumi:
-        result["status"] = "warning"
-        result["message"] = "you have not subscribed any bangumi"
-        return result
-
-    for i in script_bangumi:
-        i["subtitle_group"] = [{"name": "<BGmi Script>"}]
-        followed[i["update_time"].lower()].append(i)
-
-    result["status"] = "info"
-    result["message"] = ""
-    for weekday in weekday_order:
-        if followed[weekday.lower()]:
-            result["message"] += f"{GREEN}{weekday}. {COLOR_END}"
-            for j, bangumi in enumerate(followed[weekday.lower()]):
-                if bangumi["status"] in (STATUS_UPDATED, STATUS_FOLLOWED) and "episode" in bangumi:
-                    bangumi["name"] = f"{bangumi['name']}({bangumi['episode']:d})"
-                if j > 0:
-                    result["message"] += " " * 5
-                f = [x.name for x in bangumi["subtitle_group"]]
-                result["message"] += "{}: {}\n".format(bangumi["name"], ", ".join(f) if f else "<None>")
-
     return result

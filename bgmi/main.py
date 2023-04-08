@@ -3,8 +3,9 @@ import itertools
 import os
 import platform
 import sys
+from collections import defaultdict
 from operator import itemgetter
-from typing import List, Mapping, Optional, Tuple
+from typing import Dict, List, Mapping, Optional, Tuple
 
 import click
 import pydantic
@@ -285,10 +286,53 @@ def delete(name: List[str], clear: bool, yes: bool) -> None:
             globals()["print_{}".format(result["status"])](result["message"])
 
 
+def followed_bangumi() -> Dict[str, list]:
+    """
+
+    :return: list of bangumi followed
+    """
+    weekly_list_followed = Bangumi.get_updating_bangumi(status=STATUS_FOLLOWED)
+    weekly_list_updated = Bangumi.get_updating_bangumi(status=STATUS_UPDATED)
+    weekly_list = defaultdict(list)
+    for k, v in itertools.chain(weekly_list_followed.items(), weekly_list_updated.items()):
+        weekly_list[k].extend(v)
+    for bangumi_list in weekly_list.values():
+        for bangumi in bangumi_list:
+            bangumi["subtitle_group"] = Subtitle.get_subtitle_by_id(bangumi["subtitle_group"])
+    return weekly_list
+
+
 @cli.command("list", help="list subscribed bangumi")
 def list_command() -> None:
-    result = ctl.list_()
-    print(result["message"])
+    weekday_order = BANGUMI_UPDATE_TIME
+    followed = followed_bangumi()
+
+    script_bangumi = ScriptRunner().get_models_dict()
+
+    if not followed and not script_bangumi:
+        print_warning("you have not subscribed any bangumi")
+        return
+
+    for i in script_bangumi:
+        i["subtitle_group"] = []
+        followed[i["update_day"].lower()].append(i)
+
+    s = ""
+
+    for weekday in weekday_order:
+        if followed[weekday.lower()]:
+            s += f"{GREEN}{weekday}. {COLOR_END}"
+            for j, bangumi in enumerate(followed[weekday.lower()]):
+                if bangumi["status"] in (STATUS_UPDATED, STATUS_FOLLOWED) and "episode" in bangumi:
+                    bangumi["name"] = f"{bangumi['name']}({bangumi['episode']:d})"
+                if j > 0:
+                    s += " " * 5
+
+                f = [x.name for x in bangumi["subtitle_group"]]
+
+                s += "{}: {}\n".format(bangumi["name"], ", ".join(f) if f else "<None>")
+
+    print(s)
 
 
 @cli.command("filter", help="set bangumi episode filters")
