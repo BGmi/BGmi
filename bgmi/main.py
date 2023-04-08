@@ -14,12 +14,21 @@ import wcwidth
 from loguru import logger
 
 from bgmi import __version__
-from bgmi.config import BGMI_PATH, CONFIG_FILE_PATH, Config, cfg, write_default_config
+from bgmi.config import BGMI_PATH, CONFIG_FILE_PATH, Config, Source, cfg, write_default_config
 from bgmi.lib import controllers as ctl
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SPACIAL_APPEND_CHARS, SPACIAL_REMOVE_CHARS, SUPPORT_WEBSITE
 from bgmi.lib.download import download_episodes
 from bgmi.lib.fetch import website
-from bgmi.lib.table import STATUS_DELETED, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, Followed, Session, Subtitle
+from bgmi.lib.table import (
+    STATUS_DELETED,
+    STATUS_FOLLOWED,
+    STATUS_UPDATED,
+    Bangumi,
+    Followed,
+    Session,
+    Subtitle,
+    recreate_source_relatively_table,
+)
 from bgmi.lib.update import update_database
 from bgmi.script import ScriptRunner
 from bgmi.setup import create_dir, init_db, install_crontab
@@ -90,10 +99,18 @@ def upgrade() -> None:
 @cli.command(
     help="Select date source bangumi_moe or mikan_project",
 )
-@click.argument("bangumi_source", required=True, type=click.Choice([x["id"] for x in SUPPORT_WEBSITE]))
-def source(bangumi_source: str) -> None:
-    result = ctl.source(data_source=bangumi_source)
-    globals()["print_{}".format(result["status"])](result["message"])
+@click.argument("source", required=True, type=click.Choice([x["id"] for x in SUPPORT_WEBSITE]))
+def source_cmd(source: str) -> None:
+    if source in list(map(itemgetter("id"), SUPPORT_WEBSITE)):
+        recreate_source_relatively_table()
+        cfg.data_source = Source(source)
+        cfg.save()
+        print_success("data source switch succeeds")
+        print_success(f"you have successfully change your data source to {source}")
+    else:
+        print_error(
+            "please check your input. data source should be one of {}".format([x["id"] for x in SUPPORT_WEBSITE])
+        )
 
 
 @cli.group()
