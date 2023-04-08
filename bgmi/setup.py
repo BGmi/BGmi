@@ -36,7 +36,7 @@ def install_crontab() -> None:
 
         with subprocess.Popen(["crontab", "-"], stdin=subprocess.PIPE) as p:
             for line in extra:
-                p.stdin.write(f"{line}\n".encode())
+                p.stdin.write(f"{line}\n".encode())  # type: ignore
 
 
 def create_dir() -> None:
