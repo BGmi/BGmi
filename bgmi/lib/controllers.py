@@ -2,15 +2,14 @@ import itertools
 import os.path
 import time
 from collections import defaultdict
-from operator import itemgetter
 from typing import Any, Dict, List, Optional
 
 import filetype
 import requests.exceptions
 import sqlalchemy as sa
 
-from bgmi.config import Source, cfg
-from bgmi.lib.constants import BANGUMI_UPDATE_TIME, SUPPORT_WEBSITE
+from bgmi.config import cfg
+from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.lib.download import Episode, download_episodes
 from bgmi.lib.fetch import website
 from bgmi.lib.table import (
@@ -25,7 +24,6 @@ from bgmi.lib.table import (
     NotFoundError,
     Session,
     Subtitle,
-    recreate_source_relatively_table,
 )
 from bgmi.script import ScriptRunner
 from bgmi.utils import (
@@ -314,23 +312,6 @@ def search(
             },
             "data": [],
         }
-
-
-def source(data_source: str) -> ControllerResult:
-    result = {}
-    if data_source in list(map(itemgetter("id"), SUPPORT_WEBSITE)):
-        recreate_source_relatively_table()
-        cfg.data_source = Source(data_source)
-        cfg.save()
-        print_success("data source switch succeeds")
-        result["status"] = "success"
-        result["message"] = f"you have successfully change your data source to {data_source}"
-    else:
-        result["status"] = "error"
-        result["message"] = "please check your input. data source should be one of {}".format(
-            [x["id"] for x in SUPPORT_WEBSITE]
-        )
-    return result
 
 
 def update(names: List[str], download: Optional[bool] = False, not_ignore: bool = False) -> None:
