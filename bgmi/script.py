@@ -169,10 +169,10 @@ class ScriptBase:
                 self.obj = s
 
         def __iter__(self) -> Iterator[Tuple[str, Any]]:
-            for i in ("bangumi_name", "cover", "update_time"):
-                yield i, getattr(self, i)
-
             # patch for cal
+            yield "bangumi_name", self.bangumi_name
+            yield "cover", self.cover
+            yield "update_day", self.update_time
             yield "name", self.bangumi_name
             yield "status", self.obj.status
             yield "updated_time", self.obj.updated_time

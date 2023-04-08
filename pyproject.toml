@@ -177,7 +177,7 @@ target-version = ['py38', 'py39', 'py310']
 
 [tool.flake8]
 max-line-length = 120
-ignore = ['W503', 'E203']
+ignore = ['W503', 'E203', 'PT004']
 
 exclude = [
   '.git',
