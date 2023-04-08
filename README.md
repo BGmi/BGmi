@@ -46,7 +46,7 @@ BGmi 是一个用来追番的命令行程序.
 - 使用 aria2, transmission, qbittorrent 或者 deluge 来下载你的番剧.
 - 提供一个管理和观看订阅番剧的前端.
 - 弹幕支持
-- 提供 uTorrent 支持的 RSS Feed 和移动设备支持的 ICS 格式日历.
+- 提供移动设备支持的 ICS 格式日历.
 - Bangumi Script: 添加自己的番剧解析器
 - 番剧放松列表和剧集信息
 - 下载番剧时的过滤器(支持关键词,字幕组和正则)
