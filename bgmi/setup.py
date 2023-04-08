@@ -28,16 +28,15 @@ def install_crontab() -> None:
                 continue
             if "bgmi cal" in line:
                 continue
-            else:
-                extra.append(line)
+
+            extra.append(line)
 
         extra.append(f"10 */2 * * * LC_ALL=en_US.UTF-8 {sys.executable} -m bgmi update")
         extra.append(f"0 */12 * * * LC_ALL=en_US.UTF-8 {sys.executable} -m bgmi cal --force-update --download-cover")
 
-        p = subprocess.Popen(["crontab", "-"], stdin=subprocess.PIPE)
-        for line in extra:
-            p.stdin.write(f"{line}\n".encode())
-        p.stdin.close()
+        with subprocess.Popen(["crontab", "-"], stdin=subprocess.PIPE) as p:
+            for line in extra:
+                p.stdin.write(f"{line}\n".encode())
 
 
 def create_dir() -> None:
