@@ -1,7 +1,7 @@
 import os
 import time
 from collections import defaultdict
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, TypeVar
 
 import sqlalchemy as sa
 from sqlalchemy import CHAR, Column, Integer, Text, create_engine
@@ -12,7 +12,7 @@ from bgmi.utils import episode_filter_regex
 from bgmi.website.model import Episode
 
 # bangumi status
-STATUS_UPDATING = 0
+STATUS_UPDATING = 0  # soft delete
 STATUS_END = 1
 BANGUMI_STATUS = (STATUS_UPDATING, STATUS_END)
 
@@ -172,17 +172,16 @@ class Followed(Base):
 
     @classmethod
     def get_all_followed(
-        cls: Type["Followed"], status: int = STATUS_DELETED, bangumi_status: int = STATUS_UPDATING
-    ) -> List["Followed"]:
-        sql = (
-            sa.select(Followed)
-            .join(Bangumi, cls.bangumi_name == Bangumi.name)
-            .where(cls.status.isnot(status), Bangumi.status == bangumi_status)
-            .order_by(cls.updated_time.desc())
-        )
-
-        with Session() as s:
-            return list(s.scalars(sql))
+        cls: Type["Followed"], bangumi_status: int = STATUS_UPDATING
+    ) -> List[Tuple["Followed", "Bangumi"]]:
+        with Session() as tx:
+            return list(
+                tx.query(Followed, Bangumi)
+                .join(Bangumi, cls.bangumi_name == Bangumi.name)
+                .where(cls.status.isnot(STATUS_DELETED), Bangumi.status == bangumi_status)
+                .order_by(cls.updated_time.desc())
+                .all()
+            )
 
     def apply_on_episodes(self, result: List[Episode]) -> List[Episode]:
         if self.include:
