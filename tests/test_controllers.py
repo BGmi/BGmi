@@ -5,32 +5,13 @@ import pytest
 from bgmi.lib import controllers as ctl
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.lib.controllers import cal, recreate_source_relatively_table
-from bgmi.lib.table import Bangumi, Followed, NotFoundError, Session, Subtitle
+from bgmi.lib.table import Followed, NotFoundError
 
 bangumi_name_1 = "名侦探柯南"
 bangumi_name_2 = "海贼王"
 
 
-def ensure_data():
-    with Session.begin() as tx:
-        tx.query(Bangumi).delete()
-        tx.query(Followed).delete()
-        tx.query(Subtitle).delete()
-        tx.add(Bangumi(name=bangumi_name_1, id="1", subtitle_group=["id1", "id2"]))
-        tx.add(Bangumi(name=bangumi_name_2, id="2"))
-        tx.add_all(
-            [
-                Subtitle(id="id1", name="sg1"),
-                Subtitle(id="id2", name="sg2"),
-                Subtitle(id="id3", name="sg3"),
-            ]
-        )
-        tx.add(Followed(bangumi_name=bangumi_name_1, episode=2))
-
-
-def test_add():
-    ensure_data()
-
+def test_add(ensure_data):
     r = ctl.add(bangumi_name_2, 0)
     assert r["status"] == "success", r["message"]
 
@@ -38,9 +19,7 @@ def test_add():
     assert r["status"] == "warning", r["message"]
 
 
-def test_mark():
-    ensure_data()
-
+def test_mark(ensure_data):
     ctl.mark(bangumi_name_1, 0)
 
     assert Followed.get(Followed.bangumi_name == bangumi_name_1).episode == 0
@@ -49,9 +28,7 @@ def test_mark():
     assert r["status"] == "error", r["message"]
 
 
-def test_filter():
-    ensure_data()
-
+def test_filter(ensure_data):
     ctl.filter_(
         bangumi_name_1,
         subtitle="sg1",
@@ -68,9 +45,7 @@ def test_filter():
     assert f.regex == "regex"
 
 
-def test_delete():
-    ensure_data()
-
+def test_delete(ensure_data):
     r = ctl.delete(bangumi_name_1)
     assert r["status"] == "warning", r["message"]
     r = ctl.delete(bangumi_name_1)
