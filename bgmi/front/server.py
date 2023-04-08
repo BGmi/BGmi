@@ -1,9 +1,9 @@
 import asyncio
 
 import click
-import starlette.applications
 import uvicorn
 from starlette.applications import Starlette
+from starlette.requests import Request
 from starlette.responses import HTMLResponse
 from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
@@ -11,10 +11,6 @@ from starlette.staticfiles import StaticFiles
 from bgmi.config import IS_WINDOWS, cfg
 from bgmi.front.resources import CalendarHandler
 from .routes import app as api
-
-# from bgmi.front.admin import API_MAP_GET, API_MAP_POST, AdminApiHandler, UpdateHandler
-# from bgmi.front.index import BangumiListHandler, IndexHandler
-# from bgmi.front.resources import BangumiHandler, CalendarHandler, RssHandler
 
 
 @click.command()
@@ -25,7 +21,7 @@ from .routes import app as api
     help="listen on the port",
 )
 @click.option("--address", default="0.0.0.0", help="binding at given address", type=str)
-def main(address: str, port: int):
+def main(address: str, port: int) -> None:
     if IS_WINDOWS:
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
@@ -35,7 +31,7 @@ def main(address: str, port: int):
     uvicorn.run(app, host=address, port=port)
 
 
-def index_need_config(_):
+def index_need_config(_: Request) -> HTMLResponse:
     return HTMLResponse(
         "<h1>BGmi HTTP Service</h1>"
         "<pre>Please modify your web server configure file\n"
@@ -56,7 +52,7 @@ def index_need_config(_):
     )
 
 
-def make_app() -> starlette.applications.Starlette:
+def make_app() -> Starlette:
     routes = [
         Mount("/api/", app=api),
         Route("/resource/calendar.ics", CalendarHandler),

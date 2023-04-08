@@ -1,4 +1,4 @@
-from typing import Dict, Generic, List, Optional, TypeVar
+from typing import Any, Dict, Generic, List, Optional, TypeVar
 
 import fastapi
 from pydantic import BaseModel
@@ -31,7 +31,7 @@ class Response(GenericModel, Generic[T]):
     data: T
 
 
-def jsonify(data):
+def jsonify(data: Any) -> Dict[str, Any]:
     return {
         "version": __version__,
         "danmaku_api": cfg.http.danmaku_api_url,
@@ -49,7 +49,7 @@ class Bangumi(BaseModel):
 
 
 @app.get("/{t}", response_model=Response[List[Bangumi]])
-def bangumi_list(t: str):
+def bangumi_list(t: str) -> Any:
     if t not in (
         "old",
         "index",
@@ -60,7 +60,7 @@ def bangumi_list(t: str):
     if t == "old":
         bangumi_status = STATUS_END
 
-    data = [
+    data: List[Dict[str, Any]] = [
         {
             key: value
             for key, value in {
@@ -78,7 +78,7 @@ def bangumi_list(t: str):
 
     if t == "index":
         with Session.begin() as tx:
-            patch_list = tx.query(Scripts).all()
+            patch_list = tx.query(Scripts).where(Scripts.status.isnot(Followed.STATUS_DELETED)).all()
             for s in patch_list:
                 data.append(
                     {
@@ -99,7 +99,9 @@ def bangumi_list(t: str):
     return jsonify(data)
 
 
-async def auth_header(token: Optional[str] = fastapi.Header(None, alias="authorization", example="Bearer {token}")):
+async def auth_header(
+    token: Optional[str] = fastapi.Header(None, alias="authorization", example="Bearer {token}")
+) -> Any:
     if not token:
         raise fastapi.HTTPException(401, "missing http header authorization")
 
@@ -122,7 +124,7 @@ admin = fastapi.APIRouter(
         404: {"description": "番剧不存在"},
     },
 )
-def add(bangumi: str = fastapi.Body(embed=True)):
+def add(bangumi: str = fastapi.Body(embed=True)) -> Any:
     try:
         b = table.Bangumi.get(table.Bangumi.name == bangumi)
     except table.Bangumi.NotFoundError:
@@ -146,7 +148,7 @@ def add(bangumi: str = fastapi.Body(embed=True)):
         404: {"description": "番剧不存在或者未订阅"},
     },
 )
-def mark(bangumi: str = fastapi.Body(embed=True), episode: int = fastapi.Body(embed=True)):
+def mark(bangumi: str = fastapi.Body(embed=True), episode: int = fastapi.Body(embed=True)) -> Any:
     with Session.begin() as tx:
         f: Optional[table.Followed] = tx.query(table.Followed).where(table.Followed.bangumi_name == bangumi).scalar()
         if f is None:
@@ -164,7 +166,7 @@ def mark(bangumi: str = fastapi.Body(embed=True), episode: int = fastapi.Body(em
         404: {"description": "番剧不存在或者未订阅"},
     },
 )
-def mark(bangumi: str = fastapi.Body(embed=True)):
+def delete(bangumi: str = fastapi.Body(embed=True)) -> Any:
     with Session.begin() as tx:
         f: Optional[table.Followed] = (
             tx.query(table.Followed)
@@ -194,7 +196,7 @@ class Filter(BaseModel):
         404: {"description": "番剧不存在或者未订阅"},
     },
 )
-def get_filter(bangumi: str = fastapi.Path()):
+def get_filter(bangumi: str = fastapi.Path()) -> Any:
     try:
         f = table.Followed.get(
             table.Followed.bangumi_name == bangumi, table.Followed.status.isnot(table.Followed.STATUS_DELETED)
@@ -232,7 +234,7 @@ def update_filter(
     include: Optional[List[str]] = fastapi.Body(None, embed=True),
     exclude: Optional[List[str]] = fastapi.Body(None, embed=True),
     regex: Optional[str] = fastapi.Body(None, embed=True),
-):
+) -> Any:
     try:
         f = table.Followed.get(
             table.Followed.bangumi_name == bangumi, table.Followed.status.isnot(table.Followed.STATUS_DELETED)
@@ -255,7 +257,7 @@ def update_filter(
                 raise HTTPException(404, f"字幕组 {s} 不可用")
             selected.append(s)
 
-        f.subtitle = table.Subtitle.get_subtitle_by_name(f.subtitle)
+        f.subtitle = [x.id for x in table.Subtitle.get_subtitle_by_name(f.subtitle)]
 
     if include is not None:
         f.include = include
@@ -296,7 +298,7 @@ class Calendar(BaseModel):
     },
     response_model=Calendar,
 )
-def calendar():
+def calendar() -> Any:
     print("calendar router")
     weekly_list = table.Bangumi.get_updating_bangumi()
     if not weekly_list:

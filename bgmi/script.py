@@ -13,7 +13,7 @@ import sqlalchemy as sa
 from bgmi.config import cfg
 from bgmi.lib.download import Episode, download_episodes
 from bgmi.lib.fetch import DATA_SOURCE_MAP
-from bgmi.lib.table import STATUS_FOLLOWED, STATUS_UPDATED, Scripts, Session
+from bgmi.lib.table import STATUS_DELETED, STATUS_FOLLOWED, STATUS_UPDATED, Scripts, Session
 from bgmi.utils import print_info, print_success, print_warning
 from bgmi.website.model import WebsiteBangumi
 
@@ -118,6 +118,8 @@ class ScriptRunner:
             script_obj.updated_time = int(time.time())
             script_obj.cover = script.Model.cover
             script_obj.update_day = script.Model.update_time
+            if script.Model.due_date and script.Model.due_date <= datetime.datetime.now():
+                script_obj.status = STATUS_DELETED
             script_obj.save()
 
             if return_:
