@@ -66,7 +66,7 @@ class ScriptRunner:
             m.append(
                 WebsiteBangumi(
                     name=model.bangumi_name,
-                    update_time=model.update_time,
+                    update_day=model.update_time,
                     id=model.bangumi_name,
                     cover=model.cover,
                 )
