@@ -58,6 +58,7 @@ jobs:
         run: |
           set -ex
           coverage run -a -m bgmi install
+          coverage run -a -m bgmi config set download_delegate noop
           bgmi --help
           coverage run -a -m pytest tests --cache-requests --ignore=tests/downloader --ignore=tests/e2e
 
@@ -91,6 +92,7 @@ jobs:
         run: |
           set -ex
           coverage run -a -m bgmi install
+          coverage run -a -m bgmi config set download_delegate noop
           bgmi --help
           coverage run -a -m pytest tests/e2e --cache-requests
 

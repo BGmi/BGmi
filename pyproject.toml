@@ -43,6 +43,7 @@ bgmi_http = 'bgmi.front.server:main'
 "transmission-rpc" = 'bgmi.downloader:TransmissionRPC'
 "deluge-rpc" = 'bgmi.downloader:DelugeRPC'
 "qbittorrent-webapi" = 'bgmi.downloader:QBittorrentWebAPI'
+"noop" = 'bgmi.downloader:Noop'
 
 [tool.poetry.dependencies]
 python = "^3.8.0"
