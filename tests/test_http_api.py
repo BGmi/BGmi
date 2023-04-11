@@ -27,8 +27,8 @@ bangumi_2 = "海贼王"
 
 
 def test_no_auth(ensure_data):
-    r = client.post("/api/admin/add", json={"bangumi": bangumi_1})
-    assert r.status_code == 401, r.text
+    r = client.post("/api/admin/auth")
+    assert r.status_code == 403, r.text
 
 
 def test_calendar(ensure_data):
@@ -91,7 +91,7 @@ def test_filter(ensure_data):
 
 
 def test_index(ensure_data):
-    response = client.get("/api/index")
+    response = client.get("/api/index/index")
     assert response.status_code == 200, response.text
     r = response.json()
     assert r["data"], r

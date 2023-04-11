@@ -153,17 +153,17 @@ security = HTTPBearer()
 
 async def auth_header(credential: Optional[HTTPAuthorizationCredentials] = fastapi.Depends(security)) -> Any:
     if not credential:
-        raise fastapi.HTTPException(401, "missing http header authorization")
+        raise fastapi.HTTPException(404, "missing http header authorization")
 
     token = credential.credentials
 
     if token == cfg.http.admin_token:
         return
-    raise fastapi.HTTPException(401, "wrong auth token")
+    raise fastapi.HTTPException(403, "wrong auth token")
 
 
 admin = fastapi.APIRouter(
-    dependencies=[fastapi.Depends(auth_header)], responses={401: {"description": "wrong api token"}}
+    dependencies=[fastapi.Depends(auth_header)], responses={403: {"description": "wrong api token"}}
 )
 
 
