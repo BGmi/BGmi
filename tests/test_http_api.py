@@ -31,8 +31,8 @@ def test_no_auth(ensure_data):
     assert r.status_code == 401, r.text
 
 
-def test_a_cal(ensure_data):
-    r = client.get("/api/admin/calendar", headers=headers)
+def test_calendar(ensure_data):
+    r = client.get("/api/calendar")
     assert r.status_code == 200, r.text
 
 
