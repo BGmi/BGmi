@@ -247,7 +247,9 @@ def mark(name: str, episode: Optional[int] = None) -> None:
     help="add bangumi and mark it as specified episode",
 )
 @click.option(
-    "--save-path", type=str, help='add config.save_path_map for bangumi, example: "./{bangumi_name}/S1/" "./名侦探柯南/S1/"'
+    "--save-path",
+    type=str,
+    help='add config.save_path_map for bangumi, example: "./{bangumi_name}/S1/" "./名侦探柯南/S1/"',
 )
 def add(names: List[str], episode: Optional[int], save_path: Optional[str]) -> None:
     """
