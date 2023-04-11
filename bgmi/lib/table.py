@@ -1,19 +1,21 @@
+import json
 import os
 import time
 from collections import defaultdict
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Type, TypeVar
 
 import sqlalchemy as sa
 import sqlalchemy.event
+import sqlalchemy.ext.mutable
+import sqlalchemy.types as types
 from loguru import logger
 from sqlalchemy import CHAR, Column, Integer, Row, Text, create_engine
+from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.orm import DeclarativeBase, Mapped, sessionmaker
 
 from bgmi.config import cfg
 from bgmi.utils import episode_filter_regex
 from bgmi.website.model import Episode
-
-# subscription status
 
 debug = os.getenv("DEBUG") in ["true", "True"]
 
@@ -99,7 +101,7 @@ class Bangumi(Base):
             super().__init__()
 
     @classmethod
-    def delete_all(cls) -> None:
+    def mark_all_end(cls) -> None:
         with Session.begin() as session:
             un_updated_bangumi: List[Followed] = list(
                 session.scalars(
@@ -144,23 +146,63 @@ class Bangumi(Base):
         return weekly_list
 
 
+class MutableSet(Mutable, set):
+    @classmethod
+    def coerce(cls, key, value):
+        "Convert plain dictionaries to MutableDict."
+
+        if not isinstance(value, MutableSet):
+            if isinstance(value, set):
+                return MutableSet(value)
+
+            # this call will raise ValueError
+            return Mutable.coerce(key, value)
+        else:
+            return value
+
+    def add(self, element) -> None:
+        super().add(element)
+        self.changed()
+
+    def update(self, *s) -> None:
+        super().update(*s)
+        self.changed()
+
+    def remove(self, element) -> None:
+        super().remove(element)
+        self.changed()
+
+
+class JSONSetFieldType(types.TypeDecorator):
+    impl = types.Text
+
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return None
+        return json.dumps(sorted(set(value)))
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return None
+        return set(json.loads(value))
+
+
 class Followed(Base):
     __tablename__ = "followed"
 
     STATUS_DELETED = 0
     STATUS_FOLLOWED = 1
     STATUS_UPDATED = 2
-
-    FOLLOWED_STATUS = (
-        STATUS_DELETED,
-        STATUS_FOLLOWED,
-        STATUS_UPDATED,
-    )
+    STATUS_END = 3
 
     bangumi_name: Mapped[str] = Column(Text, nullable=False, primary_key=True)  # type: ignore
-    episodes: Mapped[List[int]] = Column(sa.JSON, nullable=False, default=[], server_default="[]")  # type: ignore
+    episodes: Mapped[Set[int]] = Column(
+        MutableSet.as_mutable(JSONSetFieldType), nullable=False, default=set(), server_default="[]"
+    )  # type: ignore
     status: Mapped[int] = Column(
-        Integer, nullable=False, default=STATUS_UPDATED, server_default=str(STATUS_UPDATED)
+        Integer, nullable=False, default=STATUS_FOLLOWED, server_default=str(STATUS_FOLLOWED)
     )  # type: ignore
     updated_time: Mapped[int] = Column(Integer, nullable=False, default=0, server_default="0")  # type: ignore
     subtitle: List[str] = Column(sa.JSON, nullable=False, default=[], server_default="[]")  # type: ignore
@@ -215,10 +257,6 @@ class Followed(Base):
 
         return episode_filter_regex(data=result, regex=self.regex)
 
-    def save(self, tx: Optional[sa.orm.Session] = None) -> None:
-        self.episodes = sorted(set(self.episodes))
-        super().save(tx)
-
 
 class Download(Base):
     __tablename__ = "download"
@@ -228,7 +266,7 @@ class Download(Base):
     STATUS_DOWNLOADED = 2
 
     id: Mapped[int] = Column(Integer, nullable=False, primary_key=True)  # type: ignore
-    bangumi_name: Mapped[str] = Column("name", Text, nullable=False)  # type: ignore
+    bangumi_name: Mapped[str] = Column(Text, nullable=False)  # type: ignore
     title: Mapped[str] = Column(Text, nullable=False)  # type: ignore
     episode: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
     download: Mapped[str] = Column(Text, nullable=False)  # type: ignore
@@ -242,7 +280,7 @@ class Download(Base):
             title: str,
             episode: int,
             download: str,
-            status: int,
+            status: Optional[int] = None,
             id: Optional[int] = None,
         ):
             super().__init__()
@@ -283,15 +321,13 @@ class Scripts(Base):
     __tablename__ = "scripts"
 
     bangumi_name: Mapped[str] = Column(Text, primary_key=True, nullable=False, unique=True)  # type: ignore
-    episodes: Mapped[List[str]] = Column(sa.JSON, nullable=False, default=[], server_default="[]")  # type: ignore
+    episodes: Mapped[Set[int]] = Column(
+        MutableSet.as_mutable(JSONSetFieldType), nullable=False, default=set(), server_default="[]"
+    )  # type: ignore
     status: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
     updated_time: Mapped[int] = Column(Integer, nullable=False, default=0, server_default="0")  # type: ignore
     update_day: Mapped[str] = Column(Text, nullable=False, default="Unknown", server_default="Unknown")  # type: ignore
     cover: Mapped[str] = Column(Text, nullable=False, default="", server_default="")  # type: ignore
-
-    def save(self, tx: Optional[sa.orm.Session] = None) -> None:
-        self.episodes = sorted(set(self.episodes))
-        super().save(tx)
 
 
 def recreate_source_relatively_table() -> None:

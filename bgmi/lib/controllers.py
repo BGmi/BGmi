@@ -321,14 +321,12 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
     runner = ScriptRunner()
 
     for script, all_episode_data in runner.run():
-        following = Followed.get(Followed.bangumi_name == script.bangumi_name)
-
         if not download:
-            following.episodes = sorted({x.episode for x in all_episode_data} | set(following.episodes))
-            following.updated_time = now
-            following.save()
+            script.episodes.update([x.episode for x in all_episode_data])
+            script.updated_time = now
+            script.save()
         else:
-            download_episodes(all_episode_data, following)
+            download_episodes(all_episode_data, script)
 
     for subscribe in updated_bangumi_obj:
         print_info(f"fetching {subscribe.bangumi_name} ...")
@@ -377,30 +375,8 @@ def download_episodes(all_episode_data: List[Episode], following: Union[Followed
         if episodes:
             for e in episodes:
                 if download_episode(e):
-                    following.episodes.append(ep)  # type: ignore
+                    following.episodes.add(ep)  # type: ignore
                     break
 
     following.updated_time = int(time.time())
     following.save()
-
-
-def status_(name: str, status: int = Followed.STATUS_DELETED) -> ControllerResult:
-    result = {"status": "success", "message": ""}
-
-    if (status not in Followed.FOLLOWED_STATUS) or (not status):
-        result["status"] = "error"
-        result["message"] = f"Invalid status: {status}"
-        return result
-
-    status = int(status)
-
-    followed_obj = Followed.get(Followed.bangumi_name == name)
-    if not followed_obj:
-        result["status"] = "error"
-        result["message"] = f"Followed<{name}> does not exists"
-        return result
-
-    followed_obj.status = status
-    followed_obj.save()
-    result["message"] = f"Followed<{name}> has been marked as status {status}"
-    return result
