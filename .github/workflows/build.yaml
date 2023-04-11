@@ -2,14 +2,6 @@ name: test-build-files
 
 on:
   push:
-    paths-ignore:
-      - .chglog/**
-      - CHANGELOG.md
-      - LICENSE
-      - images/*
-      - tests/**
-      - .github/**
-      - "!.github/workflows/ci.yaml"
     branches-ignore:
       - renovate/**
       - deepsource-*
