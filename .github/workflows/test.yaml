@@ -9,7 +9,6 @@ on:
       - renovate/**
       - deepsource-*
   pull_request: {}
-  merge_group:
 
 defaults:
   run:
