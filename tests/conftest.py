@@ -114,4 +114,4 @@ def ensure_data():
                 Subtitle(id="id3", name="sg3"),
             ]
         )
-        tx.add(Followed(bangumi_name=bangumi_name_1, episode=2))
+        tx.add(Followed(bangumi_name=bangumi_name_1, episodes={1, 2}))

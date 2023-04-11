@@ -103,7 +103,7 @@ exclude_lines = [
 ]
 
 [tool.pytest.ini_options]
-addopts = '-v --durations=10'
+#addopts = '-v --durations=10'
 junit_family = 'legacy'
 
 [tool.isort]

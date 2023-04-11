@@ -68,7 +68,7 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
         episodes = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)
         followed_obj.episodes = sorted([e.episode for e in episodes]) if episodes else 0  # type: ignore
     else:
-        followed_obj.episodes = list(range(0, episode + 1))
+        followed_obj.episodes = set(range(0, episode + 1))
 
     followed_obj.save()
 
@@ -353,7 +353,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             continue
 
         if not download:
-            following.episodes = sorted({x.episode for x in all_episode_data} | set(following.episodes))
+            following.episodes.update({x.episode for x in all_episode_data})
             following.save()
         else:
             download_episodes(all_episode_data, following)
