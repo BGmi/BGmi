@@ -74,6 +74,7 @@ def bangumi_list(t: str) -> Any:
             for key, value in {
                 **bangumi.__dict__,
                 **followed.__dict__,
+                "episode": followed.episode,
                 "cover": cover_path(bangumi.cover),
             }.items()
             if not key.startswith("_")
@@ -95,6 +96,7 @@ def bangumi_list(t: str) -> Any:
                         "status": s.status,
                         "cover": s.cover,
                         "episodes": s.episodes,
+                        "episode": max(s.episodes) if s.episodes else 0,
                     }
                 )
         data.sort(key=sorter)

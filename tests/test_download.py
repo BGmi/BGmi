@@ -49,12 +49,12 @@ def test_update_download(mock_download_driver: mock.Mock):
 
     Bangumi(id=name, name=name).save()
 
-    Followed(bangumi_name=name, episode=2).save()
+    Followed(bangumi_name=name, episodes={1, 2}).save()
 
-    assert Followed.get(Followed.bangumi_name == name).episode == 2
+    assert Followed.get(Followed.bangumi_name == name).episodes == {1, 2}
 
     with mock.patch("bgmi.lib.controllers.website", mock_website):
-        update([name], d=True, not_ignore=False)
+        update([name], download=True, not_ignore=False)
 
     mock_download_driver.add_download.assert_has_calls(
         [

@@ -7,9 +7,8 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Set, Tupl
 import sqlalchemy as sa
 import sqlalchemy.event
 import sqlalchemy.ext.mutable
-import sqlalchemy.types as types
 from loguru import logger
-from sqlalchemy import CHAR, Column, Integer, Row, Text, create_engine
+from sqlalchemy import CHAR, Column, Integer, Row, Text, create_engine, types
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.orm import DeclarativeBase, Mapped, sessionmaker
 
@@ -131,7 +130,7 @@ class Bangumi(Base):
 
         with Session.begin() as session:
             data = (
-                session.query(cls, Followed.status, Followed.episodes)
+                session.query(cls, Followed.status, Followed.episodes)  # type: ignore
                 .outerjoin(Followed, cls.name == Followed.bangumi_name)
                 .where(where)
                 .all()
@@ -148,8 +147,8 @@ class Bangumi(Base):
 
 class MutableSet(Mutable, set):
     @classmethod
-    def coerce(cls, key, value):
-        "Convert plain dictionaries to MutableDict."
+    def coerce(cls, key, value):  # type: ignore
+        """Convert plain python object to MutableDict."""
 
         if not isinstance(value, MutableSet):
             if isinstance(value, set):
@@ -158,22 +157,22 @@ class MutableSet(Mutable, set):
                 return MutableSet(value)
             # this call will raise ValueError
             return Mutable.coerce(key, value)
-        else:
-            return value
 
-    def add(self, element) -> None:
+        return value
+
+    def add(self, element: Any) -> None:
         super().add(element)
         self.changed()
 
-    def update(self, *s) -> None:
+    def update(self, *s: Any) -> None:
         super().update(*s)
         self.changed()
 
-    def remove(self, element) -> None:
+    def remove(self, element: Any) -> None:
         super().remove(element)
         self.changed()
 
-    def __hash__(self):
+    def __hash__(self):  # type: ignore
         return hash(tuple(sorted(self)))
 
 
@@ -182,12 +181,12 @@ class JSONSetFieldType(types.TypeDecorator):
 
     cache_ok = True
 
-    def process_bind_param(self, value, dialect):
+    def process_bind_param(self, value, dialect):  # type: ignore
         if value is None:
             return None
         return json.dumps(sorted(set(value)))
 
-    def process_result_value(self, value, dialect):
+    def process_result_value(self, value, dialect):  # type: ignore
         if value is None:
             return None
         return MutableSet(json.loads(value))
@@ -202,8 +201,8 @@ class Followed(Base):
     STATUS_END = 3
 
     bangumi_name: Mapped[str] = Column(Text, nullable=False, primary_key=True)  # type: ignore
-    episodes: Mapped[Set[int]] = Column(
-        MutableSet.as_mutable(JSONSetFieldType), nullable=False, default=set(), server_default="[]"
+    episodes: Set[int] = Column(
+        MutableSet.as_mutable(JSONSetFieldType), nullable=False, default=set(), server_default="[]"  # type: ignore
     )  # type: ignore
     status: Mapped[int] = Column(
         Integer, nullable=False, default=STATUS_FOLLOWED, server_default=str(STATUS_FOLLOWED)
@@ -325,8 +324,11 @@ class Scripts(Base):
     __tablename__ = "scripts"
 
     bangumi_name: Mapped[str] = Column(Text, primary_key=True, nullable=False, unique=True)  # type: ignore
-    episodes: Mapped[Set[int]] = Column(
-        MutableSet.as_mutable(JSONSetFieldType), nullable=False, default=set(), server_default="[]"
+    episodes: Set[int] = Column(
+        MutableSet.as_mutable(JSONSetFieldType),  # type: ignore
+        nullable=False,
+        default=set(),
+        server_default="[]",
     )  # type: ignore
     status: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
     updated_time: Mapped[int] = Column(Integer, nullable=False, default=0, server_default="0")  # type: ignore

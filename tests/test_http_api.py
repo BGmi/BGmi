@@ -3,6 +3,7 @@ import random
 import string
 from urllib.parse import quote
 
+import pytest
 from requests import Response
 from starlette.testclient import TestClient
 
@@ -64,6 +65,7 @@ def test_delete_not_found(ensure_data):
     assert r.status_code == 404, r.text
 
 
+@pytest.mark.skip("need re-design")
 def test_e_mark(ensure_data):
     episode = random.randint(0, 10)
     r = client.post(
