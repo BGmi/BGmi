@@ -381,7 +381,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             episode = 0
 
         if episode > subscribe.episode:
-            episode_range = range(subscribe.episode, episode + 1)
+            episode_range = range(subscribe.episode + 1, episode + 1)
             print_success(f"{subscribe.bangumi_name} updated, episode: {episode:d}")
             followed_obj.episode = episode
             followed_obj.status = Followed.STATUS_UPDATED
