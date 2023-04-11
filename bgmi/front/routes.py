@@ -2,6 +2,7 @@ import urllib.parse as url_parse
 from typing import Any, Dict, Generic, List, Optional, TypeVar
 
 import fastapi
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
 from pydantic.generics import GenericModel
 from starlette.exceptions import HTTPException
@@ -147,15 +148,16 @@ def calendar() -> Any:
     return weekly_list
 
 
-async def auth_header(
-    token: Optional[str] = fastapi.Header(None, alias="authorization", example="Bearer {token}")
-) -> Any:
-    if not token:
+security = HTTPBearer()
+
+
+async def auth_header(credential: Optional[HTTPAuthorizationCredentials] = fastapi.Depends(security)) -> Any:
+    if not credential:
         raise fastapi.HTTPException(401, "missing http header authorization")
 
-    if not token.startswith("Bearer "):
-        raise fastapi.HTTPException(401, "bad authorization header, should be `Bearer {token}`")
-    if token[7:] == cfg.http.admin_token:
+    token = credential.credentials
+
+    if token == cfg.http.admin_token:
         return
     raise fastapi.HTTPException(401, "wrong auth token")
 
@@ -163,6 +165,16 @@ async def auth_header(
 admin = fastapi.APIRouter(
     dependencies=[fastapi.Depends(auth_header)], responses={401: {"description": "wrong api token"}}
 )
+
+
+@admin.post(
+    "/auth",
+    responses={
+        200: {"description": "成功"},
+    },
+)
+def auth() -> Any:
+    return {}
 
 
 @admin.post(
@@ -299,13 +311,11 @@ def update_filter(
 
     if selected_subtitle is not None:
         available_subtitle = {x.name: x.id for x in table.Subtitle.get_subtitle_by_id(b.subtitle_group)}
-        selected = []
         for s in selected_subtitle:
             if s not in available_subtitle:
                 raise HTTPException(404, f"字幕组 {s} 不可用")
-            selected.append(s)
 
-        f.subtitle = [x.id for x in table.Subtitle.get_subtitle_by_name(f.subtitle)]
+        f.subtitle = [available_subtitle[x] for x in selected_subtitle]
 
     if include is not None:
         f.include = include
