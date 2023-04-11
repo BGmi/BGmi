@@ -141,7 +141,7 @@ def calendar() -> Any:
     if not weekly_list:
         raise HTTPException(404, '请使用 "bgmi cal -f" 命令更新番剧列表')
 
-    for day, value in weekly_list.items():
+    for _, value in weekly_list.items():
         for bangumi in value:
             bangumi["cover"] = cover_path(bangumi["cover"])
 
