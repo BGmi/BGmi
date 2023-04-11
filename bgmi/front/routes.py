@@ -94,7 +94,7 @@ def bangumi_list(t: str) -> Any:
                         "updated_time": s.updated_time,
                         "status": s.status,
                         "cover": s.cover,
-                        "episode": s.episode,
+                        "episodes": s.episodes,
                     }
                 )
         data.sort(key=sorter)
@@ -196,24 +196,6 @@ def add(bangumi: str = fastapi.Body(embed=True)) -> Any:
             tx.add(f)
         else:
             tx.add(table.Followed(bangumi_name=b.name, episode=0, status=table.Followed.STATUS_FOLLOWED))
-
-    return {}
-
-
-@admin.post(
-    "/mark",
-    responses={
-        200: {"description": "成功修改"},
-        404: {"description": "番剧不存在或者未订阅"},
-    },
-)
-def mark(bangumi: str = fastapi.Body(embed=True), episode: int = fastapi.Body(embed=True)) -> Any:
-    with Session.begin() as tx:
-        f: Optional[table.Followed] = tx.query(table.Followed).where(table.Followed.bangumi_name == bangumi).scalar()
-        if f is None:
-            raise HTTPException(404, "bangumi not exists or not followed")
-        f.episode = episode
-        tx.add(f)
 
     return {}
 

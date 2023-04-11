@@ -11,7 +11,7 @@ class Episode(BaseModel):
     download: str
     episode: int = 0
     time: int = 0
-    subtitle_group: Optional[str]
+    subtitle_group: Optional[str] = None
     name: str = ""
 
     class Config:
