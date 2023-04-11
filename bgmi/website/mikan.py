@@ -1,3 +1,4 @@
+import contextlib
 import datetime
 import time
 from collections import defaultdict
@@ -54,10 +55,8 @@ def get_weekly_bangumi():
     for day_of_week in [x for x in range(0, 9) if x != 7]:
         d = soup.find("div", attrs={"class": "sk-bangumi", "data-dayofweek": str(day_of_week)})
         if d:
-            try:
+            with contextlib.suppress(KeyError):
                 yield _CN_WEEK[_DAY_OF_WEEK[day_of_week]], d
-            except KeyError:
-                pass
 
 
 def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
@@ -162,8 +161,7 @@ def get_text(url, params=None):
         if r.headers.get("content-type").startswith("text/html"):
             if "退出" in r.text:
                 return r.text
-            else:
-                mikan_login()
+            mikan_login()
         else:
             return r.text
 

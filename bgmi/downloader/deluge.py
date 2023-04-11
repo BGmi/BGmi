@@ -30,8 +30,7 @@ class DelugeRPC(BaseDownloadService):
             "move_completed": False,
             "download_location": save_path,
         }
-        e = self._call("core.add_torrent_url", [url, options])
-        return e
+        return self._call("core.add_torrent_url", [url, options])
 
     def _call(self, methods, params=None):
         if params is None:

@@ -258,9 +258,8 @@ class DmhySource(BaseWebsite):
                         continue
                     subtitle_group = team_id_raw[0]
 
-                if subtitle_list:
-                    if subtitle_group not in subtitle_list:
-                        continue
+                if subtitle_list and subtitle_group not in subtitle_list:
+                    continue
 
                 if os.environ.get("DEBUG", False):  # pragma: no cover
                     print(name, title, subtitle_group, download, episode, t)

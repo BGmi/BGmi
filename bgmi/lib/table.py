@@ -166,9 +166,8 @@ class Followed(Base):
 
     @classmethod
     def delete_followed(cls, batch: bool = True) -> bool:
-        if not batch:
-            if not input("[+] are you sure want to CLEAR ALL THE BANGUMI? (y/N): ") == "y":
-                return False
+        if not batch and input("[+] are you sure want to CLEAR ALL THE BANGUMI? (y/N): ") != "y":
+            return False
 
         with Session.begin() as session:
             session.execute(sa.delete(cls))

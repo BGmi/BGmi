@@ -150,9 +150,9 @@ def get_terminal_col() -> int:  # pragma: no cover
                 ) = struct.unpack("hhhhHhhhhhh", csbi.raw)
                 sizex = right - left + 1  # type: int
                 return sizex
-            else:
-                cols = int(subprocess.check_output("tput cols"))
-                return cols
+
+            cols = int(subprocess.check_output("tput cols"))
+            return cols
         except Exception:
             return _DEFAULT_TERMINAL_WIDTH
 
@@ -255,8 +255,8 @@ def normalize_path(url: str) -> str:
 
     if url.startswith("/"):
         return url[1:]
-    else:
-        return url
+
+    return url
 
 
 def bangumi_save_path(bangumi_name: str) -> Path:

@@ -221,18 +221,18 @@ class ScriptBase:
         if self.source is not None:
             try:
                 source = DATA_SOURCE_MAP[self.source]()
-            except KeyError:
+            except KeyError as e:
                 raise ValueError(
                     "Script data source is invalid, usable sources: {}".format(", ".join(DATA_SOURCE_MAP.keys()))
-                )
+                ) from e
             ret = {}
             data = source.fetch_episode_of_bangumi(**self._data)
             for i in data:
                 if int(i.episode) not in data:
                     ret[int(i.episode)] = i.download
             return ret
-        else:
-            return {}
+
+        return {}
 
 
 if __name__ == "__main__":

@@ -186,8 +186,8 @@ def auth() -> Any:
 def add(bangumi: str = fastapi.Body(embed=True)) -> Any:
     try:
         b = table.Bangumi.get(table.Bangumi.name == bangumi)
-    except table.Bangumi.NotFoundError:
-        raise HTTPException(404, "Bangumi not exist")
+    except table.Bangumi.NotFoundError as e:
+        raise HTTPException(404, "Bangumi not exist") from e
 
     with Session.begin() as tx:
         f = tx.query(table.Followed).where(table.Followed.bangumi_name == b.name).scalar()
@@ -260,13 +260,13 @@ def get_filter(bangumi: str = fastapi.Path()) -> Any:
         f = table.Followed.get(
             table.Followed.bangumi_name == bangumi, table.Followed.status.isnot(table.Followed.STATUS_DELETED)
         )
-    except NotFoundError:
-        raise HTTPException(404, "bangumi not followed")
+    except NotFoundError as e:
+        raise HTTPException(404, "bangumi not followed") from e
 
     try:
         b = table.Bangumi.get(table.Bangumi.name == bangumi)
-    except NotFoundError:
-        raise HTTPException(404, "bangumi not exists")
+    except NotFoundError as e:
+        raise HTTPException(404, "bangumi not exists") from e
 
     available_subtitle = table.Subtitle.get_subtitle_by_id(b.subtitle_group)
 
@@ -298,15 +298,15 @@ def update_filter(
         f = table.Followed.get(
             table.Followed.bangumi_name == bangumi, table.Followed.status.isnot(table.Followed.STATUS_DELETED)
         )
-    except NotFoundError:
-        raise HTTPException(404, "bangumi not followed")
+    except NotFoundError as e:
+        raise HTTPException(404, "bangumi not followed") from e
 
     try:
         b = table.Bangumi.get(
             table.Bangumi.name == bangumi,
         )
-    except NotFoundError:
-        raise HTTPException(404, "bangumi not exists")
+    except NotFoundError as e:
+        raise HTTPException(404, "bangumi not exists") from e
 
     if selected_subtitle is not None:
         available_subtitle = {x.name: x.id for x in table.Subtitle.get_subtitle_by_id(b.subtitle_group)}
