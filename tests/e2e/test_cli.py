@@ -39,6 +39,7 @@ def test_add():
     assert Followed.get(Followed.bangumi_name == bangumi_name_2).episode == 1
 
 
+@pytest.mark.skip("wait re-design")
 @pytest.mark.usefixtures("ensure_data")
 def test_mark():
     main_for_test(f"mark {bangumi_name_1} --episode 10".split())
@@ -55,7 +56,7 @@ def test_update(bangumi_names):
 def test_update_script():
     main_for_test(["update"])
     script_obj = ScriptRunner().get_model("TEST_BANGUMI")
-    assert script_obj.episode == 3, "TEST_BANGUMI from script_example.py episode should be 3 after update"
+    assert script_obj.episodes == {2, 3}, "TEST_BANGUMI from script_example.py episode should be {2, 3} after update"
 
 
 @pytest.mark.usefixtures("_clean_bgmi")

@@ -55,7 +55,7 @@ def ensure_example_script():
 @pytest.fixture()
 def data_source_bangumi_name():
     return {
-        "bangumi_moe": ["名侦探柯南", "妖精的尾巴"],
+        "bangumi_moe": ["名侦探柯南", "海贼王"],
         "mikan_project": ["名侦探柯南", "海贼王"],
         "dmhy": ["名偵探柯南", "海賊王"],
     }
