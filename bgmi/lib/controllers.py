@@ -1,6 +1,7 @@
 import itertools
 import os.path
 import time
+from operator import attrgetter
 from typing import Any, Dict, List, Optional, Union
 
 import filetype
@@ -279,8 +280,11 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
     now = int(time.time())
     print_info("updating subscriptions ...")
 
+    if download:
+        download_previous_failed_downloads()
+
     if not names:
-        updated_bangumi_obj = [x[0] for x in Followed.get_all_followed()]
+        updated_bangumi_obj = sorted([x[0] for x in Followed.get_all_followed()], key=attrgetter("bangumi_name"))
     else:
         updated_bangumi_obj = []
         for n in names:
@@ -289,34 +293,6 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
                 updated_bangumi_obj.append(f)
             except Followed.NotFoundError:
                 logger.warning("missing followed bangumi '{}'", n)
-
-    if download:
-        need_re_download = []
-        failures = Download.get_all_downloads(status=Download.STATUS_NOT_DOWNLOAD)
-        followings: Dict[str, Followed] = {x.bangumi_name: x for x in Followed.all()}
-
-        if failures:
-            for fail in failures:
-                following = followings.get(fail.bangumi_name)
-                if not following:
-                    continue
-
-                if fail.episode in following.episodes:
-                    continue
-
-                need_re_download.append(fail)
-
-        if need_re_download:
-            print_info("try to re-downloading previous failed torrents ...")
-            for d in need_re_download:
-                download_episode(
-                    Episode(
-                        title=d.title,
-                        episode=d.episode,
-                        download=d.download,
-                        name=d.bangumi_name,
-                    )
-                )
 
     runner = ScriptRunner()
 
@@ -357,6 +333,35 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             following.save()
         else:
             download_episodes(all_episode_data, following)
+
+
+def download_previous_failed_downloads():
+    need_re_download = []
+    failures = Download.get_all_downloads(status=Download.STATUS_NOT_DOWNLOAD)
+    followings: Dict[str, Followed] = {x.bangumi_name: x for x in Followed.all()}
+
+    if failures:
+        for fail in failures:
+            following = followings.get(fail.bangumi_name)
+            if not following:
+                continue
+
+            if fail.episode in following.episodes:
+                continue
+
+            need_re_download.append(fail)
+
+    if need_re_download:
+        print_info("try to re-downloading previous failed torrents ...")
+        for d in need_re_download:
+            download_episode(
+                Episode(
+                    title=d.title,
+                    episode=d.episode,
+                    download=d.download,
+                    name=d.bangumi_name,
+                )
+            )
 
 
 def download_episodes(all_episode_data: List[Episode], following: Union[Followed, Scripts]) -> None:
