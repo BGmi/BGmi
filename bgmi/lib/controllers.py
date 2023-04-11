@@ -335,7 +335,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             download_episodes(all_episode_data, following)
 
 
-def download_previous_failed_downloads():
+def download_previous_failed_downloads() -> None:
     need_re_download = []
     failures = Download.get_all_downloads(status=Download.STATUS_NOT_DOWNLOAD)
     followings: Dict[str, Followed] = {x.bangumi_name: x for x in Followed.all()}
