@@ -1,3 +1,4 @@
+import urllib.parse as url_parse
 from typing import Any, Dict, Generic, List, Optional, TypeVar
 
 import fastapi
@@ -16,6 +17,13 @@ app = fastapi.FastAPI(docs_url="/")
 
 COVER_URL = "/bangumi/cover"
 WEEK = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+
+
+def cover_path(s: str) -> str:
+    if not s:
+        return ""
+
+    return f"{COVER_URL}/{normalize_path(url_parse.urlparse(s).path)}"
 
 
 class Player(BaseModel):
@@ -48,13 +56,13 @@ class Bangumi(BaseModel):
     player: Dict[int, Player]
 
 
-@app.get("/{t}", response_model=Response[List[Bangumi]])
+@app.get("/index/{t}", response_model=Response[List[Bangumi]])
 def bangumi_list(t: str) -> Any:
     if t not in (
         "old",
         "index",
     ):
-        raise HTTPException(404)
+        raise HTTPException(400, "type should be `index` or `old`")
 
     bangumi_status = table.Bangumi.STATUS_UPDATING
     if t == "old":
@@ -66,7 +74,7 @@ def bangumi_list(t: str) -> Any:
             for key, value in {
                 **bangumi.__dict__,
                 **followed.__dict__,
-                "cover": f"{COVER_URL}/{normalize_path(bangumi.cover)}",
+                "cover": cover_path(bangumi.cover),
             }.items()
             if not key.startswith("_")
         }
@@ -97,19 +105,6 @@ def bangumi_list(t: str) -> Any:
         item["player"] = get_player(item["bangumi_name"])
 
     return jsonify(data)
-
-
-async def auth_header(
-    token: Optional[str] = fastapi.Header(None, alias="authorization", example="Bearer {token}")
-) -> Any:
-    if not token:
-        raise fastapi.HTTPException(401, "missing http header authorization")
-
-    if not token.startswith("Bearer "):
-        raise fastapi.HTTPException(401, "bad authorization header, should be `Bearer {token}`")
-    if token[7:] == cfg.http.admin_token:
-        return
-    raise fastapi.HTTPException(401, "wrong auth token")
 
 
 class CalendarItem(BaseModel):
@@ -145,7 +140,24 @@ def calendar() -> Any:
     if not weekly_list:
         raise HTTPException(404, '请使用 "bgmi cal -f" 命令更新番剧列表')
 
+    for day, value in weekly_list.items():
+        for bangumi in value:
+            bangumi["cover"] = cover_path(bangumi["cover"])
+
     return weekly_list
+
+
+async def auth_header(
+    token: Optional[str] = fastapi.Header(None, alias="authorization", example="Bearer {token}")
+) -> Any:
+    if not token:
+        raise fastapi.HTTPException(401, "missing http header authorization")
+
+    if not token.startswith("Bearer "):
+        raise fastapi.HTTPException(401, "bad authorization header, should be `Bearer {token}`")
+    if token[7:] == cfg.http.admin_token:
+        return
+    raise fastapi.HTTPException(401, "wrong auth token")
 
 
 admin = fastapi.APIRouter(
