@@ -173,6 +173,9 @@ class MutableSet(Mutable, set):
         super().remove(element)
         self.changed()
 
+    def __hash__(self):
+        return hash(tuple(sorted(self)))
+
 
 class JSONSetFieldType(types.TypeDecorator):
     impl = types.Text
@@ -187,7 +190,7 @@ class JSONSetFieldType(types.TypeDecorator):
     def process_result_value(self, value, dialect):
         if value is None:
             return None
-        return set(json.loads(value))
+        return MutableSet(json.loads(value))
 
 
 class Followed(Base):
