@@ -46,6 +46,6 @@ class DelugeRPC(BaseDownloadService):
         e = r.json()
 
         if "result" not in e:
-            raise RpcError("deluge error, reason: {}".format(e["error"]["message"]))
+            raise RpcError(f"deluge error, reason: {e['error']['message']}")
 
         return e["result"]
