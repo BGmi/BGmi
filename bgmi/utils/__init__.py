@@ -214,21 +214,19 @@ def check_update(mark: bool = True) -> None:
         except Exception as e:
             print_warning(f"Error occurs when checking update, {str(e)}")
 
-    version_file = os.path.join(BGMI_PATH, "version")
-    if not os.path.exists(version_file):
-        with open(version_file, "w", encoding="utf8") as f:
+    version_file = BGMI_PATH.joinpath("version")
+    if not version_file.exists():
+        with version_file.open("w", encoding="utf8") as f:
             f.write(str(int(time.time())))
         update()
 
-    with open(version_file, encoding="utf8") as f:
-        try:
-            data = int(f.read())
-            if time.time() - 7 * 24 * 3600 > data:
-                with open(version_file, "w", encoding="utf8") as f:
-                    f.write(str(int(time.time())))
-                update()
-        except ValueError:
-            pass
+    try:
+        data = int(version_file.read_text(encoding="utf8"))
+        if time.time() - 7 * 24 * 3600 > data:
+            version_file.write_text(str(int(time.time())), encoding="utf8")
+            update()
+    except ValueError:
+        pass
 
 
 def parse_episode(episode_title: str) -> int:
@@ -294,7 +292,7 @@ def get_web_admin(method: str) -> None:
         tar_file = BytesIO(f.read())
 
     rmtree(cfg.front_static_path)
-    os.makedirs(cfg.front_static_path)
+    cfg.front_static_path.mkdir(parents=True, exist_ok=True)
 
     with tarfile.open(fileobj=tar_file) as tar_file_obj:
         tar_file_obj.extractall(path=cfg.front_static_path)
@@ -330,7 +328,7 @@ def convert_cover_url_to_path(cover_url: str) -> Tuple[str, str]:
 
 def download_file(url: str) -> Optional[Response]:
     logger.debug("downloading {}", url)
-    if url.startswith("https://") or url.startswith("http://"):
+    if url.startswith(("https://", "http://")):
         print_info(f"Download: {url}")
         return session.get(url, timeout=60)
     return None

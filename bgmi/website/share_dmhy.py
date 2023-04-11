@@ -52,7 +52,7 @@ def parse_bangumi_with_week_days(content, update_time, array_name) -> List[Websi
             subtitle_group_name = a.get_text(strip=True)
             subtitle_group_id_raw = re.findall("team_id%3A(.+)$", str(a["href"]))
 
-            if (len(subtitle_group_id_raw) == 0) or subtitle_group_name == "":
+            if (not subtitle_group_id_raw) or not subtitle_group_name:
                 continue
 
             subtitle_group_id = subtitle_group_id_raw[0]
@@ -81,7 +81,7 @@ def parse_subtitle_list(content):
         subtitle_group_name = li.span.a.get("title")
         subtitle_group_id_raw = re.findall(r"team_id\/(.+)$", li.span.a.get("href"))
 
-        if (len(subtitle_group_id_raw) == 0) or subtitle_group_name == "":
+        if (not subtitle_group_id_raw) or not subtitle_group_name:
             continue
 
         subtitle_group_id = subtitle_group_id_raw[0]
