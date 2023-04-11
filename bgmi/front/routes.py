@@ -1,4 +1,3 @@
-import urllib.parse as url_parse
 from typing import Any, Dict, Generic, List, Optional, TypeVar
 
 import fastapi
@@ -24,7 +23,7 @@ def cover_path(s: str) -> str:
     if not s:
         return ""
 
-    return f"{COVER_URL}/{normalize_path(url_parse.urlparse(s).path)}"
+    return f"{COVER_URL}/{normalize_path(s)}"
 
 
 class Player(BaseModel):
