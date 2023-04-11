@@ -143,31 +143,114 @@ target-version = ['py38', 'py39', 'py310']
 max-line-length = 120
 ignore = ['W503', 'E203', 'PT004']
 
-exclude = [
-  '.git',
-  '__pycache__',
-  '.venv',
-  'build',
-  'dist',
-]
+exclude = ['.git', '__pycache__', '.venv', 'build', 'dist']
 
-per-file-ignores = [
-  'bgmi/lib/constants.py:C408',
-  'bgmi/front/routes.py:B008'
-]
+per-file-ignores = ['bgmi/lib/constants.py:C408', 'bgmi/front/routes.py:B008']
 
 [tool.ruff]
 select = [
-  #    "A", "B", "C", "E", "F", "G", "I", "N", "Q", "S", "W", "BLE",
-  #  "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY",
+  "B",
+  "C",
+  "E",
+  "F",
+  "G",
+  "I",
+  "N",
+  "Q",
+  "S",
+  "W",
+  "BLE",
+  "DJ",
+  "ERA",
+  "EXE",
+  "ICN",
+  "INP",
+  "ISC",
+  "NPY",
+  #  "DTZ",
   #  "PTH",
-  "PD", "PGH", "PIE", "PL", "PT", "PYI",
-  "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "YTT"
+  "PD",
+  "PGH",
+  "PIE",
+  "PL",
+  "PT",
+  "PYI",
+  "RET",
+  "RSE",
+  "RUF",
+  "SIM",
+  "SLF",
+  "TCH",
+  "TID",
+  "TRY",
+  "YTT",
 ]
-ignore = ['PLR0913', 'RUF001', 'SIM108', 'TCH003', 'RUF003', 'RET504', 'TRY300', 'TRY003', 'TRY201', 'TRY301', 'PLR0912', 'PLR0915', 'PLR2004', 'PGH003']
+ignore = [
+  'BLE001',
+  'S301',
+  'S314',
+  'S101',
+  'N815',
+  'S104',
+  'C901',
+  'ISC003',
+  'PLR0913',
+  'RUF001',
+  'SIM108',
+  'TCH003',
+  'RUF003',
+  'RET504',
+  'TRY300',
+  'TRY003',
+  'TRY201',
+  'TRY301',
+  'PLR0912',
+  'PLR0915',
+  'PLR2004',
+  'PGH003',
+]
 
 # Allow autofix for all enabled rules (when `--fix`) is provided.
-fixable = ["A", "B", "C", "E", "F", "G", "I", "N", "Q", "S", "W", "BLE", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "YTT"]
+fixable = [
+  "A",
+  "B",
+  "C",
+  "E",
+  "F",
+  "G",
+  "I",
+  "N",
+  "Q",
+  "S",
+  "W",
+  "BLE",
+  "DJ",
+  "DTZ",
+  "EM",
+  "ERA",
+  "EXE",
+  "FBT",
+  "ICN",
+  "INP",
+  "ISC",
+  "NPY",
+  "PD",
+  "PGH",
+  "PIE",
+  "PL",
+  "PT",
+  "PTH",
+  "PYI",
+  "RET",
+  "RSE",
+  "RUF",
+  "SIM",
+  "SLF",
+  "TCH",
+  "TID",
+  "TRY",
+  "YTT",
+]
 unfixable = []
 
 

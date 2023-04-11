@@ -36,7 +36,7 @@ def download_episodes(data: List[Download]) -> None:
 
         try:
             driver.add_download(url=download.download, save_path=str(save_path))
-            print_info("Add torrent into the download queue, " f"the file will be saved at {save_path}")
+            print_info(f"Add torrent into the download queue, the file will be saved at {save_path}")
         except Exception as e:
             if os.getenv("DEBUG"):  # pragma: no cover
                 traceback.print_exc()

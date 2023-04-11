@@ -275,14 +275,14 @@ class Mikanani(BaseWebsite):
         if not best_sim_match_group:
             return []
         subgroup, subgroup_names, subgroup_links, sub_info = best_sim_match_group
-        bangumiId, subgroupid = sub_info["bangumiId"], sub_info["subgroupid"]
-        rss_url = f"{server_root}RSS/Bangumi?bangumiId={bangumiId}&subgroupid={subgroupid}"
+        bangumi_id, subgroup_id = sub_info["bangumiId"], sub_info["subgroupid"]
+        rss_url = f"{server_root}RSS/Bangumi?bangumiId={bangumi_id}&subgroupid={subgroup_id}"
 
         subtitle_group = " ".join(subgroup_names)
         if subtitle:
-            print_info(f"Matched subtitle: {subtitle_group} ({subgroupid})")
+            print_info(f"Matched subtitle: {subtitle_group} ({subgroup_id})")
         else:
-            print_info(f"Use first subtitle: {subtitle_group} ({subgroupid})")
+            print_info(f"Use first subtitle: {subtitle_group} ({subgroup_id})")
 
         r = get_text(rss_url)
         rss_root = ElementTree.fromstring(r)

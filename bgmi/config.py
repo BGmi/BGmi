@@ -29,10 +29,16 @@ def get_bgmi_home() -> Path:
         return Path(h)
 
     if IS_WINDOWS:
-        home_dir = os.environ.get("USERPROFILE") or os.environ.get("HOME") or tempfile.gettempdir()
+        home_dir = os.environ.get("USERPROFILE") or os.environ.get("HOME")
+    else:
+        home_dir = os.environ.get("HOME")
+
+    if home_dir:
         return Path(home_dir).joinpath(".bgmi")
 
-    return Path(os.environ.get("HOME", "/tmp")).joinpath(".bgmi")
+    tmp_dir = Path(tempfile.gettempdir()).joinpath(".bgmi")
+    print(f"can't find user home, use temp dir {tmp_dir} as bgmi home")
+    return tmp_dir
 
 
 BGMI_PATH = get_bgmi_home().absolute()
@@ -180,7 +186,7 @@ if CONFIG_FILE_PATH.exists():
         print("配置文件错误，请手动编辑配置文件后重试")
         print("配置文件位置：", CONFIG_FILE_PATH)
         print(e)
-        raise SystemExit
+        raise SystemExit from e
 else:
     cfg = Config()
 

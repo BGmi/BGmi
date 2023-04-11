@@ -53,7 +53,6 @@ class WebsiteBangumi(BaseModel):
         return max(self.episodes, key=attrgetter("episode")).episode
 
     @validator("update_day")
-    def validate_update_time(cls, v: str) -> str:
-        # pylint: disable=no-self-argument
+    def validate_update_time(cls, v: str) -> str:  # noqa: N805
         assert v in BANGUMI_UPDATE_TIME, f"update time can be only one of {BANGUMI_UPDATE_TIME}"
         return v
