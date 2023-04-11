@@ -39,7 +39,7 @@ jobs:
         python: [ "3.8", "3.11" ]
         os:
           - macos
-          #          - windows
+          - windows
           - ubuntu
     steps:
       - uses: actions/checkout@v3
@@ -73,7 +73,7 @@ jobs:
         python: [ "3.8", "3.11" ]
         os:
           - macos
-          #          - windows
+          - windows
           - ubuntu
     steps:
       - uses: actions/checkout@v3
