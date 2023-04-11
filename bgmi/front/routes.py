@@ -112,6 +112,42 @@ async def auth_header(
     raise fastapi.HTTPException(401, "wrong auth token")
 
 
+class CalendarItem(BaseModel):
+    id: str
+    cover: str
+    name: str
+    update_day: str
+    status: Optional[int]
+    episode: Optional[int]
+
+
+class Calendar(BaseModel):
+    sat: Optional[List[CalendarItem]]
+    sun: Optional[List[CalendarItem]]
+    mon: Optional[List[CalendarItem]]
+    tue: Optional[List[CalendarItem]]
+    thu: Optional[List[CalendarItem]]
+    wed: Optional[List[CalendarItem]]
+    fri: Optional[List[CalendarItem]]
+
+
+@app.get(
+    "/calendar",
+    responses={
+        200: {"description": "成功"},
+        404: {"description": "暂无番剧，请使用命令行更新calendar"},
+    },
+    response_model=Calendar,
+)
+def calendar() -> Any:
+    print("calendar router")
+    weekly_list = table.Bangumi.get_updating_bangumi()
+    if not weekly_list:
+        raise HTTPException(404, '请使用 "bgmi cal -f" 命令更新番剧列表')
+
+    return weekly_list
+
+
 admin = fastapi.APIRouter(
     dependencies=[fastapi.Depends(auth_header)], responses={401: {"description": "wrong api token"}}
 )
@@ -269,42 +305,6 @@ def update_filter(
     f.save()
 
     return {}
-
-
-class CalendarItem(BaseModel):
-    id: str
-    cover: str
-    name: str
-    update_day: str
-    status: Optional[int]
-    episode: Optional[int]
-
-
-class Calendar(BaseModel):
-    sat: Optional[List[CalendarItem]]
-    sun: Optional[List[CalendarItem]]
-    mon: Optional[List[CalendarItem]]
-    tue: Optional[List[CalendarItem]]
-    thu: Optional[List[CalendarItem]]
-    wed: Optional[List[CalendarItem]]
-    fri: Optional[List[CalendarItem]]
-
-
-@admin.get(
-    "/calendar",
-    responses={
-        200: {"description": "成功"},
-        404: {"description": "暂无番剧，请使用命令行更新calendar"},
-    },
-    response_model=Calendar,
-)
-def calendar() -> Any:
-    print("calendar router")
-    weekly_list = table.Bangumi.get_updating_bangumi()
-    if not weekly_list:
-        raise HTTPException(404, '请使用 "bgmi cal -f" 命令更新番剧列表')
-
-    return weekly_list
 
 
 app.include_router(admin, prefix="/admin")
