@@ -629,13 +629,12 @@ def history() -> None:
         if i.status == Followed.STATUS_DELETED:
             slogan = "ABANDON"
             color = RED
+        elif i.bangumi_name in updating_bangumi:
+            slogan = "FOLLOWING"
+            color = YELLOW
         else:
-            if i.bangumi_name in updating_bangumi:
-                slogan = "FOLLOWING"
-                color = YELLOW
-            else:
-                slogan = "FINISHED"
-                color = GREEN
+            slogan = "FINISHED"
+            color = GREEN
 
         if not i.updated_time:
             date = datetime.datetime.fromtimestamp(0)

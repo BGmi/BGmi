@@ -160,10 +160,11 @@ per-file-ignores = [
 select = [
   #    "A", "B", "C", "E", "F", "G", "I", "N", "Q", "S", "W", "BLE",
   #  "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY",
-  #  "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI",
+  #  "PTH",
+  "PD", "PGH", "PIE", "PL", "PT", "PYI",
   "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "YTT"
 ]
-ignore = ['RUF001', 'SIM108', 'TCH003', 'RUF003', 'RET504', 'TRY300', 'TRY003', 'TRY201', 'TRY301']
+ignore = ['PLR0913', 'RUF001', 'SIM108', 'TCH003', 'RUF003', 'RET504', 'TRY300', 'TRY003', 'TRY201', 'TRY301', 'PLR0912', 'PLR0915', 'PLR2004', 'PGH003']
 
 # Allow autofix for all enabled rules (when `--fix`) is provided.
 fixable = ["A", "B", "C", "E", "F", "G", "I", "N", "Q", "S", "W", "BLE", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "YTT"]

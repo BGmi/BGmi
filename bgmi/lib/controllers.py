@@ -55,15 +55,14 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
         if followed_obj is None:
             followed_obj = Followed(status=Followed.STATUS_FOLLOWED, bangumi_name=bangumi_obj.name, episode=0)
             session.add(followed_obj)
+        elif followed_obj.status == Followed.STATUS_FOLLOWED:
+            result = {
+                "status": "warning",
+                "message": f"{bangumi_obj.name} already followed",
+            }
+            return result
         else:
-            if followed_obj.status == Followed.STATUS_FOLLOWED:
-                result = {
-                    "status": "warning",
-                    "message": f"{bangumi_obj.name} already followed",
-                }
-                return result
-            else:
-                followed_obj.status = Followed.STATUS_FOLLOWED
+            followed_obj.status = Followed.STATUS_FOLLOWED
 
     if episode is None:
         episodes = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)

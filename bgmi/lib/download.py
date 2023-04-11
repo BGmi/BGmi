@@ -29,7 +29,7 @@ def download_episodes(data: List[Download]) -> None:
     for download in data:
         save_path = bangumi_save_path(download.bangumi_name).joinpath(str(download.episode))
         if not save_path.exists():
-            os.makedirs(save_path)
+            save_path.mkdir(parents=True, exist_ok=True)
 
         download.status = Download.STATUS_DOWNLOADING
         download.save()

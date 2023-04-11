@@ -77,9 +77,8 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
         if subtitle_list:
             if subtitle_id in subtitle_list:
                 episode_container_list[tag.attrs.get("id", None)] = tag.find_next_sibling("table")
-        else:
-            if subtitle_id:
-                episode_container_list[tag.attrs.get("id", None)] = tag.find_next_sibling("table")
+        elif subtitle_id:
+            episode_container_list[tag.attrs.get("id", None)] = tag.find_next_sibling("table")
 
     for subtitle_id, container in episode_container_list.items():
         _container = container
@@ -100,13 +99,11 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
             time_string = tr.find_all("td")[2].string
             result.append(
                 Episode(
-                    **{
-                        "download": server_root[:-1] + tr.find_all("td")[-1].find("a").attrs.get("href", ""),
-                        "subtitle_group": str(subtitle_id),
-                        "title": title,
-                        "episode": parse_episode(title),
-                        "time": int(time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M"))),
-                    }
+                    download=server_root[:-1] + tr.find_all("td")[-1].find("a").attrs.get("href", ""),
+                    subtitle_group=str(subtitle_id),
+                    title=title,
+                    episode=parse_episode(title),
+                    time=int(time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M"))),
                 )
             )
 
@@ -329,13 +326,11 @@ class Mikanani(BaseWebsite):
             time_string = tr.find_all("td")[2].string
             result.append(
                 Episode(
-                    **{
-                        "download": tr.find("a", class_="magnet-link").attrs.get("data-clipboard-text", ""),
-                        "name": keyword,
-                        "title": title,
-                        "episode": self.parse_episode(title),
-                        "time": int(time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M"))),
-                    }
+                    download=tr.find("a", class_="magnet-link").attrs.get("data-clipboard-text", ""),
+                    name=keyword,
+                    title=title,
+                    episode=self.parse_episode(title),
+                    time=int(time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M"))),
                 )
             )
         return result

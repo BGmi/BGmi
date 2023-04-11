@@ -52,8 +52,8 @@ def create_dir() -> None:
     # bgmi home dir
     try:
         for path in path_to_create:
-            if not os.path.exists(path):
-                os.makedirs(path, exist_ok=True)
+            if not path.exists():
+                path.mkdir(parents=True, exist_ok=True)
                 print_success(f"{path} created successfully")
     except OSError as e:
         print_error(f"Error: {str(e)}")
