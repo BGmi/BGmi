@@ -171,7 +171,7 @@ select = [
   "S",
   "W",
   "BLE",
-  "DJ",
+  #  "DJ",
   "ERA",
   "EXE",
   "ICN",
