@@ -15,7 +15,8 @@
     "enabled": true
   },
   "baseBranches": [
-    "master"
+    "master",
+    "v\\d+"
   ],
   "rangeStrategy": "pin",
   "separateMajorMinor": true,
