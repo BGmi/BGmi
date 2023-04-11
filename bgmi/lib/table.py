@@ -2,7 +2,7 @@ import json
 import os
 import time
 from collections import defaultdict
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Type, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Set, Tuple, Type, TypeVar
 
 import sqlalchemy as sa
 import sqlalchemy.event
@@ -154,7 +154,8 @@ class MutableSet(Mutable, set):
         if not isinstance(value, MutableSet):
             if isinstance(value, set):
                 return MutableSet(value)
-
+            if isinstance(value, Iterable):
+                return MutableSet(value)
             # this call will raise ValueError
             return Mutable.coerce(key, value)
         else:
