@@ -5,26 +5,10 @@ on:
     - cron: "1 1 1 * *" # monthly
   workflow_dispatch:
   push:
-    paths-ignore:
-      - LICENSE
-      - images/*
-      - "*.md"
-      - "*.yml"
-      - "*.yaml"
-      - "!.github/workflows/test.yaml"
     branches-ignore:
       - renovate/**
       - deepsource-*
-  pull_request:
-    branches:
-      - master
-    paths-ignore:
-      - LICENSE
-      - images/*
-      - "*.md"
-      - "*.yml"
-      - "*.yaml"
-      - "!.github/workflows/test.yaml"
+  pull_request: {}
 
 defaults:
   run:
