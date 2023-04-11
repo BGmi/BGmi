@@ -55,7 +55,11 @@ class Base(DeclarativeBase):
         with Session.begin() as session:
             return list(session.scalars(sa.select(cls).where(*where)).all())
 
-    def save(self) -> None:
+    def save(self, tx: Optional[sa.orm.Session] = None) -> None:
+        if tx:
+            tx.add(self)
+            return
+
         with Session.begin() as session:
             session.add(self)
 
@@ -125,7 +129,7 @@ class Bangumi(Base):
 
         with Session.begin() as session:
             data = (
-                session.query(cls, Followed.status, Followed.episode)
+                session.query(cls, Followed.status, Followed.episodes)
                 .outerjoin(Followed, cls.name == Followed.bangumi_name)
                 .where(where)
                 .all()
@@ -134,7 +138,7 @@ class Bangumi(Base):
         weekly_list = defaultdict(list)
         for bangumi_item, followed_status, episode in data:
             weekly_list[bangumi_item.update_day.lower()].append(
-                {**bangumi_item.__dict__, "status": followed_status, "episode": episode}
+                {**bangumi_item.__dict__, "status": followed_status, "episode": max(episode) if episode else None}
             )
 
         return weekly_list
@@ -154,7 +158,7 @@ class Followed(Base):
     )
 
     bangumi_name: Mapped[str] = Column(Text, nullable=False, primary_key=True)  # type: ignore
-    episode: Mapped[int] = Column(Integer, nullable=False, default=0, server_default="0")  # type: ignore
+    episodes: Mapped[List[int]] = Column(sa.JSON, nullable=False, default=[], server_default="[]")  # type: ignore
     status: Mapped[int] = Column(
         Integer, nullable=False, default=STATUS_UPDATED, server_default=str(STATUS_UPDATED)
     )  # type: ignore
@@ -163,6 +167,14 @@ class Followed(Base):
     include: Mapped[List[str]] = Column(sa.JSON, nullable=False, default=[], server_default="[]")  # type: ignore
     exclude: Mapped[List[str]] = Column(sa.JSON, nullable=False, default=[], server_default="[]")  # type: ignore
     regex: Mapped[str] = Column(Text, nullable=False, default="", server_default="")  # type: ignore
+
+    is_script: Mapped[bool] = Column(sa.Boolean, nullable=False, default=False, server_default="0")  # type: ignore
+
+    @property
+    def episode(self) -> int:
+        if self.episodes:
+            return max(self.episodes)  # type: ignore
+        return 0
 
     @classmethod
     def delete_followed(cls, batch: bool = True) -> bool:
@@ -202,6 +214,10 @@ class Followed(Base):
             result = [e for e in result if not e.contains_any_words(exclude_list)]
 
         return episode_filter_regex(data=result, regex=self.regex)
+
+    def save(self, tx: Optional[sa.orm.Session] = None) -> None:
+        self.episodes = sorted(set(self.episodes))
+        super().save(tx)
 
 
 class Download(Base):
@@ -267,11 +283,15 @@ class Scripts(Base):
     __tablename__ = "scripts"
 
     bangumi_name: Mapped[str] = Column(Text, primary_key=True, nullable=False, unique=True)  # type: ignore
-    episode: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
+    episodes: Mapped[List[str]] = Column(sa.JSON, nullable=False, default=[], server_default="[]")  # type: ignore
     status: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
     updated_time: Mapped[int] = Column(Integer, nullable=False, default=0, server_default="0")  # type: ignore
     update_day: Mapped[str] = Column(Text, nullable=False, default="Unknown", server_default="Unknown")  # type: ignore
     cover: Mapped[str] = Column(Text, nullable=False, default="", server_default="")  # type: ignore
+
+    def save(self, tx: Optional[sa.orm.Session] = None) -> None:
+        self.episodes = sorted(set(self.episodes))
+        super().save(tx)
 
 
 def recreate_source_relatively_table() -> None:
