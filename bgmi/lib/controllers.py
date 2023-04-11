@@ -8,7 +8,7 @@ import requests.exceptions
 import sqlalchemy as sa
 
 from bgmi.config import cfg
-from bgmi.lib.download import download_episodes
+from bgmi.lib.download import download_downloads, download_episode
 from bgmi.lib.fetch import website
 from bgmi.lib.table import Bangumi, Download, Followed, NotFoundError, Session, Subtitle
 from bgmi.script import ScriptRunner
@@ -299,7 +299,7 @@ def search(
 
 
 def update(names: List[str], download: Optional[bool] = False, not_ignore: bool = False) -> None:
-    logger.debug("updating bangumi info with args: download: %r", download)
+    logger.debug("updating bangumi info with args: download: {}", download)
 
     ignore = not bool(not_ignore)
     print_info("marking bangumi status ...")
@@ -330,15 +330,37 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
                 logger.warning("missing followed bangumi '{}'", n)
 
     if download:
-        failed = Download.get_all_downloads(status=Download.STATUS_NOT_DOWNLOAD)
-        if failed:
+        need_re_download = []
+        failures = Download.get_all_downloads(status=Download.STATUS_NOT_DOWNLOAD)
+        followings: Dict[str, Followed] = {x.bangumi_name: x for x in Followed.all()}
+
+        if failures:
+            for fail in failures:
+                following = followings.get(fail.bangumi_name)
+                if not following:
+                    continue
+
+                if following.episode > fail.episode:
+                    continue
+
+                need_re_download.append(fail)
+
+        if need_re_download:
             print_info("try to re-downloading previous failed torrents ...")
-            download_episodes(failed)
+            for d in need_re_download:
+                download_episode(
+                    Episode(
+                        title=d.title,
+                        episode=d.episode,
+                        download=d.download,
+                        name=d.bangumi_name,
+                    )
+                )
 
     runner = ScriptRunner()
     script_download_queue = runner.run()
-    if script_download_queue and download:
-        download_episodes(
+    if script_download_queue and d:
+        download_downloads(
             [
                 Download(
                     bangumi_name=x.name,
@@ -353,7 +375,6 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
         print_info("downloading ...")
 
     for subscribe in updated_bangumi_obj:
-        download_queue = []
         print_info(f"fetching {subscribe.bangumi_name} ...")
         try:
             bangumi_obj = Bangumi.get(Bangumi.name == subscribe.bangumi_name)
@@ -382,33 +403,26 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
         if episode > subscribe.episode:
             episode_range = range(subscribe.episode + 1, episode + 1)
             print_success(f"{subscribe.bangumi_name} updated, episode: {episode:d}")
-            followed_obj.episode = episode
             followed_obj.status = Followed.STATUS_UPDATED
             followed_obj.updated_time = int(time.time())
-            followed_obj.save()
 
             groups: Dict[int, List[Episode]] = {
                 key: list(value) for key, value in itertools.groupby(all_episode_data, lambda x: x.episode)
             }
 
+            if not download:
+                followed_obj.episode = max(groups)
+                followed_obj.save()
+                continue
+
             for i in episode_range:
                 episodes = groups.get(i)
                 if episodes:
-                    download_queue.append(episodes.pop())
-
-        if download:
-            download_episodes(
-                [
-                    Download(
-                        bangumi_name=x.name,
-                        episode=x.episode,
-                        status=Download.STATUS_DOWNLOADING,
-                        download=x.download,
-                        title=x.title,
-                    )
-                    for x in download_queue
-                ]
-            )
+                    for ep in episodes:
+                        if download_episode(ep):
+                            followed_obj.episode = i
+                            followed_obj.save()
+                            break
 
 
 def status_(name: str, status: int = Followed.STATUS_DELETED) -> ControllerResult:
