@@ -55,7 +55,7 @@ class BaseWebsite:
             print("can't fetch anything from website")
             return []
 
-        Bangumi.delete_all()
+        Bangumi.mark_all_end()
         for bangumi in bangumi_result:
             self.save_bangumi(bangumi)
 
