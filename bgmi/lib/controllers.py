@@ -364,19 +364,23 @@ def download_episodes(all_episode_data: List[Episode], following: Union[Followed
         key: list(value) for key, value in itertools.groupby(all_episode_data, lambda x: x.episode)
     }
 
+    updated = False
+
     for ep, episodes in sorted(groups.items()):
         if ep in following.episodes:
             # already downloaded, skipping
             continue
 
         print_success(f"{following.bangumi_name} updated, episode: {ep:d}")
-        following.status = Followed.STATUS_UPDATED
 
         if episodes:
             for e in episodes:
                 if download_episode(e):
+                    updated = True
                     following.episodes.add(ep)  # type: ignore
                     break
 
-    following.updated_time = int(time.time())
-    following.save()
+    if updated:
+        following.status = Followed.STATUS_UPDATED
+        following.updated_time = int(time.time())
+        following.save()
