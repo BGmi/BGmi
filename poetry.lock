@@ -414,36 +414,6 @@ pycodestyle = ">=2.10.0,<2.11.0"
 pyflakes = ">=3.0.0,<3.1.0"
 
 [[package]]
-name = "flake8-2020"
-version = "1.7.0"
-description = "flake8 plugin which checks for misuse of `sys.version` or `sys.version_info`"
-category = "dev"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "flake8_2020-1.7.0-py2.py3-none-any.whl", hash = "sha256:e3e89e2fd4077c66ac8b8739e2af7c791258ba4023037e401f825284435c7dbb"},
-    {file = "flake8_2020-1.7.0.tar.gz", hash = "sha256:9342902563a7d0b0233128c395be1372b8a3e8072805931639760bfe8a3935f9"},
-]
-
-[package.dependencies]
-flake8 = ">=5"
-
-[[package]]
-name = "flake8-comprehensions"
-version = "3.11.1"
-description = "A flake8 plugin to help you write better list/set/dict comprehensions."
-category = "dev"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "flake8_comprehensions-3.11.1-py3-none-any.whl", hash = "sha256:d1e27f4099900c61fb156cbb7461e0e49702385fd388326e1a892d04b069c48e"},
-    {file = "flake8_comprehensions-3.11.1.tar.gz", hash = "sha256:31d6386c125e325d7c84290d71f5354295dbbf5a8d47259708fa349aa0969523"},
-]
-
-[package.dependencies]
-flake8 = ">=3.0,<3.2.0 || >3.2.0"
-
-[[package]]
 name = "flake8-mutable"
 version = "1.2.0"
 description = "mutable defaults flake8 extension"
@@ -477,18 +447,6 @@ flake8 = "*"
 test = ["pytest"]
 
 [[package]]
-name = "flake8-plugin-utils"
-version = "1.3.2"
-description = "The package provides base classes and utils for flake8 plugin writing"
-category = "dev"
-optional = false
-python-versions = ">=3.6,<4.0"
-files = [
-    {file = "flake8-plugin-utils-1.3.2.tar.gz", hash = "sha256:20fa2a8ca2decac50116edb42e6af0a1253ef639ad79941249b840531889c65a"},
-    {file = "flake8_plugin_utils-1.3.2-py3-none-any.whl", hash = "sha256:1fe43e3e9acf3a7c0f6b88f5338cad37044d2f156c43cb6b080b5f9da8a76f06"},
-]
-
-[[package]]
 name = "flake8-pyproject"
 version = "1.2.3"
 description = "Flake8 plug-in loading the configuration from pyproject.toml"
@@ -505,21 +463,6 @@ TOMLi = {version = "*", markers = "python_version < \"3.11\""}
 
 [package.extras]
 dev = ["pyTest", "pyTest-cov"]
-
-[[package]]
-name = "flake8-pytest-style"
-version = "1.7.2"
-description = "A flake8 plugin checking common style issues or inconsistencies with pytest-based tests."
-category = "dev"
-optional = false
-python-versions = ">=3.7.2,<4.0.0"
-files = [
-    {file = "flake8_pytest_style-1.7.2-py3-none-any.whl", hash = "sha256:f5d2aa3219163a052dd92226589d45fab8ea027a3269922f0c4029f548ea5cd1"},
-    {file = "flake8_pytest_style-1.7.2.tar.gz", hash = "sha256:b924197c99b951315949920b0e5547f34900b1844348432e67a44ab191582109"},
-]
-
-[package.dependencies]
-flake8-plugin-utils = ">=1.3.2,<2.0.0"
 
 [[package]]
 name = "greenlet"
@@ -1820,4 +1763,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.0"
-content-hash = "f49cfa2b700ba0b32a9743534317880de8c10ac294603e4961f9745efe050fd7"
+content-hash = "f624c1d6df7345ccf3503b66430b47f20876487ed77f844ca6c6dde4ec9f6bf0"
