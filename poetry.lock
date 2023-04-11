@@ -429,25 +429,6 @@ files = [
 flake8 = ">=5"
 
 [[package]]
-name = "flake8-bugbear"
-version = "23.3.23"
-description = "A plugin for flake8 finding likely bugs and design problems in your program. Contains warnings that don't belong in pyflakes and pycodestyle."
-category = "dev"
-optional = false
-python-versions = ">=3.8.1"
-files = [
-    {file = "flake8-bugbear-23.3.23.tar.gz", hash = "sha256:ea565bdb87b96b56dc499edd6cc3ba7f695373d902a5f56c989b74fad7c7719d"},
-    {file = "flake8_bugbear-23.3.23-py3-none-any.whl", hash = "sha256:8a218d13abd6904800970381057ce8e72cde8eea743240c4ef3ede4dd0bc9cfb"},
-]
-
-[package.dependencies]
-attrs = ">=19.2.0"
-flake8 = ">=6.0.0"
-
-[package.extras]
-dev = ["coverage", "hypothesis", "hypothesmith (>=0.2)", "pre-commit", "pytest", "tox"]
-
-[[package]]
 name = "flake8-comprehensions"
 version = "3.11.1"
 description = "A flake8 plugin to help you write better list/set/dict comprehensions."
@@ -1858,4 +1839,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.0"
-content-hash = "6544ef555a7d0ba4646ed1548f9702b9a31e77ec1955f8608072db803a7b261e"
+content-hash = "c225e654bf17cef9e48ad22fc30263ffd716ad6d24a108a77a858aac5e95c074"
