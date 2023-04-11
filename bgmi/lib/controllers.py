@@ -415,10 +415,9 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             print_warning(f"error {e} to fetch {bangumi_obj.name}, skip")
             continue
 
-        # TODO(v5): add default to column and remove this
         saved_episode = subscribe.get("episode") or 0
         if episode > saved_episode:
-            episode_range = range(saved_episode, episode + 1)
+            episode_range = range(saved_episode + 1, episode + 1)
             print_success(f"{subscribe['bangumi_name']} updated, episode: {episode:d}")
             followed_obj.episode = episode
             followed_obj.status = STATUS_UPDATED
