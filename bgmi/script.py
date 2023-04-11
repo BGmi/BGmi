@@ -1,11 +1,9 @@
 import datetime
 import glob
 import os
-import time
 import traceback
 import types
 from importlib.machinery import SourceFileLoader
-from operator import itemgetter
 from typing import Any, Dict, Iterator, List, Optional, Tuple
 
 import sqlalchemy as sa
@@ -13,7 +11,7 @@ import sqlalchemy as sa
 from bgmi.config import cfg
 from bgmi.lib.fetch import DATA_SOURCE_MAP
 from bgmi.lib.table import Followed, Scripts, Session
-from bgmi.utils import print_info, print_success, print_warning
+from bgmi.utils import print_error, print_info, print_warning
 from bgmi.website.model import Episode, WebsiteBangumi
 
 
@@ -75,22 +73,23 @@ class ScriptRunner:
     def get_models_dict(self) -> List[dict]:
         return [dict(script.Model()) for script in self.scripts if script.bangumi_name is not None]
 
-    @staticmethod
-    def make_dict(script: "ScriptBase") -> List[Dict[str, Any]]:
-        return [
-            {
-                "name": script.bangumi_name,
-                "title": f"[{script.bangumi_name}][{k}]",
-                "episode": k,
-                "download": v,
-            }
-            for k, v in script.get_download_url().items()
-        ]
-
-    def run(self, return_: bool = True) -> List[Episode]:
+    def run(self) -> Iterator[Tuple[Scripts, List[Episode]]]:
         for script in self.scripts:
             print_info(f"fetching {script.bangumi_name} ...")
-            download_item = self.make_dict(script)
+
+            try:
+                download_item: List[Episode] = [
+                    Episode(
+                        name=script.bangumi_name,
+                        title=f"[{script.bangumi_name}][{k}]",
+                        episode=k,
+                        download=v,
+                    )
+                    for k, v in script.get_download_url().items()
+                ]
+            except Exception as e:
+                print_error(f"Failed to fetch script items\nerror: {e}", stop=False)
+                continue
 
             script_obj = script.Model().obj
 
@@ -98,34 +97,7 @@ class ScriptRunner:
                 print_info(f"Got nothing, quit script {script}.")
                 continue
 
-            max_episode = max(download_item, key=itemgetter("episode"))
-            episode = max_episode["episode"]
-            episode_range = range(script_obj.episode + 1, episode + 1)
-
-            if episode <= script_obj.episode:
-                continue
-
-            download_queue = []
-            for i in episode_range:
-                for e in download_item:
-                    if i == e["episode"]:
-                        download_queue.append(e)
-
-            print_success(f"{script.bangumi_name} updated, episode: {episode}")
-            script_obj.episode = episode
-            script_obj.status = Followed.STATUS_UPDATED
-            script_obj.updated_time = int(time.time())
-            script_obj.cover = script.Model.cover
-            script_obj.update_day = script.Model.update_time
-            if script.Model.due_date and script.Model.due_date <= datetime.datetime.now():
-                script_obj.status = Followed.STATUS_DELETED
-            script_obj.save()
-
-            if return_:
-                self.download_queue.extend(Episode(**x) for x in download_queue)
-                continue
-
-        return self.download_queue
+            yield script_obj, download_item
 
     def get_download_cover(self) -> List[str]:
         return [script["cover"] for script in self.get_models_dict()]
@@ -155,7 +127,6 @@ class ScriptBase:
                     if not s:
                         s = Scripts(
                             bangumi_name=self.bangumi_name,
-                            episode=0,
                             status=Followed.STATUS_FOLLOWED,
                             updated_time=0,
                         )
@@ -172,7 +143,7 @@ class ScriptBase:
             yield "status", self.obj.status
             yield "updated_time", self.obj.updated_time
             yield "subtitle_group", []
-            yield "episode", self.obj.episode
+            yield "episode", max(self.obj.episodes) if self.obj.episodes else 0
 
     @property
     def _data(self) -> dict:

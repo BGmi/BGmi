@@ -1,16 +1,16 @@
 import itertools
 import os.path
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import filetype
 import requests.exceptions
 import sqlalchemy as sa
 
 from bgmi.config import cfg
-from bgmi.lib.download import download_downloads, download_episode
+from bgmi.lib.download import download_episode
 from bgmi.lib.fetch import website
-from bgmi.lib.table import Bangumi, Download, Followed, NotFoundError, Session, Subtitle
+from bgmi.lib.table import Bangumi, Download, Followed, NotFoundError, Scripts, Session, Subtitle
 from bgmi.script import ScriptRunner
 from bgmi.utils import (
     convert_cover_url_to_path,
@@ -53,7 +53,7 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
             sa.select(Followed).where(Followed.bangumi_name == bangumi_obj.name).limit(1)
         )
         if followed_obj is None:
-            followed_obj = Followed(status=Followed.STATUS_FOLLOWED, bangumi_name=bangumi_obj.name, episode=0)
+            followed_obj = Followed(status=Followed.STATUS_FOLLOWED, bangumi_name=bangumi_obj.name)
             session.add(followed_obj)
         elif followed_obj.status == Followed.STATUS_FOLLOWED:
             result = {
@@ -66,9 +66,9 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
 
     if episode is None:
         episodes = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)
-        followed_obj.episode = max(e.episode for e in episodes) if episodes else 0
+        followed_obj.episodes = sorted([e.episode for e in episodes]) if episodes else 0  # type: ignore
     else:
-        followed_obj.episode = episode
+        followed_obj.episodes = list(range(0, episode + 1))
 
     followed_obj.save()
 
@@ -217,32 +217,6 @@ def cal(force_update: bool = False, cover: Optional[List[str]] = None) -> Dict[s
     return r
 
 
-def mark(name: str, episode: int) -> ControllerResult:
-    """
-
-    :param name: name of the bangumi you want to mark
-    :param episode: bangumi episode you want to mark
-    """
-    result = {}
-
-    try:
-        followed_obj = Followed.get(Followed.bangumi_name == name)
-    except Followed.NotFoundError:
-        runner = ScriptRunner()
-        followed_obj = runner.get_model(name)  # type: ignore
-        if not followed_obj:
-            result["status"] = "error"
-            result["message"] = f"Subscribe or Script <{name}> does not exist."
-            return result
-
-    followed_obj.episode = episode
-    followed_obj.save()
-
-    result["status"] = "success"
-    result["message"] = f"{name} has been mark as episode: {episode}"
-    return result
-
-
 def search(
     keyword: str,
     count: int = cfg.max_path,
@@ -302,20 +276,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
     logger.debug("updating bangumi info with args: download: {}", download)
 
     ignore = not bool(not_ignore)
-    print_info("marking bangumi status ...")
     now = int(time.time())
-
-    for follow, _ in Followed.get_all_followed():
-        if follow.updated_time and int(follow.updated_time + 60 * 60 * 24) < now:
-            follow.status = Followed.STATUS_FOLLOWED
-            follow.save()
-
-    for script in ScriptRunner().scripts:
-        obj = script.Model().obj
-        if obj.updated_time and int(obj.updated_time + 60 * 60 * 24) < now:
-            obj.status = Followed.STATUS_FOLLOWED
-            obj.save()
-
     print_info("updating subscriptions ...")
 
     if not names:
@@ -340,7 +301,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
                 if not following:
                     continue
 
-                if following.episode > fail.episode:
+                if fail.episode in following.episodes:
                     continue
 
                 need_re_download.append(fail)
@@ -358,21 +319,16 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
                 )
 
     runner = ScriptRunner()
-    script_download_queue = runner.run()
-    if script_download_queue and d:
-        download_downloads(
-            [
-                Download(
-                    bangumi_name=x.name,
-                    episode=x.episode,
-                    status=Download.STATUS_DOWNLOADING,
-                    download=x.download,
-                    title=x.title,
-                )
-                for x in script_download_queue
-            ]
-        )
-        print_info("downloading ...")
+
+    for script, all_episode_data in runner.run():
+        following = Followed.get(Followed.bangumi_name == script.bangumi_name)
+
+        if not download:
+            following.episodes = sorted({x.episode for x in all_episode_data} | set(following.episodes))
+            following.updated_time = now
+            following.save()
+        else:
+            download_episodes(all_episode_data, following)
 
     for subscribe in updated_bangumi_obj:
         print_info(f"fetching {subscribe.bangumi_name} ...")
@@ -382,7 +338,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             logger.error("Bangumi<{}> does not exists.", subscribe.bangumi_name)
             continue
         try:
-            followed_obj = Followed.get(Followed.bangumi_name == subscribe.bangumi_name)
+            following = Followed.get(Followed.bangumi_name == subscribe.bangumi_name)
         except NotFoundError:
             logger.error("Followed<{}> is not followed.", subscribe.bangumi_name)
             continue
@@ -395,34 +351,37 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             print_warning(f"error {e} to fetch {bangumi_obj.name}, skip")
             continue
 
-        if all_episode_data:
-            episode = max(e.episode for e in all_episode_data)
+        if not all_episode_data:
+            continue
+
+        if not download:
+            following.episodes = sorted({x.episode for x in all_episode_data} | set(following.episodes))
+            following.save()
         else:
-            episode = 0
+            download_episodes(all_episode_data, following)
 
-        if episode > subscribe.episode:
-            episode_range = range(subscribe.episode + 1, episode + 1)
-            print_success(f"{subscribe.bangumi_name} updated, episode: {episode:d}")
-            followed_obj.status = Followed.STATUS_UPDATED
-            followed_obj.updated_time = int(time.time())
 
-            groups: Dict[int, List[Episode]] = {
-                key: list(value) for key, value in itertools.groupby(all_episode_data, lambda x: x.episode)
-            }
+def download_episodes(all_episode_data: List[Episode], following: Union[Followed, Scripts]) -> None:
+    groups: Dict[int, List[Episode]] = {
+        key: list(value) for key, value in itertools.groupby(all_episode_data, lambda x: x.episode)
+    }
 
-            if not download:
-                followed_obj.episode = max(groups)
-                followed_obj.save()
-                continue
+    for ep, episodes in sorted(groups.items()):
+        if ep in following.episodes:
+            # already downloaded, skipping
+            continue
 
-            for i in episode_range:
-                episodes = groups.get(i)
-                if episodes:
-                    for ep in episodes:
-                        if download_episode(ep):
-                            followed_obj.episode = i
-                            followed_obj.save()
-                            break
+        print_success(f"{following.bangumi_name} updated, episode: {ep:d}")
+        following.status = Followed.STATUS_UPDATED
+
+        if episodes:
+            for e in episodes:
+                if download_episode(e):
+                    following.episodes.append(ep)  # type: ignore
+                    break
+
+    following.updated_time = int(time.time())
+    following.save()
 
 
 def status_(name: str, status: int = Followed.STATUS_DELETED) -> ControllerResult:

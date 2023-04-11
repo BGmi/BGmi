@@ -5,7 +5,7 @@ import platform
 import sys
 from collections import defaultdict
 from operator import itemgetter
-from typing import Dict, List, Mapping, Optional, Tuple
+from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
 import click
 import pydantic
@@ -214,29 +214,6 @@ def search(
                 for x in data
             ]
         )
-
-
-@cli.command("mark")
-@click.argument("name", required=True)
-@click.option("--episode", type=int, help="bangumi episode you want to set")
-def mark(name: str, episode: Optional[int] = None) -> None:
-    """
-
-    name: name of the bangumi you want to set
-    """
-
-    try:
-        followed_obj = Followed.get(Followed.bangumi_name == name)
-    except Followed.NotFoundError:
-        runner = ScriptRunner()
-        followed_obj = runner.get_model(name)  # type: ignore
-        if not followed_obj:
-            print_error(f"Subscribe or Script <{name}> does not exist.", stop=True)
-
-    if episode is not None:
-        followed_obj.episode = episode
-        followed_obj.save()
-        print_success(f"{name} has been mark as episode: {episode}")
 
 
 @cli.command()
@@ -617,7 +594,7 @@ def history() -> None:
         "December",
     )
     with Session.begin() as session:
-        data = session.scalars(sa.select(Followed).order_by(Followed.updated_time.asc())).all()
+        data: Sequence[Followed] = session.scalars(sa.select(Followed).order_by(Followed.updated_time.asc())).all()
     bangumi_data = Bangumi.get_updating_bangumi()
     year = None
     month = None
@@ -636,10 +613,7 @@ def history() -> None:
             slogan = "FINISHED"
             color = GREEN
 
-        if not i.updated_time:
-            date = datetime.datetime.fromtimestamp(0)
-        else:
-            date = datetime.datetime.fromtimestamp(int(i.updated_time))
+        date = datetime.datetime.fromtimestamp(int(i.updated_time))
 
         if date.year != 1970:
             if date.year != year:
