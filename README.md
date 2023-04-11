@@ -14,6 +14,10 @@ BGmi 是一个用来追番的命令行程序.
 
 ### V5
 
+v5 不再像之前版本一样仅追踪目前订阅的最大集数，而是会纪录所有已下载的集数。
+
+其他更新：
+
 - 为 `bgmi update` 命令默认启用 `--download` 参数
 - 重构 bgmi_http
 - 移除 '/resource/feed.xml'
