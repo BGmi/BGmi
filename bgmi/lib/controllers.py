@@ -66,7 +66,7 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
 
     if episode is None:
         episodes = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)
-        followed_obj.episodes = sorted([e.episode for e in episodes]) if episodes else 0  # type: ignore
+        followed_obj.episodes = sorted([e.episode for e in episodes])  # type: ignore
     else:
         followed_obj.episodes = set(range(0, episode + 1))
 
