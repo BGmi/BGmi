@@ -1,5 +1,5 @@
 import qbittorrentapi
-from qbittorrentapi import TorrentStates
+from qbittorrentapi import TorrentState
 
 from bgmi.config import cfg
 from bgmi.plugin.download import BaseDownloadService, DownloadStatus
@@ -41,7 +41,7 @@ class QBittorrentWebAPI(BaseDownloadService):
         torrent = self.client.torrents.info(torrent_hashes=id)
         if not torrent:
             return DownloadStatus.not_found
-        state_enum: TorrentStates = torrent[0].state_enum
+        state_enum: TorrentState = torrent[0].state_enum
         if state_enum.is_complete or state_enum.is_uploading:
             return DownloadStatus.done
         if state_enum.is_errored:
