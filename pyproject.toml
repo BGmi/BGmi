@@ -67,7 +67,7 @@ uvicorn = { extras = ["standard"], version = "0.21.1" }
 fastapi = "0.95.1"
 # RPC library
 transmission-rpc = "==4.2.0"
-qbittorrent-api = "==2023.4.46"
+qbittorrent-api = "==2023.4.47"
 
 [tool.poetry.group.dev.dependencies]
 # tests
