@@ -14,6 +14,7 @@ BGmi 是一个用来追番的命令行程序.
 
 ### v4
 
+- 添加 `mikan_url` 配置，用于配置蜜柑计划镜像站。
 - 添加 `proxy` 设置
 - 新 WEB UI
 - 将配置项 `transmission.rpc_url` 重命名为 `transmission.rpc_host`.
