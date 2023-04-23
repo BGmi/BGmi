@@ -117,6 +117,9 @@ class Config(BaseSetting):
     share_dmhy_url: HttpUrl = Field(
         os.getenv("BGMI_SHARE_DMHY_URL") or "https://share.dmhy.org", description="Setting share.dmhy.org url"
     )  # type: ignore
+    mikan_url: HttpUrl = Field(
+        os.getenv("BGMI_MIKAN_URL") or "https://mikanani.me", description="Setting mikanani.me url"
+    )  # type: ignore
 
     mikan_username: str = os.getenv("BGMI_MIKAN_USERNAME") or ""
     mikan_password: str = os.getenv("BGMI_MIKAN_PASSWORD") or ""

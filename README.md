@@ -131,6 +131,7 @@ save_path = "tmp/bangumi" # 下载番剧保存地址
 max_path = 3 # 抓取数据时每个番剧最大抓取页数
 bangumi_moe_url = "https://bangumi.moe"
 share_dmhy_url = "https://share.dmhy.org"
+mikan_url = "https://mikanani.me"
 mikan_username = "" # 蜜柑计划的用户名
 mikan_password = "" # 蜜柑计划的密码
 enable_global_filters = true

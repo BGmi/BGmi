@@ -1,4 +1,5 @@
 import datetime
+import os
 import time
 from collections import defaultdict
 from typing import List, Optional
@@ -14,13 +15,13 @@ from bgmi.utils import parse_episode, print_info
 from bgmi.website.base import BaseWebsite
 from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
 
-server_root = "https://mikanani.me/"
+server_root = f"{cfg.mikan_url.rstrip('/')}/"
 login_url = f"{server_root}Account/Login"
 
 _COVER_URL = server_root[:-1]
 
 # Example: /Home/ExpandEpisodeTable?bangumiId=2242&subtitleGroupId=34&take=65
-bangumi_episode_expand_api = "https://mikanani.me/Home/ExpandEpisodeTable"
+bangumi_episode_expand_api = f"{server_root}Home/ExpandEpisodeTable"
 
 _CN_WEEK = {
     "星期日": "Sun",
@@ -138,6 +139,9 @@ def mikan_login():
     soup = BeautifulSoup(r.text, "html.parser")
     token = soup.find("input", attrs={"name": "__RequestVerificationToken"})["value"]
 
+    if os.environ.get("DEBUG", False):  # pragma: no cover
+        print(login_url)
+
     r = requests.post(
         login_url,
         data={
@@ -154,6 +158,9 @@ def mikan_login():
 
 
 def get_text(url, params=None):
+    if os.environ.get("DEBUG", False):  # pragma: no cover
+        print(url, params)
+
     if not cfg.mikan_username or not cfg.mikan_password:
         return requests.get(url, params=params).text
 
@@ -299,7 +306,7 @@ class Mikanani(BaseWebsite):
             title_el = item.find("title")
             title = title_el.text if title_el is not None else None
 
-            xmlns = "{https://mikanani.me/0.1/}"
+            xmlns = "{" + server_root + "0.1/}"
             torrent = item.find(f"{xmlns}torrent")
             pub_date_el = torrent.find(f"{xmlns}pubDate") if torrent is not None else None
             pub_date = pub_date_el.text if pub_date_el is not None else None
