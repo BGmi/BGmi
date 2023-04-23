@@ -1075,14 +1075,14 @@ files = [
 
 [[package]]
 name = "qbittorrent-api"
-version = "2023.4.46"
+version = "2023.4.47"
 description = "Python client for qBittorrent v4.1+ Web API."
 category = "main"
 optional = false
 python-versions = "*"
 files = [
-    {file = "qbittorrent-api-2023.4.46.tar.gz", hash = "sha256:992093dad0c9d4d577b37d86583308cb23e7310b41b177828a0ff6403ab69e2a"},
-    {file = "qbittorrent_api-2023.4.46-py2.py3-none-any.whl", hash = "sha256:17b968092366ee866fc26b9f0ca28b1db2468f425bb3544b9317a199b852c96a"},
+    {file = "qbittorrent-api-2023.4.47.tar.gz", hash = "sha256:7199daf5cee69aa8bc98829d0c4548ec21f682747a7368edc59b94b2f8f7dec0"},
+    {file = "qbittorrent_api-2023.4.47-py2.py3-none-any.whl", hash = "sha256:71602d783ffa5ab64f6a70fccb5e259df6b289140c7abf1c6ec4458d0f41000e"},
 ]
 
 [package.dependencies]
@@ -1092,7 +1092,7 @@ six = "*"
 urllib3 = ">=1.24.2"
 
 [package.extras]
-dev = ["black (==23.3.0)", "build (==0.10.0)", "coverage[toml]", "coverage[toml] (==7.2.3)", "furo (==2023.3.27)", "mock", "mypy (==1.2.0)", "pre-commit", "pre-commit (==3.0.2)", "pytest", "pytest (==7.3.1)", "sphinx (==6.1.3)", "sphinx-autodoc-typehints (==1.22)", "sphinx-copybutton (==0.5.1)", "sphinxcontrib-spelling (==8.0.0)", "tox (==4.4.11)", "twine (==4.0.2)", "types-requests (==2.28.11.17)", "types-six (==1.16.21.8)"]
+dev = ["black (==23.3.0)", "build (==0.10.0)", "coverage[toml]", "coverage[toml] (==7.2.3)", "furo (==2023.3.27)", "mock", "mypy (==1.2.0)", "pre-commit", "pre-commit (==3.0.2)", "pytest", "pytest (==7.3.1)", "sphinx (==6.1.3)", "sphinx-copybutton (==0.5.1)", "sphinxcontrib-spelling (==8.0.0)", "tox (==4.4.11)", "twine (==4.0.2)", "types-requests (==2.28.11.17)", "types-six (==1.16.21.8)"]
 
 [[package]]
 name = "requests"
@@ -1729,4 +1729,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.0"
-content-hash = "21d719a163eb7416b3c5ec175ae4d2430d5ded35bad90a822719363834a99b95"
+content-hash = "ce59fb06e80675c4db862ea8875ef74a3028df78e4cc4a10e6084d143250315c"
