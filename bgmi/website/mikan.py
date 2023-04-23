@@ -1,4 +1,5 @@
 import datetime
+import os
 import time
 from collections import defaultdict
 from typing import List, Optional
@@ -138,6 +139,9 @@ def mikan_login():
     soup = BeautifulSoup(r.text, "html.parser")
     token = soup.find("input", attrs={"name": "__RequestVerificationToken"})["value"]
 
+    if os.environ.get("DEBUG", False):  # pragma: no cover
+        print(login_url)
+
     r = requests.post(
         login_url,
         data={
@@ -154,6 +158,9 @@ def mikan_login():
 
 
 def get_text(url, params=None):
+    if os.environ.get("DEBUG", False):  # pragma: no cover
+        print(url, params)
+
     if not cfg.mikan_username or not cfg.mikan_password:
         return requests.get(url, params=params).text
 
