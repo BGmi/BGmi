@@ -50,7 +50,7 @@ beautifulsoup4 = '==4.12.2'
 requests = '==2.28.2'
 tornado = '==6.2'
 icalendar = '==5.0.5'
-peewee = '==3.16.0'
+peewee = '==3.16.2'
 wcwidth = "^0.2.6"
 pydantic = "==1.10.7"
 stevedore = "==5.0.0"
