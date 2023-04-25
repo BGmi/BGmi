@@ -2,14 +2,14 @@
 
 [[package]]
 name = "anime-episode-parser"
-version = "0.0.8"
+version = "0.0.9"
 description = "A library to parse episode info from anime title"
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "anime_episode_parser-0.0.8-py3-none-any.whl", hash = "sha256:98dc56e77c865c3ca01b0ccdb94bcf5a6f4cfbfd015cd6117fc6d3db102a11c8"},
-    {file = "anime_episode_parser-0.0.8.tar.gz", hash = "sha256:e5381472c9a941a9db65de62f8576410c65cbd445fa74eca85ae1259fdc4b5fa"},
+    {file = "anime_episode_parser-0.0.9-py3-none-any.whl", hash = "sha256:5b6fa60d2c018f2ca8130300f864940790558e1e634d5ed7632ae58ac5529ce5"},
+    {file = "anime_episode_parser-0.0.9.tar.gz", hash = "sha256:b3ac91d7c3dbc890661dcbb9ff866c06302865e485215544b3a5644a4c15ac45"},
 ]
 
 [[package]]
@@ -1504,4 +1504,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.0"
-content-hash = "f66fb50d287c49f646a391030759eb4ab1692599c7e90223df873d1d288ea71e"
+content-hash = "cbb8b300e7397bfd9eecb31bbc7342325ea61cf07584501e78a78a9b6c24739e"
