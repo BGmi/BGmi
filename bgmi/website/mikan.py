@@ -119,7 +119,7 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
             time_string = time_string_col.string or ""
             result.append(
                 Episode(
-                    download=server_root[:-1] + tr.find_all("td")[-1].find("a").attrs.get("href", ""),
+                    download=tr.find("a", class_="magnet-link").attrs.get("data-clipboard-text"),
                     subtitle_group=str(subtitle_id),
                     title=title,
                     episode=parse_episode(title),
@@ -365,7 +365,7 @@ class Mikanani(BaseWebsite):
             u = yarl.URL(tr.find("a", class_="magnet-link").attrs.get("data-clipboard-text", ""))
             result.append(
                 Episode(
-                    download=tr.find("a", class_="magnet-link").attrs.get("data-clipboard-text", ""),
+                    download=tr.find("a", class_="magnet-link").attrs["data-clipboard-text"],
                     name=keyword,
                     title=title,
                     episode=self.parse_episode(title),
