@@ -68,7 +68,7 @@ qbittorrent-api = "==2023.4.47"
 
 [tool.poetry.dev-dependencies]
 # tests
-coverage = { version = "==7.2.3", extras = ['toml'] }
+coverage = { version = "==7.2.5", extras = ['toml'] }
 pytest = "==7.3.1"
 pytest-github-actions-annotate-failures = "==0.1.8"
 requests-cache = "==1.0.1"
