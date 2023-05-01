@@ -83,7 +83,7 @@ flake8 = { version = "==6.0.0", python = "^3.9" }
 flake8-pyproject = "1.2.3"
 # stubs
 types-requests = "==2.29.0.0"
-ruff = "0.0.262"
+ruff = "0.0.263"
 
 [tool.coverage.report]
 exclude_lines = [
