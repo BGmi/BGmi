@@ -102,13 +102,11 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
             time_string = tr.find_all("td")[2].string
             result.append(
                 Episode(
-                    **{
-                        "download": server_root[:-1] + tr.find_all("td")[-1].find("a").attrs.get("href", ""),
-                        "subtitle_group": str(subtitle_id),
-                        "title": title,
-                        "episode": parse_episode(title),
-                        "time": int(time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M"))),
-                    }
+                    download=tr.find("a", class_="magnet-link").attrs["data-clipboard-text"],
+                    subtitle_group=str(subtitle_id),
+                    title=title,
+                    episode=parse_episode(title),
+                    time=int(time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M"))),
                 )
             )
 
@@ -209,7 +207,7 @@ class Mikanani(BaseWebsite):
                 time_string = tr.find_all("td")[2].string
                 subtitle_groups[str(subtitle_id)]["episode"].append(
                     {
-                        "download": tr.find("a", class_="magnet-link").attrs.get("data-clipboard-text", ""),
+                        "download": tr.find("a", class_="magnet-link").attrs["data-clipboard-text"],
                         "subtitle_group": str(subtitle_id),
                         "title": title,
                         "episode": self.parse_episode(title),
