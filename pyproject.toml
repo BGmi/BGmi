@@ -66,7 +66,7 @@ packaging = "23.1"
 uvicorn = { extras = ["standard"], version = "0.22.0" }
 fastapi = "0.95.1"
 # RPC library
-transmission-rpc = "==4.2.0"
+transmission-rpc = "==4.2.1"
 qbittorrent-api = "==2023.4.47"
 
 [tool.poetry.group.dev.dependencies]
