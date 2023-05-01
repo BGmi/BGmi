@@ -83,7 +83,6 @@ flake8-pep3101 = "==2.0.0"
 flake8-2020 = "==1.7.0"
 flake8-pytest-style = "==1.7.2"
 flake8-pyproject = "1.2.3"
-pylint = "==2.17.2"
 # stubs
 types-requests = "==2.29.0.0"
 [tool.coverage.report]
