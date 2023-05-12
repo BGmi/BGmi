@@ -299,8 +299,8 @@ class Mikanani(BaseWebsite):
 
         result = []
         for item in rss_root[0].findall("item"):
-            link_el = item.find("link")
-            link = link_el.text if link_el is not None else None
+            enclosure_el = item.find("enclosure")
+            link = enclosure_el.attrib.get('url') if enclosure_el is not None else None
             title_el = item.find("title")
             title = title_el.text if title_el is not None else None
 
