@@ -56,7 +56,7 @@ def create_dir() -> None:
                 path.mkdir(parents=True, exist_ok=True)
                 print_success(f"{path} created successfully")
     except OSError as e:
-        print_error(f"Error: {str(e)}")
+        print_error(f"Error: {e!s}")
 
 
 def init_db() -> None:

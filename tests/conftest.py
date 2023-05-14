@@ -100,7 +100,7 @@ bangumi_name_2 = "海贼王"
 
 
 @pytest.fixture()
-def ensure_data():
+def _ensure_data():
     with Session.begin() as tx:
         tx.query(Bangumi).delete()
         tx.query(Followed).delete()

@@ -32,7 +32,7 @@ def test_cal_config():
     main_for_test(["config"])
 
 
-@pytest.mark.usefixtures("ensure_data")
+@pytest.mark.usefixtures("_ensure_data")
 def test_add():
     main_for_test(["add", bangumi_name_2, "--episode", "1"])
     assert Followed.get(Followed.bangumi_name == bangumi_name_2).status == Followed.STATUS_FOLLOWED
@@ -40,7 +40,7 @@ def test_add():
 
 
 @pytest.mark.skip("wait re-design")
-@pytest.mark.usefixtures("ensure_data")
+@pytest.mark.usefixtures("_ensure_data")
 def test_mark():
     main_for_test(f"mark {bangumi_name_1} --episode 10".split())
     assert Followed.get(Followed.bangumi_name == bangumi_name_1).episode == 10

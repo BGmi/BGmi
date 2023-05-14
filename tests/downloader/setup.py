@@ -1,3 +1,4 @@
+# ruff: noqa
 from bgmi.downloader import DelugeRPC
 
 client = DelugeRPC()
