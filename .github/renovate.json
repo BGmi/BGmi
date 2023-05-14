@@ -21,7 +21,6 @@
   "rangeStrategy": "pin",
   "separateMajorMinor": true,
   "lockFileMaintenance": {
-    "automerge": false,
     "schedule": [
       "before 5am on monday"
     ]
@@ -31,7 +30,11 @@
     {
       "automerge": false,
       "matchUpdateTypes": [
-        "major"
+        "minor",
+        "patch",
+        "pin",
+        "pinDigest",
+        "digest"
       ]
     },
     {
