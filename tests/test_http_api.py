@@ -27,17 +27,20 @@ bangumi_1 = "名侦探柯南"
 bangumi_2 = "海贼王"
 
 
-def test_no_auth(ensure_data):
+@pytest.mark.usefixtures("_ensure_data")
+def test_no_auth():
     r = client.post("/api/admin/auth")
     assert r.status_code == 403, r.text
 
 
-def test_calendar(ensure_data):
+@pytest.mark.usefixtures("_ensure_data")
+def test_calendar():
     r = client.get("/api/calendar")
     assert r.status_code == 200, r.text
 
 
-def test_b_add(ensure_data):
+@pytest.mark.usefixtures("_ensure_data")
+def test_b_add():
     r = client.post(
         "/api/admin/add",
         headers=headers,
@@ -46,7 +49,8 @@ def test_b_add(ensure_data):
     assert r.status_code == 200, r.text
 
 
-def test_delete(ensure_data):
+@pytest.mark.usefixtures("_ensure_data")
+def test_delete():
     r = client.post(
         "/api/admin/delete",
         headers=headers,
@@ -56,7 +60,8 @@ def test_delete(ensure_data):
     assert Followed.get(Followed.bangumi_name == bangumi_1).status == Followed.STATUS_DELETED
 
 
-def test_delete_not_found(ensure_data):
+@pytest.mark.usefixtures("_ensure_data")
+def test_delete_not_found():
     r = client.post(
         "/api/admin/delete",
         headers=headers,
@@ -66,7 +71,8 @@ def test_delete_not_found(ensure_data):
 
 
 @pytest.mark.skip("need re-design")
-def test_e_mark(ensure_data):
+@pytest.mark.usefixtures("_ensure_data")
+def test_e_mark():
     episode = random.randint(0, 10)
     r = client.post(
         "/api/admin/mark",
@@ -78,7 +84,8 @@ def test_e_mark(ensure_data):
     assert Followed.get(Followed.bangumi_name == bangumi_1).episode == episode
 
 
-def test_filter(ensure_data):
+@pytest.mark.usefixtures("_ensure_data")
+def test_filter():
     r = client.get(f"/api/admin/filter/{quote(bangumi_1)}", headers=headers)
     assert r.status_code == 200, r.text
 
@@ -92,7 +99,8 @@ def test_filter(ensure_data):
     assert Followed.get(Followed.bangumi_name == bangumi_1).include == ["1", "2", "3"]
 
 
-def test_index(ensure_data):
+@pytest.mark.usefixtures("_ensure_data")
+def test_index():
     response = client.get("/api/index/index")
     assert response.status_code == 200, response.text
     r = response.json()
@@ -101,7 +109,8 @@ def test_index(ensure_data):
     assert COVER_URL + "/hello" == r["data"][0]["cover"], r
 
 
-def test_resource_feed(ensure_data):
+@pytest.mark.usefixtures("_ensure_data")
+def test_resource_feed():
     r = client.get("/resource/calendar.ics")
     assert r.status_code == 200
 
@@ -110,18 +119,21 @@ def parse_response(response: Response):
     return response.json()
 
 
-def test_get_player(ensure_data):
+@pytest.mark.usefixtures("_ensure_data")
+def test_get_player():
     bangumi_name = "test"
     save_dir = os.path.join(cfg.save_path)
     episode1_dir = os.path.join(save_dir, bangumi_name, "1", "episode1")
     if not os.path.exists(episode1_dir):
         os.makedirs(episode1_dir)
-    open(os.path.join(episode1_dir, "1.mp4"), "a").close()
+    with open(os.path.join(episode1_dir, "1.mp4"), "a"):
+        pass
 
     episode2_dir = os.path.join(save_dir, bangumi_name, "2")
     if not os.path.exists(episode2_dir):
         os.makedirs(episode2_dir)
-    open(os.path.join(episode2_dir, "2.mkv"), "a").close()
+    with open(os.path.join(episode2_dir, "2.mkv"), "a"):
+        pass
 
     bangumi_dict = {"player": get_player(bangumi_name)}
 

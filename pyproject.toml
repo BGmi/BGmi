@@ -83,7 +83,7 @@ flake8 = { version = "==6.0.0", python = "^3.9" }
 flake8-pyproject = "1.2.3"
 # stubs
 types-requests = "==2.28.11.17"
-ruff = "0.0.262"
+ruff = "0.0.267"
 
 [tool.coverage.report]
 exclude_lines = [
@@ -180,11 +180,13 @@ select = [
   "YTT",
 ]
 ignore = [
+  'E501',
   'BLE001',
   'S301',
   'S314',
   'S101',
   'N815',
+  'TCH001',
   'S104',
   'C901',
   'ISC003',

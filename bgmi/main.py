@@ -617,7 +617,7 @@ def history() -> None:
 
         if date.year != 1970:
             if date.year != year:
-                print(f"{GREEN}{str(date.year)}{COLOR_END}")
+                print(f"{GREEN}{date.year!s}{COLOR_END}")
                 year = date.year
 
             if date.year == year and date.month != month:
