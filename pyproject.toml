@@ -80,7 +80,8 @@ pre-commit = '==3.2.2'
 mypy = "1.3.0"
 # stubs
 types-requests = "==2.29.0.0"
-ruff = "0.0.263"
+ruff = "0.0.267"
+httpx = "^0.24.0"
 
 [tool.coverage.report]
 exclude_lines = [
@@ -168,11 +169,13 @@ select = [
   "YTT",
 ]
 ignore = [
+  'E501',
   'BLE001',
   'S301',
   'S314',
   'S101',
   'N815',
+  'TCH001',
   'S104',
   'C901',
   'ISC003',

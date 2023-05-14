@@ -11,7 +11,8 @@ bangumi_name_1 = "名侦探柯南"
 bangumi_name_2 = "海贼王"
 
 
-def test_add(ensure_data):
+@pytest.mark.usefixtures("_ensure_data")
+def test_add():
     r = ctl.add(bangumi_name_2, 0)
     assert r["status"] == "success", r["message"]
 
@@ -19,7 +20,8 @@ def test_add(ensure_data):
     assert r["status"] == "warning", r["message"]
 
 
-def test_filter(ensure_data):
+@pytest.mark.usefixtures("_ensure_data")
+def test_filter():
     ctl.filter_(
         bangumi_name_1,
         subtitle="sg1",
@@ -36,7 +38,8 @@ def test_filter(ensure_data):
     assert f.regex == "regex"
 
 
-def test_delete(ensure_data):
+@pytest.mark.usefixtures("_ensure_data")
+def test_delete():
     r = ctl.delete(bangumi_name_1)
     assert r["status"] == "warning", r["message"]
     r = ctl.delete(bangumi_name_1)
@@ -68,7 +71,7 @@ def test_cal():
 
     r = cal(force_update=True)
     assert isinstance(r, dict)
-    for day in r.keys():
+    for day in r:
         assert day.lower() in (x.lower() for x in BANGUMI_UPDATE_TIME)
         assert isinstance(r[day], list)
         for bangumi in r[day]:

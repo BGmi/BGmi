@@ -212,7 +212,7 @@ def check_update(mark: bool = True) -> None:
                 update()
                 raise SystemExit
         except Exception as e:
-            print_warning(f"Error occurs when checking update, {str(e)}")
+            print_warning(f"Error occurs when checking update, {e!s}")
 
     version_file = BGMI_PATH.joinpath("version")
     if not version_file.exists():
