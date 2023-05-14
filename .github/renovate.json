@@ -25,10 +25,9 @@
       "before 5am on monday"
     ]
   },
-  "automerge": true,
   "packageRules": [
     {
-      "automerge": false,
+      "automerge": true,
       "matchUpdateTypes": [
         "minor",
         "patch",
