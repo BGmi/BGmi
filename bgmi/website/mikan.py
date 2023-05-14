@@ -99,7 +99,7 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
             time_string = tr.find_all("td")[2].string
             result.append(
                 Episode(
-                    download=server_root[:-1] + tr.find_all("td")[-1].find("a").attrs.get("href", ""),
+                    download=tr.find("a", class_="magnet-link").attrs.get("data-clipboard-text"),
                     subtitle_group=str(subtitle_id),
                     title=title,
                     episode=parse_episode(title),
@@ -197,7 +197,7 @@ class Mikanani(BaseWebsite):
                 time_string = tr.find_all("td")[2].string
                 subtitle_groups[str(subtitle_id)]["episode"].append(
                     {
-                        "download": tr.find("a", class_="magnet-link").attrs.get("data-clipboard-text", ""),
+                        "download": tr.find("a", class_="magnet-link").attrs["data-clipboard-text"],
                         "subtitle_group": str(subtitle_id),
                         "title": title,
                         "episode": self.parse_episode(title),
@@ -289,8 +289,8 @@ class Mikanani(BaseWebsite):
 
         result = []
         for item in rss_root[0].findall("item"):
-            link_el = item.find("link")
-            link = link_el.text if link_el is not None else None
+            enclosure_el = item.find("enclosure")
+            link = enclosure_el.attrib.get("url") if enclosure_el is not None else None
             title_el = item.find("title")
             title = title_el.text if title_el is not None else None
 
@@ -326,7 +326,7 @@ class Mikanani(BaseWebsite):
             time_string = tr.find_all("td")[2].string
             result.append(
                 Episode(
-                    download=tr.find("a", class_="magnet-link").attrs.get("data-clipboard-text", ""),
+                    download=tr.find("a", class_="magnet-link").attrs["data-clipboard-text"],
                     name=keyword,
                     title=title,
                     episode=self.parse_episode(title),
