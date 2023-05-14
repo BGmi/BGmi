@@ -81,6 +81,7 @@ mypy = "1.3.0"
 # stubs
 types-requests = "==2.29.0.0"
 ruff = "0.0.267"
+httpx = "^0.24.0"
 
 [tool.coverage.report]
 exclude_lines = [
