@@ -1,5 +1,3 @@
-import asyncio
-
 import click
 import uvicorn
 from starlette.applications import Starlette
@@ -8,7 +6,7 @@ from starlette.responses import HTMLResponse
 from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 
-from bgmi.config import IS_WINDOWS, cfg
+from bgmi.config import cfg
 from bgmi.front.resources import CalendarHandler
 from .routes import app as api
 
@@ -22,9 +20,6 @@ from .routes import app as api
 )
 @click.option("--address", default="0.0.0.0", help="binding at given address", type=str)
 def main(address: str, port: int) -> None:
-    if IS_WINDOWS:
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-
     app = make_app()
 
     print(f"BGmi HTTP Server listening on {address}:{port:d}")
