@@ -53,7 +53,7 @@ icalendar = '==5.0.5'
 sqlalchemy = "2.0.13"
 wcwidth = "^0.2.6"
 pydantic = "==1.10.7"
-stevedore = "==5.0.0"
+stevedore = "==5.1.0"
 filetype = "1.2.0"
 strsimpy = "0.2.1"
 tomlkit = "0.11.8"
