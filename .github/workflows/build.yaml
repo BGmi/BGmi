@@ -1,4 +1,4 @@
-name: test-build-files
+name: build
 
 on:
   push:
@@ -8,15 +8,16 @@ on:
   pull_request: {}
 
 jobs:
-  dist-files:
+  build:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
-          python-version: "3"
-      - uses: astral-sh/setup-uv@v7
+          python-version: "3.10"
+
+      - uses: trim21/setup-poetry@dist/v1
 
       - run: uv build
 
