@@ -25,7 +25,13 @@ jobs:
         run: ruff check --format github ./bgmi
 
   mypy:
-    runs-on: ubuntu-latest
+    runs-on: '${{ matrix.os }}-latest'
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows
+          - ubuntu
     steps:
       - uses: actions/setup-python@v4
         with:
@@ -39,14 +45,7 @@ jobs:
           linters: mypy
 
       - name: mypy
-        run: |
-          if [[ "${{ matrix.os }}" == "windows" ]]
-          then
-              v="true"
-          else
-              v="false"
-          fi
-          mypy --show-column-numbers "--always-$v=IS_WINDOWS" bgmi
+        run: mypy --show-column-numbers "--always-${{ matrix.os == 'windows' }}=IS_WINDOWS" bgmi
 
   pre-commit:
     runs-on: ubuntu-latest
@@ -56,13 +55,6 @@ jobs:
         with:
           python-version: "3.10"
 
-      - uses: Trim21/setup-poetry@dist/v1
-      - uses: Trim21/install-poetry-project@dist/v1
-      - uses: actions/cache@v3
-        with:
-          path: ~/.cache/pre-commit
-          key: precommit-2-${{ env.PY }}-${{ hashFiles('.pre-commit-config.yaml') }}
-          restore-keys: precommit-2-${{ env.PY }}-
-
-      - name: pre-commit
-        run: pre-commit run --all-files --show-diff-on-failure && pre-commit gc
+      - uses: trim21/setup-poetry@dist/v1
+      - uses: trim21/install-poetry-project@dist/v1
+      - uses: trim21/actions/pre-commit@master

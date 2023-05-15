@@ -80,5 +80,4 @@ jobs:
           bgmi --help
           coverage run -a -m pytest tests/e2e --cache-requests
 
-      - run: coverage xml --omit templates/download_xml.generated.py
       - uses: codecov/codecov-action@v3
