@@ -16,7 +16,7 @@ defaults:
 
 jobs:
   test:
-    runs-on: ${{ format('{0}-latest', matrix.os) }}
+    runs-on: '${{ matrix.os }}-latest'
     strategy:
       fail-fast: false
       matrix:
@@ -27,16 +27,12 @@ jobs:
           - ubuntu
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 2
-
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
 
-      - uses: Trim21/setup-poetry@dist/v1
-
-      - uses: Trim21/install-poetry-project@dist/v1
+      - uses: trim21/setup-poetry@dist/v1
+      - uses: trim21/install-poetry-project@dist/v1
 
       - name: test
         run: |
@@ -46,11 +42,12 @@ jobs:
           bgmi --help
           coverage run -a -m pytest tests --cache-requests --ignore=tests/downloader --ignore=tests/e2e
 
-      - run: coverage xml --omit templates/download_xml.generated.py
       - uses: codecov/codecov-action@v3
+        with:
+          flags: unit
 
   e2e:
-    runs-on: ${{ format('{0}-latest', matrix.os) }}
+    runs-on: '${{ matrix.os }}-latest'
     strategy:
       fail-fast: false
       matrix:
@@ -61,16 +58,12 @@ jobs:
           - ubuntu
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 2
-
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
 
-      - uses: Trim21/setup-poetry@dist/v1
-
-      - uses: Trim21/install-poetry-project@dist/v1
+      - uses: trim21/setup-poetry@dist/v1
+      - uses: trim21/install-poetry-project@dist/v1
 
       - name: test
         run: |
@@ -81,3 +74,34 @@ jobs:
           coverage run -a -m pytest tests/e2e --cache-requests
 
       - uses: codecov/codecov-action@v3
+        with:
+          flags: e2e
+
+  downloader:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+
+      - uses: trim21/setup-poetry@dist/v1
+      - uses: trim21/install-poetry-project@dist/v1
+
+      - name: start daemon
+        run: docker-compose -f tests/downloader/docker-compose.yaml up -d
+
+      - run: sleep 10
+        name: wait container ready
+
+      - name: test
+        run: |
+          set -ex
+          coverage run -a -m bgmi install
+          coverage run -a tests/downloader/setup.py
+          coverage run -a -m pytest tests/downloader -s
+
+      - run: coverage xml
+      - uses: codecov/codecov-action@v3
+        with:
+          flags: downloader
