@@ -81,7 +81,6 @@ pre-commit = '==3.3.2'
 mypy = "1.3.0"
 # stubs
 types-requests = "==2.30.0.0"
-ruff = "0.0.269"
 
 [tool.coverage.report]
 exclude_lines = [
