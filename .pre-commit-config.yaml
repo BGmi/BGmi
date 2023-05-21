@@ -25,7 +25,14 @@ repos:
         args: [--remove]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.6
+    # Ruff version.
+    rev: v0.0.269
+    hooks:
+      - id: ruff
+        args: [ --fix, --exit-non-zero-on-fix ]
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.4.0
     hooks:
       - id: ruff
 
