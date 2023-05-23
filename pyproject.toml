@@ -47,7 +47,7 @@ bgmi_http = 'bgmi.front.server:main'
 [tool.poetry.dependencies]
 python = "^3.8.0"
 beautifulsoup4 = '==4.12.2'
-requests = '==2.29.0'
+requests = '==2.31.0'
 tornado = '==6.3.1'
 icalendar = '==5.0.5'
 peewee = '==3.16.2'
