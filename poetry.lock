@@ -772,6 +772,17 @@ pyyaml = ">=5.1"
 virtualenv = ">=20.10.0"
 
 [[package]]
+name = "pycomplete"
+version = "0.3.2"
+description = "A Python library to generate static completion scripts for your CLI app"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "pycomplete-0.3.2-py3-none-any.whl", hash = "sha256:ebeb40dfd453c21ee4b02af9efd0c0134d595aef9fa2e29b207dc9c0932c3f21"},
+    {file = "pycomplete-0.3.2.tar.gz", hash = "sha256:671bfba70b6f2eecedad6b6daabac2aa3f1573cd790cc56ccd48b8067f584391"},
+]
+
+[[package]]
 name = "pydantic"
 version = "1.10.7"
 description = "Data validation and settings management using python type hints"
@@ -1561,4 +1572,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.0"
-content-hash = "2a97c493b1f3f2bc63e73c5b6e39ac4c585702b5f750d8a8732cbb9f7b3abc7a"
+content-hash = "9d8eb486e7690683f6ce711a71bda5bb0e3116d019f834f0c504306086f63a31"
