@@ -638,3 +638,20 @@ def debug_info() -> None:
     print(f"python version: `{sys.version}`")
     print(f"os: `{platform.platform()}`")
     print(f"arch: `{platform.architecture()}`")
+
+
+@cli.group("seed")
+def seen() -> None:
+    ...
+
+
+@seen.command("forget")
+@click.argument("name", required=True)
+@click.argument("episode", required=True, type=int)
+def seen_forget(name: str, episode: int) -> None:
+    e = Followed.get(Followed.bangumi_name == name)
+    if episode not in e.episodes:
+        print_error("failed to remove episode")
+        return
+    e.episodes.remove(episode)
+    e.save()
