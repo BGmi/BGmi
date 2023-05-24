@@ -14,6 +14,7 @@ BGmi 是一个用来追番的命令行程序.
 
 ### v4
 
+- 命令自动补全，使用 `bgmi completion zsh/bash` 生成
 - 添加 `mikan_url` 配置，用于配置蜜柑计划镜像站。
 - 添加 `proxy` 设置
 - 新 WEB UI
@@ -110,6 +111,23 @@ bgmi --help
 ```
 
 **`--help`选项同样适用于所有的子命令，readme 仅介绍了一些基础用法。**
+
+## 命令自动补全
+
+### bash
+
+```shell
+bgmi completion bash > ~/.bash_completion.d/bgmi
+```
+
+### zsh
+
+#### oh-my-zsh
+```shell
+bgmi completion zsh > .oh-my-zsh/completions/_bgmi
+```
+
+我不使用其他的 zsh 插件管理器，具体的安装方法请查询你使用的插件管理器文档
 
 ## 配置 BGmi
 
