@@ -641,11 +641,6 @@ def debug_info() -> None:
     print(f"arch: `{platform.architecture()}`")
 
 
-@cli.group("seen")
-def seen() -> None:
-    ...
-
-
 @cli.command("completion")
 @click.argument("shell", required=True)
 def completion(shell: str) -> None:
@@ -653,7 +648,12 @@ def completion(shell: str) -> None:
     print(completer.render(shell))
 
 
-@seen.command("forget")
+@cli.group("seen", help="manage downloaded episodes")
+def seen() -> None:
+    ...
+
+
+@seen.command("forget", help="mark episodes of bangumi as non-downloaded")
 @click.argument("name", required=True)
 @click.argument("episode", required=True, type=int)
 def seen_forget(name: str, episode: int) -> None:
