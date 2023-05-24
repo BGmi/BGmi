@@ -13,6 +13,7 @@ import sqlalchemy as sa
 import tomlkit
 import wcwidth
 from loguru import logger
+from pycomplete import Completer
 
 from bgmi import __version__
 from bgmi.config import CONFIG_FILE_PATH, Config, Source, cfg, write_default_config
@@ -225,7 +226,7 @@ def search(
 @click.option(
     "--save-path",
     type=str,
-    help='add config.save_path_map for bangumi, example: "./{bangumi_name}/S1/" "./名侦探柯南/S1/"',
+    help="add config.save_path_map for bangumi, example: './{bangumi_name}/S1/' './名侦探柯南/S1/'",
 )
 def add(names: List[str], episode: Optional[int], save_path: Optional[str]) -> None:
     """
@@ -641,6 +642,13 @@ def debug_info() -> None:
 @cli.group("seen")
 def seen() -> None:
     ...
+
+
+@cli.command("completion")
+@click.argument("shell", required=True)
+def completion(shell: str) -> None:
+    completer = Completer(cli)
+    print(completer.render(shell))
 
 
 @seen.command("forget")
