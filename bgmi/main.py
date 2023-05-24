@@ -638,7 +638,7 @@ def debug_info() -> None:
     print(f"arch: `{platform.architecture()}`")
 
 
-@cli.group("seed")
+@cli.group("seen")
 def seen() -> None:
     ...
 
