@@ -67,7 +67,7 @@ uvicorn = { extras = ["standard"], version = "0.22.0" }
 fastapi = "0.95.2"
 # RPC library
 transmission-rpc = "==4.2.2"
-qbittorrent-api = "==2023.4.47"
+qbittorrent-api = "==2023.5.48"
 pycomplete = "0.3.2"
 
 [tool.poetry.group.dev.dependencies]
