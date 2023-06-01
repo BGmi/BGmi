@@ -1114,13 +1114,13 @@ files = [
 
 [[package]]
 name = "transmission-rpc"
-version = "4.2.1"
+version = "4.2.2"
 description = "Python module that implements the Transmission bittorent client JSON-RPC protocol"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "transmission_rpc-4.2.1-py3-none-any.whl", hash = "sha256:2b2a9d49d73669e1da6a417163e7df0d0dedc1fc7366c1a2e888efe3b718e9c9"},
-    {file = "transmission_rpc-4.2.1.tar.gz", hash = "sha256:8712c37763e25eef84b9f89ab904671874c394e67ac04398eccab4bbd5632436"},
+    {file = "transmission_rpc-4.2.2-py3-none-any.whl", hash = "sha256:cfa439b5371a92473739eef7346be1f7e9e3b2e99e6b61e981c5d8de619ff0b4"},
+    {file = "transmission_rpc-4.2.2.tar.gz", hash = "sha256:a97956074ee4209b43447f354cc46140f60757ba9b5496205eea17c7464220f2"},
 ]
 
 [package.dependencies]
@@ -1242,4 +1242,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.0"
-content-hash = "537cac8f0656379df30fc355409c36db1e66c5cc150e1224c030876612649e0d"
+content-hash = "b6de86e13f26db85969fda40d1af083f6afe852b966cb92a3871b7fd10db0520"
