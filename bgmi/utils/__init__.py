@@ -109,22 +109,7 @@ _DEFAULT_TERMINAL_WIDTH = 80
 def get_terminal_col() -> int:  # pragma: no cover
     # pylint: disable=import-outside-toplevel,import-error
     # https://gist.github.com/jtriley/1108174
-    if not IS_WINDOWS:
-        import fcntl
-        import termios
-
-        try:
-            col = struct.unpack(
-                "HHHH",
-                fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack("HHHH", 0, 0, 0, 0)),
-            )[
-                1
-            ]  # type: int
-
-            return col
-        except Exception:
-            return _DEFAULT_TERMINAL_WIDTH
-    else:
+    if sys.platform == "win32":
         try:
             from ctypes import create_string_buffer, windll  # type: ignore[attr-defined]
 
@@ -153,6 +138,21 @@ def get_terminal_col() -> int:  # pragma: no cover
 
             cols = int(subprocess.check_output("tput cols"))
             return cols
+        except Exception:
+            return _DEFAULT_TERMINAL_WIDTH
+    else:
+        import fcntl
+        import termios
+
+        try:
+            col = struct.unpack(
+                "HHHH",
+                fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack("HHHH", 0, 0, 0, 0)),
+            )[
+                1
+            ]  # type: int
+
+            return col
         except Exception:
             return _DEFAULT_TERMINAL_WIDTH
 
