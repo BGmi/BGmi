@@ -13,13 +13,7 @@ defaults:
 
 jobs:
   mypy:
-    runs-on: '${{ matrix.os }}-latest'
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - windows
-          - ubuntu
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v4
         with:
@@ -33,7 +27,7 @@ jobs:
           linters: mypy
 
       - name: mypy
-        run: mypy --show-column-numbers "--always-${{ matrix.os == 'windows' }}=IS_WINDOWS" bgmi
+        run: mypy --show-column-numbers bgmi
 
   pre-commit:
     runs-on: ubuntu-latest
