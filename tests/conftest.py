@@ -1,4 +1,3 @@
-import asyncio
 import os.path
 import shutil
 import tempfile
@@ -8,7 +7,7 @@ import pytest
 import requests_cache
 import urllib3
 
-from bgmi.config import IS_WINDOWS, cfg
+from bgmi.config import cfg
 from bgmi.lib.table import (
     Bangumi,
     Followed,
@@ -37,8 +36,6 @@ def pytest_sessionstart(session):
         )
     ensure_example_script()
     urllib3.disable_warnings()
-    if IS_WINDOWS:
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 def ensure_example_script():
