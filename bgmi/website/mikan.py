@@ -64,12 +64,10 @@ def get_weekly_bangumi():
 def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
     result = []
     soup = BeautifulSoup(content, "html.parser")
-    container = soup.find("div", class_="central-container")
-    assert isinstance(container, bs4.Tag), "Central container not found or not a Tag"
-
+    container: bs4.Tag = soup.find("div", class_="central-container")  # type: ignore
     episode_container_list = {}
     expand_subtitle_map = {}
-    for tag in container.contents:
+    for tag in container.contents:  # type: ignore
         if not hasattr(tag, "attrs"):
             continue
 
@@ -84,7 +82,7 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
         elif subtitle_id:
             episode_container_list[tag.attrs.get("id", None)] = tag.find_next_sibling("table")
 
-    for subtitle_id, container in episode_container_list.items():
+    for subtitle_id, container in episode_container_list.items():  # type: ignore
         _container = container
         if subtitle_id in expand_subtitle_map:
             expand_r = requests.get(
@@ -96,27 +94,11 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
                 },
             ).text
             expand_soup = BeautifulSoup(expand_r, "html.parser")
-            _container = expand_soup.find("table")
+            _container = expand_soup.find("table")  # type: ignore
 
-        assert isinstance(_container, bs4.Tag), f"Failed to parse bangumi {bangumi_id} subtitle {subtitle_id}"
-
-        for tr in _container.find_all("tr")[1:]:
-            assert isinstance(tr, bs4.Tag), "tr is not a Tag"
-
-            title_field = tr.find("a", class_="magnet-link-wrap")
-            assert isinstance(title_field, bs4.Tag), "Magnet link not found or not a Tag"
-            title = title_field.text
-
-            td_list = tr.find_all("td")
-            assert len(td_list) > 2, "Not enough td elements found"
-
-            time_string_col = td_list[3]
-            assert isinstance(time_string_col, bs4.Tag), "Time string not found or not a Tag"
-
-            magnet_link = tr.find("a", class_="magnet-link")
-            assert isinstance(magnet_link, bs4.Tag), "Magnet link not found or not a Tag"
-
-            time_string = time_string_col.string or ""
+        for tr in _container.find_all("tr")[1:]:  # type: ignore
+            title = tr.find("a", class_="magnet-link-wrap").text
+            time_string = tr.find_all("td")[2].string
             result.append(
                 Episode(
                     download=tr.find("a", class_="magnet-link").attrs.get("data-clipboard-text"),
