@@ -42,20 +42,6 @@ else:
     RED = "\033[1;31m"
     COLOR_END = "\033[0m"
 
-color_map = {
-    "print_info": "",
-    "print_success": GREEN,
-    "print_warning": YELLOW,
-    "print_error": RED,
-}
-
-indicator_map = {
-    "print_info": "[*] ",
-    "print_success": "[+] ",
-    "print_warning": "[-] ",
-    "print_error": "[x] ",
-}
-
 
 def print_info(message: str, indicator: bool = True) -> None:
     logger.info(message)
