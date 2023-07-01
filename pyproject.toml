@@ -75,7 +75,7 @@ pycomplete = "0.4.0"
 coverage = { version = "==7.2.7", extras = ['toml'] }
 pytest = "==7.4.0"
 pytest-github-actions-annotate-failures = "==0.2.0"
-requests-cache = "==1.0.1"
+requests-cache = "==1.1.0"
 httpx = "0.24.1"
 # lint
 pre-commit = '==3.3.2'
