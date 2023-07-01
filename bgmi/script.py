@@ -4,7 +4,7 @@ import os
 import traceback
 import types
 from importlib.machinery import SourceFileLoader
-from typing import Any, Dict, Iterator, List, Optional, Tuple
+from typing import Any, ClassVar, Dict, Iterator, List, Optional, Tuple
 
 import sqlalchemy as sa
 
@@ -17,8 +17,7 @@ from bgmi.website.model import Episode, WebsiteBangumi
 
 class ScriptRunner:
     _defined = None
-    scripts = []  # type: List[ScriptBase]
-    download_queue = []  # type: List[Episode]
+    scripts: ClassVar["List[ScriptBase]"] = []
 
     def __new__(cls, *args, **kwargs):  # type: ignore
         if cls._defined is None:
@@ -117,7 +116,7 @@ class ScriptBase:
         source = None
 
         bangumi_id = None
-        subtitle_list = []  # type: list
+        subtitle_list: ClassVar[list] = []
         max_page = cfg.max_path
 
         def __init__(self) -> None:

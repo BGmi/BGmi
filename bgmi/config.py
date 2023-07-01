@@ -147,7 +147,7 @@ class Config(BaseSetting):
     deluge: DelugeConfig = DelugeConfig()
 
     enable_global_include_keywords: bool = False
-    global_include_keywords: list[str] = ["1080"]
+    global_include_keywords: List[str] = Field(["1080"])
 
     enable_global_filters: bool = Field(True, description="enable global filter")
     global_filters: list[str] = Field(
