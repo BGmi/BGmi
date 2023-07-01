@@ -793,13 +793,13 @@ virtualenv = ">=20.10.0"
 
 [[package]]
 name = "pycomplete"
-version = "0.3.2"
+version = "0.4.0"
 description = "A Python library to generate static completion scripts for your CLI app"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 files = [
-    {file = "pycomplete-0.3.2-py3-none-any.whl", hash = "sha256:ebeb40dfd453c21ee4b02af9efd0c0134d595aef9fa2e29b207dc9c0932c3f21"},
-    {file = "pycomplete-0.3.2.tar.gz", hash = "sha256:671bfba70b6f2eecedad6b6daabac2aa3f1573cd790cc56ccd48b8067f584391"},
+    {file = "pycomplete-0.4.0-py3-none-any.whl", hash = "sha256:aedeccb742a9cc8f86cc22563b92dc7edd8a3ee200e2eefb5c7a66a90bbf5f34"},
+    {file = "pycomplete-0.4.0.tar.gz", hash = "sha256:8ae83fb5883c78da157d208aefdad4a989e0695e289ef738d05c9d14cb9a13b3"},
 ]
 
 [[package]]
@@ -1618,4 +1618,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.0"
-content-hash = "e9da87255b00caad00f4e6a15e87d94e473f5401b91f0c88a99c5814aa0f3d2a"
+content-hash = "931d1e28c5bd4d56dccb4c7aee0bff83d123b593d3254b5061ed2f7b7bf6b52d"
