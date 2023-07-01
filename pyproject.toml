@@ -64,7 +64,7 @@ loguru = "0.7.0"
 click = "8.1.3"
 # RPC library
 transmission-rpc = "==4.2.2"
-qbittorrent-api = "==2023.5.48"
+qbittorrent-api = "==2023.6.50"
 pycomplete = "0.3.2"
 
 [tool.poetry.dev-dependencies]
