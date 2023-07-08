@@ -152,7 +152,7 @@ class Config(BaseSetting):
     save_path_map: Dict[str, Path] = Field(default_factory=dict, description="per-bangumi save path")
 
     def save(self) -> None:
-        s = tomlkit.dumps(json.loads(self.json()))
+        s = tomlkit.dumps(json.loads(self.model_dump_json()))
 
         CONFIG_FILE_PATH.write_text(s, encoding="utf8")
 
@@ -160,10 +160,10 @@ class Config(BaseSetting):
 def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
     doc = tomlkit.document()
 
-    d = obj.dict()
+    d = obj.model_dump()
 
-    for name, field in obj.__fields__.items():
-        if issubclass(field.type_, BaseModel):
+    for name, field in obj.model_fields.items():
+        if issubclass(field.annotation, BaseModel):
             doc.add(name, pydantic_to_toml(getattr(obj, name)))  # type: ignore
             continue
 
@@ -174,7 +174,7 @@ def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
         else:
             item = tomlkit.item(value)  # type: ignore
 
-        desc: Optional[str] = field.field_info.description
+        desc: Optional[str] = field.description
         if desc:
             item.comment(desc)
 
@@ -185,7 +185,7 @@ def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
 
 if CONFIG_FILE_PATH.exists():
     try:
-        cfg = Config.parse_obj(tomlkit.loads(CONFIG_FILE_PATH.read_text(encoding="utf8")).unwrap())
+        cfg = Config.model_validate(tomlkit.loads(CONFIG_FILE_PATH.read_text(encoding="utf8")).unwrap())
     except pydantic.ValidationError as e:
         print("配置文件错误，请手动编辑配置文件后重试")
         print("配置文件位置：", CONFIG_FILE_PATH)
@@ -196,7 +196,7 @@ else:
 
 
 def print_config() -> str:
-    return tomlkit.dumps(json.loads(cfg.json()))
+    return tomlkit.dumps(json.loads(cfg.model_dump_json()))
 
 
 def write_default_config() -> None:

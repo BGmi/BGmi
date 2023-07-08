@@ -52,7 +52,7 @@ requests = { extras = ["socks"], version = "2.31.0" }
 icalendar = '==5.0.7'
 sqlalchemy = "2.0.17"
 wcwidth = "^0.2.6"
-pydantic = "==1.10.10"
+pydantic = "==2.0.2"
 stevedore = "==5.1.0"
 filetype = "1.2.0"
 strsimpy = "0.2.1"
@@ -64,7 +64,7 @@ loguru = "0.7.0"
 click = "8.1.3"
 packaging = "23.1"
 uvicorn = { extras = ["standard"], version = "0.22.0" }
-fastapi = "0.99.1"
+fastapi = "0.100.0"
 # RPC library
 transmission-rpc = "==4.3.0"
 qbittorrent-api = "==2023.6.50"
