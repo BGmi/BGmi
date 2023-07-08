@@ -163,6 +163,8 @@ def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
     d = obj.model_dump()
 
     for name, field in obj.model_fields.items():
+        if field.annotation is None:
+            continue
         if issubclass(field.annotation, BaseModel):
             doc.add(name, pydantic_to_toml(getattr(obj, name)))  # type: ignore
             continue
