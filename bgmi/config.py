@@ -9,12 +9,16 @@ from typing import cast
 import typing
 
 import pydantic
-import strenum
 import tomlkit
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
+try:
+    from enum import StrEnum
+except ImportError:
+    from strenum import StrEnum
 
-class Source(strenum.StrEnum):
+
+class Source(StrEnum):
     Mikan = "mikan_project"
     BangumiMoe = "bangumi_moe"
     Dmhy = "dmhy"
