@@ -5,6 +5,7 @@ import pytest
 
 from bgmi.config import cfg
 from bgmi.lib.controllers import update
+from bgmi.lib.download import add_tracker
 from bgmi.lib.table import Bangumi, Download, Followed, Session
 from bgmi.main import main_for_test
 from bgmi.website.model import Episode
@@ -61,9 +62,11 @@ def test_update_download(mock_download_driver: mock.Mock):
             mock.call(
                 url="http://example.com/Bangumi/1/2.torrent", save_path=os.path.join(cfg.save_path, "TEST_BANGUMI", "2")
             ),
-            mock.call(url="magnet:?xt=urn:btih:233", save_path=os.path.join(cfg.save_path, "TEST_BANGUMI", "3")),
-            mock.call(url="magnet:mm", save_path=os.path.join(cfg.save_path, name, "3")),
-            mock.call(url="magnet:4", save_path=os.path.join(cfg.save_path, name, "4")),
+            mock.call(
+                url=add_tracker("magnet:?xt=urn:btih:233"), save_path=os.path.join(cfg.save_path, "TEST_BANGUMI", "3")
+            ),
+            mock.call(url=add_tracker("magnet:mm"), save_path=os.path.join(cfg.save_path, name, "3")),
+            mock.call(url=add_tracker("magnet:4"), save_path=os.path.join(cfg.save_path, name, "4")),
         ]
     )
 
