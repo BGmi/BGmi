@@ -12,7 +12,7 @@ import tomlkit
 from pydantic import BaseModel, Extra, Field, HttpUrl
 
 try:
-    from enum import StrEnum
+    from enum import StrEnum  # type: ignore
 except ImportError:
     from strenum import StrEnum
 

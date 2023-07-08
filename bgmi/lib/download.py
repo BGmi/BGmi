@@ -49,7 +49,7 @@ def add_tracker(u: str) -> str:
     if url.scheme != "magnet":
         return u
 
-    url = url.update_query({"tr": default_trackers.copy() | set(url.query.get("tr", []))})
+    url = url.update_query({"tr": list(default_trackers.copy() | set(url.query.get("tr", [])))})
 
     return str(url)
 
