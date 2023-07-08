@@ -57,8 +57,8 @@ class BaseSetting(BaseModel):
 
 
 class Aria2Config(BaseSetting):
-    rpc_url = os.getenv("BGMI_ARIA2_RPC_URL") or "http://127.0.0.1:6800/rpc"
-    rpc_token = os.getenv("BGMI_ARIA2_RPC_TOKEN") or "token:"
+    rpc_url: str = os.getenv("BGMI_ARIA2_RPC_URL") or "http://127.0.0.1:6800/rpc"
+    rpc_token: str = os.getenv("BGMI_ARIA2_RPC_TOKEN") or "token:"
 
 
 class TransmissionConfig(BaseSetting):

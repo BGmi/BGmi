@@ -17,7 +17,7 @@ BANGUMI_TAG = "549ef207fe682f7549f1ea90"
 BANGUMI_MOE_URL = cfg.bangumi_moe_url
 LANG = cfg.lang
 
-__split = "/" if not BANGUMI_MOE_URL.endswith("/") else ""
+__split = "/" if not BANGUMI_MOE_URL.path.endswith("/") else ""
 FETCH_URL = f"{BANGUMI_MOE_URL}{__split}api/bangumi/current"
 TEAM_URL = f"{BANGUMI_MOE_URL}{__split}api/team/working"
 NAME_URL = f"{BANGUMI_MOE_URL}{__split}api/tag/fetch"

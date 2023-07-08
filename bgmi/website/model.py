@@ -15,7 +15,7 @@ class Episode(BaseModel):
     name: str = ""
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
     @staticmethod
     def remove_duplicated_bangumi(result: List["Episode"]) -> List["Episode"]:
