@@ -129,7 +129,7 @@ def _config_set(keys: List[str], value: str) -> None:
 
 
 def config_set(keys: List[str], value: str) -> None:
-    doc = tomlkit.loads(CONFIG_FILE_PATH.read_text(encoding="utf-8"))
+    doc = tomlkit.loads(CONFIG_FILE_PATH.read_text(encoding="utf-8")).unwrap()
 
     if keys[0] == "source":
         print_error("you can't change source with this command, use `bgmi source ...`", stop=True)
