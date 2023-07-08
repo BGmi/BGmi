@@ -69,7 +69,7 @@ fastapi = "0.99.1"
 transmission-rpc = "==4.3.0"
 qbittorrent-api = "==2023.6.50"
 pycomplete = "0.4.0"
-yarl = "^1.9.2"
+yarl = "1.9.2"
 
 [tool.poetry.group.dev.dependencies]
 # tests
