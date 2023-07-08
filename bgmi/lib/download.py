@@ -4,6 +4,7 @@ from functools import lru_cache
 from typing import List, cast
 
 import stevedore
+import yarl
 from stevedore.exception import NoMatches
 
 from bgmi import namespace
@@ -12,6 +13,19 @@ from bgmi.lib.table import Download
 from bgmi.plugin.download import BaseDownloadService
 from bgmi.utils import bangumi_save_path, print_error, print_info
 from bgmi.website.model import Episode
+
+default_trackers = {
+    "http://t.nyaatracker.com/announce",
+    "http://tracker.kamigami.org:2710/announce",
+    "http://share.camoe.cn:8080/announce",
+    "http://opentracker.acgnx.se/announce",
+    "http://anidex.moe:6969/announce",
+    "http://t.acg.rip:6699/announce",
+    "https://tr.bangumi.moe:9696/announce",
+    "udp://tr.bangumi.moe:6969/announce",
+    "http://open.acgtracker.com:1096/announce",
+    "udp://tracker.opentrackr.org:1337/announce",
+}
 
 
 @lru_cache
@@ -24,6 +38,20 @@ def get_download_driver(delegate: str) -> BaseDownloadService:
     except NoMatches:
         print_error(f"can't load download delegate {delegate}")
         raise
+
+
+def add_tracker(u: str) -> str:
+    try:
+        url = yarl.URL(u)
+    except Exception:
+        return u
+
+    if url.scheme != "magnet":
+        return u
+
+    url = url.update_query({"tr": default_trackers.copy() | set(url.query.get("tr", []))})
+
+    return str(url)
 
 
 def download_episode(e: Episode) -> bool:
@@ -51,7 +79,7 @@ def download_episode(e: Episode) -> bool:
         )
 
     try:
-        driver.add_download(url=download.download, save_path=str(save_path))
+        driver.add_download(url=add_tracker(download.download), save_path=str(save_path))
         print_info(f"Add torrent into the download queue, the file will be saved at {save_path}")
         return True
     except Exception as e:
