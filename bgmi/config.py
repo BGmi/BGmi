@@ -13,7 +13,7 @@ import tomlkit
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
 try:
-    from enum import StrEnum
+    from enum import StrEnum  # type: ignore
 except ImportError:
     from strenum import StrEnum
 
