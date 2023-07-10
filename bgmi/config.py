@@ -95,7 +95,9 @@ class HTTP(BaseSetting):
         description="danmaku api url, https://github.com/DIYgod/DPlayer#related-projects",
     )
     serve_static_files: bool = Field(
-        os.getenv("BGMI_HTTP_SERVE_STATIC_FILES"), description="serve static files with main", validate_default=True
+        os.getenv("BGMI_HTTP_SERVE_STATIC_FILES") or False,
+        description="serve static files with main",
+        validate_default=True,
     )
 
 
