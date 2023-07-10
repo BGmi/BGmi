@@ -1,21 +1,21 @@
 from operator import attrgetter
 from typing import List, Optional
 
-from pydantic import BaseModel, validator
+import pydantic
+from pydantic import BaseModel, field_validator
 
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 
 
 class Episode(BaseModel):
+    model_config = pydantic.ConfigDict(from_attributes=True)
+
     title: str
     download: str
     episode: int = 0
     time: int = 0
     subtitle_group: Optional[str] = None
     name: str = ""
-
-    class Config:
-        orm_mode = True
 
     @staticmethod
     def remove_duplicated_bangumi(result: List["Episode"]) -> List["Episode"]:
@@ -52,7 +52,7 @@ class WebsiteBangumi(BaseModel):
     def max_episode(self) -> int:
         return max(self.episodes, key=attrgetter("episode")).episode
 
-    @validator("update_day")
+    @field_validator("update_day")
     def validate_update_time(cls, v: str) -> str:  # noqa: N805
         assert v in BANGUMI_UPDATE_TIME, f"update time can be only one of {BANGUMI_UPDATE_TIME}"
         return v

@@ -9,7 +9,8 @@ from typing import Dict, List, Optional, cast
 
 import pydantic
 import tomlkit
-from pydantic import BaseModel, Extra, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl
+from pydantic_core import Url
 
 try:
     from enum import StrEnum  # type: ignore
@@ -51,14 +52,12 @@ CONFIG_FILE_PATH = BGMI_PATH / "config.toml"
 
 
 class BaseSetting(BaseModel):
-    class Config:
-        validate_assignment = True
-        extra = Extra.ignore
+    model_config = ConfigDict(extra="allow", validate_assignment=True)
 
 
 class Aria2Config(BaseSetting):
-    rpc_url = os.getenv("BGMI_ARIA2_RPC_URL") or "http://127.0.0.1:6800/rpc"
-    rpc_token = os.getenv("BGMI_ARIA2_RPC_TOKEN") or "token:"
+    rpc_url: str = os.getenv("BGMI_ARIA2_RPC_URL") or "http://127.0.0.1:6800/rpc"
+    rpc_token: str = os.getenv("BGMI_ARIA2_RPC_TOKEN") or "token:"
 
 
 class TransmissionConfig(BaseSetting):
@@ -78,7 +77,9 @@ class QBittorrentConfig(BaseSetting):
 
 
 class DelugeConfig(BaseSetting):
-    rpc_url: HttpUrl = os.getenv("BGMI_DELUGE_RPC_URL") or "http://127.0.0.1:8112/json"  # type: ignore
+    rpc_url: HttpUrl = Field(
+        os.getenv("BGMI_DELUGE_RPC_URL") or "http://127.0.0.1:8112/json", validate_default=True
+    )  # type: ignore
     rpc_password: str = os.getenv("BGMI_DELUGE_RPC_PASSWORD") or "deluge"
 
 
@@ -92,7 +93,9 @@ class HTTP(BaseSetting):
         description="danmaku api url, https://github.com/DIYgod/DPlayer#related-projects",
     )
     serve_static_files: bool = Field(
-        bool(os.getenv("BGMI_HTTP_SERVE_STATIC_FILES")), description="serve static files with main"
+        cast(bool, os.getenv("BGMI_HTTP_SERVE_STATIC_FILES") or False),
+        description="serve static files with main",
+        validate_default=True,
     )
 
 
@@ -102,7 +105,7 @@ class Config(BaseSetting):
     )  # type: ignore
     download_delegate: str = Field(os.getenv("BGMI_DOWNLOAD_DELEGATE") or "aria2-rpc", description="download delegate")
 
-    tmp_path: Path = Path(os.getenv("BGMI_TMP_PATH") or str(BGMI_PATH.joinpath("tmp")))
+    tmp_path: Path = Path(os.getenv("BGMI_TMP_PATH") or BGMI_PATH.joinpath("tmp"), validate_default=True)
 
     proxy: str = cast(str, os.getenv("BGMI_PROXY") or "")
 
@@ -111,21 +114,35 @@ class Config(BaseSetting):
         return self.tmp_path.joinpath("bgmi.log")
 
     save_path: Path = Field(
-        Path(os.getenv("BGMI_SAVE_PATH") or str(BGMI_PATH.joinpath("bangumi"))), description="bangumi save path"
+        Path(os.getenv("BGMI_SAVE_PATH") or str(BGMI_PATH.joinpath("bangumi"))),
+        description="bangumi save path",
+        validate_default=True,
     )
-    front_static_path: Path = Path(os.getenv("BGMI_FRONT_STATIC_PATH") or str(BGMI_PATH.joinpath("front_static")))
+    front_static_path: Path = Path(
+        os.getenv("BGMI_FRONT_STATIC_PATH") or str(BGMI_PATH.joinpath("front_static")), validate_default=True
+    )
 
-    db_path: pathlib.Path = Path(os.getenv("BGMI_DB_PATH") or str(BGMI_PATH.joinpath("bangumi.db")))
-    script_path: pathlib.Path = Path(os.getenv("BGMI_SCRIPT_PATH") or str(BGMI_PATH.joinpath("scripts")))
-    tools_path: pathlib.Path = Path(os.getenv("BGMI_TOOLS_PATH") or str(BGMI_PATH.joinpath("tools")))
+    db_path: pathlib.Path = Path(
+        os.getenv("BGMI_DB_PATH") or str(BGMI_PATH.joinpath("bangumi.db")), validate_default=True
+    )
+    script_path: pathlib.Path = Path(
+        os.getenv("BGMI_SCRIPT_PATH") or str(BGMI_PATH.joinpath("scripts")), validate_default=True
+    )
+    tools_path: pathlib.Path = Path(
+        os.getenv("BGMI_TOOLS_PATH") or str(BGMI_PATH.joinpath("tools")), validate_default=True
+    )
 
     max_path: int = 3
 
     bangumi_moe_url: HttpUrl = Field(
-        os.getenv("BGMI_BANGUMI_MOE_URL") or "https://bangumi.moe", description="Setting bangumi.moe url"
+        HttpUrl(os.getenv("BGMI_BANGUMI_MOE_URL") or "https://bangumi.moe"),
+        description="Setting bangumi.moe url",
+        validate_default=True,
     )  # type: ignore
     share_dmhy_url: HttpUrl = Field(
-        os.getenv("BGMI_SHARE_DMHY_URL") or "https://share.dmhy.org", description="Setting share.dmhy.org url"
+        HttpUrl(os.getenv("BGMI_SHARE_DMHY_URL") or "https://share.dmhy.org"),
+        description="Setting share.dmhy.org url",
+        validate_default=True,
     )  # type: ignore
 
     mikan_username: str = os.getenv("BGMI_MIKAN_USERNAME") or ""
@@ -152,7 +169,7 @@ class Config(BaseSetting):
     save_path_map: Dict[str, Path] = Field(default_factory=dict, description="per-bangumi save path")
 
     def save(self) -> None:
-        s = tomlkit.dumps(json.loads(self.json()))
+        s = tomlkit.dumps(json.loads(self.model_dump_json()))
 
         CONFIG_FILE_PATH.write_text(s, encoding="utf8")
 
@@ -160,21 +177,24 @@ class Config(BaseSetting):
 def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
     doc = tomlkit.document()
 
-    d = obj.dict()
+    d = obj.model_dump()
 
-    for name, field in obj.__fields__.items():
-        if issubclass(field.type_, BaseModel):
+    for name, field in obj.model_fields.items():
+        if field.annotation is None:
+            continue
+
+        if isinstance(field.annotation, type) and issubclass(field.annotation, BaseModel):
             doc.add(name, pydantic_to_toml(getattr(obj, name)))  # type: ignore
             continue
 
         value = d[name]
 
-        if isinstance(value, Path):
+        if isinstance(value, (Path, Url)):
             item = tomlkit.item(str(value))
         else:
             item = tomlkit.item(value)  # type: ignore
 
-        desc: Optional[str] = field.field_info.description
+        desc: Optional[str] = field.description
         if desc:
             item.comment(desc)
 
@@ -185,7 +205,7 @@ def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
 
 if CONFIG_FILE_PATH.exists():
     try:
-        cfg = Config.parse_obj(tomlkit.loads(CONFIG_FILE_PATH.read_text(encoding="utf8")).unwrap())
+        cfg = Config.model_validate(tomlkit.loads(CONFIG_FILE_PATH.read_text(encoding="utf8")).unwrap())
     except pydantic.ValidationError as e:
         print("配置文件错误，请手动编辑配置文件后重试")
         print("配置文件位置：", CONFIG_FILE_PATH)
@@ -196,7 +216,7 @@ else:
 
 
 def print_config() -> str:
-    return tomlkit.dumps(json.loads(cfg.json()))
+    return tomlkit.dumps(json.loads(cfg.model_dump_json()))
 
 
 def write_default_config() -> None:
@@ -207,4 +227,4 @@ def write_default_config() -> None:
 
 
 if __name__ == "__main__":
-    Config().save()
+    pydantic_to_toml(Config())
