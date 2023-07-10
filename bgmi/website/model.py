@@ -1,21 +1,21 @@
 from operator import attrgetter
 from typing import List, Optional
 
+import pydantic
 from pydantic import BaseModel, field_validator
 
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 
 
 class Episode(BaseModel):
+    model_config = pydantic.ConfigDict(from_attributes=True)
+
     title: str
     download: str
     episode: int = 0
     time: int = 0
     subtitle_group: Optional[str] = None
     name: str = ""
-
-    class Config:
-        from_attributes = True
 
     @staticmethod
     def remove_duplicated_bangumi(result: List["Episode"]) -> List["Episode"]:
