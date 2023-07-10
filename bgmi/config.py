@@ -122,10 +122,10 @@ class Config(BaseSetting):
     max_path: int = 3
 
     bangumi_moe_url: HttpUrl = Field(
-        os.getenv("BGMI_BANGUMI_MOE_URL") or "https://bangumi.moe", description="Setting bangumi.moe url"
+        HttpUrl(os.getenv("BGMI_BANGUMI_MOE_URL") or "https://bangumi.moe"), description="Setting bangumi.moe url"
     )  # type: ignore
     share_dmhy_url: HttpUrl = Field(
-        os.getenv("BGMI_SHARE_DMHY_URL") or "https://share.dmhy.org", description="Setting share.dmhy.org url"
+        HttpUrl(os.getenv("BGMI_SHARE_DMHY_URL") or "https://share.dmhy.org"), description="Setting share.dmhy.org url"
     )  # type: ignore
 
     mikan_username: str = os.getenv("BGMI_MIKAN_USERNAME") or ""

@@ -3,7 +3,6 @@ from typing import Any, Dict, Generic, List, Optional, TypeVar
 import fastapi
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
-from pydantic.generics import GenericModel
 from starlette.exceptions import HTTPException
 
 from bgmi import __version__
@@ -33,7 +32,7 @@ class Player(BaseModel):
 T = TypeVar("T")
 
 
-class Response(GenericModel, Generic[T]):
+class Response(BaseModel, Generic[T]):
     version: str
     danmaku_api: str
     data: T
