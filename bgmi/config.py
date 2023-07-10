@@ -95,7 +95,7 @@ class HTTP(BaseSetting):
         description="danmaku api url, https://github.com/DIYgod/DPlayer#related-projects",
     )
     serve_static_files: bool = Field(
-        os.getenv("BGMI_HTTP_SERVE_STATIC_FILES") or False,
+        cast(bool, os.getenv("BGMI_HTTP_SERVE_STATIC_FILES") or False),
         description="serve static files with main",
         validate_default=True,
     )
@@ -107,7 +107,7 @@ class Config(BaseSetting):
     )  # type: ignore
     download_delegate: str = Field(os.getenv("BGMI_DOWNLOAD_DELEGATE") or "aria2-rpc", description="download delegate")
 
-    tmp_path: Path = Path(os.getenv("BGMI_TMP_PATH") or str(BGMI_PATH.joinpath("tmp")), validate_default=True)
+    tmp_path: Path = Path(os.getenv("BGMI_TMP_PATH") or BGMI_PATH.joinpath("tmp"), validate_default=True)
 
     proxy: str = cast(str, os.getenv("BGMI_PROXY") or "")
 
@@ -182,13 +182,14 @@ def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
     d = obj.model_dump()
 
     for name, field in obj.model_fields.items():
-        if field.annotation is None:
-            continue
-        if issubclass(field.annotation, BaseModel):
-            doc.add(name, pydantic_to_toml(getattr(obj, name)))  # type: ignore
+        value = d[name]
+
+        if value is None:
             continue
 
-        value = d[name]
+        if isinstance(value, dict):
+            doc.add(name, pydantic_to_toml(getattr(obj, name)))  # type: ignore
+            continue
 
         if isinstance(value, (Path, Url)):
             item = tomlkit.item(str(value))
