@@ -19,7 +19,7 @@ def random_word(length):
     return "".join(random.choice(letters) for i in range(length))
 
 
-client = TestClient(make_app(debug=True))
+client = TestClient(make_app(debug=True), raise_server_exceptions=False)
 
 headers = {"authorization": f"Bearer {cfg.http.admin_token}"}
 
