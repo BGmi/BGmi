@@ -1,7 +1,3 @@
-"""
-TODO: there is a existing potential bug in this file:
-    pydantic doesn't check or convert default value of the field.
-"""
 import json
 import os
 import pathlib
@@ -83,7 +79,9 @@ class QBittorrentConfig(BaseSetting):
 
 
 class DelugeConfig(BaseSetting):
-    rpc_url: HttpUrl = os.getenv("BGMI_DELUGE_RPC_URL") or "http://127.0.0.1:8112/json"  # type: ignore
+    rpc_url: HttpUrl = Field(
+        os.getenv("BGMI_DELUGE_RPC_URL") or "http://127.0.0.1:8112/json", validate_default=True
+    )  # type: ignore
     rpc_password: str = os.getenv("BGMI_DELUGE_RPC_PASSWORD") or "deluge"
 
 
@@ -97,7 +95,7 @@ class HTTP(BaseSetting):
         description="danmaku api url, https://github.com/DIYgod/DPlayer#related-projects",
     )
     serve_static_files: bool = Field(
-        bool(os.getenv("BGMI_HTTP_SERVE_STATIC_FILES")), description="serve static files with main"
+        os.getenv("BGMI_HTTP_SERVE_STATIC_FILES"), description="serve static files with main", validate_default=True
     )
 
 
@@ -107,7 +105,7 @@ class Config(BaseSetting):
     )  # type: ignore
     download_delegate: str = Field(os.getenv("BGMI_DOWNLOAD_DELEGATE") or "aria2-rpc", description="download delegate")
 
-    tmp_path: Path = Path(os.getenv("BGMI_TMP_PATH") or str(BGMI_PATH.joinpath("tmp")))
+    tmp_path: Path = Path(os.getenv("BGMI_TMP_PATH") or str(BGMI_PATH.joinpath("tmp")), validate_default=True)
 
     proxy: str = cast(str, os.getenv("BGMI_PROXY") or "")
 
@@ -116,21 +114,35 @@ class Config(BaseSetting):
         return self.tmp_path.joinpath("bgmi.log")
 
     save_path: Path = Field(
-        Path(os.getenv("BGMI_SAVE_PATH") or str(BGMI_PATH.joinpath("bangumi"))), description="bangumi save path"
+        Path(os.getenv("BGMI_SAVE_PATH") or str(BGMI_PATH.joinpath("bangumi"))),
+        description="bangumi save path",
+        validate_default=True,
     )
-    front_static_path: Path = Path(os.getenv("BGMI_FRONT_STATIC_PATH") or str(BGMI_PATH.joinpath("front_static")))
+    front_static_path: Path = Path(
+        os.getenv("BGMI_FRONT_STATIC_PATH") or str(BGMI_PATH.joinpath("front_static")), validate_default=True
+    )
 
-    db_path: pathlib.Path = Path(os.getenv("BGMI_DB_PATH") or str(BGMI_PATH.joinpath("bangumi.db")))
-    script_path: pathlib.Path = Path(os.getenv("BGMI_SCRIPT_PATH") or str(BGMI_PATH.joinpath("scripts")))
-    tools_path: pathlib.Path = Path(os.getenv("BGMI_TOOLS_PATH") or str(BGMI_PATH.joinpath("tools")))
+    db_path: pathlib.Path = Path(
+        os.getenv("BGMI_DB_PATH") or str(BGMI_PATH.joinpath("bangumi.db")), validate_default=True
+    )
+    script_path: pathlib.Path = Path(
+        os.getenv("BGMI_SCRIPT_PATH") or str(BGMI_PATH.joinpath("scripts")), validate_default=True
+    )
+    tools_path: pathlib.Path = Path(
+        os.getenv("BGMI_TOOLS_PATH") or str(BGMI_PATH.joinpath("tools")), validate_default=True
+    )
 
     max_path: int = 3
 
     bangumi_moe_url: HttpUrl = Field(
-        HttpUrl(os.getenv("BGMI_BANGUMI_MOE_URL") or "https://bangumi.moe"), description="Setting bangumi.moe url"
+        HttpUrl(os.getenv("BGMI_BANGUMI_MOE_URL") or "https://bangumi.moe"),
+        description="Setting bangumi.moe url",
+        validate_default=True,
     )  # type: ignore
     share_dmhy_url: HttpUrl = Field(
-        HttpUrl(os.getenv("BGMI_SHARE_DMHY_URL") or "https://share.dmhy.org"), description="Setting share.dmhy.org url"
+        HttpUrl(os.getenv("BGMI_SHARE_DMHY_URL") or "https://share.dmhy.org"),
+        description="Setting share.dmhy.org url",
+        validate_default=True,
     )  # type: ignore
 
     mikan_username: str = os.getenv("BGMI_MIKAN_USERNAME") or ""
