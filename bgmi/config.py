@@ -9,7 +9,7 @@ from typing import Dict, List, Optional, cast
 
 import pydantic
 import tomlkit
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 from pydantic_core import Url
 
 try:
@@ -52,9 +52,7 @@ CONFIG_FILE_PATH = BGMI_PATH / "config.toml"
 
 
 class BaseSetting(BaseModel):
-    class Config:
-        validate_assignment = True
-        extra = "allow"
+    model_config = ConfigDict(extra="allow", validate_assignment=True)
 
 
 class Aria2Config(BaseSetting):
