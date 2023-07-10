@@ -11,6 +11,7 @@ import typing
 import pydantic
 import tomlkit
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
+from pydantic_core import Url
 
 try:
     from enum import StrEnum  # type: ignore
@@ -52,11 +53,7 @@ CONFIG_FILE_PATH = BGMI_PATH / "config.toml"
 
 
 class BaseSetting(BaseModel):
-    model_config = ConfigDict(
-        validate_assignment=True,
-        validate_default=True,
-        extra="ignore",
-    )
+    model_config = ConfigDict(extra="allow", validate_assignment=True)
 
 
 class Aria2Config(BaseSetting):
@@ -83,8 +80,10 @@ class QBittorrentConfig(BaseSetting):
 
 
 class DelugeConfig(BaseSetting):
-    rpc_url: HttpUrl = Field(os.getenv("BGMI_DELUGE_RPC_URL") or "http://127.0.0.1:8112/json")  # type: ignore
-    rpc_password: str = Field(os.getenv("BGMI_DELUGE_RPC_PASSWORD") or "deluge")
+    rpc_url: HttpUrl = Field(
+        os.getenv("BGMI_DELUGE_RPC_URL") or "http://127.0.0.1:8112/json", validate_default=True
+    )  # type: ignore
+    rpc_password: str = os.getenv("BGMI_DELUGE_RPC_PASSWORD") or "deluge"
 
 
 class HTTP(BaseSetting):
@@ -97,7 +96,9 @@ class HTTP(BaseSetting):
         description="danmaku api url, https://github.com/DIYgod/DPlayer#related-projects",
     )
     serve_static_files: bool = Field(
-        bool(os.getenv("BGMI_HTTP_SERVE_STATIC_FILES")), description="serve static files with main"
+        cast(bool, os.getenv("BGMI_HTTP_SERVE_STATIC_FILES") or False),
+        description="serve static files with main",
+        validate_default=True,
     )
 
 
@@ -107,7 +108,7 @@ class Config(BaseSetting):
     )  # type: ignore
     download_delegate: str = Field(os.getenv("BGMI_DOWNLOAD_DELEGATE") or "aria2-rpc", description="download delegate")
 
-    tmp_path: Path = Path(os.getenv("BGMI_TMP_PATH") or str(BGMI_PATH.joinpath("tmp")))
+    tmp_path: Path = Path(os.getenv("BGMI_TMP_PATH") or BGMI_PATH.joinpath("tmp"), validate_default=True)
 
     proxy: str = cast(str, os.getenv("BGMI_PROXY") or "")
 
@@ -116,22 +117,35 @@ class Config(BaseSetting):
         return self.tmp_path.joinpath("bgmi.log")
 
     save_path: Path = Field(
-        Path(os.getenv("BGMI_SAVE_PATH") or str(BGMI_PATH.joinpath("bangumi"))), description="bangumi save path"
+        Path(os.getenv("BGMI_SAVE_PATH") or str(BGMI_PATH.joinpath("bangumi"))),
+        description="bangumi save path",
+        validate_default=True,
     )
-    front_static_path: Path = Path(os.getenv("BGMI_FRONT_STATIC_PATH") or str(BGMI_PATH.joinpath("front_static")))
+    front_static_path: Path = Path(
+        os.getenv("BGMI_FRONT_STATIC_PATH") or str(BGMI_PATH.joinpath("front_static")), validate_default=True
+    )
 
-    db_path: pathlib.Path = Path(os.getenv("BGMI_DB_PATH") or str(BGMI_PATH.joinpath("bangumi.db")))
-    script_path: pathlib.Path = Path(os.getenv("BGMI_SCRIPT_PATH") or str(BGMI_PATH.joinpath("scripts")))
-    hook_path: pathlib.Path = Path(os.getenv("BGMI_HOOK_PATH") or str(BGMI_PATH.joinpath("hooks")))
-    tools_path: pathlib.Path = Path(os.getenv("BGMI_TOOLS_PATH") or str(BGMI_PATH.joinpath("tools")))
+    db_path: pathlib.Path = Path(
+        os.getenv("BGMI_DB_PATH") or str(BGMI_PATH.joinpath("bangumi.db")), validate_default=True
+    )
+    script_path: pathlib.Path = Path(
+        os.getenv("BGMI_SCRIPT_PATH") or str(BGMI_PATH.joinpath("scripts")), validate_default=True
+    )
+    tools_path: pathlib.Path = Path(
+        os.getenv("BGMI_TOOLS_PATH") or str(BGMI_PATH.joinpath("tools")), validate_default=True
+    )
 
     max_path: int = 3
 
     bangumi_moe_url: HttpUrl = Field(
-        os.getenv("BGMI_BANGUMI_MOE_URL") or "https://bangumi.moe", description="Setting bangumi.moe url"
+        HttpUrl(os.getenv("BGMI_BANGUMI_MOE_URL") or "https://bangumi.moe"),
+        description="Setting bangumi.moe url",
+        validate_default=True,
     )  # type: ignore
     share_dmhy_url: HttpUrl = Field(
-        os.getenv("BGMI_SHARE_DMHY_URL") or "https://share.dmhy.org", description="Setting share.dmhy.org url"
+        HttpUrl(os.getenv("BGMI_SHARE_DMHY_URL") or "https://share.dmhy.org"),
+        description="Setting share.dmhy.org url",
+        validate_default=True,
     )  # type: ignore
     mikan_url: HttpUrl = Field(
         os.getenv("BGMI_MIKAN_URL") or "https://mikanani.me", description="Setting mikanani.me url"
@@ -169,23 +183,24 @@ class Config(BaseSetting):
 def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
     doc = tomlkit.document()
 
-    d = obj.model_dump(mode="json")
+    d = obj.model_dump()
 
-    for name, field in obj.__fields__.items():
-        origin = typing.get_origin(field.annotation)
-        # Handle Annotated types by extracting the actual type
-        if origin is typing.Annotated:
-            actual_type = typing.get_args(field.annotation)[0]
-            origin = typing.get_origin(actual_type)
-        if origin is not None and issubclass(origin, BaseModel):
+    for name, field in obj.model_fields.items():
+        if field.annotation is None:
+            continue
+
+        if isinstance(field.annotation, type) and issubclass(field.annotation, BaseModel):
             doc.add(name, pydantic_to_toml(getattr(obj, name)))  # type: ignore
             continue
 
         value = d[name]
 
-        item = tomlkit.item(value)
+        if isinstance(value, (Path, Url)):
+            item = tomlkit.item(str(value))
+        else:
+            item = tomlkit.item(value)  # type: ignore
 
-        desc: str | None = field.description
+        desc: Optional[str] = field.description
         if desc:
             item.comment(desc)
 
@@ -218,4 +233,4 @@ def write_default_config() -> None:
 
 
 if __name__ == "__main__":
-    Config().save()
+    pydantic_to_toml(Config())

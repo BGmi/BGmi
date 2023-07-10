@@ -47,7 +47,7 @@ def index_need_config(_: Request) -> HTMLResponse:
     )
 
 
-def make_app() -> Starlette:
+def make_app(debug: bool = False) -> Starlette:
     routes = [
         Mount("/api/", app=api),
         Route("/resource/calendar.ics", CalendarHandler),
@@ -69,7 +69,7 @@ def make_app() -> Starlette:
             ]
         )
 
-    app = Starlette(routes=routes)
+    app = Starlette(routes=routes, debug=debug)
 
     return app
 

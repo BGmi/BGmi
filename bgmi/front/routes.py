@@ -3,7 +3,6 @@ from typing import Any, Dict, Generic, List, Optional, TypeVar
 import fastapi
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
-from pydantic.generics import GenericModel
 from starlette.exceptions import HTTPException
 
 from bgmi import __version__
@@ -33,7 +32,7 @@ class Player(BaseModel):
 T = TypeVar("T")
 
 
-class Response(GenericModel, Generic[T]):
+class Response(BaseModel, Generic[T]):
     version: str
     danmaku_api: str
     data: T
@@ -119,13 +118,13 @@ class CalendarItem(BaseModel):
 
 
 class Calendar(BaseModel):
-    sat: Optional[List[CalendarItem]]
-    sun: Optional[List[CalendarItem]]
-    mon: Optional[List[CalendarItem]]
-    tue: Optional[List[CalendarItem]]
-    thu: Optional[List[CalendarItem]]
-    wed: Optional[List[CalendarItem]]
-    fri: Optional[List[CalendarItem]]
+    sat: Optional[List[CalendarItem]] = None
+    sun: Optional[List[CalendarItem]] = None
+    mon: Optional[List[CalendarItem]] = None
+    tue: Optional[List[CalendarItem]] = None
+    thu: Optional[List[CalendarItem]] = None
+    wed: Optional[List[CalendarItem]] = None
+    fri: Optional[List[CalendarItem]] = None
 
 
 @app.get(
@@ -137,7 +136,6 @@ class Calendar(BaseModel):
     response_model=Calendar,
 )
 def calendar() -> Any:
-    print("calendar router")
     weekly_list = table.Bangumi.get_updating_bangumi()
     if not weekly_list:
         raise HTTPException(404, '请使用 "bgmi cal -f" 命令更新番剧列表')
@@ -146,6 +144,7 @@ def calendar() -> Any:
         for bangumi in value:
             bangumi["cover"] = cover_path(bangumi["cover"])
 
+    Calendar.model_validate(weekly_list)
     return weekly_list
 
 
