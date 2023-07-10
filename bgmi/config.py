@@ -186,7 +186,6 @@ def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
             continue
 
         if isinstance(field.annotation, type) and issubclass(field.annotation, BaseModel):
-            print(name)
             doc.add(name, pydantic_to_toml(getattr(obj, name)))  # type: ignore
             continue
 
