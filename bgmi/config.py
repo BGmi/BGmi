@@ -9,7 +9,7 @@ from typing import Dict, List, Optional, cast
 
 import pydantic
 import tomlkit
-from pydantic import BaseModel, Extra, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl
 from pydantic_core import Url
 
 try:
@@ -54,7 +54,7 @@ CONFIG_FILE_PATH = BGMI_PATH / "config.toml"
 class BaseSetting(BaseModel):
     class Config:
         validate_assignment = True
-        extra = Extra.ignore
+        extra = "allow"
 
 
 class Aria2Config(BaseSetting):
@@ -182,14 +182,15 @@ def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
     d = obj.model_dump()
 
     for name, field in obj.model_fields.items():
-        value = d[name]
-
-        if value is None:
+        if field.annotation is None:
             continue
 
-        if isinstance(value, dict):
+        if isinstance(field.annotation, type) and issubclass(field.annotation, BaseModel):
+            print(name)
             doc.add(name, pydantic_to_toml(getattr(obj, name)))  # type: ignore
             continue
+
+        value = d[name]
 
         if isinstance(value, (Path, Url)):
             item = tomlkit.item(str(value))
@@ -229,4 +230,4 @@ def write_default_config() -> None:
 
 
 if __name__ == "__main__":
-    Config().save()
+    pydantic_to_toml(Config())
