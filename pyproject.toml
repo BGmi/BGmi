@@ -61,7 +61,7 @@ strenum = "0.4.15"
 anime-episode-parser = "^0.0.12"
 semver = "3.0.1"
 loguru = "0.7.0"
-click = "8.1.5"
+click = "8.1.6"
 packaging = "23.1"
 uvicorn = { extras = ["standard"], version = "0.23.1" }
 fastapi = "0.100.0"
