@@ -173,24 +173,19 @@ def parse_episode(episode_title: str) -> int:
     return s or 0
 
 
+_slash_pattern = re.compile(r"/+")
+
+
 def normalize_path(url: str) -> str:
     """
     normalize link to path
-
-    :param url: path or url to normalize
-    :type url: str
-    :return: normalized path
-    :rtype: str
     """
-    url = url.replace("http://", "http/").replace("https://", "https/")
+    url = _slash_pattern.sub("/", url)
     illegal_char = [":", "*", "?", '"', "<", ">", "|", "'"]
     for char in illegal_char:
         url = url.replace(char, "")
 
-    if url.startswith("/"):
-        return url[1:]
-
-    return url
+    return url.lstrip("/")
 
 
 def bangumi_save_path(bangumi_name: str) -> Path:
