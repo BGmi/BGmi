@@ -16,7 +16,7 @@ defaults:
     shell: bash
 
 jobs:
-  test:
+  unit:
     runs-on: '${{ matrix.os }}-latest'
     strategy:
       fail-fast: false
@@ -106,3 +106,12 @@ jobs:
       - uses: codecov/codecov-action@v3
         with:
           flags: downloader
+
+  test-all-pass:
+    runs-on: ubuntu-latest
+    needs:
+      - unit
+      - downloader
+      - e2e
+    steps:
+      - run: exit 0
