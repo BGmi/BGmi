@@ -20,6 +20,7 @@ concurrency:
 
 jobs:
   unit:
+    name: test-unit
     runs-on: '${{ matrix.os }}-latest'
     strategy:
       fail-fast: false
@@ -51,6 +52,7 @@ jobs:
           flags: unit
 
   e2e:
+    name: test-e2e
     runs-on: '${{ matrix.os }}-latest'
     strategy:
       fail-fast: false
@@ -82,6 +84,7 @@ jobs:
           flags: e2e
 
   downloader:
+    name: test-downloader
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -109,12 +112,3 @@ jobs:
       - uses: codecov/codecov-action@v3
         with:
           flags: downloader
-
-  test-all-pass:
-    runs-on: ubuntu-latest
-    needs:
-      - unit
-      - downloader
-      - e2e
-    steps:
-      - run: exit 0
