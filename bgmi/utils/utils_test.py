@@ -11,5 +11,5 @@ from bgmi.utils import normalize_path
         ("/q://s?*", "q/s"),
     ],
 )
-def test_normalize_path(s: str, expected: str):
+def test_normalize_path(s: str, expected: str) -> None:
     assert normalize_path(s) == expected
