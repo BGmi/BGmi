@@ -69,7 +69,7 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
         episodes = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)
         followed_obj.episodes = {e.episode for e in episodes}  # type: ignore
     else:
-        followed_obj.episodes = set(range(0, episode + 1))
+        followed_obj.episodes = set(range(episode + 1))
 
     followed_obj.save()
 
