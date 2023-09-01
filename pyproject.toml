@@ -75,7 +75,7 @@ pytest-github-actions-annotate-failures = "==0.2.0"
 requests-cache = "==1.1.0"
 # lint
 pre-commit = '==3.3.3'
-mypy = "==1.4.1"
+mypy = "==1.5.1"
 flake8 = { version = "==6.1.0", python = "^3.9" }
 flake8-comprehensions = "==3.14.0"
 flake8-bugbear = { version = "==23.7.10", python = '^3.9' }
