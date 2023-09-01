@@ -39,7 +39,7 @@ repos:
         args: [--py38-plus]
 
   - repo: https://github.com/PyCQA/autoflake
-    rev: v2.2.0
+    rev: v2.2.1
     hooks:
       - id: autoflake
         args:
