@@ -57,7 +57,7 @@ def parse_bangumi_with_week_days(content, update_time, array_name) -> List[Websi
 
             bangumi.subtitle_group.append(SubtitleGroup(id=subtitle_group_id, name=subtitle_group_name))
 
-        name = re.sub("\\\\\\'", "'", name)
+        name = re.sub(r"\\'", "'", name)
         bangumi.name = name
         bangumi.update_time = update_time
         bangumi.keyword = keyword
