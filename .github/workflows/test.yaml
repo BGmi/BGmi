@@ -23,7 +23,7 @@ jobs:
         python: ["3.8", "3.11"]
         os: [macos, windows, ubuntu]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
