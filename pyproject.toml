@@ -67,7 +67,7 @@ uvicorn = { extras = ["standard"], version = "0.23.2" }
 fastapi = "0.103.2"
 # RPC library
 transmission-rpc = "==7.0.1"
-qbittorrent-api = "==2023.7.52"
+qbittorrent-api = "==2023.9.53"
 pycomplete = "0.4.0"
 yarl = "1.9.2"
 
