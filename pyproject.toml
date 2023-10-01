@@ -79,7 +79,7 @@ pytest-github-actions-annotate-failures = "==0.2.0"
 requests-cache = "==1.1.0"
 httpx = "0.24.1"
 # lint
-pre-commit = '==3.3.3'
+pre-commit = '==3.4.0'
 mypy = "1.5.1"
 # stubs
 types-requests = "==2.31.0.2"
