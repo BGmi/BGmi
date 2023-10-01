@@ -52,7 +52,7 @@ requests = { extras = ["socks"], version = "2.31.0" }
 icalendar = '==5.0.10'
 sqlalchemy = "2.0.21"
 wcwidth = "^0.2.6"
-pydantic = "==2.3.0"
+pydantic = "==2.4.2"
 stevedore = "==5.1.0"
 filetype = "1.2.0"
 strsimpy = "0.2.1"
