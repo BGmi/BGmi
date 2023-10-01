@@ -50,7 +50,7 @@ python = "^3.8.0"
 beautifulsoup4 = '==4.12.2'
 requests = { extras = ["socks"], version = "2.31.0" }
 icalendar = '==5.0.10'
-sqlalchemy = "2.0.20"
+sqlalchemy = "2.0.21"
 wcwidth = "^0.2.6"
 pydantic = "==2.3.0"
 stevedore = "==5.1.0"
