@@ -20,7 +20,7 @@ jobs:
     runs-on: ${{ format('{0}-latest', matrix.os) }}
     strategy:
       matrix:
-        python: ["3.8", "3.11"]
+        python: ["3.8", "3.12"]
         os: [macos, windows, ubuntu]
     steps:
       - uses: actions/checkout@v4
