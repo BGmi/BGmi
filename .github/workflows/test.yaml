@@ -8,7 +8,7 @@ on:
     branches-ignore:
       - renovate/**
       - deepsource-*
-  pull_request: {}
+  pull_request: { }
   merge_group:
 
 defaults:
@@ -20,8 +20,8 @@ jobs:
     runs-on: ${{ format('{0}-latest', matrix.os) }}
     strategy:
       matrix:
-        python: ["3.8", "3.11"]
-        os: [macos, windows, ubuntu]
+        python: [ "3.8", "3.12" ]
+        os: [ macos, windows, ubuntu ]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -46,3 +46,10 @@ jobs:
       - uses: codecov/codecov-action@v3
         with:
           flags: app,front
+
+  test-all-pass:
+    needs:
+      - test
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'OK'
