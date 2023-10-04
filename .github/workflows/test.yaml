@@ -17,11 +17,11 @@ defaults:
 
 jobs:
   unit:
-    runs-on: '${{ matrix.os }}-latest'
+    runs-on: "${{ matrix.os }}-latest"
     strategy:
       fail-fast: false
       matrix:
-        python: [ "3.8", "3.11" ]
+        python: ["3.8", "3.12"]
         os:
           - macos
           - windows
@@ -48,11 +48,11 @@ jobs:
           flags: unit
 
   e2e:
-    runs-on: '${{ matrix.os }}-latest'
+    runs-on: "${{ matrix.os }}-latest"
     strategy:
       fail-fast: false
       matrix:
-        python: [ "3.8", "3.11" ]
+        python: ["3.8", "3.11"]
         os:
           - macos
           - windows
