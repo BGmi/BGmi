@@ -17,11 +17,11 @@ defaults:
 
 jobs:
   unit:
-    runs-on: '${{ matrix.os }}-latest'
+    runs-on: "${{ matrix.os }}-latest"
     strategy:
       fail-fast: false
       matrix:
-        python: [ "3.8", "3.11" ]
+        python: ["3.8", "3.12"]
         os:
           - macos
           - windows
@@ -48,11 +48,11 @@ jobs:
           flags: unit
 
   e2e:
-    runs-on: '${{ matrix.os }}-latest'
+    runs-on: "${{ matrix.os }}-latest"
     strategy:
       fail-fast: false
       matrix:
-        python: [ "3.8", "3.11" ]
+        python: ["3.8", "3.12"]
         os:
           - macos
           - windows
@@ -80,11 +80,14 @@ jobs:
 
   downloader:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: [ "3.8", "3.12" ]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.8"
+          python-version: '${{ matrix.python }}'
 
       - uses: trim21/setup-poetry@dist/v1
       - uses: trim21/install-poetry-project@dist/v1

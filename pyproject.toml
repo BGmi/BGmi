@@ -23,6 +23,7 @@ classifiers = [
   'Programming Language :: Python :: 3.9',
   'Programming Language :: Python :: 3.10',
   'Programming Language :: Python :: 3.11',
+  'Programming Language :: Python :: 3.12',
   'Programming Language :: Python :: Implementation :: CPython',
   'Programming Language :: Python :: Implementation :: PyPy',
 ]
@@ -63,7 +64,7 @@ semver = "3.0.1"
 loguru = "0.7.2"
 click = "8.1.7"
 packaging = "23.2"
-uvicorn = { extras = ["standard"], version = "0.23.2" }
+uvicorn = { version = "0.23.2" }
 fastapi = "0.103.2"
 # RPC library
 transmission-rpc = "==7.0.1"
