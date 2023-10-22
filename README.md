@@ -143,7 +143,7 @@ bgmi config # 查看当前各项设置默认值.
 ```
 
 ```toml
-data_source = "bangumi_moe" # bangumi source
+data_source = "bangumi_moe" # bangumi source，!!! 请不要手动修改此选项 !!!
 download_delegate = "aria2-rpc" # 番剧下载工具 (aria2-rpc, transmission-rpc, deluge-rpc, qbittorrent-webapi)
 tmp_path = "tmp/tmp" # tmp dir
 save_path = "tmp/bangumi" # 下载番剧保存地址
