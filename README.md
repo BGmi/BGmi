@@ -251,6 +251,7 @@ bgmi config set max_path --value '3'
 bgmi source mikan_project
 ```
 
+**切换数据源必需使用bgmi source命令，不能手动修改配置文件。手动修改配置文件会导致 bgmi 报错**
 
 ### 设置下载方式
 
