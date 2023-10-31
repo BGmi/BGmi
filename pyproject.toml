@@ -63,7 +63,7 @@ semver = "3.0.1"
 loguru = "0.7.2"
 click = "8.1.7"
 # RPC library
-transmission-rpc = "==7.0.1"
+transmission-rpc = "==7.0.3"
 qbittorrent-api = "==2023.9.53"
 pycomplete = "0.4.0"
 
