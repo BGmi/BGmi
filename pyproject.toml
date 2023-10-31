@@ -59,7 +59,7 @@ strsimpy = "0.2.1"
 tomlkit = "0.12.1"
 strenum = "0.4.15"
 anime-episode-parser = "0.0.12"
-semver = "3.0.1"
+semver = "3.0.2"
 loguru = "0.7.2"
 click = "8.1.7"
 # RPC library
