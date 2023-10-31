@@ -51,7 +51,7 @@ requests = '==2.31.0'
 tornado = '==6.3.3'
 icalendar = '==5.0.10'
 peewee = '==3.16.3'
-wcwidth = "^0.2.8"
+wcwidth = "^0.2.9"
 pydantic = "==1.10.13"
 stevedore = "==5.1.0"
 filetype = "1.2.0"
