@@ -55,6 +55,10 @@
       "groupName": "deps",
       "matchManagers": [
         "poetry"
+      ],
+      "matchDepTypes": [
+        "dependencies",
+        "dev-dependencies"
       ]
     }
   ]
