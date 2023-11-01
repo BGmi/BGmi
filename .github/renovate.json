@@ -50,6 +50,12 @@
         "anime-episode-parser"
       ],
       "rangeStrategy": "bump"
+    },
+    {
+      "groupName": "deps",
+      "matchManagers": [
+        "poetry"
+      ]
     }
   ]
 }
