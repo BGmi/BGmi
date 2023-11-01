@@ -50,8 +50,8 @@ beautifulsoup4 = '==4.12.2'
 requests = '==2.31.0'
 tornado = '==6.3.3'
 icalendar = '==5.0.10'
-peewee = '==3.16.3'
-wcwidth = "^0.2.8"
+peewee = '==3.17.0'
+wcwidth = "^0.2.9"
 pydantic = "==1.10.13"
 stevedore = "==5.1.0"
 filetype = "1.2.0"
@@ -59,23 +59,23 @@ strsimpy = "0.2.1"
 tomlkit = "0.12.1"
 strenum = "0.4.15"
 anime-episode-parser = "0.0.12"
-semver = "3.0.1"
+semver = "3.0.2"
 loguru = "0.7.2"
 click = "8.1.7"
 # RPC library
-transmission-rpc = "==7.0.1"
-qbittorrent-api = "==2023.9.53"
+transmission-rpc = "==7.0.3"
+qbittorrent-api = "==2023.10.54"
 pycomplete = "0.4.0"
 
 [tool.poetry.dev-dependencies]
 # tests
 coverage = { version = "==7.3.2", extras = ['toml'] }
-pytest = "==7.4.2"
+pytest = "==7.4.3"
 pytest-github-actions-annotate-failures = "==0.2.0"
 requests-cache = "==1.1.0"
 # lint
-pre-commit = '==3.4.0'
-mypy = "==1.5.1"
+pre-commit = '==3.5.0'
+mypy = "==1.6.1"
 flake8 = { version = "==6.1.0", python = "^3.9" }
 flake8-comprehensions = "==3.14.0"
 flake8-bugbear = { version = "==23.9.16", python = '^3.9' }
@@ -85,7 +85,7 @@ flake8-2020 = "==1.8.1"
 flake8-pytest-style = "==1.7.2"
 flake8-pyproject = "1.2.3"
 # stubs
-types-requests = "==2.31.0.7"
+types-requests = "==2.31.0.10"
 [tool.coverage.report]
 exclude_lines = [
   'pragma: no cover',
