@@ -18,7 +18,7 @@ v5 不再像之前版本一样仅追踪目前订阅的最大集数，而是会�
 
 其他更新：
 
-- 为 `bgmi update` 命令默认启用 `--download` 参数
+- `bgmi update` 命令的 `--download` 参数已废弃，`update` 命令将总是尝试下载。
 - 重构 bgmi_http
 - 移除 '/resource/feed.xml'
 

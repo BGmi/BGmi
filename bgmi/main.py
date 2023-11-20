@@ -513,7 +513,12 @@ def fetch(name: str, not_ignore: bool) -> None:
     nargs=-1,
 )
 @click.option(
-    "-d", "--download", type=bool, default=True, help="Download specified episode of the bangumi when updated"
+    "-d",
+    "--download",
+    type=bool,
+    is_flag=True,
+    default=True,
+    help="Download specified episode of the bangumi when updated",
 )
 @click.option(
     "--not-ignore", "not_ignore", is_flag=True, help="Do not ignore the old bangumi detail rows (3 month ago)"
