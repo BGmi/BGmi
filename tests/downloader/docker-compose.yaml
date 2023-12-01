@@ -19,7 +19,7 @@ services:
       - 6881:6881
 
   qbittorrent:
-    image: ghcr.io/linuxserver/qbittorrent:4.6.1-r0-ls297
+    image: ghcr.io/linuxserver/qbittorrent:4.6.0-r0-ls293
     container_name: qbittorrent
     environment:
       - PUID=1000
