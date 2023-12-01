@@ -81,7 +81,7 @@ requests-cache = "==1.1.0"
 httpx = "0.25.0"
 # lint
 pre-commit = '==3.5.0'
-mypy = "1.6.1"
+mypy = "1.7.1"
 # stubs
 types-requests = "==2.31.0.10"
 types-beautifulsoup4 = "^4.12.0.5"
