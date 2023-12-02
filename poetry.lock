@@ -1163,13 +1163,13 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "requests-cache"
-version = "1.1.0"
+version = "1.1.1"
 description = "A persistent cache for python requests"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "requests_cache-1.1.0-py3-none-any.whl", hash = "sha256:178282bce704b912c59e7f88f367c42bddd6cde6bf511b2a3e3cfb7e5332a92a"},
-    {file = "requests_cache-1.1.0.tar.gz", hash = "sha256:41b79166aa8e300cc4de982f7ab7c52af914a785160be1eda25c6e9265969a67"},
+    {file = "requests_cache-1.1.1-py3-none-any.whl", hash = "sha256:c8420cf096f3aafde13c374979c21844752e2694ffd8710e6764685bb577ac90"},
+    {file = "requests_cache-1.1.1.tar.gz", hash = "sha256:764f93d3fa860be72125a568c2cc8eafb151cf29b4dc2515433a56ee657e1c60"},
 ]
 
 [package.dependencies]
@@ -1684,4 +1684,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.0"
-content-hash = "f309df358979fcdfbc355b9122088499bec5e994b05c31765c3677833378d1c8"
+content-hash = "ce7ffef67568dcbd9d19105fe8524ed1772cf3e5e85a42d2a2bd6e125ee06c15"
