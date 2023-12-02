@@ -78,7 +78,7 @@ coverage = { version = "==7.3.2", extras = ['toml'] }
 pytest = "==7.4.3"
 pytest-github-actions-annotate-failures = "==0.2.0"
 requests-cache = "==1.1.0"
-httpx = "0.25.0"
+httpx = "0.25.2"
 # lint
 pre-commit = '==3.5.0'
 mypy = "1.7.1"
