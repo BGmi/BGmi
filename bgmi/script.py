@@ -33,17 +33,20 @@ class ScriptRunner:
                     if os.getenv("DEBUG_SCRIPT"):  # pragma: no cover
                         traceback.print_exc()
                     continue
-                cls.check(script_class, i)
+                cls.check(script_class, i, kwargs.pop('update_days', None))
 
             cls._defined = super().__new__(cls, *args, **kwargs)
 
         return cls._defined
 
     @classmethod
-    def check(cls, script: "ScriptBase", fs: str) -> None:
+    def check(cls, script: "ScriptBase", fs: str, update_days: list[str] = None) -> None:
         model = script.Model()
         if model.due_date and model.due_date < datetime.datetime.now():
             print(f"Skip load {fs} because it has reach its due_date")
+            return
+        if update_days and model.update_time not in update_days:
+            print(f"Skip load {fs} because it's update_day({model.update_time}) not in range")
             return
 
         cls.scripts.append(script)

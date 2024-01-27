@@ -273,8 +273,13 @@ def search(
         }
 
 
-def update(names: List[str], download: Optional[bool] = False, not_ignore: bool = False) -> None:
-    logger.debug("updating bangumi info with args: download: {}", download)
+def update(
+    names: List[str],
+    download: Optional[bool] = False,
+    not_ignore: bool = False,
+    update_days: list[str] = None
+) -> None:
+    logger.debug("updating bangumi info with args: download: {}, update_days: {}", download, update_days)
 
     ignore = not bool(not_ignore)
     now = int(time.time())
@@ -284,7 +289,10 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
         download_previous_failed_downloads()
 
     if not names:
-        updated_bangumi_obj = sorted([x[0] for x in Followed.get_all_followed()], key=attrgetter("bangumi_name"))
+        updated_bangumi_obj = sorted(
+            [x[0] for x in Followed.get_all_followed(update_days=update_days)],
+            key=attrgetter("bangumi_name")
+        )
     else:
         updated_bangumi_obj = []
         for n in names:
@@ -294,7 +302,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             except Followed.NotFoundError:
                 logger.warning("missing followed bangumi '{}'", n)
 
-    runner = ScriptRunner()
+    runner = ScriptRunner(update_days=update_days)
 
     for script, all_episode_data in runner.run():
         if not download:

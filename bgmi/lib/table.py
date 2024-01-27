@@ -232,13 +232,16 @@ class Followed(Base):
 
     @classmethod
     def get_all_followed(
-        cls: Type["Followed"], bangumi_status: int = Bangumi.STATUS_UPDATING
+        cls: Type["Followed"], bangumi_status: int = Bangumi.STATUS_UPDATING, update_days: list[str] = None
     ) -> List[Row[Tuple["Followed", "Bangumi"]]]:
+        where_con = [cls.status.isnot(cls.STATUS_DELETED), Bangumi.status == bangumi_status]
+        if update_days:
+            where_con.append(Bangumi.update_day.in_(update_days))
         with Session() as tx:
             return list(
                 tx.query(Followed, Bangumi)
                 .join(Bangumi, cls.bangumi_name == Bangumi.name)
-                .where(cls.status.isnot(cls.STATUS_DELETED), Bangumi.status == bangumi_status)
+                .where(*where_con)
                 .order_by(cls.updated_time.desc())
                 .all()
             )
