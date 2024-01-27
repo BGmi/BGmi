@@ -20,7 +20,9 @@ class ScriptRunner:
     scripts: ClassVar["List[ScriptBase]"] = []
 
     def __new__(cls, *args, **kwargs):  # type: ignore
-        if cls._defined is None:
+        update_days = kwargs.pop('update_days', None)
+        if cls._defined is None or update_days:  # reload scripts if update_days is specified
+            cls.scripts = []
             script_files = glob.glob(f"{cfg.script_path}{os.path.sep}*.py")
             for i in script_files:
                 try:
@@ -33,7 +35,7 @@ class ScriptRunner:
                     if os.getenv("DEBUG_SCRIPT"):  # pragma: no cover
                         traceback.print_exc()
                     continue
-                cls.check(script_class, i, kwargs.pop('update_days', None))
+                cls.check(script_class, i, update_days)
 
             cls._defined = super().__new__(cls, *args, **kwargs)
 
