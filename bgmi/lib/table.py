@@ -232,7 +232,7 @@ class Followed(Base):
 
     @classmethod
     def get_all_followed(
-        cls: Type["Followed"], bangumi_status: int = Bangumi.STATUS_UPDATING, update_days: list[str] = None
+        cls: Type["Followed"], bangumi_status: int = Bangumi.STATUS_UPDATING, update_days: Optional[list[str]] = None
     ) -> List[Row[Tuple["Followed", "Bangumi"]]]:
         where_con = [cls.status.isnot(cls.STATUS_DELETED), Bangumi.status == bangumi_status]
         if update_days:

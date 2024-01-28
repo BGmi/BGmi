@@ -274,10 +274,7 @@ def search(
 
 
 def update(
-    names: List[str],
-    download: Optional[bool] = False,
-    not_ignore: bool = False,
-    update_days: list[str] = None
+    names: List[str], download: Optional[bool] = False, not_ignore: bool = False, update_days: Optional[list[str]] = None
 ) -> None:
     logger.debug("updating bangumi info with args: download: {}, update_days: {}", download, update_days)
 
@@ -290,8 +287,7 @@ def update(
 
     if not names:
         updated_bangumi_obj = sorted(
-            [x[0] for x in Followed.get_all_followed(update_days=update_days)],
-            key=attrgetter("bangumi_name")
+            [x[0] for x in Followed.get_all_followed(update_days=update_days)], key=attrgetter("bangumi_name")
         )
     else:
         updated_bangumi_obj = []
