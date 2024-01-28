@@ -683,7 +683,7 @@ def seen_forget(name: str, episode: int) -> None:
     e.save()
 
 
-@cli.command("change", help="Custom field value of bangumi")
+@cli.command("change")
 @click.argument("name", required=True)
 @click.option(
     "-u", "--update_day", type=click.Choice(BANGUMI_UPDATE_TIME, case_sensitive=False), help="Set update_day of bangumi"

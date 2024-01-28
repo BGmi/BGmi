@@ -106,3 +106,20 @@ def test_fetch(bangumi_names):
     name = bangumi_names[0]
     main_for_test(f"add {name} --episode 0".split())
     main_for_test(f"fetch {name}".split())
+
+
+@pytest.mark.usefixtures("_clean_bgmi")
+def test_change(bangumi_names):
+    name = bangumi_names[0]
+    main_for_test(["add", *bangumi_names])
+    assert Bangumi.get(Bangumi.name == name).update_day == "Sun"
+
+    main_for_test(f"change {name} --update_day Wed".split())
+    assert Bangumi.get(Bangumi.name == name).update_day == "Wed"
+
+    main_for_test(["cal", "-f"])
+    assert Bangumi.get(Bangumi.name == name).update_day == "Wed"
+
+    main_for_test(f"change {name} --clear".split())
+    main_for_test(["cal", "-f"])
+    assert Bangumi.get(Bangumi.name == name).update_day == "Sun"
