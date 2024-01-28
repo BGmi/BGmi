@@ -85,6 +85,7 @@ class Bangumi(Base):
     status: Mapped[int] = Column(
         Integer, nullable=False, default=STATUS_UPDATING, server_default=str(STATUS_UPDATING)
     )  # type: ignore
+    custom_field: Mapped[List[str]] = Column(sa.JSON, nullable=False, default=[], server_default="[]")  # type: ignore
 
     if TYPE_CHECKING:
 
@@ -96,6 +97,7 @@ class Bangumi(Base):
             subtitle_group: Optional[List[str]] = None,
             cover: str = "",
             status: int = STATUS_UPDATING,
+            custom_field: Optional[List[str]] = None,
         ):
             super().__init__()
 

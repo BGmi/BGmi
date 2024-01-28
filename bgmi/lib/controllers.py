@@ -393,3 +393,28 @@ def download_episodes(all_episode_data: List[Episode], following: Union[Followed
         following.status = Followed.STATUS_UPDATED
         following.updated_time = int(time.time())
         following.save()
+
+
+def change(name: str, update_day: str = "", clear: bool = False) -> ControllerResult:
+    result = {"status": "success", "message": ""}  # type: Dict[str, Any]
+    try:
+        bangumi_obj = Bangumi.get(Bangumi.name.contains(name))
+    except Bangumi.NotFoundError:
+        result["status"] = "error"
+        result["message"] = f"Bangumi {name} does not exist."
+        return result
+
+    if clear:
+        bangumi_obj.custom_field = []
+        bangumi_obj.save()
+        result["message"] = f"Bangumi {bangumi_obj.name} cleared, you can use 'bgmi cal -f' to update, or wait automatically update"
+        return result
+
+    if update_day:
+        bangumi_obj.update_day = update_day
+        bangumi_obj.custom_field = ["update_day"]
+        bangumi_obj.save()
+        result["message"] = f"Bangumi {bangumi_obj.name} changed update_day to {update_day}, will not be updated automatically"
+        return result
+
+    return result

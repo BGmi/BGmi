@@ -527,8 +527,7 @@ def fetch(name: str, not_ignore: bool) -> None:
 @click.option(
     "-w",
     "--weekday",
-    default=None,
-    type=click.Choice(BANGUMI_UPDATE_TIME),
+    type=click.Choice(BANGUMI_UPDATE_TIME, case_sensitive=False),
     multiple=True,
     help="Update bangumi of specific weekday",
 )
@@ -682,3 +681,18 @@ def seen_forget(name: str, episode: int) -> None:
         return
     e.episodes.remove(episode)
     e.save()
+
+
+@cli.command("change", help="Custom field value of bangumi")
+@click.argument("name", required=True)
+@click.option(
+    "-u", "--update_day", type=click.Choice(BANGUMI_UPDATE_TIME, case_sensitive=False), help="Set update_day of bangumi"
+)
+@click.option("--clear", is_flag=True, default=False, help="Delete custom fields of bangumi")
+def change(name: str, update_day: str, clear: bool) -> None:
+    """
+    name: bangumi name to custom field
+    """
+    result = ctl.change(name, update_day=update_day, clear=clear)
+    if result["message"]:
+        globals()["print_{}".format(result["status"])](result["message"])
