@@ -110,16 +110,23 @@ def test_fetch(bangumi_names):
 
 @pytest.mark.usefixtures("_clean_bgmi")
 def test_change(bangumi_names):
-    name = bangumi_names[0]
-    main_for_test(["add", *bangumi_names])
-    assert Bangumi.get(Bangumi.name == name).update_day == "Sun"
+    class MockWebsite(BangumiMoe):
+        def fetch_bangumi_calendar(self):
+            bangumi = BangumiMoe().fetch_bangumi_calendar()
+            bangumi[0].update_day = "Unknown"
+            return bangumi
 
-    main_for_test(f"change {name} --update_day Wed".split())
-    assert Bangumi.get(Bangumi.name == name).update_day == "Wed"
+    with mock.patch("bgmi.lib.controllers.website", MockWebsite()):
+        name = bangumi_names[0]
+        main_for_test(["add", name])
+        assert Bangumi.get(Bangumi.name == name).update_day == "Unknown"
 
-    main_for_test(["cal", "-f"])
-    assert Bangumi.get(Bangumi.name == name).update_day == "Wed"
+        main_for_test(f"change {name} --update_day Wed".split())
+        assert Bangumi.get(Bangumi.name == name).update_day == "Wed"
 
-    main_for_test(f"change {name} --clear".split())
-    main_for_test(["cal", "-f"])
-    assert Bangumi.get(Bangumi.name == name).update_day == "Sun"
+        main_for_test(["cal", "-f"])
+        assert Bangumi.get(Bangumi.name == name).update_day == "Wed"
+
+        main_for_test(f"change {name} --clear".split())
+        main_for_test(["cal", "-f"])
+        assert Bangumi.get(Bangumi.name == name).update_day == "Unknown"
