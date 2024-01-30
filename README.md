@@ -292,7 +292,7 @@ bgmi update "从零开始的魔法书" --download
 # 只下载特定更新日期的订阅番剧
 bgmi update --download --weekday "Sun"
 # 下载昨天和今天更新的订阅番剧
-bgmi update --download --recent 
+bgmi update --download --recent
 ```
 
 设置筛选条件:

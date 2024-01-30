@@ -82,15 +82,16 @@ def test_cal():
             assert "cover" in bangumi
             assert "episode" in bangumi
 
+
 @pytest.mark.usefixtures("_ensure_data")
 def test_change():
-    assert Bangumi.get(Bangumi.name == bangumi_name_2).update_day == 'Unknown'
+    assert Bangumi.get(Bangumi.name == bangumi_name_2).update_day == "Unknown"
 
     r = change("Not found name", update_day="Sun")
     assert r["status"] == "error", r["message"]
 
     r = change(bangumi_name_2, update_day="Sun")
-    assert Bangumi.get(Bangumi.name == bangumi_name_2).update_day == 'Sun'
+    assert Bangumi.get(Bangumi.name == bangumi_name_2).update_day == "Sun"
 
     r = change(bangumi_name_2, clear=True)
     assert not Bangumi.get(Bangumi.name == bangumi_name_2).custom_field

@@ -274,7 +274,10 @@ def search(
 
 
 def update(
-    names: List[str], download: Optional[bool] = False, not_ignore: bool = False, update_days: Optional[list[str]] = None
+    names: List[str],
+    download: Optional[bool] = False,
+    not_ignore: bool = False,
+    update_days: Optional[list[str]] = None,
 ) -> None:
     logger.debug("updating bangumi info with args: download: {}, update_days: {}", download, update_days)
 
@@ -407,14 +410,18 @@ def change(name: str, update_day: str = "", clear: bool = False) -> ControllerRe
     if clear:
         bangumi_obj.custom_field = []
         bangumi_obj.save()
-        result["message"] = f"Bangumi {bangumi_obj.name} cleared, you can use 'bgmi cal -f' to update, or wait automatically update"
+        result[
+            "message"
+        ] = f"Bangumi {bangumi_obj.name} cleared, you can use 'bgmi cal -f' to update, or wait automatically update"
         return result
 
     if update_day:
         bangumi_obj.update_day = update_day
         bangumi_obj.custom_field = ["update_day"]
         bangumi_obj.save()
-        result["message"] = f"Bangumi {bangumi_obj.name} changed update_day to {update_day}, will not be updated automatically"
+        result[
+            "message"
+        ] = f"Bangumi {bangumi_obj.name} changed update_day to {update_day}, will not be updated automatically"
         return result
 
     return result
