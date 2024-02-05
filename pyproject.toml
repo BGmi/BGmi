@@ -52,7 +52,7 @@ tornado = '==6.4'
 icalendar = '==5.0.11'
 peewee = '==3.17.0'
 wcwidth = "^0.2.12"
-pydantic = "==1.10.13"
+pydantic = "==2.6.1"
 stevedore = "==5.1.0"
 filetype = "1.2.0"
 strsimpy = "0.2.1"
