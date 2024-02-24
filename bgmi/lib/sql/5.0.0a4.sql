@@ -1,0 +1,1 @@
+ALTER TABLE bangumi ADD COLUMN custom_field JSON DEFAULT '[]' NOT NULL;

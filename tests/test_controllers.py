@@ -4,8 +4,8 @@ import pytest
 
 from bgmi.lib import controllers as ctl
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
-from bgmi.lib.controllers import cal
-from bgmi.lib.table import Followed, NotFoundError, recreate_source_relatively_table
+from bgmi.lib.controllers import cal, change
+from bgmi.lib.table import Bangumi, Followed, NotFoundError, recreate_source_relatively_table
 
 bangumi_name_1 = "名侦探柯南"
 bangumi_name_2 = "海贼王"
@@ -81,3 +81,17 @@ def test_cal():
             assert "update_day" in bangumi
             assert "cover" in bangumi
             assert "episode" in bangumi
+
+
+@pytest.mark.usefixtures("_ensure_data")
+def test_change():
+    assert Bangumi.get(Bangumi.name == bangumi_name_2).update_day == "Unknown"
+
+    r = change("Not found name", update_day="Sun")
+    assert r["status"] == "error", r["message"]
+
+    r = change(bangumi_name_2, update_day="Sun")
+    assert Bangumi.get(Bangumi.name == bangumi_name_2).update_day == "Sun"
+
+    r = change(bangumi_name_2, clear=True)
+    assert not Bangumi.get(Bangumi.name == bangumi_name_2).custom_field
