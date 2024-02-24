@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-import packaging.version
+from packaging.version import Version, parse
 
 from bgmi import __version__
 from bgmi.config import BGMI_PATH, cfg
@@ -21,13 +21,13 @@ def exec_sql(sql: str, db: Path = cfg.db_path) -> None:
         print_error("Execute SQL statement failed", stop=False)
 
 
-def patch_db(start: str, end: str, db: Path = cfg.db_path) -> None:
+def patch_db(start: Version, end: Version, db: Path = cfg.db_path) -> None:
     """
     Update db by order of versions
     """
     sql_path = Path("bgmi/lib/sql/")
     for filename in sorted(sql_path.glob("*.sql")):
-        version = packaging.version.Version(filename.stem)
+        version = Version(filename.stem)
         if start < version <= end:
             with open(filename, encoding="utf8") as f:
                 exec_sql(f.read(), db=db)
@@ -38,8 +38,8 @@ def update_database() -> None:
         old_version_file.write_text(__version__, encoding="utf8")
         return
 
-    previous = packaging.version.parse(old_version_file.read_text(encoding="utf8").strip())
-    if previous < packaging.version.Version("5.0.0a0"):
+    previous = parse(old_version_file.read_text(encoding="utf8").strip())
+    if previous < Version("5.0.0a0"):
         print_error(
             (
                 "can't automatically upgrade from <5.0.0 version, "
@@ -52,6 +52,6 @@ def update_database() -> None:
         )
 
     # try to patch database
-    patch_db(start=previous, end=packaging.version.Version(__version__))
+    patch_db(start=previous, end=Version(__version__))
     # all upgrade done, write current version
     old_version_file.write_text(__version__, encoding="utf8")
