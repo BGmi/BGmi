@@ -21,6 +21,18 @@ def exec_sql(sql: str, db: Path = cfg.db_path) -> None:
         print_error("Execute SQL statement failed", stop=False)
 
 
+def patch_db(start: str, end: str, db: Path = cfg.db_path) -> None:
+    """
+    Update db by order of versions
+    """
+    sql_path = Path("bgmi/lib/sql/")
+    for filename in sorted(sql_path.glob("*.sql")):
+        version = packaging.version.Version(filename.stem)
+        if start < version <= end:
+            with open(filename, encoding="utf8") as f:
+                exec_sql(f.read(), db=db)
+
+
 def update_database() -> None:
     if not old_version_file.exists():
         old_version_file.write_text(__version__, encoding="utf8")
@@ -39,5 +51,7 @@ def update_database() -> None:
             stop=True,
         )
 
+    # try to patch database
+    patch_db(start=previous, end=packaging.version.Version(__version__))
     # all upgrade done, write current version
     old_version_file.write_text(__version__, encoding="utf8")
