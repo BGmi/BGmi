@@ -66,6 +66,7 @@ click = "8.1.7"
 transmission-rpc = "==7.0.3"
 qbittorrent-api = "==2023.11.57"
 pycomplete = "0.4.0"
+nicegui = "^1.4.20"
 
 [tool.poetry.dev-dependencies]
 # tests
