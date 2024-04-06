@@ -70,8 +70,8 @@ class BaseWebsite:
 
         :return: list of bangumi followed
         """
-        weekly_list_followed = Bangumi.get_updating_bangumi(status=STATUS_FOLLOWED)
-        weekly_list_updated = Bangumi.get_updating_bangumi(status=STATUS_UPDATED)
+        weekly_list_followed = Bangumi.get_bangumi(bangumi_status=STATUS_UPDATING, followed_status=STATUS_FOLLOWED)
+        weekly_list_updated = Bangumi.get_bangumi(bangumi_status=STATUS_UPDATING, followed_status=STATUS_UPDATED)
         weekly_list = defaultdict(list)
         for k, v in chain(weekly_list_followed.items(), weekly_list_updated.items()):
             weekly_list[k].extend(v)

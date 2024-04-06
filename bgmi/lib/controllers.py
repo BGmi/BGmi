@@ -16,6 +16,7 @@ from bgmi.lib.models import (
     STATUS_FOLLOWED,
     STATUS_NOT_DOWNLOAD,
     STATUS_UPDATED,
+    STATUS_UPDATING,
     Bangumi,
     DoesNotExist,
     Download,
@@ -50,7 +51,7 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
     # action add
     # add bangumi by a list of bangumi name
     logger.debug("add name: %s episode: %d", name, episode)
-    if not Bangumi.get_updating_bangumi():
+    if not Bangumi.get_bangumi(bangumi_status=STATUS_UPDATING):
         website.fetch(group_by_weekday=False)
 
     try:
@@ -184,10 +185,17 @@ def delete(name: str = "", clear_all: bool = False, batch: bool = False) -> Cont
     return result
 
 
-def cal(force_update: bool = False, cover: Optional[List[str]] = None) -> Dict[str, List[Dict[str, Any]]]:
+def cal(force_update: bool = False, cover: Optional[List[str]] = None, updating: bool = True) -> Dict[str, List[Dict[str, Any]]]:
     logger.debug("cal force_update: {}", force_update)
 
-    weekly_list = Bangumi.get_updating_bangumi()
+    def get_weekly_list() -> Any:
+        if updating:
+            return Bangumi.get_bangumi(bangumi_status=STATUS_UPDATING)
+        else:
+            return Bangumi.get_bangumi()
+
+    weekly_list = get_weekly_list()
+
     if not weekly_list:
         print_warning("Warning: no bangumi schedule, fetching ...")
         force_update = True
@@ -196,7 +204,7 @@ def cal(force_update: bool = False, cover: Optional[List[str]] = None) -> Dict[s
         print_info("Fetching bangumi info ...")
         website.fetch()
 
-    weekly_list = Bangumi.get_updating_bangumi()
+    weekly_list = get_weekly_list()
 
     if cover is not None:
         # download cover to local

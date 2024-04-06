@@ -504,7 +504,7 @@ def history() -> None:
         "December",
     )
     data = Followed.select(Followed).order_by(Followed.updated_time.asc())
-    bangumi_data = Bangumi.get_updating_bangumi()
+    bangumi_data = Bangumi.get_bangumi()
     year = None
     month = None
 

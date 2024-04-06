@@ -25,35 +25,79 @@ def async_wrapper(function) -> Any:
 async def main_page() -> None:
     with ui.header().classes(replace='row items-center'):
         with ui.tabs() as tabs:
-            ui.tab('Calander')
-            ui.tab('Subscribe')
+            ui.tab('Calander').props('no-caps')
+            ui.tab('Subscribe').props('no-caps')
 
     with ui.footer(value=False).style('background-color: #343741;').classes('items-center') as footer:
         ui.spinner(size='2em', color='blue')
-        ui.label('Submiting to download...')
+        footer_label = ui.label('Submiting to download...')
+
+    @async_wrapper
+    def ctl_download(bangumi_list) -> None:
+        ctl.update(bangumi_list, download=True)
+
+    def get_cur_bangumi():
+        cur_bangumi = None
+        if panels.value == 'Subscribe':
+            cur_bangumi = bangumi_search_name.text
+            if cur_bangumi == DEFAULT_BANGUMI_NAME:
+                cur_bangumi = None
+        return cur_bangumi
+
+    async def do_download() -> None:
+        cur_bangumi = get_cur_bangumi()
+
+        bangumi_list = [cur_bangumi] if cur_bangumi else []
+
+        if cur_bangumi:
+            footer_label.set_text(f'Checking {cur_bangumi}...')
+        else:
+            footer_label.set_text('Checking all bangumi...')
+
+        # footer_download_button.disable()
+        footer.toggle()
+        await ctl_download(bangumi_list)
+        # footer_download_button.enable()
+        footer.toggle()
+
+    async def refresh_cur_page():
+        cur_bangumi = get_cur_bangumi()
+        if cur_bangumi:
+            # Refresh bangumi info
+            bangumi_detail_tab.refresh()
+            ui.notify('Bangumi Info refreshed')
+        else:
+            # Force refresh weekly list
+            nonlocal weekly_list
+            weekly_list = await fetch_weekly_list(True)
+            weekly_list_tab.refresh()
+            ui.notify('Weekly list refreshed')
 
     with ui.tab_panels(tabs, value='Calander').classes('w-full') as panels:
+        @async_wrapper
+        def fetch_weekly_list(force_update=False) -> Dict[str, List[Dict[str, Any]]]:
+            return ctl.cal(cover=None, force_update=force_update, updating=only_show_updating_bgngumi_checkbox.value)
+
+        loading_weekly_list = True
+        weekly_list = {}
+
+        def refresh_weekly_list_tab():
+            nonlocal loading_weekly_list
+            loading_weekly_list = True
+            weekly_list_tab.refresh()
+
         @ui.refreshable
         async def weekly_list_tab() -> None:
-            @async_wrapper
-            def fetch_weekly_list() -> Dict[str, List[Dict[str, Any]]]:
-                return ctl.cal(cover=None)
-            weekly_list = await fetch_weekly_list()
+            nonlocal loading_weekly_list
+            nonlocal weekly_list
 
-            @async_wrapper
-            def ctl_download() -> None:
-                ctl.update([], download=True)
+            if loading_weekly_list:
+                ui.spinner(size='2em')
+                weekly_list = await fetch_weekly_list(False)
+                loading_weekly_list = False
+                weekly_list_tab.refresh()
+                return
 
-            async def do_download() -> None:
-                footer_button.disable()
-                footer.toggle()
-                await ctl_download()
-                footer_button.enable()
-                footer.toggle()
-
-            with ui.page_sticky(position='bottom-right', x_offset=20, y_offset=20):
-                footer_button = ui.button(on_click=do_download,
-                                          icon='download').props('fab')
             order_without_unknown = BANGUMI_UPDATE_TIME[:-1]
             weekday_order = order_without_unknown
 
@@ -66,10 +110,10 @@ async def main_page() -> None:
                 def switch_to_subscribe(bangumi_name: str) -> None:
                     bangumi_search_name.set_text(bangumi_name)
                     panels.set_value('Subscribe')
-                    subscribe_bangumi.refresh()
+                    bangumi_detail_tab.refresh()
 
                 with ui.row().classes('items-center'):
-                    for bangumi in weekday_bangumi:
+                    for bangumi in sorted(weekday_bangumi, key=lambda x: int(x['id'])):
                         if bangumi["status"] in (STATUS_UPDATED, STATUS_FOLLOWED) and "episode" in bangumi:
                             bangumi_to_display = "{} ({:d})".format(
                                 bangumi["name"], bangumi["episode"])
@@ -88,12 +132,30 @@ async def main_page() -> None:
                             on_click=lambda bangumi=bangumi: switch_to_subscribe(
                                 bangumi['name']),
                             color=color,
-                        )
+                        ).props('no-caps')
         with ui.tab_panel('Calander'):
+            async def refresh_weekly_list() -> None:
+                nonlocal weekly_list
+                weekly_list = await fetch_weekly_list(False)
+                weekly_list_tab.refresh()
+
+            with ui.row():
+                ui.button(
+                    'Refresh Weekly List',
+                    on_click=refresh_cur_page,
+                ).props('no-caps')
+                ui.button(
+                    'Download All Bangumi',
+                    on_click=do_download,
+                ).props('no-caps')
+                only_show_updating_bgngumi_checkbox = ui.checkbox(
+                    'Only show updating bangumi',
+                    value=True, on_change=refresh_weekly_list,
+                )
             await weekly_list_tab()
 
         @ui.refreshable
-        async def subscribe_bangumi() -> None:
+        async def bangumi_detail_tab() -> None:
             bangumi_name = bangumi_search_name.text
             if bangumi_name == DEFAULT_BANGUMI_NAME:
                 return
@@ -153,7 +215,7 @@ async def main_page() -> None:
 
                 with ui.splitter().classes('w-full').style('padding-top: 16px;') as splitter:
                     with splitter.before:
-                        with ui.column().classes('w-full').style('padding-right: 16px;'):
+                        with ui.column().classes('w-full').style('padding-right: 16px; padding-bottom: 16px;'):
                             mark_episode_input = ui.number(
                                 label='Mark Episode', value=followed.episode, precision=0)
 
@@ -198,7 +260,7 @@ async def main_page() -> None:
                                     episode = 0
                                 ctl.mark(bangumi_name, episode)
                                 refresh_preview()
-                                subscribe_bangumi.refresh()
+                                refresh_weekly_list_tab()
 
                             def show_delete_or_resubscribe() -> None:
                                 async def on_delete() -> None:
@@ -208,15 +270,15 @@ async def main_page() -> None:
                                     bangumi_search_name.set_text(
                                         DEFAULT_BANGUMI_NAME)
                                     panels.set_value('Calander')
-                                    weekly_list_tab.refresh()
+                                    refresh_weekly_list_tab()
 
                                 async def on_resubscribe() -> None:
                                     ctl.add(
                                         name=bangumi_name,
                                         episode=followed.episode,
                                     )
-                                    subscribe_bangumi.refresh()
-                                    weekly_list_tab.refresh()
+                                    bangumi_detail_tab.refresh()
+                                    refresh_weekly_list_tab()
 
                                 try:
                                     is_deleted = Followed.get(
@@ -226,12 +288,14 @@ async def main_page() -> None:
 
                                 if is_deleted:
                                     ui.button('Resubscribe',
-                                              on_click=on_resubscribe)
+                                              on_click=on_resubscribe).props('no-caps')
                                 else:
-                                    ui.button('Delete', on_click=on_delete)
+                                    ui.button('Delete', on_click=on_delete).props(
+                                        'no-caps')
 
                             with ui.row():
-                                ui.button('Save', on_click=on_save)
+                                ui.button('Save', on_click=on_save).props(
+                                    'no-caps')
                                 show_delete_or_resubscribe()
 
                     with splitter.after:
@@ -251,20 +315,29 @@ async def main_page() -> None:
                         ctl.add(bangumi_name, episode)
                     await add_wrapper()
 
-                    subscribe_bangumi.refresh()
+                    bangumi_detail_tab.refresh()
                     weekly_list_tab.refresh()
 
                 with ui.row().style('align-items: center;'):
                     subscribe_episode_input = ui.number(
                         label='Episode', value=0, precision=0)
                     ui.button('Subscribe', color='green').on_click(
-                        do_subscribe)
+                        do_subscribe).props('no-caps')
 
         with ui.tab_panel('Subscribe'):
+            with ui.row():
+                ui.button(
+                    'Refresh Bangumi Info',
+                    on_click=refresh_cur_page,
+                ).props('no-caps')
+                ui.button(
+                    'Download This Bangumi',
+                    on_click=do_download,
+                ).props('no-caps')
             bangumi_search_name = ui.label(
                 DEFAULT_BANGUMI_NAME).style('font-size: 200%;')
 
-            await subscribe_bangumi()
+            await bangumi_detail_tab()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--host', default='localhost')
