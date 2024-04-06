@@ -1,11 +1,10 @@
+from typing import Any, Dict, List
 from nicegui import ui
 from bgmi.lib import controllers as ctl
 
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.lib.fetch import website
-import subprocess
 from bgmi.lib.models import STATUS_DELETED, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, Filter, Followed, Subtitle
-import time
 import asyncio
 
 import argparse
@@ -14,8 +13,8 @@ import argparse
 DEFAULT_BANGUMI_NAME = 'Choose a Bangumi in Calander'
 
 
-def async_wrapper(function):
-    async def wrapper(*args, **kwargs):
+def async_wrapper(function) -> Any:
+    async def wrapper(*args, **kwargs) -> Any:
         loop = asyncio.get_event_loop()
         result = await loop.run_in_executor(None, function, *args, **kwargs)
         return result
@@ -23,7 +22,7 @@ def async_wrapper(function):
 
 
 @ui.page('/')
-async def main_page():
+async def main_page() -> None:
     with ui.header().classes(replace='row items-center'):
         with ui.tabs() as tabs:
             ui.tab('Calander')
@@ -35,9 +34,9 @@ async def main_page():
 
     with ui.tab_panels(tabs, value='Calander').classes('w-full') as panels:
         @ui.refreshable
-        async def weekly_list_tab():
+        async def weekly_list_tab() -> None:
             @async_wrapper
-            def fetch_weekly_list():
+            def fetch_weekly_list() -> Dict[str, List[Dict[str, Any]]]:
                 return ctl.cal(cover=None)
             weekly_list = await fetch_weekly_list()
 
@@ -45,7 +44,7 @@ async def main_page():
             def ctl_download():
                 ctl.update([], download=True)
 
-            async def do_download():
+            async def do_download() -> None:
                 footer_button.disable()
                 footer.toggle()
                 await ctl_download()
@@ -64,7 +63,7 @@ async def main_page():
                     continue
                 ui.label(weekday).style('font-size: 150%;')
 
-                def switch_to_subscribe(bangumi_name):
+                def switch_to_subscribe(bangumi_name) -> None:
                     bangumi_search_name.set_text(bangumi_name)
                     panels.set_value('Subscribe')
                     subscribe_bangumi.refresh()
@@ -94,7 +93,7 @@ async def main_page():
             await weekly_list_tab()
 
         @ui.refreshable
-        async def subscribe_bangumi():
+        async def subscribe_bangumi() -> None:
             bangumi_name = bangumi_search_name.text
             if bangumi_name == DEFAULT_BANGUMI_NAME:
                 return
@@ -147,7 +146,7 @@ async def main_page():
                             for episode in episode_preview:
                                 ui.label(episode.title)
 
-                def refresh_preview():
+                def refresh_preview() -> None:
                     nonlocal loading_preview
                     loading_preview = True
                     preview_fetch.refresh()
