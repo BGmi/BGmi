@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from nicegui import ui
 from bgmi.lib import controllers as ctl
 from bgmi.website.model import Episode
@@ -14,7 +14,7 @@ DEFAULT_BANGUMI_NAME = 'Choose a Bangumi in Calander'
 
 
 def async_wrapper(function) -> Any:
-    async def wrapper(*args, **kwargs) -> Any:
+    async def wrapper(*args: Any, **kwargs: Any) -> Any:
         loop = asyncio.get_event_loop()
         result = await loop.run_in_executor(None, function, *args, **kwargs)
         return result
@@ -63,7 +63,7 @@ async def main_page() -> None:
                     continue
                 ui.label(weekday).style('font-size: 150%;')
 
-                def switch_to_subscribe(bangumi_name) -> None:
+                def switch_to_subscribe(bangumi_name: str) -> None:
                     bangumi_search_name.set_text(bangumi_name)
                     panels.set_value('Subscribe')
                     subscribe_bangumi.refresh()
@@ -128,6 +128,7 @@ async def main_page() -> None:
                 @ui.refreshable
                 async def preview_fetch() -> None:
                     nonlocal loading_preview
+                    nonlocal episode_preview
                     if loading_preview:
                         ui.spinner(size='2em')
                         bangumi_obj = Bangumi.get(name=bangumi_name)
@@ -137,7 +138,6 @@ async def main_page() -> None:
                             _, data = website.get_maximum_episode(
                                 bangumi_obj, ignore_old_row=False)
                             return data
-                        nonlocal episode_preview
                         episode_preview = await fetch_episodes()
                         loading_preview = False
                         preview_fetch.refresh()
@@ -157,7 +157,7 @@ async def main_page() -> None:
                             mark_episode_input = ui.number(
                                 label='Mark Episode', value=followed.episode, precision=0)
 
-                            def input_forward(x) -> str:
+                            def input_forward(x: Optional[str]) -> str:
                                 if x is None:
                                     return ''
                                 return x
