@@ -44,11 +44,6 @@ async def main_page():
             @async_wrapper
             def ctl_download():
                 ctl.update([], download=True)
-                time.sleep(5)
-                subprocess.run([
-                    '/home/elsa/miniconda3/bin/python',
-                    '/mnt/cloud/Code/animate/bgmi-renamer.py'
-                ])
 
             async def do_download():
                 footer_button.disable()
