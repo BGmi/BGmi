@@ -99,9 +99,43 @@ async def main_page():
             if bangumi_name == DEFAULT_BANGUMI_NAME:
                 return
 
-            is_already_subscribed = Followed.get_or_none(
-                Followed.bangumi_name == bangumi_name) is not None
+            followed = Followed.get_or_none(
+                Followed.bangumi_name == bangumi_name)
+            is_already_subscribed = followed is not None
             if is_already_subscribed:
+
+                def show_delete_or_resubscribe():
+                    async def on_delete():
+                        ctl.delete(
+                            name=bangumi_name,
+                        )
+                        bangumi_search_name.set_text(
+                            DEFAULT_BANGUMI_NAME)
+                        panels.set_value('Calander')
+                        weekly_list_tab.refresh()
+
+                    async def on_resubscribe():
+                        ctl.add(
+                            name=bangumi_name,
+                            episode=followed.episode,
+                        )
+                        subscribe_bangumi.refresh()
+                        weekly_list_tab.refresh()
+
+                    try:
+                        is_deleted = Followed.get(
+                            bangumi_name=bangumi_name).status == STATUS_DELETED
+                    except Exception:
+                        is_deleted = True
+
+                    if is_deleted:
+                        ui.button('Resubscribe',
+                                  on_click=on_resubscribe)
+                    else:
+                        ui.button('Delete', on_click=on_delete)
+
+                show_delete_or_resubscribe()
+
                 bangumi_instance = Bangumi.fuzzy_get(name=bangumi_name)
 
                 bangumi_filter_obj = Filter.get_or_none(
@@ -151,10 +185,15 @@ async def main_page():
                     loading_preview = True
                     preview_fetch.refresh()
 
-                with ui.splitter().classes('w-full') as splitter:
+                with ui.splitter().classes('w-full').style('padding-top: 16px;') as splitter:
                     with splitter.before:
-                        with ui.column().style('padding: 10px'):
-                            ui.label('Filter').style('font-size: 150%;')
+                        with ui.column().classes('w-full').style('padding-right: 16px;'):
+                            ui.label('Mark').style('font-size: 150%;')
+                            mark_episode_input = ui.number(
+                                label='Episode', value=followed.episode, precision=0)
+
+                            ui.label('Filter').style(
+                                'font-size: 150%; padding-top: 16px;')
 
                             def input_forward(x):
                                 if x is None:
@@ -162,15 +201,16 @@ async def main_page():
                                 return x
 
                             ui.input(label='Include', value=filter_data['include']).bind_value(
-                                filter_data, 'include', forward=input_forward)
+                                filter_data, 'include', forward=input_forward).classes('w-full')
 
                             ui.input(label='Exclude', value=filter_data['exclude']).bind_value(
-                                filter_data, 'exclude', forward=input_forward)
+                                filter_data, 'exclude', forward=input_forward).classes('w-full')
 
                             ui.input(label='Regex', value=filter_data['regex']).bind_value(
-                                filter_data, 'regex', forward=input_forward)
+                                filter_data, 'regex', forward=input_forward).classes('w-full')
 
-                            ui.label('Subtitle').style('font-size: 150%;')
+                            ui.label('Subtitle').style(
+                                'font-size: 150%; padding-top: 16px;')
                             subtitle_groups = Subtitle.get_subtitle_by_id(
                                 bangumi_instance.subtitle_group.split(", "))
                             selected_subtitle = set()
@@ -181,7 +221,7 @@ async def main_page():
                                 else:
                                     selected_subtitle.remove(subtitle_name)
 
-                            with ui.column().style('gap: 0.1rem'):
+                            with ui.column().classes('w-full').style('gap: 0rem'):
                                 for x in subtitle_groups:
                                     with ui.row().classes('items-center'):
                                         selected = x['id'] in filter_subtitle_group_ids
@@ -202,28 +242,24 @@ async def main_page():
                                     subtitle=','.join(selected_subtitle),
                                     **filter_data,
                                 )
+                                try:
+                                    episode = int(mark_episode_input.value)
+                                except Exception:
+                                    episode = 0
+                                ctl.mark(bangumi_name, episode)
                                 refresh_preview()
+                                subscribe_bangumi.refresh()
 
-                            async def on_delete():
-                                ctl.delete(
-                                    name=bangumi_name,
-                                )
-                                bangumi_search_name.set_text(
-                                    DEFAULT_BANGUMI_NAME)
-                                panels.set_value('Calander')
-                                weekly_list_tab.refresh()
+                            ui.button('Save', on_click=on_save)
 
-                            with ui.row():
-                                ui.button('Save', on_click=on_save)
-                                ui.button('Delete', on_click=on_delete)
                     with splitter.after:
-                        with ui.column().style('padding: 10px'):
+                        with ui.column().style('padding-left: 16px'):
                             ui.label('Preview').style('font-size: 150%;')
                             await preview_fetch()
             else:
                 async def do_subscribe():
                     try:
-                        episode = int(episode_input.value)
+                        episode = int(subscribe_episode_input.value)
                     except Exception:
                         episode = 0
                     ui.spinner(size='lg')
@@ -237,7 +273,7 @@ async def main_page():
                     weekly_list_tab.refresh()
 
                 with ui.row().style('align-items: center;'):
-                    episode_input = ui.number(
+                    subscribe_episode_input = ui.number(
                         label='Episode', value=0, precision=0)
                     ui.button('Subscribe', color='green').on_click(
                         do_subscribe)
