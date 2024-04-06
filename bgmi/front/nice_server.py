@@ -31,7 +31,7 @@ async def main_page():
 
     with ui.footer(value=False).style('background-color: #343741;').classes('items-center') as footer:
         ui.spinner(size='2em', color='blue')
-        ui.label('Downloading...')
+        ui.label('Submiting to download...')
 
     with ui.tab_panels(tabs, value='Calander').classes('w-full') as panels:
         @ui.refreshable
@@ -103,46 +103,13 @@ async def main_page():
                 Followed.bangumi_name == bangumi_name)
             is_already_subscribed = followed is not None
             if is_already_subscribed:
-
-                def show_delete_or_resubscribe():
-                    async def on_delete():
-                        ctl.delete(
-                            name=bangumi_name,
-                        )
-                        bangumi_search_name.set_text(
-                            DEFAULT_BANGUMI_NAME)
-                        panels.set_value('Calander')
-                        weekly_list_tab.refresh()
-
-                    async def on_resubscribe():
-                        ctl.add(
-                            name=bangumi_name,
-                            episode=followed.episode,
-                        )
-                        subscribe_bangumi.refresh()
-                        weekly_list_tab.refresh()
-
-                    try:
-                        is_deleted = Followed.get(
-                            bangumi_name=bangumi_name).status == STATUS_DELETED
-                    except Exception:
-                        is_deleted = True
-
-                    if is_deleted:
-                        ui.button('Resubscribe',
-                                  on_click=on_resubscribe)
-                    else:
-                        ui.button('Delete', on_click=on_delete)
-
-                show_delete_or_resubscribe()
-
                 bangumi_instance = Bangumi.fuzzy_get(name=bangumi_name)
 
                 bangumi_filter_obj = Filter.get_or_none(
                     Filter.bangumi_name == bangumi_name)
                 if bangumi_filter_obj:
                     filter_subtitle_group_ids = (bangumi_filter_obj.subtitle or '').split(
-                        ',')
+                        ", ")
                     filter_data = {
                         'include': bangumi_filter_obj.include,
                         'exclude': bangumi_filter_obj.exclude,
@@ -188,12 +155,8 @@ async def main_page():
                 with ui.splitter().classes('w-full').style('padding-top: 16px;') as splitter:
                     with splitter.before:
                         with ui.column().classes('w-full').style('padding-right: 16px;'):
-                            ui.label('Mark').style('font-size: 150%;')
                             mark_episode_input = ui.number(
-                                label='Episode', value=followed.episode, precision=0)
-
-                            ui.label('Filter').style(
-                                'font-size: 150%; padding-top: 16px;')
+                                label='Mark Episode', value=followed.episode, precision=0)
 
                             def input_forward(x):
                                 if x is None:
@@ -209,37 +172,26 @@ async def main_page():
                             ui.input(label='Regex', value=filter_data['regex']).bind_value(
                                 filter_data, 'regex', forward=input_forward).classes('w-full')
 
-                            ui.label('Subtitle').style(
-                                'font-size: 150%; padding-top: 16px;')
                             subtitle_groups = Subtitle.get_subtitle_by_id(
                                 bangumi_instance.subtitle_group.split(", "))
-                            selected_subtitle = set()
 
-                            def on_change_checkbox(event, subtitle_name):
-                                if event.value:
-                                    selected_subtitle.add(subtitle_name)
-                                else:
-                                    selected_subtitle.remove(subtitle_name)
-
-                            with ui.column().classes('w-full').style('gap: 0rem'):
-                                for x in subtitle_groups:
-                                    with ui.row().classes('items-center'):
-                                        selected = x['id'] in filter_subtitle_group_ids
-
-                                        ui.checkbox(
-                                            value=selected,
-                                            on_change=lambda value, x=x: on_change_checkbox(
-                                                value, x['name'])
-                                        )
-                                        ui.label(text=x['name']).classes(
-                                            'flex-grow')
-                                        if selected:
-                                            selected_subtitle.add(x['name'])
+                            print(filter_subtitle_group_ids)
+                            subtitle_select = ui.select(
+                                [x['name'] for x in subtitle_groups],
+                                multiple=True,
+                                value=[
+                                    x['name']
+                                    for x in subtitle_groups
+                                    if x['id'] in filter_subtitle_group_ids
+                                ],
+                                label='Subtitle',
+                            ).classes('w-full')
 
                             def on_save():
                                 ctl.filter_(
                                     name=bangumi_name,
-                                    subtitle=','.join(selected_subtitle),
+                                    subtitle=','.join(
+                                        list(subtitle_select.value or [])),
                                     **filter_data,
                                 )
                                 try:
@@ -250,7 +202,39 @@ async def main_page():
                                 refresh_preview()
                                 subscribe_bangumi.refresh()
 
-                            ui.button('Save', on_click=on_save)
+                            def show_delete_or_resubscribe():
+                                async def on_delete():
+                                    ctl.delete(
+                                        name=bangumi_name,
+                                    )
+                                    bangumi_search_name.set_text(
+                                        DEFAULT_BANGUMI_NAME)
+                                    panels.set_value('Calander')
+                                    weekly_list_tab.refresh()
+
+                                async def on_resubscribe():
+                                    ctl.add(
+                                        name=bangumi_name,
+                                        episode=followed.episode,
+                                    )
+                                    subscribe_bangumi.refresh()
+                                    weekly_list_tab.refresh()
+
+                                try:
+                                    is_deleted = Followed.get(
+                                        bangumi_name=bangumi_name).status == STATUS_DELETED
+                                except Exception:
+                                    is_deleted = True
+
+                                if is_deleted:
+                                    ui.button('Resubscribe',
+                                              on_click=on_resubscribe)
+                                else:
+                                    ui.button('Delete', on_click=on_delete)
+
+                            with ui.row():
+                                ui.button('Save', on_click=on_save)
+                                show_delete_or_resubscribe()
 
                     with splitter.after:
                         with ui.column().style('padding-left: 16px'):
