@@ -1,7 +1,7 @@
 from typing import Any, Dict, List
 from nicegui import ui
 from bgmi.lib import controllers as ctl
-
+from bgmi.website.model import Episode
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.lib.fetch import website
 from bgmi.lib.models import STATUS_DELETED, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, Filter, Followed, Subtitle
@@ -41,7 +41,7 @@ async def main_page() -> None:
             weekly_list = await fetch_weekly_list()
 
             @async_wrapper
-            def ctl_download():
+            def ctl_download() -> None:
                 ctl.update([], download=True)
 
             async def do_download() -> None:
@@ -126,14 +126,14 @@ async def main_page() -> None:
                 episode_preview = []
 
                 @ui.refreshable
-                async def preview_fetch():
+                async def preview_fetch() -> None:
                     nonlocal loading_preview
                     if loading_preview:
                         ui.spinner(size='2em')
                         bangumi_obj = Bangumi.get(name=bangumi_name)
 
                         @async_wrapper
-                        def fetch_episodes():
+                        def fetch_episodes() -> List[Episode]:
                             _, data = website.get_maximum_episode(
                                 bangumi_obj, ignore_old_row=False)
                             return data
@@ -157,7 +157,7 @@ async def main_page() -> None:
                             mark_episode_input = ui.number(
                                 label='Mark Episode', value=followed.episode, precision=0)
 
-                            def input_forward(x):
+                            def input_forward(x) -> str:
                                 if x is None:
                                     return ''
                                 return x
@@ -174,7 +174,6 @@ async def main_page() -> None:
                             subtitle_groups = Subtitle.get_subtitle_by_id(
                                 bangumi_instance.subtitle_group.split(", "))
 
-                            print(filter_subtitle_group_ids)
                             subtitle_select = ui.select(
                                 [x['name'] for x in subtitle_groups],
                                 multiple=True,
@@ -186,7 +185,7 @@ async def main_page() -> None:
                                 label='Subtitle',
                             ).classes('w-full')
 
-                            def on_save():
+                            def on_save() -> None:
                                 ctl.filter_(
                                     name=bangumi_name,
                                     subtitle=','.join(
@@ -201,8 +200,8 @@ async def main_page() -> None:
                                 refresh_preview()
                                 subscribe_bangumi.refresh()
 
-                            def show_delete_or_resubscribe():
-                                async def on_delete():
+                            def show_delete_or_resubscribe() -> None:
+                                async def on_delete() -> None:
                                     ctl.delete(
                                         name=bangumi_name,
                                     )
@@ -211,7 +210,7 @@ async def main_page() -> None:
                                     panels.set_value('Calander')
                                     weekly_list_tab.refresh()
 
-                                async def on_resubscribe():
+                                async def on_resubscribe() -> None:
                                     ctl.add(
                                         name=bangumi_name,
                                         episode=followed.episode,
@@ -240,7 +239,7 @@ async def main_page() -> None:
                             ui.label('Preview').style('font-size: 150%;')
                             await preview_fetch()
             else:
-                async def do_subscribe():
+                async def do_subscribe() -> None:
                     try:
                         episode = int(subscribe_episode_input.value)
                     except Exception:
@@ -248,7 +247,7 @@ async def main_page() -> None:
                     ui.spinner(size='lg')
 
                     @async_wrapper
-                    def add_wrapper():
+                    def add_wrapper() -> None:
                         ctl.add(bangumi_name, episode)
                     await add_wrapper()
 
