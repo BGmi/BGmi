@@ -12,8 +12,6 @@ from bgmi.lib.download import Episode, download_prepare
 from bgmi.lib.fetch import website
 from bgmi.lib.models import (
     FOLLOWED_STATUS,
-    POST_DOWNLOAD,
-    PRE_DOWNLOAD,
     STATUS_DELETED,
     STATUS_FOLLOWED,
     STATUS_NOT_DOWNLOAD,
@@ -28,7 +26,7 @@ from bgmi.lib.models import (
     model_to_dict,
     recreate_source_relatively_table,
 )
-from bgmi.script import HookRunner, ScriptRunner
+from bgmi.script import ScriptRunner
 from bgmi.utils import (
     COLOR_END,
     GREEN,
@@ -392,9 +390,6 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             except DoesNotExist:
                 pass
 
-    if download:
-        HookRunner().run(PRE_DOWNLOAD)
-
     runner = ScriptRunner()
     script_download_queue = runner.run()
     if script_download_queue and download:
@@ -455,9 +450,6 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
         if failed:
             print_info("try to re-downloading previous failed torrents ...")
             download_prepare(failed)
-
-    if download:
-        HookRunner().run(POST_DOWNLOAD)
 
     return result
 
