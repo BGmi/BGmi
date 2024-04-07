@@ -1,9 +1,12 @@
 import argparse
 import asyncio
+import sys
 from typing import Any, Dict, List, Optional
 
+from loguru import logger
 from nicegui import ui
 
+from bgmi.config import cfg
 from bgmi.lib import controllers as ctl
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.lib.fetch import website
@@ -336,5 +339,11 @@ parser.add_argument("--host", default="localhost")
 parser.add_argument("--port", default=8080, type=int)
 
 args = parser.parse_args()
+
+logger.remove()
+logger.add(
+    sys.stderr, format="<blue>{time:YYYY-MM-DD HH:mm:ss}</blue> {level:7} | <level>{message}</level>", level="INFO"
+)
+logger.add(cfg.log_path.parent.joinpath("{time:YYYY-MM-DD}.log"), format="{time} {level} {message}", level="INFO")
 
 ui.run(host=args.host, port=args.port, title="BGmi")
