@@ -94,14 +94,13 @@ class Bangumi(NeoDB):
         ).execute()  # do not mark updating bangumi as STATUS_END
 
     @classmethod
-    def get_bangumi(cls, bangumi_status: Optional[int] = None, followed_status: Optional[int] = None, order: bool = True) -> Any:
-        data = (
-            cls.select(Followed.status, Followed.episode, cls)
-            .join(
-                Followed,
-                peewee.JOIN["LEFT_OUTER"],
-                on=(cls.name == Followed.bangumi_name),
-            )
+    def get_bangumi(
+        cls, bangumi_status: Optional[int] = None, followed_status: Optional[int] = None, order: bool = True
+    ) -> Any:
+        data = cls.select(Followed.status, Followed.episode, cls).join(
+            Followed,
+            peewee.JOIN["LEFT_OUTER"],
+            on=(cls.name == Followed.bangumi_name),
         )
         if bangumi_status is not None:
             data = data.where(cls.status == bangumi_status)

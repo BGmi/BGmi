@@ -1,16 +1,16 @@
+import argparse
+import asyncio
 from typing import Any, Dict, List, Optional
+
 from nicegui import ui
+
 from bgmi.lib import controllers as ctl
-from bgmi.website.model import Episode
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.lib.fetch import website
 from bgmi.lib.models import STATUS_DELETED, STATUS_FOLLOWED, STATUS_UPDATED, Bangumi, Filter, Followed, Subtitle
-import asyncio
+from bgmi.website.model import Episode
 
-import argparse
-
-
-DEFAULT_BANGUMI_NAME = 'Choose a Bangumi in Calander'
+DEFAULT_BANGUMI_NAME = "Choose a Bangumi in Calander"
 
 
 def async_wrapper(function) -> Any:
@@ -18,19 +18,20 @@ def async_wrapper(function) -> Any:
         loop = asyncio.get_event_loop()
         result = await loop.run_in_executor(None, function, *args, **kwargs)
         return result
+
     return wrapper
 
 
-@ui.page('/')
+@ui.page("/")
 async def main_page() -> None:
-    with ui.header().classes(replace='row items-center'):
+    with ui.header().classes(replace="row items-center"):
         with ui.tabs() as tabs:
-            ui.tab('Calander').props('no-caps')
-            ui.tab('Subscribe').props('no-caps')
+            ui.tab("Calander").props("no-caps")
+            ui.tab("Subscribe").props("no-caps")
 
-    with ui.footer(value=False).style('background-color: #343741;').classes('items-center') as footer:
-        ui.spinner(size='2em', color='blue')
-        footer_label = ui.label('Submiting to download...')
+    with ui.footer(value=False).style("background-color: #343741;").classes("items-center") as footer:
+        ui.spinner(size="2em", color="blue")
+        footer_label = ui.label("Submiting to download...")
 
     @async_wrapper
     def ctl_download(bangumi_list) -> None:
@@ -38,7 +39,7 @@ async def main_page() -> None:
 
     def get_cur_bangumi():
         cur_bangumi = None
-        if panels.value == 'Subscribe':
+        if panels.value == "Subscribe":
             cur_bangumi = bangumi_search_name.text
             if cur_bangumi == DEFAULT_BANGUMI_NAME:
                 cur_bangumi = None
@@ -50,9 +51,9 @@ async def main_page() -> None:
         bangumi_list = [cur_bangumi] if cur_bangumi else []
 
         if cur_bangumi:
-            footer_label.set_text(f'Checking {cur_bangumi}...')
+            footer_label.set_text(f"Checking {cur_bangumi}...")
         else:
-            footer_label.set_text('Checking all bangumi...')
+            footer_label.set_text("Checking all bangumi...")
 
         # footer_download_button.disable()
         footer.toggle()
@@ -65,15 +66,16 @@ async def main_page() -> None:
         if cur_bangumi:
             # Refresh bangumi info
             bangumi_detail_tab.refresh()
-            ui.notify('Bangumi Info refreshed')
+            ui.notify("Bangumi Info refreshed")
         else:
             # Force refresh weekly list
             nonlocal weekly_list
             weekly_list = await fetch_weekly_list(True)
             weekly_list_tab.refresh()
-            ui.notify('Weekly list refreshed')
+            ui.notify("Weekly list refreshed")
 
-    with ui.tab_panels(tabs, value='Calander').classes('w-full') as panels:
+    with ui.tab_panels(tabs, value="Calander").classes("w-full") as panels:
+
         @async_wrapper
         def fetch_weekly_list(force_update=False) -> Dict[str, List[Dict[str, Any]]]:
             return ctl.cal(cover=None, force_update=force_update, updating=only_show_updating_bgngumi_checkbox.value)
@@ -92,7 +94,7 @@ async def main_page() -> None:
             nonlocal weekly_list
 
             if loading_weekly_list:
-                ui.spinner(size='2em')
+                ui.spinner(size="2em")
                 weekly_list = await fetch_weekly_list(False)
                 loading_weekly_list = False
                 weekly_list_tab.refresh()
@@ -105,35 +107,35 @@ async def main_page() -> None:
                 weekday_bangumi = weekly_list.get(weekday.lower())
                 if not weekday_bangumi:
                     continue
-                ui.label(weekday).style('font-size: 150%;')
+                ui.label(weekday).style("font-size: 150%;")
 
                 def switch_to_subscribe(bangumi_name: str) -> None:
                     bangumi_search_name.set_text(bangumi_name)
-                    panels.set_value('Subscribe')
+                    panels.set_value("Subscribe")
                     bangumi_detail_tab.refresh()
 
-                with ui.row().classes('items-center'):
-                    for bangumi in sorted(weekday_bangumi, key=lambda x: int(x['id'])):
+                with ui.row().classes("items-center"):
+                    for bangumi in sorted(weekday_bangumi, key=lambda x: int(x["id"])):
                         if bangumi["status"] in (STATUS_UPDATED, STATUS_FOLLOWED) and "episode" in bangumi:
-                            bangumi_to_display = "{} ({:d})".format(
-                                bangumi["name"], bangumi["episode"])
+                            bangumi_to_display = "{} ({:d})".format(bangumi["name"], bangumi["episode"])
                         else:
                             bangumi_to_display = bangumi["name"]
 
                         if bangumi["status"] in (STATUS_FOLLOWED, STATUS_UPDATED):
-                            color = 'green'
+                            color = "green"
                         elif bangumi["status"] == STATUS_DELETED:
-                            color = 'blue'
+                            color = "blue"
                         else:
-                            color = 'grey'
+                            color = "grey"
 
                         ui.button(
                             bangumi_to_display,
-                            on_click=lambda bangumi=bangumi: switch_to_subscribe(
-                                bangumi['name']),
+                            on_click=lambda bangumi=bangumi: switch_to_subscribe(bangumi["name"]),
                             color=color,
-                        ).props('no-caps')
-        with ui.tab_panel('Calander'):
+                        ).props("no-caps")
+
+        with ui.tab_panel("Calander"):
+
             async def refresh_weekly_list() -> None:
                 nonlocal weekly_list
                 weekly_list = await fetch_weekly_list(False)
@@ -141,16 +143,17 @@ async def main_page() -> None:
 
             with ui.row():
                 ui.button(
-                    'Refresh Weekly List',
+                    "Refresh Weekly List",
                     on_click=refresh_cur_page,
-                ).props('no-caps')
+                ).props("no-caps")
                 ui.button(
-                    'Download All Bangumi',
+                    "Download All Bangumi",
                     on_click=do_download,
-                ).props('no-caps')
+                ).props("no-caps")
                 only_show_updating_bgngumi_checkbox = ui.checkbox(
-                    'Only show updating bangumi',
-                    value=True, on_change=refresh_weekly_list,
+                    "Only show updating bangumi",
+                    value=True,
+                    on_change=refresh_weekly_list,
                 )
             await weekly_list_tab()
 
@@ -160,28 +163,35 @@ async def main_page() -> None:
             if bangumi_name == DEFAULT_BANGUMI_NAME:
                 return
 
-            followed = Followed.get_or_none(
-                Followed.bangumi_name == bangumi_name)
+            with ui.row():
+                ui.button(
+                    "Refresh Bangumi Info",
+                    on_click=refresh_cur_page,
+                ).props("no-caps")
+                ui.button(
+                    "Download This Bangumi",
+                    on_click=do_download,
+                ).props("no-caps")
+
+            followed = Followed.get_or_none(Followed.bangumi_name == bangumi_name)
             is_already_subscribed = followed is not None
             if is_already_subscribed:
                 bangumi_instance = Bangumi.fuzzy_get(name=bangumi_name)
 
-                bangumi_filter_obj = Filter.get_or_none(
-                    Filter.bangumi_name == bangumi_name)
+                bangumi_filter_obj = Filter.get_or_none(Filter.bangumi_name == bangumi_name)
                 if bangumi_filter_obj:
-                    filter_subtitle_group_ids = (bangumi_filter_obj.subtitle or '').split(
-                        ", ")
+                    filter_subtitle_group_ids = (bangumi_filter_obj.subtitle or "").split(", ")
                     filter_data = {
-                        'include': bangumi_filter_obj.include,
-                        'exclude': bangumi_filter_obj.exclude,
-                        'regex': bangumi_filter_obj.regex,
+                        "include": bangumi_filter_obj.include,
+                        "exclude": bangumi_filter_obj.exclude,
+                        "regex": bangumi_filter_obj.regex,
                     }
                 else:
                     filter_subtitle_group_ids = []
                     filter_data = {
-                        'include': '',
-                        'exclude': '',
-                        'regex': '',
+                        "include": "",
+                        "exclude": "",
+                        "regex": "",
                     }
 
                 loading_preview = True
@@ -192,19 +202,19 @@ async def main_page() -> None:
                     nonlocal loading_preview
                     nonlocal episode_preview
                     if loading_preview:
-                        ui.spinner(size='2em')
+                        ui.spinner(size="2em")
                         bangumi_obj = Bangumi.get(name=bangumi_name)
 
                         @async_wrapper
                         def fetch_episodes() -> List[Episode]:
-                            _, data = website.get_maximum_episode(
-                                bangumi_obj, ignore_old_row=False)
+                            _, data = website.get_maximum_episode(bangumi_obj, ignore_old_row=False)
                             return data
+
                         episode_preview = await fetch_episodes()
                         loading_preview = False
                         preview_fetch.refresh()
                     else:
-                        with ui.column().style('gap: 0.0rem'):
+                        with ui.column().style("gap: 0.0rem"):
                             for episode in episode_preview:
                                 ui.label(episode.title)
 
@@ -213,45 +223,41 @@ async def main_page() -> None:
                     loading_preview = True
                     preview_fetch.refresh()
 
-                with ui.splitter().classes('w-full').style('padding-top: 16px;') as splitter:
+                with ui.splitter().classes("w-full").style("padding-top: 16px;") as splitter:
                     with splitter.before:
-                        with ui.column().classes('w-full').style('padding-right: 16px; padding-bottom: 16px;'):
-                            mark_episode_input = ui.number(
-                                label='Mark Episode', value=followed.episode, precision=0)
+                        with ui.column().classes("w-full").style("padding-right: 16px; padding-bottom: 16px;"):
+                            mark_episode_input = ui.number(label="Mark Episode", value=followed.episode, precision=0)
 
                             def input_forward(x: Optional[str]) -> str:
                                 if x is None:
-                                    return ''
+                                    return ""
                                 return x
 
-                            ui.input(label='Include', value=filter_data['include']).bind_value(
-                                filter_data, 'include', forward=input_forward).classes('w-full')
+                            ui.input(label="Include", value=filter_data["include"]).bind_value(
+                                filter_data, "include", forward=input_forward
+                            ).classes("w-full")
 
-                            ui.input(label='Exclude', value=filter_data['exclude']).bind_value(
-                                filter_data, 'exclude', forward=input_forward).classes('w-full')
+                            ui.input(label="Exclude", value=filter_data["exclude"]).bind_value(
+                                filter_data, "exclude", forward=input_forward
+                            ).classes("w-full")
 
-                            ui.input(label='Regex', value=filter_data['regex']).bind_value(
-                                filter_data, 'regex', forward=input_forward).classes('w-full')
+                            ui.input(label="Regex", value=filter_data["regex"]).bind_value(
+                                filter_data, "regex", forward=input_forward
+                            ).classes("w-full")
 
-                            subtitle_groups = Subtitle.get_subtitle_by_id(
-                                bangumi_instance.subtitle_group.split(", "))
+                            subtitle_groups = Subtitle.get_subtitle_by_id(bangumi_instance.subtitle_group.split(", "))
 
                             subtitle_select = ui.select(
-                                [x['name'] for x in subtitle_groups],
+                                [x["name"] for x in subtitle_groups],
                                 multiple=True,
-                                value=[
-                                    x['name']
-                                    for x in subtitle_groups
-                                    if x['id'] in filter_subtitle_group_ids
-                                ],
-                                label='Subtitle',
-                            ).classes('w-full')
+                                value=[x["name"] for x in subtitle_groups if x["id"] in filter_subtitle_group_ids],
+                                label="Subtitle",
+                            ).classes("w-full")
 
                             def on_save() -> None:
                                 ctl.filter_(
                                     name=bangumi_name,
-                                    subtitle=','.join(
-                                        list(subtitle_select.value or [])),
+                                    subtitle=",".join(list(subtitle_select.value or [])),
                                     **filter_data,
                                 )
                                 try:
@@ -267,9 +273,8 @@ async def main_page() -> None:
                                     ctl.delete(
                                         name=bangumi_name,
                                     )
-                                    bangumi_search_name.set_text(
-                                        DEFAULT_BANGUMI_NAME)
-                                    panels.set_value('Calander')
+                                    bangumi_search_name.set_text(DEFAULT_BANGUMI_NAME)
+                                    panels.set_value("Calander")
                                     refresh_weekly_list_tab()
 
                                 async def on_resubscribe() -> None:
@@ -281,68 +286,55 @@ async def main_page() -> None:
                                     refresh_weekly_list_tab()
 
                                 try:
-                                    is_deleted = Followed.get(
-                                        bangumi_name=bangumi_name).status == STATUS_DELETED
+                                    is_deleted = Followed.get(bangumi_name=bangumi_name).status == STATUS_DELETED
                                 except Exception:
                                     is_deleted = True
 
                                 if is_deleted:
-                                    ui.button('Resubscribe',
-                                              on_click=on_resubscribe).props('no-caps')
+                                    ui.button("Resubscribe", on_click=on_resubscribe).props("no-caps")
                                 else:
-                                    ui.button('Delete', on_click=on_delete).props(
-                                        'no-caps')
+                                    ui.button("Delete", on_click=on_delete).props("no-caps")
 
                             with ui.row():
-                                ui.button('Save', on_click=on_save).props(
-                                    'no-caps')
+                                ui.button("Save", on_click=on_save).props("no-caps")
                                 show_delete_or_resubscribe()
 
                     with splitter.after:
-                        with ui.column().style('padding-left: 16px'):
-                            ui.label('Preview').style('font-size: 150%;')
+                        with ui.column().style("padding-left: 16px"):
+                            ui.label("Preview").style("font-size: 150%;")
                             await preview_fetch()
             else:
+
                 async def do_subscribe() -> None:
                     try:
                         episode = int(subscribe_episode_input.value)
                     except Exception:
                         episode = 0
-                    ui.spinner(size='lg')
+                    ui.spinner(size="lg")
 
                     @async_wrapper
                     def add_wrapper() -> None:
                         ctl.add(bangumi_name, episode)
+
                     await add_wrapper()
 
                     bangumi_detail_tab.refresh()
                     weekly_list_tab.refresh()
 
-                with ui.row().style('align-items: center;'):
-                    subscribe_episode_input = ui.number(
-                        label='Episode', value=0, precision=0)
-                    ui.button('Subscribe', color='green').on_click(
-                        do_subscribe).props('no-caps')
+                with ui.row().style("align-items: center;"):
+                    subscribe_episode_input = ui.number(label="Episode", value=0, precision=0)
+                    ui.button("Subscribe", color="green").on_click(do_subscribe).props("no-caps")
 
-        with ui.tab_panel('Subscribe'):
-            with ui.row():
-                ui.button(
-                    'Refresh Bangumi Info',
-                    on_click=refresh_cur_page,
-                ).props('no-caps')
-                ui.button(
-                    'Download This Bangumi',
-                    on_click=do_download,
-                ).props('no-caps')
-            bangumi_search_name = ui.label(
-                DEFAULT_BANGUMI_NAME).style('font-size: 200%;')
+        with ui.tab_panel("Subscribe"):
+            bangumi_search_name = ui.label(DEFAULT_BANGUMI_NAME).style("font-size: 200%;")
 
             await bangumi_detail_tab()
 
+
 parser = argparse.ArgumentParser()
-parser.add_argument('--host', default='localhost')
-parser.add_argument('--port', default=8080, type=int)
+parser.add_argument("--host", default="localhost")
+parser.add_argument("--port", default=8080, type=int)
 
 args = parser.parse_args()
 
-ui.run(host=args.host, port=args.port)
+ui.run(host=args.host, port=args.port, title="BGmi")

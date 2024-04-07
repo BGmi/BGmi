@@ -185,7 +185,9 @@ def delete(name: str = "", clear_all: bool = False, batch: bool = False) -> Cont
     return result
 
 
-def cal(force_update: bool = False, cover: Optional[List[str]] = None, updating: bool = True) -> Dict[str, List[Dict[str, Any]]]:
+def cal(
+    force_update: bool = False, cover: Optional[List[str]] = None, updating: bool = True
+) -> Dict[str, List[Dict[str, Any]]]:
     logger.debug("cal force_update: {}", force_update)
 
     def get_weekly_list() -> Any:
