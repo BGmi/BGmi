@@ -437,6 +437,16 @@ macOS launchctl service controller
 
 [me.ricterz.bgmi.plist](https://github.com/BGmi/BGmi/blob/master/bgmi/others/me.ricterz.bgmi.plist)
 
+## 使用 `nice_server`
+
+这是一个基于 nicegui 实现的 bgmi http 服务的前端，你可以通过这个命令直接启动.
+
+```bash
+python -m bgmi.front.nice_server --host 127.0.0.1 --port 8888
+```
+
+这个前端支持在使用时以多选框的方式进行选择字幕组，并可以在网页上直接预览将会下载的文件.
+
 ## 弹幕支持
 
 BGmi 使用[`DPlayer`](https://github.com/DIYgod/DPlayer)做为前端播放器
@@ -488,6 +498,24 @@ Example: [./tests/script_example.py](./tests/script_example.py)
     2: 'http://example.com/Bangumi/1/2.torrent',
     3: 'http://example.com/Bangumi/1/3.mp4'
 }
+```
+
+## Download hook
+
+你可以在下载完成前或下载完成后执行一些操作, 比如移动文件, 重命名文件等等. 将你的 hook 文件放到`BGMI_PATH/hook`文件夹内即可.
+
+```python
+
+from loguru import logger
+from bgmi.lib.models import POST_DOWNLOAD
+
+# 指定 hook 的运行阶段，可选值为 POST_DOWNLOAD 和 PRE_DOWNLOAD，分别表示下载完成后和下载前
+hook_stage = POST_DOWNLOAD
+
+# 需要包含 run 这个函数，BGmi 会在 hook 执行时自动调用这个函数
+def run():
+    logger.info("Hook 运行成功")
+
 ```
 
 ## BGmi 数据源
