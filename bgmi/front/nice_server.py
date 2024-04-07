@@ -16,7 +16,7 @@ from bgmi.website.model import Episode
 DEFAULT_BANGUMI_NAME = "Choose a Bangumi in Calander"
 
 
-def async_wrapper(function) -> Any:
+def async_wrapper(function: Any) -> Any:
     async def wrapper(*args: Any, **kwargs: Any) -> Any:
         loop = asyncio.get_event_loop()
         result = await loop.run_in_executor(None, function, *args, **kwargs)
@@ -37,10 +37,10 @@ async def main_page() -> None:
         footer_label = ui.label("Submiting to download...")
 
     @async_wrapper
-    def ctl_download(bangumi_list) -> None:
+    def ctl_download(bangumi_list: List[str]) -> None:
         ctl.update(bangumi_list, download=True)
 
-    def get_cur_bangumi():
+    def get_cur_bangumi() -> Optional[str]:
         cur_bangumi = None
         if panels.value == "Subscribe":
             cur_bangumi = bangumi_search_name.text
@@ -64,7 +64,9 @@ async def main_page() -> None:
         # footer_download_button.enable()
         footer.toggle()
 
-    async def refresh_cur_page():
+    weekly_list = {}
+
+    async def refresh_cur_page() -> None:
         cur_bangumi = get_cur_bangumi()
         if cur_bangumi:
             # Refresh bangumi info
@@ -80,13 +82,12 @@ async def main_page() -> None:
     with ui.tab_panels(tabs, value="Calander").classes("w-full") as panels:
 
         @async_wrapper
-        def fetch_weekly_list(force_update=False) -> Dict[str, List[Dict[str, Any]]]:
+        def fetch_weekly_list(force_update: bool = False) -> Dict[str, List[Dict[str, Any]]]:
             return ctl.cal(cover=None, force_update=force_update, updating=only_show_updating_bgngumi_checkbox.value)
 
         loading_weekly_list = True
-        weekly_list = {}
 
-        def refresh_weekly_list_tab():
+        def refresh_weekly_list_tab() -> None:
             nonlocal loading_weekly_list
             loading_weekly_list = True
             weekly_list_tab.refresh()

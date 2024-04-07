@@ -229,7 +229,7 @@ class ScriptBase:
 
 class HookRunner:
     _defined = None
-    hook_stage_script = {}
+    hook_stage_script = {}  # type: Dict[int, List[types.FunctionType]]
 
     def __new__(cls, *args, **kwargs):  # type: ignore
         if cls._defined is None:
@@ -252,7 +252,7 @@ class HookRunner:
 
         return cls._defined
 
-    def run(self, stage):
+    def run(self, stage: int) -> None:
         for hook in self.hook_stage_script.get(stage, []):
             hook()
 
