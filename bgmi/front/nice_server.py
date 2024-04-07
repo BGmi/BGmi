@@ -338,14 +338,15 @@ async def main_page() -> None:
 @click.command()
 @click.option("--host", default="localhost")
 @click.option("--port", default=8080, type=int)
-def main(host, port):
+@click.option("--debug", is_flag=True)
+def main(host: str, port: int, debug: bool) -> None:
     logger.remove()
     logger.add(
         sys.stderr, format="<blue>{time:YYYY-MM-DD HH:mm:ss}</blue> {level:7} | <level>{message}</level>", level="INFO"
     )
     logger.add(cfg.log_path.parent.joinpath("{time:YYYY-MM-DD}.log"), format="{time} {level} {message}", level="INFO")
 
-    ui.run(host=host, port=port, title="BGmi")
+    ui.run(host=host, port=port, title="BGmi", reload=debug)
 
 
 if __name__ in {"__main__", "__mp_main__"}:
