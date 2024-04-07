@@ -500,24 +500,6 @@ Example: [./tests/script_example.py](./tests/script_example.py)
 }
 ```
 
-## Download hook
-
-你可以在下载完成前或下载完成后执行一些操作, 比如移动文件, 重命名文件等等. 将你的 hook 文件放到`BGMI_PATH/hook`文件夹内即可.
-
-```python
-
-from loguru import logger
-from bgmi.lib.models import POST_DOWNLOAD
-
-# 指定 hook 的运行阶段，可选值为 POST_DOWNLOAD 和 PRE_DOWNLOAD，分别表示下载完成后和下载前
-hook_stage = POST_DOWNLOAD
-
-# 需要包含 run 这个函数，BGmi 会在 hook 执行时自动调用这个函数
-def run():
-    logger.info("Hook 运行成功")
-
-```
-
 ## BGmi 数据源
 
 通过扩展`bgmi.website.base.BaseWebsite`类并且实现对应的三个方法,你也可以简单的添加一个数据源
