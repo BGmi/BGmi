@@ -1,8 +1,8 @@
-import argparse
 import asyncio
 import sys
 from typing import Any, Dict, List, Optional
 
+import click
 from loguru import logger
 from nicegui import ui
 
@@ -335,16 +335,18 @@ async def main_page() -> None:
             await bangumi_detail_tab()
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--host", default="localhost")
-parser.add_argument("--port", default=8080, type=int)
+@click.command()
+@click.option("--host", default="localhost")
+@click.option("--port", default=8080, type=int)
+def main(host, port):
+    logger.remove()
+    logger.add(
+        sys.stderr, format="<blue>{time:YYYY-MM-DD HH:mm:ss}</blue> {level:7} | <level>{message}</level>", level="INFO"
+    )
+    logger.add(cfg.log_path.parent.joinpath("{time:YYYY-MM-DD}.log"), format="{time} {level} {message}", level="INFO")
 
-args = parser.parse_args()
+    ui.run(host=host, port=port, title="BGmi")
 
-logger.remove()
-logger.add(
-    sys.stderr, format="<blue>{time:YYYY-MM-DD HH:mm:ss}</blue> {level:7} | <level>{message}</level>", level="INFO"
-)
-logger.add(cfg.log_path.parent.joinpath("{time:YYYY-MM-DD}.log"), format="{time} {level} {message}", level="INFO")
 
-ui.run(host=args.host, port=args.port, title="BGmi")
+if __name__ in {"__main__", "__mp_main__"}:
+    main()
