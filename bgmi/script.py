@@ -228,29 +228,22 @@ class ScriptBase:
 
 
 class HookRunner:
-    _defined = None
-    hook_stage_script = {}  # type: Dict[int, List[types.FunctionType]]
-
-    def __new__(cls, *args, **kwargs):  # type: ignore
-        if cls._defined is None:
-            hook_files = glob.glob(f"{cfg.hook_path}{os.path.sep}*.py")
-            for i in hook_files:
-                try:
-                    loader = SourceFileLoader("hook", os.path.join(cfg.hook_path, i))
-                    mod = types.ModuleType(loader.name)
-                    loader.exec_module(mod)
-                    hook_stage = mod.hook_stage
-                    hook_function = mod.run
-                    cls.hook_stage_script.setdefault(hook_stage, []).append(hook_function)
-                except Exception:
-                    print_warning(f"Load hook {i} failed, ignored")
-                    if os.getenv("DEBUG_SCRIPT"):  # pragma: no cover
-                        traceback.print_exc()
-                    continue
-
-            cls._defined = super().__new__(cls, *args, **kwargs)
-
-        return cls._defined
+    def __init__(self) -> None:
+        self.hook_stage_script = {}  # type: Dict[int, List[types.FunctionType]]
+        hook_files = glob.glob(f"{cfg.hook_path}{os.path.sep}*.py")
+        for i in hook_files:
+            try:
+                loader = SourceFileLoader("hook", os.path.join(cfg.hook_path, i))
+                mod = types.ModuleType(loader.name)
+                loader.exec_module(mod)
+                hook_stage = mod.hook_stage
+                hook_function = mod.run
+                self.hook_stage_script.setdefault(hook_stage, []).append(hook_function)
+            except Exception:
+                print_warning(f"Load hook {i} failed, ignored")
+                if os.getenv("DEBUG_SCRIPT"):  # pragma: no cover
+                    traceback.print_exc()
+                continue
 
     def run(self, stage: int) -> None:
         for hook in self.hook_stage_script.get(stage, []):

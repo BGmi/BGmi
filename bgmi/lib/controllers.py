@@ -382,8 +382,9 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             except DoesNotExist:
                 pass
 
+    hook_runner = HookRunner()
     if download:
-        HookRunner().run(PRE_ADD_DOWNLOAD)
+        hook_runner.run(PRE_ADD_DOWNLOAD)
 
     runner = ScriptRunner()
     script_download_queue = runner.run()
@@ -447,7 +448,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             download_prepare(failed)
 
     if download:
-        HookRunner().run(POST_ADD_DOWNLOAD)
+        hook_runner.run(POST_ADD_DOWNLOAD)
 
     return result
 
