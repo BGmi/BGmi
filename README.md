@@ -492,7 +492,7 @@ Example: [./tests/script_example.py](./tests/script_example.py)
 
 ## Download hook
 
-你可以在下载完成前或下载完成后执行一些操作, 比如移动文件, 重命名文件等等. 将你的 hook 文件放到`BGMI_PATH/hook`文件夹内即可.
+你可以在下载完成前或下载完成后执行一些操作, 比如移动文件, 重命名文件等等. 将你的 hook 文件放到`BGMI_PATH/hooks`文件夹内即可.
 
 ```python
 
