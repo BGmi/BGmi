@@ -12,8 +12,8 @@ from bgmi.lib.download import Episode, download_prepare
 from bgmi.lib.fetch import website
 from bgmi.lib.models import (
     FOLLOWED_STATUS,
-    POST_DOWNLOAD,
-    PRE_DOWNLOAD,
+    POST_ADD_DOWNLOAD,
+    PRE_ADD_DOWNLOAD,
     STATUS_DELETED,
     STATUS_FOLLOWED,
     STATUS_NOT_DOWNLOAD,
@@ -383,7 +383,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
                 pass
 
     if download:
-        HookRunner().run(PRE_DOWNLOAD)
+        HookRunner().run(PRE_ADD_DOWNLOAD)
 
     runner = ScriptRunner()
     script_download_queue = runner.run()
@@ -447,7 +447,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             download_prepare(failed)
 
     if download:
-        HookRunner().run(POST_DOWNLOAD)
+        HookRunner().run(POST_ADD_DOWNLOAD)
 
     return result
 
