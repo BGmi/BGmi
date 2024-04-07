@@ -107,6 +107,7 @@ class Config(BaseSetting):
 
     db_path: pathlib.Path = Path(os.getenv("BGMI_DB_PATH") or str(BGMI_PATH.joinpath("bangumi.db")))
     script_path: pathlib.Path = Path(os.getenv("BGMI_SCRIPT_PATH") or str(BGMI_PATH.joinpath("scripts")))
+    hook_path: pathlib.Path = Path(os.getenv("BGMI_HOOK_PATH") or str(BGMI_PATH.joinpath("hooks")))
     tools_path: pathlib.Path = Path(os.getenv("BGMI_TOOLS_PATH") or str(BGMI_PATH.joinpath("tools")))
 
     max_path: int = 3
