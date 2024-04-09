@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import sys
 from typing import Any, Dict, List, Optional
 
@@ -45,7 +46,14 @@ async def main_page() -> None:
 
     with ui.footer(value=False).style("background-color: #343741;").classes("items-center") as footer:
         ui.spinner(size="2em", color="blue")
-        footer_label = ui.label("Submiting to download...")
+        footer_label = ui.label()
+
+    @contextlib.contextmanager
+    def show_footer(message):
+        footer_label.set_text(message)
+        footer.show()
+        yield
+        footer.hide()
 
     def get_cur_bangumi() -> Optional[str]:
         cur_bangumi = None
@@ -61,19 +69,23 @@ async def main_page() -> None:
         bangumi_list = [cur_bangumi] if cur_bangumi else []
 
         if cur_bangumi:
-            footer_label.set_text(f"Checking {cur_bangumi}...")
+            footer_text = f"Checking {cur_bangumi}..."
         else:
-            footer_label.set_text("Checking all bangumi...")
+            footer_text = "Checking all bangumi..."
 
-        footer.toggle()
-        await wrapper_ctl_update(bangumi_list)
-        footer.toggle()
+        with show_footer(footer_text):
+            await wrapper_ctl_update(bangumi_list)
 
     weekly_list = None
 
-    async def refresh_weekly_list_tab(force_update=True):
+    async def refresh_weekly_list_tab(force_update=True, show_footer_loading=False):
         nonlocal weekly_list
-        weekly_list = await wrapper_ctl_cal(force_update, only_show_updating_bgngumi_checkbox.value)
+
+        context = show_footer("Refreshing...") \
+            if show_footer_loading \
+            else contextlib.nullcontext()
+        with context:
+            weekly_list = await wrapper_ctl_cal(force_update, only_show_updating_bgngumi_checkbox.value)
         weekly_list_tab.refresh()
 
     async def refresh_bangumi_detail_tab():
@@ -86,8 +98,7 @@ async def main_page() -> None:
             nonlocal weekly_list
 
             if weekly_list is None:
-                ui.spinner(size="2em")
-                await refresh_weekly_list_tab()
+                await refresh_weekly_list_tab(show_footer_loading=True)
                 return
 
             for weekday in BANGUMI_UPDATE_TIME:
@@ -96,10 +107,10 @@ async def main_page() -> None:
                     continue
                 ui.label(weekday).style("font-size: 150%;")
 
-                def switch_to_subscribe(bangumi_name: str) -> None:
+                async def switch_to_subscribe(bangumi_name: str) -> None:
                     bangumi_search_name.set_text(bangumi_name)
+                    await refresh_bangumi_detail_tab()
                     panels.set_value("Subscribe")
-                    bangumi_detail_tab.refresh()
 
                 with ui.row().classes("items-center"):
                     for bangumi in sorted(weekday_bangumi, key=lambda x: int(x["id"])):
@@ -127,7 +138,10 @@ async def main_page() -> None:
             with ui.row():
                 ui.button(
                     "Refresh Weekly List",
-                    on_click=refresh_weekly_list_tab,
+                    on_click=partial(
+                        refresh_weekly_list_tab,
+                        show_footer_loading=True
+                    ),
                 ).props("no-caps")
                 ui.button(
                     "Download All Bangumi",
@@ -138,7 +152,8 @@ async def main_page() -> None:
                     value=True,
                     on_change=partial(
                         refresh_weekly_list_tab,
-                        force_update=True
+                        force_update=True,
+                        show_footer_loading=True,
                     ),
                 )
             await weekly_list_tab()
@@ -162,8 +177,6 @@ async def main_page() -> None:
             followed_obj = Followed.get_or_none(
                 Followed.bangumi_name == bangumi_name)
             if followed_obj is not None:
-                bangumi_instance = Bangumi.fuzzy_get(name=bangumi_name)
-
                 bangumi_filter_obj = Filter.get_or_none(
                     Filter.bangumi_name == bangumi_name)
                 if bangumi_filter_obj:
@@ -230,9 +243,10 @@ async def main_page() -> None:
                                     filter_data, "regex", forward=input_forward
                                 ).classes("w-full")
 
+                                bangumi_instance = Bangumi.get_or_none(
+                                    Bangumi.name == bangumi_name)
                                 subtitle_groups = Subtitle.get_subtitle_by_id(
                                     bangumi_instance.subtitle_group.split(", "))
-
                                 subtitle_select = ui.select(
                                     [x["name"] for x in subtitle_groups],
                                     multiple=True,
