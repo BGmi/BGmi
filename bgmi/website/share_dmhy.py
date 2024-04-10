@@ -40,7 +40,7 @@ def parse_bangumi_with_week_days(content, update_time, array_name) -> List[Websi
         (cover_url, name, keyword, subtitle_raw, _) = bangumi_row
         if keyword.startswith("URLE#"):
             keyword = urllib.parse.quote(keyword[5:])
-        bangumi = WebsiteBangumi(keyword=keyword)
+        bangumi = WebsiteBangumi(keyword=keyword, subtitle_group=[])
         cover = re.findall("(/images/.*)$", cover_url)[0]
 
         bs = BeautifulSoup(subtitle_raw, "html.parser")
