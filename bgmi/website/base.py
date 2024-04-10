@@ -17,8 +17,6 @@ class BaseWebsite:
     @staticmethod
     def save_bangumi(data: WebsiteBangumi) -> None:
         """save bangumi to database"""
-        is_subtitle_group_none = data.subtitle_group is None
-        data.subtitle_group = data.subtitle_group or []
         b, obj_created = Bangumi.get_or_create(keyword=data.keyword, defaults=data.dict())
         if not obj_created:
             should_save = False
@@ -34,8 +32,7 @@ class BaseWebsite:
 
             if b.status != STATUS_UPDATING or b.subtitle_group != subtitle_group:
                 b.status = STATUS_UPDATING
-                if not is_subtitle_group_none:
-                    b.subtitle_group = subtitle_group
+                b.subtitle_group = subtitle_group
                 should_save = True
 
             if should_save:

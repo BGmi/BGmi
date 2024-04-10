@@ -41,7 +41,7 @@ class WebsiteBangumi(BaseModel):
     update_time: str = "Unknown"
     name: str = ""
     status: int = 0
-    subtitle_group: Optional[List[SubtitleGroup]] = None
+    subtitle_group: List[SubtitleGroup] = []
     cover: str = ""
     episodes: List[Episode] = []
 
