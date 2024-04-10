@@ -32,7 +32,8 @@ class BaseWebsite:
 
             if b.status != STATUS_UPDATING or b.subtitle_group != subtitle_group:
                 b.status = STATUS_UPDATING
-                b.subtitle_group = subtitle_group
+                if data.subtitle_group:
+                    b.subtitle_group = subtitle_group
                 should_save = True
 
             if should_save:
