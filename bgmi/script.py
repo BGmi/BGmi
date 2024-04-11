@@ -235,13 +235,11 @@ class HookRunner:
             HookRunner.hook_script = []
             hook_files = glob.glob(f"{cfg.hook_path}{os.path.sep}*.py")
 
-            modules = []
             for i in hook_files:
                 try:
                     loader = SourceFileLoader("hook", os.path.join(cfg.hook_path, i))
                     mod = types.ModuleType(loader.name)
                     loader.exec_module(mod)
-                    modules.append(mod)
 
                     for attribute_name in dir(mod):
                         attribute = getattr(mod, attribute_name)
