@@ -6,7 +6,7 @@ import traceback
 import types
 from importlib.machinery import SourceFileLoader
 from operator import itemgetter
-from typing import Any, Dict, Iterator, List, Optional, Tuple
+from typing import Any, Dict, Iterator, List, Optional, Protocol, Tuple, runtime_checkable
 
 from bgmi.config import cfg
 from bgmi.lib.download import Episode, download_prepare
@@ -228,28 +228,62 @@ class ScriptBase:
 
 
 class HookRunner:
-    def __init__(self) -> None:
-        self.hook_stage_script = {}  # type: Dict[int, List[types.FunctionType]]
-        hook_files = glob.glob(f"{cfg.hook_path}{os.path.sep}*.py")
-        for i in hook_files:
-            try:
-                loader = SourceFileLoader("hook", os.path.join(cfg.hook_path, i))
-                mod = types.ModuleType(loader.name)
-                loader.exec_module(mod)
-                hook_stage = mod.hook_stage
-                hook_function = mod.run
-                self.hook_stage_script.setdefault(hook_stage, []).append(hook_function)
-            except Exception:
-                print_warning(f"Load hook {i} failed, ignored")
-                if os.getenv("DEBUG_SCRIPT"):  # pragma: no cover
-                    traceback.print_exc()
-                continue
+    hook_script = None  # type: Optional[List[HookBase]]
 
-    def run(self, stage: int) -> None:
-        for hook in self.hook_stage_script.get(stage, []):
-            hook()
+    def __init__(self) -> None:
+        if HookRunner.hook_script is None:
+            HookRunner.hook_script = []
+            hook_files = glob.glob(f"{cfg.hook_path}{os.path.sep}*.py")
+
+            modules = []
+            for i in hook_files:
+                try:
+                    loader = SourceFileLoader("hook", os.path.join(cfg.hook_path, i))
+                    mod = types.ModuleType(loader.name)
+                    loader.exec_module(mod)
+                    modules.append(mod)
+
+                    for attribute_name in dir(mod):
+                        attribute = getattr(mod, attribute_name)
+                        if (
+                            isinstance(attribute, type)
+                            and issubclass(attribute, HookBase)
+                            and attribute is not HookBase
+                        ):
+                            HookRunner.hook_script.append(attribute())
+
+                except Exception:
+                    print_warning(f"Load hook {i} failed, ignored")
+                    if os.getenv("DEBUG_SCRIPT"):  # pragma: no cover
+                        traceback.print_exc()
+                    continue
+
+    def pre_add_download(self) -> None:
+        assert self.hook_script is not None
+        for script in self.hook_script:
+            script.pre_add_download()
+
+    def post_add_download(self) -> None:
+        assert self.hook_script is not None
+        for script in self.hook_script:
+            script.post_add_download()
+
+
+@runtime_checkable
+class HookBase(Protocol):
+    def __init__(self) -> None:
+        pass
+
+    def pre_add_download(self) -> None:
+        return
+
+    def post_add_download(self) -> None:
+        return
 
 
 if __name__ == "__main__":
     runner = ScriptRunner()
     runner.run()
+
+    runner2 = HookRunner()
+    runner2.post_add_download()
