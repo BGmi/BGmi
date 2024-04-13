@@ -504,7 +504,7 @@ class Hook(HookBase):
     # 在添加了下载任务之后执行
     def post_add_download(self) -> None:
         logger.info('post add download')
-    
+
     # 在更新了状态，下载之前进行执行
     def pre_add_download(self) -> None:
         logger.info('pre add download')
