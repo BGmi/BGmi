@@ -15,6 +15,10 @@ defaults:
   run:
     shell: bash
 
+concurrency:
+  group: '${{ github.workflow }}-${{ github.ref }}'
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ${{ format('{0}-latest', matrix.os) }}
