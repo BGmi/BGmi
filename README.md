@@ -490,6 +490,26 @@ Example: [./tests/script_example.py](./tests/script_example.py)
 }
 ```
 
+## Download hook
+
+你可以在下载完成前或下载完成后执行一些操作, 比如移动文件, 重命名文件等等. 将你的 hook 文件放到`BGMI_PATH/hooks`文件夹内即可.
+
+```python
+from loguru import logger
+from bgmi.script import HookBase
+
+
+# 只需要继承 HookBase 类，实现里面的方法即可，类名字可任意设置
+class Hook(HookBase):
+    # 在添加了下载任务之后执行
+    def post_add_download(self) -> None:
+        logger.info('post add download')
+
+    # 在更新了状态，下载之前进行执行
+    def pre_add_download(self) -> None:
+        logger.info('pre add download')
+```
+
 ## BGmi 数据源
 
 通过扩展`bgmi.website.base.BaseWebsite`类并且实现对应的三个方法,你也可以简单的添加一个数据源
