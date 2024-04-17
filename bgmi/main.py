@@ -98,8 +98,7 @@ def source(bangumi_source: str) -> None:
 
 
 @cli.group()
-def config() -> None:
-    ...
+def config() -> None: ...
 
 
 @config.command("print")
@@ -541,8 +540,7 @@ def history() -> None:
 
 
 @cli.group("debug")
-def debug() -> None:
-    ...
+def debug() -> None: ...
 
 
 @debug.command("info")
