@@ -140,9 +140,11 @@ def filter_(
     result["data"] = {
         "name": bangumi_obj.name,
         "subtitle_group": subtitle_list,
-        "followed": [s["name"] for s in Subtitle.get_subtitle_by_id(followed_filter_obj.subtitle.split(", "))]
-        if followed_filter_obj.subtitle
-        else [],
+        "followed": (
+            [s["name"] for s in Subtitle.get_subtitle_by_id(followed_filter_obj.subtitle.split(", "))]
+            if followed_filter_obj.subtitle
+            else []
+        ),
         "include": followed_filter_obj.include,
         "exclude": followed_filter_obj.exclude,
         "regex": followed_filter_obj.regex,
