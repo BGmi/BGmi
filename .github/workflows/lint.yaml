@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: trim21/setup-poetry@dist/v2
       - uses: trim21/install-poetry-project@dist/v2
-      - uses: liskin/gh-problem-matcher-wrap@v2
+      - uses: liskin/gh-problem-matcher-wrap@v3
         with:
           action: add
           linters: mypy
