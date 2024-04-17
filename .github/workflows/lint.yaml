@@ -21,8 +21,8 @@ jobs:
         with:
           python-version: "3.10"
 
-      - uses: Trim21/setup-poetry@dist/v1
-      - uses: Trim21/install-poetry-project@dist/v1
+      - uses: trim21/setup-poetry@dist/v2
+      - uses: trim21/install-poetry-project@dist/v2
 
       - name: flake8
         run: "flake8 --format='::error file=%(path)s,line=%(row)d,col=%(col)d::[%(code)s]: %(text)s'"
@@ -34,8 +34,8 @@ jobs:
         with:
           python-version: "3.10"
       - uses: actions/checkout@v4
-      - uses: Trim21/setup-poetry@dist/v1
-      - uses: Trim21/install-poetry-project@dist/v1
+      - uses: trim21/setup-poetry@dist/v2
+      - uses: trim21/install-poetry-project@dist/v2
       - uses: liskin/gh-problem-matcher-wrap@v2
         with:
           action: add
@@ -59,8 +59,8 @@ jobs:
         with:
           python-version: "3.10"
 
-      - uses: Trim21/setup-poetry@dist/v1
-      - uses: Trim21/install-poetry-project@dist/v1
+      - uses: trim21/setup-poetry@dist/v2
+      - uses: trim21/install-poetry-project@dist/v2
       - uses: actions/cache@v3
         with:
           path: ~/.cache/pre-commit

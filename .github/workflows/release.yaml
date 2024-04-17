@@ -15,13 +15,13 @@ jobs:
           fetch-depth: 0
 
       - uses: actions/setup-python@v4
-      - uses: Trim21/setup-poetry@dist/v1
+      - uses: trim21/setup-poetry@dist/v2
 
       - run: poetry publish --build
         env:
           POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
 
-      # create github release
+      # create GitHub release
       - name: Get Tag Name
         run: echo "TAG=${GITHUB_REF##*/}" >> $GITHUB_ENV
 

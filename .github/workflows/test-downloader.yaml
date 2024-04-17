@@ -22,8 +22,8 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.8"
-      - uses: Trim21/setup-poetry@dist/v1
-      - uses: Trim21/install-poetry-project@dist/v1
+      - uses: trim21/setup-poetry@dist/v2
+      - uses: trim21/install-poetry-project@dist/v2
       - name: start daemon
         run: docker-compose -f tests/downloader/docker-compose.yaml up -d
       - run: sleep 10
