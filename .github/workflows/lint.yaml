@@ -61,7 +61,7 @@ jobs:
 
       - uses: trim21/setup-poetry@dist/v2
       - uses: trim21/install-poetry-project@dist/v2
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ~/.cache/pre-commit
           key: precommit-2-${{ env.PY }}-${{ hashFiles('.pre-commit-config.yaml') }}
