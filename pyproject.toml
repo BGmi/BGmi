@@ -76,7 +76,7 @@ requests-cache = "==1.2.0"
 # lint
 pre-commit = { version = '3.7.0', python = "^3.9" }
 mypy = "==1.9.0"
-flake8 = { version = "==6.1.0", python = "^3.9" }
+flake8 = { version = "==7.0.0", python = "^3.9" }
 flake8-comprehensions = "==3.14.0"
 flake8-bugbear = { version = "==23.12.2", python = '^3.9' }
 flake8-mutable = "1.2.0"
