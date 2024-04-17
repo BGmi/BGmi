@@ -50,6 +50,7 @@ jobs:
       - uses: codecov/codecov-action@v4
         with:
           flags: app,front
+          token: ${{ secrets.CODECOV_TOKEN }} # required
 
   test-all-pass:
     needs:
