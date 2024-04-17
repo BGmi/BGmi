@@ -47,7 +47,7 @@ jobs:
           coverage run -a -m pytest tests --cache-requests --ignore=tests/downloader
 
       - run: coverage xml --omit templates/download_xml.generated.py
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           flags: app,front
 
