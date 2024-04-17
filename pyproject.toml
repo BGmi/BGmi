@@ -76,14 +76,7 @@ requests-cache = "==1.2.0"
 # lint
 pre-commit = { version = '3.7.0', python = "^3.9" }
 mypy = "==1.9.0"
-flake8 = { version = "==6.1.0", python = "^3.9" }
-flake8-comprehensions = "==3.14.0"
-flake8-bugbear = { version = "==23.12.2", python = '^3.9' }
-flake8-mutable = "1.2.0"
-flake8-pep3101 = "==2.1.0"
-flake8-2020 = "==1.8.1"
-flake8-pytest-style = "==1.7.2"
-flake8-pyproject = "1.2.3"
+
 # stubs
 types-requests = "==2.31.0.20240403"
 [tool.coverage.report]
@@ -168,11 +161,6 @@ disable = [
 line-length = 120
 target-version = ['py38', 'py39', 'py310']
 
-
-[tool.flake8]
-max-line-length = 120
-ignore = ['W503', 'E203']
-
-exclude = ['.git', '__pycache__', '.venv', 'build', 'dist']
-
-per-file-ignores = ['bgmi/lib/constants.py:C408']
+[tool.ruff]
+line-length = 120
+target-version = 'py38'
