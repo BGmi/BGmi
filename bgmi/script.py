@@ -272,11 +272,11 @@ class HookBase(Protocol):
     def __init__(self) -> None:
         pass
 
-    def pre_add_download(self) -> None:
-        return
+    def pre_add_download(self, *args, **kwargs) -> None:
+        pass
 
-    def post_add_download(self) -> None:
-        return
+    def post_add_download(self, *args, **kwargs) -> None:
+        pass
 
 
 if __name__ == "__main__":
