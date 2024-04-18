@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: Trim21/setup-poetry@dist/v1
       - uses: Trim21/install-poetry-project@dist/v1
-      - uses: liskin/gh-problem-matcher-wrap@v2
+      - uses: liskin/gh-problem-matcher-wrap@v3
         with:
           action: add
           linters: mypy
