@@ -14,9 +14,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v6
-      - uses: astral-sh/setup-uv@v7
-      - run: uv build
+      - uses: actions/setup-python@v5
+      - uses: Trim21/setup-poetry@dist/v1
 
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
