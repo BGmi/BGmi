@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import os
 from pathlib import Path
-from typing import Dict, List, Optional
 
 from bgmi.config import cfg
 from bgmi.front.base import COVER_URL, BaseHandler
@@ -8,7 +9,7 @@ from bgmi.lib.models import STATUS_DELETED, STATUS_END, STATUS_UPDATING, Followe
 from bgmi.utils import bangumi_save_path, normalize_path
 
 
-def get_player(bangumi_name: str) -> Dict[int, Dict[str, str]]:
+def get_player(bangumi_name: str) -> dict[int, dict[str, str]]:
     bangumi_path = bangumi_save_path(bangumi_name)
 
     if not bangumi_path.exists():
@@ -21,13 +22,18 @@ def get_player(bangumi_name: str) -> Dict[int, Dict[str, str]]:
     for episode in episodes:
         e = find_largest_video_file(bangumi_path.joinpath(episode))
         if e:
-            episode_list[int(episode)] = {"path": "/" + e}
+            v, s = e
+            data = {"path": "/" + v}
+            if s:
+                data["subtitle"] = "/" + s
+            episode_list[int(episode)] = data
 
     return episode_list
 
 
-def find_largest_video_file(top_dir: Path) -> Optional[str]:
+def find_largest_video_file(top_dir: Path) -> tuple[str, str | None] | None:
     video_files = []
+
     for root, _, files in os.walk(top_dir):
         for file in files:
             _, ext = os.path.splitext(file)
@@ -39,8 +45,18 @@ def find_largest_video_file(top_dir: Path) -> Optional[str]:
         return None
 
     video_files.sort(key=lambda x: -x[0])
+    top_file = video_files[0][1]
+    subtitle_file = None
+    for file in top_file.parent.iterdir():
+        if file.suffix in (".ass", ".srt"):
+            subtitle_file = file.relative_to(cfg.save_path).as_posix()
+            break
 
-    return video_files[0][1].relative_to(cfg.save_path).as_posix()
+    video_file = top_file.relative_to(cfg.save_path).as_posix()
+    if subtitle_file:
+        return video_file, subtitle_file
+
+    return video_file, None
 
 
 if __name__ == "__main__":
@@ -68,9 +84,9 @@ class IndexHandler(BaseHandler):
 
 class BangumiListHandler(BaseHandler):
     def get(self, type_: str = "") -> None:
-        data: List[dict] = Followed.get_all_followed(STATUS_DELETED, STATUS_END if type_ == "old" else STATUS_UPDATING)
+        data: list[dict] = Followed.get_all_followed(STATUS_DELETED, STATUS_END if type_ == "old" else STATUS_UPDATING)
 
-        def sorter(_: Dict[str, int]) -> int:
+        def sorter(_: dict[str, int]) -> int:
             return _["updated_time"] if _["updated_time"] else 1
 
         if type_ == "index":
