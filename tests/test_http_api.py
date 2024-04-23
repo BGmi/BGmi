@@ -182,6 +182,7 @@ def test_get_player():
     if not os.path.exists(episode2_dir):
         os.makedirs(episode2_dir)
     open(os.path.join(episode2_dir, "2.mkv"), "a").close()
+    open(os.path.join(episode2_dir, "2.srt"), "a").close()
 
     bangumi_dict = {"player": get_player(bangumi_name)}
 
@@ -190,3 +191,4 @@ def test_get_player():
 
     assert 2 in bangumi_dict["player"]
     assert bangumi_dict["player"][2]["path"] == f"/{bangumi_name}/2/2.mkv"
+    assert bangumi_dict["player"][2]["subtitle"] == f"/{bangumi_name}/2/2.srt"
