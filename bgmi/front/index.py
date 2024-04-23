@@ -47,9 +47,9 @@ def find_largest_video_file(top_dir: Path) -> tuple[str, str | None] | None:
     video_files.sort(key=lambda x: -x[0])
     top_file = video_files[0][1]
     subtitle_file = None
-    for file in top_file.parent.iterdir():
-        if file.suffix in (".ass", ".srt"):
-            subtitle_file = file.relative_to(cfg.save_path).as_posix()
+    for fp in top_file.parent.iterdir():
+        if fp.suffix in (".ass", ".srt"):
+            subtitle_file = fp.relative_to(cfg.save_path).as_posix()
             break
 
     video_file = top_file.relative_to(cfg.save_path).as_posix()
