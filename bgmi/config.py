@@ -66,7 +66,7 @@ class TransmissionConfig(BaseSetting):
     rpc_username: str = os.getenv("BGMI_TRANSMISSION_RPC_USERNAME") or "your_username"
     rpc_password: str = os.getenv("BGMI_TRANSMISSION_RPC_PASSWORD") or "your_password"
     rpc_path: str = os.getenv("BGMI_TRANSMISSION_RPC_PATH") or "/transmission/rpc"
-    labels: Optional[list[str]] = pydantic.Field(["bgmi"])
+    labels: Optional[List[str]] = pydantic.Field(["bgmi"])
 
 
 class QBittorrentConfig(BaseSetting):
@@ -75,7 +75,7 @@ class QBittorrentConfig(BaseSetting):
     rpc_username: str = os.getenv("BGMI_QBITTORRENT_RPC_USERNAME") or "admin"
     rpc_password: str = os.getenv("BGMI_QBITTORRENT_RPC_PASSWORD") or "adminadmin"
     category: str = os.getenv("BGMI_QBITTORRENT_RPC_CATEGORY") or ""
-    tags: Optional[list[str]] = pydantic.Field(["bgmi"])
+    tags: Optional[List[str]] = pydantic.Field(["bgmi"])
 
 
 class DelugeConfig(BaseSetting):
