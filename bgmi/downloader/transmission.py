@@ -1,3 +1,5 @@
+from typing import Any
+
 import transmission_rpc
 
 from bgmi.config import cfg
@@ -19,7 +21,10 @@ class TransmissionRPC(BaseDownloadService):
         pass
 
     def add_download(self, url: str, save_path: str):
-        torrent = self.client.add_torrent(url, download_dir=save_path, paused=False)
+        kwargs: dict[str, Any] = {"download_dir": save_path, "paused": False}
+        if self.client.rpc_version >= 16:
+            kwargs["labels"] = cfg.transmission.tags
+        torrent = self.client.add_torrent(url, **kwargs)
         return torrent.hashString
 
     def get_status(self, id: str) -> DownloadStatus:

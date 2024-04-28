@@ -26,6 +26,7 @@ class QBittorrentWebAPI(BaseDownloadService):
             save_path=save_path,
             is_paused=False,
             use_auto_torrent_management=False,
+            tags=cfg.qbittorrent.tags,
         )
 
         info = self.client.torrents_info(sort="added_on")
