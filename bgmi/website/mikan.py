@@ -343,11 +343,11 @@ class Mikanani(BaseWebsite):
         td_list = s.find_all("tr", attrs={"class": "js-search-results-row"})
         for tr in td_list:
             title = tr.find("a", class_="magnet-link-wrap").text
-            time_string = tr.find_all("td")[3].string
+            time_string = tr.find_all("td")[2].string
             u = yarl.URL(tr.find("a", class_="magnet-link").attrs.get("data-clipboard-text", ""))
             result.append(
                 Episode(
-                    download=tr.find("a", class_="magnet-link").attrs["data-clipboard-text"],
+                    download=str(u.with_query({"dn": title})),
                     name=keyword,
                     title=title,
                     episode=self.parse_episode(title),
