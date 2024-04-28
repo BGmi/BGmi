@@ -6,6 +6,7 @@ from typing import List, Optional
 from xml.etree import ElementTree
 
 import bs4
+import yarl
 from bs4 import BeautifulSoup
 from strsimpy.normalized_levenshtein import NormalizedLevenshtein
 
@@ -305,7 +306,7 @@ class Mikanani(BaseWebsite):
 
                 result.append(
                     Episode(
-                        download=link,
+                        download=str(yarl.URL(link).with_query({"dn": title})),
                         name=animate_name,
                         title=title,
                         subtitle_group=subtitle_group,
@@ -324,9 +325,10 @@ class Mikanani(BaseWebsite):
         for tr in td_list:
             title = tr.find("a", class_="magnet-link-wrap").text
             time_string = tr.find_all("td")[2].string
+            u = yarl.URL(tr.find("a", class_="magnet-link").attrs.get("data-clipboard-text", ""))
             result.append(
                 Episode(
-                    download=tr.find("a", class_="magnet-link").attrs["data-clipboard-text"],
+                    download=str(u.with_query({"dn": title})),
                     name=keyword,
                     title=title,
                     episode=self.parse_episode(title),
