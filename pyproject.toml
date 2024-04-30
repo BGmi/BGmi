@@ -67,7 +67,7 @@ packaging = "23.2"
 uvicorn = { version = "0.29.0" }
 fastapi = "0.110.3"
 # RPC library
-transmission-rpc = "==7.0.3"
+transmission-rpc = "==7.0.4"
 qbittorrent-api = "==2023.11.57"
 pycomplete = "0.4.0"
 yarl = "1.9.4"
