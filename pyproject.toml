@@ -49,7 +49,7 @@ bgmi_http = 'bgmi.front.server:main'
 [tool.poetry.dependencies]
 python = "^3.8.0"
 beautifulsoup4 = '==4.12.3'
-requests = { extras = ["socks"], version = "2.31.0" }
+requests = { extras = ["socks"], version = "2.32.0" }
 icalendar = '==5.0.12'
 sqlalchemy = "2.0.29"
 wcwidth = "^0.2.13"
