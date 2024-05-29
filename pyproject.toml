@@ -47,39 +47,39 @@ bgmi_http = 'bgmi.front.server:main'
 [tool.poetry.dependencies]
 python = "^3.8.0"
 beautifulsoup4 = '==4.12.3'
-requests = '==2.32.0'
+requests = '==2.32.3'
 tornado = '==6.4'
 icalendar = '==5.0.12'
-peewee = '==3.17.3'
+peewee = '==3.17.5'
 wcwidth = "^0.2.13"
 pydantic = "==1.10.15"
 stevedore = "==5.2.0"
 filetype = "1.2.0"
 strsimpy = "0.2.1"
-tomlkit = "0.12.4"
+tomlkit = "0.12.5"
 strenum = "0.4.15"
 anime-episode-parser = "0.0.12"
 semver = "3.0.2"
 loguru = "0.7.2"
 click = "8.1.7"
 # RPC library
-transmission-rpc = "==7.0.3"
-qbittorrent-api = "==2024.3.60"
+transmission-rpc = "==7.0.6"
+qbittorrent-api = "==2024.5.61"
 pycomplete = "0.4.0"
-yarl = "^1.9.4"
+yarl = "1.9.4"
 
 [tool.poetry.dev-dependencies]
 # tests
-coverage = { version = "==7.4.4", extras = ['toml'] }
-pytest = "==8.1.1"
+coverage = { version = "==7.5.3", extras = ['toml'] }
+pytest = "==8.2.1"
 pytest-github-actions-annotate-failures = "==0.2.0"
 requests-cache = "==1.2.0"
 # lint
-pre-commit = { version = '3.7.0', python = "^3.9" }
-mypy = "==1.9.0"
+pre-commit = { version = '3.7.1', python = "^3.9" }
+mypy = "==1.10.0"
 
 # stubs
-types-requests = "==2.31.0.20240406"
+types-requests = "==2.32.0.20240523"
 [tool.coverage.report]
 exclude_lines = [
   'pragma: no cover',
