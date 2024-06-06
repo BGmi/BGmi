@@ -756,13 +756,13 @@ email = ["email-validator (>=1.0.3)"]
 
 [[package]]
 name = "pytest"
-version = "8.2.1"
+version = "8.2.2"
 description = "pytest: simple powerful testing with Python"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pytest-8.2.1-py3-none-any.whl", hash = "sha256:faccc5d332b8c3719f40283d0d44aa5cf101cec36f88cde9ed8f2bc0538612b1"},
-    {file = "pytest-8.2.1.tar.gz", hash = "sha256:5046e5b46d8e4cac199c373041f26be56fdb81eb4e67dc11d4e10811fc3408fd"},
+    {file = "pytest-8.2.2-py3-none-any.whl", hash = "sha256:c434598117762e2bd304e526244f67bf66bbd7b5d6cf22138be51ff661980343"},
+    {file = "pytest-8.2.2.tar.gz", hash = "sha256:de4bb8104e201939ccdc688b27a89a7be2079b22e2bd2b07f806b6ba71117977"},
 ]
 
 [package.dependencies]
@@ -877,13 +877,13 @@ files = [
 
 [[package]]
 name = "qbittorrent-api"
-version = "2024.5.61"
+version = "2024.5.63"
 description = "Python client for qBittorrent v4.1+ Web API."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "qbittorrent_api-2024.5.61-py3-none-any.whl", hash = "sha256:2e5a253cb3e24183aded0ea0e23c8411da6c87803c0dd732e1243dc3026a48df"},
-    {file = "qbittorrent_api-2024.5.61.tar.gz", hash = "sha256:2f04fd1132d4cb55a8273076507a49245c5e53e7c40edcbd33f101d400ccb7e6"},
+    {file = "qbittorrent_api-2024.5.63-py3-none-any.whl", hash = "sha256:748b34c7074ba9c1e1bdfcc97b3e7acf9a553fd3b8ffb5fe89ea51b3cfebb375"},
+    {file = "qbittorrent_api-2024.5.63.tar.gz", hash = "sha256:cd3012f042fb94e9d521c406b6dc522600efd1814d4b2d3c900c6810e9fcbe2c"},
 ]
 
 [package.dependencies]
@@ -892,7 +892,7 @@ requests = ">=2.16.0"
 urllib3 = ">=1.24.2"
 
 [package.extras]
-dev = ["black (==24.4.2)", "build (==1.2.1)", "coverage[toml] (==7.5.0)", "furo (==2024.4.27)", "mypy (==1.9.0)", "pre-commit (<3.6.0)", "pre-commit (==3.7.0)", "pytest (==8.2.0)", "sphinx (==7.3.7)", "sphinx-autobuild (==2024.4.16)", "sphinx-autodoc-typehints (<2.1.0)", "sphinx-autodoc-typehints (==2.1.0)", "sphinx-copybutton (==0.5.2)", "sphinxcontrib-spelling (==8.0.0)", "tox (==4.15.0)", "twine (==5.0.0)", "types-requests (==2.31.0.20240406)", "types-six (==1.16.21.20240425)"]
+dev = ["black (==24.4.2)", "build (==1.2.1)", "coverage[toml] (==7.5.0)", "furo (==2024.4.27)", "mypy (==1.9.0)", "pre-commit (<3.6.0)", "pre-commit (==3.7.0)", "pytest (==8.2.0)", "sphinx (==7.3.7)", "sphinx-autobuild (==2024.4.16)", "sphinx-autodoc-typehints (<2.1.0)", "sphinx-autodoc-typehints (==2.1.0)", "sphinx-copybutton (==0.5.2)", "sphinxcontrib-spelling (==8.0.0)", "tox (==4.15.0)", "twine (==5.0.0)", "types-requests (==2.31.0.20240406)"]
 
 [[package]]
 name = "requests"
@@ -1059,33 +1059,33 @@ files = [
 
 [[package]]
 name = "tornado"
-version = "6.4"
+version = "6.4.1"
 description = "Tornado is a Python web framework and asynchronous networking library, originally developed at FriendFeed."
 optional = false
-python-versions = ">= 3.8"
+python-versions = ">=3.8"
 files = [
-    {file = "tornado-6.4-cp38-abi3-macosx_10_9_universal2.whl", hash = "sha256:02ccefc7d8211e5a7f9e8bc3f9e5b0ad6262ba2fbb683a6443ecc804e5224ce0"},
-    {file = "tornado-6.4-cp38-abi3-macosx_10_9_x86_64.whl", hash = "sha256:27787de946a9cffd63ce5814c33f734c627a87072ec7eed71f7fc4417bb16263"},
-    {file = "tornado-6.4-cp38-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f7894c581ecdcf91666a0912f18ce5e757213999e183ebfc2c3fdbf4d5bd764e"},
-    {file = "tornado-6.4-cp38-abi3-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:e43bc2e5370a6a8e413e1e1cd0c91bedc5bd62a74a532371042a18ef19e10579"},
-    {file = "tornado-6.4-cp38-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f0251554cdd50b4b44362f73ad5ba7126fc5b2c2895cc62b14a1c2d7ea32f212"},
-    {file = "tornado-6.4-cp38-abi3-musllinux_1_1_aarch64.whl", hash = "sha256:fd03192e287fbd0899dd8f81c6fb9cbbc69194d2074b38f384cb6fa72b80e9c2"},
-    {file = "tornado-6.4-cp38-abi3-musllinux_1_1_i686.whl", hash = "sha256:88b84956273fbd73420e6d4b8d5ccbe913c65d31351b4c004ae362eba06e1f78"},
-    {file = "tornado-6.4-cp38-abi3-musllinux_1_1_x86_64.whl", hash = "sha256:71ddfc23a0e03ef2df1c1397d859868d158c8276a0603b96cf86892bff58149f"},
-    {file = "tornado-6.4-cp38-abi3-win32.whl", hash = "sha256:6f8a6c77900f5ae93d8b4ae1196472d0ccc2775cc1dfdc9e7727889145c45052"},
-    {file = "tornado-6.4-cp38-abi3-win_amd64.whl", hash = "sha256:10aeaa8006333433da48dec9fe417877f8bcc21f48dda8d661ae79da357b2a63"},
-    {file = "tornado-6.4.tar.gz", hash = "sha256:72291fa6e6bc84e626589f1c29d90a5a6d593ef5ae68052ee2ef000dfd273dee"},
+    {file = "tornado-6.4.1-cp38-abi3-macosx_10_9_universal2.whl", hash = "sha256:163b0aafc8e23d8cdc3c9dfb24c5368af84a81e3364745ccb4427669bf84aec8"},
+    {file = "tornado-6.4.1-cp38-abi3-macosx_10_9_x86_64.whl", hash = "sha256:6d5ce3437e18a2b66fbadb183c1d3364fb03f2be71299e7d10dbeeb69f4b2a14"},
+    {file = "tornado-6.4.1-cp38-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:e2e20b9113cd7293f164dc46fffb13535266e713cdb87bd2d15ddb336e96cfc4"},
+    {file = "tornado-6.4.1-cp38-abi3-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:8ae50a504a740365267b2a8d1a90c9fbc86b780a39170feca9bcc1787ff80842"},
+    {file = "tornado-6.4.1-cp38-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:613bf4ddf5c7a95509218b149b555621497a6cc0d46ac341b30bd9ec19eac7f3"},
+    {file = "tornado-6.4.1-cp38-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:25486eb223babe3eed4b8aecbac33b37e3dd6d776bc730ca14e1bf93888b979f"},
+    {file = "tornado-6.4.1-cp38-abi3-musllinux_1_2_i686.whl", hash = "sha256:454db8a7ecfcf2ff6042dde58404164d969b6f5d58b926da15e6b23817950fc4"},
+    {file = "tornado-6.4.1-cp38-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:a02a08cc7a9314b006f653ce40483b9b3c12cda222d6a46d4ac63bb6c9057698"},
+    {file = "tornado-6.4.1-cp38-abi3-win32.whl", hash = "sha256:d9a566c40b89757c9aa8e6f032bcdb8ca8795d7c1a9762910c722b1635c9de4d"},
+    {file = "tornado-6.4.1-cp38-abi3-win_amd64.whl", hash = "sha256:b24b8982ed444378d7f21d563f4180a2de31ced9d8d84443907a0a64da2072e7"},
+    {file = "tornado-6.4.1.tar.gz", hash = "sha256:92d3ab53183d8c50f8204a51e6f91d18a15d5ef261e84d452800d4ff6fc504e9"},
 ]
 
 [[package]]
 name = "transmission-rpc"
-version = "7.0.6"
+version = "7.0.9"
 description = "Python module that implements the Transmission bittorent client JSON-RPC protocol"
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "transmission_rpc-7.0.6-py3-none-any.whl", hash = "sha256:ad8efceb4b2f923233228f00a75c7418b6c99fbbb46d2f14400c0dd8fe3b0ee5"},
-    {file = "transmission_rpc-7.0.6.tar.gz", hash = "sha256:fc8a0a1a753a19d5b867e62e0386d6702c138b7c317cfdb7cb95bcc00fcb4164"},
+    {file = "transmission_rpc-7.0.9-py3-none-any.whl", hash = "sha256:96023a96d34a027532164abadf35ee3cf6e41733122ecb91a58b4c3f22681249"},
+    {file = "transmission_rpc-7.0.9.tar.gz", hash = "sha256:2da6ce0650be4a2797cc9cbcf0da13242d0e5d2245a8e72336ffefff1a74df75"},
 ]
 
 [package.dependencies]
@@ -1094,13 +1094,13 @@ typing-extensions = ">=4.5.0"
 
 [[package]]
 name = "types-requests"
-version = "2.32.0.20240523"
+version = "2.32.0.20240602"
 description = "Typing stubs for requests"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "types-requests-2.32.0.20240523.tar.gz", hash = "sha256:26b8a6de32d9f561192b9942b41c0ab2d8010df5677ca8aa146289d11d505f57"},
-    {file = "types_requests-2.32.0.20240523-py3-none-any.whl", hash = "sha256:f19ed0e2daa74302069bbbbf9e82902854ffa780bc790742a810a9aaa52f65ec"},
+    {file = "types-requests-2.32.0.20240602.tar.gz", hash = "sha256:3f98d7bbd0dd94ebd10ff43a7fbe20c3b8528acace6d8efafef0b6a184793f06"},
+    {file = "types_requests-2.32.0.20240602-py3-none-any.whl", hash = "sha256:ed3946063ea9fbc6b5fc0c44fa279188bae42d582cb63760be6cb4b9d06c3de8"},
 ]
 
 [package.dependencies]
@@ -1299,4 +1299,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.0"
-content-hash = "d31f0e908ede07df423c9467ce4c24d81abcd24709aad5822abc4868f7784f2e"
+content-hash = "5f8ce555216712b456865229af7e00816c5e36e120a397bc8eea1edb3e61f12d"
