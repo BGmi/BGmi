@@ -48,7 +48,7 @@ bgmi_http = 'bgmi.front.server:main'
 python = "^3.8.0"
 beautifulsoup4 = '==4.12.3'
 requests = '==2.32.3'
-tornado = '==6.4'
+tornado = '==6.4.1'
 icalendar = '==5.0.12'
 peewee = '==3.17.5'
 wcwidth = "^0.2.13"
@@ -63,15 +63,15 @@ semver = "3.0.2"
 loguru = "0.7.2"
 click = "8.1.7"
 # RPC library
-transmission-rpc = "==7.0.6"
-qbittorrent-api = "==2024.5.61"
+transmission-rpc = "==7.0.9"
+qbittorrent-api = "==2024.5.63"
 pycomplete = "0.4.0"
 yarl = "1.9.4"
 
 [tool.poetry.dev-dependencies]
 # tests
 coverage = { version = "==7.5.3", extras = ['toml'] }
-pytest = "==8.2.1"
+pytest = "==8.2.2"
 pytest-github-actions-annotate-failures = "==0.2.0"
 requests-cache = "==1.2.0"
 # lint
@@ -79,7 +79,7 @@ pre-commit = { version = '3.7.1', python = "^3.9" }
 mypy = "==1.10.0"
 
 # stubs
-types-requests = "==2.32.0.20240523"
+types-requests = "==2.32.0.20240602"
 [tool.coverage.report]
 exclude_lines = [
   'pragma: no cover',
