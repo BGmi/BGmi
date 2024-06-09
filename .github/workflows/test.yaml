@@ -43,9 +43,10 @@ jobs:
           bgmi --help
           coverage run -a -m pytest tests --cache-requests --ignore=tests/downloader --ignore=tests/e2e
 
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           flags: unit
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   e2e:
     runs-on: "${{ matrix.os }}-latest"
@@ -74,9 +75,10 @@ jobs:
           bgmi --help
           coverage run -a -m pytest tests/e2e --cache-requests
 
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           flags: e2e
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   downloader:
     runs-on: ubuntu-latest
@@ -106,9 +108,10 @@ jobs:
           coverage run -a -m pytest tests/downloader -s
 
       - run: coverage xml
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           flags: downloader
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   test-all-pass:
     runs-on: ubuntu-latest
