@@ -15,7 +15,7 @@ jobs:
           fetch-depth: 0
 
       - uses: actions/setup-python@v5
-      - uses: Trim21/setup-poetry@dist/v1
+      - uses: trim21/setup-poetry@dist/v2
 
       - run: poetry publish --build
         env:

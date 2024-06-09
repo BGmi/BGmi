@@ -32,8 +32,8 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
-      - uses: trim21/setup-poetry@dist/v1
-      - uses: trim21/install-poetry-project@dist/v1
+      - uses: trim21/setup-poetry@dist/v2
+      - uses: trim21/install-poetry-project@dist/v2
 
       - name: test
         run: |
@@ -63,8 +63,8 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
-      - uses: trim21/setup-poetry@dist/v1
-      - uses: trim21/install-poetry-project@dist/v1
+      - uses: trim21/setup-poetry@dist/v2
+      - uses: trim21/install-poetry-project@dist/v2
 
       - name: test
         run: |
@@ -89,8 +89,8 @@ jobs:
         with:
           python-version: '${{ matrix.python }}'
 
-      - uses: trim21/setup-poetry@dist/v1
-      - uses: trim21/install-poetry-project@dist/v1
+      - uses: trim21/setup-poetry@dist/v2
+      - uses: trim21/install-poetry-project@dist/v2
 
       - name: start daemon
         run: docker-compose -f tests/downloader/docker-compose.yaml up -d
