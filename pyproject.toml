@@ -48,7 +48,7 @@ bgmi_http = 'bgmi.front.server:main'
 python = "^3.8.0"
 beautifulsoup4 = '==4.12.3'
 requests = '==2.32.3'
-tornado = '==6.4.1'
+tornado = '==6.4.2'
 icalendar = '==5.0.12'
 peewee = '==3.17.5'
 wcwidth = "^0.2.13"
