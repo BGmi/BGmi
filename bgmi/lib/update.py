@@ -39,5 +39,8 @@ def update_database() -> None:
             stop=True,
         )
 
+    if previous < semver.VersionInfo(major=4, minor=5, patch=1):
+        exec_sql("ALTER TABLE download ADD COLUMN created_time INT(11);")
+
     # all upgrade done, write current version
     old_version_file.write_text(__version__, encoding="utf8")

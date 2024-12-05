@@ -2,7 +2,7 @@ import datetime
 import os
 from collections import defaultdict
 
-from icalendar import Calendar, Event
+from icalendar import Calendar, Event, Todo
 
 from bgmi.config import cfg
 from bgmi.front.base import BaseHandler
@@ -75,6 +75,16 @@ class CalendarHandler(BaseHandler):
                             datetime.datetime.now().date() + datetime.timedelta(i - 1),
                         )
                         cal.add_component(event)
+        elif type_ == "download":
+            data = [
+                item for item in Download.get_all_downloads() if item["created_time"] and int(item["created_time"]) != 0
+            ]
+            for d in data:
+                todo = Todo()
+                todo.add("summary", f"{d['name']}: {d['episode']}")
+                todo.add("dstart", datetime.datetime.fromtimestamp(int(d["created_time"])))
+                cal.add_component(todo)
+
         else:
             data = [bangumi for bangumi in data if bangumi["status"] == 2]
             for d in data:

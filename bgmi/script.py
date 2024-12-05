@@ -6,7 +6,7 @@ import traceback
 import types
 from importlib.machinery import SourceFileLoader
 from operator import itemgetter
-from typing import Any, Dict, Iterator, List, Optional, Protocol, Tuple, runtime_checkable
+from typing import Any, Dict, Iterator, List, Optional, Protocol, Tuple, runtime_checkable, Sequence
 
 from bgmi.config import cfg
 from bgmi.lib.download import Episode, download_prepare
@@ -261,10 +261,12 @@ class HookRunner:
         for script in self.hook_script:
             script.pre_add_download()
 
-    def post_add_download(self) -> None:
+    def post_add_download(
+        self, download_queue: Optional[Sequence[object]], redownload_queue: Optional[Sequence[object]]
+    ) -> None:
         assert self.hook_script is not None
         for script in self.hook_script:
-            script.post_add_download()
+            script.post_add_download(download_queue=download_queue, redownload_queue=redownload_queue)
 
 
 @runtime_checkable
@@ -284,4 +286,4 @@ if __name__ == "__main__":
     runner.run()
 
     runner2 = HookRunner()
-    runner2.post_add_download()
+    runner2.post_add_download(None, None)
