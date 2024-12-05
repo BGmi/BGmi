@@ -256,15 +256,15 @@ class HookRunner:
                         traceback.print_exc()
                     continue
 
-    def pre_add_download(self, *args: Any, **kwargs: Any) -> None:
+    def pre_add_download(self) -> None:
         assert self.hook_script is not None
         for script in self.hook_script:
-            script.pre_add_download(*args, **kwargs)
+            script.pre_add_download()
 
-    def post_add_download(self, *args: Any, **kwargs: Any) -> None:
+    def post_add_download(self, download_queue: Optional[List[object]], redownload_queue: Optional[List[object]]) -> None:
         assert self.hook_script is not None
         for script in self.hook_script:
-            script.post_add_download(*args, **kwargs)
+            script.post_add_download(download_queue=download_queue, redownload_queue=redownload_queue)
 
 
 @runtime_checkable
@@ -284,4 +284,4 @@ if __name__ == "__main__":
     runner.run()
 
     runner2 = HookRunner()
-    runner2.post_add_download()
+    runner2.post_add_download(None, None)

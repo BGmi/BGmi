@@ -385,7 +385,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
 
     hook_runner = HookRunner()
     if download:
-        hook_runner.pre_add_download(followed_bangumi=updated_bangumi_obj)
+        hook_runner.pre_add_download()
 
     runner = ScriptRunner()
     script_download_queue = runner.run()
