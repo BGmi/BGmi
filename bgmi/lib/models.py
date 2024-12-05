@@ -186,6 +186,7 @@ class Download(NeoDB):
     episode = IntegerField(default=0)
     download = TextField()
     status = IntegerField(default=0)
+    created_time = IntegerField(default=0)
 
     @classmethod
     def get_all_downloads(cls, status: Optional[int] = None) -> List[dict]:
