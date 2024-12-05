@@ -256,15 +256,15 @@ class HookRunner:
                         traceback.print_exc()
                     continue
 
-    def pre_add_download(self) -> None:
+    def pre_add_download(self, *args, **kwargs) -> None:
         assert self.hook_script is not None
         for script in self.hook_script:
-            script.pre_add_download()
+            script.pre_add_download(*args, **kwargs)
 
-    def post_add_download(self) -> None:
+    def post_add_download(self, *args, **kwargs) -> None:
         assert self.hook_script is not None
         for script in self.hook_script:
-            script.post_add_download()
+            script.post_add_download(*args, **kwargs)
 
 
 @runtime_checkable
