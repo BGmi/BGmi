@@ -75,7 +75,7 @@ class CalendarHandler(BaseHandler):
                             datetime.datetime.now().date() + datetime.timedelta(i - 1),
                         )
                         cal.add_component(event)
-        elif type_ == 'download':
+        elif type_ == "download":
             data = [
                 item for item in Download.get_all_downloads() if item["created_time"] and int(item["created_time"]) != 0
             ]
