@@ -80,10 +80,12 @@ class CalendarHandler(BaseHandler):
                 item for item in Download.get_all_downloads() if item["created_time"] and int(item["created_time"]) != 0
             ]
             for d in data:
-                todo = Todo()
-                todo.add("summary", f"{d['name']}: {d['episode']}")
-                todo.add("dstart", datetime.datetime.fromtimestamp(int(d["created_time"])))
-                cal.add_component(todo)
+                event = Event()
+                event.add("summary", "Updated: {}".format(d["name"]))
+                updated_time = datetime.datetime.fromtimestamp(d["created_time"]).date()
+                event.add("dtstart", updated_time)
+                event.add("dtend", updated_time)
+                cal.add_component(event)
 
         else:
             data = [bangumi for bangumi in data if bangumi["status"] == 2]
