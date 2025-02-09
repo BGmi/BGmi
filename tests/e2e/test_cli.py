@@ -1,3 +1,4 @@
+import datetime
 from unittest import mock
 
 import pytest
@@ -67,6 +68,18 @@ def test_update_single(bangumi_names):
 
 
 @pytest.mark.usefixtures("_clean_bgmi")
+@mock.patch("bgmi.lib.controllers.update")
+@mock.patch("bgmi.main.datetime")
+def test_update_recent(mock_datetime, mock_update):
+    mock_datetime.datetime.today.return_value = datetime.date(2024, 1, 28)  # Sunday
+    assert mock_datetime.datetime.today().weekday() == 6
+
+    main_for_test(["update", "--recent"])
+    called_days = mock_update.call_args.kwargs["update_days"]
+    assert sorted(called_days) == sorted(["Sun", "Sat"])
+
+
+@pytest.mark.usefixtures("_clean_bgmi")
 def test_search(bangumi_names):
     main_for_test(["search", "海贼王", "--regex-filter", ".*MP4.*720P.*"])
 
@@ -106,3 +119,27 @@ def test_fetch(bangumi_names):
     name = bangumi_names[0]
     main_for_test(f"add {name} --episode 0".split())
     main_for_test(f"fetch {name}".split())
+
+
+@pytest.mark.usefixtures("_clean_bgmi")
+def test_change(bangumi_names):
+    class MockWebsite(BangumiMoe):
+        def fetch_bangumi_calendar(self):
+            bangumi = BangumiMoe().fetch_bangumi_calendar()
+            bangumi[0].update_day = "Unknown"
+            return bangumi
+
+    with mock.patch("bgmi.lib.controllers.website", MockWebsite()):
+        name = bangumi_names[0]
+        main_for_test(["add", name])
+        assert Bangumi.get(Bangumi.name == name).update_day == "Unknown"
+
+        main_for_test(f"change {name} --update_day Wed".split())
+        assert Bangumi.get(Bangumi.name == name).update_day == "Wed"
+
+        main_for_test(["cal", "-f"])
+        assert Bangumi.get(Bangumi.name == name).update_day == "Wed"
+
+        main_for_test(f"change {name} --clear".split())
+        main_for_test(["cal", "-f"])
+        assert Bangumi.get(Bangumi.name == name).update_day == "Unknown"
