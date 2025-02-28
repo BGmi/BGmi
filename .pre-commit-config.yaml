@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/python-poetry/poetry
-    rev: "1.8.2"
+    rev: "1.8.5"
     hooks:
       - id: poetry-check
       - id: poetry-lock
@@ -33,19 +33,19 @@ repos:
         args: [--remove]
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.2
+    rev: v3.19.1
     hooks:
       - id: pyupgrade
         args: [--py38-plus]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.4.2
+    rev: v0.9.9
     hooks:
       # Run the linter.
       - id: ruff
 
   - repo: https://github.com/psf/black
-    rev: 24.4.2
+    rev: 24.10.0
     hooks:
       - id: black
