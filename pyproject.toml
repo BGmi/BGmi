@@ -63,7 +63,7 @@ anime-episode-parser = "^0.0.12"
 semver = "3.0.2"
 loguru = "0.7.2"
 click = "8.1.7"
-packaging = "23.2"
+packaging = "24.2"
 uvicorn = { version = "0.29.0" }
 fastapi = "0.110.3"
 # RPC library
