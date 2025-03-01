@@ -40,7 +40,7 @@ jobs:
           coverage run -a -m pytest tests/downloader -s
 
       - run: coverage xml
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           flags: downloader
           token: ${{ secrets.CODECOV_TOKEN }} # required
