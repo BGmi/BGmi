@@ -75,7 +75,7 @@ pytest = "==8.2.2"
 pytest-github-actions-annotate-failures = "==0.2.0"
 requests-cache = "==1.2.0"
 # lint
-pre-commit = { version = '3.7.1', python = "^3.9" }
+pre-commit = { version = '4.1.0', python = "^3.9" }
 mypy = "==1.10.0"
 
 # stubs
