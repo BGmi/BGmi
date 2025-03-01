@@ -43,7 +43,7 @@ jobs:
           bgmi --help
           coverage run -a -m pytest tests --cache-requests --ignore=tests/downloader --ignore=tests/e2e
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           flags: unit
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -75,7 +75,7 @@ jobs:
           bgmi --help
           coverage run -a -m pytest tests/e2e --cache-requests
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           flags: e2e
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -108,7 +108,7 @@ jobs:
           coverage run -a -m pytest tests/downloader -s
 
       - run: coverage xml
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           flags: downloader
           token: ${{ secrets.CODECOV_TOKEN }}
