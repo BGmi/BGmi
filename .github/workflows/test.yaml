@@ -95,7 +95,7 @@ jobs:
       - uses: trim21/install-poetry-project@dist/v2
 
       - name: start daemon
-        run: docker-compose -f tests/downloader/docker-compose.yaml up -d
+        run: docker compose -f tests/downloader/docker-compose.yaml up -d
 
       - run: sleep 10
         name: wait container ready
