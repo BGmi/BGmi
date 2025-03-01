@@ -523,11 +523,24 @@ def fetch(name: str, not_ignore: bool) -> None:
 @click.option(
     "--not-ignore", "not_ignore", is_flag=True, help="Do not ignore the old bangumi detail rows (3 month ago)"
 )
-def update(names: List[str], download: bool, not_ignore: bool) -> None:
+@click.option("-r", "--recent", is_flag=True, default=False, help="Update bangumi of today and yesterday of week")
+@click.option(
+    "-w",
+    "--weekday",
+    type=click.Choice(BANGUMI_UPDATE_TIME, case_sensitive=False),
+    multiple=True,
+    help="Update bangumi of specific weekday",
+)
+def update(names: List[str], download: bool, not_ignore: bool, recent: bool, weekday: tuple) -> None:
     """
     name: optional bangumi name list you want to update
     """
-    ctl.update(names, download=download, not_ignore=not_ignore)
+    update_days = list(weekday)
+    if recent:
+        cur_weekday = datetime.datetime.today().weekday()
+        update_days.extend([BANGUMI_UPDATE_TIME[x] for x in (cur_weekday, (cur_weekday + 1) % 7)])
+        update_days = list(set(update_days))
+    ctl.update(names, download=download, not_ignore=not_ignore, update_days=update_days)
 
 
 template = {
@@ -668,3 +681,18 @@ def seen_forget(name: str, episode: int) -> None:
         return
     e.episodes.remove(episode)
     e.save()
+
+
+@cli.command("change")
+@click.argument("name", required=True)
+@click.option(
+    "-u", "--update_day", type=click.Choice(BANGUMI_UPDATE_TIME, case_sensitive=False), help="Set update_day of bangumi"
+)
+@click.option("--clear", is_flag=True, default=False, help="Delete custom fields of bangumi")
+def change(name: str, update_day: str, clear: bool) -> None:
+    """
+    name: bangumi name to custom field
+    """
+    result = ctl.change(name, update_day=update_day, clear=clear)
+    if result["message"]:
+        globals()["print_{}".format(result["status"])](result["message"])
