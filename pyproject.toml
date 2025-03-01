@@ -83,7 +83,7 @@ httpx = "0.27.0"
 pre-commit = '==3.5.0'
 mypy = "1.10.0"
 # stubs
-types-requests = "==2.31.0.20240406"
+types-requests = "==2.32.0.20241016"
 types-beautifulsoup4 = "^4.12.0.5"
 
 [tool.coverage.report]
