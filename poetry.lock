@@ -374,19 +374,22 @@ files = [
 
 [[package]]
 name = "icalendar"
-version = "5.0.12"
+version = "6.1.1"
 description = "iCalendar parser/generator"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "icalendar-5.0.12-py3-none-any.whl", hash = "sha256:d873bb859df9c6d0e597b16d247436e0f83f7ac1b90a06429b8393fe8afeba40"},
-    {file = "icalendar-5.0.12.tar.gz", hash = "sha256:73f9be68477722c98320621400943705dcfdbbc6c2b565253f72d3f87e514db8"},
+    {file = "icalendar-6.1.1-py3-none-any.whl", hash = "sha256:accf3a4be9a1f89bad00e0bf14103b02cd9b02dcb9b4258eb717f39d24cf58e9"},
+    {file = "icalendar-6.1.1.tar.gz", hash = "sha256:2c44355a8f006de5ae73fa3f022a1cbe2a0de6b1607ce8879739eb887c4f3471"},
 ]
 
 [package.dependencies]
-"backports.zoneinfo" = {version = "*", markers = "python_version == \"3.7\" or python_version == \"3.8\""}
+backports-zoneinfo = {version = "*", markers = "python_version < \"3.9\""}
 python-dateutil = "*"
-pytz = "*"
+tzdata = "*"
+
+[package.extras]
+test = ["coverage", "hypothesis", "pytest", "pytz"]
 
 [[package]]
 name = "identify"
@@ -816,17 +819,6 @@ files = [
 six = ">=1.5"
 
 [[package]]
-name = "pytz"
-version = "2025.1"
-description = "World timezone definitions, modern and historical"
-optional = false
-python-versions = "*"
-files = [
-    {file = "pytz-2025.1-py2.py3-none-any.whl", hash = "sha256:89dd22dca55b46eac6eda23b2d72721bf1bdfef212645d81513ef5d03038de57"},
-    {file = "pytz-2025.1.tar.gz", hash = "sha256:c2db42be2a2518b28e65f9207c4d05e6ff547d1efa4086469ef855e4ab70178e"},
-]
-
-[[package]]
 name = "pyyaml"
 version = "6.0.2"
 description = "YAML parser and emitter for Python"
@@ -1165,6 +1157,17 @@ files = [
 ]
 
 [[package]]
+name = "tzdata"
+version = "2025.1"
+description = "Provider of IANA time zone data"
+optional = false
+python-versions = ">=2"
+files = [
+    {file = "tzdata-2025.1-py2.py3-none-any.whl", hash = "sha256:7e127113816800496f027041c570f50bcd464a020098a3b6b199517772303639"},
+    {file = "tzdata-2025.1.tar.gz", hash = "sha256:24894909e88cdb28bd1636c6887801df64cb485bd593f2fd83ef29075a81d694"},
+]
+
+[[package]]
 name = "url-normalize"
 version = "1.4.3"
 description = "URL normalization for Python"
@@ -1346,4 +1349,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.0"
-content-hash = "f8b322681b453d4c3cfee9629a403bb5346a7c97805ac9e3ef66e50bc1c47c0c"
+content-hash = "74328e5e98ced6d5647e937dcf15620587eb33009cdaafe47994fd00384ddcc5"
