@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/python-poetry/poetry
-    rev: "1.7.1"
+    rev: "1.8.5"
     hooks:
       - id: poetry-check
       - id: poetry-lock
@@ -34,19 +34,19 @@ repos:
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.1.6
+    rev: v0.9.10
     hooks:
       - id: ruff
         args: [ --fix, --exit-non-zero-on-fix ]
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.0
+    rev: v3.19.1
     hooks:
       - id: pyupgrade
         args: [--py38-plus]
 
   - repo: https://github.com/PyCQA/autoflake
-    rev: v2.2.1
+    rev: v2.3.1
     hooks:
       - id: autoflake
         args:
@@ -61,6 +61,6 @@ repos:
       - id: isort
 
   - repo: https://github.com/psf/black
-    rev: 23.11.0
+    rev: 23.12.1
     hooks:
       - id: black
