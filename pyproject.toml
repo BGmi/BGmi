@@ -48,29 +48,29 @@ bgmi_http = 'bgmi.front.server:main'
 
 [tool.poetry.dependencies]
 python = "^3.8.0"
-beautifulsoup4 = '==4.12.3'
-requests = { extras = ["socks"], version = "2.32.0" }
-icalendar = '==5.0.12'
-sqlalchemy = "2.0.29"
+beautifulsoup4 = '==4.13.3'
+requests = { extras = ["socks"], version = "2.32.3" }
+icalendar = '==5.0.13'
+sqlalchemy = "2.0.39"
 wcwidth = "^0.2.13"
-pydantic = "==2.7.1"
-stevedore = "==5.2.0"
+pydantic = "==2.10.6"
+stevedore = "==5.4.1"
 filetype = "1.2.0"
 strsimpy = "0.2.1"
-tomlkit = "0.12.4"
+tomlkit = "0.13.2"
 strenum = "0.4.15"
 anime-episode-parser = "^0.0.12"
-semver = "3.0.2"
-loguru = "0.7.2"
-click = "8.1.7"
+semver = "3.0.4"
+loguru = "0.7.3"
+click = "8.1.8"
 packaging = "24.2"
-uvicorn = { version = "0.29.0" }
-fastapi = "0.110.3"
+uvicorn = { version = "0.34.0" }
+fastapi = "0.115.11"
 # RPC library
-transmission-rpc = "==7.0.4"
+transmission-rpc = "==7.0.11"
 qbittorrent-api = "==2023.11.57"
 pycomplete = "0.4.0"
-yarl = "1.9.4"
+yarl = "1.18.3"
 
 [tool.poetry.group.dev.dependencies]
 # tests
