@@ -25,7 +25,7 @@ jobs:
           fetch-depth: 2
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.8"
+          python-version: "3.8.18"
       - uses: trim21/setup-poetry@dist/v2
       - uses: trim21/install-poetry-project@dist/v2
       - name: start daemon
