@@ -74,7 +74,7 @@ yarl = "1.9.4"
 
 [tool.poetry.group.dev.dependencies]
 # tests
-coverage = { version = "==7.5.0", extras = ['toml'] }
+coverage = { version = "==7.6.12", extras = ['toml'] }
 pytest = "==8.3.4"
 pytest-github-actions-annotate-failures = "==0.3.0"
 requests-cache = "==1.2.1"
