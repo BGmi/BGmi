@@ -85,6 +85,7 @@ class Bangumi(Base):
     status: Mapped[int] = Column(
         Integer, nullable=False, default=STATUS_UPDATING, server_default=str(STATUS_UPDATING)
     )  # type: ignore
+    custom_field: Mapped[List[str]] = Column(sa.JSON, nullable=False, default=[], server_default="[]")  # type: ignore
 
     if TYPE_CHECKING:
 
@@ -96,6 +97,7 @@ class Bangumi(Base):
             subtitle_group: Optional[List[str]] = None,
             cover: str = "",
             status: int = STATUS_UPDATING,
+            custom_field: Optional[List[str]] = None,
         ):
             super().__init__()
 
@@ -232,13 +234,16 @@ class Followed(Base):
 
     @classmethod
     def get_all_followed(
-        cls: Type["Followed"], bangumi_status: int = Bangumi.STATUS_UPDATING
+        cls: Type["Followed"], bangumi_status: int = Bangumi.STATUS_UPDATING, update_days: Optional[list[str]] = None
     ) -> List[Row[Tuple["Followed", "Bangumi"]]]:
+        where_con = [cls.status.isnot(cls.STATUS_DELETED), Bangumi.status == bangumi_status]
+        if update_days:
+            where_con.append(Bangumi.update_day.in_(update_days))
         with Session() as tx:
             return list(
                 tx.query(Followed, Bangumi)
                 .join(Bangumi, cls.bangumi_name == Bangumi.name)
-                .where(cls.status.isnot(cls.STATUS_DELETED), Bangumi.status == bangumi_status)
+                .where(*where_con)
                 .order_by(cls.updated_time.desc())
                 .all()
             )

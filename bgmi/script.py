@@ -20,7 +20,9 @@ class ScriptRunner:
     scripts: ClassVar["List[ScriptBase]"] = []
 
     def __new__(cls, *args, **kwargs):  # type: ignore
-        if cls._defined is None:
+        update_days = kwargs.pop("update_days", None)
+        if cls._defined is None or update_days:  # reload scripts if update_days is specified
+            cls.scripts = []
             script_files = glob.glob(f"{cfg.script_path}{os.path.sep}*.py")
             for i in script_files:
                 try:
@@ -33,17 +35,20 @@ class ScriptRunner:
                     if os.getenv("DEBUG_SCRIPT"):  # pragma: no cover
                         traceback.print_exc()
                     continue
-                cls.check(script_class, i)
+                cls.check(script_class, i, update_days)
 
             cls._defined = super().__new__(cls, *args, **kwargs)
 
         return cls._defined
 
     @classmethod
-    def check(cls, script: "ScriptBase", fs: str) -> None:
+    def check(cls, script: "ScriptBase", fs: str, update_days: Optional[list[str]] = None) -> None:
         model = script.Model()
         if model.due_date and model.due_date < datetime.datetime.now():
             print(f"Skip load {fs} because it has reach its due_date")
+            return
+        if update_days and model.update_time not in update_days:
+            print(f"Skip load {fs} because it's update_day({model.update_time}) not in range")
             return
 
         cls.scripts.append(script)

@@ -23,8 +23,12 @@ class BaseWebsite:
             try:
                 b = Bangumi.get(Bangumi.id == data.id)
 
+                if "update_day" in b.custom_field:
+                    print(f"Skip update update_day of {b.name}, casue it has been customed")
+                else:
+                    b.update_day = data.update_day
+
                 b.cover = data.cover
-                b.update_day = data.update_day
                 b.status = Bangumi.STATUS_UPDATING
                 b.subtitle_group = subtitle_group
 

@@ -19,6 +19,8 @@ v5 不再像之前版本一样仅追踪目前订阅的最大集数，而是会�
 其他更新：
 
 - `bgmi update` 命令的 `--download` 参数已废弃，`update` 命令将总是尝试下载。
+- `bgmi update` 添加可指定weekday进行下载
+- 添加`bgmi change` 自定义番剧的更新日期
 - 重构 bgmi_http
 - 移除 '/resource/feed.xml'
 
@@ -287,6 +289,10 @@ bgmi delete "Re:CREATORS"
 ```bash
 bgmi update --download # update all
 bgmi update "从零开始的魔法书" --download
+# 只下载特定更新日期的订阅番剧
+bgmi update --download --weekday "Sun"
+# 下载昨天和今天更新的订阅番剧
+bgmi update --download --recent
 ```
 
 设置筛选条件:
@@ -301,6 +307,15 @@ bgmi fetch "Re:CREATORS"
 bgmi filter "Re:CREATORS" --subtitle "" --include "" --exclude "" --regex "..."
 bgmi filter "Re:CREATORS" --regex "(DHR動研字幕組|豌豆字幕组).*(720P)"
 bgmi fetch "Re:CREATORS"
+```
+
+手动设定番剧的更新日期:
+
+```bash
+# 如果对`bgmi cal`生成的番剧日历不满意, 可以手动指定更新日期
+bgmi change "葬送的芙莉莲" --update_day "Sat"
+# 清除手动设定, 以启用自动更新
+bgmi change "葬送的芙莉莲" --clear
 ```
 
 ## 设置全局过滤关键词

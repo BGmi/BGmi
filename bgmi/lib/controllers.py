@@ -273,8 +273,13 @@ def search(
         }
 
 
-def update(names: List[str], download: Optional[bool] = False, not_ignore: bool = False) -> None:
-    logger.debug("updating bangumi info with args: download: {}", download)
+def update(
+    names: List[str],
+    download: Optional[bool] = False,
+    not_ignore: bool = False,
+    update_days: Optional[list[str]] = None,
+) -> None:
+    logger.debug("updating bangumi info with args: download: {}, update_days: {}", download, update_days)
 
     ignore = not bool(not_ignore)
     now = int(time.time())
@@ -284,7 +289,9 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
         download_previous_failed_downloads()
 
     if not names:
-        updated_bangumi_obj = sorted([x[0] for x in Followed.get_all_followed()], key=attrgetter("bangumi_name"))
+        updated_bangumi_obj = sorted(
+            [x[0] for x in Followed.get_all_followed(update_days=update_days)], key=attrgetter("bangumi_name")
+        )
     else:
         updated_bangumi_obj = []
         for n in names:
@@ -294,7 +301,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             except Followed.NotFoundError:
                 logger.warning("missing followed bangumi '{}'", n)
 
-    runner = ScriptRunner()
+    runner = ScriptRunner(update_days=update_days)
 
     for script, all_episode_data in runner.run():
         if not download:
@@ -389,3 +396,32 @@ def download_episodes(all_episode_data: List[Episode], following: Union[Followed
         following.status = Followed.STATUS_UPDATED
         following.updated_time = int(time.time())
         following.save()
+
+
+def change(name: str, update_day: str = "", clear: bool = False) -> ControllerResult:
+    result = {"status": "success", "message": ""}  # type: Dict[str, Any]
+    try:
+        bangumi_obj = Bangumi.get(Bangumi.name.contains(name))
+    except Bangumi.NotFoundError:
+        result["status"] = "error"
+        result["message"] = f"Bangumi {name} does not exist."
+        return result
+
+    if clear:
+        bangumi_obj.custom_field = []
+        bangumi_obj.save()
+        result[
+            "message"
+        ] = f"Bangumi {bangumi_obj.name} cleared, you can use 'bgmi cal -f' to update, or wait automatically update"
+        return result
+
+    if update_day:
+        bangumi_obj.update_day = update_day
+        bangumi_obj.custom_field = ["update_day"]
+        bangumi_obj.save()
+        result[
+            "message"
+        ] = f"Bangumi {bangumi_obj.name} changed update_day to {update_day}, will not be updated automatically"
+        return result
+
+    return result
