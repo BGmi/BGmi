@@ -64,7 +64,7 @@ loguru = "0.7.2"
 click = "8.1.7"
 # RPC library
 transmission-rpc = "==7.0.9"
-qbittorrent-api = "==2024.5.63"
+qbittorrent-api = "==2025.2.0"
 pycomplete = "0.4.0"
 yarl = "1.9.4"
 
