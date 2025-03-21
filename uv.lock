@@ -129,7 +129,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "coverage", extras = ["toml"], specifier = "==7.4.4" },
-    { name = "httpx", specifier = ">=0.28.1" },
+    { name = "httpx", specifier = "==0.28.1" },
     { name = "mypy", specifier = "==1.9.0" },
     { name = "pytest", specifier = "==8.1.1" },
     { name = "pytest-github-actions-annotate-failures", specifier = "==0.2.0" },
