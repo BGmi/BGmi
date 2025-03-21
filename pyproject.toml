@@ -14,7 +14,7 @@ maintainers = [{ name = "Trim21", email = "i@trim21.me" }]
 dependencies = [
   'anime-episode-parser (==0.0.12)',
   'beautifulsoup4 (==4.12.3)',
-  "click==8.1.7",
+  "click==8.1.8",
   "fastapi==0.115.11",
   'filetype (==1.2.0)',
   'icalendar (==6.1.2)',
