@@ -13,6 +13,7 @@
     "master",
     "/^v\\d+$/"
   ],
+  "prConcurrentLimit": 4,
   "rangeStrategy": "pin",
   "separateMajorMinor": true,
   "lockFileMaintenance": {
