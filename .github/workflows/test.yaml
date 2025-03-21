@@ -36,6 +36,7 @@ jobs:
       - run: |
           uv sync --locked
           echo .venv/bin/ >> $GITHUB_PATH
+          echo .venv/scripts/ >> $GITHUB_PATH
 
       - name: test
         run: |
