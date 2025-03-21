@@ -12,9 +12,9 @@ import tomlkit
 from pydantic import AnyUrl, BaseModel, ConfigDict, Field, HttpUrl
 
 try:
-    from enum import StrEnum  # type: ignore
+    from enum import StrEnum
 except ImportError:
-    from strenum import StrEnum
+    from strenum import StrEnum  # type: ignore
 
 
 class Source(StrEnum):
