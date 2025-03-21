@@ -37,7 +37,7 @@ jobs:
 
       - uses: astral-sh/setup-uv@v5
 
-      - run: uv sync --locked
+      - run: UV_SYSTEM_PYTHON=1 uv sync --locked 
 
       - name: test
         run: |

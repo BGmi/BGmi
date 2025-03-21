@@ -13,7 +13,7 @@ defaults:
     shell: bash
 
 concurrency:
-  group: '${{ github.workflow }}-${{ github.ref }}'
+  group: "${{ github.workflow }}-${{ github.ref }}"
   cancel-in-progress: true
 
 jobs:
@@ -27,7 +27,7 @@ jobs:
         with:
           python-version: "3.8"
       - uses: astral-sh/setup-uv@v5
-      - run: uv sync --locked
+      - run: UV_SYSTEM_PYTHON=1 uv sync --locked
       - name: start daemon
         run: docker compose -f tests/downloader/docker-compose.yaml up -d
       - run: sleep 10
