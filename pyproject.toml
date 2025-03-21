@@ -29,7 +29,7 @@ dependencies = [
   'stevedore (==5.2.0)',
   'strenum (==0.4.15)',
   'strsimpy (==0.2.1)',
-  'tomlkit (==0.12.4)',
+  'tomlkit (==0.13.2)',
   'transmission-rpc (==7.0.11)',
   "uvicorn==0.34.0",
   'wcwidth (>=0.2.13,<0.3.0)',
