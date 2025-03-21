@@ -20,7 +20,7 @@ dependencies = [
   'loguru (==0.7.2)',
   'peewee (==3.17.3)',
   'pycomplete (==0.4.0)',
-  "pydantic==2.10.6",
+  "pydantic==2.7.1",
   'qbittorrent-api (==2024.3.60)',
   'requests (==2.31.0)',
   'semver (==3.0.2)',
@@ -43,6 +43,8 @@ classifiers = [
   'Programming Language :: Python :: 3.9',
   'Programming Language :: Python :: 3.10',
   'Programming Language :: Python :: 3.11',
+  'Programming Language :: Python :: 3.12',
+  'Programming Language :: Python :: 3.13',
   'Programming Language :: Python :: Implementation :: CPython',
   'Programming Language :: Python :: Implementation :: PyPy',
 ]
