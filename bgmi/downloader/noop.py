@@ -7,8 +7,9 @@ class Noop(BaseDownloadService):
     def __init__(self):
         pass
 
-    def add_download(self, url: str, save_path: str):
+    def add_download(self, url: str, save_path: str) -> str:
         logger.info(f"noop downloader:\ndownloading {url=}\n{save_path=}")
+        return ""
 
     def get_status(self, id: str) -> DownloadStatus:
         return DownloadStatus.downloading
