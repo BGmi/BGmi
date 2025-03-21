@@ -4,17 +4,13 @@ import pathlib
 import platform
 import secrets
 import tempfile
+from enum import StrEnum
 from pathlib import Path
 from typing import Annotated, Dict, List, Optional, cast
 
 import pydantic
 import tomlkit
 from pydantic import AnyUrl, BaseModel, ConfigDict, Field, HttpUrl
-
-try:
-    from enum import StrEnum
-except ImportError:
-    from strenum import StrEnum  # type: ignore
 
 
 class Source(StrEnum):
