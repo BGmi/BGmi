@@ -71,7 +71,7 @@ dev = [
   # lint
   'mypy==1.15.0',
   # stubs
-  'types-requests ==2.31.0.20240406',
+  'types-requests ==2.32.0.20250306',
 ]
 
 [tool.coverage.report]
