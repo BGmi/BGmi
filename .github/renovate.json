@@ -22,10 +22,16 @@
   "packageRules": [
     {
       "matchBaseBranches": [
-        "/^v\\d+$/"
+        "master"
       ],
-      "matchManagers": [
-        "pep621"
+      "matchPackageNames": [
+        "pydantic"
+      ],
+      "allowedVersions": "<2"
+    },
+    {
+      "matchBaseBranches": [
+        "v5"
       ],
       "prPriority": 10
     },
