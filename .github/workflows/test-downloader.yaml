@@ -27,7 +27,10 @@ jobs:
         with:
           python-version: "3.8"
       - uses: astral-sh/setup-uv@v5
-      - run: UV_SYSTEM_PYTHON=1 uv sync --locked
+      - run: |
+          uv sync --locked
+          echo .venv/bin/ >> $GITHUB_PATH
+
       - name: start daemon
         run: docker compose -f tests/downloader/docker-compose.yaml up -d
       - run: sleep 10
