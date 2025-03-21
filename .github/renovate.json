@@ -24,6 +24,9 @@
       "matchBaseBranches": [
         "/^v\\d+$/"
       ],
+      "matchManagers": [
+        "pep621"
+      ],
       "prPriority": 10
     },
     {
