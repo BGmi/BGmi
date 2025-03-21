@@ -30,7 +30,6 @@ dependencies = [
   'strenum (==0.4.15)',
   'strsimpy (==0.2.1)',
   'tomlkit (==0.12.4)',
-  'tornado (==6.4)',
   'transmission-rpc (==7.0.3)',
   "uvicorn==0.34.0",
   'wcwidth (>=0.2.13,<0.3.0)',
