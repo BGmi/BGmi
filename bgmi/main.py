@@ -109,8 +109,7 @@ def source_cmd(source: str) -> None:
 
 
 @cli.group()
-def config() -> None:
-    ...
+def config() -> None: ...
 
 
 @config.command("print")
@@ -634,8 +633,7 @@ def history() -> None:
 
 
 @cli.group("debug")
-def debug() -> None:
-    ...
+def debug() -> None: ...
 
 
 @debug.command("info")
@@ -654,8 +652,7 @@ def completion(shell: str) -> None:
 
 
 @cli.group("seen", help="manage downloaded episodes")
-def seen() -> None:
-    ...
+def seen() -> None: ...
 
 
 @seen.command("forget", help="mark episodes of bangumi as non-downloaded")
