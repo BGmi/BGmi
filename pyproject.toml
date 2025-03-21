@@ -9,7 +9,7 @@ description = 'BGmi is a cli tool for subscribed bangumi.'
 authors = [{ name = "RicterZ", email = "ricterzheng@gmail.com" }]
 readme = 'README.md'
 license = 'MIT'
-requires-python = '>=3.9,<4'
+requires-python = '>=3.11,<4'
 maintainers = [{ name = "Trim21", email = "i@trim21.me" }]
 dependencies = [
   'anime-episode-parser (==0.0.12)',
@@ -27,7 +27,6 @@ dependencies = [
   'semver (==3.0.4)',
   "sqlalchemy==2.0.39",
   'stevedore (==5.4.1)',
-  'strenum (==0.4.15)',
   'strsimpy (==0.2.1)',
   'tomlkit (==0.13.2)',
   'transmission-rpc (==7.0.11)',
@@ -107,6 +106,7 @@ use_parentheses = true
 include_trailing_comma = true
 
 [tool.mypy]
+python_version = '3.11'
 disallow_untyped_defs = true
 ignore_missing_imports = true
 warn_return_any = true
@@ -160,8 +160,8 @@ disable = [
 
 [tool.black]
 line-length = 120
-target-version = ['py39']
+target-version = ['py311']
 
 [tool.ruff]
 line-length = 120
-target-version = 'py39'
+target-version = 'py311'
