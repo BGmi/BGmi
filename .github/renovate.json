@@ -24,7 +24,7 @@
       "matchBaseBranches": [
         "v5"
       ],
-      "prPriority": 10
+      "prPriority": -10
     },
     {
       "groupName": "pre-commit hooks",
