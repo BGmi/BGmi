@@ -652,8 +652,7 @@ def completion(shell: str) -> None:
 
 
 @cli.group("seen", help="manage downloaded episodes")
-def seen() -> None:
-    ...
+def seen() -> None: ...
 
 
 @seen.command("forget", help="mark episodes of bangumi as non-downloaded")
