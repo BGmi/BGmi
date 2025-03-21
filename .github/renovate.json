@@ -22,7 +22,7 @@
   "packageRules": [
     {
       "matchBaseBranches": [
-        "v5"
+        "/^v\\d+$/"
       ],
       "prPriority": -10
     },
