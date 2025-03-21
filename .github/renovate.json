@@ -23,6 +23,12 @@
   },
   "packageRules": [
     {
+      "matchBaseBranches": [
+        "v5"
+      ],
+      "prPriority": 1
+    },
+    {
       "automerge": true,
       "matchUpdateTypes": [
         "minor",
