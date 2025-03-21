@@ -15,49 +15,116 @@ defaults:
   run:
     shell: bash
 
-concurrency:
-  group: "${{ github.workflow }}-${{ github.ref }}"
-  cancel-in-progress: true
-
 jobs:
-  test:
-    runs-on: ${{ format('{0}-latest', matrix.os) }}
+  unit:
+    runs-on: "${{ matrix.os }}-latest"
     strategy:
+      fail-fast: false
       matrix:
         python: ["3.9", "3.13"]
-        os: [macos, windows, ubuntu]
+        os:
+          - macos
+          - windows
+          - ubuntu
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
 
       - uses: astral-sh/setup-uv@v5
-
-      - run: uv sync --locked
-
-      - run: echo .venv/bin/ >> $GITHUB_PATH
-      - run: echo .venv/Scripts/ >> $GITHUB_PATH
+      - run: |
+          uv sync --locked
+          echo .venv/bin/ >> $GITHUB_PATH
 
       - name: test
         run: |
           set -ex
           coverage run -a -m bgmi install
+          coverage run -a -m bgmi config set download_delegate --value noop
           bgmi --help
-          coverage run -a -m pytest tests --cache-requests --ignore=tests/downloader
+          coverage run -a -m pytest tests --cache-requests --ignore=tests/downloader --ignore=tests/e2e
 
-      - run: coverage xml --omit templates/download_xml.generated.py
       - uses: codecov/codecov-action@v5
         with:
-          flags: app,front
-          token: ${{ secrets.CODECOV_TOKEN }} # required
+          flags: unit
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  e2e:
+    runs-on: "${{ matrix.os }}-latest"
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.9", "3.13"]
+        os:
+          - macos
+          - windows
+          - ubuntu
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - uses: astral-sh/setup-uv@v5
+      - run: |
+          uv sync --locked
+          echo .venv/bin/ >> $GITHUB_PATH
+          echo .venv/scripts/ >> $GITHUB_PATH
+
+      - name: test
+        run: |
+          set -ex
+          coverage run -a -m bgmi install
+          coverage run -a -m bgmi config set download_delegate --value noop
+          bgmi --help
+          coverage run -a -m pytest tests/e2e --cache-requests
+
+      - uses: codecov/codecov-action@v5
+        with:
+          flags: e2e
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  downloader:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.9", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "${{ matrix.python }}"
+
+      - uses: astral-sh/setup-uv@v5
+      - run: |
+          uv sync --locked
+          echo .venv/bin/ >> $GITHUB_PATH
+
+      - name: start daemon
+        run: docker compose -f tests/downloader/docker-compose.yaml up -d
+
+      - run: sleep 10
+        name: wait container ready
+
+      - name: test
+        run: |
+          set -ex
+          coverage run -a -m bgmi install
+          coverage run -a tests/downloader/setup.py
+          coverage run -a -m pytest tests/downloader -s
+
+      - run: coverage xml
+      - uses: codecov/codecov-action@v5
+        with:
+          flags: downloader
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   test-all-pass:
-    needs:
-      - test
     runs-on: ubuntu-latest
+    needs:
+      - unit
+      - downloader
+      - e2e
     steps:
-      - run: echo 'OK'
+      - run: exit 0
