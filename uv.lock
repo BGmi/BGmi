@@ -105,7 +105,7 @@ requires-dist = [
     { name = "click", specifier = "==8.1.7" },
     { name = "fastapi", specifier = "==0.115.11" },
     { name = "filetype", specifier = "==1.2.0" },
-    { name = "icalendar", specifier = "==5.0.12" },
+    { name = "icalendar", specifier = "==6.1.2" },
     { name = "loguru", specifier = "==0.7.2" },
     { name = "packaging", specifier = "==24.2" },
     { name = "peewee", specifier = "==3.17.3" },
@@ -441,15 +441,15 @@ wheels = [
 
 [[package]]
 name = "icalendar"
-version = "5.0.12"
+version = "6.1.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "python-dateutil" },
-    { name = "pytz" },
+    { name = "tzdata" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/40/e7/01b5dd6623fda765e6edd605ef551a44071d3034eb4a252c7f61fb24323b/icalendar-5.0.12.tar.gz", hash = "sha256:73f9be68477722c98320621400943705dcfdbbc6c2b565253f72d3f87e514db8", size = 115981 }
+sdist = { url = "https://files.pythonhosted.org/packages/c0/04/0ca754a6da85c09e0edc704e38a661995c493c6a019e51c7465911431fb8/icalendar-6.1.2.tar.gz", hash = "sha256:152423b5611602374467b195f63818230ea25602acf76077d903bf5919ddf0c6", size = 151266 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fb/89/badc6427111cffabb6a462bf447cfff5e9e4c856527ddc030c11020b6cc5/icalendar-5.0.12-py3-none-any.whl", hash = "sha256:d873bb859df9c6d0e597b16d247436e0f83f7ac1b90a06429b8393fe8afeba40", size = 116298 },
+    { url = "https://files.pythonhosted.org/packages/be/85/8188101c2b4253a22ce843e9690abca3ae58f11a0f854db19dc9bf67e3a5/icalendar-6.1.2-py3-none-any.whl", hash = "sha256:8c5fda4dd563e603a360c095f841aa0dfa4fdad0b7202e722ba25290189c39d6", size = 206779 },
 ]
 
 [[package]]
@@ -920,15 +920,6 @@ wheels = [
 ]
 
 [[package]]
-name = "pytz"
-version = "2025.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/5f/57/df1c9157c8d5a05117e455d66fd7cf6dbc46974f832b1058ed4856785d8a/pytz-2025.1.tar.gz", hash = "sha256:c2db42be2a2518b28e65f9207c4d05e6ff547d1efa4086469ef855e4ab70178e", size = 319617 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/eb/38/ac33370d784287baa1c3d538978b5e2ea064d4c1b93ffbd12826c190dd10/pytz-2025.1-py2.py3-none-any.whl", hash = "sha256:89dd22dca55b46eac6eda23b2d72721bf1bdfef212645d81513ef5d03038de57", size = 507930 },
-]
-
-[[package]]
 name = "qbittorrent-api"
 version = "2025.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1213,6 +1204,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/df/db/f35a00659bc03fec321ba8bce9420de607a1d37f8342eee1863174c69557/typing_extensions-4.12.2.tar.gz", hash = "sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8", size = 85321 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/26/9f/ad63fc0248c5379346306f8668cda6e2e2e9c95e01216d2b8ffd9ff037d0/typing_extensions-4.12.2-py3-none-any.whl", hash = "sha256:04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d", size = 37438 },
+]
+
+[[package]]
+name = "tzdata"
+version = "2025.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/43/0f/fa4723f22942480be4ca9527bbde8d43f6c3f2fe8412f00e7f5f6746bc8b/tzdata-2025.1.tar.gz", hash = "sha256:24894909e88cdb28bd1636c6887801df64cb485bd593f2fd83ef29075a81d694", size = 194950 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0f/dd/84f10e23edd882c6f968c21c2434fe67bd4a528967067515feca9e611e5e/tzdata-2025.1-py2.py3-none-any.whl", hash = "sha256:7e127113816800496f027041c570f50bcd464a020098a3b6b199517772303639", size = 346762 },
 ]
 
 [[package]]
