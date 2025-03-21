@@ -1,4 +1,4 @@
-name: test-build-files
+name: build
 
 on:
   push:
