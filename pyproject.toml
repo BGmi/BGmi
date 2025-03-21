@@ -1,90 +1,78 @@
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["flit-core==3.11.0"]
+build-backend = "flit_core.buildapi"
 
-[tool.poetry]
+[project]
 name = "bgmi"
-version = "5.0.0-alpha.3"
+version = "5.0.0a5"
 description = 'BGmi is a cli tool for subscribed bangumi.'
-authors = ["RicterZ <ricterzheng@gmail.com>"]
+authors = [{ name = "RicterZ", email = "ricterzheng@gmail.com" }]
 readme = 'README.md'
 license = 'MIT'
-maintainers = ["Trim21 <i@trim21.me>"]
-homepage = 'https://github.com/BGmi/BGmi'
-repository = 'https://github.com/BGmi/BGmi'
-keywords = ['bangumi', 'bgmi', 'feed']
+requires-python = '>=3.9,<4'
+maintainers = [{ name = "Trim21", email = "i@trim21.me" }]
+dependencies = [
+  'anime-episode-parser (==0.0.12)',
+  'beautifulsoup4 (==4.12.3)',
+  'click (==8.1.7)',
+  'filetype (==1.2.0)',
+  'icalendar (==5.0.12)',
+  'loguru (==0.7.2)',
+  'peewee (==3.17.3)',
+  'pycomplete (==0.4.0)',
+  'pydantic (==1.10.15)',
+  'qbittorrent-api (==2024.3.60)',
+  'requests (==2.31.0)',
+  'semver (==3.0.2)',
+  'stevedore (==5.2.0)',
+  'strenum (==0.4.15)',
+  'strsimpy (==0.2.1)',
+  'tomlkit (==0.12.4)',
+  'tornado (==6.4)',
+  'transmission-rpc (==7.0.3)',
+  'wcwidth (>=0.2.13,<0.3.0)',
+  "yarl==1.15.2",
+]
 classifiers = [
   'Development Status :: 4 - Beta',
   'Intended Audience :: Other Audience',
   'Natural Language :: Chinese (Traditional)',
-  'License :: OSI Approved :: MIT License',
   'Programming Language :: Python',
   'Programming Language :: Python :: 3.8',
   'Programming Language :: Python :: 3.9',
   'Programming Language :: Python :: 3.10',
   'Programming Language :: Python :: 3.11',
-  'Programming Language :: Python :: 3.12',
   'Programming Language :: Python :: Implementation :: CPython',
   'Programming Language :: Python :: Implementation :: PyPy',
 ]
-packages = [{ include = "bgmi" }]
+keywords = ['bangumi', 'bgmi', 'feed']
 
-[tool.poetry-plugin-bump]
-commit_msg = 'bump: v{version}'
-tag_name = 'v{version}'
+[project.urls]
+homepage = 'https://github.com/BGmi/BGmi'
+repository = 'https://github.com/BGmi/BGmi'
 
-[tool.poetry.scripts]
+[project.scripts]
 bgmi = 'bgmi.main:main'
 bgmi_http = 'bgmi.front.server:main'
 
-[tool.poetry.plugins] # entry-points
-
-[tool.poetry.plugins."bgmi.downloader"]
+[project.entry-points."bgmi.downloader"]
 "aria2-rpc" = 'bgmi.downloader:Aria2DownloadRPC'
 "transmission-rpc" = 'bgmi.downloader:TransmissionRPC'
 "deluge-rpc" = 'bgmi.downloader:DelugeRPC'
 "qbittorrent-webapi" = 'bgmi.downloader:QBittorrentWebAPI'
-"noop" = 'bgmi.downloader:Noop'
 
-[tool.poetry.dependencies]
-python = "^3.8.0"
-beautifulsoup4 = '==4.12.3'
-requests = { extras = ["socks"], version = "2.32.0" }
-icalendar = '==5.0.12'
-sqlalchemy = "2.0.29"
-wcwidth = "^0.2.13"
-pydantic = "==2.7.1"
-stevedore = "==5.2.0"
-filetype = "1.2.0"
-strsimpy = "0.2.1"
-tomlkit = "0.12.4"
-strenum = "0.4.15"
-anime-episode-parser = "^0.0.12"
-semver = "3.0.2"
-loguru = "0.7.2"
-click = "8.1.7"
-packaging = "24.2"
-uvicorn = { version = "0.29.0" }
-fastapi = "0.110.3"
-# RPC library
-transmission-rpc = "==7.0.4"
-qbittorrent-api = "==2023.11.57"
-pycomplete = "0.4.0"
-yarl = "1.9.4"
-
-[tool.poetry.group.dev.dependencies]
-# tests
-coverage = { version = "==7.5.0", extras = ['toml'] }
-pytest = "==8.3.4"
-pytest-github-actions-annotate-failures = "==0.3.0"
-requests-cache = "==1.2.1"
-httpx = "0.28.1"
-# lint
-pre-commit = '==3.5.0'
-mypy = "1.10.0"
-# stubs
-types-requests = "==2.32.0.20241016"
-types-beautifulsoup4 = "^4.12.0.5"
+[dependency-groups]
+dev = [
+  # tests
+  'coverage[toml]==7.4.4',
+  'pytest==8.1.1',
+  'pytest-github-actions-annotate-failures==0.2.0',
+  'requests-cache ==1.2.0',
+  # lint
+  'mypy==1.9.0',
+  # stubs
+  'types-requests ==2.31.0.20240406',
+]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -99,7 +87,7 @@ exclude_lines = [
 ]
 
 [tool.pytest.ini_options]
-#addopts = '-v --durations=10'
+addopts = '-v --durations=10'
 junit_family = 'legacy'
 
 [tool.isort]
@@ -130,129 +118,44 @@ module = [
 ]
 disallow_untyped_defs = false
 
+[tool.pylint]
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint.messages_control]
+extension-pkg-whitelist = ['pydantic']
+disable = [
+  'fixme',
+  "consider-using-f-string",
+  "cell-var-from-loop",
+  "missing-function-docstring",
+  "missing-class-docstring",
+  "missing-module-docstring",
+  'raise-missing-from',
+  'invalid-name',
+  'too-many-locals',
+  'duplicate-code',
+  'too-few-public-methods',
+  'unused-argument',
+  'no-else-return',
+  'assignment-from-none',
+  'unused-variable',
+  'broad-except',
+  'too-many-nested-blocks',
+  'too-many-branches',
+  'redefined-outer-name',
+  'too-many-return-statements',
+  'too-many-statements',
+  'too-many-arguments',
+  'not-an-iterable',
+  'redefined-builtin',
+]
+
 [tool.black]
 line-length = 120
-target-version = ['py38', 'py39', 'py310']
+target-version = ['py39']
 
 [tool.ruff]
-select = [
-  "B",
-  "C",
-  "E",
-  "F",
-  "G",
-  "I",
-  "N",
-  "Q",
-  "W",
-  "BLE",
-  #  "DJ",
-  "ERA",
-  "EXE",
-  "ICN",
-  "INP",
-  "ISC",
-  "NPY",
-  #  "DTZ",
-  #  "PTH",
-  "PD",
-  "PGH",
-  "PIE",
-  "PL",
-  "PT",
-  "PYI",
-  "RET",
-  "RSE",
-  "RUF",
-  "SIM",
-  "SLF",
-  "TCH",
-  "TID",
-  "TRY",
-  "YTT",
-]
-ignore = [
-  'E501',
-  'BLE001',
-  'S301',
-  'S314',
-  'S101',
-  'N815',
-  'TCH001',
-  'S104',
-  'C901',
-  'ISC003',
-  'PLR0913',
-  'I001',
-  'RUF001',
-  'SIM108',
-  'TCH003',
-  'RUF003',
-  'RET504',
-  'TRY300',
-  'TRY003',
-  'TRY201',
-  'TRY301',
-  'PLR0912',
-  'PLR0915',
-  'PLR2004',
-  'PGH003',
-]
-
-# Allow autofix for all enabled rules (when `--fix`) is provided.
-fixable = [
-  "A",
-  "B",
-  "C",
-  "E",
-  "F",
-  "G",
-  "I",
-  "N",
-  "Q",
-  "S",
-  "W",
-  "BLE",
-  "DJ",
-  "DTZ",
-  "EM",
-  "ERA",
-  "EXE",
-  "FBT",
-  "ICN",
-  "INP",
-  "ISC",
-  "NPY",
-  "PD",
-  "PGH",
-  "PIE",
-  "PL",
-  "PT",
-  "PTH",
-  "PYI",
-  "RET",
-  "RSE",
-  "RUF",
-  "SIM",
-  "SLF",
-  "TCH",
-  "TID",
-  "TRY",
-  "YTT",
-]
-unfixable = []
-
-
-# Same as Black.
 line-length = 120
-
-# Assume Python 3.10.
-target-version = "py38"
-
-[tool.ruff.mccabe]
-# Unlike Flake8, default to a complexity level of 10.
-max-complexity = 10
-
-[tool.ruff.per-file-ignores]
-'bgmi/lib/constants.py' = ['C408']
-'bgmi/front/routes.py' = ['B008']
+target-version = 'py39'

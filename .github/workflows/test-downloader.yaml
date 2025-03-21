@@ -1,0 +1,49 @@
+name: test downloader
+
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore:
+      - renovate/**
+      - deepsource-*
+  pull_request: {}
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  downloader:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.8"
+      - uses: astral-sh/setup-uv@v5
+      - run: |
+          uv sync --locked
+          echo .venv/bin/ >> $GITHUB_PATH
+
+      - name: start daemon
+        run: docker compose -f tests/downloader/docker-compose.yaml up -d
+      - run: sleep 10
+        name: wait container ready
+      - name: test
+        run: |
+          set -ex
+          coverage run -a -m bgmi install
+          coverage run -a tests/downloader/setup.py
+          coverage run -a -m pytest tests/downloader -s
+
+      - run: coverage xml
+      - uses: codecov/codecov-action@v5
+        with:
+          flags: downloader
+          token: ${{ secrets.CODECOV_TOKEN }} # required
