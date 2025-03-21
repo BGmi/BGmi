@@ -18,7 +18,7 @@ dependencies = [
   "fastapi==0.115.11",
   'filetype (==1.2.0)',
   'icalendar (==6.1.2)',
-  "loguru==0.7.2",
+  "loguru==0.7.3",
   "packaging==24.2",
   'peewee (==3.17.3)',
   'pycomplete (==0.4.0)',
