@@ -70,36 +70,39 @@ class QBittorrentConfig(BaseSetting):
     rpc_username: str = os.getenv("BGMI_QBITTORRENT_RPC_USERNAME") or "admin"
     rpc_password: str = os.getenv("BGMI_QBITTORRENT_RPC_PASSWORD") or "adminadmin"
     category: str = os.getenv("BGMI_QBITTORRENT_RPC_CATEGORY") or ""
-    tags: Optional[List[str]] = pydantic.Field(["bgmi"])
+    tags: Optional[List[str]] = ["bgmi"]
 
 
 class DelugeConfig(BaseSetting):
-    rpc_url: HttpUrl = Field(
-        os.getenv("BGMI_DELUGE_RPC_URL") or "http://127.0.0.1:8112/json", validate_default=True
-    )  # type: ignore
+    rpc_url: Annotated[HttpUrl, Field(validate_default=True)] = cast(
+        HttpUrl, os.getenv("BGMI_DELUGE_RPC_URL") or "http://127.0.0.1:8112/json"
+    )
     rpc_password: str = os.getenv("BGMI_DELUGE_RPC_PASSWORD") or "deluge"
 
 
 class HTTP(BaseSetting):
-    admin_token: str = Field(
-        default_factory=lambda: os.getenv("BGMI_HTTP_ADMIN_TOKEN") or secrets.token_urlsafe(12),
-        description="webui admin token",
+    admin_token: Annotated[str, Field(description="webui admin token")] = os.getenv(
+        "BGMI_HTTP_ADMIN_TOKEN"
+    ) or secrets.token_urlsafe(12)
+    danmaku_api_url: Annotated[
+        str,
+        Field(description="danmaku api url, https://github.com/DIYgod/DPlayer#related-projects"),
+    ] = (
+        os.getenv("BGMI_HTTP_DANMAKU_API_URL") or ""
     )
-    danmaku_api_url: str = Field(
-        os.getenv("BGMI_HTTP_DANMAKU_API_URL") or "",
-        description="danmaku api url, https://github.com/DIYgod/DPlayer#related-projects",
-    )
-    serve_static_files: bool = Field(
-        cast(bool, os.getenv("BGMI_HTTP_SERVE_STATIC_FILES") or False),
-        description="serve static files with main",
-        validate_default=True,
-    )
+    serve_static_files: Annotated[
+        bool,
+        Field(
+            description="serve static files with main",
+            validate_default=True,
+        ),
+    ] = cast(bool, os.getenv("BGMI_HTTP_SERVE_STATIC_FILES") or False)
 
 
 class Config(BaseSetting):
-    data_source: Source = Field(
-        os.getenv("BGMI_DATA_SOURCE") or Source.BangumiMoe, description="data source"
-    )  # type: ignore
+    data_source: Annotated[Source, Field(description="data source")] = Source(
+        os.getenv("BGMI_DATA_SOURCE") or Source.BangumiMoe
+    )
     download_delegate: str = Field(os.getenv("BGMI_DOWNLOAD_DELEGATE") or "aria2-rpc", description="download delegate")
 
     tmp_path: Path = Field(Path(os.getenv("BGMI_TMP_PATH") or BGMI_PATH.joinpath("tmp")), validate_default=True)
