@@ -9,8 +9,7 @@ from typing import Annotated, Dict, List, Optional, cast
 
 import pydantic
 import tomlkit
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl
-from pydantic_core import Url
+from pydantic import AnyUrl, BaseModel, ConfigDict, Field, HttpUrl
 
 try:
     from enum import StrEnum  # type: ignore
@@ -194,7 +193,7 @@ def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
 
         value = d[name]
 
-        if isinstance(value, (Path, Url, HttpUrl)):
+        if isinstance(value, (Path, AnyUrl)):
             item = tomlkit.item(str(value))
         elif value is None:
             continue
