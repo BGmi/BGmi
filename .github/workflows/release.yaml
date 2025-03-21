@@ -15,7 +15,7 @@ jobs:
           fetch-depth: 0
 
       - uses: actions/setup-python@v5
-      - uses: trim21/setup-poetry@dist/v2
+      - uses: astral-sh/setup-uv@v5
 
       - run: poetry publish --build
         env:
