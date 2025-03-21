@@ -9,7 +9,7 @@ description = 'BGmi is a cli tool for subscribed bangumi.'
 authors = [{ name = "RicterZ", email = "ricterzheng@gmail.com" }]
 readme = 'README.md'
 license = 'MIT'
-requires-python = '>=3.8.0,<4'
+requires-python = '>=3.9,<4'
 maintainers = [{ name = "Trim21", email = "i@trim21.me" }]
 dependencies = [
   'anime-episode-parser (==0.0.12)',
@@ -154,8 +154,8 @@ disable = [
 
 [tool.black]
 line-length = 120
-target-version = ['py38', 'py39', 'py310']
+target-version = ['py39']
 
 [tool.ruff]
 line-length = 120
-target-version = 'py38'
+target-version = 'py39'
