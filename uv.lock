@@ -73,6 +73,7 @@ dependencies = [
     { name = "tornado" },
     { name = "transmission-rpc" },
     { name = "wcwidth" },
+    { name = "yarl" },
 ]
 
 [package.dev-dependencies]
@@ -83,7 +84,6 @@ dev = [
     { name = "pytest-github-actions-annotate-failures" },
     { name = "requests-cache" },
     { name = "types-requests" },
-    { name = "yarl" },
 ]
 
 [package.metadata]
@@ -107,6 +107,7 @@ requires-dist = [
     { name = "tornado", specifier = "==6.4" },
     { name = "transmission-rpc", specifier = "==7.0.3" },
     { name = "wcwidth", specifier = ">=0.2.13,<0.3.0" },
+    { name = "yarl", specifier = "==1.15.2" },
 ]
 
 [package.metadata.requires-dev]
@@ -117,7 +118,6 @@ dev = [
     { name = "pytest-github-actions-annotate-failures", specifier = "==0.2.0" },
     { name = "requests-cache", specifier = "==1.2.0" },
     { name = "types-requests", specifier = "==2.31.0.20240406" },
-    { name = "yarl", specifier = "==1.15.2" },
 ]
 
 [[package]]
