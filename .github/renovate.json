@@ -6,11 +6,6 @@
     "github>Trim21/renovate-config:poetry",
     "github>Trim21/renovate-config:app"
   ],
-  "enabledManagers": [
-    "pre-commit",
-    "poetry",
-    "github-actions"
-  ],
   "pre-commit": {
     "enabled": true
   },
@@ -50,16 +45,6 @@
         "anime-episode-parser"
       ],
       "rangeStrategy": "bump"
-    },
-    {
-      "groupName": "deps",
-      "matchManagers": [
-        "poetry"
-      ],
-      "matchDepTypes": [
-        "dependencies",
-        "dev-dependencies"
-      ]
     }
   ]
 }
