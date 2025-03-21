@@ -37,7 +37,7 @@ jobs:
 
       - uses: astral-sh/setup-uv@v5
 
-      - run: UV_SYSTEM_PYTHON=1 uv sync --locked
+      - run: uv sync --locked
 
       - run: echo .venv/bin/ >> $GITHUB_PATH
       - run: echo .venv/Scripts/ >> $GITHUB_PATH
