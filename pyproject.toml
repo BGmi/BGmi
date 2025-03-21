@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "bgmi"
-version = "5.0.0a5"
+version = "5.0.0a3"
 description = 'BGmi is a cli tool for subscribed bangumi.'
 authors = [{ name = "RicterZ", email = "ricterzheng@gmail.com" }]
 readme = 'README.md'
@@ -24,6 +24,7 @@ dependencies = [
   'qbittorrent-api (==2024.3.60)',
   'requests (==2.31.0)',
   'semver (==3.0.2)',
+  "sqlalchemy>=2.0.39",
   'stevedore (==5.2.0)',
   'strenum (==0.4.15)',
   'strsimpy (==0.2.1)',
@@ -60,6 +61,7 @@ bgmi_http = 'bgmi.front.server:main'
 "transmission-rpc" = 'bgmi.downloader:TransmissionRPC'
 "deluge-rpc" = 'bgmi.downloader:DelugeRPC'
 "qbittorrent-webapi" = 'bgmi.downloader:QBittorrentWebAPI'
+noop = 'bgmi.downloader:Noop'
 
 [dependency-groups]
 dev = [
