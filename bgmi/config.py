@@ -5,7 +5,7 @@ import platform
 import secrets
 import tempfile
 from pathlib import Path
-from typing import Dict, List, Optional, cast
+from typing import Annotated, Dict, List, Optional, cast
 
 import pydantic
 import tomlkit
@@ -66,7 +66,7 @@ class TransmissionConfig(BaseSetting):
     rpc_username: str = os.getenv("BGMI_TRANSMISSION_RPC_USERNAME") or "your_username"
     rpc_password: str = os.getenv("BGMI_TRANSMISSION_RPC_PASSWORD") or "your_password"
     rpc_path: str = os.getenv("BGMI_TRANSMISSION_RPC_PATH") or "/transmission/rpc"
-    labels: Optional[List[str]] = pydantic.Field(["bgmi"])
+    labels: Annotated[Optional[List[str]], pydantic.Field(["bgmi"])] = None
 
 
 class QBittorrentConfig(BaseSetting):
@@ -107,7 +107,7 @@ class Config(BaseSetting):
     )  # type: ignore
     download_delegate: str = Field(os.getenv("BGMI_DOWNLOAD_DELEGATE") or "aria2-rpc", description="download delegate")
 
-    tmp_path: Path = Path(os.getenv("BGMI_TMP_PATH") or BGMI_PATH.joinpath("tmp"), validate_default=True)
+    tmp_path: Path = Field(Path(os.getenv("BGMI_TMP_PATH") or BGMI_PATH.joinpath("tmp")), validate_default=True)
 
     proxy: str = cast(str, os.getenv("BGMI_PROXY") or "")
 
@@ -120,18 +120,18 @@ class Config(BaseSetting):
         description="bangumi save path",
         validate_default=True,
     )
-    front_static_path: Path = Path(
-        os.getenv("BGMI_FRONT_STATIC_PATH") or str(BGMI_PATH.joinpath("front_static")), validate_default=True
+    front_static_path: Path = Field(
+        Path(os.getenv("BGMI_FRONT_STATIC_PATH") or str(BGMI_PATH.joinpath("front_static"))), validate_default=True
     )
 
-    db_path: pathlib.Path = Path(
-        os.getenv("BGMI_DB_PATH") or str(BGMI_PATH.joinpath("bangumi.db")), validate_default=True
+    db_path: pathlib.Path = Field(
+        Path(os.getenv("BGMI_DB_PATH") or str(BGMI_PATH.joinpath("bangumi.db"))), validate_default=True
     )
-    script_path: pathlib.Path = Path(
-        os.getenv("BGMI_SCRIPT_PATH") or str(BGMI_PATH.joinpath("scripts")), validate_default=True
+    script_path: pathlib.Path = Field(
+        Path(os.getenv("BGMI_SCRIPT_PATH") or str(BGMI_PATH.joinpath("scripts"))), validate_default=True
     )
-    tools_path: pathlib.Path = Path(
-        os.getenv("BGMI_TOOLS_PATH") or str(BGMI_PATH.joinpath("tools")), validate_default=True
+    tools_path: pathlib.Path = Field(
+        Path(os.getenv("BGMI_TOOLS_PATH") or str(BGMI_PATH.joinpath("tools"))), validate_default=True
     )
 
     max_path: int = 3
@@ -186,13 +186,18 @@ def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
             continue
 
         if isinstance(field.annotation, type) and issubclass(field.annotation, BaseModel):
-            doc.add(name, pydantic_to_toml(getattr(obj, name)))  # type: ignore
+            value = getattr(obj, name)
+            if value is None:
+                continue
+            doc.add(name, pydantic_to_toml(value))  # type: ignore
             continue
 
         value = d[name]
 
-        if isinstance(value, (Path, Url)):
+        if isinstance(value, (Path, Url, HttpUrl)):
             item = tomlkit.item(str(value))
+        elif value is None:
+            continue
         else:
             item = tomlkit.item(value)  # type: ignore
 
