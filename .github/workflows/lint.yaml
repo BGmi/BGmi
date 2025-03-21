@@ -19,8 +19,10 @@ jobs:
         with:
           python-version: "3.10.16"
       - uses: actions/checkout@v4
-      - uses: trim21/setup-poetry@dist/v2
-      - uses: trim21/install-poetry-project@dist/v2
+      - uses: astral-sh/setup-uv@v5
+      - run: |
+          uv sync --locked
+          echo .venv/bin/ >> $GITHUB_PATH
       - uses: liskin/gh-problem-matcher-wrap@v3
         with:
           action: add
@@ -44,13 +46,6 @@ jobs:
         with:
           python-version: "3.10.16"
 
-      - uses: trim21/setup-poetry@dist/v2
-      - uses: trim21/install-poetry-project@dist/v2
-      - uses: actions/cache@v4
-        with:
-          path: ~/.cache/pre-commit
-          key: precommit-2-${{ env.PY }}-${{ hashFiles('.pre-commit-config.yaml') }}
-          restore-keys: precommit-2-${{ env.PY }}-
+      - run: pip install pre-commit
 
-      - name: pre-commit
-        run: pre-commit run --all-files --show-diff-on-failure && pre-commit gc
+      - uses: trim21/actions/pre-commit@master
