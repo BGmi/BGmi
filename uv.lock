@@ -88,7 +88,7 @@ requires-dist = [
     { name = "strsimpy", specifier = "==0.2.1" },
     { name = "tomlkit", specifier = "==0.12.4" },
     { name = "tornado", specifier = "==6.4" },
-    { name = "transmission-rpc", specifier = "==7.0.3" },
+    { name = "transmission-rpc", specifier = "==7.0.11" },
     { name = "wcwidth", specifier = ">=0.2.13,<0.3.0" },
     { name = "yarl", specifier = "==1.15.2" },
 ]
@@ -904,15 +904,15 @@ wheels = [
 
 [[package]]
 name = "transmission-rpc"
-version = "7.0.3"
+version = "7.0.11"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "requests" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ef/d0/6f65c8e22429c25f8b5b46de6eebbac04ca77f6e928d350ebc1356943892/transmission_rpc-7.0.3.tar.gz", hash = "sha256:b371c75e21b4e5ea3d635ccd55103ad2008157ea831755e5a58f19eeaec13868", size = 25324 }
+sdist = { url = "https://files.pythonhosted.org/packages/68/b8/dc4debf525c3bb8a676f4fd0ab8534845e3b067c78a81ad05ac39014d849/transmission_rpc-7.0.11.tar.gz", hash = "sha256:5872322e60b42e368bc9c4724773aea4593113cb19bd2da589f0ffcdabe57963", size = 113744 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/61/c5/a75e74bf046e9063b593e40b89507d0f66ddce4a0c423528e95f252815a7/transmission_rpc-7.0.3-py3-none-any.whl", hash = "sha256:7709aabf3edfd36cea2ead1c6a2a09c7fe3e03ca9064e42aab253477462aa931", size = 27108 },
+    { url = "https://files.pythonhosted.org/packages/9f/4c/6319bcb1026e3f78c9cbcc9c24de77a76f09954e67ffc5ebfc29f7ce4b90/transmission_rpc-7.0.11-py3-none-any.whl", hash = "sha256:94fd008b54640dd9fff14d7ae26848f901e9d130a70950b8930f9b395988914f", size = 28231 },
 ]
 
 [[package]]
