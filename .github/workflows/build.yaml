@@ -18,7 +18,7 @@ jobs:
           python-version: "3.10"
       - uses: astral-sh/setup-uv@v5
 
-      - run: poetry build
+      - run: uv build
 
       - name: Install twine
         run: pip install twine

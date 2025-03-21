@@ -29,7 +29,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --locked
       - name: start daemon
-        run: docker-compose -f tests/downloader/docker-compose.yaml up -d
+        run: docker compose -f tests/downloader/docker-compose.yaml up -d
       - run: sleep 10
         name: wait container ready
       - name: test
@@ -40,7 +40,7 @@ jobs:
           coverage run -a -m pytest tests/downloader -s
 
       - run: coverage xml
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           flags: downloader
           token: ${{ secrets.CODECOV_TOKEN }} # required

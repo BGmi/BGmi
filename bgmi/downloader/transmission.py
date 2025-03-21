@@ -23,7 +23,7 @@ class TransmissionRPC(BaseDownloadService):
     def add_download(self, url: str, save_path: str):
         kwargs: dict[str, Any] = {"download_dir": save_path, "paused": False}
         if self.client.rpc_version >= 16:
-            kwargs["labels"] = cfg.transmission.tags
+            kwargs["labels"] = cfg.transmission.labels
         torrent = self.client.add_torrent(url, **kwargs)
         return torrent.hashString
 
