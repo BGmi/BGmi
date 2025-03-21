@@ -2,8 +2,6 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "github>Trim21/renovate-config",
-    "github>Trim21/renovate-config:monthly",
-    "github>Trim21/renovate-config:poetry",
     "github>Trim21/renovate-config:app"
   ],
   "pre-commit": {
