@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.8", "3.12"]
+        python: ["3.9", "3.12"]
         os:
           - macos
           - windows
@@ -32,8 +32,11 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
-      - uses: trim21/setup-poetry@dist/v2
-      - uses: trim21/install-poetry-project@dist/v2
+      - uses: astral-sh/setup-uv@v5
+      - run: |
+          uv sync --locked
+          echo .venv/bin/ >> $GITHUB_PATH
+          echo .venv/scripts/ >> $GITHUB_PATH
 
       - name: test
         run: |
@@ -53,7 +56,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.8", "3.12"]
+        python: ["3.9", "3.12"]
         os:
           - macos
           - windows
@@ -64,8 +67,11 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
-      - uses: trim21/setup-poetry@dist/v2
-      - uses: trim21/install-poetry-project@dist/v2
+      - uses: astral-sh/setup-uv@v5
+      - run: |
+          uv sync --locked
+          echo .venv/bin/ >> $GITHUB_PATH
+          echo .venv/scripts/ >> $GITHUB_PATH
 
       - name: test
         run: |
@@ -84,15 +90,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: [ "3.8", "3.12" ]
+        python: ["3.9", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '${{ matrix.python }}'
+          python-version: "${{ matrix.python }}"
 
-      - uses: trim21/setup-poetry@dist/v2
-      - uses: trim21/install-poetry-project@dist/v2
+      - uses: astral-sh/setup-uv@v5
+      - run: |
+          uv sync --locked
+          echo .venv/bin/ >> $GITHUB_PATH
 
       - name: start daemon
         run: docker compose -f tests/downloader/docker-compose.yaml up -d

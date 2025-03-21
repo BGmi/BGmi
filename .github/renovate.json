@@ -15,7 +15,8 @@
     "enabled": true
   },
   "baseBranches": [
-    "master"
+    "master",
+    "/^v\\d+$/"
   ],
   "rangeStrategy": "pin",
   "separateMajorMinor": true,
@@ -24,12 +25,15 @@
       "before 5am on monday"
     ]
   },
-  "automerge": true,
   "packageRules": [
     {
-      "automerge": false,
+      "automerge": true,
       "matchUpdateTypes": [
-        "major"
+        "minor",
+        "patch",
+        "pin",
+        "pinDigest",
+        "digest"
       ]
     },
     {
@@ -46,6 +50,16 @@
         "anime-episode-parser"
       ],
       "rangeStrategy": "bump"
+    },
+    {
+      "groupName": "deps",
+      "matchManagers": [
+        "poetry"
+      ],
+      "matchDepTypes": [
+        "dependencies",
+        "dev-dependencies"
+      ]
     }
   ]
 }
