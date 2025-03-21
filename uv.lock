@@ -99,7 +99,7 @@ dev = [
     { name = "mypy", specifier = "==1.9.0" },
     { name = "pytest", specifier = "==8.1.1" },
     { name = "pytest-github-actions-annotate-failures", specifier = "==0.2.0" },
-    { name = "requests-cache", specifier = "==1.2.0" },
+    { name = "requests-cache", specifier = "==1.2.1" },
     { name = "types-requests", specifier = "==2.31.0.20240406" },
 ]
 
@@ -755,7 +755,7 @@ wheels = [
 
 [[package]]
 name = "requests-cache"
-version = "1.2.0"
+version = "1.2.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
@@ -765,9 +765,9 @@ dependencies = [
     { name = "url-normalize" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0c/f6/2a1078b61b5b21718b61500b08e84ecd525d94a162db782c1065f9f571c7/requests_cache-1.2.0.tar.gz", hash = "sha256:db1c709ca343cc1cd5b6c8b1a5387298eceed02306a6040760db538c885e3838", size = 3018038 }
+sdist = { url = "https://files.pythonhosted.org/packages/1a/be/7b2a95a9e7a7c3e774e43d067c51244e61dea8b120ae2deff7089a93fb2b/requests_cache-1.2.1.tar.gz", hash = "sha256:68abc986fdc5b8d0911318fbb5f7c80eebcd4d01bfacc6685ecf8876052511d1", size = 3018209 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cc/23/863f517b5d74e297e669c88093ecd92e13a06c488e90acbd5507819049ac/requests_cache-1.2.0-py3-none-any.whl", hash = "sha256:490324301bf0cb924ff4e6324bd2613453e7e1f847353928b08adb0fdfb7f722", size = 61409 },
+    { url = "https://files.pythonhosted.org/packages/4e/2e/8f4051119f460cfc786aa91f212165bb6e643283b533db572d7b33952bd2/requests_cache-1.2.1-py3-none-any.whl", hash = "sha256:1285151cddf5331067baa82598afe2d47c7495a1334bfe7a7d329b43e9fd3603", size = 61425 },
 ]
 
 [[package]]
