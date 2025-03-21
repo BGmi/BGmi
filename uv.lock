@@ -75,7 +75,7 @@ requires-dist = [
     { name = "beautifulsoup4", specifier = "==4.12.3" },
     { name = "click", specifier = "==8.1.8" },
     { name = "filetype", specifier = "==1.2.0" },
-    { name = "icalendar", specifier = "==5.0.12" },
+    { name = "icalendar", specifier = "==5.0.13" },
     { name = "loguru", specifier = "==0.7.3" },
     { name = "peewee", specifier = "==3.17.3" },
     { name = "pycomplete", specifier = "==0.4.0" },
@@ -295,15 +295,15 @@ wheels = [
 
 [[package]]
 name = "icalendar"
-version = "5.0.12"
+version = "5.0.13"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "python-dateutil" },
     { name = "pytz" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/40/e7/01b5dd6623fda765e6edd605ef551a44071d3034eb4a252c7f61fb24323b/icalendar-5.0.12.tar.gz", hash = "sha256:73f9be68477722c98320621400943705dcfdbbc6c2b565253f72d3f87e514db8", size = 115981 }
+sdist = { url = "https://files.pythonhosted.org/packages/3c/d8/ada43e4872aab3bfaf2cc2e09b2d2a5d83f771bfc58ba6a63904a5067db8/icalendar-5.0.13.tar.gz", hash = "sha256:92799fde8cce0b61daa8383593836d1e19136e504fa1671f471f98be9b029706", size = 119371 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fb/89/badc6427111cffabb6a462bf447cfff5e9e4c856527ddc030c11020b6cc5/icalendar-5.0.12-py3-none-any.whl", hash = "sha256:d873bb859df9c6d0e597b16d247436e0f83f7ac1b90a06429b8393fe8afeba40", size = 116298 },
+    { url = "https://files.pythonhosted.org/packages/a4/e1/371d172fa02319d5998b22bb61b524eb1be6216a549edd997fd7d00007d0/icalendar-5.0.13-py3-none-any.whl", hash = "sha256:5ded5415e2e1edef5ab230024a75878a7a81d518a3b1ae4f34bf20b173c84dc2", size = 118510 },
 ]
 
 [[package]]
