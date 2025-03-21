@@ -17,7 +17,7 @@ dependencies = [
   'click (==8.1.7)',
   'filetype (==1.2.0)',
   'icalendar (==5.0.12)',
-  'loguru (==0.7.2)',
+  'loguru (==0.7.3)',
   'peewee (==3.17.3)',
   'pycomplete (==0.4.0)',
   'pydantic (==1.10.15)',
