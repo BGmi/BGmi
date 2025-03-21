@@ -27,16 +27,6 @@
       "prPriority": 1
     },
     {
-      "automerge": true,
-      "matchUpdateTypes": [
-        "minor",
-        "patch",
-        "pin",
-        "pinDigest",
-        "digest"
-      ]
-    },
-    {
       "groupName": "pre-commit hooks",
       "matchManagers": [
         "pre-commit"
