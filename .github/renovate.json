@@ -8,9 +8,9 @@
   "pre-commit": {
     "enabled": true
   },
-  "labels": [
-    "ci:auto-merge",
-    "dependencies"
+  "baseBranches": [
+    "master",
+    "/^v\\d+$/"
   ],
   "baseBranches": [
     "master",
@@ -26,25 +26,14 @@
   },
   "packageRules": [
     {
-      "matchDepTypes": [
-        "requires-python"
-      ],
-      "enabled": false
-    },
-    {
-      "matchBaseBranches": [
-        "master"
-      ],
-      "matchPackageNames": [
-        "pydantic"
-      ],
-      "allowedVersions": "<2"
-    },
-    {
-      "matchBaseBranches": [
-        "v5"
-      ],
-      "prPriority": 10
+      "automerge": true,
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "pinDigest",
+        "digest"
+      ]
     },
     {
       "groupName": "pre-commit hooks",
@@ -60,6 +49,16 @@
         "anime-episode-parser"
       ],
       "rangeStrategy": "bump"
+    },
+    {
+      "groupName": "deps",
+      "matchManagers": [
+        "poetry"
+      ],
+      "matchDepTypes": [
+        "dependencies",
+        "dev-dependencies"
+      ]
     }
   ]
 }
