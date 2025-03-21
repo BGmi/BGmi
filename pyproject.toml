@@ -31,7 +31,7 @@ dependencies = [
   'tornado (==6.4.2)',
   'transmission-rpc (==7.0.11)',
   'wcwidth (>=0.2.13,<0.3.0)',
-  "yarl==1.15.2",
+  "yarl==1.18.3",
 ]
 classifiers = [
   'Development Status :: 4 - Beta',
