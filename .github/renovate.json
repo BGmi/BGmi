@@ -24,7 +24,7 @@
       "matchBaseBranches": [
         "/^v\\d+$/"
       ],
-      "prPriority": -10
+      "prPriority": 10
     },
     {
       "groupName": "pre-commit hooks",
