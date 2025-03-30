@@ -5,7 +5,7 @@ import urllib.parse
 from typing import List, Optional
 
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 from loguru import logger
 
 from bgmi.config import cfg
@@ -47,8 +47,10 @@ def parse_bangumi_with_week_days(content, update_time, array_name) -> List[Websi
         a_list = bs.find_all("a")
 
         for a in a_list:
+            if not isinstance(a, Tag):
+                continue
             subtitle_group_name = a.get_text(strip=True)
-            subtitle_group_id_raw = re.findall("team_id%3A(.+)$", a["href"])
+            subtitle_group_id_raw = re.findall("team_id%3A(.+)$", str(a["href"]))
 
             if (len(subtitle_group_id_raw) == 0) or subtitle_group_name == "":
                 continue
