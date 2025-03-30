@@ -5,7 +5,7 @@ import urllib.parse
 from typing import List, Optional
 
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 from loguru import logger
 
 from bgmi.config import cfg
@@ -20,7 +20,7 @@ base_url = str(cfg.share_dmhy_url)
 def fetch_url(url, **kwargs):
     ret = None
     try:
-        ret = session.get(url, timeout=60, **kwargs).text
+        ret = session.get(url, timeout=60, **kwargs, headers={"user-agent": "bgmi-cli"}).text
     except requests.ConnectionError:
         logger.error("Create connection to {}... failed", base_url)
         print_error("Check internet connection or try to set a DMHY mirror site with share_dmhy_url in config")
@@ -47,8 +47,10 @@ def parse_bangumi_with_week_days(content, update_time, array_name) -> List[Websi
         a_list = bs.find_all("a")
 
         for a in a_list:
+            if not isinstance(a, Tag):
+                continue
             subtitle_group_name = a.get_text(strip=True)
-            subtitle_group_id_raw = re.findall("team_id%3A(.+)$", a["href"])
+            subtitle_group_id_raw = re.findall("team_id%3A(.+)$", str(a["href"]))
 
             if (not subtitle_group_id_raw) or not subtitle_group_name:
                 continue
@@ -139,8 +141,10 @@ class DmhySource(BaseWebsite):
             table = bs.find("table", {"id": "topic_list"})
             if table is None:
                 break
-            tr_list = table.tbody.find_all("tr", {"class": ""})
+            tr_list = table.tbody.find_all("tr")
             for tr in tr_list:
+                if "class" not in tr.attrs or len(tr.attrs["class"]) != 0:
+                    continue
                 td_list = tr.find_all("td")
 
                 if td_list[1].a["class"][0] != "sort-2":
@@ -231,8 +235,10 @@ class DmhySource(BaseWebsite):
             table = bs.find("table", {"id": "topic_list"})
             if table is None:
                 break
-            tr_list = table.tbody.find_all("tr", {"class": ""})
+            tr_list = table.tbody.find_all("tr")
             for tr in tr_list:
+                if "class" not in tr.attrs or len(tr.attrs["class"]) != 0:
+                    continue
                 td_list = tr.find_all("td")
 
                 if td_list[1].a["class"][0] != "sort-2":
