@@ -27,12 +27,12 @@ jobs:
           - windows
           - ubuntu
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5
         with:
           python-version: ${{ matrix.python }}
 
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@0c5e2b8115b80b4c7c5ddf6ffdd634974642d182 # v5
       - run: |
           uv sync --locked
           echo .venv/bin/ >> $GITHUB_PATH
@@ -46,7 +46,7 @@ jobs:
           bgmi --help
           coverage run -a -m pytest tests --cache-requests --ignore=tests/downloader --ignore=tests/e2e
 
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5
         with:
           flags: unit
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -62,12 +62,12 @@ jobs:
           - windows
           - ubuntu
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5
         with:
           python-version: ${{ matrix.python }}
 
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@0c5e2b8115b80b4c7c5ddf6ffdd634974642d182 # v5
       - run: |
           uv sync --locked
           echo .venv/bin/ >> $GITHUB_PATH
@@ -81,7 +81,7 @@ jobs:
           bgmi --help
           coverage run -a -m pytest tests/e2e --cache-requests
 
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5
         with:
           flags: e2e
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -92,12 +92,12 @@ jobs:
       matrix:
         python: ["3.11", "3.13"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5
         with:
           python-version: "${{ matrix.python }}"
 
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@0c5e2b8115b80b4c7c5ddf6ffdd634974642d182 # v5
       - run: |
           uv sync --locked
           echo .venv/bin/ >> $GITHUB_PATH
@@ -116,7 +116,7 @@ jobs:
           coverage run -a -m pytest tests/downloader -s
 
       - run: coverage xml
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5
         with:
           flags: downloader
           token: ${{ secrets.CODECOV_TOKEN }}
