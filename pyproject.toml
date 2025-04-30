@@ -13,7 +13,7 @@ requires-python = '>=3.11,<4'
 maintainers = [{ name = "Trim21", email = "i@trim21.me" }]
 dependencies = [
   'anime-episode-parser (==0.0.12)',
-  'beautifulsoup4 (==4.13.3)',
+  'beautifulsoup4 (==4.13.4)',
   "click==8.1.8",
   "fastapi==0.115.12",
   'filetype (==1.2.0)',
