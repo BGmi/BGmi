@@ -35,12 +35,11 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          activate-environment: true
 
       - run: uv sync --locked
-
-      - run: echo .venv/bin/ >> $GITHUB_PATH
-      - run: echo .venv/Scripts/ >> $GITHUB_PATH
 
       - name: test
         run: |
