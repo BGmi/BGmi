@@ -32,7 +32,7 @@ dependencies = [
   'transmission-rpc (==7.0.11)',
   "uvicorn==0.34.0",
   'wcwidth (>=0.2.13,<0.3.0)',
-  "yarl==1.18.3",
+  "yarl==1.20.0",
 ]
 classifiers = [
   'Development Status :: 4 - Beta',
