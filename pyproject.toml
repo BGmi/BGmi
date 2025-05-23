@@ -75,7 +75,7 @@ dev = [
   # lint
   'mypy==1.15.0',
   # stubs
-  'types-requests ==2.32.0.20250328',
+  'types-requests ==2.32.0.20250515',
   "httpx==0.28.1",
 ]
 
