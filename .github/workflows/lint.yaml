@@ -19,10 +19,12 @@ jobs:
         with:
           python-version: "3.13.2"
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-      - run: |
-          uv sync --locked
-          echo .venv/bin/ >> $GITHUB_PATH
+      - uses: astral-sh/setup-uv@v6
+        with:
+          activate-environment: true
+
+      - run: uv sync --locked
+
       - uses: liskin/gh-problem-matcher-wrap@v3
         with:
           action: add
