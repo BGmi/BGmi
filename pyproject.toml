@@ -30,7 +30,7 @@ dependencies = [
   'strsimpy (==0.2.1)',
   'tomlkit (==0.13.2)',
   'transmission-rpc (==7.0.11)',
-  "uvicorn==0.34.0",
+  "uvicorn==0.34.2",
   'wcwidth (>=0.2.13,<0.3.0)',
   "yarl==1.20.0",
 ]
