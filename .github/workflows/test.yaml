@@ -35,7 +35,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v6
       - run: |
           uv sync --locked
           echo .venv/bin/ >> $GITHUB_PATH
@@ -70,7 +70,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v6
       - run: |
           uv sync --locked
           echo .venv/bin/ >> $GITHUB_PATH
@@ -100,7 +100,7 @@ jobs:
         with:
           python-version: "${{ matrix.python }}"
 
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v6
       - run: |
           uv sync --locked
           echo .venv/bin/ >> $GITHUB_PATH
