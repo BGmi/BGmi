@@ -22,7 +22,7 @@ dependencies = [
   'pycomplete (==0.4.0)',
   'pydantic (==1.10.22)',
   'qbittorrent-api (==2025.5.0)',
-  'requests (==2.32.3)',
+  'requests (==2.32.4)',
   'semver (==3.0.4)',
   'stevedore (==5.4.1)',
   'strenum (==0.4.15)',
