@@ -28,7 +28,7 @@ dependencies = [
   "sqlalchemy==2.0.41",
   'stevedore (==5.4.1)',
   'strsimpy (==0.2.1)',
-  'tomlkit (==0.13.2)',
+  'tomlkit (==0.13.3)',
   'transmission-rpc (==7.0.11)',
   "uvicorn==0.34.2",
   'wcwidth (>=0.2.13,<0.3.0)',
