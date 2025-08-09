@@ -29,7 +29,7 @@ def test_cal_force_update():
 
 
 def test_cal_config():
-    main_for_test(["config"])
+    main_for_test(["config", "--help"])
 
 
 @pytest.mark.usefixtures("_ensure_data")
