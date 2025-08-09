@@ -20,7 +20,7 @@ base_url = cfg.share_dmhy_url
 def fetch_url(url, **kwargs):
     ret = None
     try:
-        ret = session.get(url, timeout=60, **kwargs, headers={"user-agent": "bgmi-cli"}).text
+        ret = session.get(url, timeout=120, **kwargs, headers={"user-agent": "bgmi-cli"}).text
     except requests.ConnectionError:
         logger.error("Create connection to {}... failed", base_url)
         print_error("Check internet connection or try to set a DMHY mirror site with share_dmhy_url in config")
