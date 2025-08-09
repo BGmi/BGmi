@@ -73,7 +73,7 @@ dev = [
   'pytest-github-actions-annotate-failures==0.3.0',
   'requests-cache ==1.2.1',
   # lint
-  'mypy==1.15.0',
+  'mypy==1.17.1',
   # stubs
   'types-requests ==2.32.4.20250809',
   "httpx==0.28.1",
