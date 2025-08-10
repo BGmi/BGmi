@@ -78,7 +78,7 @@ requires-dist = [
     { name = "filetype", specifier = "==1.2.0" },
     { name = "icalendar", specifier = "==6.3.1" },
     { name = "loguru", specifier = "==0.7.3" },
-    { name = "peewee", specifier = "==3.17.9" },
+    { name = "peewee", specifier = "==3.18.2" },
     { name = "pycomplete", specifier = "==0.4.0" },
     { name = "pydantic", specifier = "==1.10.22" },
     { name = "qbittorrent-api", specifier = "==2025.5.0" },
@@ -541,9 +541,9 @@ wheels = [
 
 [[package]]
 name = "peewee"
-version = "3.17.9"
+version = "3.18.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/57/09/4393bd378e70b7fc3163ee83353cc27bb520010a5c2b3c924121e7e7e068/peewee-3.17.9.tar.gz", hash = "sha256:fe15cd001758e324c8e3ca8c8ed900e7397c2907291789e1efc383e66b9bc7a8", size = 3026085, upload-time = "2025-02-05T16:30:35.774Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/04/89/76f6f1b744c8608e0d416b588b9d63c2a500ff800065ae610f7c80f532d6/peewee-3.18.2.tar.gz", hash = "sha256:77a54263eb61aff2ea72f63d2eeb91b140c25c1884148e28e4c0f7c4f64996a0", size = 949220, upload-time = "2025-07-08T12:52:03.941Z" }
 
 [[package]]
 name = "platformdirs"
