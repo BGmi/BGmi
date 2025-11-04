@@ -9,7 +9,7 @@ description = 'BGmi is a cli tool for subscribed bangumi.'
 authors = [{ name = "RicterZ", email = "ricterzheng@gmail.com" }]
 readme = 'README.md'
 license = 'MIT'
-requires-python = '>=3.11,<4'
+requires-python = '==3.14.0'
 maintainers = [{ name = "Trim21", email = "i@trim21.me" }]
 dependencies = [
   'anime-episode-parser (==0.0.13)',
