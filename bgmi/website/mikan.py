@@ -81,10 +81,10 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
         subtitle_id = tag.attrs.get("id", False)
         if subtitle_list:
             if subtitle_id in subtitle_list:
-                episode_container_list[tag.attrs.get("id",None)] = tag.find_next_sibling("div", class_="episode-table")
+                episode_container_list[tag.attrs.get("id", None)] = tag.find_next_sibling("div", class_="episode-table")
         else:
             if subtitle_id:
-                episode_container_list[tag.attrs.get("id",None)] = tag.find_next_sibling("div", class_="episode-table")
+                episode_container_list[tag.attrs.get("id", None)] = tag.find_next_sibling("div", class_="episode-table")
 
     for subtitle_id, container in episode_container_list.items():
         _container = container
