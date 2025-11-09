@@ -81,10 +81,10 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
         subtitle_id = tag.attrs.get("id", False)
         if subtitle_list:
             if subtitle_id in subtitle_list:
-                episode_container_list[tag.attrs.get("id", None)] = tag.find_next_sibling("table")
+                episode_container_list[tag.attrs.get("id", None)] = tag.find_next_sibling("div", class_="episode-table")
         else:
             if subtitle_id:
-                episode_container_list[tag.attrs.get("id", None)] = tag.find_next_sibling("table")
+                episode_container_list[tag.attrs.get("id", None)] = tag.find_next_sibling("div", class_="episode-table")
 
     for subtitle_id, container in episode_container_list.items():
         _container = container
@@ -112,7 +112,7 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
             td_list = tr.find_all("td")
             assert len(td_list) > 2, "Not enough td elements found"
 
-            time_string_col = td_list[2]
+            time_string_col = td_list[3]
             assert isinstance(time_string_col, bs4.Tag), "Time string not found or not a Tag"
 
             magnet_link = tr.find("a", class_="magnet-link")
@@ -217,13 +217,13 @@ class Mikanani(BaseWebsite):
                 continue
             subtitle_id = tag.attrs.get("id", False)
             if subtitle_id:
-                episode_container_list[tag.attrs.get("id")] = tag.find_next_sibling("table")
+                episode_container_list[tag.attrs.get("id")] = tag.find_next_sibling("div", class_="episode-table")
 
         for subtitle_id, container in episode_container_list.items():
             subtitle_groups[str(subtitle_id)]["episode"] = []
             for tr in container.find_all("tr")[1:]:
                 title = tr.find("a", class_="magnet-link-wrap").text
-                time_string = tr.find_all("td")[2].string
+                time_string = tr.find_all("td")[3].string
                 subtitle_groups[str(subtitle_id)]["episode"].append(
                     {
                         "download": tr.find("a", class_="magnet-link").attrs["data-clipboard-text"],
@@ -364,7 +364,7 @@ class Mikanani(BaseWebsite):
         td_list = s.find_all("tr", attrs={"class": "js-search-results-row"})
         for tr in td_list:
             title = tr.find("a", class_="magnet-link-wrap").text
-            time_string = tr.find_all("td")[2].string
+            time_string = tr.find_all("td")[3].string
             u = yarl.URL(tr.find("a", class_="magnet-link").attrs.get("data-clipboard-text", ""))
             result.append(
                 Episode(
