@@ -28,7 +28,7 @@ dependencies = [
   'strenum (==0.4.15)',
   'strsimpy (==0.2.1)',
   'tomlkit (==0.13.3)',
-  'tornado (==6.5)',
+  'tornado (==6.5.2)',
   'transmission-rpc (==7.0.11)',
   'wcwidth (>=0.2.13,<0.3.0)',
   "yarl==1.19.0",
