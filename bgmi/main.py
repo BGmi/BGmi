@@ -131,7 +131,7 @@ def config_set(keys: List[str], value: str) -> None:
     res[keys[-1]] = value
 
     try:
-        Config.parse_obj(doc)
+        Config.model_validate(doc)
     except pydantic.ValidationError as e:
         print(e)
         print("config is not valid after change, won't write to config file")

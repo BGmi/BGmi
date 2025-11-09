@@ -17,7 +17,7 @@ class BaseWebsite:
     @staticmethod
     def save_bangumi(data: WebsiteBangumi) -> None:
         """save bangumi to database"""
-        b, obj_created = Bangumi.get_or_create(keyword=data.keyword, defaults=data.dict())
+        b, obj_created = Bangumi.get_or_create(keyword=data.keyword, defaults=data.model_dump())
         if not obj_created:
             should_save = False
             if data.cover and b.cover != data.cover:

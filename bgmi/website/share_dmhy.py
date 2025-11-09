@@ -14,7 +14,7 @@ from bgmi.utils import print_error
 from bgmi.website.base import BaseWebsite
 from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
 
-base_url = cfg.share_dmhy_url
+base_url = cfg.share_dmhy_url.encoded_string()
 
 
 def fetch_url(url, **kwargs):

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import json
 import os
 import pathlib
@@ -7,12 +5,13 @@ import platform
 import secrets
 import tempfile
 from pathlib import Path
-from typing import Dict, List, Optional, cast
+from typing import cast
+import typing
 
 import pydantic
 import strenum
 import tomlkit
-from pydantic import BaseModel, Extra, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
 
 class Source(strenum.StrEnum):
@@ -43,14 +42,16 @@ CONFIG_FILE_PATH = BGMI_PATH / "config.toml"
 
 
 class BaseSetting(BaseModel):
-    class Config:
-        validate_assignment = True
-        extra = Extra.ignore
+    model_config = ConfigDict(
+        validate_assignment=True,
+        validate_default=True,
+        extra="ignore",
+    )
 
 
 class Aria2Config(BaseSetting):
-    rpc_url = os.getenv("BGMI_ARIA2_RPC_URL") or "http://127.0.0.1:6800/rpc"
-    rpc_token = os.getenv("BGMI_ARIA2_RPC_TOKEN") or "token:"
+    rpc_url: str = os.getenv("BGMI_ARIA2_RPC_URL") or "http://127.0.0.1:6800/rpc"
+    rpc_token: str = os.getenv("BGMI_ARIA2_RPC_TOKEN") or "token:"
 
 
 class TransmissionConfig(BaseSetting):
@@ -59,7 +60,7 @@ class TransmissionConfig(BaseSetting):
     rpc_username: str = os.getenv("BGMI_TRANSMISSION_RPC_USERNAME") or "your_username"
     rpc_password: str = os.getenv("BGMI_TRANSMISSION_RPC_PASSWORD") or "your_password"
     rpc_path: str = os.getenv("BGMI_TRANSMISSION_RPC_PATH") or "/transmission/rpc"
-    labels: Optional[List[str]] = pydantic.Field(["bgmi"])
+    labels: list[str] | None = pydantic.Field(["bgmi"])
 
 
 class QBittorrentConfig(BaseSetting):
@@ -68,12 +69,12 @@ class QBittorrentConfig(BaseSetting):
     rpc_username: str = os.getenv("BGMI_QBITTORRENT_RPC_USERNAME") or "admin"
     rpc_password: str = os.getenv("BGMI_QBITTORRENT_RPC_PASSWORD") or "adminadmin"
     category: str = os.getenv("BGMI_QBITTORRENT_RPC_CATEGORY") or ""
-    tags: Optional[List[str]] = pydantic.Field(["bgmi"])
+    tags: list[str] | None = pydantic.Field(["bgmi"])
 
 
 class DelugeConfig(BaseSetting):
-    rpc_url: HttpUrl = os.getenv("BGMI_DELUGE_RPC_URL") or "http://127.0.0.1:8112/json"  # type: ignore
-    rpc_password: str = os.getenv("BGMI_DELUGE_RPC_PASSWORD") or "deluge"
+    rpc_url: HttpUrl = Field(os.getenv("BGMI_DELUGE_RPC_URL") or "http://127.0.0.1:8112/json")  # type: ignore
+    rpc_password: str = Field(os.getenv("BGMI_DELUGE_RPC_PASSWORD") or "deluge")
 
 
 class HTTP(BaseSetting):
@@ -140,17 +141,17 @@ class Config(BaseSetting):
     deluge: DelugeConfig = DelugeConfig()
 
     enable_global_include_keywords: bool = False
-    global_include_keywords: List[str] = ["1080"]
+    global_include_keywords: list[str] = ["1080"]
 
     enable_global_filters: bool = Field(True, description="enable global filter")
-    global_filters: List[str] = Field(
+    global_filters: list[str] = Field(
         ["Leopard-Raws", "hevc", "x265", "c-a Raws", "U3-Web"], description="Global exclude keywords"
     )
 
-    save_path_map: Dict[str, Path] = Field(default_factory=dict, description="per-bangumi save path")
+    save_path_map: dict[str, Path] = Field(default_factory=dict, description="per-bangumi save path")
 
     def save(self) -> None:
-        s = tomlkit.dumps(json.loads(self.json()))
+        s = tomlkit.dumps(json.loads(self.model_dump_json()))
 
         CONFIG_FILE_PATH.write_text(s, encoding="utf8")
 
@@ -158,21 +159,23 @@ class Config(BaseSetting):
 def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
     doc = tomlkit.document()
 
-    d = obj.dict()
+    d = obj.model_dump(mode="json")
 
     for name, field in obj.__fields__.items():
-        if issubclass(field.type_, BaseModel):
+        origin = typing.get_origin(field.annotation)
+        # Handle Annotated types by extracting the actual type
+        if origin is typing.Annotated:
+            actual_type = typing.get_args(field.annotation)[0]
+            origin = typing.get_origin(actual_type)
+        if origin is not None and issubclass(origin, BaseModel):
             doc.add(name, pydantic_to_toml(getattr(obj, name)))  # type: ignore
             continue
 
         value = d[name]
 
-        if isinstance(value, Path):
-            item = tomlkit.item(str(value))
-        else:
-            item = tomlkit.item(value)  # type: ignore
+        item = tomlkit.item(value)
 
-        desc: Optional[str] = field.field_info.description
+        desc: str | None = field.description
         if desc:
             item.comment(desc)
 
@@ -183,7 +186,7 @@ def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
 
 if CONFIG_FILE_PATH.exists():
     try:
-        cfg = Config.parse_obj(tomlkit.loads(CONFIG_FILE_PATH.read_text(encoding="utf8")).unwrap())
+        cfg = Config.model_validate(tomlkit.loads(CONFIG_FILE_PATH.read_text(encoding="utf8")).unwrap())
     except pydantic.ValidationError as e:
         print("配置文件错误，请手动编辑配置文件后重试")
         print("配置文件位置：", CONFIG_FILE_PATH)
@@ -194,7 +197,7 @@ else:
 
 
 def print_config() -> str:
-    return tomlkit.dumps(json.loads(cfg.json()))
+    return tomlkit.dumps(json.loads(cfg.model_dump_json()))
 
 
 def write_default_config() -> None:
