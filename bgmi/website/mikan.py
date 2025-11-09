@@ -16,7 +16,7 @@ from bgmi.utils import parse_episode, print_info
 from bgmi.website.base import BaseWebsite
 from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
 
-server_root = f"{cfg.mikan_url.rstrip('/')}/"
+server_root = f"{cfg.mikan_url.encoded_string().rstrip('/')}/"
 login_url = f"{server_root}Account/Login"
 
 _COVER_URL = server_root[:-1]
