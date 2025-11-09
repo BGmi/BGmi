@@ -22,6 +22,12 @@
   },
   "packageRules": [
     {
+      "matchDepTypes": [
+        "requires-python"
+      ],
+      "enabled": false
+    },
+    {
       "matchBaseBranches": [
         "master"
       ],
