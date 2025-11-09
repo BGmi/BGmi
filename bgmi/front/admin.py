@@ -34,7 +34,7 @@ API_MAP_POST: Dict[str, Callable] = {
 
 API_MAP_GET = {
     "cal": lambda: {"data": cal()},
-    "config": lambda: {"data": json.loads(cfg.json())},
+    "config": lambda: {"data": json.loads(cfg.model_dump_json())},
 }
 
 NO_AUTH_ACTION = ("cal", ACTION_AUTH)

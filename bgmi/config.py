@@ -12,7 +12,7 @@ from typing import Dict, List, Optional, cast
 import pydantic
 import strenum
 import tomlkit
-from pydantic import BaseModel, Extra, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Extra, Field, HttpUrl
 
 
 class Source(strenum.StrEnum):
@@ -43,14 +43,16 @@ CONFIG_FILE_PATH = BGMI_PATH / "config.toml"
 
 
 class BaseSetting(BaseModel):
-    class Config:
-        validate_assignment = True
-        extra = Extra.ignore
+    model_config = ConfigDict(
+        validate_assignment=True,
+        validate_default=True,
+        extra="ignore",
+    )
 
 
 class Aria2Config(BaseSetting):
-    rpc_url = os.getenv("BGMI_ARIA2_RPC_URL") or "http://127.0.0.1:6800/rpc"
-    rpc_token = os.getenv("BGMI_ARIA2_RPC_TOKEN") or "token:"
+    rpc_url: str = os.getenv("BGMI_ARIA2_RPC_URL") or "http://127.0.0.1:6800/rpc"
+    rpc_token: str = os.getenv("BGMI_ARIA2_RPC_TOKEN") or "token:"
 
 
 class TransmissionConfig(BaseSetting):
@@ -72,8 +74,8 @@ class QBittorrentConfig(BaseSetting):
 
 
 class DelugeConfig(BaseSetting):
-    rpc_url: HttpUrl = os.getenv("BGMI_DELUGE_RPC_URL") or "http://127.0.0.1:8112/json"  # type: ignore
-    rpc_password: str = os.getenv("BGMI_DELUGE_RPC_PASSWORD") or "deluge"
+    rpc_url: HttpUrl = Field(os.getenv("BGMI_DELUGE_RPC_URL") or "http://127.0.0.1:8112/json")  # type: ignore
+    rpc_password: str = Field(os.getenv("BGMI_DELUGE_RPC_PASSWORD") or "deluge")
 
 
 class HTTP(BaseSetting):
@@ -150,7 +152,7 @@ class Config(BaseSetting):
     save_path_map: Dict[str, Path] = Field(default_factory=dict, description="per-bangumi save path")
 
     def save(self) -> None:
-        s = tomlkit.dumps(json.loads(self.json()))
+        s = tomlkit.dumps(json.loads(self.model_dump_json()))
 
         CONFIG_FILE_PATH.write_text(s, encoding="utf8")
 
@@ -194,7 +196,7 @@ else:
 
 
 def print_config() -> str:
-    return tomlkit.dumps(json.loads(cfg.json()))
+    return tomlkit.dumps(json.loads(cfg.model_dump_json()))
 
 
 def write_default_config() -> None:
