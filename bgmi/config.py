@@ -7,12 +7,12 @@ import platform
 import secrets
 import tempfile
 from pathlib import Path
-from typing import Dict, List, Optional, cast
+from typing import cast
 
 import pydantic
 import strenum
 import tomlkit
-from pydantic import BaseModel, ConfigDict, Extra, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
 
 class Source(strenum.StrEnum):
@@ -61,7 +61,7 @@ class TransmissionConfig(BaseSetting):
     rpc_username: str = os.getenv("BGMI_TRANSMISSION_RPC_USERNAME") or "your_username"
     rpc_password: str = os.getenv("BGMI_TRANSMISSION_RPC_PASSWORD") or "your_password"
     rpc_path: str = os.getenv("BGMI_TRANSMISSION_RPC_PATH") or "/transmission/rpc"
-    labels: Optional[List[str]] = pydantic.Field(["bgmi"])
+    labels: list[str] | None = pydantic.Field(["bgmi"])
 
 
 class QBittorrentConfig(BaseSetting):
@@ -70,7 +70,7 @@ class QBittorrentConfig(BaseSetting):
     rpc_username: str = os.getenv("BGMI_QBITTORRENT_RPC_USERNAME") or "admin"
     rpc_password: str = os.getenv("BGMI_QBITTORRENT_RPC_PASSWORD") or "adminadmin"
     category: str = os.getenv("BGMI_QBITTORRENT_RPC_CATEGORY") or ""
-    tags: Optional[List[str]] = pydantic.Field(["bgmi"])
+    tags: list[str] | None = pydantic.Field(["bgmi"])
 
 
 class DelugeConfig(BaseSetting):
@@ -142,14 +142,14 @@ class Config(BaseSetting):
     deluge: DelugeConfig = DelugeConfig()
 
     enable_global_include_keywords: bool = False
-    global_include_keywords: List[str] = ["1080"]
+    global_include_keywords: list[str] = ["1080"]
 
     enable_global_filters: bool = Field(True, description="enable global filter")
-    global_filters: List[str] = Field(
+    global_filters: list[str] = Field(
         ["Leopard-Raws", "hevc", "x265", "c-a Raws", "U3-Web"], description="Global exclude keywords"
     )
 
-    save_path_map: Dict[str, Path] = Field(default_factory=dict, description="per-bangumi save path")
+    save_path_map: dict[str, Path] = Field(default_factory=dict, description="per-bangumi save path")
 
     def save(self) -> None:
         s = tomlkit.dumps(json.loads(self.model_dump_json()))
@@ -174,7 +174,7 @@ def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
         else:
             item = tomlkit.item(value)  # type: ignore
 
-        desc: Optional[str] = field.field_info.description
+        desc: str | None = field.field_info.description
         if desc:
             item.comment(desc)
 
