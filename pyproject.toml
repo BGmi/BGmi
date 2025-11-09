@@ -20,7 +20,7 @@ dependencies = [
   'loguru (==0.7.3)',
   'peewee (==3.18.3)',
   'pycomplete (==0.4.0)',
-  'pydantic (==1.10.22)',
+  "pydantic>=1.10.22",
   'qbittorrent-api (==2025.5.0)',
   'requests (==2.32.4)',
   'semver (==3.0.4)',

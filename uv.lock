@@ -80,7 +80,7 @@ requires-dist = [
     { name = "loguru", specifier = "==0.7.3" },
     { name = "peewee", specifier = "==3.18.3" },
     { name = "pycomplete", specifier = "==0.4.0" },
-    { name = "pydantic", specifier = "==1.10.22" },
+    { name = "pydantic", specifier = ">=1.10.22" },
     { name = "qbittorrent-api", specifier = "==2025.5.0" },
     { name = "requests", specifier = "==2.32.4" },
     { name = "semver", specifier = "==3.0.4" },
