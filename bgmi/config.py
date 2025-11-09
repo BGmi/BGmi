@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import os
 import pathlib
@@ -76,7 +78,7 @@ class DelugeConfig(BaseSetting):
 
 class HTTP(BaseSetting):
     admin_token: str = Field(
-        default_factory=lambda: os.getenv("BGMI_HTTP_ADMIN_TOKEN") or secrets.token_urlsafe(12),
+        default_factory=lambda: (os.getenv("BGMI_HTTP_ADMIN_TOKEN") or secrets.token_urlsafe(12)),
         description="webui admin token",
     )
     danmaku_api_url: str = Field(
