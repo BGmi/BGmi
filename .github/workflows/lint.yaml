@@ -15,13 +15,15 @@ jobs:
   mypy:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.13.6"
-      - uses: actions/checkout@v4
+          python-version: "3"
+
       - uses: astral-sh/setup-uv@v6
         with:
           activate-environment: true
+          python-version: "3"
 
       - run: uv sync --locked
 

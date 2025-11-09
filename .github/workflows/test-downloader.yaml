@@ -19,17 +19,19 @@ concurrency:
 jobs:
   downloader:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.10", "3.14"]
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.8"
+          python-version: ${{ matrix.python }}
 
       - uses: astral-sh/setup-uv@v6
         with:
           activate-environment: true
+          python-version: ${{ matrix.python }}
 
       - run: uv sync --locked
 
