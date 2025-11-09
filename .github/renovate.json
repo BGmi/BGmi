@@ -9,8 +9,8 @@
     "enabled": true
   },
   "baseBranches": [
-    "/^v\\d+$/",
-    "master"
+    "master",
+    "/^v\\d+$/"
   ],
   "prConcurrentLimit": 4,
   "rangeStrategy": "pin",
