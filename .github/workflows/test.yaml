@@ -27,7 +27,7 @@ jobs:
         python: ["3.10", "3.14"]
         os: [macos, windows, ubuntu]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
