@@ -8,6 +8,7 @@ import secrets
 import tempfile
 from pathlib import Path
 from typing import cast
+import typing
 
 import pydantic
 import strenum
@@ -160,10 +161,15 @@ class Config(BaseSetting):
 def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
     doc = tomlkit.document()
 
-    d = obj.dict()
+    d = obj.model_dump()
 
     for name, field in obj.__fields__.items():
-        if issubclass(field.type_, BaseModel):
+        origin = typing.get_origin(field.annotation)
+        # Handle Annotated types by extracting the actual type
+        if origin is typing.Annotated:
+            actual_type = typing.get_args(field.annotation)[0]
+            origin = typing.get_origin(actual_type)
+        if origin is not None and issubclass(origin, BaseModel):
             doc.add(name, pydantic_to_toml(getattr(obj, name)))  # type: ignore
             continue
 
