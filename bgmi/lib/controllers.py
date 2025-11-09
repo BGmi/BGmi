@@ -443,7 +443,7 @@ def update(names: List[str], download: Optional[bool] = False, not_ignore: bool 
             downloaded.extend(download_queue)
 
     if downloaded:
-        failed = [Episode.parse_obj(x) for x in Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD)]
+        failed = [Episode.model_validate(x) for x in Download.get_all_downloads(status=STATUS_NOT_DOWNLOAD)]
         if failed:
             print_info("try to re-downloading previous failed torrents ...")
             download_prepare(failed)
