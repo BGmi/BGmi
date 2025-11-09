@@ -159,7 +159,7 @@ class Config(BaseSetting):
 def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
     doc = tomlkit.document()
 
-    d = obj.model_dump()
+    d = obj.model_dump(mode="json")
 
     for name, field in obj.__fields__.items():
         origin = typing.get_origin(field.annotation)
@@ -173,10 +173,7 @@ def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
 
         value = d[name]
 
-        if isinstance(value, (Path, HttpUrl)):
-            item = tomlkit.item(str(value))
-        else:
-            item = tomlkit.item(value)  # type: ignore
+        item = tomlkit.item(value)
 
         desc: str | None = field.description
         if desc:
