@@ -180,7 +180,7 @@ def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
         else:
             item = tomlkit.item(value)  # type: ignore
 
-        desc: str | None = field.field_info.description
+        desc: str | None = field.description
         if desc:
             item.comment(desc)
 
