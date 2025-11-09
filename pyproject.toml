@@ -15,7 +15,7 @@ dependencies = [
   'anime-episode-parser (==0.0.13)',
   'beautifulsoup4 (==4.14.2)',
   "click==8.3.0",
-  "fastapi==0.116.1",
+  "fastapi==0.121.1",
   'filetype (==1.2.0)',
   'icalendar (==6.3.2)',
   "loguru==0.7.3",
