@@ -175,7 +175,7 @@ def pydantic_to_toml(obj: pydantic.BaseModel) -> tomlkit.TOMLDocument:
 
         value = d[name]
 
-        if isinstance(value, Path | HttpUrl):
+        if isinstance(value, (Path, HttpUrl)):
             item = tomlkit.item(str(value))
         else:
             item = tomlkit.item(value)  # type: ignore
