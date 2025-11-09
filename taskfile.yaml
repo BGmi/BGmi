@@ -1,0 +1,19 @@
+version: '3'
+
+dotenv:
+  - .env
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+    silent: true
+
+  bump:
+    vars:
+      VERSION:
+        sh: yq '.project.version' pyproject.toml
+    cmds:
+      - git add pyproject.toml
+      - 'git commit -m "release: {{.VERSION}}"'
+      - 'git tag "v{{.VERSION}}" -m "v{{.VERSION}}"'
