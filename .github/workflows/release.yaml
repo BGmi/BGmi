@@ -14,7 +14,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
       - uses: astral-sh/setup-uv@v6
       - run: uv build
 
