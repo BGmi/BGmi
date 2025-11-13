@@ -16,7 +16,7 @@ from bgmi.utils import parse_episode, print_info
 from bgmi.website.base import BaseWebsite
 from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
 
-server_root = f"{cfg.mikan_url.encoded_string().rstrip('/')}/"
+server_root = f"{cfg.mikan_url.rstrip('/')}/"
 login_url = f"{server_root}Account/Login"
 
 _COVER_URL = server_root[:-1]
@@ -65,9 +65,7 @@ def get_weekly_bangumi():
 def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
     result = []
     soup = BeautifulSoup(content, "html.parser")
-    container = soup.find("div", class_="central-container")
-    assert isinstance(container, bs4.Tag), "Central container not found or not a Tag"
-
+    container = soup.find("div", class_="central-container")  # type:bs4.Tag
     episode_container_list = {}
     expand_subtitle_map = {}
     for tag in container.contents:
@@ -81,10 +79,10 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
         subtitle_id = tag.attrs.get("id", False)
         if subtitle_list:
             if subtitle_id in subtitle_list:
-                episode_container_list[tag.attrs.get("id", None)] = tag.find_next_sibling("div", class_="episode-table")
+                episode_container_list[tag.attrs.get("id", None)] = tag.find_next_sibling("div")
         else:
             if subtitle_id:
-                episode_container_list[tag.attrs.get("id", None)] = tag.find_next_sibling("div", class_="episode-table")
+                episode_container_list[tag.attrs.get("id", None)] = tag.find_next_sibling("div")
 
     for subtitle_id, container in episode_container_list.items():
         _container = container
@@ -100,28 +98,12 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
             expand_soup = BeautifulSoup(expand_r, "html.parser")
             _container = expand_soup.find("table")
 
-        assert isinstance(_container, bs4.Tag), f"Failed to parse bangumi {bangumi_id} subtitle {subtitle_id}"
-
         for tr in _container.find_all("tr")[1:]:
-            assert isinstance(tr, bs4.Tag), "tr is not a Tag"
-
-            title_field = tr.find("a", class_="magnet-link-wrap")
-            assert isinstance(title_field, bs4.Tag), "Magnet link not found or not a Tag"
-            title = title_field.text
-
-            td_list = tr.find_all("td")
-            assert len(td_list) > 2, "Not enough td elements found"
-
-            time_string_col = td_list[3]
-            assert isinstance(time_string_col, bs4.Tag), "Time string not found or not a Tag"
-
-            magnet_link = tr.find("a", class_="magnet-link")
-            assert isinstance(magnet_link, bs4.Tag), "Magnet link not found or not a Tag"
-
-            time_string = time_string_col.string or ""
+            title = tr.find("a", class_="magnet-link-wrap").text
+            time_string = tr.find_all("td")[3].string
             result.append(
                 Episode(
-                    download=magnet_link.attrs["data-clipboard-text"],
+                    download=tr.find("a", class_="magnet-link").attrs["data-clipboard-text"],
                     subtitle_group=str(subtitle_id),
                     title=title,
                     episode=parse_episode(title),
@@ -217,7 +199,7 @@ class Mikanani(BaseWebsite):
                 continue
             subtitle_id = tag.attrs.get("id", False)
             if subtitle_id:
-                episode_container_list[tag.attrs.get("id")] = tag.find_next_sibling("div", class_="episode-table")
+                episode_container_list[tag.attrs.get("id")] = tag.find_next_sibling("div")
 
         for subtitle_id, container in episode_container_list.items():
             subtitle_groups[str(subtitle_id)]["episode"] = []
@@ -253,16 +235,8 @@ class Mikanani(BaseWebsite):
         r = get_text(server_root + "Home/Search", params={"searchstr": tag})
         s = BeautifulSoup(r, "html.parser")
         animate = s.find_all("div", attrs={"class": "an-info-group"})[0]
-        assert isinstance(animate, bs4.Tag), "Animate [div.an-info-group] not found or not a Tag"
-
         animate_name = animate.text.strip()
-        # Look for a link element in parent hierarchy
-        link_element = animate.find_parent("a", href=True)
-        assert isinstance(link_element, bs4.Tag), "Animate link not found or not a Tag"
-
-        animate_link = link_element["href"]
-        assert isinstance(animate_link, str), "Animate link not found or not a string"
-
+        animate_link = animate.parent.parent.attrs["href"]
         animate_id = animate_link.split("/")[-1]
         print_info(f"Matched animate: {animate_name} ({animate_id})")
         animate_link = animate_link.lstrip("/")
@@ -277,16 +251,12 @@ class Mikanani(BaseWebsite):
 
         subgroup_list = s.find_all("div", attrs={"class": "subgroup-text"})
         for subgroup in subgroup_list:
-            assert isinstance(subgroup, bs4.Tag), "Subgroup [div.subgroup-text] not found or not a Tag"
-
             subgroup_names = []
             subgroup_links = []
             sub_info = {}
 
             for href_ele in subgroup.find_all("a", href=True):
-                assert isinstance(href_ele, bs4.Tag), "Subgroup link not found or not a Tag"
-
-                link = str(href_ele["href"]) if href_ele["href"] else None
+                link = href_ele["href"]
 
                 subgroup_link_prefix = "/Home/PublishGroup/"
                 rss_link_prefix = "/RSS/Bangumi"
@@ -333,7 +303,7 @@ class Mikanani(BaseWebsite):
             enclosure_el = item.find("enclosure")
             link = enclosure_el.attrib.get("url") if enclosure_el is not None else None
             title_el = item.find("title")
-            title: Optional[str] = title_el.text if title_el is not None else None
+            title = title_el.text if title_el is not None else None
 
             xmlns = "{" + server_root + "0.1/}"
             torrent = item.find(f"{xmlns}torrent")
@@ -364,7 +334,7 @@ class Mikanani(BaseWebsite):
         td_list = s.find_all("tr", attrs={"class": "js-search-results-row"})
         for tr in td_list:
             title = tr.find("a", class_="magnet-link-wrap").text
-            time_string = tr.find_all("td")[3].string
+            time_string = tr.find_all("td")[2].string
             u = yarl.URL(tr.find("a", class_="magnet-link").attrs.get("data-clipboard-text", ""))
             result.append(
                 Episode(
