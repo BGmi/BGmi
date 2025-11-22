@@ -24,7 +24,7 @@ dependencies = [
   'qbittorrent-api (==2025.11.1)',
   'requests (==2.32.5)',
   'semver (==3.0.4)',
-  'stevedore (==5.5.0)',
+  'stevedore (==5.6.0)',
   'strenum (==0.4.15)',
   'strsimpy (==0.2.1)',
   'tomlkit (==0.13.3)',
