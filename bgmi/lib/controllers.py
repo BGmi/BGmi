@@ -95,6 +95,7 @@ def filter_(
     include: Optional[str] = None,
     exclude: Optional[str] = None,
     regex: Optional[str] = None,
+    disable_global_filters: Optional[bool] = None,
 ) -> ControllerResult:
     result = {"status": "success", "message": ""}  # type: Dict[str, Any]
     try:
@@ -134,6 +135,9 @@ def filter_(
     if regex is not None:
         followed_filter_obj.regex = regex
 
+    if disable_global_filters is not None:
+        followed_filter_obj.disable_global_filters = disable_global_filters
+
     followed_filter_obj.save()
     subtitle_list = [s["name"] for s in Subtitle.get_subtitle_by_id(bangumi_obj.subtitle_group.split(", "))]
 
@@ -148,6 +152,7 @@ def filter_(
         "include": followed_filter_obj.include,
         "exclude": followed_filter_obj.exclude,
         "regex": followed_filter_obj.regex,
+        "disable_global_filters": followed_filter_obj.disable_global_filters,
     }
     logger.debug(result)
     return result
