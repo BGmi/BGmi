@@ -332,7 +332,6 @@ def print_filter(followed_filter_obj: Filter) -> None:
     print(f"Exclude keywords: {followed_filter_obj.exclude}")
     print(f"Regular expression: {followed_filter_obj.regex}")
     print(f"Disable global filters: {followed_filter_obj.disable_global_filters}")
-    print(f"Disable global filters: {followed_filter_obj.disable_global_filters}")
 
 
 @cli.command("cal")
