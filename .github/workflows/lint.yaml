@@ -46,10 +46,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.14.0"
 
-      - run: pip install pre-commit
-
-      - uses: trim21/actions/pre-commit@master
+      - uses: trim21/actions/prek@master
