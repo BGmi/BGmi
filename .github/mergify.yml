@@ -14,11 +14,11 @@ pull_request_rules:
           - label=ci:auto-merge
       - "created-at<=24h ago"
       - base=master
-      - -check-success=dist-files
-      - -check-success=mypy
-      - -check-success=pre-commit
-      - -check-success=downloader
-      - -check-success=test-all-pass
+      - check-success=dist-files
+      - check-success=mypy
+      - check-success=pre-commit
+      - check-success=downloader
+      - check-success=test-all-pass
     actions:
       merge:
         method: squash
