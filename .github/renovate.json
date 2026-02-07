@@ -9,7 +9,7 @@
     "enabled": true
   },
   "labels": [
-    "auto-merge",
+    "ci:auto-merge",
     "dependencies"
   ],
   "baseBranches": [

@@ -11,7 +11,7 @@ pull_request_rules:
     conditions:
       - or:
           - "#approved-reviews-by>=1"
-          - label=auto-merge
+          - label=ci:auto-merge
       - "created-at<=24h ago"
       - base=master
       - -check-success=dist-files
