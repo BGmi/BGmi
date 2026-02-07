@@ -12,7 +12,9 @@ pull_request_rules:
       - or:
           - "#approved-reviews-by>=1"
           - label=ci:auto-merge
-      - "created-at<=24h ago"
+      - or:
+          - author != renovate[bot]
+          - "created-at<=24h ago"
       - base=master
       - check-success=dist-files
       - check-success=mypy
