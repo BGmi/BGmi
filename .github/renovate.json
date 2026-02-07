@@ -8,6 +8,10 @@
   "pre-commit": {
     "enabled": true
   },
+  "labels": [
+    "auto-merge",
+    "dependencies"
+  ],
   "baseBranches": [
     "master",
     "/^v\\d+$/"
