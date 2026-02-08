@@ -4,7 +4,7 @@ from collections import defaultdict
 from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
 
 import peewee
-from peewee import FixedCharField, IntegerField, TextField
+from peewee import BooleanField, FixedCharField, IntegerField, TextField
 from playhouse.shortcuts import model_to_dict
 
 from bgmi.config import cfg
@@ -210,6 +210,7 @@ class Filter(NeoDB):
     include = TextField(null=True)  # type: Optional[str]
     exclude = TextField(null=True)  # type: Optional[str]
     regex = TextField(null=True)  # type: Optional[str]
+    disable_global_filters = BooleanField(default=False)  # type: bool
 
     @property
     def subtitle_group_split(self) -> List[str]:
@@ -234,7 +235,7 @@ class Filter(NeoDB):
             exclude_list = [s.strip().lower() for s in self.exclude.split(",")]
             result = [e for e in result if not e.contains_any_words(exclude_list)]
 
-        return episode_filter_regex(data=result, regex=self.regex)
+        return episode_filter_regex(data=result, regex=self.regex, disable_global_filters=self.disable_global_filters)
 
 
 class Subtitle(NeoDB):

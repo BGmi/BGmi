@@ -268,22 +268,49 @@ def list_command() -> None:
 )
 @click.option("--exclude", help='Filter by keywords which not int the title, split by ",".')
 @click.option("--regex", help="Filter by regular expression")
+@click.option(
+    "--disable-global-filters",
+    "disable_global_filters",
+    is_flag=True,
+    default=None,
+    help="Disable global blacklist filters for this bangumi",
+)
+@click.option(
+    "--enable-global-filters",
+    "enable_global_filters",
+    is_flag=True,
+    default=None,
+    help="Enable global blacklist filters for this bangumi",
+)
 def filter_cmd(
     name: str,
     subtitle: Optional[str],
     regex: Optional[str],
     include: Optional[str],
     exclude: Optional[str],
+    disable_global_filters: Optional[bool],
+    enable_global_filters: Optional[bool],
 ) -> None:
     """
     name: bangumi name to update filter
     """
+    if disable_global_filters and enable_global_filters:
+        print_error("Cannot specify both --disable-global-filters and --enable-global-filters", stop=True)
+        return
+
+    disable_flag = None
+    if disable_global_filters:
+        disable_flag = True
+    elif enable_global_filters:
+        disable_flag = False
+
     result = ctl.filter_(
         name=name,
         subtitle=subtitle,
         include=include,
         exclude=exclude,
         regex=regex,
+        disable_global_filters=disable_flag,
     )
     if "data" not in result:
         globals()["print_{}".format(result["status"])](result["message"])
@@ -304,6 +331,7 @@ def print_filter(followed_filter_obj: Filter) -> None:
     print(f"Include keywords: {followed_filter_obj.include}")
     print(f"Exclude keywords: {followed_filter_obj.exclude}")
     print(f"Regular expression: {followed_filter_obj.regex}")
+    print(f"Disable global filters: {followed_filter_obj.disable_global_filters}")
 
 
 @cli.command("cal")

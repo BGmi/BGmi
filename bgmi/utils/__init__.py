@@ -351,11 +351,12 @@ def download_cover(cover_url_list: List[str]) -> None:
             f.write(r.content)
 
 
-def episode_filter_regex(data: List[Episode], regex: Optional[str] = None) -> List[Episode]:
+def episode_filter_regex(data: List[Episode], regex: Optional[str] = None, disable_global_filters: bool = False) -> List[Episode]:
     """
 
     :param data: list of bangumi dict
     :param regex: regex
+    :param disable_global_filters: disable global blacklist filters for this bangumi
     """
     if regex:
         try:
@@ -367,7 +368,7 @@ def episode_filter_regex(data: List[Episode], regex: Optional[str] = None) -> Li
                 raise e
             print_warning(f"can't compile regex {regex}, skipping filter by regex")
 
-    if cfg.enable_global_filters:
+    if cfg.enable_global_filters and not disable_global_filters:
         exclude_keywords = [t.strip().lower() for t in cfg.global_filters]
         data = [x for x in data if not x.contains_any_words(exclude_keywords)]
 

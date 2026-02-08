@@ -2,7 +2,7 @@ import datetime
 import os
 from collections import defaultdict
 
-from icalendar import Calendar, Event, Todo
+from icalendar import Calendar, Event
 
 from bgmi.config import cfg
 from bgmi.front.base import BaseHandler
@@ -80,9 +80,10 @@ class CalendarHandler(BaseHandler):
                 item for item in Download.get_all_downloads() if item["created_time"] and int(item["created_time"]) != 0
             ]
             for d in data:
-                todo = Todo()
+                todo = Event()
                 todo.add("summary", f"{d['name']}: {d['episode']}")
-                todo.add("dstart", datetime.datetime.fromtimestamp(int(d["created_time"])))
+                todo.add("dtstart", datetime.datetime.fromtimestamp(int(d["created_time"])).date())
+                todo.add("dtend", datetime.datetime.fromtimestamp(int(d["created_time"])).date())
                 cal.add_component(todo)
 
         else:

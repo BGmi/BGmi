@@ -21,6 +21,18 @@ def exec_sql(sql: str, db: Path = cfg.db_path) -> None:
         print_error("Execute SQL statement failed", stop=False)
 
 
+def column_exists(table: str, column: str, db: Path = cfg.db_path) -> bool:
+    try:
+        conn = sqlite3.connect(db)
+        cursor = conn.cursor()
+        cursor.execute(f"PRAGMA table_info({table})")
+        columns = [row[1] for row in cursor.fetchall()]
+        conn.close()
+        return column in columns
+    except sqlite3.OperationalError:
+        return False
+
+
 def update_database() -> None:
     if not old_version_file.exists():
         old_version_file.write_text(__version__, encoding="utf8")
@@ -41,6 +53,9 @@ def update_database() -> None:
 
     if previous < semver.VersionInfo(major=4, minor=5, patch=1):
         exec_sql("ALTER TABLE download ADD COLUMN created_time INT(11);")
+
+    if not column_exists("filter", "disable_global_filters"):
+        exec_sql("ALTER TABLE filter ADD COLUMN disable_global_filters INTEGER DEFAULT 0;")
 
     # all upgrade done, write current version
     old_version_file.write_text(__version__, encoding="utf8")
