@@ -298,7 +298,7 @@ def list_command() -> None:
 
                 f = [x.name for x in bangumi["subtitle_group"]]
 
-                s += "{}: {}\n".format(bangumi["name"], ", ".join(f) if f else "<None>")
+                s += "{}: {}\n".format(bangumi["name"], ", ".join(f) if f else "全部")
 
     print(s)
 
