@@ -1,11 +1,8 @@
 """Tests for season parsing, formatter, and postprocessor."""
 
-import shutil
 import tempfile
 from pathlib import Path
 from unittest import mock
-
-import pytest
 
 from bgmi.lib.season import parse_season
 

@@ -218,7 +218,9 @@ def search(
 @cli.command("add", help="Subscribe bangumi.")
 @click.argument("names", nargs=-1)
 @click.option("--episode", type=int, help="Set starting episode number.")
-@click.option("--season", type=int, help="Set season number (overrides auto-detection, works for existing subscriptions).")
+@click.option(
+    "--season", type=int, help="Set season number (overrides auto-detection, works for existing subscriptions)."
+)
 @click.option("--save-path", type=str, help="Set save_path_map entry, e.g. './{bangumi_name}/S1/'.")
 def add(names: List[str], episode: Optional[int], season: Optional[int], save_path: Optional[str]) -> None:
     """Subscribe bangumi."""
@@ -301,9 +303,9 @@ def list_command() -> None:
 
 @cli.command("filter", help="Set download filters for a bangumi.")
 @click.argument("name", required=True)
-@click.option("--subtitle", help='Subtitle group names, comma-separated.')
-@click.option("--include", help='Include keywords in title, comma-separated.')
-@click.option("--exclude", help='Exclude keywords from title, comma-separated.')
+@click.option("--subtitle", help="Subtitle group names, comma-separated.")
+@click.option("--include", help="Include keywords in title, comma-separated.")
+@click.option("--exclude", help="Exclude keywords from title, comma-separated.")
 @click.option("--regex", help="Filter by regular expression.")
 def filter_cmd(
     name: str,

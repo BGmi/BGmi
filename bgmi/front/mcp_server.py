@@ -257,13 +257,7 @@ class TokenAuthMiddleware:
 def create_mcp_app() -> Starlette:
     """Create the MCP SSE sub-application with auth middleware."""
     sse_app = mcp.sse_app()
-
-    # Wrap with token auth middleware
-    sse_app.middleware_stack = None  # force rebuild
-    sse_app.user_middleware = [Middleware(TokenAuthMiddleware)] + list(sse_app.user_middleware)
-    sse_app = Starlette(
+    return Starlette(
         routes=sse_app.routes,
         middleware=[Middleware(TokenAuthMiddleware)],
     )
-
-    return sse_app
