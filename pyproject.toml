@@ -19,6 +19,7 @@ dependencies = [
   'filetype (==1.2.0)',
   'icalendar (==6.3.2)',
   "loguru==0.7.3",
+  "mcp>=1.0.0",
   "packaging==25.0",
   'pycomplete (==0.4.0)',
   "pydantic==2.12.4",

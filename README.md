@@ -548,6 +548,70 @@ class DataSource(BaseWebsite):
     # return WebsiteBangumi(keyword=bangumi_id) if website don't has a page contains episodes and info
 ```
 
+## MCP (Model Context Protocol) 支持
+
+`bgmi_http` 内置了 [MCP](https://modelcontextprotocol.io/) SSE 服务端，允许 AI Agent（如 Claude Desktop、Cursor、Cline 等）直接管理你的追番订阅。
+
+### 端点
+
+| 端点 | 方法 | 说明 |
+|---|---|---|
+| `/mcp/sse` | GET | SSE 长连接（MCP 传输层） |
+| `/mcp/messages` | POST | 发送 JSON-RPC 消息 |
+
+### 认证
+
+所有请求需携带 `Authorization: Bearer <token>` HTTP Header，token 为 `~/.bgmi/config.toml` 中 `[http]` 下的 `admin_token`。
+
+### 可用 Tools
+
+| Tool | 说明 |
+|---|---|
+| `cal` | 获取每周番剧日历 |
+| `list_subscriptions` | 列出所有订阅 |
+| `add` | 订阅番剧 |
+| `delete` | 取消订阅 |
+| `search` | 搜索番剧 |
+| `mark` | 标记已看集数 |
+| `download` | 手动触发下载 |
+| `get_filter` | 获取过滤器配置 |
+| `set_filter` | 设置过滤器 |
+| `get_config` | 获取当前配置 |
+| `set_status` | 设置订阅状态 |
+
+### Agent 接入配置
+
+在你的 AI 工具（Claude Desktop / Cursor / Cline）的 MCP 配置中添加：
+
+```json
+{
+  "mcpServers": {
+    "bgmi": {
+      "transport": "sse",
+      "url": "http://<host>:8888/mcp/sse",
+      "headers": {
+        "Authorization": "Bearer <your-admin-token>"
+      }
+    }
+  }
+}
+```
+
+将 `<host>` 替换为服务器地址，`<your-admin-token>` 替换为 `~/.bgmi/config.toml` 中的值。
+
+### 快速验证
+
+```bash
+# 启动服务
+uv run bgmi_http
+
+# 测试连接（应返回 SSE endpoint 事件）
+curl -N -H "Authorization: Bearer <token>" http://127.0.0.1:8888/mcp/sse
+
+# 无认证应返回 401
+curl http://127.0.0.1:8888/mcp/sse
+```
+
 ## License
 
 [MIT License](./LICENSE)
