@@ -217,6 +217,22 @@ def set_filter(
 
 
 @mcp.tool()
+def postprocess() -> Dict[str, Any]:
+    """Process completed downloads: move files to formatted paths and remove torrents.
+
+    Checks all active download tasks, moves completed ones to the path formatter
+    destination, cleans up temp directories, and removes torrents from the downloader.
+    """
+    from bgmi.lib.postprocessor import process_completed_downloads
+
+    if not cfg.enable_path_formatter:
+        return {"status": "skipped", "message": "path formatter is disabled"}
+
+    process_completed_downloads()
+    return {"status": "success", "message": "Post-processing completed"}
+
+
+@mcp.tool()
 def download_status() -> List[Dict[str, Any]]:
     """Get download progress for all active tasks.
 
