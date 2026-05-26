@@ -111,6 +111,33 @@ task bump
 - **Config Path**: `~/.bgmi/config.toml` (overridable via `BGMI_PATH` env var).
 - **Database**: SQLite, stored under `BGMI_PATH`.
 
+### Built-in HTTP Server (`bgmi_http`)
+
+Tornado-based web server providing a management API and optional static file serving for the frontend UI.
+
+- **Entry point**: `bgmi.front.server:main` → listens on `0.0.0.0:8888` by default
+- **Authentication**: Token-based via `bgmi-token` HTTP header, validated against `cfg.http.admin_token`. Unauthenticated access allowed only for `cal` and `auth` endpoints.
+
+**Route map**:
+
+| Route | Handler | Purpose |
+|---|---|---|
+| `GET /api/index` | `BangumiListHandler` | List followed bangumi (updating) with player info |
+| `GET /api/old` | `BangumiListHandler` | List followed bangumi (ended) |
+| `GET /api/cal` | `AdminApiHandler` | Get weekly calendar data |
+| `GET /api/config` | `AdminApiHandler` | Dump current config |
+| `POST /api/{action}` | `AdminApiHandler` | Mutating actions: add, delete, search, download, mark, status, filter |
+| `POST /api/auth` | `AdminApiHandler` | Token verification |
+| `GET /api/update` | `UpdateHandler` | Trigger bangumi update (async, with thread pool) |
+| `GET /resource/feed.xml` | `RssHandler` | RSS feed of downloads |
+| `GET /resource/calendar.ics` | `CalendarHandler` | ICS calendar (weekly schedule / download log) |
+| `GET /bangumi/...` | Static / `BangumiHandler` | Serve downloaded episode files |
+| `GET /...` | Static / `IndexHandler` | Serve frontend SPA (requires `bgmi install`) |
+
+- **Static file mode** (`cfg.http.serve_static_files`): When enabled, Tornado directly serves the frontend SPA and bangumi files. When disabled, handlers return instructions to configure an external web server (nginx).
+- **Response format**: All API responses are JSON with standard envelope: `{version, latest_version, frontend_version, status, lang, danmaku_api, data}`.
+- **Frontend**: Separate project [BGmi-frontend](https://github.com/BGmi/BGmi-frontend), installed via `bgmi install` into `cfg.front_static_path`.
+
 ## Testing
 
 - Framework: **pytest** with verbose output and duration reporting
