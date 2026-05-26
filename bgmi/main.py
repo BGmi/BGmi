@@ -172,7 +172,9 @@ def config_get(keys: List[str]) -> None:
 @click.option("--dupe", is_flag=True, show_default=True, default=False, type=bool, help="Show duplicated episodes.")
 @click.option("--min-episode", "min_episode", type=int, help="Minimum episode number filter.")
 @click.option("--max-episode", "max_episode", type=int, help="Maximum episode number filter.")
-@click.option("--tag", is_flag=True, show_default=True, default=False, help="Use tag to search (if data source supports).")
+@click.option(
+    "--tag", is_flag=True, show_default=True, default=False, help="Use tag to search (if data source supports)."
+)
 @click.option("--subtitle", help="Subtitle group filter (requires --tag).")
 def search(
     keyword: str,
