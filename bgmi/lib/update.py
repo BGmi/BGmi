@@ -206,14 +206,30 @@ def _migrate_from_v4(db: Path = cfg.db_path) -> None:
         print_warning(f"Failed to refresh bangumi IDs (can fix later with `bgmi cal -f`): {e}")
 
 
+def _needs_v4_migration(db: Path = cfg.db_path) -> bool:
+    """Detect v4 schema by checking for v4-specific columns regardless of version file."""
+    if not db.exists():
+        return False
+    cols = _get_table_columns(db, "bangumi")
+    if "keyword" in cols or "update_time" in cols:
+        return True
+    followed_cols = _get_table_columns(db, "followed")
+    if "episode" in followed_cols and "episodes" not in followed_cols:
+        return True
+    return False
+
+
 def update_database() -> None:
     if not old_version_file.exists():
+        if _needs_v4_migration():
+            print_warning("Detected v4 database (no version file), performing migration to v5...")
+            _migrate_from_v4()
         old_version_file.write_text(__version__, encoding="utf8")
         return
 
     previous = packaging.version.parse(old_version_file.read_text(encoding="utf8").strip())
 
-    if previous < packaging.version.Version("5.0.0a0"):
+    if previous < packaging.version.Version("5.0.0a0") or _needs_v4_migration():
         print_warning("Detected v4 database, performing migration to v5...")
         _migrate_from_v4()
 
@@ -224,6 +240,21 @@ def update_database() -> None:
         download_cols = _get_table_columns(cfg.db_path, "download")
         if "task_id" not in download_cols:
             exec_sql("ALTER TABLE download ADD COLUMN task_id TEXT")
+
+    # Check if bangumi IDs are still v4 auto-increment numbers and need refresh
+    if cfg.db_path.exists():
+        conn = sqlite3.connect(cfg.db_path)
+        rows = conn.execute("SELECT id FROM bangumi LIMIT 20").fetchall()
+        conn.close()
+        if rows and all(row[0].isdigit() for row in rows):
+            print_warning("Bangumi IDs are still numeric (v4 legacy), refreshing from data source...")
+            try:
+                from bgmi.lib.fetch import website
+
+                website.fetch(group_by_weekday=False)
+                print_info("Bangumi IDs refreshed successfully.")
+            except Exception as e:
+                print_warning(f"Failed to refresh bangumi IDs (fix with `bgmi cal -f`): {e}")
 
     # all upgrade done, write current version
     old_version_file.write_text(__version__, encoding="utf8")
