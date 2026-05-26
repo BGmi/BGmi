@@ -324,4 +324,30 @@ def update_filter(
     return {}
 
 
+@admin.post(
+    "/seen_forget",
+    responses={
+        200: {"description": "成功"},
+        404: {"description": "番剧未订阅或集数不存在"},
+    },
+)
+def seen_forget(
+    bangumi: str = fastapi.Body(embed=True),
+    episode: int = fastapi.Body(embed=True),
+) -> Any:
+    try:
+        f = table.Followed.get(
+            table.Followed.bangumi_name == bangumi, table.Followed.status.isnot(table.Followed.STATUS_DELETED)
+        )
+    except NotFoundError as e:
+        raise HTTPException(404, "bangumi not followed") from e
+
+    if episode not in f.episodes:
+        raise HTTPException(404, f"episode {episode} not in download records")
+
+    f.episodes.remove(episode)
+    f.save()
+    return {}
+
+
 app.include_router(admin, prefix="/admin")
