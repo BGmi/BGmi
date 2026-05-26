@@ -47,6 +47,7 @@ BGmi 是一个用来追番的命令行程序.
 - 番剧放松列表和剧集信息
 - 下载番剧时的过滤器(支持关键词,字幕组和正则)
 - 多平台支持: Windows, \*nux 以及 Router system
+- MCP (Model Context Protocol) SSE 服务: 让 AI Agent 直接管理你的追番
 
 ![](./images/bgmi_cli.png?raw=true)
 ![](https://github.com/BGmi/BGmi-frontend/raw/master/.github/images/example.png)
@@ -569,6 +570,70 @@ class DataSource(BaseWebsite):
         :rtype: WebsiteBangumi
         """
         # return WebsiteBangumi(keyword=bangumi_id) if website don't has a page contains episodes and info
+```
+
+## MCP (Model Context Protocol) 支持
+
+`bgmi_http` 内置了 [MCP](https://modelcontextprotocol.io/) SSE 服务端，允许 AI Agent（如 Claude Desktop、Cursor、Cline 等）直接管理你的追番订阅。
+
+### 端点
+
+| 端点 | 方法 | 说明 |
+|---|---|---|
+| `/mcp/sse` | GET | SSE 长连接（MCP 传输层） |
+| `/mcp/messages?session_id=...` | POST | 发送 JSON-RPC 消息 |
+
+### 认证
+
+所有请求需携带 `bgmi-token` HTTP Header，值为 `~/.bgmi/config.toml` 中 `[http]` 下的 `admin_token`。
+
+### 可用 Tools
+
+| Tool | 说明 |
+|---|---|
+| `cal` | 获取每周番剧日历 |
+| `list_subscriptions` | 列出所有订阅 |
+| `add` | 订阅番剧 |
+| `delete` | 取消订阅 |
+| `search` | 搜索番剧 |
+| `mark` | 标记已看集数 |
+| `download` | 手动触发下载 |
+| `get_filter` | 获取过滤器配置 |
+| `set_filter` | 设置过滤器 |
+| `get_config` | 获取当前配置 |
+| `set_status` | 设置订阅状态 |
+
+### Agent 接入配置
+
+在你的 AI 工具（Claude Desktop / Cursor / Cline）的 MCP 配置中添加：
+
+```json
+{
+  "mcpServers": {
+    "bgmi": {
+      "transport": "sse",
+      "url": "http://<host>:8888/mcp/sse",
+      "headers": {
+        "bgmi-token": "<your-admin-token>"
+      }
+    }
+  }
+}
+```
+
+将 `<host>` 替换为服务器地址，`<your-admin-token>` 替换为 `~/.bgmi/config.toml` 中的值。
+
+### 快速验证
+
+```bash
+# 启动服务
+uv run bgmi_http
+
+# 测试连接（应返回 SSE endpoint 事件）
+curl -N -H "bgmi-token: <token>" http://127.0.0.1:8888/mcp/sse
+
+# 无认证应返回 401
+curl http://127.0.0.1:8888/mcp/sse
 ```
 
 ## License
