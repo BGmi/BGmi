@@ -39,5 +39,9 @@ def update_database() -> None:
             stop=True,
         )
 
+    if previous < packaging.version.Version("5.0.0a4"):
+        exec_sql("ALTER TABLE followed ADD COLUMN season INTEGER NOT NULL DEFAULT 1")
+        exec_sql("ALTER TABLE download ADD COLUMN task_id TEXT")
+
     # all upgrade done, write current version
     old_version_file.write_text(__version__, encoding="utf8")
