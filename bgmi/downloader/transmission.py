@@ -43,3 +43,6 @@ class TransmissionRPC(BaseDownloadService):
         torrent = self.client.get_torrent(id)
         download_dir = torrent.download_dir or ""
         return [f"{download_dir}/{f.name}" for f in torrent.get_files()]
+
+    def remove_download(self, id: str) -> None:
+        self.client.remove_torrent(id)

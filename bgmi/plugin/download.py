@@ -35,6 +35,9 @@ class BaseDownloadService(metaclass=abc.ABCMeta):
         :return: list of file paths (absolute or relative to save_path)
         """
 
+    def remove_download(self, id: str) -> None:
+        """Remove a completed task from the downloader. Default no-op for compatibility."""
+
 
 class MissingDependencyError(Exception):
     def __init__(self, message: str) -> None:

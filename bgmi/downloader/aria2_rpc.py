@@ -50,3 +50,6 @@ class Aria2DownloadRPC(BaseDownloadService):
     def get_files(self, id: str) -> List[str]:
         r = self.server.aria2.getFiles(self.token, id)
         return [f["path"] for f in r if f.get("path")]
+
+    def remove_download(self, id: str) -> None:
+        self.server.aria2.removeDownloadResult(self.token, id)

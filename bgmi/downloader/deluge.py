@@ -40,6 +40,9 @@ class DelugeRPC(BaseDownloadService):
         files = status.get("files", [])
         return [f"{save_path}/{f['path']}" for f in files]
 
+    def remove_download(self, id: str) -> None:
+        self._call("core.remove_torrent", [id, False])
+
     def _call(self, methods, params=None):
         if params is None:
             params = []

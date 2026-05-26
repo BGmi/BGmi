@@ -62,3 +62,6 @@ class QBittorrentWebAPI(BaseDownloadService):
         save_path = torrent[0].save_path
         files = self.client.torrents_files(torrent_hash=id)
         return [f"{save_path}/{f.name}" for f in files]
+
+    def remove_download(self, id: str) -> None:
+        self.client.torrents_delete(torrent_hashes=id, delete_files=False)
