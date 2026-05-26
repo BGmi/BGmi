@@ -195,6 +195,16 @@ def _migrate_from_v4(db: Path = cfg.db_path) -> None:
     conn.close()
     print_info("Migration from v4 to v5 completed successfully!")
 
+    # Refresh bangumi IDs from data source (v4 stored local auto-increment IDs)
+    print_info("Refreshing bangumi IDs from data source...")
+    try:
+        from bgmi.lib.fetch import website
+
+        website.fetch(group_by_weekday=False)
+        print_info("Bangumi IDs refreshed successfully.")
+    except Exception as e:
+        print_warning(f"Failed to refresh bangumi IDs (can fix later with `bgmi cal -f`): {e}")
+
 
 def update_database() -> None:
     if not old_version_file.exists():
