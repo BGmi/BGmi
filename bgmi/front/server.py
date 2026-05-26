@@ -13,6 +13,7 @@ from tornado.options import define, options
 from bgmi.config import IS_WINDOWS, cfg
 from bgmi.front.admin import API_MAP_GET, API_MAP_POST, AdminApiHandler, UpdateHandler
 from bgmi.front.index import BangumiListHandler, IndexHandler
+from bgmi.front.mcp_server import get_mcp_handlers
 from bgmi.front.resources import BangumiHandler, CalendarHandler, RssHandler
 
 define("port", default=8888, help="listen on the port", type=int)
@@ -27,7 +28,7 @@ def make_app() -> tornado.web.Application:
     }
     api_actions = "|".join(chain(API_MAP_GET.keys(), API_MAP_POST.keys()))
 
-    handlers: List[Any] = [
+    handlers: List[Any] = get_mcp_handlers() + [
         (r"^/api/(old|index)", BangumiListHandler),
         (r"^/resource/feed.xml$", RssHandler),
         (r"^/resource/calendar.ics$", CalendarHandler),
