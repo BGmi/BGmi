@@ -12,21 +12,37 @@ BGmi 是一个用来追番的命令行程序。
 
 ### V5
 
-v5 不再像之前版本一样仅追踪目前订阅的最大集数，而是会记录所有已下载的集数。因此移除了 `mark` 命令，取而代之的是 `seen forget` 用于移除单集的下载记录（触发重新下载）。
+#### 设计哲学变更
 
-其他更新：
+v4 及之前的版本采用「最大集数」标量模型：BGmi 只记录每部番剧"当前下载到了第几集"。如果第 5 集下载失败，用户需要 `mark` 回第 4 集，然后 `update` 重新从第 5 集开始下载——这会连带重新处理第 5 集之后所有已下载的集数。
 
-- 移除 `bgmi update` 的 `--download` 参数，`update` 命令总是会下载新集数。
-- `bgmi add --season` 支持设置／修改番剧季度号（对已订阅番剧同样有效）。
-- 新增 path formatter 功能，支持按 `{name}/S{season}/E{episode}.{suffix}` 格式组织下载文件。
-- 内置 MCP（Model Context Protocol）支持，AI Agent 可直接管理追番。
-- 重构 bgmi_http（Tornado → Starlette／FastAPI）。
+v5 改为**集合模型**：BGmi 独立记录每一集的下载状态。某集失败只需 `seen forget` 移除该集记录，`update` 时只会补下载缺失的那一集，不影响其余集数。
+
+这一变更带来以下影响：
+
+- 移除 `mark` 命令（标量模型的产物，不再需要）。
+- 新增 `seen forget` 命令，精确移除单集下载记录。
+- `update` 命令总是执行下载，移除了已废弃的 `--download` 参数。
+
+#### 新功能
+
+- **MCP（Model Context Protocol）支持**：`bgmi_http` 内置 MCP SSE 服务端，AI Agent（Claude Desktop、Cursor、Cline 等）可直接通过 MCP 协议管理追番订阅。详见[MCP 章节](#mcpmodel-context-protocol支持)。
+- **Path Formatter**：支持自定义下载文件的目录组织格式（如 `{name}/S{season:02d}/E{episode:02d}.{suffix}`），对 Jellyfin 等媒体服务器友好。
+- **Season 管理**：`bgmi add --season` 可在订阅时指定季度号（自动从标题解析，或手动覆盖）。对已订阅番剧同样有效。
+- **下载后处理**：`bgmi postprocess` 命令，将完成的下载按 formatter 规则移动到目标路径。
+
+#### 架构变更
+
+- 重构 bgmi_http：Tornado → Starlette／FastAPI／Uvicorn。
+- ORM 迁移：Peewee → SQLAlchemy 2.0。
 - 移除 `/resource/feed.xml`。
+
+---
 
 ### v4
 
 - 添加 `proxy` 设置。
-- 新 WEB UI。
+- 新 Web UI。
 - 将配置项 `transmission.rpc_url` 重命名为 `transmission.rpc_host`。
 - 修复 Transmission 配置的默认值。
 
