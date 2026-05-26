@@ -212,6 +212,7 @@ class Followed(Base):
     include: Mapped[List[str]] = Column(sa.JSON, nullable=False, default=[], server_default="[]")  # type: ignore
     exclude: Mapped[List[str]] = Column(sa.JSON, nullable=False, default=[], server_default="[]")  # type: ignore
     regex: Mapped[str] = Column(Text, nullable=False, default="", server_default="")  # type: ignore
+    season: Mapped[int] = Column(Integer, nullable=False, default=1, server_default="1")  # type: ignore
 
     is_script: Mapped[bool] = Column(sa.Boolean, nullable=False, default=False, server_default="0")  # type: ignore
 
@@ -274,6 +275,7 @@ class Download(Base):
     episode: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
     download: Mapped[str] = Column(Text, nullable=False)  # type: ignore
     status: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
+    task_id: Mapped[Optional[str]] = Column(Text, nullable=True)  # type: ignore
 
     if TYPE_CHECKING:
 
@@ -285,6 +287,7 @@ class Download(Base):
             download: str,
             status: Optional[int] = None,
             id: Optional[int] = None,
+            task_id: Optional[str] = None,
         ):
             super().__init__()
 

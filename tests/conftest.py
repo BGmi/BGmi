@@ -88,6 +88,7 @@ def bangumi_subtitles(data_source_subtitle_name):
 @pytest.fixture()
 def mock_download_driver():
     mock_downloader = mock.Mock()
+    mock_downloader.add_download.return_value = "mock-task-id"
     with mock.patch("bgmi.lib.download.get_download_driver", mock.Mock(return_value=mock_downloader)):
         yield mock_downloader
 

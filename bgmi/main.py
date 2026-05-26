@@ -324,12 +324,14 @@ def list_command() -> None:
 )
 @click.option("--exclude", help='Filter by keywords which not int the title, split by ",".')
 @click.option("--regex", help="Filter by regular expression")
+@click.option("--season", type=int, help="Set season number for this bangumi")
 def filter_cmd(
     name: str,
     subtitle: Optional[str],
     regex: Optional[str],
     include: Optional[str],
     exclude: Optional[str],
+    season: Optional[int],
 ) -> None:
     """
     name: bangumi name to update filter
@@ -340,6 +342,7 @@ def filter_cmd(
         include=include,
         exclude=exclude,
         regex=regex,
+        season=season,
     )
     if "data" not in result:
         globals()["print_{}".format(result["status"])](result["message"])
@@ -361,6 +364,7 @@ def print_filter(followed_filter_obj: Followed) -> None:
     print(f"Include keywords: {followed_filter_obj.include or None}")
     print(f"Exclude keywords: {followed_filter_obj.exclude or None}")
     print(f"Regular expression: {followed_filter_obj.regex or None}")
+    print(f"Season: {followed_filter_obj.season}")
 
 
 @cli.command("cal")
@@ -528,6 +532,11 @@ def update(names: List[str], download: bool, not_ignore: bool) -> None:
     """
     ctl.update(names, download=download, not_ignore=not_ignore)
 
+    if download and cfg.enable_path_formatter:
+        from bgmi.lib.postprocessor import process_completed_downloads
+
+        process_completed_downloads()
+
 
 template = {
     "nginx.conf": """
@@ -642,6 +651,13 @@ def debug_info() -> None:
     print(f"python version: `{sys.version}`")
     print(f"os: `{platform.platform()}`")
     print(f"arch: `{platform.architecture()}`")
+
+
+@cli.command("postprocess", help="Process completed downloads and move to formatted paths")
+def postprocess() -> None:
+    from bgmi.lib.postprocessor import process_completed_downloads
+
+    process_completed_downloads()
 
 
 @cli.command("completion")

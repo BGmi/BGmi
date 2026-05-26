@@ -1,3 +1,5 @@
+from typing import List
+
 import requests
 
 from bgmi.config import cfg
@@ -31,6 +33,12 @@ class DelugeRPC(BaseDownloadService):
             "download_location": save_path,
         }
         return self._call("core.add_torrent_url", [url, options])
+
+    def get_files(self, id: str) -> List[str]:
+        status = self._call("web.get_torrent_status", [id, ["save_path", "files"]])
+        save_path = status.get("save_path", "")
+        files = status.get("files", [])
+        return [f"{save_path}/{f['path']}" for f in files]
 
     def _call(self, methods, params=None):
         if params is None:

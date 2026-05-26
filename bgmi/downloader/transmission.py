@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 
 import transmission_rpc
 
@@ -38,3 +38,8 @@ class TransmissionRPC(BaseDownloadService):
             "seeding": DownloadStatus.done,
             "stopped": DownloadStatus.not_downloading,
         }.get(torrent.status, DownloadStatus.error)
+
+    def get_files(self, id: str) -> List[str]:
+        torrent = self.client.get_torrent(id)
+        download_dir = torrent.download_dir or ""
+        return [f"{download_dir}/{f.name}" for f in torrent.get_files()]

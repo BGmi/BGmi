@@ -11,6 +11,7 @@ import sqlalchemy as sa
 from bgmi.config import cfg
 from bgmi.lib.download import download_episode
 from bgmi.lib.fetch import website
+from bgmi.lib.season import parse_season
 from bgmi.lib.table import Bangumi, Download, Followed, NotFoundError, Scripts, Session, Subtitle
 from bgmi.script import ScriptRunner
 from bgmi.utils import (
@@ -54,7 +55,8 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
             sa.select(Followed).where(Followed.bangumi_name == bangumi_obj.name).limit(1)
         )
         if followed_obj is None:
-            followed_obj = Followed(status=Followed.STATUS_FOLLOWED, bangumi_name=bangumi_obj.name)
+            season = parse_season(bangumi_obj.name)
+            followed_obj = Followed(status=Followed.STATUS_FOLLOWED, bangumi_name=bangumi_obj.name, season=season)
             session.add(followed_obj)
         elif followed_obj.status == Followed.STATUS_FOLLOWED:
             result = {
@@ -84,6 +86,7 @@ def filter_(
     include: Optional[str] = None,
     exclude: Optional[str] = None,
     regex: Optional[str] = None,
+    season: Optional[int] = None,
 ) -> ControllerResult:
     result = {"status": "success", "message": ""}  # type: Dict[str, Any]
     try:
@@ -116,6 +119,9 @@ def filter_(
     if regex is not None:
         followed_filter_obj.regex = regex
 
+    if season is not None:
+        followed_filter_obj.season = season
+
     followed_filter_obj.save()
     subtitle_list = [s.name for s in Subtitle.get_subtitle_by_id(bangumi_obj.subtitle_group)]
 
@@ -130,6 +136,7 @@ def filter_(
         "include": followed_filter_obj.include,
         "exclude": followed_filter_obj.exclude,
         "regex": followed_filter_obj.regex,
+        "season": followed_filter_obj.season,
     }
     logger.debug(result)
     return result
