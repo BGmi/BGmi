@@ -70,18 +70,27 @@ def test_delete_not_found():
     assert r.status_code == 404, r.text
 
 
-@pytest.mark.skip("need re-design")
 @pytest.mark.usefixtures("_ensure_data")
-def test_e_mark():
-    episode = random.randint(0, 10)
+def test_seen_forget():
     r = client.post(
-        "/api/admin/mark",
+        "/api/admin/seen_forget",
         headers=headers,
-        json={"bangumi": bangumi_1, "episode": episode},
+        json={"bangumi": bangumi_1, "episode": 2},
     )
+    assert r.status_code == 200, r.text
+    f = Followed.get(Followed.bangumi_name == bangumi_1)
+    assert 2 not in f.episodes
+    assert 1 in f.episodes
 
-    assert r.status_code == 200
-    assert Followed.get(Followed.bangumi_name == bangumi_1).episode == episode
+
+@pytest.mark.usefixtures("_ensure_data")
+def test_seen_forget_not_found():
+    r = client.post(
+        "/api/admin/seen_forget",
+        headers=headers,
+        json={"bangumi": bangumi_1, "episode": 999},
+    )
+    assert r.status_code == 404
 
 
 @pytest.mark.usefixtures("_ensure_data")
