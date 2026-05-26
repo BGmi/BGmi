@@ -32,7 +32,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
-      - uses: astral-sh/setup-uv@v7
+      - uses: astral-sh/setup-uv@v7.5.0
         with:
           activate-environment: true
           python-version: ${{ matrix.python }}

@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: "3"
 
-      - uses: astral-sh/setup-uv@v7
+      - uses: astral-sh/setup-uv@v7.5.0
         with:
           activate-environment: true
           python-version: "3"
@@ -47,4 +47,20 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: trim21/actions/prek@master
+      - name: Install prek
+        run: |
+          set -euo pipefail
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/j178/prek/releases/latest/download/prek-installer.sh | sh
+          command -v prek
+          prek --version
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/prek
+          key: prek-1-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - uses: astral-sh/setup-uv@v7.5.0
+
+      - name: Run prek
+        run: prek run --all-files --show-diff-on-failure --color=always
