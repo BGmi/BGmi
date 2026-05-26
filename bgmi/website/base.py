@@ -34,7 +34,8 @@ class BaseWebsite:
                 b.cover = data.cover
                 b.update_day = data.update_day
                 b.status = Bangumi.STATUS_UPDATING
-                b.subtitle_group = subtitle_group
+                if subtitle_group:
+                    b.subtitle_group = subtitle_group
                 session.add(b)
             else:
                 session.add(
