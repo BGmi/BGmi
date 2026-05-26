@@ -15,7 +15,6 @@ from typing import Any, Dict, List, Optional
 
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
-from starlette.requests import Request
 from starlette.responses import Response
 from starlette.types import ASGIApp, Receive, Scope, Send
 
@@ -24,7 +23,7 @@ from mcp.server.fastmcp import FastMCP
 from bgmi.config import cfg
 from bgmi.lib import controllers as ctl
 from bgmi.lib.download import download_episode
-from bgmi.lib.table import Followed, Session
+from bgmi.lib.table import Followed
 from bgmi.website.model import Episode
 
 mcp = FastMCP(
