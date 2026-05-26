@@ -259,6 +259,7 @@ def get_filter(bangumi: str = fastapi.Path()) -> Any:
         "include": f.include,
         "exclude": f.exclude,
         "regex": f.regex,
+        "season": f.season,
     }
 
 
@@ -276,6 +277,7 @@ def update_filter(
     include: Optional[List[str]] = fastapi.Body(None, embed=True),
     exclude: Optional[List[str]] = fastapi.Body(None, embed=True),
     regex: Optional[str] = fastapi.Body(None, embed=True),
+    season: Optional[int] = fastapi.Body(None, embed=True),
 ) -> Any:
     try:
         f = table.Followed.get(
@@ -305,6 +307,8 @@ def update_filter(
         f.exclude = exclude
     if regex is not None:
         f.regex = regex
+    if season is not None:
+        f.season = season
 
     f.save()
 
