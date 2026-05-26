@@ -6,7 +6,7 @@ from starlette.testclient import TestClient
 from bgmi.config import cfg
 from bgmi.front import mcp_server
 from bgmi.front.server import make_app
-from bgmi.lib.table import Followed, Session
+from bgmi.lib.table import Followed
 
 client = TestClient(make_app(debug=True))
 headers = {"authorization": f"Bearer {cfg.http.admin_token}"}
