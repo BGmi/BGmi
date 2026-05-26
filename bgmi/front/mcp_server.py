@@ -157,7 +157,10 @@ def update(names: Optional[List[str]] = None) -> Dict[str, Any]:
     if cfg.enable_path_formatter:
         process_completed_downloads()
 
-    return {"status": "success", "message": f"Update completed for: {', '.join(names) if names else 'all subscriptions'}"}
+    return {
+        "status": "success",
+        "message": f"Update completed for: {', '.join(names) if names else 'all subscriptions'}",
+    }
 
 
 @mcp.tool()
