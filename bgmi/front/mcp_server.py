@@ -22,8 +22,9 @@ from mcp.server.fastmcp import FastMCP
 
 from bgmi.config import cfg
 from bgmi.lib import controllers as ctl
-from bgmi.lib.download import download_episode
-from bgmi.lib.table import Followed
+from bgmi.lib.download import download_episode, get_download_driver
+from bgmi.lib.table import Download, Followed
+from bgmi.plugin.download import DownloadStatus
 from bgmi.website.model import Episode
 
 mcp = FastMCP(
@@ -141,8 +142,30 @@ def seen_forget(name: str, episode: int) -> Dict[str, Any]:
 
 
 @mcp.tool()
+def update(names: Optional[List[str]] = None) -> Dict[str, Any]:
+    """Trigger bangumi update: check for new episodes and download them.
+
+    This is the main way to fetch new episodes for subscribed bangumi.
+
+    Args:
+        names: Optional list of bangumi names to update. If empty/None, updates all subscriptions.
+    """
+    from bgmi.lib.postprocessor import process_completed_downloads
+
+    ctl.update(names=names or [], download=True, not_ignore=False)
+
+    if cfg.enable_path_formatter:
+        process_completed_downloads()
+
+    return {"status": "success", "message": f"Update completed for: {', '.join(names) if names else 'all subscriptions'}"}
+
+
+@mcp.tool()
 def download(name: str, title: str, episode: int, download_url: str) -> Dict[str, Any]:
-    """Download a specific episode.
+    """Manually download a specific episode by providing a torrent/magnet URL.
+
+    NOTE: This is for manual downloads only. To trigger automatic updates
+    and download new episodes, use the 'update' tool instead.
 
     Args:
         name: Bangumi name.
@@ -191,6 +214,37 @@ def set_filter(
         exclude=exclude,
         regex=regex,
     )
+
+
+@mcp.tool()
+def download_status() -> List[Dict[str, Any]]:
+    """Get download progress for all active tasks.
+
+    Returns a list of downloads with their current status from the downloader.
+    """
+    downloads = Download.get_all_downloads(status=Download.STATUS_DOWNLOADING)
+    if not downloads:
+        return []
+
+    driver = get_download_driver(cfg.download_delegate)
+    results = []
+    for dl in downloads:
+        info: Dict[str, Any] = {
+            "name": dl.bangumi_name,
+            "title": dl.title,
+            "episode": dl.episode,
+            "task_id": dl.task_id,
+        }
+        if dl.task_id:
+            try:
+                status = driver.get_status(dl.task_id)
+                info["status"] = status.name
+            except Exception:
+                info["status"] = "unknown"
+        else:
+            info["status"] = "no_task_id"
+        results.append(info)
+    return results
 
 
 @mcp.tool()
