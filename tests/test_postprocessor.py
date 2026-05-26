@@ -162,9 +162,7 @@ class TestMoveToFormattedPath:
                 mock_followed_obj.season = 1
                 mock_followed.get.return_value = mock_followed_obj
 
-                result = move_to_formatted_path(
-                    dl, [str(sub_file), str(vid1), str(vid2)]
-                )
+                result = move_to_formatted_path(dl, [str(sub_file), str(vid1), str(vid2)])
 
                 assert result is True
                 expected = dst_dir / "Anime" / "S01" / "E01.mp4"
