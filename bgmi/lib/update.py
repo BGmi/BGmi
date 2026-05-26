@@ -44,7 +44,8 @@ def _migrate_from_v4(db: Path = cfg.db_path) -> None:
     if "keyword" in v4_columns or "update_time" in v4_columns:
         print_info("Migrating bangumi table: recreate with v5 schema")
         update_day_col = "update_day" if "update_day" in v4_columns else "update_time"
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS bangumi_new (
                 id TEXT PRIMARY KEY NOT NULL,
                 name TEXT NOT NULL UNIQUE,
@@ -53,14 +54,17 @@ def _migrate_from_v4(db: Path = cfg.db_path) -> None:
                 cover TEXT NOT NULL DEFAULT '',
                 status INTEGER NOT NULL DEFAULT 0
             )
-        """)
-        cursor.execute(f"""
+        """
+        )
+        cursor.execute(
+            f"""
             INSERT OR IGNORE INTO bangumi_new (id, name, subtitle_group, update_day, cover, status)
             SELECT CAST(id AS TEXT), name, subtitle_group,
                    COALESCE({update_day_col}, 'Unknown'),
                    cover, status
             FROM bangumi
-        """)
+        """
+        )
         cursor.execute("DROP TABLE bangumi")
         cursor.execute("ALTER TABLE bangumi_new RENAME TO bangumi")
 
@@ -73,7 +77,8 @@ def _migrate_from_v4(db: Path = cfg.db_path) -> None:
     if "episode" in v4_followed_cols and "episodes" not in v4_followed_cols:
         print_info("Migrating followed table: episode (scalar) -> episodes (set), merge filter")
 
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS followed_new (
                 bangumi_name TEXT PRIMARY KEY NOT NULL,
                 episodes TEXT NOT NULL DEFAULT '[]',
@@ -86,7 +91,8 @@ def _migrate_from_v4(db: Path = cfg.db_path) -> None:
                 season INTEGER NOT NULL DEFAULT 1,
                 is_script INTEGER NOT NULL DEFAULT 0
             )
-        """)
+        """
+        )
 
         # Read v4 followed + filter data
         rows = cursor.execute("SELECT bangumi_name, episode, status, updated_time FROM followed").fetchall()
@@ -117,7 +123,7 @@ def _migrate_from_v4(db: Path = cfg.db_path) -> None:
                     exclude = json.dumps([s.strip() for s in exclude.split(",") if s.strip()])
 
             cursor.execute(
-                """INSERT OR IGNORE INTO followed_new 
+                """INSERT OR IGNORE INTO followed_new
                    (bangumi_name, episodes, status, updated_time, subtitle, "include", "exclude", regex)
                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
                 (bangumi_name, episodes, status, updated_time or 0, subtitle, include, exclude, regex),
@@ -133,7 +139,8 @@ def _migrate_from_v4(db: Path = cfg.db_path) -> None:
 
     if "name" in v4_download_cols and "bangumi_name" not in v4_download_cols:
         print_info("Migrating download table: rename name -> bangumi_name, add task_id")
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS download_new (
                 id INTEGER PRIMARY KEY NOT NULL,
                 bangumi_name TEXT NOT NULL,
@@ -143,11 +150,14 @@ def _migrate_from_v4(db: Path = cfg.db_path) -> None:
                 status INTEGER NOT NULL,
                 task_id TEXT
             )
-        """)
-        cursor.execute("""
+        """
+        )
+        cursor.execute(
+            """
             INSERT INTO download_new (id, bangumi_name, title, episode, download, status)
             SELECT id, name, title, episode, download, status FROM download
-        """)
+        """
+        )
         cursor.execute("DROP TABLE download")
         cursor.execute("ALTER TABLE download_new RENAME TO download")
     elif "task_id" not in v4_download_cols:

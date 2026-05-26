@@ -24,7 +24,6 @@ from bgmi.config import cfg
 from bgmi.lib import controllers as ctl
 from bgmi.lib.download import download_episode, get_download_driver
 from bgmi.lib.table import Download, Followed
-from bgmi.plugin.download import DownloadStatus
 from bgmi.website.model import Episode
 
 mcp = FastMCP(
