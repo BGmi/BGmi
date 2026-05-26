@@ -22,14 +22,21 @@ class BaseWebsite:
             subtitle_group = sorted([x.id for x in data.subtitle_group])
             try:
                 b = Bangumi.get(Bangumi.id == data.id)
+            except NotFoundError:
+                # ID not found, check if name exists (ID may have changed)
+                try:
+                    b = Bangumi.get(Bangumi.name == data.name)
+                    b.id = data.id
+                except NotFoundError:
+                    b = None
 
+            if b is not None:
                 b.cover = data.cover
                 b.update_day = data.update_day
                 b.status = Bangumi.STATUS_UPDATING
                 b.subtitle_group = subtitle_group
-
                 session.add(b)
-            except NotFoundError:
+            else:
                 session.add(
                     Bangumi(
                         name=data.name,
