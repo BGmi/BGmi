@@ -30,6 +30,23 @@ def _get_table_columns(db: Path, table: str) -> list[str]:
     return columns
 
 
+def _fix_json_column(cursor: sqlite3.Cursor, table: str, pk_col: str, col: str) -> None:
+    """Convert non-JSON column values (empty strings, comma-separated) to JSON arrays."""
+    for row in cursor.execute(f"SELECT {pk_col}, {col} FROM {table}").fetchall():
+        val = row[1]
+        if not val or val == "":
+            cursor.execute(f"UPDATE {table} SET {col} = '[]' WHERE {pk_col} = ?", (row[0],))
+        elif not val.startswith("["):
+            fixed = json.dumps([s.strip() for s in val.split(",") if s.strip()])
+            cursor.execute(f"UPDATE {table} SET {col} = ? WHERE {pk_col} = ?", (fixed, row[0]))
+        else:
+            try:
+                json.loads(val)
+            except json.JSONDecodeError:
+                fixed = json.dumps([val])
+                cursor.execute(f"UPDATE {table} SET {col} = ? WHERE {pk_col} = ?", (fixed, row[0]))
+
+
 def _migrate_from_v4(db: Path = cfg.db_path) -> None:
     """Migrate database schema from v4 to v5."""
     print_info("Migrating database from v4 to v5...")
@@ -59,7 +76,8 @@ def _migrate_from_v4(db: Path = cfg.db_path) -> None:
         cursor.execute(
             f"""
             INSERT OR IGNORE INTO bangumi_new (id, name, subtitle_group, update_day, cover, status)
-            SELECT CAST(id AS TEXT), name, subtitle_group,
+            SELECT CAST(id AS TEXT), name,
+                   CASE WHEN subtitle_group = '' OR subtitle_group IS NULL THEN '[]' ELSE subtitle_group END,
                    COALESCE({update_day_col}, 'Unknown'),
                    cover, status
             FROM bangumi
@@ -165,6 +183,13 @@ def _migrate_from_v4(db: Path = cfg.db_path) -> None:
 
     # --- drop filter table (merged into followed) ---
     cursor.execute("DROP TABLE IF EXISTS filter")
+
+    # --- fix non-JSON values in JSON columns ---
+    _fix_json_column(cursor, "bangumi", "id", "subtitle_group")
+    _fix_json_column(cursor, "followed", "bangumi_name", "subtitle")
+    _fix_json_column(cursor, "followed", "bangumi_name", '"include"')
+    _fix_json_column(cursor, "followed", "bangumi_name", '"exclude"')
+    cursor.execute("UPDATE followed SET episodes = '[]' WHERE episodes = '' OR episodes IS NULL")
 
     conn.commit()
     conn.close()
