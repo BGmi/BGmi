@@ -47,7 +47,11 @@ def cal(force_update: bool = False) -> Dict[str, Any]:
 
     Returns the schedule of currently updating bangumi grouped by weekday.
     """
-    return ctl.cal(force_update=force_update)
+    result = ctl.cal(force_update=force_update)
+    return {
+        day: [{k: v for k, v in item.items() if not k.startswith("_")} for item in items]
+        for day, items in result.items()
+    }
 
 
 @mcp.tool()
