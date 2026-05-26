@@ -193,7 +193,11 @@ class Mikanani(BaseWebsite):
         # info
         bangumi_info = {"status": 0}
         left_container = soup.select_one("div.pull-left.leftbar-container")
+        if left_container is None:
+            return None
         title = left_container.find("p", class_="bangumi-title")
+        if title is None:
+            return None
         day = title.find_next_sibling("p", class_="bangumi-info")
         bangumi_info["name"] = title.text
         bangumi_info["update_time"] = _CN_WEEK[day.text[-3:]]
@@ -388,6 +392,8 @@ class Mikanani(BaseWebsite):
     ) -> Optional[WebsiteBangumi]:
         html = get_text(server_root + f"Home/Bangumi/{bangumi_id}")
         info = self.parse_bangumi_details_page(html)
+        if info is None:
+            return None
         return WebsiteBangumi(
             name=info["name"],
             id=bangumi_id,
