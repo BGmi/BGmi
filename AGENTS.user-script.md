@@ -183,7 +183,7 @@ class MyHook(HookBase):
 
     def post_add_download(self, *args, **kwargs) -> None:
         """Called after downloads are added.
-        
+
         Keyword args:
             download_queue: list of new downloads
             redownload_queue: list of re-downloads

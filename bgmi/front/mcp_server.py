@@ -16,7 +16,7 @@ import uuid
 from typing import Any, Dict, List, Optional
 
 import anyio
-from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
+from anyio.streams.memory import MemoryObjectSendStream
 from loguru import logger
 from mcp.server.fastmcp import FastMCP
 from mcp.shared.message import SessionMessage
@@ -26,8 +26,6 @@ import tornado.web
 
 from bgmi.config import cfg
 from bgmi.lib import controllers as ctl
-from bgmi.lib.download import Episode
-from bgmi.lib.models import Followed, Bangumi, Download, Filter, Subtitle
 
 # ---------------------------------------------------------------------------
 # MCP Server Instance
