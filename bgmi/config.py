@@ -168,7 +168,9 @@ class Config(BaseSetting):
 
     save_path_map: Dict[str, Path] = Field(default_factory=dict, description="per-bangumi save path")
 
-    enable_path_formatter: bool = Field(False, description="enable post-download path formatter for Jellyfin-style layout")
+    enable_path_formatter: bool = Field(
+        False, description="enable post-download path formatter for Jellyfin-style layout"
+    )
     path_formatter: str = Field(
         "{name}/S{season:02d}/E{episode:02d}.{suffix}",
         description="path template: {name}, {season}, {episode}, {suffix}, {title}",
