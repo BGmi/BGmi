@@ -14,12 +14,15 @@ BGmi 是一个用来追番的命令行程序.
 
 ### V5
 
-v5 不再像之前版本一样仅追踪目前订阅的最大集数，而是会纪录所有已下载的集数。
+v5 不再像之前版本一样仅追踪目前订阅的最大集数，而是会纪录所有已下载的集数。因此移除了 `mark` 命令，取而代之的是 `seen forget` 用于移除单集的下载记录（触发重新下载）。
 
 其他更新：
 
 - `bgmi update` 命令的 `--download` 参数已废弃，`update` 命令将总是尝试下载。
-- 重构 bgmi_http
+- `bgmi add --season` 支持设置/修改番剧季度号（对已订阅番剧同样有效）。
+- 新增 path formatter 功能，支持按 `{name}/S{season}/E{episode}.{suffix}` 格式组织下载文件。
+- 内置 MCP (Model Context Protocol) 支持，AI Agent 可直接管理追番。
+- 重构 bgmi_http（Tornado → Starlette/FastAPI）
 - 移除 '/resource/feed.xml'
 
 ### v4
@@ -349,12 +352,22 @@ bgmi search 海贼王 --min-episode 800 --max-episode 820 --download
 
 `bgmi search`命令默认不会显示重复的集数, 如果要显示重复的集数来方便过滤, 在命令后加上`--dupe`来显示全部的搜索结果
 
-手动修改最近下载的剧集
+管理已下载集数:
+
+v5 会自动记录所有已下载的集数。如果某集下载失败需要重新下载，使用 `seen forget` 移除该集的记录，然后重新 `update`：
 
 ```bash
-bgmi list
-bgmi mark "Re:CREATORS" --episode 1
+bgmi seen forget "Re:CREATORS" 5
+bgmi update "Re:CREATORS"
 ```
+
+修改番剧的季度号（用于 path formatter）:
+
+```bash
+bgmi add "爱书的下克上 第4季" --season 1
+```
+
+`--season` 对已订阅的番剧同样有效，会直接更新季度号。
 
 ## 使用`bgmi_http`
 

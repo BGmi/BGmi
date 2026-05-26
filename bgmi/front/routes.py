@@ -184,19 +184,32 @@ def auth() -> Any:
         404: {"description": "番剧不存在"},
     },
 )
-def add(bangumi: str = fastapi.Body(embed=True)) -> Any:
+def add(
+    bangumi: str = fastapi.Body(embed=True),
+    season: Optional[int] = fastapi.Body(None, embed=True),
+) -> Any:
+    from bgmi.lib.season import parse_season
+
     try:
         b = table.Bangumi.get(table.Bangumi.name == bangumi)
     except table.Bangumi.NotFoundError as e:
         raise HTTPException(404, "Bangumi not exist") from e
 
+    resolved_season = season if season is not None else parse_season(b.name)
+
     with Session.begin() as tx:
         f = tx.query(table.Followed).where(table.Followed.bangumi_name == b.name).scalar()
         if f:
             f.status = table.Followed.STATUS_FOLLOWED
+            if season is not None:
+                f.season = season
             tx.add(f)
         else:
-            tx.add(table.Followed(bangumi_name=b.name, episode=0, status=table.Followed.STATUS_FOLLOWED))
+            tx.add(
+                table.Followed(
+                    bangumi_name=b.name, episode=0, status=table.Followed.STATUS_FOLLOWED, season=resolved_season
+                )
+            )
 
     return {}
 
@@ -259,7 +272,6 @@ def get_filter(bangumi: str = fastapi.Path()) -> Any:
         "include": f.include,
         "exclude": f.exclude,
         "regex": f.regex,
-        "season": f.season,
     }
 
 
@@ -277,7 +289,6 @@ def update_filter(
     include: Optional[List[str]] = fastapi.Body(None, embed=True),
     exclude: Optional[List[str]] = fastapi.Body(None, embed=True),
     regex: Optional[str] = fastapi.Body(None, embed=True),
-    season: Optional[int] = fastapi.Body(None, embed=True),
 ) -> Any:
     try:
         f = table.Followed.get(
@@ -307,8 +318,6 @@ def update_filter(
         f.exclude = exclude
     if regex is not None:
         f.regex = regex
-    if season is not None:
-        f.season = season
 
     f.save()
 

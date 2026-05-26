@@ -30,13 +30,13 @@ from bgmi.website.model import Episode
 ControllerResult = Dict[str, Any]
 
 
-def add(name: str, episode: Optional[int] = None) -> ControllerResult:
+def add(name: str, episode: Optional[int] = None, season: Optional[int] = None) -> ControllerResult:
     """
     ret.name :str
     """
     # action add
     # add bangumi by a list of bangumi name
-    logger.debug("add name: {} episode: {}", name, episode)
+    logger.debug("add name: {} episode: {} season: {}", name, episode, season)
     if not Bangumi.get_updating_bangumi():
         website.fetch(group_by_weekday=False)
 
@@ -55,10 +55,20 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
             sa.select(Followed).where(Followed.bangumi_name == bangumi_obj.name).limit(1)
         )
         if followed_obj is None:
-            season = parse_season(bangumi_obj.name)
-            followed_obj = Followed(status=Followed.STATUS_FOLLOWED, bangumi_name=bangumi_obj.name, season=season)
+            resolved_season = season if season is not None else parse_season(bangumi_obj.name)
+            followed_obj = Followed(
+                status=Followed.STATUS_FOLLOWED, bangumi_name=bangumi_obj.name, season=resolved_season
+            )
             session.add(followed_obj)
         elif followed_obj.status == Followed.STATUS_FOLLOWED:
+            if season is not None:
+                followed_obj.season = season
+                session.flush()
+                result = {
+                    "status": "success",
+                    "message": f"{bangumi_obj.name} season set to {season}",
+                }
+                return result
             result = {
                 "status": "warning",
                 "message": f"{bangumi_obj.name} already followed",
@@ -66,6 +76,8 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
             return result
         else:
             followed_obj.status = Followed.STATUS_FOLLOWED
+            if season is not None:
+                followed_obj.season = season
 
     if episode is None:
         episodes = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)
@@ -86,7 +98,6 @@ def filter_(
     include: Optional[str] = None,
     exclude: Optional[str] = None,
     regex: Optional[str] = None,
-    season: Optional[int] = None,
 ) -> ControllerResult:
     result = {"status": "success", "message": ""}  # type: Dict[str, Any]
     try:
@@ -119,9 +130,6 @@ def filter_(
     if regex is not None:
         followed_filter_obj.regex = regex
 
-    if season is not None:
-        followed_filter_obj.season = season
-
     followed_filter_obj.save()
     subtitle_list = [s.name for s in Subtitle.get_subtitle_by_id(bangumi_obj.subtitle_group)]
 
@@ -136,7 +144,6 @@ def filter_(
         "include": followed_filter_obj.include,
         "exclude": followed_filter_obj.exclude,
         "regex": followed_filter_obj.regex,
-        "season": followed_filter_obj.season,
     }
     logger.debug(result)
     return result

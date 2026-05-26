@@ -224,11 +224,16 @@ def search(
     help="add bangumi and mark it as specified episode",
 )
 @click.option(
+    "--season",
+    type=int,
+    help="set season number (overrides auto-detection, also works for already subscribed bangumi)",
+)
+@click.option(
     "--save-path",
     type=str,
     help="add config.save_path_map for bangumi, example: './{bangumi_name}/S1/' './名侦探柯南/S1/'",
 )
-def add(names: List[str], episode: Optional[int], save_path: Optional[str]) -> None:
+def add(names: List[str], episode: Optional[int], season: Optional[int], save_path: Optional[str]) -> None:
     """
     subscribe bangumi
 
@@ -237,7 +242,7 @@ def add(names: List[str], episode: Optional[int], save_path: Optional[str]) -> N
     --save-path 同时修改 config 中的 `save_path_map`。
     """
     for name in names:
-        result = ctl.add(name=name, episode=episode)
+        result = ctl.add(name=name, episode=episode, season=season)
         globals()["print_{}".format(result["status"])](result["message"])
         if save_path and result["status"] in ["success", "warning"]:
             bangumi = Bangumi.get(Bangumi.name.contains(name))
@@ -324,14 +329,12 @@ def list_command() -> None:
 )
 @click.option("--exclude", help='Filter by keywords which not int the title, split by ",".')
 @click.option("--regex", help="Filter by regular expression")
-@click.option("--season", type=int, help="Set season number for this bangumi")
 def filter_cmd(
     name: str,
     subtitle: Optional[str],
     regex: Optional[str],
     include: Optional[str],
     exclude: Optional[str],
-    season: Optional[int],
 ) -> None:
     """
     name: bangumi name to update filter
@@ -342,7 +345,6 @@ def filter_cmd(
         include=include,
         exclude=exclude,
         regex=regex,
-        season=season,
     )
     if "data" not in result:
         globals()["print_{}".format(result["status"])](result["message"])
@@ -364,7 +366,6 @@ def print_filter(followed_filter_obj: Followed) -> None:
     print(f"Include keywords: {followed_filter_obj.include or None}")
     print(f"Exclude keywords: {followed_filter_obj.exclude or None}")
     print(f"Regular expression: {followed_filter_obj.regex or None}")
-    print(f"Season: {followed_filter_obj.season}")
 
 
 @cli.command("cal")

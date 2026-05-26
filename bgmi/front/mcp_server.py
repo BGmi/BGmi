@@ -72,14 +72,15 @@ def list_subscriptions() -> List[Dict[str, Any]]:
 
 
 @mcp.tool()
-def add(name: str, episode: Optional[int] = None) -> Dict[str, Any]:
+def add(name: str, episode: Optional[int] = None, season: Optional[int] = None) -> Dict[str, Any]:
     """Subscribe to a bangumi by name.
 
     Args:
         name: Name of the bangumi to subscribe to (fuzzy matched).
         episode: Starting episode number (default: auto-detect latest).
+        season: Override season number (default: auto-detect from name). Also works for already subscribed bangumi.
     """
-    return ctl.add(name=name, episode=episode)
+    return ctl.add(name=name, episode=episode, season=season)
 
 
 @mcp.tool()
@@ -170,7 +171,6 @@ def set_filter(
     include: Optional[str] = None,
     exclude: Optional[str] = None,
     regex: Optional[str] = None,
-    season: Optional[int] = None,
 ) -> Dict[str, Any]:
     """Set download filter for a bangumi.
 
@@ -180,7 +180,6 @@ def set_filter(
         include: Comma-separated keywords that must appear in title.
         exclude: Comma-separated keywords that must NOT appear in title.
         regex: Regex pattern for title filtering.
-        season: Override the season number for this bangumi.
     """
     return ctl.filter_(
         name=name,
@@ -188,7 +187,6 @@ def set_filter(
         include=include,
         exclude=exclude,
         regex=regex,
-        season=season,
     )
 
 
