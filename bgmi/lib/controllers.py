@@ -386,8 +386,9 @@ def download_episodes(all_episode_data: List[Episode], following: Union[Followed
     updated = False
 
     for ep, episodes in sorted(groups.items()):
+        if ep <= 0:
+            continue
         if ep in following.episodes:
-            # already downloaded, skipping
             continue
 
         print_success(f"{following.bangumi_name} updated, episode: {ep:d}")
