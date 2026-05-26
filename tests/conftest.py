@@ -51,10 +51,14 @@ def ensure_example_script():
 
 @pytest.fixture()
 def data_source_bangumi_name():
+    from bgmi.lib.fetch import website
+
+    bangumi_list = website.fetch_bangumi_calendar()
+    names = [b.name for b in bangumi_list[:2]] if len(bangumi_list) >= 2 else ["妖精的尾巴", "全力兔"]
     return {
-        "bangumi_moe": ["名侦探柯南", "妖精的尾巴"],
-        "mikan_project": ["名侦探柯南", "海贼王"],
-        "dmhy": ["名偵探柯南", "海賊王"],
+        "bangumi_moe": names,
+        "mikan_project": names,
+        "dmhy": names,
     }
 
 

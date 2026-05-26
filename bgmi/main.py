@@ -474,6 +474,7 @@ def fetch(name: str, not_ignore: bool) -> None:
 
     if not data:
         print_warning("Nothing.")
+        return
 
     max_episode = max(i.episode for i in data)
     digest = len(str(max_episode))

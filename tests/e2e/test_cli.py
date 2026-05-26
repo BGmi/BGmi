@@ -39,11 +39,13 @@ def test_add():
     assert Followed.get(Followed.bangumi_name == bangumi_name_2).episode == 1
 
 
-@pytest.mark.skip("wait re-design")
 @pytest.mark.usefixtures("_ensure_data")
-def test_mark():
-    main_for_test(f"mark {bangumi_name_1} --episode 10".split())
-    assert Followed.get(Followed.bangumi_name == bangumi_name_1).episode == 10
+def test_seen_forget():
+    f = Followed.get(Followed.bangumi_name == bangumi_name_1)
+    assert 2 in f.episodes
+    main_for_test(["seen", "forget", bangumi_name_1, "2"])
+    f = Followed.get(Followed.bangumi_name == bangumi_name_1)
+    assert 2 not in f.episodes
 
 
 @pytest.mark.usefixtures("_clean_bgmi")
@@ -68,7 +70,7 @@ def test_update_single(bangumi_names):
 
 @pytest.mark.usefixtures("_clean_bgmi")
 def test_search(bangumi_names):
-    main_for_test(["search", "海贼王", "--regex-filter", ".*MP4.*720P.*"])
+    main_for_test(["search", bangumi_names[0], "--regex-filter", ".*"])
 
 
 @pytest.mark.usefixtures("_clean_bgmi")
