@@ -582,11 +582,11 @@ class DataSource(BaseWebsite):
 | Tool | 说明 |
 |---|---|
 | `cal` | 获取每周番剧日历 |
-| `list_subscriptions` | 列出所有订阅 |
-| `add` | 订阅番剧（支持 `--season` 设置季度） |
+| `list` | 列出所有订阅 |
+| `add` | 订阅番剧（支持 `season` 设置季度，对已订阅番剧同样有效） |
 | `delete` | 取消订阅 |
 | `search` | 搜索番剧 |
-| `mark` | 标记已看集数 |
+| `seen_forget` | 移除单集下载记录（触发重新下载） |
 | `download` | 手动触发下载 |
 | `get_filter` | 获取过滤器配置 |
 | `set_filter` | 设置过滤器 |

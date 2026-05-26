@@ -55,7 +55,7 @@ def cal(force_update: bool = False) -> Dict[str, Any]:
 
 
 @mcp.tool()
-def list_subscriptions() -> List[Dict[str, Any]]:
+def list() -> List[Dict[str, Any]]:
     """List all currently followed bangumi subscriptions."""
     results = []
     for followed, bangumi in Followed.get_all_followed():
@@ -120,21 +120,24 @@ def search(
 
 
 @mcp.tool()
-def mark(name: str, episode: int) -> Dict[str, Any]:
-    """Mark a bangumi as watched up to a specific episode.
+def seen_forget(name: str, episode: int) -> Dict[str, Any]:
+    """Remove an episode from download records (triggers re-download on next update).
 
     Args:
         name: Name of the bangumi.
-        episode: Episode number to mark as watched.
+        episode: Episode number to forget.
     """
     try:
         followed = Followed.get(Followed.bangumi_name == name)
     except Followed.NotFoundError:
         return {"status": "error", "message": f"Bangumi {name} is not followed"}
 
-    followed.episodes = set(range(episode + 1))
+    if episode not in followed.episodes:
+        return {"status": "error", "message": f"Episode {episode} is not in download records"}
+
+    followed.episodes.remove(episode)
     followed.save()
-    return {"status": "success", "message": f"Marked {name} up to episode {episode}"}
+    return {"status": "success", "message": f"Forgot episode {episode} of {name}, will re-download on next update"}
 
 
 @mcp.tool()
