@@ -65,8 +65,8 @@ def cli(ctx: click.Context) -> None:
         check_update()
 
 
-@cli.command(help="Install BGmi and frontend")
-@click.option("--no-web", is_flag=True, default=False, help="Do not download web static files")
+@cli.command("install", help="Install BGmi and frontend.")
+@click.option("--no-web", is_flag=True, default=False, help="Do not download web static files.")
 def install(no_web: bool) -> None:
     need_to_init = False
     if not CONFIG_FILE_PATH.exists():
@@ -84,7 +84,7 @@ def install(no_web: bool) -> None:
         get_web_admin(method="install")
 
 
-@cli.command(help="upgrade from previous version")
+@cli.command("upgrade", help="Upgrade from previous version.")
 def upgrade() -> None:
     create_dir()
     update_database()
@@ -92,7 +92,8 @@ def upgrade() -> None:
 
 
 @cli.command(
-    help="Select date source bangumi_moe or mikan_project",
+    "source",
+    help="Select data source bangumi_moe or mikan_project",
 )
 @click.argument("source", required=True, type=click.Choice([x["id"] for x in SUPPORT_WEBSITE]))
 def source_cmd(source: str) -> None:
@@ -163,18 +164,16 @@ def config_get(keys: List[str]) -> None:
     print("config", ".".join(keys), res)
 
 
-@cli.command(help="Search torrents from data source by keyword")
+@cli.command("search", help="Search torrents from data source by keyword.")
 @click.argument("keyword")
-@click.option("--count", type=int, help="The max page count of search result.")
-@click.option("--regex-filter", "regex", help="Regular expression filter of title.")
-@click.option("--download", is_flag=True, show_default=True, default=False, type=bool, help="Download search result.")
-@click.option("--dupe", is_flag=True, show_default=True, default=False, type=bool, help="Show duplicated episode")
-@click.option("--min-episode", "min_episode", type=int, help="Minimum episode filter of title.")
-@click.option("--max-episode", "max_episode", type=int, help="Maximum episode filter of title.")
-@click.option(
-    "--tag", is_flag=True, show_default=True, default=False, help="Use tag to search (if data source supported)."
-)
-@click.option("--subtitle", help="Subtitle group filter of title (Need --tag enabled)")
+@click.option("--count", type=int, help="Max page count of search results.")
+@click.option("--regex-filter", "regex", help="Regular expression filter for title.")
+@click.option("--download", is_flag=True, show_default=True, default=False, type=bool, help="Download search results.")
+@click.option("--dupe", is_flag=True, show_default=True, default=False, type=bool, help="Show duplicated episodes.")
+@click.option("--min-episode", "min_episode", type=int, help="Minimum episode number filter.")
+@click.option("--max-episode", "max_episode", type=int, help="Maximum episode number filter.")
+@click.option("--tag", is_flag=True, show_default=True, default=False, help="Use tag to search (if data source supports).")
+@click.option("--subtitle", help="Subtitle group filter (requires --tag).")
 def search(
     keyword: str,
     count: int,
@@ -216,31 +215,13 @@ def search(
         )
 
 
-@cli.command()
+@cli.command("add", help="Subscribe bangumi.")
 @click.argument("names", nargs=-1)
-@click.option(
-    "--episode",
-    type=int,
-    help="add bangumi and mark it as specified episode",
-)
-@click.option(
-    "--season",
-    type=int,
-    help="set season number (overrides auto-detection, also works for already subscribed bangumi)",
-)
-@click.option(
-    "--save-path",
-    type=str,
-    help="add config.save_path_map for bangumi, example: './{bangumi_name}/S1/' './名侦探柯南/S1/'",
-)
+@click.option("--episode", type=int, help="Set starting episode number.")
+@click.option("--season", type=int, help="Set season number (overrides auto-detection, works for existing subscriptions).")
+@click.option("--save-path", type=str, help="Set save_path_map entry, e.g. './{bangumi_name}/S1/'.")
 def add(names: List[str], episode: Optional[int], season: Optional[int], save_path: Optional[str]) -> None:
-    """
-    subscribe bangumi
-
-    names: list of bangumi names to subscribe
-
-    --save-path 同时修改 config 中的 `save_path_map`。
-    """
+    """Subscribe bangumi."""
     for name in names:
         result = ctl.add(name=name, episode=episode, season=season)
         globals()["print_{}".format(result["status"])](result["message"])
@@ -250,23 +231,21 @@ def add(names: List[str], episode: Optional[int], season: Optional[int], save_pa
 
 
 @cli.command()
-@click.argument("name", nargs=-1)
+@click.argument("names", nargs=-1)
 @click.option(
     "--clear-all",
     "clear",
     is_flag=True,
     default=False,
-    help="Clear all the subscriptions, name will be ignored If you provide this flag",
+    help="Clear all subscriptions (names will be ignored)",
 )
 @click.option("--yes", is_flag=True, default=False, help="No confirmation")
-def delete(name: List[str], clear: bool, yes: bool) -> None:
-    """
-    name: list of bangumi names to unsubscribe
-    """
+def delete(names: List[str], clear: bool, yes: bool) -> None:
+    """Unsubscribe bangumi by name."""
     if clear:
         ctl.delete("", clear_all=clear, batch=yes)
     else:
-        for bangumi_name in name:
+        for bangumi_name in names:
             result = ctl.delete(name=bangumi_name)
             globals()["print_{}".format(result["status"])](result["message"])
 
@@ -287,7 +266,7 @@ def followed_bangumi() -> Dict[str, list]:
     return weekly_list
 
 
-@cli.command("list", help="list subscribed bangumi")
+@cli.command("list", help="List subscribed bangumi.")
 def list_command() -> None:
     weekday_order = BANGUMI_UPDATE_TIME
     followed = followed_bangumi()
@@ -320,15 +299,12 @@ def list_command() -> None:
     print(s)
 
 
-@cli.command("filter", help="set bangumi episode filters")
+@cli.command("filter", help="Set download filters for a bangumi.")
 @click.argument("name", required=True)
-@click.option("--subtitle", help='Subtitle group name, split by ",".')
-@click.option(
-    "--include",
-    help='Filter by keywords which in the title, split by ",".',
-)
-@click.option("--exclude", help='Filter by keywords which not int the title, split by ",".')
-@click.option("--regex", help="Filter by regular expression")
+@click.option("--subtitle", help='Subtitle group names, comma-separated.')
+@click.option("--include", help='Include keywords in title, comma-separated.')
+@click.option("--exclude", help='Exclude keywords from title, comma-separated.')
+@click.option("--regex", help="Filter by regular expression.")
 def filter_cmd(
     name: str,
     subtitle: Optional[str],
@@ -336,9 +312,7 @@ def filter_cmd(
     include: Optional[str],
     exclude: Optional[str],
 ) -> None:
-    """
-    name: bangumi name to update filter
-    """
+    """Set download filters for a bangumi."""
     result = ctl.filter_(
         name=name,
         subtitle=subtitle,
@@ -475,15 +449,11 @@ def calendar(force_update: bool, today: bool, download_cover: bool) -> None:
             print()
 
 
-@cli.command("fetch")
+@cli.command("fetch", help="Fetch episode list for a subscribed bangumi.")
 @click.argument("name")
-@click.option(
-    "--not-ignore", "not_ignore", is_flag=True, help="Do not ignore the old bangumi detail rows (3 month ago)"
-)
+@click.option("--not-ignore", "not_ignore", is_flag=True, help="Include old rows (older than 3 months).")
 def fetch(name: str, not_ignore: bool) -> None:
-    """
-    name: bangumi name to fetch
-    """
+    """Fetch episode list for a subscribed bangumi."""
 
     try:
         bangumi_obj = Bangumi.get(Bangumi.name == name)
@@ -511,29 +481,19 @@ def fetch(name: str, not_ignore: bool) -> None:
         print(f"{episode} | {i.title}")
 
 
-@cli.command("update", help="Update bangumi calendar and subscribed bangumi episode.")
+@cli.command("update", help="Update bangumi calendar and download new episodes.")
 @click.argument(
     "names",
     nargs=-1,
 )
 @click.option(
-    "-d",
-    "--download",
-    type=bool,
-    is_flag=True,
-    default=True,
-    help="Download specified episode of the bangumi when updated",
-)
-@click.option(
     "--not-ignore", "not_ignore", is_flag=True, help="Do not ignore the old bangumi detail rows (3 month ago)"
 )
-def update(names: List[str], download: bool, not_ignore: bool) -> None:
-    """
-    name: optional bangumi name list you want to update
-    """
-    ctl.update(names, download=download, not_ignore=not_ignore)
+def update(names: List[str], not_ignore: bool) -> None:
+    """Update subscribed bangumi and download new episodes."""
+    ctl.update(names, download=True, not_ignore=not_ignore)
 
-    if download and cfg.enable_path_formatter:
+    if cfg.enable_path_formatter:
         from bgmi.lib.postprocessor import process_completed_downloads
 
         process_completed_downloads()
@@ -572,7 +532,7 @@ template = {
 }
 
 
-@cli.command("gen")
+@cli.command("gen", help="Generate config file from template.")
 @click.argument("tpl", type=click.Choice(["nginx.conf"]))
 @click.option("--server-name", "server_name")
 def generate_config(tpl: str, server_name: str) -> None:
@@ -592,7 +552,7 @@ def generate_config(tpl: str, server_name: str) -> None:
         print(template_with_content)
 
 
-@cli.command("history", help="list your history of following bangumi")
+@cli.command("history", help="List your bangumi subscription history.")
 def history() -> None:
     m = (
         "January",
@@ -654,7 +614,7 @@ def debug_info() -> None:
     print(f"arch: `{platform.architecture()}`")
 
 
-@cli.command("postprocess", help="Process completed downloads and move to formatted paths")
+@cli.command("postprocess", help="Process completed downloads and move to formatted paths.")
 def postprocess() -> None:
     from bgmi.lib.postprocessor import process_completed_downloads
 
@@ -668,11 +628,11 @@ def completion(shell: str) -> None:
     print(completer.render(shell))
 
 
-@cli.group("seen", help="manage downloaded episodes")
+@cli.group("seen", help="Manage downloaded episode records.")
 def seen() -> None: ...
 
 
-@seen.command("forget", help="mark episodes of bangumi as non-downloaded")
+@seen.command("forget", help="Remove an episode from download records (triggers re-download on next update).")
 @click.argument("name", required=True)
 @click.argument("episode", required=True, type=int)
 def seen_forget(name: str, episode: int) -> None:
