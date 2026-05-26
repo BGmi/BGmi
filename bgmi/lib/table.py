@@ -138,9 +138,10 @@ class Bangumi(Base):
 
         weekly_list = defaultdict(list)
         for bangumi_item, followed_status, episode in data:
-            weekly_list[bangumi_item.update_day.lower()].append(
-                {**bangumi_item.__dict__, "status": followed_status, "episode": max(episode) if episode else None}
-            )
+            d = {k: v for k, v in bangumi_item.__dict__.items() if not k.startswith("_")}
+            d["status"] = followed_status
+            d["episode"] = max(episode) if episode else None
+            weekly_list[bangumi_item.update_day.lower()].append(d)
 
         return weekly_list
 
