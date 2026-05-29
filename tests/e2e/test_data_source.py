@@ -37,7 +37,7 @@ def test_search(source, data_source_bangumi_name):
     pytest.fail(f"search_by_keyword returned empty for all {len(names)} names on {source}: {names}")
 
 
-@pytest.mark.parametrize("source", [k for k in DATA_SOURCE_MAP if k != "dmhy"])
+@pytest.mark.parametrize("source", DATA_SOURCE_MAP.keys())
 def test_search_tag(source, data_source_subtitle_name):
     w = DATA_SOURCE_MAP[source]()
 
