@@ -71,9 +71,8 @@ def move_to_formatted_path(dl: Download, files: List[str]) -> bool:
     )
     target.parent.mkdir(parents=True, exist_ok=True)
 
-    logger.info("Moving {} -> {}", src, target)
+    print_success(f"Moving {src} -> {target}")
     shutil.move(str(src), str(target))
-    print_success(f"Moved: {src.name} -> {target}")
     return True
 
 
