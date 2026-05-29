@@ -17,14 +17,17 @@ class DelugeRPC(BaseDownloadService):
         pass
 
     def get_status(self, id: str) -> DownloadStatus:
-        status = self._call("web.get_torrent_status", [id, ["state"]])
+        status = self._call("web.get_torrent_status", [id, ["state", "progress"]])
 
+        state = status["state"]
+        if state == "Paused":
+            return DownloadStatus.done if status.get("progress") == 100 else DownloadStatus.not_downloading
         return {
             "Error": DownloadStatus.error,
             "Downloading": DownloadStatus.downloading,
-            "Paused": DownloadStatus.not_downloading,
+            "Checking": DownloadStatus.downloading,
             "Seeding": DownloadStatus.done,
-        }.get(status["state"], DownloadStatus.error)
+        }.get(state, DownloadStatus.error)
 
     def add_download(self, url: str, save_path: str):
         options = {
