@@ -64,7 +64,7 @@ def test_update_script():
 @pytest.mark.usefixtures("_clean_bgmi")
 def test_update_single(bangumi_names):
     name = bangumi_names[0]
-    main_for_test(f"add {name}".split())
+    main_for_test(["add", name])
     main_for_test(["update", name])
 
 
@@ -83,8 +83,8 @@ def test_search_tag(bangumi_names, bangumi_subtitles):
 @pytest.mark.usefixtures("_clean_bgmi")
 def test_delete(bangumi_names):
     name = bangumi_names[0]
-    main_for_test(f"add {name} --episode 0".split())
-    main_for_test(f"delete {name}".split())
+    main_for_test(["add", name, "--episode", "0"])
+    main_for_test(["delete", name])
 
 
 @pytest.mark.usefixtures("_clean_bgmi")
@@ -96,7 +96,7 @@ def test_delete_batch(bangumi_names):
 @pytest.mark.usefixtures("_clean_bgmi")
 def test_filter(bangumi_names):
     name = bangumi_names[0]
-    main_for_test(f"add {name} --episode 0".split())
+    main_for_test(["add", name, "--episode", "0"])
     main_for_test(["filter", name, "--subtitle", "", "--exclude", "MKV", "--regex", "720p|720P"])
     f = Followed.get(Followed.bangumi_name == name)
     assert not f.include
@@ -106,5 +106,5 @@ def test_filter(bangumi_names):
 @pytest.mark.usefixtures("_clean_bgmi")
 def test_fetch(bangumi_names):
     name = bangumi_names[0]
-    main_for_test(f"add {name} --episode 0".split())
-    main_for_test(f"fetch {name}".split())
+    main_for_test(["add", name, "--episode", "0"])
+    main_for_test(["fetch", name])
