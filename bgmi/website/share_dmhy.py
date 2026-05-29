@@ -192,14 +192,30 @@ class DmhySource(BaseWebsite):
 
         return bangumi_list
 
+    def _resolve_team_id(self, subtitle_name):
+        """Look up team_id from calendar data by subtitle group name."""
+        bangumi_list = self.fetch_bangumi_calendar()
+        for b in bangumi_list:
+            for sg in b.subtitle_group:
+                if sg.name == subtitle_name:
+                    return sg.id
+        return None
+
     def search_by_tag(self, tag, subtitle=None, count=None):
         if count is None:
             count = 3
 
         result = []
         search_url = base_url + "/topics/list/"
+
+        team_id = None
+        if subtitle:
+            team_id = self._resolve_team_id(subtitle)
+
         for i in range(count):
             params = {"keyword": tag, "page": i + 1}
+            if team_id:
+                params["team_id"] = team_id
             r = fetch_url(search_url, params=params)
             if not r:
                 break
@@ -221,22 +237,19 @@ class DmhySource(BaseWebsite):
                 episode = self.parse_episode(title)
                 t = int(time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M")))
 
-                subtitle_group_name = ""
+                subtitle_group = ""
                 tag_list = td_list[2].find_all("span", {"class": "tag"})
                 for span_tag in tag_list:
                     a = span_tag.find("a")
                     if a:
-                        subtitle_group_name = a.get_text(strip=True)
+                        subtitle_group = a.get_text(strip=True)
                         break
-
-                if subtitle and subtitle not in subtitle_group_name:
-                    continue
 
                 result.append(
                     Episode(
                         name=tag,
                         title=title,
-                        subtitle_group=subtitle_group_name,
+                        subtitle_group=subtitle_group,
                         download=download,
                         episode=episode,
                         time=t,
