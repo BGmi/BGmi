@@ -19,6 +19,9 @@ class DelugeRPC(BaseDownloadService):
     def get_status(self, id: str) -> DownloadStatus:
         status = self._call("web.get_torrent_status", [id, ["state", "progress"]])
 
+        if not status or "state" not in status:
+            return DownloadStatus.not_found
+
         state = status["state"]
         if state == "Paused":
             return DownloadStatus.done if status.get("progress") == 100 else DownloadStatus.not_downloading
@@ -35,6 +38,8 @@ class DelugeRPC(BaseDownloadService):
             "move_completed": False,
             "download_location": save_path,
         }
+        if url.startswith("magnet:"):
+            return self._call("core.add_torrent_magnet", [url, options])
         return self._call("core.add_torrent_url", [url, options])
 
     def get_files(self, id: str) -> List[str]:
