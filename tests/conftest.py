@@ -50,24 +50,44 @@ def ensure_example_script():
 
 
 @pytest.fixture()
-def data_source_bangumi_name():
-    from bgmi.lib.fetch import website
+def _calendar_cache():
+    """Fetch calendar once per source, shared across fixtures."""
+    import random
 
-    bangumi_list = website.fetch_bangumi_calendar()
-    names = [b.name for b in bangumi_list[:2]] if len(bangumi_list) >= 2 else ["妖精的尾巴", "全力兔"]
-    return {
-        "bangumi_moe": names,
-        "mikan_project": names,
-        "dmhy": names,
-    }
+    from bgmi.lib.fetch import DATA_SOURCE_MAP
+
+    cache = {}
+    for source_name, source_cls in DATA_SOURCE_MAP.items():
+        bangumi_list = source_cls().fetch_bangumi_calendar()
+        assert bangumi_list, f"Calendar fetch returned empty for {source_name}"
+        random.shuffle(bangumi_list)
+        cache[source_name] = bangumi_list
+    return cache
 
 
 @pytest.fixture()
-def data_source_subtitle_name():
-    return {
-        "bangumi_moe": ["LoliHouse"],
-        "mikan_project": ["LoliHouse"],
-    }
+def data_source_bangumi_name(_calendar_cache):
+    return {source: [b.name for b in bl[:5]] for source, bl in _calendar_cache.items()}
+
+
+@pytest.fixture()
+def data_source_subtitle_name(_calendar_cache):
+    from bgmi.lib.fetch import DATA_SOURCE_MAP
+
+    result = {}
+    for source_name, bangumi_list in _calendar_cache.items():
+        for b in bangumi_list:
+            if b.subtitle_group:
+                result[source_name] = (b.name, b.subtitle_group[0].name)
+                break
+        else:
+            w = DATA_SOURCE_MAP[source_name]()
+            for b in bangumi_list[:3]:
+                info = w.fetch_single_bangumi(b.id)
+                if info and info.subtitle_group:
+                    result[source_name] = (b.name, info.subtitle_group[0].name)
+                    break
+    return result
 
 
 @pytest.fixture()
@@ -86,7 +106,8 @@ def bangumi_names(data_source_bangumi_name):
 
 @pytest.fixture()
 def bangumi_subtitles(data_source_subtitle_name):
-    return data_source_subtitle_name["bangumi_moe"]
+    _, subtitle_name = data_source_subtitle_name["bangumi_moe"]
+    return [subtitle_name]
 
 
 @pytest.fixture()
