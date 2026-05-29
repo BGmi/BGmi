@@ -121,6 +121,8 @@ class TestMoveToFormattedPath:
 
                 mock_followed_obj = mock.Mock()
                 mock_followed_obj.season = 2
+                mock_followed_obj.episode_offset = 0
+                mock_followed_obj.display_name = ""
                 mock_followed.get.return_value = mock_followed_obj
 
                 result = move_to_formatted_path(dl, [str(src_file)])
@@ -160,6 +162,8 @@ class TestMoveToFormattedPath:
 
                 mock_followed_obj = mock.Mock()
                 mock_followed_obj.season = 1
+                mock_followed_obj.episode_offset = 0
+                mock_followed_obj.display_name = ""
                 mock_followed.get.return_value = mock_followed_obj
 
                 result = move_to_formatted_path(dl, [str(sub_file), str(vid1), str(vid2)])
