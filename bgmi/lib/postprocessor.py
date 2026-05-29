@@ -49,8 +49,12 @@ def move_to_formatted_path(dl: Download, files: List[str]) -> bool:
     try:
         followed = Followed.get(Followed.bangumi_name == dl.bangumi_name)
         season = followed.season
+        episode_offset = followed.episode_offset
+        name = followed.display_name or dl.bangumi_name
     except Followed.NotFoundError:
         season = 1
+        episode_offset = 0
+        name = dl.bangumi_name
 
     target_file = _pick_video_file(files)
     if not target_file:
@@ -63,9 +67,9 @@ def move_to_formatted_path(dl: Download, files: List[str]) -> bool:
 
     suffix = src.suffix.lstrip(".")
     target = format_path(
-        bangumi_name=dl.bangumi_name,
+        bangumi_name=name,
         season=season,
-        episode=dl.episode,
+        episode=dl.episode + episode_offset,
         suffix=suffix,
         title=dl.title,
     )

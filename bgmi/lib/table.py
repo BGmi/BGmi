@@ -214,6 +214,8 @@ class Followed(Base):
     exclude: Mapped[List[str]] = Column(sa.JSON, nullable=False, default=[], server_default="[]")  # type: ignore
     regex: Mapped[str] = Column(Text, nullable=False, default="", server_default="")  # type: ignore
     season: Mapped[int] = Column(Integer, nullable=False, default=1, server_default="1")  # type: ignore
+    episode_offset: Mapped[int] = Column(Integer, nullable=False, default=0, server_default="0")  # type: ignore
+    display_name: Mapped[str] = Column(Text, nullable=False, default="", server_default="")  # type: ignore
 
     is_script: Mapped[bool] = Column(sa.Boolean, nullable=False, default=False, server_default="0")  # type: ignore
 

@@ -59,28 +59,40 @@ def list() -> List[Dict[str, Any]]:
     """List all currently followed bangumi subscriptions."""
     results = []
     for followed, bangumi in Followed.get_all_followed():
-        results.append(
-            {
-                "name": followed.bangumi_name,
-                "episode": followed.episode,
-                "status": followed.status,
-                "updated_time": followed.updated_time,
-                "update_day": bangumi.update_day,
-            }
-        )
+        info: Dict[str, Any] = {
+            "name": followed.bangumi_name,
+            "episode": followed.episode,
+            "status": followed.status,
+            "updated_time": followed.updated_time,
+            "update_day": bangumi.update_day,
+            "season": followed.season,
+        }
+        if followed.episode_offset:
+            info["episode_offset"] = followed.episode_offset
+        if followed.display_name:
+            info["display_name"] = followed.display_name
+        results.append(info)
     return results
 
 
 @mcp.tool()
-def add(name: str, episode: Optional[int] = None, season: Optional[int] = None) -> Dict[str, Any]:
+def add(
+    name: str,
+    episode: Optional[int] = None,
+    season: Optional[int] = None,
+    episode_offset: Optional[int] = None,
+    display_name: Optional[str] = None,
+) -> Dict[str, Any]:
     """Subscribe to a bangumi by name.
 
     Args:
         name: Name of the bangumi to subscribe to (fuzzy matched).
         episode: Starting episode number (default: auto-detect latest).
         season: Override season number (default: auto-detect from name). Also works for already subscribed bangumi.
+        episode_offset: Episode number offset for path formatter (e.g. 48 to map EP8 -> EP56).
+        display_name: Override display name in path formatter (e.g. for TMDB matching).
     """
-    return ctl.add(name=name, episode=episode, season=season)
+    return ctl.add(name=name, episode=episode, season=season, episode_offset=episode_offset, display_name=display_name)
 
 
 @mcp.tool()

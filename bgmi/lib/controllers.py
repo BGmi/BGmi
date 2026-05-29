@@ -30,7 +30,13 @@ from bgmi.website.model import Episode
 ControllerResult = Dict[str, Any]
 
 
-def add(name: str, episode: Optional[int] = None, season: Optional[int] = None) -> ControllerResult:
+def add(
+    name: str,
+    episode: Optional[int] = None,
+    season: Optional[int] = None,
+    episode_offset: Optional[int] = None,
+    display_name: Optional[str] = None,
+) -> ControllerResult:
     """
     ret.name :str
     """
@@ -50,6 +56,8 @@ def add(name: str, episode: Optional[int] = None, season: Optional[int] = None) 
         }
         return result
 
+    has_overrides = season is not None or episode_offset is not None or display_name is not None
+
     with Session.begin() as session:
         followed_obj: Optional[Followed] = session.scalar(
             sa.select(Followed).where(Followed.bangumi_name == bangumi_obj.name).limit(1)
@@ -59,14 +67,23 @@ def add(name: str, episode: Optional[int] = None, season: Optional[int] = None) 
             followed_obj = Followed(
                 status=Followed.STATUS_FOLLOWED, bangumi_name=bangumi_obj.name, season=resolved_season
             )
+            if episode_offset is not None:
+                followed_obj.episode_offset = episode_offset
+            if display_name is not None:
+                followed_obj.display_name = display_name
             session.add(followed_obj)
         elif followed_obj.status == Followed.STATUS_FOLLOWED:
-            if season is not None:
-                followed_obj.season = season
+            if has_overrides:
+                if season is not None:
+                    followed_obj.season = season
+                if episode_offset is not None:
+                    followed_obj.episode_offset = episode_offset
+                if display_name is not None:
+                    followed_obj.display_name = display_name
                 session.flush()
                 result = {
                     "status": "success",
-                    "message": f"{bangumi_obj.name} season set to {season}",
+                    "message": f"{bangumi_obj.name} updated",
                 }
                 return result
             result = {
@@ -78,6 +95,10 @@ def add(name: str, episode: Optional[int] = None, season: Optional[int] = None) 
             followed_obj.status = Followed.STATUS_FOLLOWED
             if season is not None:
                 followed_obj.season = season
+            if episode_offset is not None:
+                followed_obj.episode_offset = episode_offset
+            if display_name is not None:
+                followed_obj.display_name = display_name
 
     if episode is None:
         episodes = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)

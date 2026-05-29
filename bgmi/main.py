@@ -224,10 +224,21 @@ def search(
     "--season", type=int, help="Set season number (overrides auto-detection, works for existing subscriptions)."
 )
 @click.option("--save-path", type=str, help="Set save_path_map entry, e.g. './{bangumi_name}/S1/'.")
-def add(names: List[str], episode: Optional[int], season: Optional[int], save_path: Optional[str]) -> None:
+@click.option("--episode-offset", type=int, help="Episode number offset for path formatter (e.g. 48).")
+@click.option("--display-name", type=str, help="Override display name in path formatter (e.g. for TMDB matching).")
+def add(
+    names: List[str],
+    episode: Optional[int],
+    season: Optional[int],
+    save_path: Optional[str],
+    episode_offset: Optional[int],
+    display_name: Optional[str],
+) -> None:
     """Subscribe bangumi."""
     for name in names:
-        result = ctl.add(name=name, episode=episode, season=season)
+        result = ctl.add(
+            name=name, episode=episode, season=season, episode_offset=episode_offset, display_name=display_name
+        )
         globals()["print_{}".format(result["status"])](result["message"])
         if save_path and result["status"] in ["success", "warning"]:
             bangumi = Bangumi.get(Bangumi.name.contains(name))

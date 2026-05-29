@@ -107,6 +107,8 @@ def _migrate_from_v4(db: Path = cfg.db_path) -> None:
                 "exclude" TEXT NOT NULL DEFAULT '[]',
                 regex TEXT NOT NULL DEFAULT '',
                 season INTEGER NOT NULL DEFAULT 1,
+                episode_offset INTEGER NOT NULL DEFAULT 0,
+                display_name TEXT NOT NULL DEFAULT '',
                 is_script INTEGER NOT NULL DEFAULT 0
             )
         """
@@ -245,6 +247,10 @@ def update_database() -> None:
         followed_cols = _get_table_columns(cfg.db_path, "followed")
         if "season" not in followed_cols:
             exec_sql("ALTER TABLE followed ADD COLUMN season INTEGER NOT NULL DEFAULT 1")
+        if "episode_offset" not in followed_cols:
+            exec_sql("ALTER TABLE followed ADD COLUMN episode_offset INTEGER NOT NULL DEFAULT 0")
+        if "display_name" not in followed_cols:
+            exec_sql("ALTER TABLE followed ADD COLUMN display_name TEXT NOT NULL DEFAULT ''")
         download_cols = _get_table_columns(cfg.db_path, "download")
         if "task_id" not in download_cols:
             exec_sql("ALTER TABLE download ADD COLUMN task_id TEXT")
