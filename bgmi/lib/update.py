@@ -191,6 +191,14 @@ def _migrate_from_v4(db: Path = cfg.db_path) -> None:
     _fix_json_column(cursor, "followed", "bangumi_name", '"exclude"')
     cursor.execute("UPDATE followed SET episodes = '[]' WHERE episodes = '' OR episodes IS NULL")
 
+    # Back-fill season numbers from bangumi names
+    from bgmi.lib.season import parse_season
+
+    for row in cursor.execute("SELECT bangumi_name FROM followed").fetchall():
+        detected = parse_season(row[0])
+        if detected != 1:
+            cursor.execute("UPDATE followed SET season = ? WHERE bangumi_name = ?", (detected, row[0]))
+
     conn.commit()
     conn.close()
     print_info("Migration from v4 to v5 completed successfully!")
