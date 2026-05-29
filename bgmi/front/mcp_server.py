@@ -23,7 +23,9 @@ from mcp.server.fastmcp import FastMCP
 from bgmi.config import cfg
 from bgmi.lib import controllers as ctl
 from bgmi.lib.download import download_episode, get_download_driver
-from bgmi.lib.table import Download, Followed
+import sqlalchemy as sa
+
+from bgmi.lib.table import Download, Followed, Session
 from bgmi.website.model import Episode
 
 mcp = FastMCP(
@@ -150,15 +152,16 @@ def seen_forget(name: str, episode: int) -> Dict[str, Any]:
     followed.episodes.remove(episode)
     followed.save()
 
-    reset_count = (
-        Download.update({Download.status: Download.STATUS_NOT_DOWNLOAD, Download.task_id: None})
-        .where(Download.bangumi_name == name, Download.episode == episode)
-        .execute()
-    )
+    with Session.begin() as session:
+        session.execute(
+            sa.update(Download)
+            .where(Download.bangumi_name == name, Download.episode == episode)
+            .values(status=Download.STATUS_NOT_DOWNLOAD, task_id=None)
+        )
 
     return {
         "status": "success",
-        "message": f"Forgot episode {episode} of {name} (reset {reset_count} download records), will re-download on next update",
+        "message": f"Forgot episode {episode} of {name}, download records reset, will re-download on next update",
     }
 
 
