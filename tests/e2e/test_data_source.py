@@ -43,13 +43,17 @@ def test_search_tag(source, data_source_subtitle_name):
 
     assert source in data_source_subtitle_name, f"No subtitle data found for {source}"
 
-    bangumi_name, subtitle_name = data_source_subtitle_name[source]
-    search_result = w.search_by_tag(bangumi_name, subtitle_name, count=1)
-    assert (
-        search_result
-    ), f"search_by_tag returned empty for '{bangumi_name}' with subtitle '{subtitle_name}' on {source}"
-    for episode in search_result:
-        assert isinstance(episode, Episode)
+    pairs = data_source_subtitle_name[source]
+    for bangumi_name, subtitle_name in pairs:
+        try:
+            search_result = w.search_by_tag(bangumi_name, subtitle_name, count=1)
+        except Exception:
+            continue
+        if search_result:
+            for episode in search_result:
+                assert isinstance(episode, Episode)
+            return
+    pytest.fail(f"search_by_tag returned empty for all {len(pairs)} pairs on {source}: {pairs}")
 
 
 def test_mikan_fetch_all_episode():

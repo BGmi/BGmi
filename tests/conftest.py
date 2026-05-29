@@ -76,17 +76,22 @@ def data_source_subtitle_name(_calendar_cache):
 
     result = {}
     for source_name, bangumi_list in _calendar_cache.items():
+        pairs = []
         for b in bangumi_list:
             if b.subtitle_group:
-                result[source_name] = (b.name, b.subtitle_group[0].name)
-                break
-        else:
+                pairs.append((b.name, b.subtitle_group[0].name))
+                if len(pairs) >= 5:
+                    break
+        if not pairs:
             w = DATA_SOURCE_MAP[source_name]()
             for b in bangumi_list[:3]:
                 info = w.fetch_single_bangumi(b.id)
                 if info and info.subtitle_group:
-                    result[source_name] = (b.name, info.subtitle_group[0].name)
-                    break
+                    pairs.append((b.name, info.subtitle_group[0].name))
+                    if len(pairs) >= 5:
+                        break
+        if pairs:
+            result[source_name] = pairs
     return result
 
 
@@ -106,8 +111,7 @@ def bangumi_names(data_source_bangumi_name):
 
 @pytest.fixture()
 def bangumi_subtitles(data_source_subtitle_name):
-    _, subtitle_name = data_source_subtitle_name["bangumi_moe"]
-    return [subtitle_name]
+    return [pair[1] for pair in data_source_subtitle_name["bangumi_moe"][:1]]
 
 
 @pytest.fixture()
