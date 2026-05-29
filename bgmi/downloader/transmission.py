@@ -31,12 +31,13 @@ class TransmissionRPC(BaseDownloadService):
         torrent = self.client.get_torrent(id)
         if torrent.error:
             return DownloadStatus.not_found
+        if torrent.status == "stopped":
+            return DownloadStatus.done if torrent.progress == 100 else DownloadStatus.not_downloading
         return {
             "check pending": DownloadStatus.downloading,
             "checking": DownloadStatus.downloading,
             "downloading": DownloadStatus.downloading,
             "seeding": DownloadStatus.done,
-            "stopped": DownloadStatus.not_downloading,
         }.get(torrent.status, DownloadStatus.error)
 
     def get_files(self, id: str) -> List[str]:
