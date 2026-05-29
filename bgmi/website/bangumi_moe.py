@@ -252,5 +252,35 @@ class BangumiMoe(BaseWebsite):
                 return []
             rows.extend(data["torrents"])
 
+        if not rows:
+            return self._search_by_keyword_via_tag(keyword, count)
+
         result = self.process_search_result(keyword, rows)
         return result
+
+    def _search_by_keyword_via_tag(self, keyword: str, count: int) -> list:
+        """Fallback: resolve keyword to a bangumi tag, then search by tag_id."""
+        data = get_response(SEARCH_TAG_URL, "POST", json={"name": keyword, "keywords": True, "multi": True})
+        if not data.get("success") or not data.get("found"):
+            return []
+
+        tags = data["tag"]
+        if not isinstance(tags, list):
+            tags = [tags]
+        bangumi_tags = [t for t in tags if t.get("type") == "bangumi"]
+        if not bangumi_tags:
+            return []
+
+        tag_id = [bangumi_tags[0]["_id"], BANGUMI_TAG]
+        tag_name = bangumi_tags[0]["name"]
+        rows = []
+
+        for i in range(count):
+            data = get_response(DETAIL_URL, "POST", json={"tag_id": tag_id, "p": i + 1})
+            if "torrents" not in data:
+                return []
+            rows.extend(data["torrents"])
+            if "page_count" in data and data["page_count"] - 1 == i:
+                break
+
+        return self.process_search_result(tag_name, rows)
