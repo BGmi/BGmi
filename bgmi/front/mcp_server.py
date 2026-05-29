@@ -149,7 +149,17 @@ def seen_forget(name: str, episode: int) -> Dict[str, Any]:
 
     followed.episodes.remove(episode)
     followed.save()
-    return {"status": "success", "message": f"Forgot episode {episode} of {name}, will re-download on next update"}
+
+    reset_count = (
+        Download.update({Download.status: Download.STATUS_NOT_DOWNLOAD, Download.task_id: None})
+        .where(Download.bangumi_name == name, Download.episode == episode)
+        .execute()
+    )
+
+    return {
+        "status": "success",
+        "message": f"Forgot episode {episode} of {name} (reset {reset_count} download records), will re-download on next update",
+    }
 
 
 @mcp.tool()

@@ -96,8 +96,9 @@ def download_episode(e: Episode) -> bool:
             download=e.download,
             episode=e.episode,
             title=e.title,
-            status=Download.STATUS_DOWNLOADING,
         )
+
+    download.status = Download.STATUS_DOWNLOADING
 
     try:
         task_id = driver.add_download(url=add_tracker(download.download), save_path=str(save_path))
