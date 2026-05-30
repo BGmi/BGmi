@@ -203,6 +203,14 @@ def _migrate_from_v4(db: Path = cfg.db_path) -> None:
 
     conn.commit()
     conn.close()
+
+    # Rename cover directory to .cover
+    old_cover = Path(cfg.save_path) / "cover"
+    new_cover = Path(cfg.save_path) / ".cover"
+    if old_cover.is_dir() and not new_cover.exists():
+        old_cover.rename(new_cover)
+        print_info(f"Renamed cover directory: {old_cover} -> {new_cover}")
+
     print_info("Migration from v4 to v5 completed successfully!")
 
     # Refresh bangumi IDs from data source (v4 stored local auto-increment IDs)
