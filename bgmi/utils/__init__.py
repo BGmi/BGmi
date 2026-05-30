@@ -250,7 +250,7 @@ def convert_cover_url_to_path(cover_url: str) -> Tuple[str, str]:
     """
 
     cover_url = normalize_path(cover_url)
-    file_path = os.path.join(cfg.save_path, "cover")
+    file_path = os.path.join(cfg.save_path, ".cover")
     file_path = os.path.join(file_path, cover_url)
     dir_path = os.path.dirname(file_path)
 

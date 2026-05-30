@@ -14,7 +14,7 @@ from bgmi.utils import normalize_path
 
 app = fastapi.FastAPI(docs_url="/")
 
-COVER_URL = "/bangumi/cover"
+COVER_URL = "/bangumi/.cover"
 WEEK = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
 
