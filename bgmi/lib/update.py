@@ -263,6 +263,18 @@ def update_database() -> None:
         if "task_id" not in download_cols:
             exec_sql("ALTER TABLE download ADD COLUMN task_id TEXT")
 
+    # Ensure scripts table has all expected columns
+    scripts_cols = _get_table_columns(cfg.db_path, "scripts")
+    if scripts_cols:
+        if "episodes" not in scripts_cols:
+            exec_sql("ALTER TABLE scripts ADD COLUMN episodes TEXT NOT NULL DEFAULT '[]'")
+        if "updated_time" not in scripts_cols:
+            exec_sql("ALTER TABLE scripts ADD COLUMN updated_time INTEGER NOT NULL DEFAULT 0")
+        if "update_day" not in scripts_cols:
+            exec_sql("ALTER TABLE scripts ADD COLUMN update_day TEXT NOT NULL DEFAULT 'Unknown'")
+        if "cover" not in scripts_cols:
+            exec_sql("ALTER TABLE scripts ADD COLUMN cover TEXT NOT NULL DEFAULT ''")
+
     # Check if bangumi IDs are still v4 auto-increment numbers and need refresh
     if cfg.db_path.exists():
         conn = sqlite3.connect(cfg.db_path)
