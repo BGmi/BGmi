@@ -36,6 +36,7 @@ def pytest_sessionstart(session):
 
 def ensure_example_script():
     test_script = "script_example.py"
+    os.makedirs(cfg.script_path, exist_ok=True)
     p = os.listdir(cfg.script_path)
     if test_script not in p:
         print("copy script_example.py to SCRIPT_PATH")
