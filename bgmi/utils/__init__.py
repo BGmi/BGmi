@@ -165,12 +165,19 @@ def check_update(mark: bool = True) -> None:
         pass
 
 
+_separator_episode_pattern = re.compile(r"[★☆](?:第\s*)?(?P<episode>0*[1-9]\d{0,2})(?=[\s(（)）\]】★☆_.])")
+
+
 def parse_episode(episode_title: str) -> int:
     s, c = _parse_episode(episode_title)
-    if c != 1:
+    if c == 1:
+        return s or 0
+
+    fallback = _separator_episode_pattern.search(episode_title)
+    if fallback is None:
         return 0
 
-    return s or 0
+    return int(fallback.group("episode"))
 
 
 _slash_pattern = re.compile(r"/+")
