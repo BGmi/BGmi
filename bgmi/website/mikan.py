@@ -18,6 +18,7 @@ from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
 
 server_root = "https://mikanani.me/"
 login_url = f"{server_root}Account/Login"
+REQUEST_TIMEOUT = 30
 
 _COVER_URL = server_root[:-1]
 
@@ -93,6 +94,7 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
                     "subtitleGroupId": subtitle_id,
                     "take": 200,
                 },
+                timeout=REQUEST_TIMEOUT,
             ).text
             expand_soup = BeautifulSoup(expand_r, "html.parser")
             _container = expand_soup.find("table")  # type: ignore
@@ -149,7 +151,7 @@ def parser_day_bangumi(soup) -> List[WebsiteBangumi]:
 
 
 def mikan_login():
-    r = requests.get(login_url)
+    r = requests.get(login_url, timeout=REQUEST_TIMEOUT)
     soup = BeautifulSoup(r.text, "html.parser")
     token = soup.find("input", attrs={"name": "__RequestVerificationToken"})["value"]
 
@@ -162,6 +164,7 @@ def mikan_login():
         },
         headers={"Referer": server_root},
         allow_redirects=False,
+        timeout=REQUEST_TIMEOUT,
     )
 
     if "&#x767B;&#x5F55;&#x5931;&#x8D25;&#xFF0C;&#x8BF7;&#x91CD;&#x8BD5;" in r.text:  # 实际为 "登录失败，请重试"
@@ -170,10 +173,10 @@ def mikan_login():
 
 def get_text(url, params=None):
     if not cfg.mikan_username or not cfg.mikan_password:
-        return requests.get(url, params=params).text
+        return requests.get(url, params=params, timeout=REQUEST_TIMEOUT).text
 
     for _ in range(2):
-        r = requests.get(url, params=params)
+        r = requests.get(url, params=params, timeout=REQUEST_TIMEOUT)
         if r.headers.get("content-type").startswith("text/html"):
             if "退出" in r.text:
                 return r.text
@@ -201,6 +204,11 @@ class Mikanani(BaseWebsite):
         day = title.find_next_sibling("p", class_="bangumi-info")
         bangumi_info["name"] = title.text
         bangumi_info["update_time"] = _CN_WEEK[day.text[-3:]]
+        cover = left_container.find("img")
+        if cover is not None:
+            cover_url = cover.attrs.get("data-src") or cover.attrs.get("src")
+            if cover_url:
+                bangumi_info["cover"] = str(yarl.URL(server_root).join(yarl.URL(cover_url))).split("?")[0]
 
         ######
         soup = BeautifulSoup(r, "html.parser")
@@ -399,6 +407,7 @@ class Mikanani(BaseWebsite):
             id=bangumi_id,
             status=info["status"],
             update_day=info["update_time"],
+            cover=info.get("cover", ""),
             subtitle_group=info["subtitle_group"],
             episodes=parse_episodes(html, bangumi_id, subtitle_list),
         )

@@ -268,7 +268,11 @@ def download_file(url: str) -> Optional[Response]:
     logger.debug("downloading {}", url)
     if url.startswith(("https://", "http://")):
         print_info(f"Download: {url}")
-        return session.get(url, timeout=60)
+        try:
+            return session.get(url, timeout=60)
+        except requests.exceptions.RequestException as e:
+            print_warning(f"Failed to download {url}: {e}")
+            logger.warning("Failed to download {}: {}", url, e)
     return None
 
 

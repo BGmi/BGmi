@@ -324,15 +324,25 @@ def _cover_needs_download(cover_url: str) -> bool:
 
 
 def _refresh_missing_followed_covers() -> None:
-    for followed, bangumi in Followed.get_all_followed():
-        if bangumi.cover:
+    missing_cover = [(followed, bangumi) for followed, bangumi in Followed.get_all_followed() if not bangumi.cover]
+    if not missing_cover:
+        return
+
+    print_info(f"Refreshing missing covers ({len(missing_cover)} bangumi) ...")
+    for index, (followed, bangumi) in enumerate(missing_cover, start=1):
+        print_info(f"Refreshing cover {index}/{len(missing_cover)}: {bangumi.name}")
+
+        try:
+            info = website.fetch_single_bangumi(
+                bangumi.id,
+                subtitle_list=followed.subtitle,
+                max_page=cfg.max_path,
+            )
+        except Exception as e:
+            print_warning(f"Failed to refresh cover for {bangumi.name}: {e}")
+            logger.warning("Failed to refresh cover for {}: {}", bangumi.name, e)
             continue
 
-        info = website.fetch_single_bangumi(
-            bangumi.id,
-            subtitle_list=followed.subtitle,
-            max_page=cfg.max_path,
-        )
         if info is not None and info.cover:
             website.save_bangumi(info)
 
@@ -362,9 +372,12 @@ def cal(force_update: bool = False, cover: Optional[List[str]] = None) -> Dict[s
                 if _cover_needs_download(bangumi["cover"]):
                     cover_to_be_download.append(bangumi["cover"])
 
+        cover_to_be_download = list(dict.fromkeys(cover_to_be_download))
         if cover_to_be_download:
-            print_info("Updating cover ...")
-            download_cover(list(dict.fromkeys(cover_to_be_download)))
+            print_info(f"Updating cover ({len(cover_to_be_download)} files) ...")
+            download_cover(cover_to_be_download)
+        else:
+            print_info("Cover is up to date.")
 
     runner = ScriptRunner()
     patch_list = runner.get_models_dict()
