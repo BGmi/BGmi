@@ -221,13 +221,17 @@ def cal(force_update: bool = False, cover: Optional[List[str]] = None) -> Dict[s
 
     if cover is not None:
         # download cover to local
-        cover_to_be_download = cover
+        cover_to_be_download = [url for url in cover if url]
         for daily_bangumi in weekly_list.values():
             for bangumi in daily_bangumi:
-                _, file_path = convert_cover_url_to_path(bangumi["cover"])
+                cover_url = bangumi["cover"]
+                if not cover_url:
+                    continue
 
-                if not (os.path.exists(file_path) and filetype.is_image(file_path)):
-                    cover_to_be_download.append(bangumi["cover"])
+                _, file_path = convert_cover_url_to_path(cover_url)
+
+                if not (os.path.isfile(file_path) and filetype.is_image(file_path)):
+                    cover_to_be_download.append(cover_url)
 
         if cover_to_be_download:
             print_info("Updating cover ...")

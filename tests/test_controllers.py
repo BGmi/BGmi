@@ -81,3 +81,35 @@ def test_cal():
             assert "update_day" in bangumi
             assert "cover" in bangumi
             assert "episode" in bangumi
+
+
+def test_cal_download_cover_skips_empty_cover():
+    weekly_list = {
+        "mon": [
+            {
+                "name": "No Cover",
+                "update_day": "Mon",
+                "cover": "",
+                "subtitle_group": [],
+                "status": 0,
+                "episode": 0,
+            }
+        ]
+    }
+
+    with (
+        mock.patch(
+            "bgmi.lib.controllers.Bangumi.get_updating_bangumi",
+            return_value=weekly_list,
+        ),
+        mock.patch("bgmi.lib.controllers.ScriptRunner") as script_runner,
+        mock.patch("bgmi.lib.controllers.filetype.is_image") as is_image,
+        mock.patch("bgmi.lib.controllers.download_cover") as download_cover,
+    ):
+        script_runner.return_value.get_models_dict.return_value = []
+
+        r = cal(cover=[])
+
+    assert r["mon"][0]["cover"] == ""
+    is_image.assert_not_called()
+    download_cover.assert_not_called()

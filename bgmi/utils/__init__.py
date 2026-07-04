@@ -284,6 +284,10 @@ def chunks(iterable: Iterable[T], size: int) -> Iterable[Iterable[T]]:
 
 
 def download_cover(cover_url_list: List[str]) -> None:
+    cover_url_list = [url for url in cover_url_list if url]
+    if not cover_url_list:
+        return
+
     p = ThreadPool(3)
     content_list = []
 
