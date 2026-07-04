@@ -8,6 +8,7 @@ from starlette.exceptions import HTTPException
 from bgmi import __version__
 from bgmi.config import cfg
 from bgmi.front.index import get_player
+from bgmi.lib import controllers as ctl
 from bgmi.lib import table
 from bgmi.lib.table import Followed, NotFoundError, Scripts, Session
 from bgmi.utils import normalize_path
@@ -324,6 +325,25 @@ def update_filter(
     return {}
 
 
+@admin.get(
+    "/seen/{bangumi}",
+    responses={
+        200: {"description": "成功"},
+        404: {"description": "番剧未订阅"},
+    },
+)
+def seen(bangumi: str = fastapi.Path()) -> Any:
+    result = ctl.seen(bangumi)
+    if result["status"] != "success":
+        raise HTTPException(404, result["message"])
+
+    return {
+        "bangumi": result["bangumi"],
+        "total_episode": result["total_episode"],
+        "seen": result["seen"],
+    }
+
+
 @admin.post(
     "/seen_forget",
     responses={
@@ -335,19 +355,37 @@ def seen_forget(
     bangumi: str = fastapi.Body(embed=True),
     episode: int = fastapi.Body(embed=True),
 ) -> Any:
-    try:
-        f = table.Followed.get(
-            table.Followed.bangumi_name == bangumi, table.Followed.status.isnot(table.Followed.STATUS_DELETED)
-        )
-    except NotFoundError as e:
-        raise HTTPException(404, "bangumi not followed") from e
+    result = ctl.seen_forget(bangumi, episode)
+    if result["status"] != "success":
+        raise HTTPException(404, result["message"])
 
-    if episode not in f.episodes:
-        raise HTTPException(404, f"episode {episode} not in download records")
+    return {
+        "bangumi": result["bangumi"],
+        "episode": result["episode"],
+        "seen": result["seen"],
+    }
 
-    f.episodes.remove(episode)
-    f.save()
-    return {}
+
+@admin.post(
+    "/seen_mark",
+    responses={
+        200: {"description": "成功"},
+        404: {"description": "番剧未订阅"},
+    },
+)
+def seen_mark(
+    bangumi: str = fastapi.Body(embed=True),
+    episode: int = fastapi.Body(embed=True),
+) -> Any:
+    result = ctl.seen_mark(bangumi, episode)
+    if result["status"] != "success":
+        raise HTTPException(404, result["message"])
+
+    return {
+        "bangumi": result["bangumi"],
+        "episode": result["episode"],
+        "seen": result["seen"],
+    }
 
 
 app.include_router(admin, prefix="/admin")

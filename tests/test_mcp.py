@@ -51,6 +51,13 @@ class TestMcpTools:
         f = Followed.get(Followed.bangumi_name == bangumi_1)
         assert "1080p" in f.include
 
+    def test_seen(self):
+        result = mcp_server.seen(name=bangumi_1)
+        assert result["status"] == "success"
+        assert result["bangumi"] == bangumi_1
+        assert result["total_episode"] == 2
+        assert result["seen"] == [1, 2]
+
     def test_seen_forget(self):
         result = mcp_server.seen_forget(name=bangumi_1, episode=2)
         assert result["status"] == "success"
@@ -64,6 +71,18 @@ class TestMcpTools:
 
     def test_seen_forget_bangumi_not_followed(self):
         result = mcp_server.seen_forget(name="不存在的番", episode=1)
+        assert result["status"] == "error"
+
+    def test_seen_mark(self):
+        result = mcp_server.seen_mark(name=bangumi_1, episode=3)
+        assert result["status"] == "success"
+        f = Followed.get(Followed.bangumi_name == bangumi_1)
+        assert 1 in f.episodes
+        assert 2 in f.episodes
+        assert 3 in f.episodes
+
+    def test_seen_mark_bangumi_not_followed(self):
+        result = mcp_server.seen_mark(name="不存在的番", episode=1)
         assert result["status"] == "error"
 
     def test_get_config(self):

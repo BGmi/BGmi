@@ -23,9 +23,8 @@ from mcp.server.fastmcp import FastMCP
 from bgmi.config import cfg
 from bgmi.lib import controllers as ctl
 from bgmi.lib.download import download_episode, get_download_driver
-import sqlalchemy as sa
 
-from bgmi.lib.table import Download, Followed, Session
+from bgmi.lib.table import Download, Followed
 from bgmi.website.model import Episode
 
 mcp = FastMCP(
@@ -134,6 +133,16 @@ def search(
 
 
 @mcp.tool()
+def seen(name: str) -> Dict[str, Any]:
+    """Get downloaded episode records for a followed bangumi.
+
+    Args:
+        name: Name of the bangumi.
+    """
+    return ctl.seen(name)
+
+
+@mcp.tool()
 def seen_forget(name: str, episode: int) -> Dict[str, Any]:
     """Remove an episode from download records (triggers re-download on next update).
 
@@ -141,28 +150,18 @@ def seen_forget(name: str, episode: int) -> Dict[str, Any]:
         name: Name of the bangumi.
         episode: Episode number to forget.
     """
-    try:
-        followed = Followed.get(Followed.bangumi_name == name)
-    except Followed.NotFoundError:
-        return {"status": "error", "message": f"Bangumi {name} is not followed"}
+    return ctl.seen_forget(name, episode)
 
-    if episode not in followed.episodes:
-        return {"status": "error", "message": f"Episode {episode} is not in download records"}
 
-    followed.episodes.remove(episode)
-    followed.save()
+@mcp.tool()
+def seen_mark(name: str, episode: int) -> Dict[str, Any]:
+    """Add an episode to download records (marks it as seen).
 
-    with Session.begin() as session:
-        session.execute(
-            sa.update(Download)
-            .where(Download.bangumi_name == name, Download.episode == episode)
-            .values(status=Download.STATUS_NOT_DOWNLOAD, task_id=None)
-        )
-
-    return {
-        "status": "success",
-        "message": f"Forgot episode {episode} of {name}, download records reset, will re-download on next update",
-    }
+    Args:
+        name: Name of the bangumi.
+        episode: Episode number to mark as seen.
+    """
+    return ctl.seen_mark(name, episode)
 
 
 @mcp.tool()

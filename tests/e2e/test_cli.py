@@ -48,6 +48,15 @@ def test_seen_forget():
     assert 2 not in f.episodes
 
 
+@pytest.mark.usefixtures("_ensure_data")
+def test_seen_mark():
+    f = Followed.get(Followed.bangumi_name == bangumi_name_1)
+    assert 3 not in f.episodes
+    main_for_test(["seen", "mark", bangumi_name_1, "3"])
+    f = Followed.get(Followed.bangumi_name == bangumi_name_1)
+    assert 3 in f.episodes
+
+
 @pytest.mark.usefixtures("_clean_bgmi")
 def test_update(bangumi_names):
     main_for_test(["add", *bangumi_names])

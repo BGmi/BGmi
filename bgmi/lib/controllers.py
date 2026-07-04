@@ -205,6 +205,116 @@ def delete(name: str = "", clear_all: bool = False, batch: bool = False) -> Cont
     return result
 
 
+def _seen_payload(followed: Followed, episode: Optional[int] = None) -> ControllerResult:
+    episodes = sorted(followed.episodes)
+    total_candidates = episodes.copy()
+    if episode is not None:
+        total_candidates.append(episode)
+
+    with Session.begin() as session:
+        max_download_episode = session.scalar(
+            sa.select(sa.func.max(Download.episode)).where(Download.bangumi_name == followed.bangumi_name)
+        )
+    if max_download_episode:
+        total_candidates.append(max_download_episode)
+
+    return {
+        "bangumi": followed.bangumi_name,
+        "total_episode": max(total_candidates) if total_candidates else 0,
+        "seen": episodes,
+    }
+
+
+def seen(name: str) -> ControllerResult:
+    """Get downloaded episode records for a followed bangumi."""
+    try:
+        followed = Followed.get(
+            Followed.bangumi_name == name,
+            Followed.status.isnot(Followed.STATUS_DELETED),
+        )
+    except Followed.NotFoundError:
+        return {"status": "error", "message": f"{name} is not followed"}
+
+    return {
+        "status": "success",
+        "message": f"Got seen episodes of {name}",
+        **_seen_payload(followed),
+    }
+
+
+def seen_forget(name: str, episode: int) -> ControllerResult:
+    """Remove an episode from downloaded records so it can be downloaded again."""
+    if episode <= 0:
+        return {"status": "error", "message": "episode should be greater than 0"}
+
+    try:
+        followed = Followed.get(
+            Followed.bangumi_name == name,
+            Followed.status.isnot(Followed.STATUS_DELETED),
+        )
+    except Followed.NotFoundError:
+        return {"status": "error", "message": f"{name} is not followed"}
+
+    if episode not in followed.episodes:
+        return {"status": "error", "message": f"episode {episode} is not in download records"}
+
+    followed.episodes.remove(episode)
+    followed.save()
+
+    with Session.begin() as session:
+        session.execute(
+            sa.update(Download)
+            .where(Download.bangumi_name == name, Download.episode == episode)
+            .values(status=Download.STATUS_NOT_DOWNLOAD, task_id=None)
+        )
+
+    return {
+        "status": "success",
+        "message": f"Forgot episode {episode} of {name}; it will be downloaded on next update",
+        "episode": episode,
+        **_seen_payload(followed, episode=episode),
+    }
+
+
+def seen_mark(name: str, episode: int) -> ControllerResult:
+    """Add an episode to downloaded records so update will treat it as seen."""
+    if episode <= 0:
+        return {"status": "error", "message": "episode should be greater than 0"}
+
+    try:
+        followed = Followed.get(
+            Followed.bangumi_name == name,
+            Followed.status.isnot(Followed.STATUS_DELETED),
+        )
+    except Followed.NotFoundError:
+        return {"status": "error", "message": f"{name} is not followed"}
+
+    if episode in followed.episodes:
+        return {
+            "status": "success",
+            "message": f"episode {episode} of {name} is already marked as seen",
+            "episode": episode,
+            **_seen_payload(followed, episode=episode),
+        }
+
+    followed.episodes.add(episode)
+    followed.save()
+
+    with Session.begin() as session:
+        session.execute(
+            sa.update(Download)
+            .where(Download.bangumi_name == name, Download.episode == episode)
+            .values(status=Download.STATUS_DOWNLOADED, task_id=None)
+        )
+
+    return {
+        "status": "success",
+        "message": f"Marked episode {episode} of {name} as seen",
+        "episode": episode,
+        **_seen_payload(followed, episode=episode),
+    }
+
+
 def cal(force_update: bool = False, cover: Optional[List[str]] = None) -> Dict[str, List[Dict[str, Any]]]:
     logger.debug("cal force_update: {}", force_update)
 

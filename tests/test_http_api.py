@@ -71,6 +71,17 @@ def test_delete_not_found():
 
 
 @pytest.mark.usefixtures("_ensure_data")
+def test_seen():
+    r = client.get(f"/api/admin/seen/{quote(bangumi_1)}", headers=headers)
+    assert r.status_code == 200, r.text
+    assert r.json() == {
+        "bangumi": bangumi_1,
+        "total_episode": 2,
+        "seen": [1, 2],
+    }
+
+
+@pytest.mark.usefixtures("_ensure_data")
 def test_seen_forget():
     r = client.post(
         "/api/admin/seen_forget",
@@ -78,6 +89,11 @@ def test_seen_forget():
         json={"bangumi": bangumi_1, "episode": 2},
     )
     assert r.status_code == 200, r.text
+    assert r.json() == {
+        "bangumi": bangumi_1,
+        "episode": 2,
+        "seen": [1],
+    }
     f = Followed.get(Followed.bangumi_name == bangumi_1)
     assert 2 not in f.episodes
     assert 1 in f.episodes
@@ -91,6 +107,25 @@ def test_seen_forget_not_found():
         json={"bangumi": bangumi_1, "episode": 999},
     )
     assert r.status_code == 404
+
+
+@pytest.mark.usefixtures("_ensure_data")
+def test_seen_mark():
+    r = client.post(
+        "/api/admin/seen_mark",
+        headers=headers,
+        json={"bangumi": bangumi_1, "episode": 3},
+    )
+    assert r.status_code == 200, r.text
+    assert r.json() == {
+        "bangumi": bangumi_1,
+        "episode": 3,
+        "seen": [1, 2, 3],
+    }
+    f = Followed.get(Followed.bangumi_name == bangumi_1)
+    assert 1 in f.episodes
+    assert 2 in f.episodes
+    assert 3 in f.episodes
 
 
 @pytest.mark.usefixtures("_ensure_data")

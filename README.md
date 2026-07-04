@@ -21,7 +21,7 @@ v5 改为**集合模型**：BGmi 独立记录每一集的下载状态。某集�
 这一变更带来以下影响：
 
 - 移除 `mark` 命令（标量模型的产物，不再需要）。
-- 新增 `seen forget` 命令，精确移除单集下载记录。
+- 新增 `seen forget` / `seen mark` 命令，精确移除或添加单集下载记录。
 - `update` 命令总是执行下载，移除了已废弃的 `--download` 参数。
 
 #### 新功能
@@ -313,11 +313,12 @@ bgmi update "从零开始的魔法书"
 
 ### 管理已下载集数
 
-v5 会自动记录所有已下载的集数。如果某集下载失败需要重新下载，使用 `seen forget` 移除该集的记录，然后重新 `update`：
+v5 会自动记录所有已下载的集数。如果某集下载失败需要重新下载，使用 `seen forget` 移除该集的记录，然后重新 `update`。如果你已经手动处理了某集，也可以用 `seen mark` 将它加入已下载记录：
 
 ```bash
 bgmi seen forget "Re:CREATORS" 5
 bgmi update "Re:CREATORS"
+bgmi seen mark "Re:CREATORS" 6
 ```
 
 ## 过滤器
@@ -586,7 +587,9 @@ class DataSource(BaseWebsite):
 | `add` | 订阅番剧（支持 `season` 设置季度，对已订阅番剧同样有效） |
 | `delete` | 取消订阅 |
 | `search` | 搜索番剧 |
+| `seen` | 获取已观看集数列表 |
 | `seen_forget` | 移除单集下载记录（触发重新下载） |
+| `seen_mark` | 添加单集下载记录（标记为已观看） |
 | `download` | 手动触发下载 |
 | `get_filter` | 获取过滤器配置 |
 | `set_filter` | 设置过滤器 |

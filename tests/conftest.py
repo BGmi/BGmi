@@ -12,6 +12,7 @@ from bgmi.lib.table import (
     Bangumi,
     Followed,
     Session,
+    Scripts,
     Subtitle,
     recreate_scripts_table,
     recreate_source_relatively_table,
@@ -131,6 +132,7 @@ def _ensure_data():
     with Session.begin() as tx:
         tx.query(Bangumi).delete()
         tx.query(Followed).delete()
+        tx.query(Scripts).delete()
         tx.query(Subtitle).delete()
         tx.add(Bangumi(name=bangumi_name_1, id="1", subtitle_group=["id1", "id2"], cover="hello"))
         tx.add(Bangumi(name=bangumi_name_2, id="2"))
