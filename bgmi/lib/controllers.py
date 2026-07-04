@@ -315,6 +315,28 @@ def seen_mark(name: str, episode: int) -> ControllerResult:
     }
 
 
+def _cover_needs_download(cover_url: str) -> bool:
+    if not cover_url:
+        return False
+
+    _, file_path = convert_cover_url_to_path(cover_url)
+    return not (os.path.isfile(file_path) and filetype.is_image(file_path))
+
+
+def _refresh_missing_followed_covers() -> None:
+    for followed, bangumi in Followed.get_all_followed():
+        if bangumi.cover:
+            continue
+
+        info = website.fetch_single_bangumi(
+            bangumi.id,
+            subtitle_list=followed.subtitle,
+            max_page=cfg.max_path,
+        )
+        if info is not None and info.cover:
+            website.save_bangumi(info)
+
+
 def cal(force_update: bool = False, cover: Optional[List[str]] = None) -> Dict[str, List[Dict[str, Any]]]:
     logger.debug("cal force_update: {}", force_update)
 
@@ -330,22 +352,19 @@ def cal(force_update: bool = False, cover: Optional[List[str]] = None) -> Dict[s
     weekly_list = Bangumi.get_updating_bangumi()
 
     if cover is not None:
+        _refresh_missing_followed_covers()
+        weekly_list = Bangumi.get_updating_bangumi()
+
         # download cover to local
         cover_to_be_download = [url for url in cover if url]
         for daily_bangumi in weekly_list.values():
             for bangumi in daily_bangumi:
-                cover_url = bangumi["cover"]
-                if not cover_url:
-                    continue
-
-                _, file_path = convert_cover_url_to_path(cover_url)
-
-                if not (os.path.isfile(file_path) and filetype.is_image(file_path)):
-                    cover_to_be_download.append(cover_url)
+                if _cover_needs_download(bangumi["cover"]):
+                    cover_to_be_download.append(bangumi["cover"])
 
         if cover_to_be_download:
             print_info("Updating cover ...")
-            download_cover(cover_to_be_download)
+            download_cover(list(dict.fromkeys(cover_to_be_download)))
 
     runner = ScriptRunner()
     patch_list = runner.get_models_dict()

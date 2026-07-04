@@ -5,7 +5,8 @@ import pytest
 from bgmi.lib import controllers as ctl
 from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.lib.controllers import cal
-from bgmi.lib.table import Download, Followed, NotFoundError, Session, recreate_source_relatively_table
+from bgmi.lib.table import Bangumi, Download, Followed, NotFoundError, Session, recreate_source_relatively_table
+from bgmi.website.model import WebsiteBangumi
 
 bangumi_name_1 = "名侦探柯南"
 bangumi_name_2 = "海贼王"
@@ -165,6 +166,7 @@ def test_cal_download_cover_skips_empty_cover():
             return_value=weekly_list,
         ),
         mock.patch("bgmi.lib.controllers.ScriptRunner") as script_runner,
+        mock.patch("bgmi.lib.controllers._refresh_missing_followed_covers") as refresh_missing_followed_covers,
         mock.patch("bgmi.lib.controllers.filetype.is_image") as is_image,
         mock.patch("bgmi.lib.controllers.download_cover") as download_cover,
     ):
@@ -173,5 +175,32 @@ def test_cal_download_cover_skips_empty_cover():
         r = cal(cover=[])
 
     assert r["mon"][0]["cover"] == ""
+    refresh_missing_followed_covers.assert_called_once_with()
     is_image.assert_not_called()
     download_cover.assert_not_called()
+
+
+def test_cal_download_cover_refreshes_followed_empty_cover():
+    bangumi_name = "No Cover Followed"
+    cover_url = "https://example.com/cover.jpg"
+    recreate_source_relatively_table()
+    with Session.begin() as tx:
+        tx.add(Bangumi(id="no-cover", name=bangumi_name, update_day="Mon", cover=""))
+        tx.add(Followed(bangumi_name=bangumi_name, episodes=set()))
+
+    with (
+        mock.patch(
+            "bgmi.lib.controllers.website.fetch_single_bangumi",
+            return_value=WebsiteBangumi(id="no-cover", name=bangumi_name, update_day="Mon", cover=cover_url),
+        ) as fetch_single_bangumi,
+        mock.patch("bgmi.lib.controllers.ScriptRunner") as script_runner,
+        mock.patch("bgmi.lib.controllers.download_cover") as download_cover,
+    ):
+        script_runner.return_value.get_models_dict.return_value = []
+
+        r = cal(cover=[])
+
+    fetch_single_bangumi.assert_called_once()
+    download_cover.assert_called_once_with([cover_url])
+    assert Bangumi.get(Bangumi.name == bangumi_name).cover == cover_url
+    assert r["mon"][0]["cover"] == "https/example.com/cover.jpg"
