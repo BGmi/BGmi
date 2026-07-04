@@ -11,6 +11,7 @@ import sqlalchemy as sa
 from bgmi.config import cfg
 from bgmi.lib.download import download_episode
 from bgmi.lib.fetch import website
+from bgmi.lib.season import parse_season
 from bgmi.lib.table import Bangumi, Download, Followed, NotFoundError, Scripts, Session, Subtitle
 from bgmi.script import ScriptRunner
 from bgmi.utils import (
@@ -29,13 +30,19 @@ from bgmi.website.model import Episode
 ControllerResult = Dict[str, Any]
 
 
-def add(name: str, episode: Optional[int] = None) -> ControllerResult:
+def add(
+    name: str,
+    episode: Optional[int] = None,
+    season: Optional[int] = None,
+    episode_offset: Optional[int] = None,
+    display_name: Optional[str] = None,
+) -> ControllerResult:
     """
     ret.name :str
     """
     # action add
     # add bangumi by a list of bangumi name
-    logger.debug("add name: {} episode: {}", name, episode)
+    logger.debug("add name: {} episode: {} season: {}", name, episode, season)
     if not Bangumi.get_updating_bangumi():
         website.fetch(group_by_weekday=False)
 
@@ -49,14 +56,36 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
         }
         return result
 
+    has_overrides = season is not None or episode_offset is not None or display_name is not None
+
     with Session.begin() as session:
         followed_obj: Optional[Followed] = session.scalar(
             sa.select(Followed).where(Followed.bangumi_name == bangumi_obj.name).limit(1)
         )
         if followed_obj is None:
-            followed_obj = Followed(status=Followed.STATUS_FOLLOWED, bangumi_name=bangumi_obj.name)
+            resolved_season = season if season is not None else parse_season(bangumi_obj.name)
+            followed_obj = Followed(
+                status=Followed.STATUS_FOLLOWED, bangumi_name=bangumi_obj.name, season=resolved_season
+            )
+            if episode_offset is not None:
+                followed_obj.episode_offset = episode_offset
+            if display_name is not None:
+                followed_obj.display_name = display_name
             session.add(followed_obj)
         elif followed_obj.status == Followed.STATUS_FOLLOWED:
+            if has_overrides:
+                if season is not None:
+                    followed_obj.season = season
+                if episode_offset is not None:
+                    followed_obj.episode_offset = episode_offset
+                if display_name is not None:
+                    followed_obj.display_name = display_name
+                session.flush()
+                result = {
+                    "status": "success",
+                    "message": f"{bangumi_obj.name} updated",
+                }
+                return result
             result = {
                 "status": "warning",
                 "message": f"{bangumi_obj.name} already followed",
@@ -64,6 +93,12 @@ def add(name: str, episode: Optional[int] = None) -> ControllerResult:
             return result
         else:
             followed_obj.status = Followed.STATUS_FOLLOWED
+            if season is not None:
+                followed_obj.season = season
+            if episode_offset is not None:
+                followed_obj.episode_offset = episode_offset
+            if display_name is not None:
+                followed_obj.display_name = display_name
 
     if episode is None:
         episodes = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)
@@ -170,6 +205,156 @@ def delete(name: str = "", clear_all: bool = False, batch: bool = False) -> Cont
     return result
 
 
+def _seen_payload(followed: Followed, episode: Optional[int] = None) -> ControllerResult:
+    episodes = sorted(followed.episodes)
+    total_candidates = episodes.copy()
+    if episode is not None:
+        total_candidates.append(episode)
+
+    with Session.begin() as session:
+        max_download_episode = session.scalar(
+            sa.select(sa.func.max(Download.episode)).where(Download.bangumi_name == followed.bangumi_name)
+        )
+    if max_download_episode:
+        total_candidates.append(max_download_episode)
+
+    return {
+        "bangumi": followed.bangumi_name,
+        "total_episode": max(total_candidates) if total_candidates else 0,
+        "seen": episodes,
+    }
+
+
+def seen(name: str) -> ControllerResult:
+    """Get downloaded episode records for a followed bangumi."""
+    try:
+        followed = Followed.get(
+            Followed.bangumi_name == name,
+            Followed.status.isnot(Followed.STATUS_DELETED),
+        )
+    except Followed.NotFoundError:
+        return {"status": "error", "message": f"{name} is not followed"}
+
+    return {
+        "status": "success",
+        "message": f"Got seen episodes of {name}",
+        **_seen_payload(followed),
+    }
+
+
+def seen_forget(name: str, episode: int) -> ControllerResult:
+    """Remove an episode from downloaded records so it can be downloaded again."""
+    if episode <= 0:
+        return {"status": "error", "message": "episode should be greater than 0"}
+
+    try:
+        followed = Followed.get(
+            Followed.bangumi_name == name,
+            Followed.status.isnot(Followed.STATUS_DELETED),
+        )
+    except Followed.NotFoundError:
+        return {"status": "error", "message": f"{name} is not followed"}
+
+    if episode not in followed.episodes:
+        return {"status": "error", "message": f"episode {episode} is not in download records"}
+
+    followed.episodes.remove(episode)
+    followed.save()
+
+    with Session.begin() as session:
+        session.execute(
+            sa.update(Download)
+            .where(Download.bangumi_name == name, Download.episode == episode)
+            .values(status=Download.STATUS_NOT_DOWNLOAD, task_id=None)
+        )
+
+    return {
+        "status": "success",
+        "message": f"Forgot episode {episode} of {name}; it will be downloaded on next update",
+        "episode": episode,
+        **_seen_payload(followed, episode=episode),
+    }
+
+
+def seen_mark(name: str, episode: int) -> ControllerResult:
+    """Add an episode to downloaded records so update will treat it as seen."""
+    if episode <= 0:
+        return {"status": "error", "message": "episode should be greater than 0"}
+
+    try:
+        followed = Followed.get(
+            Followed.bangumi_name == name,
+            Followed.status.isnot(Followed.STATUS_DELETED),
+        )
+    except Followed.NotFoundError:
+        return {"status": "error", "message": f"{name} is not followed"}
+
+    if episode in followed.episodes:
+        return {
+            "status": "success",
+            "message": f"episode {episode} of {name} is already marked as seen",
+            "episode": episode,
+            **_seen_payload(followed, episode=episode),
+        }
+
+    followed.episodes.add(episode)
+    followed.save()
+
+    with Session.begin() as session:
+        session.execute(
+            sa.update(Download)
+            .where(Download.bangumi_name == name, Download.episode == episode)
+            .values(status=Download.STATUS_DOWNLOADED, task_id=None)
+        )
+
+    return {
+        "status": "success",
+        "message": f"Marked episode {episode} of {name} as seen",
+        "episode": episode,
+        **_seen_payload(followed, episode=episode),
+    }
+
+
+def _cover_needs_download(cover_url: str) -> bool:
+    if not cover_url or _is_invalid_cover(cover_url):
+        return False
+
+    _, file_path = convert_cover_url_to_path(cover_url)
+    return not (os.path.isfile(file_path) and filetype.is_image(file_path))
+
+
+def _is_invalid_cover(cover_url: str) -> bool:
+    return cover_url.endswith("/subscribed-badge.svg") or cover_url.endswith("subscribed-badge.svg")
+
+
+def _refresh_missing_followed_covers() -> None:
+    missing_cover = [
+        (followed, bangumi)
+        for followed, bangumi in Followed.get_all_followed()
+        if not bangumi.cover or _is_invalid_cover(bangumi.cover)
+    ]
+    if not missing_cover:
+        return
+
+    print_info(f"Refreshing missing covers ({len(missing_cover)} bangumi) ...")
+    for index, (followed, bangumi) in enumerate(missing_cover, start=1):
+        print_info(f"Refreshing cover {index}/{len(missing_cover)}: {bangumi.name}")
+
+        try:
+            info = website.fetch_single_bangumi(
+                bangumi.id,
+                subtitle_list=followed.subtitle,
+                max_page=cfg.max_path,
+            )
+        except Exception as e:
+            print_warning(f"Failed to refresh cover for {bangumi.name}: {e}")
+            logger.warning("Failed to refresh cover for {}: {}", bangumi.name, e)
+            continue
+
+        if info is not None and info.cover:
+            website.save_bangumi(info)
+
+
 def cal(force_update: bool = False, cover: Optional[List[str]] = None) -> Dict[str, List[Dict[str, Any]]]:
     logger.debug("cal force_update: {}", force_update)
 
@@ -185,18 +370,22 @@ def cal(force_update: bool = False, cover: Optional[List[str]] = None) -> Dict[s
     weekly_list = Bangumi.get_updating_bangumi()
 
     if cover is not None:
+        _refresh_missing_followed_covers()
+        weekly_list = Bangumi.get_updating_bangumi()
+
         # download cover to local
-        cover_to_be_download = cover
+        cover_to_be_download = [url for url in cover if url]
         for daily_bangumi in weekly_list.values():
             for bangumi in daily_bangumi:
-                _, file_path = convert_cover_url_to_path(bangumi["cover"])
-
-                if not (os.path.exists(file_path) and filetype.is_image(file_path)):
+                if _cover_needs_download(bangumi["cover"]):
                     cover_to_be_download.append(bangumi["cover"])
 
+        cover_to_be_download = list(dict.fromkeys(cover_to_be_download))
         if cover_to_be_download:
-            print_info("Updating cover ...")
+            print_info(f"Updating cover ({len(cover_to_be_download)} files) ...")
             download_cover(cover_to_be_download)
+        else:
+            print_info("Cover is up to date.")
 
     runner = ScriptRunner()
     patch_list = runner.get_models_dict()
@@ -372,8 +561,9 @@ def download_episodes(all_episode_data: List[Episode], following: Union[Followed
     updated = False
 
     for ep, episodes in sorted(groups.items()):
+        if ep <= 0:
+            continue
         if ep in following.episodes:
-            # already downloaded, skipping
             continue
 
         print_success(f"{following.bangumi_name} updated, episode: {ep:d}")

@@ -1,6 +1,8 @@
 import os
 import traceback
+import uuid
 from functools import lru_cache
+from pathlib import Path
 from typing import List, cast
 
 import stevedore
@@ -26,6 +28,14 @@ default_trackers = {
     "http://open.acgtracker.com:1096/announce",
     "udp://tracker.opentrackr.org:1337/announce",
 }
+
+
+def _ensure_ignore_files(downloads_dir: Path) -> None:
+    """Create .tmmignore and .ignore in downloads dir to prevent media indexing."""
+    for name in (".tmmignore", ".ignore"):
+        p = downloads_dir / name
+        if not p.exists():
+            p.touch()
 
 
 @lru_cache
@@ -60,9 +70,18 @@ def add_tracker(u: str) -> str:
 def download_episode(e: Episode) -> bool:
     driver = get_download_driver(cfg.download_delegate)
 
-    save_path = bangumi_save_path(e.name).joinpath(str(e.episode))
+    if cfg.enable_path_formatter:
+        task_uuid = str(uuid.uuid4())
+        downloads_dir = cfg.save_path / ".downloads"
+        save_path = downloads_dir / task_uuid
+    else:
+        save_path = bangumi_save_path(e.name).joinpath(str(e.episode))
+
     if not save_path.exists():
         save_path.mkdir(parents=True, exist_ok=True)
+
+    if cfg.enable_path_formatter:
+        _ensure_ignore_files(downloads_dir)
 
     try:
         download = Download.get(
@@ -70,7 +89,6 @@ def download_episode(e: Episode) -> bool:
             Download.download == e.download,
             Download.episode == e.episode,
             Download.title == e.title,
-            Download.download == e.download,
         )
     except Download.NotFoundError:
         download = Download(
@@ -78,11 +96,14 @@ def download_episode(e: Episode) -> bool:
             download=e.download,
             episode=e.episode,
             title=e.title,
-            status=Download.STATUS_DOWNLOADING,
         )
 
+    download.status = Download.STATUS_DOWNLOADING
+
     try:
-        driver.add_download(url=add_tracker(download.download), save_path=str(save_path))
+        task_id = driver.add_download(url=add_tracker(download.download), save_path=str(save_path))
+        download.task_id = task_id
+        download.save()
         print_info(f"Add torrent into the download queue, the file will be saved at {save_path}")
         return True
     except Exception as e:
@@ -100,15 +121,26 @@ def download_downloads(data: List[Download]) -> None:
     driver = get_download_driver(cfg.download_delegate)
 
     for download in data:
-        save_path = bangumi_save_path(download.bangumi_name).joinpath(str(download.episode))
+        if cfg.enable_path_formatter:
+            task_uuid = str(uuid.uuid4())
+            downloads_dir = cfg.save_path / ".downloads"
+            save_path = downloads_dir / task_uuid
+        else:
+            save_path = bangumi_save_path(download.bangumi_name).joinpath(str(download.episode))
+
         if not save_path.exists():
             save_path.mkdir(parents=True, exist_ok=True)
+
+        if cfg.enable_path_formatter:
+            _ensure_ignore_files(downloads_dir)
 
         download.status = Download.STATUS_DOWNLOADING
         download.save()
 
         try:
-            driver.add_download(url=download.download, save_path=str(save_path))
+            task_id = driver.add_download(url=download.download, save_path=str(save_path))
+            download.task_id = task_id
+            download.save()
             print_info(f"Add torrent into the download queue, the file will be saved at {save_path}")
         except Exception as e:
             if os.getenv("DEBUG"):  # pragma: no cover

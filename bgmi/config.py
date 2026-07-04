@@ -107,11 +107,13 @@ class Config(BaseSetting):
 
     tmp_path: Path = Field(Path(os.getenv("BGMI_TMP_PATH") or BGMI_PATH.joinpath("tmp")), validate_default=True)
 
-    proxy: str = cast(str, os.getenv("BGMI_PROXY") or "")
+    log_path: Path = Field(
+        Path(os.getenv("BGMI_LOG_PATH") or BGMI_PATH.joinpath("log")),
+        description="log directory",
+        validate_default=True,
+    )
 
-    @property
-    def log_path(self) -> Path:
-        return self.tmp_path.joinpath("bgmi.log")
+    proxy: str = cast(str, os.getenv("BGMI_PROXY") or "")
 
     save_path: Path = Field(
         Path(os.getenv("BGMI_SAVE_PATH") or str(BGMI_PATH.joinpath("bangumi"))),
@@ -167,6 +169,14 @@ class Config(BaseSetting):
     )
 
     save_path_map: Dict[str, Path] = Field(default_factory=dict, description="per-bangumi save path")
+
+    enable_path_formatter: bool = Field(
+        False, description="enable post-download path formatter for Jellyfin-style layout"
+    )
+    path_formatter: str = Field(
+        "{name}/S{season:02d}/S{season:02d}E{episode:02d}.{suffix}",
+        description="path template: {name}, {season}, {episode}, {suffix}, {title}",
+    )
 
     def save(self) -> None:
         s = tomlkit.dumps(json.loads(self.model_dump_json()))

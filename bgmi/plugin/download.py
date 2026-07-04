@@ -1,5 +1,6 @@
 import abc
 from enum import Enum
+from typing import List
 
 
 class DownloadStatus(Enum):
@@ -25,6 +26,17 @@ class BaseDownloadService(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_status(self, id: str) -> DownloadStatus:
         """status of downloading task"""
+
+    @abc.abstractmethod
+    def get_files(self, id: str) -> List[str]:
+        """Get list of file paths for a completed task.
+
+        :param id: task id returned by add_download
+        :return: list of file paths (absolute or relative to save_path)
+        """
+
+    def remove_download(self, id: str) -> None:
+        """Remove a completed task from the downloader. Default no-op for compatibility."""
 
 
 class MissingDependencyError(Exception):

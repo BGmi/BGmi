@@ -186,28 +186,35 @@ class BangumiMoe(BaseWebsite):
         return result
 
     def search_by_tag(self, tag: str, subtitle: Optional[str] = None, count: Optional[int] = None) -> List[Episode]:
-        def query_tag(query: str) -> Tuple[str, str]:
-            data = get_response(SEARCH_TAG_URL, "POST", json={"name": query, "keywords": True, "multi": False})
+        def query_tag(query: str, tag_type: Optional[str] = None) -> Tuple[str, str]:
+            data = get_response(SEARCH_TAG_URL, "POST", json={"name": query, "keywords": True, "multi": True})
 
             if not data["success"] or not data["found"]:
                 raise ValueError("Search tag failed, keyword: " + query)
-            tag: dict = data["tag"]
 
-            tag_id = tag["_id"]
-            name = tag["name"]
+            tags = data["tag"]
+            if not isinstance(tags, list):
+                tags = [tags]
 
-            return (tag_id, name)
+            if tag_type:
+                tags = [t for t in tags if t.get("type") == tag_type]
+
+            if not tags:
+                raise ValueError(f"No tag of type '{tag_type}' found for: {query}")
+
+            matched = tags[0]
+            return (matched["_id"], matched["name"])
 
         if not count:
             count = 3
 
-        anime_id, anime_name = query_tag(tag)
+        anime_id, anime_name = query_tag(tag, "bangumi")
 
         print_info(f"Matched anime: {anime_name} ({anime_id})")
 
         subtitle_id = None
         if subtitle:
-            subtitle_id, subtitle_name = query_tag(subtitle)
+            subtitle_id, subtitle_name = query_tag(subtitle, "team")
 
             print_info(f"Matched subtitle: {subtitle_name} ({subtitle_id})")
 
@@ -245,5 +252,35 @@ class BangumiMoe(BaseWebsite):
                 return []
             rows.extend(data["torrents"])
 
+        if not rows:
+            return self._search_by_keyword_via_tag(keyword, count)
+
         result = self.process_search_result(keyword, rows)
         return result
+
+    def _search_by_keyword_via_tag(self, keyword: str, count: int) -> list:
+        """Fallback: resolve keyword to a bangumi tag, then search by tag_id."""
+        data = get_response(SEARCH_TAG_URL, "POST", json={"name": keyword, "keywords": True, "multi": True})
+        if not data.get("success") or not data.get("found"):
+            return []
+
+        tags = data["tag"]
+        if not isinstance(tags, list):
+            tags = [tags]
+        bangumi_tags = [t for t in tags if t.get("type") == "bangumi"]
+        if not bangumi_tags:
+            return []
+
+        tag_id = [bangumi_tags[0]["_id"], BANGUMI_TAG]
+        tag_name = bangumi_tags[0]["name"]
+        rows = []
+
+        for i in range(count):
+            data = get_response(DETAIL_URL, "POST", json={"tag_id": tag_id, "p": i + 1})
+            if "torrents" not in data:
+                return []
+            rows.extend(data["torrents"])
+            if "page_count" in data and data["page_count"] - 1 == i:
+                break
+
+        return self.process_search_result(tag_name, rows)

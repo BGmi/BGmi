@@ -32,6 +32,22 @@ def test_cal_config():
     main_for_test(["config", "--help"])
 
 
+@pytest.mark.usefixtures("_clean_bgmi")
+def test_list_with_empty_seen_episodes():
+    Bangumi(id="empty-seen", name="Empty Seen", update_day="Mon").save()
+    Followed(bangumi_name="Empty Seen", episodes=set()).save()
+
+    main_for_test(["list"])
+
+
+@pytest.mark.usefixtures("_clean_bgmi")
+def test_cal_with_empty_seen_episodes():
+    Bangumi(id="empty-seen", name="Empty Seen", update_day="Mon").save()
+    Followed(bangumi_name="Empty Seen", episodes=set()).save()
+
+    main_for_test(["cal"])
+
+
 @pytest.mark.usefixtures("_ensure_data")
 def test_add():
     main_for_test(["add", bangumi_name_2, "--episode", "1"])
@@ -39,11 +55,22 @@ def test_add():
     assert Followed.get(Followed.bangumi_name == bangumi_name_2).episode == 1
 
 
-@pytest.mark.skip("wait re-design")
 @pytest.mark.usefixtures("_ensure_data")
-def test_mark():
-    main_for_test(f"mark {bangumi_name_1} --episode 10".split())
-    assert Followed.get(Followed.bangumi_name == bangumi_name_1).episode == 10
+def test_seen_forget():
+    f = Followed.get(Followed.bangumi_name == bangumi_name_1)
+    assert 2 in f.episodes
+    main_for_test(["seen", "forget", bangumi_name_1, "2"])
+    f = Followed.get(Followed.bangumi_name == bangumi_name_1)
+    assert 2 not in f.episodes
+
+
+@pytest.mark.usefixtures("_ensure_data")
+def test_seen_mark():
+    f = Followed.get(Followed.bangumi_name == bangumi_name_1)
+    assert 3 not in f.episodes
+    main_for_test(["seen", "mark", bangumi_name_1, "3"])
+    f = Followed.get(Followed.bangumi_name == bangumi_name_1)
+    assert 3 in f.episodes
 
 
 @pytest.mark.usefixtures("_clean_bgmi")
@@ -62,13 +89,13 @@ def test_update_script():
 @pytest.mark.usefixtures("_clean_bgmi")
 def test_update_single(bangumi_names):
     name = bangumi_names[0]
-    main_for_test(f"add {name}".split())
+    main_for_test(["add", name])
     main_for_test(["update", name])
 
 
 @pytest.mark.usefixtures("_clean_bgmi")
 def test_search(bangumi_names):
-    main_for_test(["search", "海贼王", "--regex-filter", ".*MP4.*720P.*"])
+    main_for_test(["search", bangumi_names[0], "--regex-filter", ".*"])
 
 
 @pytest.mark.usefixtures("_clean_bgmi")
@@ -81,8 +108,8 @@ def test_search_tag(bangumi_names, bangumi_subtitles):
 @pytest.mark.usefixtures("_clean_bgmi")
 def test_delete(bangumi_names):
     name = bangumi_names[0]
-    main_for_test(f"add {name} --episode 0".split())
-    main_for_test(f"delete {name}".split())
+    main_for_test(["add", name, "--episode", "0"])
+    main_for_test(["delete", name])
 
 
 @pytest.mark.usefixtures("_clean_bgmi")
@@ -94,7 +121,7 @@ def test_delete_batch(bangumi_names):
 @pytest.mark.usefixtures("_clean_bgmi")
 def test_filter(bangumi_names):
     name = bangumi_names[0]
-    main_for_test(f"add {name} --episode 0".split())
+    main_for_test(["add", name, "--episode", "0"])
     main_for_test(["filter", name, "--subtitle", "", "--exclude", "MKV", "--regex", "720p|720P"])
     f = Followed.get(Followed.bangumi_name == name)
     assert not f.include
@@ -104,5 +131,5 @@ def test_filter(bangumi_names):
 @pytest.mark.usefixtures("_clean_bgmi")
 def test_fetch(bangumi_names):
     name = bangumi_names[0]
-    main_for_test(f"add {name} --episode 0".split())
-    main_for_test(f"fetch {name}".split())
+    main_for_test(["add", name, "--episode", "0"])
+    main_for_test(["fetch", name])

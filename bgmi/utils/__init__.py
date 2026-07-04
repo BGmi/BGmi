@@ -165,12 +165,19 @@ def check_update(mark: bool = True) -> None:
         pass
 
 
+_separator_episode_pattern = re.compile(r"[★☆](?:第\s*)?(?P<episode>0*[1-9]\d{0,2})(?=[\s(（)）\]】★☆_.])")
+
+
 def parse_episode(episode_title: str) -> int:
     s, c = _parse_episode(episode_title)
-    if c != 1:
+    if c == 1:
+        return s or 0
+
+    fallback = _separator_episode_pattern.search(episode_title)
+    if fallback is None:
         return 0
 
-    return s or 0
+    return int(fallback.group("episode"))
 
 
 _slash_pattern = re.compile(r"/+")
@@ -250,7 +257,7 @@ def convert_cover_url_to_path(cover_url: str) -> Tuple[str, str]:
     """
 
     cover_url = normalize_path(cover_url)
-    file_path = os.path.join(cfg.save_path, "cover")
+    file_path = os.path.join(cfg.save_path, ".cover")
     file_path = os.path.join(file_path, cover_url)
     dir_path = os.path.dirname(file_path)
 
@@ -261,7 +268,11 @@ def download_file(url: str) -> Optional[Response]:
     logger.debug("downloading {}", url)
     if url.startswith(("https://", "http://")):
         print_info(f"Download: {url}")
-        return session.get(url, timeout=60)
+        try:
+            return session.get(url, timeout=60)
+        except requests.exceptions.RequestException as e:
+            print_warning(f"Failed to download {url}: {e}")
+            logger.warning("Failed to download {}: {}", url, e)
     return None
 
 
@@ -277,6 +288,10 @@ def chunks(iterable: Iterable[T], size: int) -> Iterable[Iterable[T]]:
 
 
 def download_cover(cover_url_list: List[str]) -> None:
+    cover_url_list = [url for url in cover_url_list if url]
+    if not cover_url_list:
+        return
+
     p = ThreadPool(3)
     content_list = []
 

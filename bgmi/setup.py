@@ -44,6 +44,7 @@ def create_dir() -> None:
         BGMI_PATH,
         cfg.save_path,
         cfg.tmp_path,
+        cfg.log_path,
         cfg.script_path,
         cfg.tools_path,
         cfg.front_static_path,

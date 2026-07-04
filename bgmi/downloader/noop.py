@@ -1,3 +1,5 @@
+from typing import List
+
 from loguru import logger
 
 from bgmi.plugin.download import BaseDownloadService, DownloadStatus
@@ -13,3 +15,6 @@ class Noop(BaseDownloadService):
 
     def get_status(self, id: str) -> DownloadStatus:
         return DownloadStatus.downloading
+
+    def get_files(self, id: str) -> List[str]:
+        return []

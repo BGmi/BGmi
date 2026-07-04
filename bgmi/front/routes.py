@@ -8,13 +8,14 @@ from starlette.exceptions import HTTPException
 from bgmi import __version__
 from bgmi.config import cfg
 from bgmi.front.index import get_player
+from bgmi.lib import controllers as ctl
 from bgmi.lib import table
 from bgmi.lib.table import Followed, NotFoundError, Scripts, Session
 from bgmi.utils import normalize_path
 
 app = fastapi.FastAPI(docs_url="/")
 
-COVER_URL = "/bangumi/cover"
+COVER_URL = "/bangumi/.cover"
 WEEK = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
 
@@ -184,19 +185,32 @@ def auth() -> Any:
         404: {"description": "番剧不存在"},
     },
 )
-def add(bangumi: str = fastapi.Body(embed=True)) -> Any:
+def add(
+    bangumi: str = fastapi.Body(embed=True),
+    season: Optional[int] = fastapi.Body(None, embed=True),
+) -> Any:
+    from bgmi.lib.season import parse_season
+
     try:
         b = table.Bangumi.get(table.Bangumi.name == bangumi)
     except table.Bangumi.NotFoundError as e:
         raise HTTPException(404, "Bangumi not exist") from e
 
+    resolved_season = season if season is not None else parse_season(b.name)
+
     with Session.begin() as tx:
         f = tx.query(table.Followed).where(table.Followed.bangumi_name == b.name).scalar()
         if f:
             f.status = table.Followed.STATUS_FOLLOWED
+            if season is not None:
+                f.season = season
             tx.add(f)
         else:
-            tx.add(table.Followed(bangumi_name=b.name, episode=0, status=table.Followed.STATUS_FOLLOWED))
+            tx.add(
+                table.Followed(
+                    bangumi_name=b.name, episodes=set(), status=table.Followed.STATUS_FOLLOWED, season=resolved_season
+                )
+            )
 
     return {}
 
@@ -309,6 +323,69 @@ def update_filter(
     f.save()
 
     return {}
+
+
+@admin.get(
+    "/seen/{bangumi}",
+    responses={
+        200: {"description": "成功"},
+        404: {"description": "番剧未订阅"},
+    },
+)
+def seen(bangumi: str = fastapi.Path()) -> Any:
+    result = ctl.seen(bangumi)
+    if result["status"] != "success":
+        raise HTTPException(404, result["message"])
+
+    return {
+        "bangumi": result["bangumi"],
+        "total_episode": result["total_episode"],
+        "seen": result["seen"],
+    }
+
+
+@admin.post(
+    "/seen_forget",
+    responses={
+        200: {"description": "成功"},
+        404: {"description": "番剧未订阅或集数不存在"},
+    },
+)
+def seen_forget(
+    bangumi: str = fastapi.Body(embed=True),
+    episode: int = fastapi.Body(embed=True),
+) -> Any:
+    result = ctl.seen_forget(bangumi, episode)
+    if result["status"] != "success":
+        raise HTTPException(404, result["message"])
+
+    return {
+        "bangumi": result["bangumi"],
+        "episode": result["episode"],
+        "seen": result["seen"],
+    }
+
+
+@admin.post(
+    "/seen_mark",
+    responses={
+        200: {"description": "成功"},
+        404: {"description": "番剧未订阅"},
+    },
+)
+def seen_mark(
+    bangumi: str = fastapi.Body(embed=True),
+    episode: int = fastapi.Body(embed=True),
+) -> Any:
+    result = ctl.seen_mark(bangumi, episode)
+    if result["status"] != "success":
+        raise HTTPException(404, result["message"])
+
+    return {
+        "bangumi": result["bangumi"],
+        "episode": result["episode"],
+        "seen": result["seen"],
+    }
 
 
 app.include_router(admin, prefix="/admin")

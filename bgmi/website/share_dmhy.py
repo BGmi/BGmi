@@ -2,7 +2,7 @@ import os
 import re
 import time
 import urllib.parse
-from typing import List, Optional
+from typing import List
 
 import requests
 from bs4 import BeautifulSoup, Tag
@@ -192,9 +192,71 @@ class DmhySource(BaseWebsite):
 
         return bangumi_list
 
-    def search_by_tag(self, tag: str, subtitle: Optional[str] = None, count: Optional[int] = None) -> List[Episode]:
-        print_error("dmhy not support search by tag")
-        return []
+    def _resolve_team_id(self, subtitle_name):
+        """Look up team_id from calendar data by subtitle group name."""
+        bangumi_list = self.fetch_bangumi_calendar()
+        for b in bangumi_list:
+            for sg in b.subtitle_group:
+                if sg.name == subtitle_name:
+                    return sg.id
+        return None
+
+    def search_by_tag(self, tag, subtitle=None, count=None):
+        if count is None:
+            count = 3
+
+        result = []
+        search_url = base_url + "/topics/list/"
+
+        team_id = None
+        if subtitle:
+            team_id = self._resolve_team_id(subtitle)
+
+        for i in range(count):
+            params = {"keyword": tag, "page": i + 1}
+            if team_id:
+                params["team_id"] = team_id
+            r = fetch_url(search_url, params=params)
+            if not r:
+                break
+            bs = BeautifulSoup(r, "html.parser")
+            table = bs.find("table", {"id": "topic_list"})
+            if table is None:
+                break
+            tr_list = table.tbody.find_all("tr")
+            for tr in tr_list:
+                if "class" not in tr.attrs or len(tr.attrs["class"]) != 0:
+                    continue
+                td_list = tr.find_all("td")
+                if td_list[1].a["class"][0] != "sort-2":
+                    continue
+
+                time_string = td_list[0].span.string
+                title = td_list[2].find("a", {"target": "_blank"}).get_text(strip=True)
+                download = td_list[3].a["href"]
+                episode = self.parse_episode(title)
+                t = int(time.mktime(time.strptime(time_string, "%Y/%m/%d %H:%M")))
+
+                subtitle_group = ""
+                tag_list = td_list[2].find_all("span", {"class": "tag"})
+                for span_tag in tag_list:
+                    a = span_tag.find("a")
+                    if a:
+                        subtitle_group = a.get_text(strip=True)
+                        break
+
+                result.append(
+                    Episode(
+                        name=tag,
+                        title=title,
+                        subtitle_group=subtitle_group,
+                        download=download,
+                        episode=episode,
+                        time=t,
+                    )
+                )
+
+        return result
 
     def fetch_episode_of_bangumi(self, bangumi_id, max_page=cfg.max_path, subtitle_list=None):
         """
