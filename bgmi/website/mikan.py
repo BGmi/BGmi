@@ -1,6 +1,6 @@
 import contextlib
 import datetime
-import os
+import re
 import time
 from collections import defaultdict
 from typing import List, Optional
@@ -19,11 +19,14 @@ from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
 
 server_root = f"{cfg.mikan_url.encoded_string().rstrip('/')}/"
 login_url = f"{server_root}Account/Login"
+REQUEST_TIMEOUT = 30
 
 _COVER_URL = server_root[:-1]
 
 # Example: /Home/ExpandEpisodeTable?bangumiId=2242&subtitleGroupId=34&take=65
 bangumi_episode_expand_api = f"{server_root}Home/ExpandEpisodeTable"
+
+_BACKGROUND_IMAGE_PATTERN = re.compile(r"url\([\"']?(?P<url>.*?)[\"']?\)")
 
 _CN_WEEK = {
     "星期日": "Sun",
@@ -94,6 +97,7 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
                     "subtitleGroupId": subtitle_id,
                     "take": 200,
                 },
+                timeout=REQUEST_TIMEOUT,
             ).text
             expand_soup = BeautifulSoup(expand_r, "html.parser")
             _container = expand_soup.find("table")  # type: ignore
@@ -150,7 +154,7 @@ def parser_day_bangumi(soup) -> List[WebsiteBangumi]:
 
 
 def mikan_login():
-    r = requests.get(login_url)
+    r = requests.get(login_url, timeout=REQUEST_TIMEOUT)
     soup = BeautifulSoup(r.text, "html.parser")
     token = soup.find("input", attrs={"name": "__RequestVerificationToken"})["value"]
 
@@ -166,6 +170,7 @@ def mikan_login():
         },
         headers={"Referer": server_root},
         allow_redirects=False,
+        timeout=REQUEST_TIMEOUT,
     )
 
     if "&#x767B;&#x5F55;&#x5931;&#x8D25;&#xFF0C;&#x8BF7;&#x91CD;&#x8BD5;" in r.text:  # 实际为 "登录失败，请重试"
@@ -177,10 +182,10 @@ def get_text(url, params=None):
         print(url, params)
 
     if not cfg.mikan_username or not cfg.mikan_password:
-        return requests.get(url, params=params).text
+        return requests.get(url, params=params, timeout=REQUEST_TIMEOUT).text
 
     for _ in range(2):
-        r = requests.get(url, params=params)
+        r = requests.get(url, params=params, timeout=REQUEST_TIMEOUT)
         if r.headers.get("content-type").startswith("text/html"):
             if "退出" in r.text:
                 return r.text
@@ -189,6 +194,10 @@ def get_text(url, params=None):
             return r.text
 
     raise ValueError("mikan login failed")
+
+
+def _normalize_cover_url(cover_url: str) -> str:
+    return str(yarl.URL(server_root).join(yarl.URL(cover_url))).split("?")[0]
 
 
 class Mikanani(BaseWebsite):
@@ -200,10 +209,20 @@ class Mikanani(BaseWebsite):
         # info
         bangumi_info = {"status": 0}
         left_container = soup.select_one("div.pull-left.leftbar-container")
+        if left_container is None:
+            return None
         title = left_container.find("p", class_="bangumi-title")
+        if title is None:
+            return None
         day = title.find_next_sibling("p", class_="bangumi-info")
         bangumi_info["name"] = title.text
         bangumi_info["update_time"] = _CN_WEEK[day.text[-3:]]
+        poster = left_container.find("div", class_="bangumi-poster")
+        if poster is not None:
+            background_image = poster.attrs.get("style", "")
+            cover_match = _BACKGROUND_IMAGE_PATTERN.search(background_image)
+            if cover_match:
+                bangumi_info["cover"] = _normalize_cover_url(cover_match.group("url"))
 
         ######
         soup = BeautifulSoup(r, "html.parser")
@@ -395,11 +414,14 @@ class Mikanani(BaseWebsite):
     ) -> Optional[WebsiteBangumi]:
         html = get_text(server_root + f"Home/Bangumi/{bangumi_id}")
         info = self.parse_bangumi_details_page(html)
+        if info is None:
+            return None
         return WebsiteBangumi(
             name=info["name"],
             id=bangumi_id,
             status=info["status"],
             update_day=info["update_time"],
+            cover=info.get("cover", ""),
             subtitle_group=info["subtitle_group"],
             episodes=parse_episodes(html, bangumi_id, subtitle_list),
         )

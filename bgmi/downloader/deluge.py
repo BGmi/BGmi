@@ -1,3 +1,5 @@
+from typing import List
+
 import requests
 
 from bgmi.config import cfg
@@ -15,14 +17,20 @@ class DelugeRPC(BaseDownloadService):
         pass
 
     def get_status(self, id: str) -> DownloadStatus:
-        status = self._call("web.get_torrent_status", [id, ["state"]])
+        status = self._call("web.get_torrent_status", [id, ["state", "progress"]])
 
+        if not status or "state" not in status:
+            return DownloadStatus.not_found
+
+        state = status["state"]
+        if state == "Paused":
+            return DownloadStatus.done if status.get("progress") == 100 else DownloadStatus.not_downloading
         return {
             "Error": DownloadStatus.error,
             "Downloading": DownloadStatus.downloading,
-            "Paused": DownloadStatus.not_downloading,
+            "Checking": DownloadStatus.downloading,
             "Seeding": DownloadStatus.done,
-        }.get(status["state"], DownloadStatus.error)
+        }.get(state, DownloadStatus.error)
 
     def add_download(self, url: str, save_path: str):
         options = {
@@ -30,7 +38,18 @@ class DelugeRPC(BaseDownloadService):
             "move_completed": False,
             "download_location": save_path,
         }
+        if url.startswith("magnet:"):
+            return self._call("core.add_torrent_magnet", [url, options])
         return self._call("core.add_torrent_url", [url, options])
+
+    def get_files(self, id: str) -> List[str]:
+        status = self._call("web.get_torrent_status", [id, ["save_path", "files"]])
+        save_path = status.get("save_path", "")
+        files = status.get("files", [])
+        return [f"{save_path}/{f['path']}" for f in files]
+
+    def remove_download(self, id: str) -> None:
+        self._call("core.remove_torrent", [id, False])
 
     def _call(self, methods, params=None):
         if params is None:

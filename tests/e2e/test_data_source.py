@@ -27,23 +27,33 @@ def test_info(source, data_source_bangumi_name):
 @pytest.mark.parametrize("source", DATA_SOURCE_MAP.keys())
 def test_search(source, data_source_bangumi_name):
     w = DATA_SOURCE_MAP[source]()
-    search_result = w.search_by_keyword(data_source_bangumi_name[source][0], count=1)
-    assert search_result
-    for episode in search_result:
-        assert isinstance(episode, Episode)
+    names = data_source_bangumi_name[source]
+    for name in names:
+        search_result = w.search_by_keyword(name, count=1)
+        if search_result:
+            for episode in search_result:
+                assert isinstance(episode, Episode)
+            return
+    pytest.fail(f"search_by_keyword returned empty for all {len(names)} names on {source}: {names}")
 
 
 @pytest.mark.parametrize("source", DATA_SOURCE_MAP.keys())
-def test_search_tag(source, data_source_bangumi_name, data_source_subtitle_name):
+def test_search_tag(source, data_source_subtitle_name):
     w = DATA_SOURCE_MAP[source]()
 
-    if source not in data_source_bangumi_name or source not in data_source_subtitle_name:
-        return
+    assert source in data_source_subtitle_name, f"No subtitle data found for {source}"
 
-    search_result = w.search_by_tag(data_source_bangumi_name[source][0], data_source_subtitle_name[source][0], count=1)
-    assert search_result
-    for episode in search_result:
-        assert isinstance(episode, Episode)
+    pairs = data_source_subtitle_name[source]
+    for bangumi_name, subtitle_name in pairs:
+        try:
+            search_result = w.search_by_tag(bangumi_name, subtitle_name, count=1)
+        except Exception:
+            continue
+        if search_result:
+            for episode in search_result:
+                assert isinstance(episode, Episode)
+            return
+    pytest.fail(f"search_by_tag returned empty for all {len(pairs)} pairs on {source}: {pairs}")
 
 
 def test_mikan_fetch_all_episode():

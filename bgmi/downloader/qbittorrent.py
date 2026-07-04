@@ -1,3 +1,5 @@
+from typing import List
+
 import qbittorrentapi
 from qbittorrentapi import TorrentState
 
@@ -52,3 +54,14 @@ class QBittorrentWebAPI(BaseDownloadService):
         if state_enum.is_downloading or state_enum.is_checking:
             return DownloadStatus.downloading
         return DownloadStatus.error
+
+    def get_files(self, id: str) -> List[str]:
+        torrent = self.client.torrents.info(torrent_hashes=id)
+        if not torrent:
+            return []
+        save_path = torrent[0].save_path
+        files = self.client.torrents_files(torrent_hash=id)
+        return [f"{save_path}/{f.name}" for f in files]
+
+    def remove_download(self, id: str) -> None:
+        self.client.torrents_delete(torrent_hashes=id, delete_files=False)

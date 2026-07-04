@@ -6,8 +6,10 @@ from starlette.endpoints import HTTPEndpoint
 from starlette.requests import Request
 from starlette.responses import PlainTextResponse
 
-from bgmi.lib.constants import BANGUMI_UPDATE_TIME
 from bgmi.lib.table import Followed, Scripts
+
+# Map BANGUMI_UPDATE_TIME day names to Python weekday() values (Mon=0 .. Sun=6)
+_DAY_TO_WEEKDAY = {"Mon": 0, "Tue": 1, "Wed": 2, "Thu": 3, "Fri": 4, "Sat": 5, "Sun": 6}
 
 
 class CalendarHandler(HTTPEndpoint):
@@ -19,31 +21,33 @@ class CalendarHandler(HTTPEndpoint):
         cal.add("prodid", "-//BGmi Followed Bangumi Calendar//bangumi.ricterz.me//")
         cal.add("version", "2.0")
 
-        data = [{"update_day": b.update_day, "bangumi_name": b.name} for f, b in Followed.get_all_followed()]
+        data = [
+            {"update_day": b.update_day, "bangumi_name": b.name, "status": f.status}
+            for f, b in Followed.get_all_followed()
+        ]
 
         for s in Scripts.all():
-            data.append({"update_day": s.update_day, "bangumi_name": s.bangumi_name})
+            data.append({"update_day": s.update_day, "bangumi_name": s.bangumi_name, "status": s.status})
 
         if type_ is None:
-            bangumi = defaultdict(list)
+            bangumi_by_weekday: defaultdict[int, list[str]] = defaultdict(list)
 
             for j in data:
-                bangumi[BANGUMI_UPDATE_TIME.index(j["update_day"]) + 1].append(j["bangumi_name"])
+                wd = _DAY_TO_WEEKDAY.get(j["update_day"])
+                if wd is not None:
+                    bangumi_by_weekday[wd].append(j["bangumi_name"])
 
-            weekday = datetime.datetime.now().weekday()
-            for i, k in enumerate(range(weekday, weekday + 7)):
-                if k % 7 in bangumi:
-                    for v in bangumi[k % 7]:
+            today = datetime.date.today()
+            today_weekday = today.weekday()
+            for i in range(7):
+                wd = (today_weekday + i) % 7
+                if wd in bangumi_by_weekday:
+                    for name in bangumi_by_weekday[wd]:
                         event = Event()
-                        event.add("summary", v)
-                        event.add(
-                            "dtstart",
-                            datetime.datetime.now().date() + datetime.timedelta(i - 1),
-                        )
-                        event.add(
-                            "dtend",
-                            datetime.datetime.now().date() + datetime.timedelta(i - 1),
-                        )
+                        event.add("summary", name)
+                        event_date = today + datetime.timedelta(days=i)
+                        event.add("dtstart", event_date)
+                        event.add("dtend", event_date)
                         cal.add_component(event)
         elif type_ == "download":
             data = [
@@ -56,13 +60,13 @@ class CalendarHandler(HTTPEndpoint):
                 cal.add_component(todo)
 
         else:
-            data = [bangumi for bangumi in data if bangumi["status"] == 2]
             for d in data:
-                event = Event()
-                event.add("summary", "Updated: {}".format(d["bangumi_name"]))
-                event.add("dtstart", datetime.datetime.now().date())
-                event.add("dtend", datetime.datetime.now().date())
-                cal.add_component(event)
+                if d["status"] == Followed.STATUS_UPDATED:
+                    event = Event()
+                    event.add("summary", "Updated: {}".format(d["bangumi_name"]))
+                    event.add("dtstart", datetime.date.today())
+                    event.add("dtend", datetime.date.today())
+                    cal.add_component(event)
 
         cal.add("name", "Bangumi Calendar")
         cal.add("X-WR-CALNAM", "Bangumi Calendar")

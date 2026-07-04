@@ -18,3 +18,5 @@ tmp/
 htmlcov
 .xml
 .mypy_cache
+.omo/
+.mcp.json

@@ -1,5 +1,5 @@
 import xmlrpc.client
-from typing import cast
+from typing import List, cast
 
 from bgmi.config import cfg
 from bgmi.plugin.download import BaseDownloadService, DownloadStatus
@@ -46,3 +46,10 @@ class Aria2DownloadRPC(BaseDownloadService):
             "error": DownloadStatus.error,
             "complete": DownloadStatus.done,
         }.get(r["status"], DownloadStatus.error)
+
+    def get_files(self, id: str) -> List[str]:
+        r = self.server.aria2.getFiles(self.token, id)
+        return [f["path"] for f in r if f.get("path")]
+
+    def remove_download(self, id: str) -> None:
+        self.server.aria2.removeDownloadResult(self.token, id)

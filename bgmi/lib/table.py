@@ -138,9 +138,10 @@ class Bangumi(Base):
 
         weekly_list = defaultdict(list)
         for bangumi_item, followed_status, episode in data:
-            weekly_list[bangumi_item.update_day.lower()].append(
-                {**bangumi_item.__dict__, "status": followed_status, "episode": max(episode) if episode else None}
-            )
+            d = {k: v for k, v in bangumi_item.__dict__.items() if not k.startswith("_")}
+            d["status"] = followed_status
+            d["episode"] = max(episode) if episode else None
+            weekly_list[bangumi_item.update_day.lower()].append(d)
 
         return weekly_list
 
@@ -212,6 +213,9 @@ class Followed(Base):
     include: Mapped[List[str]] = Column(sa.JSON, nullable=False, default=[], server_default="[]")  # type: ignore
     exclude: Mapped[List[str]] = Column(sa.JSON, nullable=False, default=[], server_default="[]")  # type: ignore
     regex: Mapped[str] = Column(Text, nullable=False, default="", server_default="")  # type: ignore
+    season: Mapped[int] = Column(Integer, nullable=False, default=1, server_default="1")  # type: ignore
+    episode_offset: Mapped[int] = Column(Integer, nullable=False, default=0, server_default="0")  # type: ignore
+    display_name: Mapped[str] = Column(Text, nullable=False, default="", server_default="")  # type: ignore
 
     is_script: Mapped[bool] = Column(sa.Boolean, nullable=False, default=False, server_default="0")  # type: ignore
 
@@ -274,6 +278,7 @@ class Download(Base):
     episode: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
     download: Mapped[str] = Column(Text, nullable=False)  # type: ignore
     status: Mapped[int] = Column(Integer, nullable=False)  # type: ignore
+    task_id: Mapped[Optional[str]] = Column(Text, nullable=True)  # type: ignore
 
     if TYPE_CHECKING:
 
@@ -285,6 +290,7 @@ class Download(Base):
             download: str,
             status: Optional[int] = None,
             id: Optional[int] = None,
+            task_id: Optional[str] = None,
         ):
             super().__init__()
 
