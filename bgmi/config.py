@@ -146,9 +146,6 @@ class Config(BaseSetting):
         description="Setting share.dmhy.org url",
         validate_default=True,
     )  # type: ignore
-    mikan_url: HttpUrl = Field(
-        os.getenv("BGMI_MIKAN_URL") or "https://mikanani.me", description="Setting mikanani.me url"
-    )  # type: ignore
 
     mikan_username: str = os.getenv("BGMI_MIKAN_USERNAME") or ""
     mikan_password: str = os.getenv("BGMI_MIKAN_PASSWORD") or ""
@@ -167,11 +164,11 @@ class Config(BaseSetting):
     global_include_keywords: List[str] = Field(["1080"])
 
     enable_global_filters: bool = Field(True, description="enable global filter")
-    global_filters: list[str] = Field(
+    global_filters: List[str] = Field(
         ["Leopard-Raws", "hevc", "x265", "c-a Raws", "U3-Web"], description="Global exclude keywords"
     )
 
-    save_path_map: dict[str, Path] = Field(default_factory=dict, description="per-bangumi save path")
+    save_path_map: Dict[str, Path] = Field(default_factory=dict, description="per-bangumi save path")
 
     enable_path_formatter: bool = Field(
         False, description="enable post-download path formatter for Jellyfin-style layout"

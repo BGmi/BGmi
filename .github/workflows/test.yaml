@@ -9,14 +9,11 @@ on:
       - renovate/**
       - deepsource-*
   pull_request: {}
+  merge_group:
 
 defaults:
   run:
     shell: bash
-
-concurrency:
-  group: "${{ github.workflow }}-${{ github.ref }}"
-  cancel-in-progress: true
 
 jobs:
   unit:

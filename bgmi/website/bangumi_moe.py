@@ -14,7 +14,7 @@ from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
 
 # tag of bangumi on bangumi.moe
 BANGUMI_TAG = "549ef207fe682f7549f1ea90"
-BANGUMI_MOE_URL = cfg.bangumi_moe_url.encoded_string()
+BANGUMI_MOE_URL = cfg.bangumi_moe_url
 LANG = cfg.lang
 
 if BANGUMI_MOE_URL.path and BANGUMI_MOE_URL.path.endswith("/"):

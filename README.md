@@ -3,7 +3,7 @@
 BGmi 是一个用来追番的命令行程序。
 
 [![](https://img.shields.io/pypi/v/bgmi.svg)](https://pypi.python.org/pypi/bgmi)
-![](https://img.shields.io/pypi/pyversions/bgmi)
+[![Downloads](https://pepy.tech/badge/bgmi/month)](https://pepy.tech/project/bgmi/month)
 [![test](https://github.com/BGmi/BGmi/actions/workflows/test.yaml/badge.svg)](https://github.com/BGmi/BGmi/actions/workflows/test.yaml)
 [![](https://codecov.io/gh/BGmi/BGmi/branch/master/graph/badge.svg)](https://codecov.io/gh/BGmi/BGmi/branch/master/graph/badge.svg)
 [![](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/BGmi/BGmi/blob/master/LICENSE)
@@ -137,23 +137,6 @@ bgmi --help
 
 **`--help` 选项同样适用于所有子命令，README 仅介绍基础用法。**
 
-## 命令自动补全
-
-### bash
-
-```shell
-bgmi completion bash > ~/.bash_completion.d/bgmi
-```
-
-### zsh
-
-#### oh-my-zsh
-```shell
-bgmi completion zsh > .oh-my-zsh/completions/_bgmi
-```
-
-我不使用其他的 zsh 插件管理器，具体的安装方法请查询你使用的插件管理器文档
-
 ## 配置 BGmi
 
 BGmi 提供两种方式配置运行参数：配置文件与环境变量。
@@ -177,7 +160,6 @@ save_path = "tmp/bangumi" # 下载番剧保存地址
 max_path = 3 # 抓取数据时每个番剧最大抓取页数
 bangumi_moe_url = "https://bangumi.moe"
 share_dmhy_url = "https://share.dmhy.org"
-mikan_url = "https://mikanani.me"
 mikan_username = "" # 蜜柑计划的用户名
 mikan_password = "" # 蜜柑计划的密码
 enable_global_filters = true

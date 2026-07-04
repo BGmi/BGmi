@@ -49,16 +49,6 @@ class CalendarHandler(HTTPEndpoint):
                         event.add("dtstart", event_date)
                         event.add("dtend", event_date)
                         cal.add_component(event)
-        elif type_ == "download":
-            data = [
-                item for item in Download.get_all_downloads() if item["created_time"] and int(item["created_time"]) != 0
-            ]
-            for d in data:
-                todo = Todo()
-                todo.add("summary", f"{d['name']}: {d['episode']}")
-                todo.add("dstart", datetime.datetime.fromtimestamp(int(d["created_time"])))
-                cal.add_component(todo)
-
         else:
             for d in data:
                 if d["status"] == Followed.STATUS_UPDATED:
