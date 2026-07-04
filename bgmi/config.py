@@ -107,11 +107,13 @@ class Config(BaseSetting):
 
     tmp_path: Path = Field(Path(os.getenv("BGMI_TMP_PATH") or BGMI_PATH.joinpath("tmp")), validate_default=True)
 
-    proxy: str = cast(str, os.getenv("BGMI_PROXY") or "")
+    log_path: Path = Field(
+        Path(os.getenv("BGMI_LOG_PATH") or BGMI_PATH.joinpath("log")),
+        description="log directory",
+        validate_default=True,
+    )
 
-    @property
-    def log_path(self) -> Path:
-        return self.tmp_path.joinpath("bgmi.log")
+    proxy: str = cast(str, os.getenv("BGMI_PROXY") or "")
 
     save_path: Path = Field(
         Path(os.getenv("BGMI_SAVE_PATH") or str(BGMI_PATH.joinpath("bangumi"))),

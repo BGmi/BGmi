@@ -155,6 +155,7 @@ bgmi config print
 data_source = "bangumi_moe" # 数据源
 download_delegate = "aria2-rpc" # 番剧下载工具（aria2-rpc、transmission-rpc、deluge-rpc、qbittorrent-webapi）
 tmp_path = "tmp/tmp" # 临时目录
+log_path = "tmp/log" # 日志目录
 save_path = "tmp/bangumi" # 下载番剧保存地址
 max_path = 3 # 抓取数据时每个番剧最大抓取页数
 bangumi_moe_url = "https://bangumi.moe"
@@ -468,7 +469,7 @@ danmaku_api_url = "https://api.prprpr.me/dplayer/"
 
 ## 调试
 
-log 文件位于 `{BGMI_PATH}/tmp/`。
+log 文件位于 `{BGMI_PATH}/log/`。
 
 ## 卸载
 
