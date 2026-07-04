@@ -32,6 +32,22 @@ def test_cal_config():
     main_for_test(["config", "--help"])
 
 
+@pytest.mark.usefixtures("_clean_bgmi")
+def test_list_with_empty_seen_episodes():
+    Bangumi(id="empty-seen", name="Empty Seen", update_day="Mon").save()
+    Followed(bangumi_name="Empty Seen", episodes=set()).save()
+
+    main_for_test(["list"])
+
+
+@pytest.mark.usefixtures("_clean_bgmi")
+def test_cal_with_empty_seen_episodes():
+    Bangumi(id="empty-seen", name="Empty Seen", update_day="Mon").save()
+    Followed(bangumi_name="Empty Seen", episodes=set()).save()
+
+    main_for_test(["cal"])
+
+
 @pytest.mark.usefixtures("_ensure_data")
 def test_add():
     main_for_test(["add", bangumi_name_2, "--episode", "1"])

@@ -48,7 +48,7 @@ def main() -> None:
     logger.add(
         sys.stderr, format="<blue>{time:YYYY-MM-DD HH:mm:ss}</blue> {level:7} | <level>{message}</level>", level="INFO"
     )
-    logger.add(cfg.log_path.parent.joinpath("{time:YYYY-MM-DD}.log"), format="{time} {level} {message}", level="INFO")
+    logger.add(cfg.log_path.joinpath("{time:YYYY-MM-DD}.log"), format="{time} {level} {message}", level="INFO")
 
     cli.main(prog_name="bgmi")
 
@@ -302,7 +302,10 @@ def list_command() -> None:
         if followed[weekday.lower()]:
             s += f"{GREEN}{weekday}. {COLOR_END}"
             for j, bangumi in enumerate(followed[weekday.lower()]):
-                if bangumi["status"] in (Followed.STATUS_UPDATED, Followed.STATUS_FOLLOWED) and "episode" in bangumi:
+                if (
+                    bangumi["status"] in (Followed.STATUS_UPDATED, Followed.STATUS_FOLLOWED)
+                    and bangumi.get("episode") is not None
+                ):
                     bangumi["name"] = f"{bangumi['name']}({bangumi['episode']:d})"
                 if j > 0:
                     s += " " * 5
@@ -435,7 +438,10 @@ def calendar(force_update: bool, today: bool, download_cover: bool) -> None:
             weekly_list[weekday.lower()].sort(key=lambda x: x["episode"] or -999, reverse=True)
 
             for i, bangumi in enumerate(weekly_list[weekday.lower()]):
-                if bangumi["status"] in (Followed.STATUS_UPDATED, Followed.STATUS_FOLLOWED) and "episode" in bangumi:
+                if (
+                    bangumi["status"] in (Followed.STATUS_UPDATED, Followed.STATUS_FOLLOWED)
+                    and bangumi.get("episode") is not None
+                ):
                     bangumi["name"] = "{}({:d})".format(bangumi["name"], bangumi["episode"])
 
                 width = wcwidth.wcswidth(bangumi["name"])
