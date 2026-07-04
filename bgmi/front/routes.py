@@ -208,7 +208,7 @@ def add(
         else:
             tx.add(
                 table.Followed(
-                    bangumi_name=b.name, episode=0, status=table.Followed.STATUS_FOLLOWED, season=resolved_season
+                    bangumi_name=b.name, episodes=set(), status=table.Followed.STATUS_FOLLOWED, season=resolved_season
                 )
             )
 

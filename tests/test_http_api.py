@@ -50,6 +50,19 @@ def test_b_add():
 
 
 @pytest.mark.usefixtures("_ensure_data")
+def test_b_add_new():
+    r = client.post(
+        "/api/admin/add",
+        headers=headers,
+        json={"bangumi": bangumi_2},
+    )
+    assert r.status_code == 200, r.text
+    f = Followed.get(Followed.bangumi_name == bangumi_2)
+    assert f.status == Followed.STATUS_FOLLOWED
+    assert f.episodes == set()
+
+
+@pytest.mark.usefixtures("_ensure_data")
 def test_delete():
     r = client.post(
         "/api/admin/delete",
