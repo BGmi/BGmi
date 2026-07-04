@@ -316,15 +316,23 @@ def seen_mark(name: str, episode: int) -> ControllerResult:
 
 
 def _cover_needs_download(cover_url: str) -> bool:
-    if not cover_url:
+    if not cover_url or _is_invalid_cover(cover_url):
         return False
 
     _, file_path = convert_cover_url_to_path(cover_url)
     return not (os.path.isfile(file_path) and filetype.is_image(file_path))
 
 
+def _is_invalid_cover(cover_url: str) -> bool:
+    return cover_url.endswith("/subscribed-badge.svg") or cover_url.endswith("subscribed-badge.svg")
+
+
 def _refresh_missing_followed_covers() -> None:
-    missing_cover = [(followed, bangumi) for followed, bangumi in Followed.get_all_followed() if not bangumi.cover]
+    missing_cover = [
+        (followed, bangumi)
+        for followed, bangumi in Followed.get_all_followed()
+        if not bangumi.cover or _is_invalid_cover(bangumi.cover)
+    ]
     if not missing_cover:
         return
 

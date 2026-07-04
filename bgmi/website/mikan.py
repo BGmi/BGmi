@@ -1,5 +1,6 @@
 import contextlib
 import datetime
+import re
 import time
 from collections import defaultdict
 from typing import List, Optional
@@ -24,6 +25,8 @@ _COVER_URL = server_root[:-1]
 
 # Example: /Home/ExpandEpisodeTable?bangumiId=2242&subtitleGroupId=34&take=65
 bangumi_episode_expand_api = "https://mikanani.me/Home/ExpandEpisodeTable"
+
+_BACKGROUND_IMAGE_PATTERN = re.compile(r"url\([\"']?(?P<url>.*?)[\"']?\)")
 
 _CN_WEEK = {
     "星期日": "Sun",
@@ -187,6 +190,10 @@ def get_text(url, params=None):
     raise ValueError("mikan login failed")
 
 
+def _normalize_cover_url(cover_url: str) -> str:
+    return str(yarl.URL(server_root).join(yarl.URL(cover_url))).split("?")[0]
+
+
 class Mikanani(BaseWebsite):
     def parse_bangumi_details_page(self, r):
         subtitle_groups = defaultdict(dict)
@@ -204,11 +211,12 @@ class Mikanani(BaseWebsite):
         day = title.find_next_sibling("p", class_="bangumi-info")
         bangumi_info["name"] = title.text
         bangumi_info["update_time"] = _CN_WEEK[day.text[-3:]]
-        cover = left_container.find("img")
-        if cover is not None:
-            cover_url = cover.attrs.get("data-src") or cover.attrs.get("src")
-            if cover_url:
-                bangumi_info["cover"] = str(yarl.URL(server_root).join(yarl.URL(cover_url))).split("?")[0]
+        poster = left_container.find("div", class_="bangumi-poster")
+        if poster is not None:
+            background_image = poster.attrs.get("style", "")
+            cover_match = _BACKGROUND_IMAGE_PATTERN.search(background_image)
+            if cover_match:
+                bangumi_info["cover"] = _normalize_cover_url(cover_match.group("url"))
 
         ######
         soup = BeautifulSoup(r, "html.parser")

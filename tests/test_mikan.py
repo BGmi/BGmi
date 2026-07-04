@@ -5,7 +5,8 @@ from bgmi.website.mikan import Mikanani
 
 MIKAN_BANGUMI_HTML = """
 <div class="pull-left leftbar-container">
-  <img data-src="/images/Bangumi/2242.jpg?token=1" />
+  <img src="/images/subscribed-badge.svg" class="subscribed-badge" />
+  <div class="bangumi-poster" style="background-image: url('/images/Bangumi/202604/c68609a0.jpg?width=400&height=560&format=webp');"></div>
   <p class="bangumi-title">大欺诈师</p>
   <p class="bangumi-info">更新时间：星期一</p>
 </div>
@@ -37,4 +38,4 @@ def test_mikan_fetch_single_bangumi_includes_cover():
         bangumi = Mikanani().fetch_single_bangumi("2242")
 
     assert bangumi is not None
-    assert bangumi.cover == "https://mikanani.me/images/Bangumi/2242.jpg"
+    assert bangumi.cover == "https://mikanani.me/images/Bangumi/202604/c68609a0.jpg"

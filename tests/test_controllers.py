@@ -204,3 +204,29 @@ def test_cal_download_cover_refreshes_followed_empty_cover():
     download_cover.assert_called_once_with([cover_url])
     assert Bangumi.get(Bangumi.name == bangumi_name).cover == cover_url
     assert r["mon"][0]["cover"] == "https/example.com/cover.jpg"
+
+
+def test_cal_download_cover_refreshes_invalid_badge_cover():
+    bangumi_name = "Badge Cover Followed"
+    badge_url = "https://mikanani.me/images/subscribed-badge.svg"
+    cover_url = "https://mikanani.me/images/Bangumi/202604/c68609a0.jpg"
+    recreate_source_relatively_table()
+    with Session.begin() as tx:
+        tx.add(Bangumi(id="badge-cover", name=bangumi_name, update_day="Mon", cover=badge_url))
+        tx.add(Followed(bangumi_name=bangumi_name, episodes=set()))
+
+    with (
+        mock.patch(
+            "bgmi.lib.controllers.website.fetch_single_bangumi",
+            return_value=WebsiteBangumi(id="badge-cover", name=bangumi_name, update_day="Mon", cover=cover_url),
+        ) as fetch_single_bangumi,
+        mock.patch("bgmi.lib.controllers.ScriptRunner") as script_runner,
+        mock.patch("bgmi.lib.controllers.download_cover") as download_cover,
+    ):
+        script_runner.return_value.get_models_dict.return_value = []
+
+        cal(cover=[])
+
+    fetch_single_bangumi.assert_called_once()
+    download_cover.assert_called_once_with([cover_url])
+    assert Bangumi.get(Bangumi.name == bangumi_name).cover == cover_url
