@@ -79,7 +79,7 @@ def list() -> List[Dict[str, Any]]:
 @mcp.tool()
 def add(
     name: str,
-    episode: Optional[int] = None,
+    episode: Optional[int] = 0,
     season: Optional[int] = None,
     episode_offset: Optional[int] = None,
     display_name: Optional[str] = None,
@@ -88,7 +88,8 @@ def add(
 
     Args:
         name: Name of the bangumi to subscribe to (fuzzy matched).
-        episode: Starting episode number (default: auto-detect latest).
+        episode: Mark episodes 1..N as already downloaded. Default 0 starts downloading from episode 1.
+            Use null to mark currently available episodes as already downloaded.
         season: Override season number (default: auto-detect from name). Also works for already subscribed bangumi.
         episode_offset: Episode number offset for path formatter (e.g. 48 to map EP8 -> EP56).
         display_name: Override display name in path formatter (e.g. for TMDB matching).

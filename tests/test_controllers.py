@@ -21,6 +21,85 @@ def test_add():
     assert r["status"] == "warning", r["message"]
 
 
+def test_add_defaults_to_no_seen_episodes():
+    recreate_source_relatively_table()
+    name = "Default Episode Zero"
+    with Session.begin() as tx:
+        tx.add(Bangumi(id="default-episode-zero", name=name, update_day="Mon"))
+
+    with mock.patch("bgmi.lib.controllers.website.get_maximum_episode") as get_maximum_episode:
+        r = ctl.add(name)
+
+    assert r["status"] == "success", r["message"]
+    get_maximum_episode.assert_not_called()
+    assert Followed.get(Followed.bangumi_name == name).episodes == set()
+
+
+def test_add_can_mark_currently_available_episodes():
+    recreate_source_relatively_table()
+    name = "Already Aired"
+    with Session.begin() as tx:
+        tx.add(Bangumi(id="already-aired", name=name, update_day="Mon"))
+
+    with mock.patch("bgmi.lib.controllers.website.get_maximum_episode") as get_maximum_episode:
+        get_maximum_episode.return_value = [
+            mock.Mock(episode=1),
+            mock.Mock(episode=2),
+            mock.Mock(episode=3),
+        ]
+        r = ctl.add(name, episode=None)
+
+    assert r["status"] == "success", r["message"]
+    get_maximum_episode.assert_called_once()
+    assert Followed.get(Followed.bangumi_name == name).episodes == {1, 2, 3}
+
+
+def test_add_auto_display_name_from_season_suffix():
+    recreate_source_relatively_table()
+    name = "相反的你和我 第二季"
+    with Session.begin() as tx:
+        tx.add(Bangumi(id="opposite-you-and-me-s2", name=name, update_day="Mon"))
+
+    r = ctl.add(name, 0)
+
+    assert r["status"] == "success", r["message"]
+    assert "detected season 2" in r["message"]
+    assert "path display name normalized to 相反的你和我" in r["message"]
+    followed = Followed.get(Followed.bangumi_name == name)
+    assert followed.season == 2
+    assert followed.display_name == "相反的你和我"
+
+
+def test_add_explicit_display_name_skips_auto_display_name():
+    recreate_source_relatively_table()
+    name = "相反的你和我 第二季"
+    with Session.begin() as tx:
+        tx.add(Bangumi(id="opposite-you-and-me-s2", name=name, update_day="Mon"))
+
+    r = ctl.add(name, 0, display_name="You and I Are Polar Opposites")
+
+    assert r["status"] == "success", r["message"]
+    assert "path display name normalized" not in r["message"]
+    followed = Followed.get(Followed.bangumi_name == name)
+    assert followed.season == 2
+    assert followed.display_name == "You and I Are Polar Opposites"
+
+
+def test_add_explicit_season_reports_detected_and_used_season():
+    recreate_source_relatively_table()
+    name = "爱书的下克上 第4季"
+    with Session.begin() as tx:
+        tx.add(Bangumi(id="bookworm-s4", name=name, update_day="Mon"))
+
+    r = ctl.add(name, 0, season=1)
+
+    assert r["status"] == "success", r["message"]
+    assert "detected season 4, using season 1" in r["message"]
+    followed = Followed.get(Followed.bangumi_name == name)
+    assert followed.season == 1
+    assert followed.display_name == "爱书的下克上"
+
+
 @pytest.mark.usefixtures("_ensure_data")
 def test_filter():
     ctl.filter_(

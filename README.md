@@ -282,13 +282,16 @@ bgmi cal
 
 ```bash
 bgmi add "进击的巨人 第三季" "刃牙" "哆啦A梦"
-bgmi add "高分少女" --episode 0
+bgmi add "高分少女"
 ```
+
+默认会从第 1 集开始下载。可以用 `--episode` 标记已经下载过的集数，比如
+`--episode 12` 表示从第 13 集开始追；用 `--latest` 可以把当前已经发布的集数都标记为已下载。
 
 添加番剧的同时设置下载路径：
 
 ```bash
-bgmi add "高分少女" --episode 0 --save-path './高分少女/S1/'
+bgmi add "高分少女" --save-path './高分少女/S1/'
 ```
 
 设置／修改番剧的季度号：

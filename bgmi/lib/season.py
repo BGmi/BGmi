@@ -1,4 +1,4 @@
-"""Parse season number from bangumi titles."""
+"""Parse and normalize season information in bangumi titles."""
 
 import re
 from typing import Dict
@@ -58,3 +58,21 @@ def parse_season(name: str) -> int:
                 return converter(raw)
             return int(raw)
     return 1
+
+
+def strip_season_suffix(name: str) -> str:
+    """Remove a trailing season marker from a bangumi name."""
+    trailing_patterns = [
+        r"第\s*\d+\s*季",
+        r"第\s*[一二三四五六七八九十]+\s*季",
+        r"[Ss]eason\s*\d+",
+        r"(?<![a-zA-Z])S\d+(?![a-zA-Z\d])",
+        r"\d+(?:st|nd|rd|th)\s*[Ss]eason",
+        r"Part\s*\d+",
+    ]
+    separator = r"(?:[\s._\-:：/／|｜]+)?"
+    for pattern in trailing_patterns:
+        stripped = re.sub(rf"{separator}{pattern}\s*$", "", name)
+        if stripped != name:
+            return stripped.strip()
+    return name

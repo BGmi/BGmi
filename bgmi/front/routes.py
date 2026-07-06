@@ -189,7 +189,7 @@ def add(
     bangumi: str = fastapi.Body(embed=True),
     season: Optional[int] = fastapi.Body(None, embed=True),
 ) -> Any:
-    from bgmi.lib.season import parse_season
+    from bgmi.lib.season import parse_season, strip_season_suffix
 
     try:
         b = table.Bangumi.get(table.Bangumi.name == bangumi)
@@ -197,6 +197,8 @@ def add(
         raise HTTPException(404, "Bangumi not exist") from e
 
     resolved_season = season if season is not None else parse_season(b.name)
+    stripped_name = strip_season_suffix(b.name)
+    auto_display_name = stripped_name if stripped_name != b.name else ""
 
     with Session.begin() as tx:
         f = tx.query(table.Followed).where(table.Followed.bangumi_name == b.name).scalar()
@@ -204,11 +206,17 @@ def add(
             f.status = table.Followed.STATUS_FOLLOWED
             if season is not None:
                 f.season = season
+            if auto_display_name and not f.display_name:
+                f.display_name = auto_display_name
             tx.add(f)
         else:
             tx.add(
                 table.Followed(
-                    bangumi_name=b.name, episodes=set(), status=table.Followed.STATUS_FOLLOWED, season=resolved_season
+                    bangumi_name=b.name,
+                    episodes=set(),
+                    status=table.Followed.STATUS_FOLLOWED,
+                    season=resolved_season,
+                    display_name=auto_display_name,
                 )
             )
 

@@ -8,6 +8,7 @@ from loguru import logger
 
 from bgmi.config import cfg
 from bgmi.lib.download import get_download_driver
+from bgmi.lib.season import strip_season_suffix
 from bgmi.lib.table import Download, Followed
 from bgmi.plugin.download import DownloadStatus
 from bgmi.utils import normalize_path, print_error, print_info, print_success
@@ -50,11 +51,11 @@ def move_to_formatted_path(dl: Download, files: List[str]) -> bool:
         followed = Followed.get(Followed.bangumi_name == dl.bangumi_name)
         season = followed.season
         episode_offset = followed.episode_offset
-        name = followed.display_name or dl.bangumi_name
+        name = followed.display_name or strip_season_suffix(dl.bangumi_name)
     except Followed.NotFoundError:
         season = 1
         episode_offset = 0
-        name = dl.bangumi_name
+        name = strip_season_suffix(dl.bangumi_name)
 
     target_file = _pick_video_file(files)
     if not target_file:

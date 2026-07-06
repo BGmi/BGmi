@@ -4,7 +4,7 @@ import tempfile
 from pathlib import Path
 from unittest import mock
 
-from bgmi.lib.season import parse_season
+from bgmi.lib.season import parse_season, strip_season_suffix
 
 
 class TestParseSeason:
@@ -39,6 +39,20 @@ class TestParseSeason:
 
     def test_s_not_in_word(self):
         assert parse_season("PSYCHO-PASS") == 1
+
+
+class TestStripSeasonSuffix:
+    def test_chinese_season_suffix(self):
+        assert strip_season_suffix("相反的你和我 第二季") == "相反的你和我"
+        assert strip_season_suffix("进击的巨人 第2季") == "进击的巨人"
+
+    def test_english_season_suffix(self):
+        assert strip_season_suffix("Attack on Titan Season 3") == "Attack on Titan"
+        assert strip_season_suffix("Title S02") == "Title"
+
+    def test_keeps_non_suffix_text(self):
+        assert strip_season_suffix("PSYCHO-PASS") == "PSYCHO-PASS"
+        assert strip_season_suffix("名侦探柯南") == "名侦探柯南"
 
 
 class TestFormatPath:
@@ -131,6 +145,78 @@ class TestMoveToFormattedPath:
                 expected = dst_dir / "TestBangumi" / "S02" / "E03.mp4"
                 assert expected.exists()
                 assert expected.read_text() == "video content"
+
+    def test_strips_season_suffix_from_default_name(self):
+        from bgmi.lib.postprocessor import move_to_formatted_path
+        from bgmi.lib.table import Download
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            src_dir = Path(tmpdir) / "src"
+            src_dir.mkdir()
+            src_file = src_dir / "episode.mp4"
+            src_file.write_text("video content")
+
+            dst_dir = Path(tmpdir) / "dst"
+
+            dl = mock.Mock(spec=Download)
+            dl.bangumi_name = "相反的你和我 第二季"
+            dl.episode = 1
+            dl.title = "Episode 01"
+
+            with (
+                mock.patch("bgmi.lib.postprocessor.cfg") as mock_cfg,
+                mock.patch("bgmi.lib.postprocessor.Followed") as mock_followed,
+            ):
+                mock_cfg.save_path = dst_dir
+                mock_cfg.path_formatter = "{name}/S{season:02d}/E{episode:02d}.{suffix}"
+
+                mock_followed_obj = mock.Mock()
+                mock_followed_obj.season = 2
+                mock_followed_obj.episode_offset = 0
+                mock_followed_obj.display_name = ""
+                mock_followed.get.return_value = mock_followed_obj
+
+                result = move_to_formatted_path(dl, [str(src_file)])
+
+                assert result is True
+                expected = dst_dir / "相反的你和我" / "S02" / "E01.mp4"
+                assert expected.exists()
+
+    def test_display_name_overrides_season_suffix_stripping(self):
+        from bgmi.lib.postprocessor import move_to_formatted_path
+        from bgmi.lib.table import Download
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            src_dir = Path(tmpdir) / "src"
+            src_dir.mkdir()
+            src_file = src_dir / "episode.mp4"
+            src_file.write_text("video content")
+
+            dst_dir = Path(tmpdir) / "dst"
+
+            dl = mock.Mock(spec=Download)
+            dl.bangumi_name = "相反的你和我 第二季"
+            dl.episode = 1
+            dl.title = "Episode 01"
+
+            with (
+                mock.patch("bgmi.lib.postprocessor.cfg") as mock_cfg,
+                mock.patch("bgmi.lib.postprocessor.Followed") as mock_followed,
+            ):
+                mock_cfg.save_path = dst_dir
+                mock_cfg.path_formatter = "{name}/S{season:02d}/E{episode:02d}.{suffix}"
+
+                mock_followed_obj = mock.Mock()
+                mock_followed_obj.season = 2
+                mock_followed_obj.episode_offset = 0
+                mock_followed_obj.display_name = "You and I Are Polar Opposites"
+                mock_followed.get.return_value = mock_followed_obj
+
+                result = move_to_formatted_path(dl, [str(src_file)])
+
+                assert result is True
+                expected = dst_dir / "You and I Are Polar Opposites" / "S02" / "E01.mp4"
+                assert expected.exists()
 
     def test_picks_first_video_from_multiple(self):
         from bgmi.lib.postprocessor import move_to_formatted_path

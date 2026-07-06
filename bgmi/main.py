@@ -109,11 +109,11 @@ def source_cmd(source: str) -> None:
         )
 
 
-@cli.group()
+@cli.group(help="Read or update BGmi configuration.")
 def config() -> None: ...
 
 
-@config.command("print")
+@config.command("print", help="Print the current config file.")
 def config_print() -> None:
     if CONFIG_FILE_PATH.exists():
         print(CONFIG_FILE_PATH.read_text(encoding="utf-8"))
@@ -121,7 +121,7 @@ def config_print() -> None:
     print("config file not exist")
 
 
-@config.command("set")
+@config.command("set", help="Set a config value by key path.")
 @click.argument("keys", nargs=-1)
 @click.option("--value", required=True)
 def _config_set(keys: List[str], value: str) -> None:
@@ -152,7 +152,7 @@ def config_set(keys: List[str], value: str) -> None:
     CONFIG_FILE_PATH.write_text(tomlkit.dumps(doc), encoding="utf-8")
 
 
-@config.command("get")
+@config.command("get", help="Get a config value by key path.")
 @click.argument("keys", nargs=-1)
 def config_get(keys: List[str]) -> None:
     doc = tomlkit.loads(CONFIG_FILE_PATH.read_text(encoding="utf-8"))
@@ -219,25 +219,53 @@ def search(
 
 @cli.command("add", help="Subscribe bangumi.")
 @click.argument("names", nargs=-1)
-@click.option("--episode", type=int, help="Set starting episode number.")
+@click.option(
+    "--episode",
+    default=0,
+    show_default=True,
+    type=int,
+    help="Mark episodes 1..N as already downloaded; use 0 to start downloading from episode 1.",
+)
+@click.option(
+    "--latest",
+    is_flag=True,
+    default=False,
+    help="Mark all currently available episodes as already downloaded.",
+)
 @click.option(
     "--season", type=int, help="Set season number (overrides auto-detection, works for existing subscriptions)."
 )
 @click.option("--save-path", type=str, help="Set save_path_map entry, e.g. './{bangumi_name}/S1/'.")
-@click.option("--episode-offset", type=int, help="Episode number offset for path formatter (e.g. 48).")
+@click.option(
+    "--episode-offset",
+    type=int,
+    help=(
+        "Adjust only the path formatter episode number: formatted episode = parsed episode + offset "
+        "(e.g. -12 maps EP13 to E01, 12 maps EP1 to E13)."
+    ),
+)
 @click.option("--display-name", type=str, help="Override display name in path formatter (e.g. for TMDB matching).")
 def add(
     names: List[str],
-    episode: Optional[int],
+    episode: int,
+    latest: bool,
     season: Optional[int],
     save_path: Optional[str],
     episode_offset: Optional[int],
     display_name: Optional[str],
 ) -> None:
     """Subscribe bangumi."""
+    if latest and episode != 0:
+        raise click.ClickException("--latest cannot be used with --episode.")
+
     for name in names:
+        resolved_episode: Optional[int] = None if latest else episode
         result = ctl.add(
-            name=name, episode=episode, season=season, episode_offset=episode_offset, display_name=display_name
+            name=name,
+            episode=resolved_episode,
+            season=season,
+            episode_offset=episode_offset,
+            display_name=display_name,
         )
         globals()["print_{}".format(result["status"])](result["message"])
         if save_path and result["status"] in ["success", "warning"]:
@@ -360,7 +388,7 @@ def print_filter(followed_filter_obj: Followed) -> None:
     print(f"Regular expression: {followed_filter_obj.regex or None}")
 
 
-@cli.command("cal")
+@cli.command("cal", help="Show the weekly bangumi calendar.")
 @click.option(
     "-f",
     "--force-update",
@@ -624,11 +652,11 @@ def history() -> None:
             print(f"  |      |--- [{color}{slogan:<9}{COLOR_END}] ({i.episode:<2}) {i.bangumi_name}")
 
 
-@cli.group("debug")
+@cli.group("debug", help="Debug and diagnostic commands.")
 def debug() -> None: ...
 
 
-@debug.command("info")
+@debug.command("info", help="Print BGmi runtime and environment information.")
 def debug_info() -> None:
     print(f"bgmi version: `{__version__}`")
     print(f"python version: `{sys.version}`")
@@ -643,7 +671,7 @@ def postprocess() -> None:
     process_completed_downloads()
 
 
-@cli.command("completion")
+@cli.command("completion", help="Generate shell completion script.")
 @click.argument("shell", required=True)
 def completion(shell: str) -> None:
     completer = Completer(cli)

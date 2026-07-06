@@ -11,7 +11,7 @@ import sqlalchemy as sa
 from bgmi.config import cfg
 from bgmi.lib.download import download_episode
 from bgmi.lib.fetch import website
-from bgmi.lib.season import parse_season
+from bgmi.lib.season import parse_season, strip_season_suffix
 from bgmi.lib.table import Bangumi, Download, Followed, NotFoundError, Scripts, Session, Subtitle
 from bgmi.script import ScriptRunner
 from bgmi.utils import (
@@ -30,9 +30,34 @@ from bgmi.website.model import Episode
 ControllerResult = Dict[str, Any]
 
 
+def _auto_display_name(name: str, display_name: Optional[str]) -> Optional[str]:
+    if display_name is not None:
+        return display_name
+
+    stripped_name = strip_season_suffix(name)
+    if stripped_name != name:
+        return stripped_name
+    return None
+
+
+def _season_display_note(
+    detected_season: int,
+    resolved_season: int,
+    display_name: Optional[str],
+    auto_display_name: Optional[str],
+) -> str:
+    if not auto_display_name or display_name is not None:
+        return ""
+    if detected_season != resolved_season:
+        season_note = f"detected season {detected_season}, using season {resolved_season}"
+    else:
+        season_note = f"detected season {detected_season}"
+    return f"{season_note}; path display name normalized to {auto_display_name}"
+
+
 def add(
     name: str,
-    episode: Optional[int] = None,
+    episode: Optional[int] = 0,
     season: Optional[int] = None,
     episode_offset: Optional[int] = None,
     display_name: Optional[str] = None,
@@ -57,33 +82,45 @@ def add(
         return result
 
     has_overrides = season is not None or episode_offset is not None or display_name is not None
+    detected_season = parse_season(bangumi_obj.name)
+    resolved_season = season if season is not None else detected_season
+    resolved_display_name = _auto_display_name(bangumi_obj.name, display_name)
+    auto_display_name = resolved_display_name if display_name is None else None
+    note = _season_display_note(detected_season, resolved_season, display_name, auto_display_name)
+    if note:
+        logger.info("{}: {}", bangumi_obj.name, note)
 
     with Session.begin() as session:
         followed_obj: Optional[Followed] = session.scalar(
             sa.select(Followed).where(Followed.bangumi_name == bangumi_obj.name).limit(1)
         )
         if followed_obj is None:
-            resolved_season = season if season is not None else parse_season(bangumi_obj.name)
             followed_obj = Followed(
                 status=Followed.STATUS_FOLLOWED, bangumi_name=bangumi_obj.name, season=resolved_season
             )
             if episode_offset is not None:
                 followed_obj.episode_offset = episode_offset
-            if display_name is not None:
-                followed_obj.display_name = display_name
+            if resolved_display_name is not None:
+                followed_obj.display_name = resolved_display_name
             session.add(followed_obj)
         elif followed_obj.status == Followed.STATUS_FOLLOWED:
-            if has_overrides:
+            should_set_auto_display_name = auto_display_name is not None and not followed_obj.display_name
+            if has_overrides or should_set_auto_display_name:
                 if season is not None:
                     followed_obj.season = season
                 if episode_offset is not None:
                     followed_obj.episode_offset = episode_offset
                 if display_name is not None:
                     followed_obj.display_name = display_name
+                elif should_set_auto_display_name:
+                    followed_obj.display_name = auto_display_name
                 session.flush()
+                message = f"{bangumi_obj.name} updated"
+                if should_set_auto_display_name and note:
+                    message = f"{message}; {note}"
                 result = {
                     "status": "success",
-                    "message": f"{bangumi_obj.name} updated",
+                    "message": message,
                 }
                 return result
             result = {
@@ -97,18 +134,21 @@ def add(
                 followed_obj.season = season
             if episode_offset is not None:
                 followed_obj.episode_offset = episode_offset
-            if display_name is not None:
-                followed_obj.display_name = display_name
+            if resolved_display_name is not None:
+                followed_obj.display_name = resolved_display_name
 
     if episode is None:
         episodes = website.get_maximum_episode(bangumi_obj, max_page=cfg.max_path)
         followed_obj.episodes = {e.episode for e in episodes}  # type: ignore
     else:
-        followed_obj.episodes = set(range(episode + 1))
+        followed_obj.episodes = set(range(1, episode + 1))
 
     followed_obj.save()
 
-    result = {"status": "success", "message": f"add {bangumi_obj.name} to subscribing bangumi list"}
+    message = f"add {bangumi_obj.name} to subscribing bangumi list"
+    if note:
+        message = f"{message}; {note}"
+    result = {"status": "success", "message": message}
     logger.debug(result)
     return result
 
