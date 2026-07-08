@@ -53,6 +53,20 @@ def _get_streamable_app() -> Starlette:
 # ---------------------------------------------------------------------------
 
 
+FOLLOWED_STATUS_DESC = {
+    Followed.STATUS_DELETED: "STATUS_DELETED",
+    Followed.STATUS_FOLLOWED: "STATUS_FOLLOWED",
+    Followed.STATUS_UPDATED: "STATUS_UPDATED_TODAY",
+    Followed.STATUS_END: "STATUS_END",
+}
+
+
+def _followed_status_desc(status: Optional[int]) -> Optional[str]:
+    if status is None:
+        return None
+    return FOLLOWED_STATUS_DESC.get(status, f"STATUS_UNKNOWN_{status}")
+
+
 @mcp.tool()
 def cal(force_update: bool = False) -> Dict[str, Any]:
     """Get the weekly bangumi calendar.
@@ -60,10 +74,15 @@ def cal(force_update: bool = False) -> Dict[str, Any]:
     Returns the schedule of currently updating bangumi grouped by weekday.
     """
     result = ctl.cal(force_update=force_update)
-    return {
-        day: [{k: v for k, v in item.items() if not k.startswith("_")} for item in items]
-        for day, items in result.items()
-    }
+    calendar: Dict[str, List[Dict[str, Any]]] = {}
+    for day, items in result.items():
+        calendar[day] = []
+        for item in items:
+            data = {k: v for k, v in item.items() if not k.startswith("_")}
+            if "status" in data:
+                data["status_desc"] = _followed_status_desc(data["status"])
+            calendar[day].append(data)
+    return calendar
 
 
 @mcp.tool()
@@ -75,6 +94,7 @@ def list() -> List[Dict[str, Any]]:
             "name": followed.bangumi_name,
             "episode": followed.episode,
             "status": followed.status,
+            "status_desc": _followed_status_desc(followed.status),
             "updated_time": followed.updated_time,
             "update_day": bangumi.update_day,
             "season": followed.season,
@@ -314,7 +334,7 @@ def set_status(name: str, status: int) -> Dict[str, Any]:
 
     Args:
         name: Name of the followed bangumi.
-        status: Status code (1=followed, 2=updated, 0=deleted).
+        status: Status code (0=deleted, 1=followed, 2=updated today, 3=ended).
     """
     try:
         followed = Followed.get(Followed.bangumi_name == name)

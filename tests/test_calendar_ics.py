@@ -20,7 +20,14 @@ def _calendar_data():
         tx.add(Bangumi(name="TestAnime1", id="t1", update_day=today_day))
         tx.add(Bangumi(name="TestAnime2", id="t2", update_day="Unknown"))
         tx.add(Followed(bangumi_name="TestAnime1", episodes={1, 2}, status=Followed.STATUS_FOLLOWED))
-        tx.add(Followed(bangumi_name="TestAnime2", episodes={1}, status=Followed.STATUS_UPDATED))
+        tx.add(
+            Followed(
+                bangumi_name="TestAnime2",
+                episodes={1},
+                status=Followed.STATUS_UPDATED,
+                updated_time=int(datetime.datetime.now().timestamp()),
+            )
+        )
 
 
 @pytest.mark.usefixtures("_calendar_data")

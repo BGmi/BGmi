@@ -123,6 +123,8 @@ class Bangumi(Base):
         cls,
         status: Optional[int] = None,
     ) -> Dict[str, List[Dict[str, Any]]]:
+        Followed.refresh_lifecycle()
+
         if status is None:
             where = cls.status == cls.STATUS_UPDATING
         else:
@@ -225,6 +227,24 @@ class Followed(Base):
             return max(self.episodes)  # type: ignore
         return 0
 
+    @staticmethod
+    def _is_before_today(timestamp: int, now: int) -> bool:
+        if not timestamp:
+            return True
+        updated = time.localtime(timestamp)
+        current = time.localtime(now)
+        return (updated.tm_year, updated.tm_yday) < (current.tm_year, current.tm_yday)
+
+    @classmethod
+    def refresh_lifecycle(cls: Type["Followed"], now: Optional[int] = None) -> None:
+        now = int(time.time()) if now is None else now
+
+        with Session.begin() as session:
+            followed_items = session.scalars(sa.select(cls).where(cls.status == cls.STATUS_UPDATED)).all()
+            for followed in followed_items:
+                if cls._is_before_today(followed.updated_time, now):
+                    followed.status = cls.STATUS_FOLLOWED
+
     @classmethod
     def delete_followed(cls, batch: bool = True) -> bool:
         if not batch and input("[+] are you sure want to CLEAR ALL THE BANGUMI? (y/N): ") != "y":
@@ -238,6 +258,8 @@ class Followed(Base):
     def get_all_followed(
         cls: Type["Followed"], bangumi_status: int = Bangumi.STATUS_UPDATING
     ) -> List[Row[Tuple["Followed", "Bangumi"]]]:
+        cls.refresh_lifecycle()
+
         with Session() as tx:
             return list(
                 tx.query(Followed, Bangumi)
@@ -340,6 +362,16 @@ class Scripts(Base):
     updated_time: Mapped[int] = Column(Integer, nullable=False, default=0, server_default="0")  # type: ignore
     update_day: Mapped[str] = Column(Text, nullable=False, default="Unknown", server_default="Unknown")  # type: ignore
     cover: Mapped[str] = Column(Text, nullable=False, default="", server_default="")  # type: ignore
+
+    @classmethod
+    def refresh_lifecycle(cls: Type["Scripts"], now: Optional[int] = None) -> None:
+        now = int(time.time()) if now is None else now
+
+        with Session.begin() as session:
+            scripts = session.scalars(sa.select(cls).where(cls.status == Followed.STATUS_UPDATED)).all()
+            for script in scripts:
+                if Followed._is_before_today(script.updated_time, now):
+                    script.status = Followed.STATUS_FOLLOWED
 
 
 def recreate_source_relatively_table() -> None:

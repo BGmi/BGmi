@@ -49,6 +49,7 @@ class TestMcpTools:
         assert len(result) == 1
         assert result[0]["name"] == bangumi_1
         assert result[0]["episode"] == 2
+        assert result[0]["status_desc"] == "STATUS_FOLLOWED"
 
     def test_get_filter(self):
         result = mcp_server.get_filter(name=bangumi_1)

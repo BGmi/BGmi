@@ -70,9 +70,11 @@ class ScriptRunner:
         return m
 
     def get_models_dict(self) -> List[dict]:
+        Scripts.refresh_lifecycle()
         return [dict(script.Model()) for script in self.scripts if script.bangumi_name is not None]
 
     def run(self) -> Iterator[Tuple[Scripts, List[Episode]]]:
+        Scripts.refresh_lifecycle()
         for script in self.scripts:
             print_info(f"fetching {script.bangumi_name} ...")
 

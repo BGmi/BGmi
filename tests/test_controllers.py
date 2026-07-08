@@ -1,3 +1,4 @@
+import datetime
 from unittest import mock
 
 import pytest
@@ -12,6 +13,10 @@ bangumi_name_1 = "名侦探柯南"
 bangumi_name_2 = "海贼王"
 
 
+def _timestamp(year: int, month: int, day: int, hour: int = 12) -> int:
+    return int(datetime.datetime(year, month, day, hour).timestamp())
+
+
 @pytest.mark.usefixtures("_ensure_data")
 def test_add():
     r = ctl.add(bangumi_name_2, 0)
@@ -19,6 +24,117 @@ def test_add():
 
     r = ctl.add(bangumi_name_2, 0)
     assert r["status"] == "warning", r["message"]
+
+
+def test_followed_lifecycle_resets_stale_updated_status():
+    recreate_source_relatively_table()
+    now = _timestamp(2026, 7, 8)
+    yesterday = _timestamp(2026, 7, 7)
+    with Session.begin() as tx:
+        tx.add(Bangumi(id="updated-yesterday", name="Updated Yesterday", update_day="Tue"))
+        tx.add(
+            Followed(
+                bangumi_name="Updated Yesterday",
+                episodes={1},
+                status=Followed.STATUS_UPDATED,
+                updated_time=yesterday,
+            )
+        )
+
+    Followed.refresh_lifecycle(now=now)
+
+    assert Followed.get(Followed.bangumi_name == "Updated Yesterday").status == Followed.STATUS_FOLLOWED
+
+
+def test_followed_lifecycle_resets_updated_status_without_timestamp():
+    recreate_source_relatively_table()
+    now = _timestamp(2026, 7, 8)
+    with Session.begin() as tx:
+        tx.add(Bangumi(id="updated-without-time", name="Updated Without Time", update_day="Tue"))
+        tx.add(
+            Followed(
+                bangumi_name="Updated Without Time",
+                episodes={1},
+                status=Followed.STATUS_UPDATED,
+                updated_time=0,
+            )
+        )
+
+    Followed.refresh_lifecycle(now=now)
+
+    assert Followed.get(Followed.bangumi_name == "Updated Without Time").status == Followed.STATUS_FOLLOWED
+
+
+def test_followed_lifecycle_keeps_today_updated_status():
+    recreate_source_relatively_table()
+    now = _timestamp(2026, 7, 8, 18)
+    today = _timestamp(2026, 7, 8, 9)
+    with Session.begin() as tx:
+        tx.add(Bangumi(id="updated-today", name="Updated Today", update_day="Wed"))
+        tx.add(
+            Followed(
+                bangumi_name="Updated Today",
+                episodes={1},
+                status=Followed.STATUS_UPDATED,
+                updated_time=today,
+            )
+        )
+
+    Followed.refresh_lifecycle(now=now)
+
+    assert Followed.get(Followed.bangumi_name == "Updated Today").status == Followed.STATUS_UPDATED
+
+
+def test_bangumi_lifecycle_marks_ended_after_two_weeks_without_updates():
+    recreate_source_relatively_table()
+    now = _timestamp(2026, 7, 20)
+    end_after_seconds = 2 * 7 * 24 * 3600
+    with Session.begin() as tx:
+        tx.add(Bangumi(id="old", name="Old", status=Bangumi.STATUS_UPDATING))
+        tx.add(Bangumi(id="recent", name="Recent", status=Bangumi.STATUS_UPDATING))
+        tx.add(
+            Followed(
+                bangumi_name="Old",
+                episodes={12},
+                status=Followed.STATUS_FOLLOWED,
+                updated_time=now - end_after_seconds - 1,
+            )
+        )
+        tx.add(
+            Followed(
+                bangumi_name="Recent",
+                episodes={1},
+                status=Followed.STATUS_FOLLOWED,
+                updated_time=now - end_after_seconds + 1,
+            )
+        )
+
+    with mock.patch("bgmi.lib.table.time.time", return_value=now):
+        Bangumi.mark_all_end()
+
+    assert Bangumi.get(Bangumi.name == "Old").status == Bangumi.STATUS_END
+    assert Bangumi.get(Bangumi.name == "Recent").status == Bangumi.STATUS_UPDATING
+    assert Followed.get(Followed.bangumi_name == "Old").status == Followed.STATUS_FOLLOWED
+
+
+def test_followed_lifecycle_does_not_manage_ended_bangumi_status():
+    recreate_source_relatively_table()
+    now = _timestamp(2026, 7, 20)
+    with Session.begin() as tx:
+        tx.add(Bangumi(id="ended", name="Ended", status=Bangumi.STATUS_END))
+        tx.add(
+            Followed(
+                bangumi_name="Ended",
+                episodes={12},
+                status=Followed.STATUS_FOLLOWED,
+                updated_time=now - 2 * 7 * 24 * 3600 - 1,
+            )
+        )
+
+    Followed.refresh_lifecycle(now=now)
+
+    assert Followed.get(Followed.bangumi_name == "Ended").status == Followed.STATUS_FOLLOWED
+    assert Bangumi.get(Bangumi.name == "Ended").status == Bangumi.STATUS_END
 
 
 def test_add_defaults_to_no_seen_episodes():
