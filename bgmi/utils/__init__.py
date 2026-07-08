@@ -94,6 +94,7 @@ def get_terminal_col() -> int:  # pragma: no cover
 
 
 FRONTEND_NPM_URL = "https://registry.npmjs.com/bgmi-frontend/"
+FRONTEND_GITHUB_RELEASES_URL = "https://api.github.com/repos/BGmi/BGmi-frontend/releases"
 
 
 @functools.lru_cache
@@ -116,6 +117,57 @@ def latest_npm_package_version() -> semver.VersionInfo:
     return max(available_versions)
 
 
+@functools.lru_cache
+def github_release_manifest() -> List[Dict[str, Any]]:
+    r = session.get(FRONTEND_GITHUB_RELEASES_URL, timeout=60)
+    r.raise_for_status()
+    return r.json()  # type: ignore
+
+
+def _github_release_version(release: Dict[str, Any]) -> semver.VersionInfo:
+    tag = release["tag_name"].removeprefix("v")
+    return semver.VersionInfo.parse(tag)
+
+
+def _github_release_asset(release: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    for asset in release.get("assets", []):
+        if asset.get("name", "").endswith(".tgz"):
+            return asset  # type: ignore
+    return None
+
+
+@functools.lru_cache
+def latest_github_release() -> Tuple[semver.VersionInfo, Dict[str, Any], Dict[str, Any]]:
+    releases = github_release_manifest()
+    candidates = []
+    for release in releases:
+        if release.get("draft") or release.get("prerelease"):
+            continue
+        asset = _github_release_asset(release)
+        if asset is None:
+            continue
+        try:
+            release_version = _github_release_version(release)
+        except ValueError:
+            continue
+        if all(release_version.match(r) for r in __admin_version__):
+            candidates.append((release_version, release, asset))
+
+    if not candidates:
+        raise RuntimeError("failed to find available web-ui GitHub release")
+
+    return max(candidates, key=lambda item: item[0])
+
+
+def latest_frontend_version() -> semver.VersionInfo:
+    try:
+        version, _, _ = latest_github_release()
+        return version
+    except Exception as e:
+        logger.warning("failed to check GitHub frontend release, fallback to npm: {}", e)
+        return latest_npm_package_version()
+
+
 def check_update(mark: bool = True) -> None:
     def update() -> None:
         try:
@@ -135,7 +187,7 @@ def check_update(mark: bool = True) -> None:
                 print_success("Your BGmi is the latest version.")
 
             if cfg.front_static_path.joinpath("package.json").exists():
-                admin_version = latest_npm_package_version()
+                admin_version = latest_frontend_version()
 
                 with open(os.path.join(cfg.front_static_path, "package.json"), encoding="utf8") as f:
                     local_version = semver.VersionInfo.parse(json.loads(f.read())["version"])
@@ -210,9 +262,28 @@ def bangumi_save_path(bangumi_name: str) -> Path:
 
 def get_web_admin(method: str) -> None:
     print_info(f"{method[0].upper() + method[1:]}ing BGmi frontend")
-    admin_version = latest_npm_package_version()
+    try:
+        admin_version, release, asset = latest_github_release()
+        version = {
+            "version": str(admin_version),
+            "source": "github",
+            "tag_name": release["tag_name"],
+            "html_url": release["html_url"],
+            "asset": asset["name"],
+        }
+        tar_url = asset["browser_download_url"]
+    except requests.exceptions.ConnectionError:
+        print_warning("failed to download web admin from GitHub release, fallback to npm")
+    except json.JSONDecodeError:
+        print_warning("failed to download web admin from GitHub release, fallback to npm")
+    except Exception as e:
+        print_warning(f"failed to find BGmi frontend GitHub release, fallback to npm: {e!s}")
+    else:
+        _install_web_admin_from_tarball(method=method, tar_url=tar_url, version=version)
+        return
 
     try:
+        admin_version = latest_npm_package_version()
         r = npm_package_manifest()
         version = r["versions"][str(admin_version)]
         tar_url = version["dist"]["tarball"]
@@ -223,13 +294,18 @@ def get_web_admin(method: str) -> None:
         print_warning("failed to download web admin")
         return
 
+    _install_web_admin_from_tarball(method=method, tar_url=tar_url, version=version)
+
+
+def _install_web_admin_from_tarball(method: str, tar_url: str, version: Dict[str, Any]) -> None:
     tar = session.get(tar_url, timeout=60)
     tar.raise_for_status()
     admin_zip = BytesIO(tar.content)
     with gzip.GzipFile(fileobj=admin_zip) as f:
         tar_file = BytesIO(f.read())
 
-    rmtree(cfg.front_static_path)
+    if cfg.front_static_path.exists():
+        rmtree(cfg.front_static_path)
     cfg.front_static_path.mkdir(parents=True, exist_ok=True)
 
     with tarfile.open(fileobj=tar_file) as tar_file_obj:
