@@ -391,13 +391,22 @@ def print_filter(followed_filter_obj: Followed) -> None:
 @cli.command("cal", help="Show the weekly bangumi calendar.")
 @click.option(
     "-f",
-    "--force-update",
+    "--update",
     "force_update",
     is_flag=True,
     show_default=True,
     default=False,
     type=bool,
-    help="get latest bangumi calendar",
+    help="Fetch the latest bangumi calendar.",
+)
+@click.option(
+    "--force-update",
+    "force_update_legacy",
+    is_flag=True,
+    default=False,
+    type=bool,
+    hidden=True,
+    deprecated="Use --update instead.",
 )
 @click.option(
     "--today",
@@ -409,15 +418,29 @@ def print_filter(followed_filter_obj: Followed) -> None:
     help="show bangumi calendar for today.",
 )
 @click.option(
-    "--download-cover",
+    "--cover",
     "download_cover",
     is_flag=True,
     show_default=True,
     default=False,
     type=bool,
-    help="download the cover to local",
+    help="Download covers to local storage.",
 )
-def calendar(force_update: bool, today: bool, download_cover: bool) -> None:
+@click.option(
+    "--download-cover",
+    "download_cover_legacy",
+    is_flag=True,
+    default=False,
+    type=bool,
+    hidden=True,
+    deprecated="Use --cover instead.",
+)
+def calendar(
+    force_update: bool, force_update_legacy: bool, today: bool, download_cover: bool, download_cover_legacy: bool
+) -> None:
+    force_update = force_update or force_update_legacy
+    download_cover = download_cover or download_cover_legacy
+
     runner = ScriptRunner()
     cover: Optional[List[str]] = None
 

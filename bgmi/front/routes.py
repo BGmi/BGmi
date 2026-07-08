@@ -139,7 +139,7 @@ class Calendar(BaseModel):
 def calendar() -> Any:
     weekly_list = table.Bangumi.get_updating_bangumi()
     if not weekly_list:
-        raise HTTPException(404, '请使用 "bgmi cal -f" 命令更新番剧列表')
+        raise HTTPException(404, '请使用 "bgmi cal --update" 命令更新番剧列表')
 
     for _, value in weekly_list.items():
         for bangumi in value:

@@ -391,7 +391,7 @@ bgmi search 海贼王 --min-episode 800 --max-episode 820 --download
 1. 先下载所有更新中番剧的封面：
 
 ```bash
-bgmi cal --download-cover
+bgmi cal --cover
 ```
 
 2. 根据你是否使用 nginx，设置 `serve_static_files`（使用 nginx 的情况下使用默认设置 `false`，不使用的情况下设置为 `true`）。

@@ -3,8 +3,15 @@ from unittest import mock
 
 import pytest
 
+from bgmi import __version__
 from bgmi.config import cfg
-from bgmi.lib.update import _get_table_columns, _migrate_from_v4, update_database
+from bgmi.lib.update import (
+    _find_source_id_mismatches,
+    _get_table_columns,
+    _migrate_from_v4,
+    update_database,
+)
+from bgmi.website.model import WebsiteBangumi
 
 
 @pytest.fixture()
@@ -113,6 +120,46 @@ def scripts_db_missing_cols(tmp_path):
     return db_path
 
 
+def create_v5_db(db_path):
+    conn = sqlite3.connect(db_path)
+    conn.executescript(
+        """
+        CREATE TABLE bangumi (
+            id TEXT PRIMARY KEY NOT NULL,
+            name TEXT NOT NULL UNIQUE,
+            subtitle_group TEXT NOT NULL DEFAULT '[]',
+            update_day CHAR(5) NOT NULL DEFAULT 'Unknown',
+            cover TEXT NOT NULL DEFAULT '',
+            status INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE TABLE followed (
+            bangumi_name TEXT PRIMARY KEY NOT NULL,
+            episodes TEXT NOT NULL DEFAULT '[]',
+            status INTEGER NOT NULL DEFAULT 1,
+            updated_time INTEGER NOT NULL DEFAULT 0,
+            subtitle TEXT NOT NULL DEFAULT '[]',
+            "include" TEXT NOT NULL DEFAULT '[]',
+            "exclude" TEXT NOT NULL DEFAULT '[]',
+            regex TEXT NOT NULL DEFAULT '',
+            season INTEGER NOT NULL DEFAULT 1,
+            episode_offset INTEGER NOT NULL DEFAULT 0,
+            display_name TEXT NOT NULL DEFAULT '',
+            is_script INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE TABLE download (
+            id INTEGER PRIMARY KEY NOT NULL,
+            bangumi_name TEXT NOT NULL,
+            title TEXT NOT NULL,
+            episode INTEGER NOT NULL,
+            download TEXT NOT NULL,
+            status INTEGER NOT NULL,
+            task_id TEXT
+        );
+        """
+    )
+    return conn
+
+
 def test_migrate_from_v4_bangumi_table(v4_db, tmp_path):
     cover_dir = tmp_path / "save" / "cover"
     cover_dir.mkdir(parents=True)
@@ -130,9 +177,179 @@ def test_migrate_from_v4_bangumi_table(v4_db, tmp_path):
     conn = sqlite3.connect(v4_db)
     row = conn.execute("SELECT id, name, update_day FROM bangumi").fetchone()
     conn.close()
-    assert row[0] == "1"
+    assert row[0] == "test"
     assert row[1] == "TestAnime"
     assert row[2] == "Mon"
+
+
+def test_migrate_from_v4_falls_back_to_local_id_when_keyword_empty(v4_db, tmp_path):
+    conn = sqlite3.connect(v4_db)
+    conn.execute("UPDATE bangumi SET keyword = '' WHERE name = 'TestAnime'")
+    conn.commit()
+    conn.close()
+
+    with mock.patch.object(cfg, "save_path", tmp_path / "save"), mock.patch("bgmi.lib.fetch.website"):
+        _migrate_from_v4(db=v4_db)
+
+    conn = sqlite3.connect(v4_db)
+    row = conn.execute("SELECT id FROM bangumi WHERE name = 'TestAnime'").fetchone()
+    conn.close()
+    assert row[0] == "1"
+
+
+def test_migrate_from_v4_does_not_fail_when_metadata_refresh_exits(v4_db, tmp_path):
+    with (
+        mock.patch.object(cfg, "save_path", tmp_path / "save"),
+        mock.patch("bgmi.lib.fetch.website") as website,
+    ):
+        website.fetch.side_effect = SystemExit(1)
+        _migrate_from_v4(db=v4_db)
+
+    conn = sqlite3.connect(v4_db)
+    row = conn.execute("SELECT id FROM bangumi WHERE name = 'TestAnime'").fetchone()
+    conn.close()
+    assert row[0] == "test"
+
+
+def test_migrate_from_v4_without_keyword_column(tmp_path):
+    db_path = tmp_path / "bangumi.db"
+    conn = sqlite3.connect(db_path)
+    conn.executescript(
+        """
+        CREATE TABLE bangumi (
+            id INTEGER PRIMARY KEY,
+            name TEXT NOT NULL UNIQUE,
+            subtitle_group TEXT NOT NULL DEFAULT '',
+            update_time CHAR(5) NOT NULL DEFAULT 'Unknown',
+            cover TEXT NOT NULL DEFAULT '',
+            status INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE TABLE followed (
+            bangumi_name TEXT PRIMARY KEY NOT NULL,
+            episodes TEXT NOT NULL DEFAULT '[]',
+            status INTEGER NOT NULL DEFAULT 1,
+            updated_time INTEGER NOT NULL DEFAULT 0,
+            subtitle TEXT NOT NULL DEFAULT '[]',
+            "include" TEXT NOT NULL DEFAULT '[]',
+            "exclude" TEXT NOT NULL DEFAULT '[]',
+            regex TEXT NOT NULL DEFAULT '',
+            season INTEGER NOT NULL DEFAULT 1,
+            episode_offset INTEGER NOT NULL DEFAULT 0,
+            display_name TEXT NOT NULL DEFAULT '',
+            is_script INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE TABLE download (
+            id INTEGER PRIMARY KEY NOT NULL,
+            bangumi_name TEXT NOT NULL,
+            title TEXT NOT NULL,
+            episode INTEGER NOT NULL,
+            download TEXT NOT NULL,
+            status INTEGER NOT NULL,
+            task_id TEXT
+        );
+
+        INSERT INTO bangumi (id, name, subtitle_group, update_time, cover, status)
+        VALUES (1, 'NoKeywordAnime', '[]', 'Mon', '', 0);
+        """
+    )
+    conn.close()
+
+    with mock.patch.object(cfg, "save_path", tmp_path / "save"), mock.patch("bgmi.lib.fetch.website"):
+        _migrate_from_v4(db=db_path)
+
+    conn = sqlite3.connect(db_path)
+    row = conn.execute("SELECT id, name FROM bangumi").fetchone()
+    conn.close()
+    assert row == ("1", "NoKeywordAnime")
+
+
+def test_find_source_id_mismatches_compares_fetched_source_ids(tmp_path):
+    db_path = tmp_path / "bangumi.db"
+    conn = create_v5_db(db_path)
+    conn.execute("INSERT INTO bangumi (id, name) VALUES ('123', 'NumericIdAnime')")
+    conn.execute("INSERT INTO bangumi (id, name) VALUES ('same-id', 'SameIdAnime')")
+    conn.commit()
+    conn.close()
+
+    mismatches = _find_source_id_mismatches(
+        [
+            WebsiteBangumi(id="123", name="NumericIdAnime"),
+            WebsiteBangumi(id="same-id", name="SameIdAnime"),
+            WebsiteBangumi(id="ignored", name="NotInDatabase"),
+        ],
+        db_path,
+    )
+    assert mismatches == []
+
+    mismatches = _find_source_id_mismatches(
+        [
+            WebsiteBangumi(id="source-id", name="NumericIdAnime"),
+            WebsiteBangumi(id="same-id", name="SameIdAnime"),
+        ],
+        db_path,
+    )
+    assert mismatches == [("NumericIdAnime", "123", "source-id")]
+
+
+def test_update_database_does_not_refresh_matching_numeric_ids(tmp_path):
+    db_path = tmp_path / "bangumi.db"
+    old_file = tmp_path / "old"
+    conn = create_v5_db(db_path)
+    conn.execute("INSERT INTO bangumi (id, name) VALUES ('123', 'NumericIdAnime')")
+    conn.commit()
+    conn.close()
+    old_file.write_text("5.0.0a3")
+
+    with (
+        mock.patch.object(cfg, "db_path", db_path),
+        mock.patch("bgmi.lib.update.old_version_file", old_file),
+        mock.patch("bgmi.lib.fetch.website") as website,
+    ):
+        website.fetch_bangumi_calendar.return_value = [WebsiteBangumi(id="123", name="NumericIdAnime")]
+        update_database()
+
+    website.fetch_bangumi_calendar.assert_called_once_with()
+    website.fetch.assert_not_called()
+    assert old_file.read_text() == __version__
+
+
+def test_update_database_refreshes_mismatched_source_ids_once(tmp_path):
+    db_path = tmp_path / "bangumi.db"
+    old_file = tmp_path / "old"
+    conn = create_v5_db(db_path)
+    conn.execute("INSERT INTO bangumi (id, name) VALUES ('1', 'LegacyAnime')")
+    conn.commit()
+    conn.close()
+    old_file.write_text("5.0.0a3")
+
+    with (
+        mock.patch.object(cfg, "db_path", db_path),
+        mock.patch("bgmi.lib.update.old_version_file", old_file),
+        mock.patch("bgmi.lib.fetch.website") as website,
+    ):
+        website.fetch_bangumi_calendar.return_value = [WebsiteBangumi(id="source-id", name="LegacyAnime")]
+        update_database()
+        update_database()
+
+    website.fetch_bangumi_calendar.assert_called_once_with()
+    website.fetch.assert_called_once_with(group_by_weekday=False)
+
+
+def test_update_database_v4_migration_skips_legacy_id_check(v4_db, tmp_path):
+    old_file = tmp_path / "old"
+    old_file.write_text("4.5.1")
+
+    with (
+        mock.patch.object(cfg, "db_path", v4_db),
+        mock.patch.object(cfg, "save_path", tmp_path / "save"),
+        mock.patch("bgmi.lib.update.old_version_file", old_file),
+        mock.patch("bgmi.lib.fetch.website") as website,
+    ):
+        update_database()
+
+    website.fetch.assert_called_once_with(group_by_weekday=False)
+    website.fetch_bangumi_calendar.assert_not_called()
+    assert old_file.read_text() == __version__
 
 
 def test_migrate_from_v4_followed_table(v4_db, tmp_path):
@@ -234,7 +451,9 @@ def test_scripts_table_migration(scripts_db_missing_cols):
         mock.patch.object(cfg, "db_path", db_path),
         mock.patch("bgmi.lib.update.old_version_file", db_path.parent / "old"),
         mock.patch("bgmi.lib.update.exec_sql", exec_sql_with_db),
+        mock.patch("bgmi.lib.fetch.website") as website,
     ):
+        website.fetch_bangumi_calendar.return_value = []
         (db_path.parent / "old").write_text("5.0.0a3")
         update_database()
 

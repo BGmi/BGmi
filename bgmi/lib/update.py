@@ -1,5 +1,6 @@
 import json
 import sqlite3
+from collections.abc import Sequence
 from pathlib import Path
 
 import packaging.version
@@ -7,8 +8,10 @@ import packaging.version
 from bgmi import __version__
 from bgmi.config import BGMI_PATH, cfg
 from bgmi.utils import print_error, print_info, print_warning
+from bgmi.website.model import WebsiteBangumi
 
 old_version_file = BGMI_PATH.joinpath("old")
+SOURCE_ID_MIGRATION_VERSION = packaging.version.Version("5.0.0a4")
 
 
 def exec_sql(sql: str, db: Path = cfg.db_path) -> None:
@@ -47,6 +50,12 @@ def _fix_json_column(cursor: sqlite3.Cursor, table: str, pk_col: str, col: str) 
                 cursor.execute(f"UPDATE {table} SET {col} = ? WHERE {pk_col} = ?", (fixed, row[0]))
 
 
+def _v4_bangumi_id_expr(columns: list[str]) -> str:
+    if "keyword" in columns:
+        return "COALESCE(NULLIF(keyword, ''), CAST(id AS TEXT))"
+    return "CAST(id AS TEXT)"
+
+
 def _migrate_from_v4(db: Path = cfg.db_path) -> None:
     """Migrate database schema from v4 to v5."""
     print_info("Migrating database from v4 to v5...")
@@ -60,6 +69,7 @@ def _migrate_from_v4(db: Path = cfg.db_path) -> None:
 
     if "keyword" in v4_columns or "update_time" in v4_columns:
         print_info("Migrating bangumi table: recreate with v5 schema")
+        id_expr = _v4_bangumi_id_expr(v4_columns)
         update_day_col = "update_day" if "update_day" in v4_columns else "update_time"
         cursor.execute(
             """
@@ -76,7 +86,7 @@ def _migrate_from_v4(db: Path = cfg.db_path) -> None:
         cursor.execute(
             f"""
             INSERT OR IGNORE INTO bangumi_new (id, name, subtitle_group, update_day, cover, status)
-            SELECT CAST(id AS TEXT), name,
+            SELECT {id_expr}, name,
                    CASE WHEN subtitle_group = '' OR subtitle_group IS NULL THEN '[]' ELSE subtitle_group END,
                    COALESCE({update_day_col}, 'Unknown'),
                    cover, status
@@ -213,15 +223,16 @@ def _migrate_from_v4(db: Path = cfg.db_path) -> None:
 
     print_info("Migration from v4 to v5 completed successfully!")
 
-    # Refresh bangumi IDs from data source (v4 stored local auto-increment IDs)
-    print_info("Refreshing bangumi IDs from data source...")
+    # Refresh metadata from the data source. This is best-effort: the v4 keyword
+    # has already been migrated into bangumi.id, so install should not fail here.
+    print_info("Refreshing bangumi metadata from data source...")
     try:
         from bgmi.lib.fetch import website
 
         website.fetch(group_by_weekday=False)
         print_info("Bangumi IDs refreshed successfully.")
-    except Exception as e:
-        print_warning(f"Failed to refresh bangumi IDs (can fix later with `bgmi cal -f`): {e}")
+    except (Exception, SystemExit) as e:
+        print_warning(f"Failed to refresh bangumi IDs (can fix later with `bgmi cal --update`): {e}")
 
 
 def _needs_v4_migration(db: Path = cfg.db_path) -> bool:
@@ -237,58 +248,97 @@ def _needs_v4_migration(db: Path = cfg.db_path) -> bool:
     return False
 
 
+def _find_source_id_mismatches(
+    source_bangumi: Sequence[WebsiteBangumi], db: Path = cfg.db_path
+) -> list[tuple[str, str, str]]:
+    if not db.exists():
+        return []
+
+    conn = sqlite3.connect(db)
+    try:
+        rows = conn.execute("SELECT name, id FROM bangumi").fetchall()
+    finally:
+        conn.close()
+
+    current_ids = {name: str(bangumi_id) for name, bangumi_id in rows}
+    return [
+        (bangumi.name, current_ids[bangumi.name], str(bangumi.id))
+        for bangumi in source_bangumi
+        if bangumi.name in current_ids and current_ids[bangumi.name] != str(bangumi.id)
+    ]
+
+
+def _refresh_legacy_bangumi_ids_if_needed(db: Path = cfg.db_path) -> None:
+    try:
+        from bgmi.lib.fetch import website
+
+        source_bangumi = website.fetch_bangumi_calendar()
+    except (Exception, SystemExit) as e:
+        print_warning(f"Failed to check legacy bangumi IDs (fix with `bgmi cal --update`): {e}")
+        return
+
+    if not source_bangumi:
+        return
+
+    mismatches = _find_source_id_mismatches(source_bangumi, db=db)
+    if not mismatches:
+        return
+
+    names = ", ".join(name for name, _, _ in mismatches[:3])
+    if len(mismatches) > 3:
+        names += ", ..."
+    print_warning(f"Bangumi source IDs differ from data source ({names}), refreshing...")
+    try:
+        website.fetch(group_by_weekday=False)
+        print_info("Bangumi IDs refreshed successfully.")
+    except (Exception, SystemExit) as e:
+        print_warning(f"Failed to refresh bangumi IDs (fix with `bgmi cal --update`): {e}")
+
+
 def update_database() -> None:
     if not old_version_file.exists():
-        if _needs_v4_migration():
+        if _needs_v4_migration(cfg.db_path):
             print_warning("Detected v4 database (no version file), performing migration to v5...")
-            _migrate_from_v4()
+            _migrate_from_v4(cfg.db_path)
         old_version_file.write_text(__version__, encoding="utf8")
         return
 
     previous = packaging.version.parse(old_version_file.read_text(encoding="utf8").strip())
+    migrated_from_v4 = False
 
-    if previous < packaging.version.Version("5.0.0a0") or _needs_v4_migration():
+    if previous < packaging.version.Version("5.0.0a0") or _needs_v4_migration(cfg.db_path):
         print_warning("Detected v4 database, performing migration to v5...")
-        _migrate_from_v4()
+        _migrate_from_v4(cfg.db_path)
+        migrated_from_v4 = True
 
-    if previous < packaging.version.Version("5.0.0a4"):
+    if previous < SOURCE_ID_MIGRATION_VERSION:
         followed_cols = _get_table_columns(cfg.db_path, "followed")
         if "season" not in followed_cols:
-            exec_sql("ALTER TABLE followed ADD COLUMN season INTEGER NOT NULL DEFAULT 1")
+            exec_sql("ALTER TABLE followed ADD COLUMN season INTEGER NOT NULL DEFAULT 1", db=cfg.db_path)
         if "episode_offset" not in followed_cols:
-            exec_sql("ALTER TABLE followed ADD COLUMN episode_offset INTEGER NOT NULL DEFAULT 0")
+            exec_sql("ALTER TABLE followed ADD COLUMN episode_offset INTEGER NOT NULL DEFAULT 0", db=cfg.db_path)
         if "display_name" not in followed_cols:
-            exec_sql("ALTER TABLE followed ADD COLUMN display_name TEXT NOT NULL DEFAULT ''")
+            exec_sql("ALTER TABLE followed ADD COLUMN display_name TEXT NOT NULL DEFAULT ''", db=cfg.db_path)
         download_cols = _get_table_columns(cfg.db_path, "download")
         if "task_id" not in download_cols:
-            exec_sql("ALTER TABLE download ADD COLUMN task_id TEXT")
+            exec_sql("ALTER TABLE download ADD COLUMN task_id TEXT", db=cfg.db_path)
 
     # Ensure scripts table has all expected columns
     scripts_cols = _get_table_columns(cfg.db_path, "scripts")
     if scripts_cols:
         if "episodes" not in scripts_cols:
-            exec_sql("ALTER TABLE scripts ADD COLUMN episodes TEXT NOT NULL DEFAULT '[]'")
+            exec_sql("ALTER TABLE scripts ADD COLUMN episodes TEXT NOT NULL DEFAULT '[]'", db=cfg.db_path)
         if "updated_time" not in scripts_cols:
-            exec_sql("ALTER TABLE scripts ADD COLUMN updated_time INTEGER NOT NULL DEFAULT 0")
+            exec_sql("ALTER TABLE scripts ADD COLUMN updated_time INTEGER NOT NULL DEFAULT 0", db=cfg.db_path)
         if "update_day" not in scripts_cols:
-            exec_sql("ALTER TABLE scripts ADD COLUMN update_day TEXT NOT NULL DEFAULT 'Unknown'")
+            exec_sql("ALTER TABLE scripts ADD COLUMN update_day TEXT NOT NULL DEFAULT 'Unknown'", db=cfg.db_path)
         if "cover" not in scripts_cols:
-            exec_sql("ALTER TABLE scripts ADD COLUMN cover TEXT NOT NULL DEFAULT ''")
+            exec_sql("ALTER TABLE scripts ADD COLUMN cover TEXT NOT NULL DEFAULT ''", db=cfg.db_path)
 
-    # Check if bangumi IDs are still v4 auto-increment numbers and need refresh
-    if cfg.db_path.exists():
-        conn = sqlite3.connect(cfg.db_path)
-        rows = conn.execute("SELECT id FROM bangumi LIMIT 20").fetchall()
-        conn.close()
-        if rows and all(row[0].isdigit() for row in rows):
-            print_warning("Bangumi IDs are still numeric (v4 legacy), refreshing from data source...")
-            try:
-                from bgmi.lib.fetch import website
-
-                website.fetch(group_by_weekday=False)
-                print_info("Bangumi IDs refreshed successfully.")
-            except Exception as e:
-                print_warning(f"Failed to refresh bangumi IDs (fix with `bgmi cal -f`): {e}")
+    # Older v5 prereleases copied the v4 local auto-increment id into bangumi.id.
+    # Compare against the current data source once instead of guessing by id shape.
+    if previous < SOURCE_ID_MIGRATION_VERSION and not migrated_from_v4:
+        _refresh_legacy_bangumi_ids_if_needed(cfg.db_path)
 
     # all upgrade done, write current version
     old_version_file.write_text(__version__, encoding="utf8")
