@@ -6,7 +6,7 @@ from starlette.testclient import TestClient
 from bgmi.config import cfg
 from bgmi.front import mcp_server
 from bgmi.front.server import make_app
-from bgmi.lib.table import Followed
+from bgmi.lib.table import Download, Followed, Session
 
 client = TestClient(make_app(debug=True))
 headers = {"authorization": f"Bearer {cfg.http.admin_token}"}
@@ -49,7 +49,30 @@ class TestMcpTools:
         assert len(result) == 1
         assert result[0]["name"] == bangumi_1
         assert result[0]["episode"] == 2
-        assert result[0]["status_desc"] == "STATUS_FOLLOWED"
+        assert result[0]["status"] == "STATUS_FOLLOWED"
+        assert "status_code" not in result[0]
+        assert "updated_time" not in result[0]
+        assert result[0]["updated_at"] is None
+
+    def test_set_status_accepts_semantic_status(self):
+        result = mcp_server.set_status(name=bangumi_1, status="STATUS_UPDATED_TODAY")
+        assert result["status"] == "success"
+        assert result["follow_status"] == "STATUS_UPDATED_TODAY"
+
+        f = Followed.get(Followed.bangumi_name == bangumi_1)
+        assert f.status == Followed.STATUS_UPDATED
+        assert f.updated_time > 0
+
+    def test_set_status_rejects_unknown_status(self):
+        result = mcp_server.set_status(name=bangumi_1, status="watching")
+        assert result["status"] == "error"
+
+    def test_set_status_does_not_manage_delete_or_end_status(self):
+        result = mcp_server.set_status(name=bangumi_1, status="STATUS_DELETED")
+        assert result["status"] == "error"
+
+        result = mcp_server.set_status(name=bangumi_1, status="STATUS_END")
+        assert result["status"] == "error"
 
     def test_get_filter(self):
         result = mcp_server.get_filter(name=bangumi_1)
@@ -57,10 +80,52 @@ class TestMcpTools:
         assert result["data"]["name"] == bangumi_1
 
     def test_set_filter(self):
-        result = mcp_server.set_filter(name=bangumi_1, include="1080p")
+        result = mcp_server.set_filter(name=bangumi_1, include=["1080p"])
         assert result["status"] == "success"
         f = Followed.get(Followed.bangumi_name == bangumi_1)
         assert "1080p" in f.include
+
+    def test_set_filter_can_clear_lists(self):
+        mcp_server.set_filter(name=bangumi_1, include=["1080p"])
+        result = mcp_server.set_filter(name=bangumi_1, include=[])
+        assert result["status"] == "success"
+        f = Followed.get(Followed.bangumi_name == bangumi_1)
+        assert f.include == []
+
+    def test_download_status_returns_newest_limited_tasks(self):
+        with Session.begin() as tx:
+            tx.query(Download).delete()
+            tx.add(
+                Download(
+                    bangumi_name="Old",
+                    title="old",
+                    episode=1,
+                    download="magnet:?xt=old",
+                    status=Download.STATUS_DOWNLOADING,
+                )
+            )
+            tx.add(
+                Download(
+                    bangumi_name="Middle",
+                    title="middle",
+                    episode=2,
+                    download="magnet:?xt=middle",
+                    status=Download.STATUS_DOWNLOADING,
+                )
+            )
+            tx.add(
+                Download(
+                    bangumi_name="New",
+                    title="new",
+                    episode=3,
+                    download="magnet:?xt=new",
+                    status=Download.STATUS_DOWNLOADING,
+                )
+            )
+
+        result = mcp_server.download_status(limit=2)
+
+        assert [item["name"] for item in result] == ["New", "Middle"]
 
     def test_seen(self):
         result = mcp_server.seen(name=bangumi_1)
@@ -95,11 +160,6 @@ class TestMcpTools:
     def test_seen_mark_bangumi_not_followed(self):
         result = mcp_server.seen_mark(name="不存在的番", episode=1)
         assert result["status"] == "error"
-
-    def test_get_config(self):
-        result = mcp_server.get_config()
-        assert "data_source" in result
-        assert "save_path" in result
 
     def test_cal(self):
         result = mcp_server.cal()

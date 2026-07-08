@@ -112,7 +112,7 @@ def add(
                     followed_obj.episode_offset = episode_offset
                 if display_name is not None:
                     followed_obj.display_name = display_name
-                elif should_set_auto_display_name:
+                elif should_set_auto_display_name and auto_display_name is not None:
                     followed_obj.display_name = auto_display_name
                 session.flush()
                 message = f"{bangumi_obj.name} updated"
@@ -183,10 +183,10 @@ def filter_(
         followed_filter_obj.subtitle = [s for s in _subtitle if s in bangumi_obj.subtitle_group]
 
     if include is not None:
-        followed_filter_obj.include = [x.strip() for x in include.split(",")]
+        followed_filter_obj.include = [x.strip() for x in include.split(",") if x.strip()]
 
     if exclude is not None:
-        followed_filter_obj.exclude = [x.strip() for x in exclude.split(",")]
+        followed_filter_obj.exclude = [x.strip() for x in exclude.split(",") if x.strip()]
 
     if regex is not None:
         followed_filter_obj.regex = regex

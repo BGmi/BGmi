@@ -11,8 +11,8 @@ Endpoints (mounted at /mcp):
 Authentication: Bearer token in Authorization header, validated against admin_token.
 """
 
-import json
-from typing import Any, Dict, List, Optional
+import datetime
+from typing import Any, Dict, List, Literal, Optional
 
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
@@ -53,25 +53,41 @@ def _get_streamable_app() -> Starlette:
 # ---------------------------------------------------------------------------
 
 
-FOLLOWED_STATUS_DESC = {
+FOLLOWED_STATUS = {
     Followed.STATUS_DELETED: "STATUS_DELETED",
     Followed.STATUS_FOLLOWED: "STATUS_FOLLOWED",
     Followed.STATUS_UPDATED: "STATUS_UPDATED_TODAY",
-    Followed.STATUS_END: "STATUS_END",
+    Followed.STATUS_END: "STATUS_END_UNUSED",
 }
+SETTABLE_FOLLOWED_STATUS = {
+    "STATUS_FOLLOWED": Followed.STATUS_FOLLOWED,
+    "STATUS_UPDATED_TODAY": Followed.STATUS_UPDATED,
+}
+SettableFollowedStatus = Literal["STATUS_FOLLOWED", "STATUS_UPDATED_TODAY"]
 
 
-def _followed_status_desc(status: Optional[int]) -> Optional[str]:
+def _followed_status(status: Optional[int]) -> str:
     if status is None:
+        return "STATUS_NOT_FOLLOWED"
+    return FOLLOWED_STATUS.get(status, f"STATUS_UNKNOWN_{status}")
+
+
+def _format_timestamp(timestamp: int) -> Optional[str]:
+    if not timestamp:
         return None
-    return FOLLOWED_STATUS_DESC.get(status, f"STATUS_UNKNOWN_{status}")
+    return datetime.datetime.fromtimestamp(timestamp, datetime.timezone.utc).astimezone().isoformat(timespec="seconds")
 
 
 @mcp.tool()
 def cal(force_update: bool = False) -> Dict[str, Any]:
     """Get the weekly bangumi calendar.
 
-    Returns the schedule of currently updating bangumi grouped by weekday.
+    Returns currently updating bangumi grouped by weekday.
+
+    Status values:
+        STATUS_NOT_FOLLOWED: In calendar but not subscribed.
+        STATUS_FOLLOWED: Subscribed.
+        STATUS_UPDATED_TODAY: Subscribed and successfully updated today.
     """
     result = ctl.cal(force_update=force_update)
     calendar: Dict[str, List[Dict[str, Any]]] = {}
@@ -80,22 +96,27 @@ def cal(force_update: bool = False) -> Dict[str, Any]:
         for item in items:
             data = {k: v for k, v in item.items() if not k.startswith("_")}
             if "status" in data:
-                data["status_desc"] = _followed_status_desc(data["status"])
+                data["status"] = _followed_status(data["status"])
             calendar[day].append(data)
     return calendar
 
 
 @mcp.tool()
 def list() -> List[Dict[str, Any]]:
-    """List all currently followed bangumi subscriptions."""
+    """List all currently followed bangumi subscriptions.
+
+    Status values:
+        STATUS_FOLLOWED: Subscribed.
+        STATUS_UPDATED_TODAY: Subscribed and successfully updated today. It automatically
+            returns to STATUS_FOLLOWED after today.
+    """
     results = []
     for followed, bangumi in Followed.get_all_followed():
         info: Dict[str, Any] = {
             "name": followed.bangumi_name,
             "episode": followed.episode,
-            "status": followed.status,
-            "status_desc": _followed_status_desc(followed.status),
-            "updated_time": followed.updated_time,
+            "status": _followed_status(followed.status),
+            "updated_at": _format_timestamp(followed.updated_time),
             "update_day": bangumi.update_day,
             "season": followed.season,
         }
@@ -251,25 +272,25 @@ def get_filter(name: str) -> Dict[str, Any]:
 @mcp.tool()
 def set_filter(
     name: str,
-    subtitle: Optional[str] = None,
-    include: Optional[str] = None,
-    exclude: Optional[str] = None,
+    subtitle: Optional[List[str]] = None,
+    include: Optional[List[str]] = None,
+    exclude: Optional[List[str]] = None,
     regex: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Set download filter for a bangumi.
 
     Args:
         name: Name of the followed bangumi.
-        subtitle: Comma-separated subtitle group names to include.
-        include: Comma-separated keywords that must appear in title.
-        exclude: Comma-separated keywords that must NOT appear in title.
+        subtitle: Subtitle group names to include. Empty list clears selected subtitle groups.
+        include: Keywords that must appear in title. Empty list clears include keywords.
+        exclude: Keywords that must NOT appear in title. Empty list clears exclude keywords.
         regex: Regex pattern for title filtering.
     """
     return ctl.filter_(
         name=name,
-        subtitle=subtitle,
-        include=include,
-        exclude=exclude,
+        subtitle=",".join(subtitle) if subtitle is not None else None,
+        include=",".join(include) if include is not None else None,
+        exclude=",".join(exclude) if exclude is not None else None,
         regex=regex,
     )
 
@@ -291,18 +312,22 @@ def postprocess() -> Dict[str, Any]:
 
 
 @mcp.tool()
-def download_status() -> List[Dict[str, Any]]:
+def download_status(limit: int = 20) -> List[Dict[str, Any]]:
     """Get download progress for all active tasks.
 
-    Returns a list of downloads with their current status from the downloader.
+    Returns the newest active download tasks first.
+
+    Args:
+        limit: Maximum number of tasks to return. Use a small number to avoid noisy old records.
     """
+    limit = max(1, min(limit, 100))
     downloads = Download.get_all_downloads(status=Download.STATUS_DOWNLOADING)
     if not downloads:
         return []
 
     driver = get_download_driver(cfg.download_delegate)
     results = []
-    for dl in downloads:
+    for dl in sorted(downloads, key=lambda item: item.id, reverse=True)[:limit]:
         info: Dict[str, Any] = {
             "name": dl.bangumi_name,
             "title": dl.title,
@@ -322,28 +347,39 @@ def download_status() -> List[Dict[str, Any]]:
 
 
 @mcp.tool()
-def get_config() -> Dict[str, Any]:
-    """Get the current BGmi configuration."""
-    result: Dict[str, Any] = json.loads(cfg.model_dump_json())
-    return result
+def set_status(name: str, status: SettableFollowedStatus) -> Dict[str, Any]:
+    """Set the follow lifecycle status of a bangumi.
 
-
-@mcp.tool()
-def set_status(name: str, status: int) -> Dict[str, Any]:
-    """Set the follow status of a bangumi.
+    This is a repair/debug tool for follow lifecycle state. Prefer delete() for
+    unsubscribe operations. Finished/old bangumi are managed by Bangumi.status
+    through the calendar lifecycle, not by this follow status.
 
     Args:
         name: Name of the followed bangumi.
-        status: Status code (0=deleted, 1=followed, 2=updated today, 3=ended).
+        status: STATUS_FOLLOWED means subscribed. STATUS_UPDATED_TODAY means
+            subscribed and successfully updated today; it normally comes from
+            update() and automatically returns to STATUS_FOLLOWED after today.
     """
+    parsed_status = SETTABLE_FOLLOWED_STATUS.get(status)
+    if parsed_status is None:
+        allowed = ", ".join(SETTABLE_FOLLOWED_STATUS)
+        return {"status": "error", "message": f"Invalid follow status {status!r}. Use one of: {allowed}"}
+
     try:
         followed = Followed.get(Followed.bangumi_name == name)
     except Followed.NotFoundError:
         return {"status": "error", "message": f"Bangumi {name} is not followed"}
 
-    followed.status = status
+    followed.status = parsed_status
+    if parsed_status == Followed.STATUS_UPDATED:
+        followed.updated_time = int(datetime.datetime.now().timestamp())
     followed.save()
-    return {"status": "success", "message": f"Set {name} status to {status}"}
+    follow_status = _followed_status(followed.status)
+    return {
+        "status": "success",
+        "message": f"Set {name} follow status to {follow_status}",
+        "follow_status": follow_status,
+    }
 
 
 # ---------------------------------------------------------------------------
