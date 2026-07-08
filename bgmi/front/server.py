@@ -7,7 +7,7 @@ from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 
 from bgmi.config import cfg
-from bgmi.front.mcp_server import create_mcp_app
+from bgmi.front.mcp_server import create_mcp_app, create_mcp_streamable_route
 from bgmi.front.resources import CalendarHandler
 from .routes import app as api
 
@@ -49,8 +49,10 @@ def index_need_config(_: Request) -> HTMLResponse:
 
 
 def make_app(debug: bool = False) -> Starlette:
+    mcp_app = create_mcp_app()
     routes = [
-        Mount("/mcp", app=create_mcp_app()),
+        create_mcp_streamable_route("/mcp"),
+        Mount("/mcp", app=mcp_app),
         Mount("/api/", app=api),
         Route("/resource/calendar.ics", CalendarHandler),
     ]
@@ -71,7 +73,7 @@ def make_app(debug: bool = False) -> Starlette:
             ]
         )
 
-    app = Starlette(routes=routes, debug=debug)
+    app = Starlette(routes=routes, debug=debug, lifespan=mcp_app.router.lifespan_context)
 
     return app
 

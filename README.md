@@ -575,6 +575,7 @@ class DataSource(BaseWebsite):
 
 | 端点 | 方法 | 说明 |
 |---|---|---|
+| `/mcp` | POST | Streamable HTTP（Codex 等客户端） |
 | `/mcp/sse` | GET | SSE 长连接（MCP 传输层） |
 | `/mcp/messages` | POST | 发送 JSON-RPC 消息 |
 
@@ -619,6 +620,14 @@ class DataSource(BaseWebsite):
 ```
 
 将 `<host>` 替换为服务器地址，`<your-admin-token>` 替换为 `~/.bgmi/config.toml` 中的值。
+
+Codex 使用 Streamable HTTP，配置 URL 为 `/mcp`：
+
+```toml
+[mcp_servers.bgmi]
+url = "http://<host>:8888/mcp"
+http_headers = { "Authorization" = "Bearer <your-admin-token>" }
+```
 
 ### 快速验证
 

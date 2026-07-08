@@ -16,6 +16,16 @@ bangumi_1 = "名侦探柯南"
 
 @pytest.mark.usefixtures("_ensure_data")
 class TestMcpAuth:
+    def test_streamable_http_no_auth(self):
+        r = client.post("/mcp")
+        assert r.status_code == 401
+
+    def test_streamable_http_with_auth_reaches_transport(self):
+        with TestClient(make_app(debug=True), follow_redirects=False) as local_client:
+            r = local_client.post("/mcp", headers=headers)
+        assert r.status_code == 400
+        assert r.text == "Invalid Content-Type header"
+
     def test_sse_no_auth(self):
         r = client.get("/mcp/sse")
         assert r.status_code == 401

@@ -4,6 +4,7 @@ Provides Model Context Protocol access to BGmi operations via SSE transport
 on the same port as the existing HTTP API.
 
 Endpoints (mounted at /mcp):
+    POST /mcp               - Streamable HTTP transport (Codex)
     GET  /mcp/sse           - SSE stream (long-lived connection)
     POST /mcp/messages      - JSON-RPC message endpoint
 
@@ -16,6 +17,7 @@ from typing import Any, Dict, List, Optional
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.responses import Response
+from starlette.routing import Route
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 from mcp.server.fastmcp import FastMCP
@@ -35,6 +37,15 @@ mcp = FastMCP(
         "configure filters, and trigger downloads."
     ),
 )
+
+_streamable_app: Optional[Starlette] = None
+
+
+def _get_streamable_app() -> Starlette:
+    global _streamable_app
+    if _streamable_app is None:
+        _streamable_app = mcp.streamable_http_app()
+    return _streamable_app
 
 
 # ---------------------------------------------------------------------------
@@ -352,9 +363,33 @@ class TokenAuthMiddleware:
 
 
 def create_mcp_app() -> Starlette:
-    """Create the MCP SSE sub-application with auth middleware."""
+    """Create the MCP sub-application with Streamable HTTP and SSE transports."""
     sse_app = mcp.sse_app()
+    streamable_app = _get_streamable_app()
+    streamable_route = next(route for route in streamable_app.routes if getattr(route, "path", None) == "/mcp")
+
     return Starlette(
-        routes=sse_app.routes,
+        routes=[
+            Route(
+                "/",
+                endpoint=streamable_route.endpoint,  # type: ignore[attr-defined]
+                methods=streamable_route.methods,  # type: ignore[attr-defined]
+                name=getattr(streamable_route, "name", None),
+            ),
+            *sse_app.routes,
+        ],
         middleware=[Middleware(TokenAuthMiddleware)],
+        lifespan=streamable_app.router.lifespan_context,
+    )
+
+
+def create_mcp_streamable_route(path: str = "/mcp") -> Route:
+    """Create the top-level Streamable HTTP route without Starlette's slash redirect."""
+    streamable_app = _get_streamable_app()
+    streamable_route = next(route for route in streamable_app.routes if getattr(route, "path", None) == "/mcp")
+    return Route(
+        path,
+        endpoint=TokenAuthMiddleware(streamable_route.endpoint),  # type: ignore[attr-defined]
+        methods=streamable_route.methods,  # type: ignore[attr-defined]
+        name=getattr(streamable_route, "name", None),
     )
