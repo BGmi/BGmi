@@ -68,15 +68,9 @@ def cli(ctx: click.Context) -> None:
 @cli.command("install", help="Install BGmi and frontend.")
 @click.option("--no-web", is_flag=True, default=False, help="Do not download web static files.")
 def install(no_web: bool) -> None:
-    need_to_init = False
-    if not CONFIG_FILE_PATH.exists():
-        need_to_init = True
-
     create_dir()
     init_db()
-    if need_to_init:
-        install_crontab()
-
+    install_crontab()
     write_default_config()
     update_database()
 

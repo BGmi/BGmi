@@ -32,6 +32,19 @@ def test_cal_config():
     main_for_test(["config", "--help"])
 
 
+def test_install_refreshes_crontab():
+    with (
+        mock.patch("bgmi.main.create_dir"),
+        mock.patch("bgmi.main.init_db"),
+        mock.patch("bgmi.main.install_crontab") as install_crontab,
+        mock.patch("bgmi.main.write_default_config"),
+        mock.patch("bgmi.main.update_database"),
+    ):
+        main_for_test(["install", "--no-web"])
+
+    install_crontab.assert_called_once()
+
+
 @pytest.mark.usefixtures("_clean_bgmi")
 def test_list_with_empty_seen_episodes():
     Bangumi(id="empty-seen", name="Empty Seen", update_day="Mon").save()
