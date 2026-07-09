@@ -12,30 +12,23 @@ BGmi 是一个用来追番的命令行程序。
 
 ### V5
 
-#### 设计哲学变更
+v5 是一次主要版本更新，重点是更可靠的单集追踪、更适合媒体库的下载整理，以及新的 HTTP/MCP 管理接口。
 
-v4 及之前的版本采用「最大集数」标量模型：BGmi 只记录每部番剧"当前下载到了第几集"。如果第 5 集下载失败，用户需要 `mark` 回第 4 集，然后 `update` 重新从第 5 集开始下载——这会连带重新处理第 5 集之后所有已下载的集数。
+#### 主要变化
 
-v5 改为**集合模型**：BGmi 独立记录每一集的下载状态。某集失败只需 `seen forget` 移除该集记录，`update` 时只会补下载缺失的那一集，不影响其余集数。
+- 改为按单集记录下载状态。单集下载失败时，可用 `seen forget` 重新加入更新队列，不再需要回退整部番剧的进度。
+- 新增 `seen mark` / `seen forget`，用于手动添加或移除单集记录。
+- 新增 path formatter 和 `postprocess`，可将下载完成的文件整理为 `SxxExx` 等媒体库常用路径。
+- `add` 支持 `--season`、`--episode-offset`、`--display-name`，用于修正季度、总集数偏移和媒体库显示名。
+- `bgmi_http` 新增 MCP 接口，供 MCP 客户端管理订阅、过滤器、更新和下载状态。
+- `bgmi install` 支持从 GitHub Release 安装新版前端。
 
-这一变更带来以下影响：
+#### 不兼容变化
 
-- 移除 `mark` 命令（标量模型的产物，不再需要）。
-- 新增 `seen forget` / `seen mark` 命令，精确移除或添加单集下载记录。
-- `update` 命令总是执行下载，移除了已废弃的 `--download` 参数。
-
-#### 新功能
-
-- **MCP（Model Context Protocol）支持**：`bgmi_http` 内置 MCP SSE 服务端，AI Agent（Claude Desktop、Cursor、Cline 等）可直接通过 MCP 协议管理追番订阅。详见[MCP 章节](#mcpmodel-context-protocol支持)。
-- **Path Formatter**：支持自定义下载文件的目录组织格式（如 `{name}/S{season:02d}/E{episode:02d}.{suffix}`），对 Jellyfin 等媒体服务器友好。
-- **Season 管理**：`bgmi add --season` 可在订阅时指定季度号（自动从标题解析，或手动覆盖）。对已订阅番剧同样有效。
-- **下载后处理**：`bgmi postprocess` 命令，将完成的下载按 formatter 规则移动到目标路径。
-
-#### 架构变更
-
-- 重构 bgmi_http：Tornado → Starlette／FastAPI／Uvicorn。
-- ORM 迁移：Peewee → SQLAlchemy 2.0。
-- 移除 `/resource/feed.xml`。
+- Python 版本要求提升到 3.11+。
+- `mark` 命令由 `seen mark` / `seen forget` 取代。
+- `update` 现在默认执行下载，不再使用旧的 `--download` 参数。
+- v4 数据库需要在升级后运行 `bgmi upgrade` 完成迁移。
 
 ---
 
@@ -83,10 +76,22 @@ v5 改为**集合模型**：BGmi 独立记录每一集的下载状态。某集�
 pipx install bgmi
 ```
 
+安装 v5 预发布版本：
+
+```bash
+pipx install "bgmi==5.0.0a4"
+```
+
 ### 使用 pip 安装稳定版本
 
 ```bash
 pip install bgmi
+```
+
+使用 pip 安装 v5 预发布版本：
+
+```bash
+pip install "bgmi==5.0.0a4"
 ```
 
 ### 从源码安装（不推荐）
@@ -569,7 +574,7 @@ class DataSource(BaseWebsite):
 
 ## MCP（Model Context Protocol）支持
 
-`bgmi_http` 内置了 [MCP](https://modelcontextprotocol.io/) SSE 服务端，允许 AI Agent（如 Claude Desktop、Cursor、Cline 等）直接管理你的追番订阅。
+`bgmi_http` 内置了 [MCP](https://modelcontextprotocol.io/) 服务端，允许 MCP 客户端直接管理追番订阅。
 
 ### 端点
 
@@ -587,19 +592,21 @@ class DataSource(BaseWebsite):
 
 | Tool | 说明 |
 |---|---|
-| `cal` | 获取每周番剧日历 |
-| `list` | 列出所有订阅 |
+| `cal` | 获取当前季度番剧日历 |
+| `list` | 列出我的订阅 |
 | `add` | 订阅番剧（支持 `season` 设置季度，对已订阅番剧同样有效） |
 | `delete` | 取消订阅 |
 | `search` | 搜索番剧 |
+| `update` | 检查更新并下载 |
 | `seen` | 获取已观看集数列表 |
 | `seen_forget` | 移除单集下载记录（触发重新下载） |
 | `seen_mark` | 添加单集下载记录（标记为已观看） |
 | `download` | 手动触发下载 |
+| `download_status` | 查看下载任务状态 |
 | `get_filter` | 获取过滤器配置 |
 | `set_filter` | 设置过滤器 |
-| `get_config` | 获取当前配置 |
-| `set_status` | 设置订阅状态 |
+| `postprocess` | 整理已完成下载 |
+| `set_status` | 修正订阅生命周期状态 |
 
 ### Agent 接入配置
 
