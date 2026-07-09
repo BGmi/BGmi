@@ -56,12 +56,14 @@ def test_b_add_new():
     r = client.post(
         "/api/admin/add",
         headers=headers,
-        json={"bangumi": bangumi_2},
+        json={"bangumi": bangumi_2, "season": 2, "episode_offset": -12},
     )
     assert r.status_code == 200, r.text
     f = Followed.get(Followed.bangumi_name == bangumi_2)
     assert f.status == Followed.STATUS_FOLLOWED
     assert f.episodes == set()
+    assert f.season == 2
+    assert f.episode_offset == -12
 
 
 @pytest.mark.usefixtures("_ensure_data")
