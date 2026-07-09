@@ -157,6 +157,13 @@ class TestMcpTools:
         assert 2 in f.episodes
         assert 3 in f.episodes
 
+    def test_seen_mark_batch(self):
+        result = mcp_server.seen_mark(name=bangumi_1, episodes=[3, 4])
+        assert result["status"] == "success"
+        assert result["episodes"] == [3, 4]
+        f = Followed.get(Followed.bangumi_name == bangumi_1)
+        assert f.episodes == {1, 2, 3, 4}
+
     def test_seen_mark_bangumi_not_followed(self):
         result = mcp_server.seen_mark(name="不存在的番", episode=1)
         assert result["status"] == "error"

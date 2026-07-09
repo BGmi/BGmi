@@ -395,17 +395,22 @@ def seen(bangumi: str = fastapi.Path()) -> Any:
 )
 def seen_forget(
     bangumi: str = fastapi.Body(embed=True),
-    episode: int = fastapi.Body(embed=True),
+    episode: Optional[int] = fastapi.Body(None, embed=True),
+    episodes: Optional[List[int]] = fastapi.Body(None, embed=True),
 ) -> Any:
-    result = ctl.seen_forget(bangumi, episode)
+    result = ctl.seen_forget_batch(bangumi, episodes or ([episode] if episode is not None else []))
     if result["status"] != "success":
         raise HTTPException(404, result["message"])
 
-    return {
+    data = {
         "bangumi": result["bangumi"],
-        "episode": result["episode"],
         "seen": result["seen"],
     }
+    if episodes is None:
+        data["episode"] = episode
+    else:
+        data["episodes"] = result["episodes"]
+    return data
 
 
 @admin.post(
@@ -417,17 +422,22 @@ def seen_forget(
 )
 def seen_mark(
     bangumi: str = fastapi.Body(embed=True),
-    episode: int = fastapi.Body(embed=True),
+    episode: Optional[int] = fastapi.Body(None, embed=True),
+    episodes: Optional[List[int]] = fastapi.Body(None, embed=True),
 ) -> Any:
-    result = ctl.seen_mark(bangumi, episode)
+    result = ctl.seen_mark_batch(bangumi, episodes or ([episode] if episode is not None else []))
     if result["status"] != "success":
         raise HTTPException(404, result["message"])
 
-    return {
+    data = {
         "bangumi": result["bangumi"],
-        "episode": result["episode"],
         "seen": result["seen"],
     }
+    if episodes is None:
+        data["episode"] = episode
+    else:
+        data["episodes"] = result["episodes"]
+    return data
 
 
 app.include_router(admin, prefix="/admin")

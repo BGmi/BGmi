@@ -198,25 +198,27 @@ def seen(name: str) -> Dict[str, Any]:
 
 
 @mcp.tool()
-def seen_forget(name: str, episode: int) -> Dict[str, Any]:
-    """Remove an episode from download records (triggers re-download on next update).
+def seen_forget(name: str, episode: Optional[int] = None, episodes: Optional[List[int]] = None) -> Dict[str, Any]:
+    """Remove episodes from download records (triggers re-download on next update).
 
     Args:
         name: Name of the bangumi.
-        episode: Episode number to forget.
+        episode: Episode number to forget. Kept for single-episode calls.
+        episodes: Episode numbers to forget in one call.
     """
-    return ctl.seen_forget(name, episode)
+    return ctl.seen_forget_batch(name, episodes or ([episode] if episode is not None else []))
 
 
 @mcp.tool()
-def seen_mark(name: str, episode: int) -> Dict[str, Any]:
-    """Add an episode to download records (marks it as seen).
+def seen_mark(name: str, episode: Optional[int] = None, episodes: Optional[List[int]] = None) -> Dict[str, Any]:
+    """Add episodes to download records (marks them as seen).
 
     Args:
         name: Name of the bangumi.
-        episode: Episode number to mark as seen.
+        episode: Episode number to mark as seen. Kept for single-episode calls.
+        episodes: Episode numbers to mark as seen in one call.
     """
-    return ctl.seen_mark(name, episode)
+    return ctl.seen_mark_batch(name, episodes or ([episode] if episode is not None else []))
 
 
 @mcp.tool()

@@ -146,6 +146,21 @@ def test_seen_mark():
 
 
 @pytest.mark.usefixtures("_ensure_data")
+def test_seen_mark_batch():
+    r = client.post(
+        "/api/admin/seen_mark",
+        headers=headers,
+        json={"bangumi": bangumi_1, "episodes": [3, 4]},
+    )
+    assert r.status_code == 200, r.text
+    assert r.json() == {
+        "bangumi": bangumi_1,
+        "episodes": [3, 4],
+        "seen": [1, 2, 3, 4],
+    }
+
+
+@pytest.mark.usefixtures("_ensure_data")
 def test_filter():
     r = client.get(f"/api/admin/filter/{quote(bangumi_1)}", headers=headers)
     assert r.status_code == 200, r.text
