@@ -80,14 +80,16 @@ def _format_timestamp(timestamp: int) -> Optional[str]:
 
 @mcp.tool()
 def cal(force_update: bool = False) -> Dict[str, Any]:
-    """Get the weekly bangumi calendar.
+    """Get the current-season bangumi calendar grouped by weekday.
 
-    Returns currently updating bangumi grouped by weekday.
+    This is the seasonal/quarterly bangumi calendar, not just the user's
+    subscriptions. Use list() when you only need followed subscriptions.
 
     Status values:
         STATUS_NOT_FOLLOWED: In calendar but not subscribed.
         STATUS_FOLLOWED: Subscribed.
         STATUS_UPDATED_TODAY: Subscribed and successfully updated today.
+        STATUS_DELETED: In calendar and previously unsubscribed by the user.
     """
     result = ctl.cal(force_update=force_update)
     calendar: Dict[str, List[Dict[str, Any]]] = {}
