@@ -13,6 +13,13 @@ _episode_cases: List[Tuple[str, int]] = [
         "[YMDR][哥布林殺手][Goblin Slayer][2018][01][1080p][AVC][JAP][BIG5][MP4-AAC][繁中]",
         1,
     ),
+    (
+        (
+            "I.Became.a.Legend.after.My.10.Year.Long.Last.Stand.S01E01."
+            "When.I.Returned.Home.Id.Become.a.Hero.1080p.CR.WEB-DL.AAC2.0.H.264-VARYG.mkv"
+        ),
+        1,
+    ),
     ("弱弱老师.Yowayowa.Sensei.S01..1080p.UNCENSORED.ADN.WEB-DL [2026]", 0),
     ("【安達與島村】【第二話】【1080P】【繁體中文】【AVC】", 2),
     ("のんのんびより のんすとっぷ 第02话 BIG5 720p MP4", 2),
