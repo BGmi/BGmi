@@ -1,41 +1,107 @@
+import glob
 import os
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Iterable, Optional
 
 from bgmi.config import cfg
-from bgmi.utils import bangumi_save_path
+from bgmi.lib.season import strip_season_suffix
+from bgmi.lib.table import Download
+from bgmi.utils import bangumi_save_path, normalize_path
+
+VIDEO_EXTENSIONS = {".mp4", ".mkv", ".avi", ".webm", ".flv", ".rmvb", ".mov", ".ts"}
 
 
-def get_player(bangumi_name: str) -> Dict[int, Dict[str, str]]:
+def get_player(
+    bangumi_name: str,
+    season: int = 1,
+    episode_offset: int = 0,
+    display_name: str = "",
+) -> Dict[int, Dict[str, str]]:
+    if cfg.enable_path_formatter:
+        return get_formatted_player(bangumi_name, season, episode_offset, display_name)
+
+    return get_legacy_player(bangumi_name)
+
+
+def get_legacy_player(bangumi_name: str) -> Dict[int, Dict[str, str]]:
     bangumi_path = bangumi_save_path(bangumi_name)
 
     if not bangumi_path.exists():
         return {}
 
-    episode_list = {}
+    episode_list: Dict[int, Dict[str, str]] = {}
 
-    episodes = [episode.name for episode in bangumi_path.iterdir() if episode.name.isdigit()]
-
-    for episode in episodes:
-        e = find_largest_video_file(bangumi_path.joinpath(episode))
+    for episode in bangumi_path.iterdir():
+        if not episode.is_dir() or not episode.name.isdigit():
+            continue
+        e = find_largest_video_file(episode)
         if e:
-            episode_list[int(episode)] = {"path": "/" + e}
+            episode_list[int(episode.name)] = {"path": "/" + e}
 
     return episode_list
 
 
-def find_largest_video_file(top_dir: Path) -> Optional[str]:
-    video_files = []
-    for root, _, files in os.walk(top_dir):
-        for file in files:
-            _, ext = os.path.splitext(file)
-            if ext.lower() in [".mp4", ".mkv", ".webm"]:
-                p = Path(root).joinpath(file)
-                video_files.append((p.stat().st_size, p))
+def get_formatted_player(
+    bangumi_name: str,
+    season: int,
+    episode_offset: int,
+    display_name: str,
+) -> Dict[int, Dict[str, str]]:
+    name = display_name or strip_season_suffix(bangumi_name)
+    episode_files: Dict[int, Path] = {}
 
-    if not video_files:
+    downloads = Download.all(Download.bangumi_name == bangumi_name, Download.status == Download.STATUS_DOWNLOADED)
+    for download in downloads:
+        path = find_largest_matching_video_file(
+            cfg.path_formatter.format(
+                name=glob.escape(normalize_path(name)),
+                season=season,
+                episode=download.episode + episode_offset,
+                suffix="*",
+                title=glob.escape(download.title),
+            )
+        )
+        if not path:
+            continue
+
+        current = episode_files.get(download.episode)
+        if current is None or path.stat().st_size > current.stat().st_size:
+            episode_files[download.episode] = path
+
+    return {
+        episode: {"path": "/" + path.relative_to(cfg.save_path).as_posix()}
+        for episode, path in sorted(episode_files.items())
+    }
+
+
+def find_largest_video_file(top_dir: Path) -> Optional[str]:
+    video = find_largest_file(
+        Path(root).joinpath(file)
+        for root, _, files in os.walk(top_dir)
+        for file in files
+        if Path(file).suffix.lower() in VIDEO_EXTENSIONS
+    )
+
+    if not video:
         return None
 
-    video_files.sort(key=lambda x: -x[0])
+    return video.relative_to(cfg.save_path).as_posix()
 
-    return video_files[0][1].relative_to(cfg.save_path).as_posix()
+
+def find_largest_matching_video_file(pattern: str) -> Optional[Path]:
+    return find_largest_file(path for path in cfg.save_path.glob(pattern) if path.suffix.lower() in VIDEO_EXTENSIONS)
+
+
+def find_largest_file(paths: Iterable[Path]) -> Optional[Path]:
+    largest: Optional[Path] = None
+    largest_size = -1
+
+    for path in paths:
+        if not path.is_file():
+            continue
+        size = path.stat().st_size
+        if size > largest_size:
+            largest = path
+            largest_size = size
+
+    return largest

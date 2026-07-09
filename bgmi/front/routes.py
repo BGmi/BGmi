@@ -104,7 +104,12 @@ def bangumi_list(t: str) -> Any:
     data.reverse()
 
     for item in data:
-        item["player"] = get_player(item["bangumi_name"])
+        item["player"] = get_player(
+            item["bangumi_name"],
+            season=item.get("season", 1),
+            episode_offset=item.get("episode_offset", 0),
+            display_name=item.get("display_name", ""),
+        )
 
     return jsonify(data)
 

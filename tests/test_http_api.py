@@ -1,5 +1,6 @@
 import os
 import random
+import shutil
 import string
 from urllib.parse import quote
 
@@ -11,7 +12,7 @@ from bgmi.config import cfg
 from bgmi.front.index import get_player
 from bgmi.front.routes import COVER_URL
 from bgmi.front.server import make_app
-from bgmi.lib.table import Followed
+from bgmi.lib.table import Download, Followed, Session
 
 
 def random_word(length):
@@ -199,3 +200,35 @@ def test_get_player():
 
     assert 2 in bangumi_dict["player"]
     assert bangumi_dict["player"][2]["path"] == f"/{bangumi_name}/2/2.mkv"
+
+
+def test_get_player_with_path_formatter():
+    bangumi_name = "相反的你和我 第二季"
+    target_dir = cfg.save_path / "相反的你和我" / "S02"
+    old_enable = cfg.enable_path_formatter
+    old_formatter = cfg.path_formatter
+
+    try:
+        cfg.enable_path_formatter = True
+        cfg.path_formatter = "{name}/S{season:02d}/S{season:02d}E{episode:02d}.{suffix}"
+        shutil.rmtree(cfg.save_path / "相反的你和我", ignore_errors=True)
+        target_dir.mkdir(parents=True)
+        (target_dir / "S02E01.mkv").write_text("video")
+
+        with Session.begin() as tx:
+            tx.query(Download).delete()
+            tx.add(
+                Download(
+                    bangumi_name=bangumi_name,
+                    episode=13,
+                    title="episode 13",
+                    download="magnet:?xt=urn:btih:test",
+                    status=Download.STATUS_DOWNLOADED,
+                )
+            )
+
+        assert get_player(bangumi_name, season=2, episode_offset=-12) == {13: {"path": "/相反的你和我/S02/S02E01.mkv"}}
+    finally:
+        cfg.enable_path_formatter = old_enable
+        cfg.path_formatter = old_formatter
+        shutil.rmtree(cfg.save_path / "相反的你和我", ignore_errors=True)
