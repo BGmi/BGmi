@@ -219,10 +219,15 @@ def check_update(mark: bool = True) -> None:
 
 _separator_episode_pattern = re.compile(r"[★☆](?:第\s*)?(?P<episode>0*[1-9]\d{0,2})(?=[\s(（)）\]】★☆_.])")
 _bracketed_release_year_pattern = re.compile(r"[\[【(（]\s*(?:19|20)\d{2}\s*[\]】)）]")
+_season_episode_pattern = re.compile(r"(?i)(?<![A-Z0-9])S\d{1,2}E(?P<episode>\d{1,4})(?![A-Z0-9])")
 
 
 def parse_episode(episode_title: str) -> int:
     episode_title = _bracketed_release_year_pattern.sub("", episode_title)
+    season_episode = _season_episode_pattern.search(episode_title)
+    if season_episode is not None:
+        return int(season_episode.group("episode"))
+
     s, c = _parse_episode(episode_title)
     if c == 1:
         return s or 0
