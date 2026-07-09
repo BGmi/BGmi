@@ -305,7 +305,7 @@ def seen_forget(name: str, episode: int) -> ControllerResult:
         session.execute(
             sa.update(Download)
             .where(Download.bangumi_name == name, Download.episode == episode)
-            .values(status=Download.STATUS_NOT_DOWNLOAD, task_id=None)
+            .values(status=Download.STATUS_DOWNLOADED, task_id=None)
         )
 
     return {
