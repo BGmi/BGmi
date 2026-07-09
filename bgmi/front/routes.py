@@ -1,3 +1,4 @@
+import hashlib
 from typing import Any, Dict, Generic, List, Optional, TypeVar
 
 import fastapi
@@ -17,6 +18,7 @@ app = fastapi.FastAPI(docs_url="/")
 
 COVER_URL = "/bangumi/.cover"
 WEEK = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+SCRIPT_ID_PREFIX = "script:"
 
 
 def cover_path(s: str) -> str:
@@ -48,12 +50,35 @@ def jsonify(data: Any) -> Dict[str, Any]:
 
 
 class Bangumi(BaseModel):
+    id: str
     status: int
     episode: int
     cover: str
     bangumi_name: str
     updated_time: int
+
+
+class BangumiPlayer(Bangumi):
     player: Dict[int, Player]
+
+
+def script_id(name: str) -> str:
+    return f"{SCRIPT_ID_PREFIX}{hashlib.sha1(name.encode()).hexdigest()}"
+
+
+def followed_item(followed: Followed, bangumi: table.Bangumi) -> Dict[str, Any]:
+    return {
+        key: value
+        for key, value in {
+            **bangumi.__dict__,
+            **followed.__dict__,
+            "id": bangumi.id,
+            "bangumi_name": bangumi.name,
+            "episode": followed.episode,
+            "cover": cover_path(bangumi.cover),
+        }.items()
+        if not key.startswith("_")
+    }
 
 
 @app.get("/index/{t}", response_model=Response[List[Bangumi]])
@@ -69,16 +94,7 @@ def bangumi_list(t: str) -> Any:
         bangumi_status = table.Bangumi.STATUS_END
 
     data: List[Dict[str, Any]] = [
-        {
-            key: value
-            for key, value in {
-                **bangumi.__dict__,
-                **followed.__dict__,
-                "episode": followed.episode,
-                "cover": cover_path(bangumi.cover),
-            }.items()
-            if not key.startswith("_")
-        }
+        followed_item(followed, bangumi)
         for followed, bangumi in Followed.get_all_followed(bangumi_status=bangumi_status)
     ]
 
@@ -91,6 +107,7 @@ def bangumi_list(t: str) -> Any:
             for s in patch_list:
                 data.append(
                     {
+                        "id": script_id(s.bangumi_name),
                         "bangumi_name": s.bangumi_name,
                         "updated_time": s.updated_time,
                         "status": s.status,
@@ -103,16 +120,51 @@ def bangumi_list(t: str) -> Any:
 
     data.reverse()
 
-    for item in data:
-        item["player"] = get_player(
-            item["bangumi_name"],
-            episodes=item.get("episodes", ()),
-            season=item.get("season", 1),
-            episode_offset=item.get("episode_offset", 0),
-            display_name=item.get("display_name", ""),
+    return jsonify(data)
+
+
+@app.get("/player/{bangumi_id:path}", response_model=Response[BangumiPlayer])
+def bangumi_player(bangumi_id: str) -> Any:
+    with Session.begin() as tx:
+        row = (
+            tx.query(Followed, table.Bangumi)
+            .join(table.Bangumi, Followed.bangumi_name == table.Bangumi.name)
+            .where(table.Bangumi.id == bangumi_id, Followed.status.isnot(Followed.STATUS_DELETED))
+            .one_or_none()
         )
 
-    return jsonify(data)
+        if row:
+            followed, bangumi = row
+            item = followed_item(followed, bangumi)
+        else:
+            item = None
+            if bangumi_id.startswith(SCRIPT_ID_PREFIX):
+                for script in tx.query(Scripts).where(Scripts.status.isnot(Followed.STATUS_DELETED)).all():
+                    if script_id(script.bangumi_name) == bangumi_id:
+                        item = {
+                            "id": bangumi_id,
+                            "bangumi_name": script.bangumi_name,
+                            "updated_time": script.updated_time,
+                            "status": script.status,
+                            "cover": script.cover,
+                            "episodes": script.episodes,
+                            "episode": max(script.episodes) if script.episodes else 0,
+                        }
+                        break
+
+        if item is None:
+            raise HTTPException(404, "bangumi not found")
+
+    episodes = item.pop("episodes", ())
+    item["player"] = get_player(
+        item["bangumi_name"],
+        episodes=episodes,
+        season=item.get("season", 1),
+        episode_offset=item.get("episode_offset", 0),
+        display_name=item.get("display_name", ""),
+    )
+
+    return jsonify(item)
 
 
 class CalendarItem(BaseModel):
