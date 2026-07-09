@@ -18,7 +18,7 @@ v5 是一次主要版本更新，重点是更可靠的单集追踪、更适合�
 
 - 改为按单集记录下载状态。单集下载失败时，可用 `seen forget` 重新加入更新队列，不再需要回退整部番剧的进度。
 - 新增 `seen mark` / `seen forget`，用于手动添加或移除单集记录。
-- 新增 path formatter 和 `postprocess`，可将下载完成的文件整理为 `SxxExx` 等媒体库常用路径。
+- 新增 path formatter 和 `postprocess`。启用后，下载中的文件会先进入 `.downloads`，完成后整理为 `SxxExx` 等媒体库常用路径。
 - `add` 支持 `--season`、`--episode-offset`、`--display-name`，用于修正季度、总集数偏移和媒体库显示名。
 - `bgmi_http` 新增 MCP 接口，供 MCP 客户端管理订阅、过滤器、更新和下载状态。
 - `bgmi install` 支持从 GitHub Release 安装新版前端。
@@ -162,6 +162,8 @@ download_delegate = "aria2-rpc" # 番剧下载工具（aria2-rpc、transmission-
 tmp_path = "tmp/tmp" # 临时目录
 log_path = "tmp/log" # 日志目录
 save_path = "tmp/bangumi" # 下载番剧保存地址
+enable_path_formatter = false # 启用后，完成下载会整理为 path_formatter 指定的路径
+path_formatter = "{name}/S{season:02d}/S{season:02d}E{episode:02d}.{suffix}" # 媒体库文件路径格式
 max_path = 3 # 抓取数据时每个番剧最大抓取页数
 bangumi_moe_url = "https://bangumi.moe"
 share_dmhy_url = "https://share.dmhy.org"
@@ -318,6 +320,18 @@ bgmi delete "Re:CREATORS"
 ```bash
 bgmi update
 bgmi update "从零开始的魔法书"
+```
+
+### 下载目录格式
+
+默认情况下，BGmi 仍会把每集下载到 `${save_path}/{番剧名}/{集数}/`。
+
+设置 `enable_path_formatter = true` 后，下载器会先把任务保存到 `${save_path}/.downloads/{任务 ID}/`。任务完成后，`bgmi update` 会自动执行 `postprocess`，也可以手动运行 `bgmi postprocess`，将文件移动到 `path_formatter` 指定的位置。
+
+默认格式为：
+
+```toml
+path_formatter = "{name}/S{season:02d}/S{season:02d}E{episode:02d}.{suffix}"
 ```
 
 ### 管理已下载集数
