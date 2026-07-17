@@ -4,11 +4,11 @@ requires-python = ">=3.11, <4"
 
 [[package]]
 name = "anime-episode-parser"
-version = "0.0.13"
+version = "0.0.15"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/b2/d3/431018a1a46634fcbc96e12729e9d6bb41d1c10fa06a7529d2037e6b2ec9/anime_episode_parser-0.0.13.tar.gz", hash = "sha256:aa2b3bc99d2cd968474edc198e93c8a72e8395974bd1570b6492c2216d3eed09", size = 4328 }
+sdist = { url = "https://files.pythonhosted.org/packages/b0/47/2f5c73628f6854e244fe51262db167835b7aeb5cf3dd8bb7b7a1e507ece2/anime_episode_parser-0.0.15.tar.gz", hash = "sha256:b6270a7063ad753c1aa63c87dfca0c6c46bbb6005f2e89ff4f8f8180b10f3cf2", size = 4434 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a6/e1/2d1aafca5d9d4ba7d78623a946658bd7ace7ed0ce5a14a12efd1d3c94948/anime_episode_parser-0.0.13-py3-none-any.whl", hash = "sha256:857e10b555228a6c21c629f399e3d7d36fae15a5d45a0dbb01020f1ff7b185bd", size = 4574 },
+    { url = "https://files.pythonhosted.org/packages/b3/9d/9aea47da2db8116d0570382c007de96694779c46debf2b8e93379512c0d8/anime_episode_parser-0.0.15-py3-none-any.whl", hash = "sha256:6461753c28ff1fca43a503a278bec50fd7597d9315150025b23d9315974b669b", size = 4682 },
 ]
 
 [[package]]
@@ -107,7 +107,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "anime-episode-parser", specifier = "==0.0.13" },
+    { name = "anime-episode-parser", specifier = "==0.0.15" },
     { name = "beautifulsoup4", specifier = "==4.14.2" },
     { name = "click", specifier = "==8.3.1" },
     { name = "fastapi", specifier = "==0.121.1" },

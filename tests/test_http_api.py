@@ -13,7 +13,7 @@ from bgmi.config import cfg
 from bgmi.front.index import get_player
 from bgmi.front.routes import COVER_URL
 from bgmi.front.server import make_app
-from bgmi.lib.table import Followed
+from bgmi.lib.table import Followed, Scripts, Session
 
 
 def random_word(length):
@@ -64,6 +64,16 @@ def test_b_add_new():
     assert f.episodes == set()
     assert f.season == 2
     assert f.episode_offset == -12
+
+
+@pytest.mark.usefixtures("_ensure_data")
+def test_b_add_not_found():
+    r = client.post(
+        "/api/admin/add",
+        headers=headers,
+        json={"bangumi": "不存在的番"},
+    )
+    assert r.status_code == 404
 
 
 @pytest.mark.usefixtures("_ensure_data")
@@ -127,6 +137,21 @@ def test_seen_forget_not_found():
 
 
 @pytest.mark.usefixtures("_ensure_data")
+def test_seen_forget_batch():
+    r = client.post(
+        "/api/admin/seen_forget",
+        headers=headers,
+        json={"bangumi": bangumi_1, "episodes": [1, 2]},
+    )
+    assert r.status_code == 200, r.text
+    assert r.json() == {
+        "bangumi": bangumi_1,
+        "episodes": [1, 2],
+        "seen": [],
+    }
+
+
+@pytest.mark.usefixtures("_ensure_data")
 def test_seen_mark():
     r = client.post(
         "/api/admin/seen_mark",
@@ -158,6 +183,16 @@ def test_seen_mark_batch():
         "episodes": [3, 4],
         "seen": [1, 2, 3, 4],
     }
+
+
+@pytest.mark.usefixtures("_ensure_data")
+def test_seen_mark_requires_episode():
+    r = client.post(
+        "/api/admin/seen_mark",
+        headers=headers,
+        json={"bangumi": bangumi_1},
+    )
+    assert r.status_code == 404
 
 
 @pytest.mark.usefixtures("_ensure_data")
@@ -203,6 +238,28 @@ def test_player_by_id():
     assert r["data"]["id"] == "1"
     assert r["data"]["bangumi_name"] == bangumi_1
     assert r["data"]["player"]["1"]["path"] == f"/{bangumi_1}/1/1.mp4"
+
+
+@pytest.mark.usefixtures("_ensure_data")
+def test_script_player_by_id():
+    name = "script bangumi"
+    episode_dir = cfg.save_path / name / "1"
+    episode_dir.mkdir(parents=True, exist_ok=True)
+    (episode_dir / "1.mp4").write_text("")
+    with Session.begin() as tx:
+        tx.add(Scripts(bangumi_name=name, episodes={1}, status=Followed.STATUS_FOLLOWED))
+
+    items = client.get("/api/index/index").json()["data"]
+    bangumi_id = next(item["id"] for item in items if item["bangumi_name"] == name)
+    response = client.get(f"/api/player/{bangumi_id}")
+
+    assert response.status_code == 200, response.text
+    assert response.json()["data"]["player"]["1"]["path"] == f"/{name}/1/1.mp4"
+
+
+@pytest.mark.usefixtures("_ensure_data")
+def test_player_not_found():
+    assert client.get("/api/player/not-found").status_code == 404
 
 
 @pytest.mark.usefixtures("_ensure_data")

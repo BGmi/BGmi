@@ -12,7 +12,7 @@ license = 'MIT'
 requires-python = '>=3.11,<4'
 maintainers = [{ name = "Trim21", email = "i@trim21.me" }]
 dependencies = [
-  'anime-episode-parser (==0.0.13)',
+  'anime-episode-parser (==0.0.15)',
   'beautifulsoup4 (==4.14.2)',
   "click==8.3.1",
   "fastapi==0.121.1",

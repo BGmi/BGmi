@@ -318,6 +318,12 @@ def test_seen_mark_updates_download_record():
     assert download.task_id is None
 
 
+@pytest.mark.parametrize("episodes", [[], [0]])
+def test_seen_batch_rejects_invalid_episodes(episodes):
+    assert ctl.seen_mark_batch(bangumi_name_1, episodes)["status"] == "error"
+    assert ctl.seen_forget_batch(bangumi_name_1, episodes)["status"] == "error"
+
+
 def test_search():
     with mock.patch("bgmi.lib.fetch.website.search_by_keyword") as m:
         m.return_value = []
