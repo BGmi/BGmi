@@ -98,11 +98,7 @@ class HTTP(BaseSetting):
         ),
     ] = cast(
         bool,
-        (
-            os.getenv("BGMI_HTTP_SERVE_STATIC_FILES").lower() == "true"
-            if os.getenv("BGMI_HTTP_SERVE_STATIC_FILES") is not None
-            else True
-        ),
+        os.getenv("BGMI_HTTP_SERVE_STATIC_FILES", "true").lower() == "true",
     )
 
 
