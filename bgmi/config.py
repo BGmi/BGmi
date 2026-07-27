@@ -96,7 +96,14 @@ class HTTP(BaseSetting):
             description="serve static files with main",
             validate_default=True,
         ),
-    ] = cast(bool, os.getenv("BGMI_HTTP_SERVE_STATIC_FILES") or False)
+    ] = cast(
+        bool,
+        (
+            os.getenv("BGMI_HTTP_SERVE_STATIC_FILES").lower() == "true"
+            if os.getenv("BGMI_HTTP_SERVE_STATIC_FILES") is not None
+            else True
+        ),
+    )
 
 
 class Config(BaseSetting):
