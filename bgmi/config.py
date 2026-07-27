@@ -179,7 +179,7 @@ class Config(BaseSetting):
     )
 
     def save(self) -> None:
-        s = tomlkit.dumps(json.loads(self.model_dump_json()))
+        s = tomlkit.dumps(json.loads(self.model_dump_json(exclude_none=True)))
 
         CONFIG_FILE_PATH.write_text(s, encoding="utf8")
 
