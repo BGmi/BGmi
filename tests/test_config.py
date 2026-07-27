@@ -16,4 +16,3 @@ def test_config_save_with_none_values(tmp_path):
         assert config_file.exists()
         content = config_file.read_text(encoding="utf8")
         assert len(content) > 0
-
