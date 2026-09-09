@@ -267,7 +267,7 @@ def test_seen():
 
 
 @pytest.mark.usefixtures("_ensure_data")
-def test_seen_forget_does_not_mark_download_failed():
+def test_seen_forget_marks_download_as_not_download():
     with Session.begin() as tx:
         tx.add(
             Download(
@@ -288,7 +288,7 @@ def test_seen_forget_does_not_mark_download_failed():
     assert result["total_episode"] == 2
     assert 2 not in Followed.get(Followed.bangumi_name == bangumi_name_1).episodes
     download = Download.get(Download.bangumi_name == bangumi_name_1, Download.episode == 2)
-    assert download.status == Download.STATUS_DOWNLOADED
+    assert download.status == Download.STATUS_NOT_DOWNLOAD
     assert download.task_id is None
 
 
