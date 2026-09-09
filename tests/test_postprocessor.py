@@ -12,6 +12,8 @@ class TestParseSeason:
         assert parse_season("进击的巨人 第二季") == 2
         assert parse_season("某某某 第十二季") == 12
         assert parse_season("某某某 第三季") == 3
+        assert parse_season("王者天下 第二十一季") == 21
+        assert parse_season("银河英雄传说 第三十二季") == 32
 
     def test_arabic_digit(self):
         assert parse_season("进击的巨人 第2季") == 2

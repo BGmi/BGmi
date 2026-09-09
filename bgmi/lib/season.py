@@ -25,10 +25,12 @@ CN_NUM_MAP: Dict[str, int] = {
 def _cn_to_int(s: str) -> int:
     if s in CN_NUM_MAP:
         return CN_NUM_MAP[s]
-    if s.startswith("十"):
-        return 10 + _cn_to_int(s[1:])
-    if s.endswith("十"):
-        return _cn_to_int(s[:-1]) * 10
+    if s.count("十") == 1:
+        tens, ones = s.split("十")
+        if len(tens) <= 1 and len(ones) <= 1:
+            tens_value = CN_NUM_MAP.get(tens, 1) if tens else 1
+            ones_value = CN_NUM_MAP.get(ones, 0) if ones else 0
+            return tens_value * 10 + ones_value
     return 1
 
 
