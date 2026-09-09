@@ -19,6 +19,7 @@ import requests
 import semver
 from anime_episode_parser import parse_episode as _parse_episode
 from loguru import logger
+from packaging.version import Version
 from requests import Response
 
 from bgmi import __admin_version__, __version__
@@ -168,6 +169,10 @@ def latest_frontend_version() -> semver.VersionInfo:
         return latest_npm_package_version()
 
 
+def _is_newer_version(available: str, current: str) -> bool:
+    return Version(available) > Version(current)
+
+
 def check_update(mark: bool = True) -> None:
     def update() -> None:
         try:
@@ -178,7 +183,7 @@ def check_update(mark: bool = True) -> None:
             with open(os.path.join(BGMI_PATH, "latest"), "w", encoding="utf8") as f:
                 f.write(version)
 
-            if version > __version__:
+            if _is_newer_version(version, __version__):
                 print_warning(
                     "Please update bgmi to the latest version {}{}{}."
                     "\nThen execute `bgmi upgrade` to migrate database".format(GREEN, version, COLOR_END)

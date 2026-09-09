@@ -5,7 +5,7 @@ from unittest import mock
 
 from bgmi.config import cfg
 from bgmi.front.index import get_player
-from bgmi.utils import episode_filter_regex, latest_github_release, parse_episode
+from bgmi.utils import _is_newer_version, episode_filter_regex, latest_github_release, parse_episode
 from bgmi.website.model import Episode
 
 _episode_cases: List[Tuple[str, int]] = [
@@ -129,6 +129,14 @@ def test_latest_github_release_selects_compatible_tgz_asset():
     assert str(version) == "2.1.3"
     assert release["tag_name"] == "v2.1.3"
     assert asset["name"] == "bgmi-frontend-2.1.3.tgz"
+
+
+def test_newer_version_compares_numeric_components():
+    assert _is_newer_version("10.0.0", "9.9.9")
+    assert _is_newer_version("5.0.10", "5.0.9")
+    assert _is_newer_version("5.0.0", "5.0.0b1")
+    assert _is_newer_version("5.0.0b2", "5.0.0b1")
+    assert not _is_newer_version("5.0.9", "5.0.10")
 
 
 def test_get_player():
