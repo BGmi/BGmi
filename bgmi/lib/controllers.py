@@ -310,7 +310,7 @@ def seen_forget_batch(name: str, episodes: List[int]) -> ControllerResult:
         session.execute(
             sa.update(Download)
             .where(Download.bangumi_name == name, Download.episode.in_(episodes))
-            .values(status=Download.STATUS_DOWNLOADED, task_id=None)
+            .values(status=Download.STATUS_NOT_DOWNLOAD, task_id=None)
         )
 
     return {
