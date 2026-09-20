@@ -8,6 +8,9 @@ BGmi 是一个用来追番的命令行程序。
 [![](https://codecov.io/gh/BGmi/BGmi/branch/master/graph/badge.svg)](https://codecov.io/gh/BGmi/BGmi/branch/master/graph/badge.svg)
 [![](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/BGmi/BGmi/blob/master/LICENSE)
 
+<img width="1392" height="831" alt="Clipboard_Screenshot_1789864726" src="https://github.com/user-attachments/assets/3c011152-e827-4f01-9698-537dbbd687b7" />
+
+
 ## 更新日志
 
 ### V5.0.0
@@ -54,19 +57,15 @@ v5 是一次主要版本更新，重点是更可靠的单集追踪、更适合�
 
 ## 特性
 
-- 多个数据源可选：[bangumi_moe](https://bangumi.moe)、[mikan_project](https://mikanani.me) 或者 [dmhy](https://share.dmhy.org/)。
-- 使用 aria2、transmission、qbittorrent 或者 deluge 来下载你的番剧。
-- 提供一个管理和观看订阅番剧的前端。
-- 弹幕支持。
+- 多个可选数据源：[bangumi_moe](https://bangumi.moe)、[mikan_project](https://mikanani.me) 或者 [dmhy](https://share.dmhy.org/)。
+- 多种可选下载后端：aria2、transmission、qbittorrent 或者 deluge。
+- 提供一个管理和观看订阅番剧的前端，以及弹幕支持。
+- 下载番剧时的过滤器（支持关键词、字幕组和正则）。
 - 提供移动设备支持的 ICS 格式日历。
 - Bangumi Script：添加自己的番剧解析器。
-- 番剧放送列表和剧集信息。
-- 下载番剧时的过滤器（支持关键词、字幕组和正则）。
-- 多平台支持：Windows、macOS 以及 Linux。
+- MCP 支持：由 AI Agent 管理你的番剧列表。 
 
-![](./images/bgmi_cli.png?raw=true)
-![](https://github.com/BGmi/BGmi-frontend/raw/master/.github/images/example.png)
-![](https://github.com/BGmi/BGmi-frontend/raw/master/.github/images/example2.png)
+
 
 ## 安装
 
