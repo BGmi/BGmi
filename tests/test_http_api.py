@@ -318,3 +318,52 @@ def test_get_player_with_path_formatter():
         cfg.enable_path_formatter = old_enable
         cfg.path_formatter = old_formatter
         shutil.rmtree(cfg.save_path / "相反的你和我", ignore_errors=True)
+
+
+def test_serve_static_files_disabled_shows_config_help(tmp_path):
+    old_val = cfg.http.serve_static_files
+    try:
+        cfg.http.serve_static_files = False
+        app = make_app(debug=True)
+        c = TestClient(app)
+        r = c.get("/")
+        assert r.status_code == 200
+        assert "bgmi config set http serve_static_files" in r.text
+    finally:
+        cfg.http.serve_static_files = old_val
+
+
+def test_serve_static_files_enabled_without_frontend_shows_install_help(tmp_path):
+    old_val = cfg.http.serve_static_files
+    old_static_path = cfg.front_static_path
+    try:
+        cfg.http.serve_static_files = True
+        cfg.front_static_path = tmp_path / "empty_static"
+        cfg.front_static_path.mkdir(parents=True, exist_ok=True)
+        app = make_app(debug=True)
+        c = TestClient(app)
+        r = c.get("/")
+        assert r.status_code == 200
+        assert "bgmi install" in r.text
+    finally:
+        cfg.http.serve_static_files = old_val
+        cfg.front_static_path = old_static_path
+
+
+def test_serve_static_files_enabled_with_frontend_serves_index(tmp_path):
+    old_val = cfg.http.serve_static_files
+    old_static_path = cfg.front_static_path
+    try:
+        cfg.http.serve_static_files = True
+        static_dir = tmp_path / "static"
+        static_dir.mkdir(parents=True, exist_ok=True)
+        (static_dir / "index.html").write_text("<h1>BGmi Web UI</h1>")
+        cfg.front_static_path = static_dir
+        app = make_app(debug=True)
+        c = TestClient(app)
+        r = c.get("/")
+        assert r.status_code == 200
+        assert "BGmi Web UI" in r.text
+    finally:
+        cfg.http.serve_static_files = old_val
+        cfg.front_static_path = old_static_path
