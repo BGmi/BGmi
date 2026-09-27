@@ -67,7 +67,7 @@ wheels = [
 
 [[package]]
 name = "bgmi"
-version = "5.0.1"
+version = "5.0.2"
 source = { editable = "." }
 dependencies = [
     { name = "anime-episode-parser" },
@@ -114,7 +114,7 @@ requires-dist = [
     { name = "filetype", specifier = "==1.2.0" },
     { name = "icalendar", specifier = "==6.3.2" },
     { name = "loguru", specifier = "==0.7.3" },
-    { name = "mcp", specifier = ">=1.0.0" },
+    { name = "mcp", specifier = ">=1.0.0,<2" },
     { name = "packaging", specifier = "==25.0" },
     { name = "pycomplete", specifier = "==0.4.0" },
     { name = "pydantic", specifier = "==2.12.4" },
