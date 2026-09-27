@@ -56,6 +56,7 @@ class Bangumi(BaseModel):
     cover: str
     bangumi_name: str
     updated_time: int
+    display_name: str = ""
 
 
 class BangumiPlayer(Bangumi):
@@ -247,8 +248,18 @@ def add(
     bangumi: str = fastapi.Body(embed=True),
     season: Optional[int] = fastapi.Body(None, embed=True),
     episode_offset: Optional[int] = fastapi.Body(None, embed=True),
+    display_name: Optional[str] = fastapi.Body(
+        None,
+        embed=True,
+        description=(
+            "Override {name} in path_formatter for new or existing subscriptions. "
+            "Requires enable_path_formatter=true; applied during download post-processing. "
+            "Null/omitted preserves an existing override; empty string restores automatic naming. "
+            "Does not change the subscription name or rename previously organized files."
+        ),
+    ),
 ) -> Any:
-    result = ctl.add(name=bangumi, season=season, episode_offset=episode_offset)
+    result = ctl.add(name=bangumi, season=season, episode_offset=episode_offset, display_name=display_name)
     if result["status"] == "error":
         raise HTTPException(404, result["message"])
 
@@ -315,6 +326,7 @@ def get_filter(bangumi: str = fastapi.Path()) -> Any:
         "regex": f.regex,
         "season": f.season,
         "episode_offset": f.episode_offset,
+        "display_name": f.display_name,
     }
 
 

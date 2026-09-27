@@ -12,20 +12,19 @@ Authentication: Bearer token in Authorization header, validated against admin_to
 """
 
 import datetime
-from typing import Any, Dict, List, Literal, Optional
+from typing import Annotated, Any, Dict, List, Literal, Optional
 
+from mcp.server.fastmcp import FastMCP
+from pydantic import Field
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.responses import Response
 from starlette.routing import Route
 from starlette.types import ASGIApp, Receive, Scope, Send
 
-from mcp.server.fastmcp import FastMCP
-
 from bgmi.config import cfg
 from bgmi.lib import controllers as ctl
 from bgmi.lib.download import download_episode, get_download_driver
-
 from bgmi.lib.table import Download, Followed
 from bgmi.website.model import Episode
 
@@ -136,9 +135,26 @@ def add(
     episode: Optional[int] = 0,
     season: Optional[int] = None,
     episode_offset: Optional[int] = None,
-    display_name: Optional[str] = None,
+    display_name: Annotated[
+        Optional[str],
+        Field(
+            description=(
+                "Rewrite the name used in downloaded file/directory paths: replaces {name} in path_formatter. "
+                "For example, subscribe to 飙马野郎 JOJO的奇妙冒险 with display_name=JOJO的奇妙冒险 "
+                "to save under JOJO的奇妙冒险/. The subscription/source name stays unchanged. "
+                "Also works when updating an existing subscription via add. Requires enable_path_formatter=true; "
+                "applies when completed downloads are processed by update or postprocess. "
+                "Does not rename previously organized files. Omit or use null to preserve an existing override; "
+                "use an empty string to clear it and restore the automatic name with season suffix removed."
+            )
+        ),
+    ] = None,
 ) -> Dict[str, Any]:
-    """Subscribe to a bangumi by name.
+    """Subscribe to a bangumi or update an existing subscription's path naming settings.
+
+    Use display_name for download name rewriting (custom output directory/file names).
+    Path overrides require enable_path_formatter=true and apply during update/postprocess;
+    they do not rename previously organized files or change the subscription/source name.
 
     Args:
         name: Name of the bangumi to subscribe to (fuzzy matched).
@@ -146,7 +162,9 @@ def add(
             Use null to mark currently available episodes as already downloaded.
         season: Override season number (default: auto-detect from name). Also works for already subscribed bangumi.
         episode_offset: Episode number offset for path formatter (e.g. 48 to map EP8 -> EP56).
-        display_name: Override display name in path formatter (e.g. for TMDB matching).
+        display_name: Replace {name} in path_formatter, e.g. use JOJO的奇妙冒险 for a subscription
+            named 飙马野郎 JOJO的奇妙冒险. Works for existing subscriptions. Null/omitted preserves
+            an existing override; an empty string restores automatic naming with season suffix removed.
     """
     return ctl.add(name=name, episode=episode, season=season, episode_offset=episode_offset, display_name=display_name)
 

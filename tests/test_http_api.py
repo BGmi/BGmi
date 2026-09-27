@@ -77,6 +77,35 @@ def test_b_add_not_found():
 
 
 @pytest.mark.usefixtures("_ensure_data")
+def test_display_name_create_update_preserve_and_clear():
+    for name, bangumi_id in [(bangumi_2, "2"), (bangumi_1, "1")]:
+        response = client.post(
+            "/api/admin/add", headers=headers, json={"bangumi": name, "display_name": "JOJO的奇妙冒险"}
+        )
+        assert response.status_code == 200, response.text
+        for extra in ({}, {"display_name": None}):
+            response = client.post("/api/admin/add", headers=headers, json={"bangumi": name, **extra})
+            assert response.status_code == 200, response.text
+            assert Followed.get(Followed.bangumi_name == name).display_name == "JOJO的奇妙冒险"
+
+        settings = client.get(f"/api/admin/filter/{quote(name)}", headers=headers)
+        assert settings.json()["display_name"] == "JOJO的奇妙冒险"
+        listing = client.get("/api/index/index").json()["data"]
+        assert next(item for item in listing if item["id"] == bangumi_id)["display_name"] == "JOJO的奇妙冒险"
+        with mock.patch("bgmi.front.routes.get_player", return_value={}) as player:
+            response = client.get(f"/api/player/{bangumi_id}")
+        assert response.json()["data"]["display_name"] == "JOJO的奇妙冒险"
+        assert player.call_args.kwargs["display_name"] == "JOJO的奇妙冒险"
+
+        response = client.post("/api/admin/add", headers=headers, json={"bangumi": name, "display_name": ""})
+        assert response.status_code == 200, response.text
+        followed = Followed.get(Followed.bangumi_name == name)
+        assert followed.display_name == ""
+        assert followed.bangumi_name == name
+    assert Followed.get(Followed.bangumi_name == bangumi_1).episodes == {1, 2}
+
+
+@pytest.mark.usefixtures("_ensure_data")
 def test_delete():
     r = client.post(
         "/api/admin/delete",
