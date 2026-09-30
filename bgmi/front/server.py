@@ -30,8 +30,8 @@ def main(address: str, port: int) -> None:
 def index_need_config(_: Request) -> HTMLResponse:
     return HTMLResponse(
         "<h1>BGmi HTTP Service</h1>"
-        "<pre>Please modify your web server configure file\n"
-        f"to server this path to '{cfg.save_path}'.\n"
+        "<pre>Please modify your web server configuration file\n"
+        f"to serve this path to '{cfg.save_path}'.\n"
         "e.g.\n\n"
         "...\n"
         "autoindex on;\n"
@@ -42,9 +42,19 @@ def index_need_config(_: Request) -> HTMLResponse:
         f"    alias {cfg.save_path.as_posix()}/;\n"
         "}\n"
         "...\n\n"
-        "If use want main to serve static files, please run this command and <strong>restart main</strong>\n"
+        "If you want main to serve static files, please run this command and <strong>restart main</strong>\n"
         "\n"
         "<code>bgmi config set http serve_static_files --value true</code></pre>"
+    )
+
+
+def index_need_frontend(_: Request) -> HTMLResponse:
+    return HTMLResponse(
+        "<h1>BGmi HTTP Service</h1>"
+        "<pre>BGmi Web UI static files not found.\n"
+        f"Target static directory: '{cfg.front_static_path.as_posix()}'.\n\n"
+        "Please run the following command to download and install BGmi frontend:\n\n"
+        "<code>bgmi install</code></pre>"
     )
 
 
@@ -59,12 +69,11 @@ def make_app(debug: bool = False) -> Starlette:
 
     if cfg.http.serve_static_files:
         print("will handle static files")
-        routes.extend(
-            [
-                Mount("/bangumi", app=StaticFiles(directory=cfg.save_path)),
-                Mount("/", app=StaticFiles(directory=cfg.front_static_path, html=True)),
-            ]
-        )
+        routes.append(Mount("/bangumi", app=StaticFiles(directory=cfg.save_path)))
+        if (cfg.front_static_path / "index.html").exists():
+            routes.append(Mount("/", app=StaticFiles(directory=cfg.front_static_path, html=True)))
+        else:
+            routes.append(Route("/", endpoint=index_need_frontend))
     else:
         routes.extend(
             [
