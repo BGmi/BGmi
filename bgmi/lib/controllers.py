@@ -103,7 +103,7 @@ def add(
             if resolved_display_name is not None:
                 followed_obj.display_name = resolved_display_name
             session.add(followed_obj)
-        elif followed_obj.status == Followed.STATUS_FOLLOWED:
+        elif followed_obj.status in (Followed.STATUS_FOLLOWED, Followed.STATUS_UPDATED):
             should_set_auto_display_name = auto_display_name is not None and not followed_obj.display_name
             if has_overrides or should_set_auto_display_name:
                 if season is not None:
