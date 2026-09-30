@@ -68,6 +68,13 @@ def parse_episodes(content, bangumi_id, subtitle_list=None) -> List[Episode]:
     result = []
     soup = BeautifulSoup(content, "html.parser")
     container = soup.find("div", class_="central-container")
+    if container is None and any(
+        str(tag.get("data-bangumiid")) == str(bangumi_id)
+        for tag in soup.select(".sk-bangumi span.greyout[data-bangumiid]")
+    ):
+        # Resource-less detail URLs redirect to the calendar. Only accept the
+        # matching grey entry as evidence; unexpected/error pages still fail.
+        return []
     assert isinstance(container, bs4.Tag), "Central container not found or not a Tag"
 
     episode_container_list = {}
@@ -142,14 +149,24 @@ def parser_day_bangumi(soup) -> List[WebsiteBangumi]:
     """
     li = []
     for s in soup.find_all("li"):
-        url = s.select_one("a")
+        url = s.select_one('a[href^="/Home/Bangumi/"][title]')
         span = s.find("span")
         if url:
             name = url["title"]
             url = url["href"]
             bangumi_id = url.split("/")[-1]
-            s.find("li")
             li.append(WebsiteBangumi(name=name, id=bangumi_id, cover=_COVER_URL + span["data-src"]))
+        else:
+            poster = s.select_one("span.greyout[data-bangumiid][data-src]")
+            title = s.select_one(".an-info .date-text[title]")
+            if poster is not None and title is not None:
+                li.append(
+                    WebsiteBangumi(
+                        name=title["title"],
+                        id=poster["data-bangumiid"],
+                        cover=_normalize_cover_url(poster["data-src"]),
+                    )
+                )
     return li
 
 
