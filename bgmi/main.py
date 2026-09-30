@@ -153,7 +153,10 @@ def config_get(keys: List[str]) -> None:
     res = doc
 
     for key in keys:
-        res = doc.get(key, {})
+        if not isinstance(res, Mapping):
+            res = {}
+            break
+        res = res.get(key, {})
 
     print("config", ".".join(keys), res)
 
