@@ -63,7 +63,7 @@ v5 是一次主要版本更新，重点是更可靠的单集追踪、更适合�
 - 下载番剧时的过滤器（支持关键词、字幕组和正则）。
 - 提供移动设备支持的 ICS 格式日历。
 - Bangumi Script：添加自己的番剧解析器。
-- MCP 支持：由 AI Agent 管理你的番剧列表。 
+- MCP 支持：由 AI Agent 管理你的番剧列表。
 
 
 
@@ -391,6 +391,14 @@ bgmi search '为美好的世界献上祝福！' --regex-filter '.*动漫国字�
 bgmi search 海贼王 --min-episode 800 --max-episode 820
 bgmi search 海贼王 --min-episode 800 --max-episode 820 --download
 ```
+
+使用 `--download-as` 指定下载归属的番剧名，而不改变搜索关键词。需与 `--download` 一起使用，下载记录和目录均使用指定名称：
+
+```bash
+bgmi search 'One Piece' --download --download-as '海贼王'
+```
+
+未指定 `--download-as` 时，保持原有的下载命名方式。
 
 `bgmi search` 命令默认不会显示重复的集数。如果要显示重复的集数来方便过滤，在命令后加上 `--dupe` 来显示全部搜索结果。
 
