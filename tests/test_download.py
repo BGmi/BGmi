@@ -12,7 +12,10 @@ from bgmi.website.model import Episode
 
 
 @pytest.mark.usefixtures("_clean_bgmi")
-def test_search_download(mock_download_driver: mock.Mock):
+@pytest.mark.parametrize("download_as", [None, "One Piece"])
+def test_search_download(mock_download_driver: mock.Mock, download_as):
+    with Session.begin() as session:
+        session.query(Download).delete()
     mock_website = mock.Mock()
     mock_website.search_by_keyword = mock.Mock(
         return_value=[
@@ -21,16 +24,34 @@ def test_search_download(mock_download_driver: mock.Mock):
         ]
     )
     with mock.patch("bgmi.lib.controllers.website", mock_website):
-        main_for_test("search 海贼王 --download".split())
+        args = ["search", "海贼王", "--download"]
+        if download_as:
+            args.extend(["--download-as", download_as])
+        main_for_test(args)
 
     mock_website.search_by_keyword.assert_called_once_with("海贼王", count=None)
 
     mock_download_driver.add_download.assert_has_calls(
         [
-            mock.call(url="magnet:mm", save_path=os.path.join(cfg.save_path, "海贼王", "3")),
-            mock.call(url="magnet:4", save_path=os.path.join(cfg.save_path, "海贼王", "4")),
+            mock.call(url="magnet:mm", save_path=os.path.join(cfg.save_path, download_as or "海贼王", "3")),
+            mock.call(url="magnet:4", save_path=os.path.join(cfg.save_path, download_as or "海贼王", "4")),
         ]
     )
+    with Session() as session:
+        downloads = session.query(Download).filter(Download.download.in_(["magnet:mm", "magnet:4"])).all()
+        assert len(downloads) == 2
+        assert {d.bangumi_name for d in downloads} == {download_as or "海贼王"}
+
+
+def test_search_download_as_without_download(mock_download_driver: mock.Mock):
+    with mock.patch("bgmi.lib.controllers.website") as website:
+        website.search_by_keyword.return_value = [
+            Episode(episode=3, download="magnet:mm", title="t 720p", name="keyword")
+        ]
+        main_for_test(["search", "keyword", "--download-as", "One Piece"])
+
+    website.search_by_keyword.assert_called_once_with("keyword", count=None)
+    mock_download_driver.add_download.assert_not_called()
 
 
 @pytest.mark.usefixtures("_clean_bgmi")
