@@ -1,8 +1,55 @@
 from unittest import mock
 
 import pytest
+import yarl
 
 from bgmi.website.mikan import Mikanani
+
+
+@pytest.mark.parametrize("method", ["search_by_keyword", "search_by_tag"])
+@pytest.mark.parametrize(
+    "link",
+    [
+        "magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567&tr=https://tracker.example/1"
+        "&tr=https://tracker.example/2&dn=old",
+        "https://example.com/episode.torrent?token=test&dn=old",
+    ],
+)
+def test_search_preserves_download_query_parameters(method, link):
+    title = "Test Show 01"
+    if method == "search_by_keyword":
+        pages = [
+            f"""
+            <table><tr class="js-search-results-row">
+              <td><a class="magnet-link-wrap">{title}</a>
+              <a class="magnet-link" data-clipboard-text="{link.replace('&', '&amp;')}"></a></td>
+              <td></td><td></td><td>2026/07/04 12:00</td>
+            </tr></table>
+        """
+        ]
+    else:
+        pages = [
+            '<a href="/Home/Bangumi/123"><div class="an-info-group">Test Show</div></a>',
+            '<div class="subgroup-text"><a href="/Home/PublishGroup/34">Group</a>'
+            '<a href="/RSS/Bangumi?bangumiId=123&amp;subgroupid=34">RSS</a></div>',
+            f"""<rss><channel><item><title>{title}</title>
+              <enclosure url="{link.replace('&', '&amp;')}"/>
+              <torrent xmlns="https://mikanani.me/0.1/"><pubDate>2026-07-04T12:00:00</pubDate></torrent>
+            </item></channel></rss>""",
+        ]
+
+    with mock.patch("bgmi.website.mikan.get_text", side_effect=pages):
+        episodes = getattr(Mikanani(), method)("keyword")
+
+    assert len(episodes) == 1
+    actual = yarl.URL(episodes[0].download)
+    original = yarl.URL(link)
+    assert actual.with_query(None) == original.with_query(None)
+    for key in original.query:
+        if key != "dn":
+            assert actual.query.getall(key) == original.query.getall(key)
+    assert actual.query.getall("dn") == [title]
+
 
 MIKAN_BANGUMI_HTML = """
 <div class="pull-left leftbar-container">

@@ -373,7 +373,7 @@ class Mikanani(BaseWebsite):
 
                 result.append(
                     Episode(
-                        download=str(yarl.URL(link).with_query({"dn": title})),
+                        download=str(yarl.URL(link).update_query({"dn": title})),
                         name=animate_name,
                         title=title,
                         subtitle_group=subtitle_group,
@@ -395,7 +395,7 @@ class Mikanani(BaseWebsite):
             u = yarl.URL(tr.find("a", class_="magnet-link").attrs.get("data-clipboard-text", ""))
             result.append(
                 Episode(
-                    download=str(u.with_query({"dn": title})),
+                    download=str(u.update_query({"dn": title})),
                     name=keyword,
                     title=title,
                     episode=self.parse_episode(title),
