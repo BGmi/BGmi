@@ -222,7 +222,7 @@ def check_update(mark: bool = True) -> None:
         pass
 
 
-_separator_episode_pattern = re.compile(r"[★☆](?:第\s*)?(?P<episode>0*[1-9]\d{0,2})(?=[\s(（)）\]】★☆_.])")
+_separator_episode_pattern = re.compile(r"[★☆](?:第\s*)?(?P<episode>0*[1-9]\d{0,2})(?=[\s(（)）\]】★☆_.]|$)")
 _bracketed_release_year_pattern = re.compile(r"[\[【(（]\s*(?:19|20)\d{2}\s*[\]】)）]")
 
 

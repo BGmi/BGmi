@@ -58,6 +58,9 @@ _episode_cases: List[Tuple[str, int]] = [
     ),
     ("[银色子弹字幕组][名侦探柯南][第1068集 圆谷光彦的侦探笔记][简日双语MP4][1080P]", 1068),
     ("[银色子弹字幕组][名侦探柯南][第1071集 工藤优作的推理秀（前篇）][简日双语MP4][1080P]", 1071),
+    # separator-marked episode at end of string (no trailing delimiter)
+    ("Show Title ☆12", 12),
+    ("Show Title ★05", 5),
 ]
 
 
