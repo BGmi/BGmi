@@ -147,6 +147,11 @@ class Config(BaseSetting):
         validate_default=True,
     )  # type: ignore
 
+    mikan_url: HttpUrl = Field(
+        HttpUrl(os.getenv("BGMI_MIKAN_URL") or "https://mikanani.me"),
+        description="Setting mikan url",
+        validate_default=True,
+    )
     mikan_username: str = os.getenv("BGMI_MIKAN_USERNAME") or ""
     mikan_password: str = os.getenv("BGMI_MIKAN_PASSWORD") or ""
 

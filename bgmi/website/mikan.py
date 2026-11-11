@@ -17,14 +17,14 @@ from bgmi.utils import parse_episode, print_info
 from bgmi.website.base import BaseWebsite
 from bgmi.website.model import Episode, SubtitleGroup, WebsiteBangumi
 
-server_root = "https://mikanani.me/"
+server_root = str(cfg.mikan_url).rstrip("/") + "/"
 login_url = f"{server_root}Account/Login"
 REQUEST_TIMEOUT = 30
 
 _COVER_URL = server_root[:-1]
 
 # Example: /Home/ExpandEpisodeTable?bangumiId=2242&subtitleGroupId=34&take=65
-bangumi_episode_expand_api = "https://mikanani.me/Home/ExpandEpisodeTable"
+bangumi_episode_expand_api = f"{server_root}Home/ExpandEpisodeTable"
 
 _BACKGROUND_IMAGE_PATTERN = re.compile(r"url\([\"']?(?P<url>.*?)[\"']?\)")
 
