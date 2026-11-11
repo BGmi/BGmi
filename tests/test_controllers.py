@@ -170,6 +170,29 @@ def test_add_can_mark_currently_available_episodes():
     assert Followed.get(Followed.bangumi_name == name).episodes == {1, 2, 3}
 
 
+def test_add_preserves_seen_episodes_after_same_day_update():
+    recreate_source_relatively_table()
+    name = "葬送的芙莉莲"
+    seen_episodes = {2, 5, 8}
+    with Session.begin() as tx:
+        tx.add(Bangumi(id="frieren-s2", name=name, update_day="Fri"))
+        tx.add(
+            Followed(
+                bangumi_name=name,
+                episodes=seen_episodes,
+                status=Followed.STATUS_UPDATED,
+                updated_time=int(datetime.datetime.now().timestamp()),
+            )
+        )
+
+    result = ctl.add(name)
+
+    assert result["status"] == "warning", result["message"]
+    followed = Followed.get(Followed.bangumi_name == name)
+    assert followed.status == Followed.STATUS_UPDATED
+    assert followed.episodes == seen_episodes
+
+
 def test_add_auto_display_name_from_season_suffix():
     recreate_source_relatively_table()
     name = "相反的你和我 第二季"
