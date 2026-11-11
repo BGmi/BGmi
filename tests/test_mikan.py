@@ -1,9 +1,46 @@
+import os
+import subprocess
+import sys
 from unittest import mock
 
 import pytest
 import yarl
 
 from bgmi.website.mikan import Mikanani
+
+
+@pytest.mark.parametrize("url", ["https://mirror.example", "http://mirror.example/"])
+@pytest.mark.parametrize("source", ["config", "env"])
+def test_custom_mikan_url(tmp_path, url, source):
+    env = {**os.environ, "BGMI_PATH": str(tmp_path), "BGMI_MIKAN_URL": "https://env.example"}
+    if source == "config":
+        (tmp_path / "config.toml").write_text(f'mikan_url = "{url}"\n', encoding="utf-8")
+    else:
+        env["BGMI_MIKAN_URL"] = url
+
+    # Import in a fresh process: config, scraper URLs and adapters initialize at startup.
+    script = """
+import sys
+from unittest import mock
+from bs4 import BeautifulSoup
+from bgmi.config import cfg
+from bgmi.session import session
+from bgmi.website import mikan
+
+root = sys.argv[1].rstrip("/") + "/"
+assert str(cfg.mikan_url) == root
+assert mikan.server_root == root
+assert mikan.login_url == root + "Account/Login"
+assert mikan.bangumi_episode_expand_api == root + "Home/ExpandEpisodeTable"
+assert session.get_adapter(root).max_retries.total == 3
+with mock.patch.object(mikan, "get_text", return_value="") as get_text:
+    assert mikan.Mikanani().search_by_keyword("test") == []
+    get_text.assert_called_once_with(root + "Home/Search", params={"searchstr": "test"})
+html = '<ul><li><span data-src="/images/cover.jpg"></span><a href="/Home/Bangumi/1" title="Test"></a></li></ul>'
+assert mikan.parser_day_bangumi(BeautifulSoup(html, "html.parser"))[0].cover == root.rstrip("/") + "/images/cover.jpg"
+assert mikan._normalize_cover_url("/images/cover.jpg?width=400") == root.rstrip("/") + "/images/cover.jpg"
+"""
+    subprocess.run([sys.executable, "-c", script, url], env=env, check=True)
 
 
 @pytest.mark.parametrize("method", ["search_by_keyword", "search_by_tag"])
